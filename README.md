@@ -47,7 +47,7 @@
 
 ## **Purpose and Objectives** <a href="#purpose-and-objectives" id="purpose-and-objectives"></a>
 
-This policy reaffirms and formalizes the bank’s realization of and respect for the privacy expectations and rights of our customers regarding financial information and other related information, which the bank has or gathers in the normal course of business. It is intended to provide guidance to bank personnel with respect to the physical safeguarding of information, as well as assurance to our customers. The rules apply only to information about individuals who obtain financial products or services to be used for personal, family or household purposes. Therefore, the rules do not apply to information about businesses, corporations, partnerships or similar entities or about individuals who obtain financial products or services for business purposes. Attempts to identify all customers or signers will be made prior to release of information. We will also, of course, act in compliance with all applicable laws and regulations.
+This policy reaffirms and formalizes the bank’s realization of and respect for the privacy expectations and rights of our customers regarding financial information and other related information, which the bank has or gathers in the normal course of business. It is intended to provide guidance to bank personnel with respect to the physical safeguarding of information, as well as assurance to our customers. The rules apply only to information about individuals. Therefore, the rules do not apply to information about businesses, corporations, partnerships or similar entities. Attempts to identify all customers or signers will be made prior to release of information. We will also, of course, act in compliance with all applicable laws and regulations.
 
 This policy applies to:
 
@@ -109,6 +109,10 @@ Non-Public Personal Information  is protected both for consumers and customers a
 ## **Responsibility** <a href="#responsibility" id="responsibility"></a>
 
 The Board of Directors has the ultimate responsibility to appropriately establish and maintain this policy and assure that it is being observed in the daily operations of the bank. The VP- Compliance, BSA & Security is responsible for carrying out this policy and making recommendations to the Board of Directors as to necessary or desirable changes to the policy.
+
+## **Privacy Requests** <a href="#privacy-principles" id="privacy-principles"></a>
+
+**When individuals request information about themselves, whether in writing or verbally, it is considered a privacy request. These requests should be logged and forwarded to the Privacy Officer \[or whomever is in charge of responding to privacy requests].**
 
 ## **Privacy Principles** <a href="#privacy-principles" id="privacy-principles"></a>
 
