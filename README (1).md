@@ -218,10 +218,6 @@ The VP Compliance, BSA & Security will make an annual report, or more frequent, 
 
 The Board of Directors will conduct a review of this policy at least once each year and make any revisions and amendments it deems appropriate. The VP- Compliance, BSA & Security will be responsible for suggesting more frequent revisions as situations or changes in laws or regulations dictate.
 
-##
-
-##
-
 ## **Exhibit A - Bank Privacy Notice** <a href="#exhibit-a---bank-privacy-notice" id="exhibit-a---bank-privacy-notice"></a>
 
 | FACTS | WHAT DOES BANK DO WITH YOUR PERSONAL INFORMATION?                                                                                                                                                                                                                                                                                                |
