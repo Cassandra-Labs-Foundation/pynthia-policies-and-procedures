@@ -263,3 +263,96 @@ National Institute of Standards and Technology (NIST). Special Publication 800-5
       
    **Internet of Things (IOT) and Mobile Device Security**: IOT devices and mobile devices connected to CU networks must comply with all security measures.   
 ```
+
+## Credit Union Information Security Policy
+
+### Table of Contents
+
+* General Policy Statement
+* Program Responsibility
+  * Board & Management
+* Risk Management
+  * Assessment
+  * Controls
+* Security Measures
+  * Physical Facilities
+  * Access Security
+  * Internal Security
+* Incident Response
+* Program Review
+* Additional Policies
+  * Vendor Management
+  * Social Media
+  * Emerging Tech
+
+### Table of Contents
+
+*
+
+
+
+### General Policy Statement
+
+(Credit Union) is committed to safeguarding member information by ensuring confidentiality, integrity, and security. The Credit Union complies with applicable laws, including NCUA Guidelines for Safeguarding Member Information.
+
+### Program Responsibility
+
+#### Board & Management
+
+* **Board Responsibility:** Approves the Information Security Policy.
+* **Management Responsibility:** Develops and maintains the Information Security Program and ensures resource allocation.
+
+### Risk Management
+
+#### Assessment
+
+* Conducts risk assessment annually.
+* Adjusts assessments based on technological changes and threats.
+
+#### Controls
+
+* Ongoing analysis of controls to prevent, detect, and respond to risks.
+* Engages in regular vulnerability testing.
+
+### Security Measures
+
+#### Physical Facilities
+
+* Controls and monitors access to sensitive areas.
+* Implements environmental protections.
+
+#### Access Security
+
+* Classifies member information as nonpublic.
+* Enforces strict password policies and access controls.
+
+#### Internal Security
+
+* Follows encryption standards.
+* Conducts employee training on cybersecurity risks.
+
+### Incident Response
+
+* Compiles and tests contingency plans annually.
+* Responds promptly to incidents and notifies affected parties.
+
+### Program Review
+
+* Reviews and updates program following vulnerability tests.
+* Engages third-party testing for validation.
+
+### Additional Policies
+
+#### Vendor Management
+
+* Requires service providers to comply with security measures.
+
+#### Social Media
+
+* Employees must adhere to the Social Media Policy.
+
+#### Emerging Tech
+
+* Secures AI, IoT, and mobile devices against cybersecurity threats.
+
+Approval and responsibility for this policy lie with the Board and relevant committees to ensure comprehensive risk management and compliance with regulatory guidelines.
