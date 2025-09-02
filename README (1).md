@@ -1,50 +1,5 @@
 # Privacy
 
-\
-[Purpose and Objectives 3](<README (1).md#purpose-and-objectives>)
-
-[Definitions 3](<README (1).md#definitions>)
-
-[Responsibility 5](<README (1).md#responsibility>)
-
-[Privacy Principles 5](<README (1).md#privacy-principles>)
-
-[Recognition of Customer’s Expectation of Privacy 5](<README (1).md#recognition-of-customer’s-expectation-of-privacy>)
-
-[Standards of the Administrative, Technical & Physical Safeguards of Customer Information 5](<README (1).md#standards-of-the-administrative,-technical-&-physical-safeguards-of-customer-information>)
-
-[Use, Collection and Retention of Consumer Information 5](<README (1).md#use,-collection-and-retention-of-consumer-information>)
-
-[Maintenance of Accurate Information 5](<README (1).md#maintenance-of-accurate-information>)
-
-[Limitation on Employee Access 6](<README (1).md#limitation-on-employee-access>)
-
-[Protection of Information 6](<README (1).md#protection-of-information>)
-
-[Access of information by customers or consumers 7](<README (1).md#access-of-information-by-customers-or-consumers>)
-
-[General Restriction on the Disclosure of Customer Information 7](<README (1).md#general-restriction-on-the-disclosure-of-customer-information>)
-
-[Incident Response Procedures 7](<README (1).md#incident-response-procedures>)
-
-[Business Relationships with Third Parties 7](<README (1).md#business-relationships-with-third-parties>)
-
-[Disclosure of Privacy Principles to Customers 7](<README (1).md#disclosure-of-privacy-principles-to-customers>)
-
-[Requests 7](<README (1).md#requests>)
-
-[Website 8](<README (1).md#website>)
-
-[Exceptions to the Opt Out Requirements for Service Providers and Joint Marketing 8](<README (1).md#exceptions-to-the-opt-out-requirements-for-service-providers-and-joint-marketing>)
-
-[Exceptions to the Opt Out Requirements for Processing and Servicing Transactions 8](<README (1).md#exceptions-to-the-opt-out-requirements-for-processing-and-servicing-transactions>)
-
-[Other Exceptions to Notice and Opt Out Requirements 8](<README (1).md#other-exceptions-to-notice-and-opt-out-requirements>)
-
-[Employee Education and Training 9](<README (1).md#employee-education-and-training>)
-
-[Record Keeping and Reporting 9](<README (1).md#record-keeping-and-reporting>)
-
 ## **Purpose and Objectives** <a href="#purpose-and-objectives" id="purpose-and-objectives"></a>
 
 This policy reaffirms and formalizes the bank’s realization of and respect for the privacy expectations and rights of our customers regarding financial information and other related information, which the bank has or gathers in the normal course of business. It is intended to provide guidance to bank personnel with respect to the physical safeguarding of information, as well as assurance to our customers. The rules apply only to information about individuals. Therefore, the rules do not apply to information about businesses, corporations, partnerships or similar entities. Attempts to identify all customers or signers will be made prior to release of information. We will also, of course, act in compliance with all applicable laws and regulations.
