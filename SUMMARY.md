@@ -1,6 +1,7 @@
 # Table of contents
 
-* [Privacy](README.md)
+* [Rulebook](README.md)
+* [Privacy](<README (1).md>)
 * [AML/CFT](aml-cft.md)
 * [Compliance](compliance.md)
 * [Cybersecurity](cybersecurity.md)
