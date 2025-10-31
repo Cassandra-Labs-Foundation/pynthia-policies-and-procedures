@@ -1,182 +1,259 @@
 # Customer Due Diligence
 
-#### Placeholders to fill
-
-\{{Primary\_KYC\_Vendor\_Name\}}, \{{Secondary\_Data\_Providers\}}, \{{Program\_Manager\_1\}}, \{{Program\_Manager\_2\}}, \{{Risk\_Appetite\_Summary\}}, \{{Hard\_Threshold\}}, \{{High\_Risk\_Industries\_List\}}, \{{Sanctions\_List\_Provider\}}, \{{Adverse\_Media\_Provider\}}, \{{Review\_Frequencies\}}.
-
-If you want, I can tune this for your exact vendors/partners and drop in an Appendix C checklist + calendar with your real SLAs and models.
-
-#### Patrick's Requirements
-
-* [ ] Governance
-* [ ] Scope
-* [ ] Who is it outsourced to?&#x20;
-* [ ] What are our policies to review the third party?&#x20;
-* [ ] When does ECDD apply?&#x20;
-* [ ] What are your rejection limits?&#x20;
-* [ ] Who is responsible for reporting breaches?&#x20;
-* [ ] What's the review cadence?&#x20;
-
-Awesome — here’s a first-cut, board-ready CDD policy for Pynthia that’s tight, complete, and easy to expand later. I included short footnotes with primary sources.
+> **General Policy Statement** \{{ORGANIZATION\}} maintains a risk-based CDD program that meets 12 CFR §748.2 (NCUA) and FinCEN’s CDD/CIP rules under 31 CFR Parts 1010 and 1020. We understand the nature and purpose of member relationships, establish and update risk profiles, identify and verify customers (including beneficial owners of legal entities), screen against sanctions and adverse media, monitor activity, escalate higher-risk cases to ECDD, oversee third parties, and retain records per regulation. Scope includes all products, channels (including non-face-to-face), and BaaS/program-manager flows. Supervisory expectations are aligned to the **FFIEC BSA/AML Manual** and **Interagency Third-Party Risk Management guidance**. (See the **Authority Table** below.)
 
 ***
 
-## Pynthia Credit Union — Customer Due Diligence (CDD) Policy
+## Multi-Rule Authority Table <a href="#authority" id="authority"></a>
 
-### 1) Purpose & Authority
+| Topic                                                       | Scope                                                    | Key Clauses / Notes                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ----------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **NCUA Safety & Soundness / BSA Program**                   | Federally insured credit unions                          | **12 CFR §748.2** (written BSA program; board approval); **Appendix B to Part 748** (member notice guidance); **§748.1(c)** (72-hour cyber incident notification). [12 CFR §748.2](https://www.ecfr.gov/current/title-12/part-748#p-748.2) · [Appendix B](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20B%20to%20Part%20748) · [§748.1(c)](https://www.ecfr.gov/current/title-12/part-748#p-748.1%28c%29) |
+| **FinCEN AML Program (Banks)**                              | Bank AML framework                                       | **31 CFR §1020.210** (risk-based AML program + ongoing CDD). [31 CFR §1020.210](https://www.ecfr.gov/current/title-31/part-1020#p-1020.210)                                                                                                                                                                                                                                                                                    |
+| **CIP (Identity Verification)**                             | All customers                                            | **31 CFR §1020.220** (CIP: identifying information; documentary/non-documentary verification; recordkeeping). [31 CFR §1020.220](https://www.ecfr.gov/current/title-31/part-1020#p-1020.220)                                                                                                                                                                                                                                   |
+| **CDD/Beneficial Ownership**                                | Legal-entity customers                                   | **31 CFR §1010.230** (beneficial owner(s) ≥25% + one control person; collection & verification). [31 CFR §1010.230](https://www.ecfr.gov/current/title-31/part-1010#p-1010.230)                                                                                                                                                                                                                                                |
+| **SAR Timing (for reference)**                              | Suspicious activity filing                               | **31 CFR §1020.320** (30 days from initial detection; 60 days if no suspect identified). [31 CFR §1020.320](https://www.ecfr.gov/current/title-31/part-1020#p-1020.320)                                                                                                                                                                                                                                                        |
+| **FFIEC BSA/AML Manual (Supervisory Guidance)**             | Risk-based CDD program expectations                      | CDD objectives (nature/purpose, risk profiles, ongoing monitoring), risk rating, non-face-to-face, high-risk categories, management reporting, independent testing, training. _(Guidance—used to shape controls and examinations.)_                                                                                                                                                                                            |
+| **Interagency Third-Party Risk Management (TPRM) Guidance** | Life-cycle oversight of vendors/fintech/program managers | Principles for planning, due diligence, contracting, ongoing monitoring, and termination. Roles/responsibilities and board reporting. _(Guidance—applied to CD-10 oversight controls.)_                                                                                                                                                                                                                                        |
 
-This policy establishes the Customer Due Diligence (CDD) standards for **Pynthia Credit Union** (“Pynthia”). It implements and supports Pynthia’s BSA/AML Program and Customer Identification Program (CIP) and applies to all onboarding and ongoing relationship-management activities across products, partners, and channels.
-
-**Authority (summary):**
-
-* **NCUA 12 CFR Part 748** requires a written, board-approved BSA program and related security/incident practices. ([eCFR](https://www.ecfr.gov/current/title-12/chapter-VII/subchapter-A/part-748/section-748.2?utm_source=chatgpt.com))
-* **FinCEN 31 CFR 1020.210** requires appropriate, risk-based procedures for **ongoing CDD** (understanding nature/purpose; member risk profiles). ([eCFR](https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X/part-1020/subpart-B/section-1020.210?utm_source=chatgpt.com))
-* **FinCEN 31 CFR 1020.220** sets CIP requirements (identity verification, risk-based procedures). ([eCFR](https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X/part-1020/subpart-B/section-1020.220?utm_source=chatgpt.com))
-* **FinCEN 31 CFR 1010.230** requires **beneficial ownership** identification/verification for legal-entity members. ([eCFR](https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X/part-1010/subpart-B/section-1010.230))
-* **NCUA Cyber Incident Notification**: report “reportable cyber incidents” to NCUA **within 72 hours** and follow Appendix B member-notice guidance. ([NCUA](https://ncua.gov/regulation-supervision/letters-credit-unions-other-guidance/cyber-incident-notification-requirements?utm_source=chatgpt.com))
-
-> **Note on CTA/BOI:** FinCEN’s March 26, 2025 interim final rule narrowed Corporate Transparency Act reporting to foreign reporting companies. This does **not** change financial-institution obligations under **31 CFR 1010.230** to collect beneficial ownership from legal-entity members. ([Federal Register](https://www.federalregister.gov/documents/2025/03/26/2025-05199/beneficial-ownership-information-reporting-requirement-revision-and-deadline-extension))
-
-### 2) Governance
-
-* **Ownership:** The **BSA/AML Officer** owns this policy, ensures implementation, and reports to senior management and the Board Risk Committee. The **Board** approves the policy at least annually and receives regular CDD reporting. ([FFIEC BSA/AML](https://bsaaml.ffiec.gov/manual/AssessingTheBSAAMLComplianceProgram/04?utm_source=chatgpt.com))
-* **The Four Pillars (+CDD):** Internal controls, independent testing, designated BSA Officer, training, **and** risk-based ongoing CDD per 31 CFR 1020.210. ([eCFR](https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X/part-1020/subpart-B/section-1020.210?utm_source=chatgpt.com))
-* **Escalation:** Material CDD issues → BSA/AML Officer → Management Risk Committee → Board.
-* **Coverage:** Business lines, operations, information security, vendor management, and program-manager partners are accountable for compliance; Pynthia remains ultimately responsible.
-
-### 3) Scope
-
-Applies to all members (consumers, SMBs), products (deposits, cards, payments), channels (including non-face-to-face), and **BaaS partner** flows where onboarding occurs on Pynthia’s behalf. Interfaces with CIP/KYB, sanctions screening, fraud risk, SAR/CTR processes, vendor management, and incident response. ([FFIEC BSA/AML](https://bsaaml.ffiec.gov/manual?utm_source=chatgpt.com))
-
-### 4) Definitions (selected)
-
-* **CDD:** Processes to understand the **nature and purpose** of the relationship, develop/update **member risk profiles**, and conduct **ongoing monitoring**. ([FFIEC BSA/AML](https://bsaaml.ffiec.gov/manual/AssessingComplianceWithBSARegulatoryRequirements/02_ep?utm_source=chatgpt.com))
-* **ECDD:** Enhanced CDD applied to higher-risk members, activities, products, geographies, or conditions.
-* **Beneficial Owner (Legal Entities):** Any individual owning **≥25%** equity **and** one control party (significant responsibility). ([eCFR](https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X/part-1010/subpart-B/section-1010.230))
-* **Program Manager:** A third party that markets, onboards, or services members on Pynthia’s behalf under BaaS arrangements.
-
-### 5) Risk-Based CDD Standards
-
-**At onboarding (all members):**
-
-* Collect sufficient information to understand the **nature/purpose** of the relationship and establish an **initial risk profile** (expected activity, funding sources, products, geographies, occupation/NAICS, anticipated volumes).
-* **CIP** identity verification (risk-based, documentary/non-documentary), list screening (OFAC/sanctions), and fraud controls. ([Legal Information Institute](https://www.law.cornell.edu/cfr/text/31/1020.220?utm_source=chatgpt.com))
-* **Legal entities:** Collect and **verify** beneficial owner(s) and control person per **1010.230**. ([eCFR](https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X/part-1010/subpart-B/section-1010.230))
-
-**Ongoing:**
-
-* Monitor activity vs. expected profile; investigate deviations.
-* Refresh member information on a **risk-based** cadence and upon triggers (alerts, KYC friction, ownership changes, sanctions/adverse-media hits, program changes). ([FFIEC BSA/AML](https://bsaaml.ffiec.gov/manual/AssessingComplianceWithBSARegulatoryRequirements/02_ep?utm_source=chatgpt.com))
-
-### 6) When Enhanced CDD (ECDD) Applies — Triggers & Actions
-
-Apply ECDD when one or more triggers exist. For each trigger, gather additional information, verify independently where feasible, escalate approvals as defined, and increase monitoring/refresh frequency.
-
-| **Trigger**                                                                  | **What we get/do (examples)**                                                                   | **Review cadence / approvals**              |
-| ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------- |
-| Politically Exposed Person (PEP) or high-risk public profile                 | Senior management occupation details; source of wealth; source of funds; enhanced adverse-media | Quarterly review; BSA Officer approval      |
-| High-risk geography (member, UBO, counterparties, or IP), cross-border wires | Purpose of cross-border activity; corridors; expected volumes; correspondent paths              | Quarterly; BSA Officer                      |
-| Cash-intensive business, MSB, crypto-exposed activity                        | Licenses/registrations; program flow; wallet/exchange relationships                             | Quarterly; BSA Officer                      |
-| Complex ownership (trusts, layered entities)                                 | Organizational charts; control documentation; legal opinions as needed                          | Semiannual; BSA Officer                     |
-| Non-face-to-face with weak identity assurance                                | Additional verification; liveness/biometric or reliable third-party data                        | Quarterly; Ops + BSA                        |
-| Adverse media or sanctions proximity/false positives                         | Documentary rebuttal; manual review; senior sign-off                                            | As events occur; BSA                        |
-| Program-manager onboarding anomalies (high friction, high override rate)     | File/decision sampling; model back-testing; vendor RCA and fixes                                | Monthly until stabilized; BSA + Vendor Mgmt |
-
-_(Customize with \{{Additional\_ECDD\_Triggers\}} as needed.)_\
-**Standards reference:** FFIEC CDD procedures and FinCEN CDD rule. ([FFIEC BSA/AML](https://bsaaml.ffiec.gov/manual/AssessingComplianceWithBSARegulatoryRequirements/02_ep?utm_source=chatgpt.com))
-
-### 7) Rejection & Exit Limits
-
-Use consistent, risk-based thresholds. At minimum:
-
-| **Decision**            | **Examples**                                                                                                                                                                                                        |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Hard decline**        | Sanctions match; unresolved identity; refusal to provide/verify **beneficial owners**; prohibited industries per \{{High\_Risk\_Industries\_List\}}; confirmed fraud; model risk score > **\{{Hard\_Threshold\}}**. |
-| **Conditional approve** | Elevated risk mitigated by lower limits, restricted features, or enhanced monitoring; clear documented rationale and timeline to graduate or exit.                                                                  |
-| **Exit/Offboarding**    | Sustained non-cooperation; repeated SAR-related behavior; data integrity failures; vendor inability to meet SLAs creating unmitigated risk.                                                                         |
-
-(See Appendix B for the decision flow.)
-
-### 8) Outsourcing & Third-Party Oversight (KYC/KYB Vendors & Program Managers)
-
-Pynthia may **outsource execution** (e.g., identity proofing, KYB data, risk modeling, onboarding flows) to **\{{Primary\_KYC\_Vendor\_Name\}}** and **\{{Program\_Manager\_1\}}/\{{Program\_Manager\_2\}}**, but **retains full accountability** for BSA/AML compliance.
-
-**Minimum controls (life-cycle):**
-
-* **Pre-contract due diligence:** Capabilities/data sources, model documentation and validation approach, accuracy/bias metrics, _match logic & thresholds_, watchlist providers, SOC 2/ISO 27001, privacy/GLBA safeguards, BCP/DR, subcontractor management, financial condition, regulatory posture.
-* **Contracts:** Clear roles; SLAs/KPIs; audit/exam rights; data retention/deletion; security & incident-notice within contractual timelines to meet NCUA **72-hour** rule; termination/transition; human-in-the-loop/override rights. ([NCUA](https://ncua.gov/regulation-supervision/letters-credit-unions-other-guidance/cyber-incident-notification-requirements?utm_source=chatgpt.com))
-* **Ongoing monitoring:** Quarterly KPI/SLA reviews; model back-testing & drift monitoring; annual independent audits or certifications; periodic control walk-throughs; issue management with documented corrective actions; **right to override** vendor outcomes.
-* **Alignment to guidance:** Follow NCUA third-party expectations and **interagency third-party risk** principles (planning → due diligence → contracting → ongoing monitoring → termination). ([NCUA](https://ncua.gov/regulation-supervision/letters-credit-unions-other-guidance/evaluating-third-party-relationships?utm_source=chatgpt.com))
-
-**Who is it outsourced to?** Maintain a current register of vendors and program managers (scope, data used, decision rights, and points of contact), including **\{{Primary\_KYC\_Vendor\_Name\}}**, **\{{Secondary\_Data\_Providers\}}**, **\{{Program\_Manager\_1\}}**, **\{{Program\_Manager\_2\}}**. _(Appendix C template.)_
-
-**Review cadence:** Vendor KYC stack **quarterly** (KPIs) and **annually** (comprehensive review); program-manager **quarterly** control reviews and **annual** onsite/virtual assessments at minimum. _(Adjust by risk.)_ ([Federal Register](https://www.federalregister.gov/documents/2023/06/09/2023-12340/interagency-guidance-on-third-party-relationships-risk-management?utm_source=chatgpt.com))
-
-### 9) Breach/Incident Reporting Responsibilities
-
-* **Rapid triage & containment** by InfoSec and the vendor/program manager; immediate notification to the BSA/AML Officer and CISO.
-* **NCUA reporting:** If a **reportable cyber incident** occurs (or third-party notification indicates one), Pynthia notifies NCUA **as soon as possible, no later than 72 hours** from reasonable belief or third-party notice (whichever is sooner). ([NCUA](https://ncua.gov/regulation-supervision/letters-credit-unions-other-guidance/cyber-incident-notification-requirements?utm_source=chatgpt.com))
-* **Member notification:** Follow **Appendix B to Part 748** (risk assessment; clear, conspicuous notice where warranted). ([eCFR](https://www.ecfr.gov/current/title-12/chapter-VII/subchapter-A/part-748/appendix-Appendix%20B%20to%20Part%20748?utm_source=chatgpt.com))
-* **SAR/other filings:** AML Investigations determines SAR need and coordinates with Legal/Compliance. Document incident details, impacts, and corrective actions. ([FFIEC BSA/AML](https://bsaaml.ffiec.gov/manual/AssessingComplianceWithBSARegulatoryRequirements/02_ep?utm_source=chatgpt.com))
-
-**Roles:**
-
-* **Responsible for reporting breaches:** **CISO** (incident to NCUA with Compliance support); **BSA/AML Officer** (BSA/SAR matters); **Vendor Manager** ensures third-party notifications per contract.
-
-### 10) Recordkeeping & Retention
-
-* Maintain CDD/CIP/beneficial-ownership records in retrievable form.
-* **Retention:** Five (5) years for records required under the BSA; identity-verification records kept per CIP rule (generally five years after account closure for certain identity records). ([eCFR](https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X/part-1010/subpart-D/section-1010.430?utm_source=chatgpt.com))
-
-### 11) Quality Assurance, Metrics & Review Cadence
-
-* **QA sampling:** Periodic sampling of onboarding and refresh files; verify data quality, evidence of nature/purpose, beneficial ownership, and approvals.
-* **Model/decisioning QA:** Back-testing and drift monitoring on vendor/program-manager systems; align changes with change-management.
-* **KRIs/KPIs (examples):** CDD cycle time; % high-risk members with timely ECDD; rejection rate and reasons; alert-to-SAR conversion; vendor SLA adherence; false-positive/false-negative rates on identity models; % files with current BO.
-* **Cadence:**
-  * **Quarterly** management reviews (metrics; issues; remediation).
-  * **Annual** policy review and **Board** re-approval.
-  * **Annual** independent test of BSA/AML (scope includes CDD). ([Published Guides](https://publishedguides.ncua.gov/examiner/Content/ExaminersGuide/RegulatoryCompliance/BSA/ExamProcedures/BSAPoliciesProcedures.htm?utm_source=chatgpt.com))
-  * **Risk-based** vendor and program-manager reviews (minimum **annual**; more frequent for critical/high-risk). ([Federal Register](https://www.federalregister.gov/documents/2023/06/09/2023-12340/interagency-guidance-on-third-party-relationships-risk-management?utm_source=chatgpt.com))
-
-### 12) Roles & Responsibilities (summary)
-
-* **Board:** Approves policy; receives reports.
-* **BSA/AML Officer:** Policy owner; ECDD decisions; SAR oversight; reporting.
-* **First Line (Ops/Onboarding/Program Managers):** Execute CIP/CDD; collect & maintain data; implement controls.
-* **Vendor Management:** Due diligence, contracting, monitoring, issue remediation.
-* **InfoSec/CISO:** Security controls; incident response; NCUA 72-hour notice coordination.
-* **Internal Audit/Independent Testing:** Risk-based, at least annually.
-
-### 13) Appendices (editable templates)
-
-**Appendix A — ECDD Trigger → Action Matrix**
-
-* Table with Trigger, Additional Info, Verification Method, Approval Level, Review Frequency.
-
-**Appendix B — Rejection & Exit Decision Flow**
-
-* Decision tree: Screening hit? Identity unresolved? High risk unmitigated? SAR behavior? → Decline / Conditional / Exit with approvals.
-
-**Appendix C — Third-Party Oversight Checklist & Review Calendar**
-
-* Planning; due diligence; contracting (security, SLAs, audit rights, data rights); ongoing monitoring; issue mgmt; termination plans.
-
-**Appendix D — Authority Mapping**
-
-* Regulation/Citation → Where addressed in policy.
+> **Linking note:** Statutes/regs above link to eCFR as authoritative sources. FFIEC/Interagency items are supervisory guidance (no statutory links required here).
 
 ***
 
-### Footnotes / References
+## Timing Matrix <a href="#timing-matrix" id="timing-matrix"></a>
 
-1. **12 CFR Part 748 (NCUA)** — written, board-approved BSA program; security/incident obligations. ([eCFR](https://www.ecfr.gov/current/title-12/chapter-VII/subchapter-A/part-748/section-748.2?utm_source=chatgpt.com))
-2. **FinCEN 31 CFR 1020.210** — AML program must include appropriate risk-based **ongoing CDD** (nature/purpose; risk profiles). ([eCFR](https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X/part-1020/subpart-B/section-1020.210?utm_source=chatgpt.com))
-3. **FinCEN 31 CFR 1020.220** — CIP requirements, risk-based identity verification. ([eCFR](https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X/part-1020/subpart-B/section-1020.220?utm_source=chatgpt.com))
-4. **FinCEN 31 CFR 1010.230** — Beneficial ownership requirements for legal-entity customers (≥25% ownership + one control individual). ([eCFR](https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X/part-1010/subpart-B/section-1010.230))
-5. **FFIEC BSA/AML Manual (CDD)** — nature/purpose, risk profiles, ongoing monitoring exams. ([FFIEC BSA/AML](https://bsaaml.ffiec.gov/manual/AssessingComplianceWithBSARegulatoryRequirements/02_ep?utm_source=chatgpt.com))
-6. **NCUA Cyber Incident Notification** — report within **72 hours** of reasonable belief/third-party notice; see quick-reference guide. ([NCUA](https://ncua.gov/regulation-supervision/letters-credit-unions-other-guidance/cyber-incident-notification-requirements?utm_source=chatgpt.com))
-7. **Appendix B to Part 748** — member-notice guidance for unauthorized access/use. ([eCFR](https://www.ecfr.gov/current/title-12/chapter-VII/subchapter-A/part-748/appendix-Appendix%20B%20to%20Part%20748?utm_source=chatgpt.com))
-8. **CTA/BOI — Interim Final Rule (Mar 26, 2025)** — exempts _domestic_ reporting companies; foreign reporting companies continue to report (with limits). Does **not** change FI CDD obligations under 1010.230. ([Federal Register](https://www.federalregister.gov/documents/2025/03/26/2025-05199/beneficial-ownership-information-reporting-requirement-revision-and-deadline-extension))
-9. **Interagency Third-Party Risk Guidance** — lifecycle principles for third-party relationships (plan, diligence, contract, monitor, terminate). ([Federal Register](https://www.federalregister.gov/documents/2023/06/09/2023-12340/interagency-guidance-on-third-party-relationships-risk-management?utm_source=chatgpt.com))
+| Scenario                               | Trigger (human → event)                                 |                                   Deadline | Content Reference                         | Control                                                                          |
+| -------------------------------------- | ------------------------------------------------------- | -----------------------------------------: | ----------------------------------------- | -------------------------------------------------------------------------------- |
+| Complete CIP before account opening    | Onboarding submits app → `application.submitted`        |                     Before account opening | CIP verification results saved            | [CD-04](customer-due-diligence.md#cd-04-cip--identity-verification)              |
+| Collect & verify BO for legal entities | Business onboarding → `business.application.submitted`  |                     Before account opening | BO KYC/KYB dossier                        | [CD-05](customer-due-diligence.md#cd-05-beneficial-ownership-legal-entities)     |
+| Initial risk profile set               | KYC complete → `kyc.passed`                             |                           At decision time | Member risk profile (MRP)                 | [CD-03](customer-due-diligence.md#cd-03-member-risk-profiling-nature--purpose)   |
+| ECDD escalation on trigger             | High-risk signal → `risk.trigger.ecdd`                  |                          Same business day | ECDD checklist executed                   | [CD-07](customer-due-diligence.md#cd-07-enhanced-cdd-triggers--actions)          |
+| Hold on screening hit                  | Match surfaced → `sanctions.hit`                        |     Immediate hold; resolve before proceed | Hit resolution memo                       | [CD-06](customer-due-diligence.md#cd-06-sanctions--adverse-media-screening)      |
+| Periodic refresh                       | Scheduler → `profile.refresh_due`                       |                  \{{Review\_Frequencies\}} | Refresh pack filed                        | [CD-09](customer-due-diligence.md#cd-09-ongoing-monitoring--reviews)             |
+| Reportable cyber incident              | Vendor or internal notice → `incident.reportable_found` | ≤ **72 hours** of reasonable belief/notice | NCUA notice + member notice (if required) | [CD-11](customer-due-diligence.md#cd-11-incident--breach-reporting-ncua-72-hour) |
+| SAR (if warranted)                     | Investigator identifies suspicion → `case.sar_required` |                 30 days (60 if no suspect) | SAR workpaper & filing                    | [CD-09](customer-due-diligence.md#cd-09-ongoing-monitoring--reviews)             |
 
+***
+
+## Control Index <a href="#control-index" id="control-index"></a>
+
+| ID                                                                               | Control Name                               | Purpose                                    | Primary Rule(s)                  |
+| -------------------------------------------------------------------------------- | ------------------------------------------ | ------------------------------------------ | -------------------------------- |
+| [CD-01](customer-due-diligence.md#cd-01-governance--ownership)                   | Governance & Ownership                     | Accountability, reporting, board oversight | 12 CFR §748.2 · FFIEC            |
+| [CD-02](customer-due-diligence.md#cd-02-scope--applicability)                    | Scope & Applicability                      | Define covered products/channels/partners  | 12 CFR §748.2                    |
+| [CD-03](customer-due-diligence.md#cd-03-member-risk-profiling-nature--purpose)   | Member Risk Profiling (Nature & Purpose)   | Establish/maintain member risk profiles    | 31 CFR §1020.210 · FFIEC         |
+| [CD-04](customer-due-diligence.md#cd-04-cip--identity-verification)              | CIP & Identity Verification                | Identify & verify customers                | 31 CFR §1020.220 · FFIEC         |
+| [CD-05](customer-due-diligence.md#cd-05-beneficial-ownership-legal-entities)     | Beneficial Ownership (Legal Entities)      | Collect & verify BO data                   | 31 CFR §1010.230                 |
+| [CD-06](customer-due-diligence.md#cd-06-sanctions--adverse-media-screening)      | Sanctions & Adverse Media Screening        | Block, review, and clear matches           | 31 CFR §1020.210 · FFIEC         |
+| [CD-07](customer-due-diligence.md#cd-07-enhanced-cdd-triggers--actions)          | ECDD Triggers & Actions                    | Escalate and deepen due diligence          | 31 CFR §1020.210 · FFIEC         |
+| [CD-08](customer-due-diligence.md#cd-08-rejection--exit-thresholds)              | Rejection & Exit Thresholds                | Apply risk-based limits and exits          | 12 CFR §748.2 · FFIEC            |
+| [CD-09](customer-due-diligence.md#cd-09-ongoing-monitoring--reviews)             | Ongoing Monitoring & Reviews               | Detect deviations; refresh profiles        | 31 CFR §1020.210 · FFIEC         |
+| [CD-10](customer-due-diligence.md#cd-10-vendor--program-manager-oversight)       | Vendor & Program-Manager Oversight         | Life-cycle TPRM; retained accountability   | 12 CFR §748.2 · Interagency TPRM |
+| [CD-11](customer-due-diligence.md#cd-11-incident--breach-reporting-ncua-72-hour) | Incident & Breach Reporting (NCUA 72-Hour) | Notify NCUA; member notice if required     | 12 CFR §748.1(c), Appendix B     |
+| [CD-12](customer-due-diligence.md#cd-12-recordkeeping--retention)                | Recordkeeping & Retention                  | Preserve evidence & retrievability         | 31 CFR §1020.220; §1010.230      |
+
+***
+
+## Control Overlays (Design Overlay v2)
+
+### CD-01 — Governance & Ownership <a href="#cd-01-governance--ownership" id="cd-01-governance--ownership"></a>
+
+* **WHY (Reg cite):** Board-approved BSA/AML program; designated BSA Officer; internal controls, independent testing, training. **12 CFR §748.2**. FFIEC Manual informs examiner expectations for CDD governance and reporting.
+* **SYSTEM BEHAVIOR:** Maintain policy artifact; require annual board approval; produce quarterly CDD metrics aligned to FFIEC themes (alerts, SARs, ECDD coverage, model/change controls); route escalations to Management Risk Committee and Board Risk Committee.
+* **TRIGGERS (human → event):** Board approves policy → `governance.policy_approved`; Metric pack submitted → `reporting.cdd_pack_submitted`.
+* **INPUTS (human → field):** Risk appetite summary → `(policy.risk_appetite = {{Risk_Appetite_Summary}})`; Approver roster → `(governance.approvers)`.
+* **OUTPUTS:** Board minutes; quarterly CDD dashboard; exception register.
+* **TIMERS/SLAs:** Annual policy review; quarterly metrics due by **+15 days** after quarter-end.
+* **EDGE CASES:** Interim updates for regulatory or FFIEC manual changes (out-of-cycle board ratification).
+* **AUDIT LOGS:** `policy.version.published`, `reporting.quarterly_sent`.
+* **ACCESS CONTROL:** Only BSA Officer may publish; Board/Examiners read.
+* **ALERTS/METRICS:** Policy age; open issues past due; % actions closed on time.
+
+### CD-02 — Scope & Applicability <a href="#cd-02-scope--applicability" id="cd-02-scope--applicability"></a>
+
+* **WHY (Reg cite):** BSA program must cover all lines and delivery channels. **12 CFR §748.2**.
+* **SYSTEM BEHAVIOR:** Enforce CDD gates on all onboarding APIs (first-party and \{{Program\_Manager\_1\}}/\{{Program\_Manager\_2\}}) before account open; include non-face-to-face per FFIEC risk factors.
+* **TRIGGERS:** New product/channel onboarded → `product.change.introduced`.
+* **INPUTS:** Product list `(catalog.products[])`; Channel list `(catalog.channels[])`; Partner list `(partners.program_managers[])`.
+* **OUTPUTS:** Coverage map.
+* **TIMERS/SLAs:** 30-day pre-launch CDD sign-off window.
+* **EDGE CASES:** Pilot/limited release still requires gates.
+* **AUDIT LOGS:** `coverage.map.updated`.
+* **ACCESS CONTROL:** Product owners propose; Compliance approves.
+* **ALERTS/METRICS:** % launches with CDD sign-off.
+
+### CD-03 — Member Risk Profiling (Nature & Purpose) <a href="#cd-03-member-risk-profiling-nature--purpose" id="cd-03-member-risk-profiling-nature--purpose"></a>
+
+* **WHY (Reg cite):** Understand nature/purpose; establish risk profiles; ongoing CDD. **31 CFR §1020.210**. FFIEC Manual outlines factors for risk rating and documentation quality.
+* **SYSTEM BEHAVIOR:** Capture expected activity; assign initial risk score; store rationale; support refresh.
+* **TRIGGERS:** App submitted → `application.submitted`; KYC passed → `kyc.passed`.
+* **INPUTS:** Occupation/NAICS `(member.naics)`, geography `(member.country_state)`, funding source `(member.funding_source)`, expected volumes `(member.expected_txn_volume)`, industry flags `(member.industry in {{High_Risk_Industries_List}})`.
+* **OUTPUTS:** Member Risk Profile (MRP) with score and factors.
+* **TIMERS/SLAs:** MRP must exist **before** decision.
+* **EDGE CASES:** Thin-file; non-resident; PEP indicator.
+* **AUDIT LOGS:** `mrp.created`, `mrp.updated`.
+* **ACCESS CONTROL:** Read: Investigations/Compliance; Edit: Onboarding Ops/Compliance.
+* **ALERTS/METRICS:** % files with complete MRP; risk score distribution.
+
+### CD-04 — CIP & Identity Verification <a href="#cd-04-cip--identity-verification" id="cd-04-cip--identity-verification"></a>
+
+* **WHY (Reg cite):** Identify & verify customers; recordkeeping. **31 CFR §1020.220**. FFIEC Manual provides examiner expectations for documentary vs non-documentary methods and risk-based variation.
+* **SYSTEM BEHAVIOR:** Orchestrate KYC via \{{Primary\_KYC\_Vendor\_Name\}} with fallback to \{{Secondary\_Data\_Providers\}}; apply documentary/non-documentary methods; block open until pass.
+* **TRIGGERS:** Identity check started → `kyc.started`; vendor response → `kyc.vendor_result`.
+* **INPUTS:** Name `(member.name)`, DOB `(member.dob)`, SSN/ITIN `(member.tin)`, address `(member.address)`, device/IP `(telemetry.ip_device)`.
+* **OUTPUTS:** KYC proof file; pass/conditional/deny decision; reasons.
+* **TIMERS/SLAs:** Complete **before** account opening.
+* **EDGE CASES:** Mismatches; fraud signals; manual review path with dual control.
+* **AUDIT LOGS:** `kyc.pass`, `kyc.fail`, `kyc.manual_review`.
+* **ACCESS CONTROL:** Only trained reviewers may override vendor outcomes.
+* **ALERTS/METRICS:** False-positive/negative rates; manual review rate; aging queue.
+
+### CD-05 — Beneficial Ownership (Legal Entities) <a href="#cd-05-beneficial-ownership-legal-entities" id="cd-05-beneficial-ownership-legal-entities"></a>
+
+* **WHY (Reg cite):** Collect & verify BO (≥25% owners + one control). **31 CFR §1010.230**.
+* **SYSTEM BEHAVIOR:** Require BO form; validate IDs of BOs; store control person data; reconcile to KYB.
+* **TRIGGERS:** Business app submitted → `business.application.submitted`; BO form signed → `bo.form_submitted`.
+* **INPUTS:** BO list `(entity.bo_list[])`, control person `(entity.control_person)`, ownership % `(entity.bo_pct)`.
+* **OUTPUTS:** BO record; verification artifacts.
+* **TIMERS/SLAs:** Complete **before** business account opening; refresh on ownership change event.
+* **EDGE CASES:** Trusts; layered entities; exemptions (document rationale).
+* **AUDIT LOGS:** `bo.collected`, `bo.verified`, `bo.change_detected`.
+* **ACCESS CONTROL:** BO data restricted (need-to-know).
+* **ALERTS/METRICS:** % BO verified; exception count.
+
+### CD-06 — Sanctions & Adverse Media Screening <a href="#cd-06-sanctions--adverse-media-screening" id="cd-06-sanctions--adverse-media-screening"></a>
+
+* **WHY (Reg cite):** Risk-based screening is an AML control. **31 CFR §1020.210**. FFIEC Manual covers sanctions screening expectations and ongoing monitoring ties.
+* **SYSTEM BEHAVIOR:** Screen applicants and ongoing members via \{{Sanctions\_List\_Provider\}} and \{{Adverse\_Media\_Provider\}}; auto-hold on potential match; adjudication workflow.
+* **TRIGGERS:** New record → `screen.new_subject`; list update → `screen.list_updated`; adverse media alert → `adverse.media.alert`.
+* **INPUTS:** Personal/Business identifiers `(screen.subject_identifiers)`; list datasets `(screen.lists = {{Sanctions_List_Provider}})`.
+* **OUTPUTS:** Clear/confirm decision; hit memo; escalation to ECDD if warranted.
+* **TIMERS/SLAs:** Potential match held immediately; adjudicate within **1 business day**.
+* **EDGE CASES:** Common-name matches; transliteration; fuzzy logic collisions.
+* **AUDIT LOGS:** `screen.hit`, `screen.cleared`, `screen.confirmed`.
+* **ACCESS CONTROL:** Only Sanctions Analysts adjudicate.
+* **ALERTS/METRICS:** Hit rate; average time to disposition; % confirmed.
+
+### CD-07 — Enhanced CDD (ECDD) Triggers & Actions <a href="#cd-07-enhanced-cdd-triggers--actions" id="cd-07-enhanced-cdd-triggers--actions"></a>
+
+* **WHY (Reg cite):** Higher-risk relationships require ECDD. **31 CFR §1020.210**. FFIEC outlines risk factors (products, services, geographies, customers) and documentation standards.
+* **SYSTEM BEHAVIOR:** On trigger, generate ECDD checklist; require senior approval; increase monitoring cadence.
+* **TRIGGERS:** High-risk industry `(member.industry in {{High_Risk_Industries_List}})` → `risk.trigger.industry`; PEP → `risk.trigger.pep`; high geography risk → `risk.trigger.geo`; adverse media confirmed → `risk.trigger.adverse`; anomalous activity → `risk.trigger.behavior`; sanctions proximity → `risk.trigger.sanctions_near`; revenue/volume spike beyond threshold `(txn.rolling_30d > {{Hard_Threshold}})` → `risk.trigger.volume`.
+* **INPUTS:** Source of funds `(ecdd.sof)`, source of wealth `(ecdd.sow)`, beneficial owner validation `(ecdd.bo_recheck)`, additional docs `(ecdd.docs[])`.
+* **OUTPUTS:** ECDD file; keep/limit/exit recommendation.
+* **TIMERS/SLAs:** Open ECDD within **1 business day** of trigger; complete within **5 business days** or document extension.
+* **EDGE CASES:** False positives from vendor models—require human rationale.
+* **AUDIT LOGS:** `ecdd.opened`, `ecdd.approved`, `ecdd.declined`.
+* **ACCESS CONTROL:** Senior Compliance approves; dual control on exits.
+* **ALERTS/METRICS:** % ECDD timely; keep/exit ratios.
+
+### CD-08 — Rejection & Exit Thresholds <a href="#cd-08-rejection--exit-thresholds" id="cd-08-rejection--exit-thresholds"></a>
+
+* **WHY (Reg cite):** Maintain safe and sound operations. **12 CFR §748.2**. FFIEC provides examples of risk indicators supporting deny/exit decisions.
+* **SYSTEM BEHAVIOR:** Enforce configurable thresholds aligned to \{{Risk\_Appetite\_Summary\}}; block onboarding or trigger exit.
+* **TRIGGERS:** Identity unresolved after attempts → `decision.deny.kyc`; confirmed sanctions → `decision.deny.sdn`; persistent ECDD deficiencies → `decision.exit.ecdd`; fraud patterns → `decision.exit.fraud`.
+* **INPUTS:** Threshold config `(limits.hard = {{Hard_Threshold}})`; reason codes `(decision.reason_code)`.
+* **OUTPUTS:** Decline/exit letter templates; internal memo with rationale.
+* **TIMERS/SLAs:** Decision within **2 business days** of final facts.
+* **EDGE CASES:** Critical customer impact—offer controlled wind-down.
+* **AUDIT LOGS:** `decision.decline`, `decision.exit`.
+* **ACCESS CONTROL:** Two-person approval for exits (Compliance + Business).
+* **ALERTS/METRICS:** Decline rate by reason; exit count; appeals.
+
+### CD-09 — Ongoing Monitoring & Reviews <a href="#cd-09-ongoing-monitoring--reviews" id="cd-09-ongoing-monitoring--reviews"></a>
+
+* **WHY (Reg cite):** Ongoing monitoring & updates to risk profiles. **31 CFR §1020.210**. FFIEC Manual details alert handling, case documentation, SAR decisions, and periodic reviews.
+* **SYSTEM BEHAVIOR:** Compare observed activity to MRP; surface anomalies; schedule refresh per \{{Review\_Frequencies\}}; integrate case management and SAR workflow.
+* **TRIGGERS:** Deviation detected → `monitor.alert.anomaly`; refresh due → `profile.refresh_due`; ownership change → `bo.change_detected`.
+* **INPUTS:** Transaction telemetry `(txn.stream)`, risk score `(mrp.score)`, alerts `(monitor.alerts[])`.
+* **OUTPUTS:** Case record; MRP updates; SAR decision path and filing if needed.
+* **TIMERS/SLAs:** Alert triage within **1 business day**; periodic refresh per risk tier (e.g., high 12m / med 24m / low 36m—confirm in \{{Review\_Frequencies\}}).
+* **EDGE CASES:** Seasonality; one-off spikes; partner-driven campaigns.
+* **AUDIT LOGS:** `case.opened`, `case.closed`, `sar.filed`.
+* **ACCESS CONTROL:** Investigations role required.
+* **ALERTS/METRICS:** Alert-to-SAR conversion; refresh compliance %; case aging.
+
+### CD-10 — Vendor & Program-Manager Oversight <a href="#cd-10-vendor--program-manager-oversight" id="cd-10-vendor--program-manager-oversight"></a>
+
+* **WHY (Reg cite):** CU retains accountability for outsourced BSA functions. **12 CFR §748.2**. Interagency TPRM guidance defines life-cycle controls (plan, diligence, contract, monitor, terminate) and board oversight; apply to \{{Primary\_KYC\_Vendor\_Name\}}, \{{Secondary\_Data\_Providers\}}, \{{Program\_Manager\_1\}}, \{{Program\_Manager\_2\}}.
+* **SYSTEM BEHAVIOR:** Maintain live register; track SLAs/KPIs; enforce audit/exam rights; require incident-notice terms compatible with **§748.1(c)** 72-hour rule; document model governance for vendor decisioning (inputs, thresholds, backtesting/drift).
+* **TRIGGERS:** New/changed vendor → `tp.update.lifecycle`; SLA miss → `tp.sla.breach`.
+* **INPUTS:** Due diligence pack `(tp.dd_pack)`, contract clauses `(tp.contract_terms)`, KPI feed `(tp.kpis)`.
+* **OUTPUTS:** Quarterly vendor scorecards; annual comprehensive review reports; corrective-action plans.
+* **TIMERS/SLAs:** KPI review quarterly; comprehensive review annually (min).
+* **EDGE CASES:** Sub-processor changes; model drift at vendor—trigger re-validation; cross-border data transfers.
+* **AUDIT LOGS:** `tp.review.qtr`, `tp.review.annual`, `tp.issue.opened`.
+* **ACCESS CONTROL:** Vendor Mgmt edits; Compliance/Board reads.
+* **ALERTS/METRICS:** SLA adherence %; issue backlog; model drift indicators.
+
+### CD-11 — Incident & Breach Reporting (NCUA 72-Hour) <a href="#cd-11-incident--breach-reporting-ncua-72-hour" id="cd-11-incident--breach-reporting-ncua-72-hour"></a>
+
+* **WHY (Reg cite):** Cyber incident notification to NCUA; member notice guidance. **12 CFR §748.1(c)**; **Appendix B to Part 748**.
+* **SYSTEM BEHAVIOR:** Classify incidents; start 72-hour clock on reasonable belief or third-party notice; prepare NCUA notice; assess member notification under Appendix B; coordinate with SAR decision path.
+* **TRIGGERS:** Reportable incident detected → `incident.reportable_found`; vendor notice received → `incident.vendor_notice`.
+* **INPUTS:** Incident facts `(ir.facts)`, affected data `(ir.data_types)`, systems `(ir.systems)`, vendor details `(ir.vendor)`.
+* **OUTPUTS:** NCUA notice; member notice (if required); post-incident review (PIR).
+* **TIMERS/SLAs:** Notify NCUA **≤72 hours**; PIR within **30 days** of containment.
+* **EDGE CASES:** Overlapping jurisdictions; law-enforcement hold on member notices—document.
+* **AUDIT LOGS:** `ncua.notice.sent`, `member.notice.sent`, `pir.completed`.
+* **ACCESS CONTROL:** CISO & Compliance control external comms.
+* **ALERTS/METRICS:** Time-to-notify; incidents by severity; PIR action closure.
+
+### CD-12 — Recordkeeping & Retention <a href="#cd-12-recordkeeping--retention" id="cd-12-recordkeeping--retention"></a>
+
+* **WHY (Reg cite):** CIP recordkeeping; BO retention; retrievability. **31 CFR §1020.220**; **§1010.230**. FFIEC Manual informs examiner expectations for documentation completeness and retrievability.
+* **SYSTEM BEHAVIOR:** Store KYC/BO evidence in immutable, searchable storage; index to member ID; support examiner export.
+* **TRIGGERS:** Account open/close → `account.opened` / `account.closed`; document upload → `docs.added`.
+* **INPUTS:** CIP docs `(docs.cip[])`, BO docs `(docs.bo[])`, decisions `(decision.codes)`.
+* **OUTPUTS:** Evidence pack per member/business.
+* **TIMERS/SLAs:** Retain per rule (e.g., identity verification records generally **5 years after account closure**; confirm detailed schedules with Counsel).
+* **EDGE CASES:** Data subject access requests; litigation holds override normal purge.
+* **AUDIT LOGS:** `retention.timer.set`, `retention.purge.executed`.
+* **ACCESS CONTROL:** Role-based; encryption at rest/in transit.
+* **ALERTS/METRICS:** Retrieval success rate; stale files without index.
+
+***
+
+## Embedded Checklists & Templates <a href="#checklists" id="checklists"></a>
+
+* **ECDD Trigger→Action Matrix (pack):** trigger, extra info required, verification method, approval, refresh cadence (align to FFIEC factors).
+* **Rejection/Exit Decision Tree (pack):** sanctions hit; unresolved identity; unmitigated high risk; suspicious behavior → decline/conditional/exit letters (rationale recorded to FFIEC documentation standards).
+* **Third-Party Oversight Checklist (Appendix C):** planning; due diligence; contracting (SLAs, audit rights, security, incident notice aligned to **§748.1(c)**); ongoing monitoring; termination (mapped to Interagency TPRM principles).
+* **CDD Refresh Pack:** data points to reconfirm; BO re-check; adverse media rescan; risk score recompute (FFIEC expectations).
+* **Templates:** hit-resolution memo; ECDD memo; decline/exit letters; NCUA 72-hour notice outline; PIR worksheet.
+
+***
+
+## Governance & Sign-Off <a href="#governance" id="governance"></a>
+
+* **Owner:** \{{BSA/AML Officer, Title\}}
+* **Approvals:** \{{OWNER & APPROVERS\}}
+* **Review Cadence:** Annual board approval; interim updates upon regulatory or FFIEC/Interagency guidance change.
+* **Reporting:** Quarterly CDD metrics to Management and Board Risk Committees, incorporating FFIEC exam themes.
+* **Cross-Refs:** Information Security Program; BSA/AML Program; OFAC/Sanctions SOP; Vendor Management Standard (Interagency TPRM-aligned); Incident Response Plan.
+
+***
+
+## Appendix C — Third-Party Register & Review Calendar (Template)
+
+* **Register Fields:** Name; role (KYC/KYB/PM); data sources; decision rights; SLAs/KPIs; sub-processors; security certifications; incident-notice terms; contacts.
+* **Seed Entries (to be populated):**
+  * **KYC/KYB:** \{{Primary\_KYC\_Vendor\_Name\}}; backups: \{{Secondary\_Data\_Providers\}}.
+  * **Program Managers:** \{{Program\_Manager\_1\}}, \{{Program\_Manager\_2\}}.
+  * **Lists/Media:** Sanctions via \{{Sanctions\_List\_Provider\}}; adverse media via \{{Adverse\_Media\_Provider\}}.
+* **Calendar:**
+  * **Quarterly:** KPI review; drift checks; issue remediation updates (per Interagency TPRM).
+  * **Annual:** Comprehensive review; model validation summary; contract test for 72-hour notice alignment.
+  * **Ad-hoc:** After material incident, sub-processor change, or SLA breach.
+
+***
+
+## Assumptions & Gaps
+
+* **Scope Placeholder:** Treated as enterprise-wide across all products/channels, including BaaS via program managers; refine when \{{SCOPE\}} is finalized.
+* **Risk Appetite & Frequencies:** \{{Risk\_Appetite\_Summary\}}, \{{Review\_Frequencies\}}, \{{Hard\_Threshold\}}, and \{{High\_Risk\_Industries\_List\}} are placeholders pending Board approval.
+* **Vendors/Providers:** \{{Primary\_KYC\_Vendor\_Name\}}, \{{Secondary\_Data\_Providers\}}, \{{Program\_Manager\_1\}}, \{{Program\_Manager\_2\}}, \{{Sanctions\_List\_Provider\}}, \{{Adverse\_Media\_Provider\}} to be confirmed; contract clauses must explicitly support **12 CFR §748.1(c)** timing.
+* **Design Notes:** Event/field codes provided as defaults; align with engineering taxonomy during implementation.
+* **Legal Note:** eCFR links are provided for statutes/regs. FFIEC and Interagency items referenced as supervisory guidance (no external links required here).
+
+***

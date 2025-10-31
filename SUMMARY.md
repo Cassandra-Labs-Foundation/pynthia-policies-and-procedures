@@ -6,7 +6,6 @@
 * [Fair Lending](fair-lending.md)
 * [Compliance](compliance.md)
 * [AML/CFT](aml-cft.md)
-* [Cash Management](cash-management.md)
 * [Cybersecurity](cybersecurity.md)
 * [Business Continuity Plan](business-continuity-plan.md)
 * [Basel II Standardized Approach Framework](basel-ii-standardized-approach-framework.md)

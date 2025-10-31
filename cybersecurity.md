@@ -1,275 +1,332 @@
 # Cybersecurity
 
-#### Patrick's Requirements
+> **General Policy Statement** \{{ORGANIZATION\}} safeguards member and organizational information to ensure confidentiality, integrity, availability, and resilience. We implement a risk-based program aligned to NCUA Part 748 (including incident reporting), record-retention under Part 749, Identity Theft “Red Flags” (Part 717 Subpart J), FACTA Disposal, and related rules. Scope includes people, facilities, data, systems, networks, vendors, AI tools, and channels listed in **SCOPE**. Engineering and operations must implement the controls below and evidence them via audit logs and periodic testing.
 
-* [ ] Governance
-* [ ] Employee expectations. What are they allowed to do in the office, or handling sensitive information, use of email on company servers.&#x20;
-* [ ] Hardware and software. What's acceptable? What kind of vetting does each elemetn have to go through
-* [ ] Use of social media.&#x20;
-* [ ] Use of AI. **This is going to be a huge thing to discuss.** Here is what we plan odoing, and these are the protections in place.&#x20;
-  * [ ] At Pynthia specifically, we want to be as pro-AI as we can be from a regulatory perspective.&#x20;
-  * [ ] All AI used must be disclosed and must comply with our Privacy policy&#x20;
-* [ ] Data protection and backup.&#x20;
-* [ ] Pen-testing and vulnerability assesments. If this is done internally or outsourced.&#x20;
-* [ ] Change management. What's the process we go through for any kind of IT change.&#x20;
-* [ ] Identity Theft. How do we protect accounts? Detecting red flags?&#x20;
-* [ ] Review. Cadence.&#x20;
-* [ ] Frauds and Scams.&#x20;
+***
 
-\# (Credit Union) Information Security Policy
+## Multi-Rule Authority Table <a href="#authority" id="authority"></a>
 
-(Credit Union) recognizes its responsibility to safeguard member information and will treat the private financial information of Credit Union's members ("member information") with appropriate care to maintain the confidentiality, integrity, and security of member information. The purpose of this policy is to set forth the guidelines for management and staff to use in establishing and maintaining policies and procedures to safeguard member information. The Credit Union will comply with all applicable laws and regulations governing the safeguarding of member information including NCUA Guidelines for Safeguarding Member Information (12 CFR Part 748 Appendices A and B, Part 749 Appendix B) (the "Guidelines") and all other applicable laws and regulations regarding the safeguarding of member information.\
-**Reference:**\
-National Institute of Standards and Technology (NIST). Special Publication 800-53 (Revision 5) Security Controls and Assessment Procedures for Federal Information Systems and NIST Cybersecurity Framework (CSF 2.0).
+| Topic                                                                                             | Scope                                                  | Key Clauses / Notes                                                                                                                                                                                      |
+| ------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **NCUA Part 748 – Security Program, Report of Suspected Crimes, and Cyber Incident Notification** | Program, incident reporting, response                  | [12 CFR Part 748](https://www.ecfr.gov/current/title-12/chapter-VII/subchapter-A/part-748); 72-hour cyber incident reporting: [§748.1(c)](https://www.ecfr.gov/current/title-12/part-748#p-748.1%28c%29) |
+| **NCUA Part 748, App. A – Guidelines for Safeguarding Member Information**                        | Safeguards, risk assessment, testing, vendor oversight | [12 CFR Part 748 App. A](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)                                                                                         |
+| **NCUA Part 748, App. B – Response Programs**                                                     | Incident response, member notice                       | [12 CFR Part 748 App. B](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20B%20to%20Part%20748)                                                                                         |
+| **NCUA Part 717 Subpart J – Identity Theft Red Flags**                                            | ID theft program & red flags                           | [12 CFR Part 717 Subpart J](https://www.ecfr.gov/current/title-12/part-717#subpart-J)                                                                                                                    |
+| **FACTA Disposal Rule**                                                                           | Secure disposal of consumer info                       | [16 CFR Part 682](https://www.ecfr.gov/current/title-16/chapter-I/subchapter-F/part-682)                                                                                                                 |
+| **NCUA Part 749 – Records Preservation**                                                          | Retention schedules & vital records                    | [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749); Vital records schedule: [App. B](https://www.ecfr.gov/current/title-12/part-749/appendix-Appendix%20B%20to%20Part%20749)              |
+| **GLBA – Protection of Nonpublic Personal Information**                                           | Safeguards principle                                   | [15 U.S.C. §§6801–6809](https://www.law.cornell.edu/uscode/text/15/chapter-94)                                                                                                                           |
+| **ADA – Facilities access (supporting)**                                                          | Visitor controls & reasonable access                   | [28 CFR Part 36](https://www.ecfr.gov/current/title-28/part-36) _(supporting; not primary infosec rule)_                                                                                                 |
 
-### 1. POLICY AND PROGRAM RESPONSIBILITY
+> _Framework references (non-regulatory): NIST SP 800-53 Rev.5, NIST CSF 2.0._
 
-1. **Board Responsibility.**\
-   This Information Security Policy ("Policy") and any recommended changes shall be approved by the Board of Directors ("Board"). The Board may delegate its oversight responsibility to a Board Committee. The Board will appoint a for the Credit Union on an as-needed basis.
-2. **Management Responsibility.**\
-   Credit Union Management ("Management") through an Information Security Committee ("Committee") will be responsible for the development, implementation, and maintenance of the Credit Union's Information Security Program ("Program") and may assign these responsibilities. Management shall ensure that capital planning and investment requests include the resources needed to implement the information security program.
+***
 
-### 2. ASSESSMENT OF RISK
+## Timing Matrix <a href="#timing-matrix" id="timing-matrix"></a>
 
-From time to time, but at least once every 12 months, Management will identify and assess the risks that may threaten the security, confidentiality, or integrity of the Credit Union's information systems, and determine the sensitivity of member information, and the internal and external physical and cybersecurity threats to its security. Also consistent with Policy 2225 – Digital Banking, management will evaluate and adjust its risk assessment periodically and in light of any relevant changes in technology; changes in internal and external threats; changes in the member base adopting electronic banking; changes in member functionality offered through electronic banking; transactional capability; transaction volumes; and actual incidents of security breaches, identity theft, fraud, and other significant cybersecurity events experienced by the Credit Union or industry. Management shall report the annual risk assessment, accompanied by recommendations for mitigation strategies, to the Credit Union’s Board and/or Supervisory Committee for approval.
+| Scenario                                      | Trigger (human → event)                                                |                                                                        Deadline | Content Reference             | Control                                                                    |
+| --------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------: | ----------------------------- | -------------------------------------------------------------------------- |
+| Cyber incident potentially reportable to NCUA | IR leader flags incident → `incident.potential_reportable`             |              As soon as possible, **≤72 hours** of determination (see Part 748) | NCUA notice content & channel | [IS-09](cybersecurity.md#is-09-incident-response-cyber-incident-reporting) |
+| Member notice warranted (data compromise)     | Privacy lead confirms PII exposure → `incident.member_notice_required` | **Without unreasonable delay** after containment & law enforcement coordination | Notice template pack          | [IS-09](cybersecurity.md#is-09-incident-response-cyber-incident-reporting) |
+| Privilege removal on termination/transfer     | HR submits separation/transfer → `hr.user.separated`                   |                                                           **Same business day** | Access removal checklist      | [IS-06](cybersecurity.md#is-06-access-control-authentication)              |
+| Annual risk assessment                        | Compliance calendar tickler → `risk.assessment.due`                    |                                              **≤12 months** between assessments | RA report to Board            | [IS-02](cybersecurity.md#is-02-enterprise-risk-assessment)                 |
+| Vulnerability testing / external scan         | SecOps schedule → `vuln.scan.window.open`                              |     **At least annually**; high-risk findings triage within **5 business days** | VT plan & POA\&M              | [IS-05](cybersecurity.md#is-05-vulnerability-testing-penetration-testing)  |
+| Change requiring CAB approval                 | Engineer submits RFC → `change.request.submitted`                      |                                           CAB review within **3 business days** | RFC template                  | [IS-04](cybersecurity.md#is-04-change-management-configuration-control)    |
+| Backup verification                           | Ops schedule → `backup.verify.due`                                     |                                                **Weekly** checksum restore test | Backup runbook                | [IS-08](cybersecurity.md#is-08-backup-disaster-recovery)                   |
+| Red Flags review                              | Fraud ops cycle → `redflags.review.cycle`                              |                                                    **Quarterly** ruleset review | Red Flags matrix              | [IS-10](cybersecurity.md#is-10-identity-theft-red-flags-program)           |
+| AI use disclosure & DPIA                      | Team proposes AI use → `ai.use.proposed`                               |         DPIA prior to production; register update **within 5 days** of approval | AI registry                   | [IS-13](cybersecurity.md#is-13-ai-governance-usage-disclosure)             |
 
-### 3. RISK MANAGEMENT AND CONTROLS
+***
 
-Management will conduct an initial and ongoing risk management analysis of its controls, policies, and procedures to proactively prevent, detect, and respond to all identified risks and intrusions that may occur. The scope of the risk management analysis will cover physical facilities controls, cybersecurity controls including access controls, internal controls, ongoing monitoring of risk and controls, an incident response plan (IRP), and a disaster recovery plan (DRP).
+## Control Index <a href="#control-index" id="control-index"></a>
 
-1. **Assessment of Controls.**\
-   Management will assess the sufficiency of existing policies, procedures, and other arrangements in place to control risks and reduce risk exposure. The Credit Union will review controls on employee duties and existing incident detection systems from time to time.
-2. **Vulnerability Testing.**\
-   The Credit Union will establish a baseline of current assessed risk. The Credit Union will conduct vulnerability testing (at least annually) and may engage outside security expertise to assist in such testing. The results of the vulnerability testing will be given to the Committee (and the Board) for review and necessary action.
-3. **Threat Awareness.**\
-   Management shall regularly monitor information security threat alerts from threat-sharing sources, which may include but are not limited to the following: the U.S. Computer Emergency Readiness Team (US-CERT), the U.S. Department of Homeland Security, reputable news sources, Credit Union peers, CISA.gov, and service providers. Information gleaned from these sources shall be incorporated into the Credit Union’s ongoing risk management efforts. For example, a newly identified threat to an information system asset used to process member information may increase the risk level associated with that information system above acceptable levels.
-4. **Threat Intelligence and Information Sharing.**\
-   The Credit Union may also share information regarding information security incidents to federal and/or federally-sponsored resources such as the National Credit Union Information Sharing and Analysis Organization (NCU-ISAO), Financial Services Information Sharing and Analysis Center (FS-ISAC), InfraGard, Cyber Information Sharing and Collaboration Program (CISCP), Cybersecurity and Infrastructure Security Agency (CISA), etc.
-5. **Plan of Action and Milestones.**\
-   Management will respond to identified information security risks with documentation of the plans of action to address unacceptable risks, including clear milestones outlining goals and timelines to achieve acceptable risk levels. Plan of action and milestones reports will be given to the Committee (and the Board) for review and approval.
+| ID                                                                         | Control Name                                 | Purpose                                            | Primary Rule(s)                                                                                                                                                                                |
+| -------------------------------------------------------------------------- | -------------------------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [IS-01](cybersecurity.md#is-01-governance-oversight)                       | Governance & Oversight                       | Board-approved program; roles; cadence             | [Part 748](https://www.ecfr.gov/current/title-12/chapter-VII/subchapter-A/part-748)                                                                                                            |
+| [IS-02](cybersecurity.md#is-02-enterprise-risk-assessment)                 | Enterprise Risk Assessment                   | Identify threats, likelihood, impact, and controls | [Part 748 App. A](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)                                                                                      |
+| [IS-03](cybersecurity.md#is-03-asset-inventory-classification)             | Asset Inventory & Classification             | Know assets, data classes, ownership               | [Part 748 App. A](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)                                                                                      |
+| [IS-04](cybersecurity.md#is-04-change-management-configuration-control)    | Change Management                            | Safe, auditable system changes                     | [Part 748 App. A](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)                                                                                      |
+| [IS-05](cybersecurity.md#is-05-vulnerability-testing-penetration-testing)  | Vulnerability Testing & Pen-Testing          | Find and fix weaknesses                            | [Part 748 App. A](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)                                                                                      |
+| [IS-06](cybersecurity.md#is-06-access-control-authentication)              | Access Control & Authentication              | Least privilege; authN/authZ; termination          | [Part 748 App. A](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)                                                                                      |
+| [IS-07](cybersecurity.md#is-07-data-protection-encryption-disposal)        | Data Protection, Encryption & Disposal       | Protect data in transit/at rest; disposal          | [Part 748 App. A](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748), [16 CFR 682](https://www.ecfr.gov/current/title-16/chapter-I/subchapter-F/part-682) |
+| [IS-08](cybersecurity.md#is-08-backup-disaster-recovery)                   | Backup & Disaster Recovery                   | Resilience and recovery                            | [Part 749](https://www.ecfr.gov/current/title-12/part-749)                                                                                                                                     |
+| [IS-09](cybersecurity.md#is-09-incident-response-cyber-incident-reporting) | Incident Response & Cyber Incident Reporting | Prepare, detect, respond, notify                   | [Part 748 App. B](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20B%20to%20Part%20748), [§748.1(c)](https://www.ecfr.gov/current/title-12/part-748#p-748.1%28c%29)          |
+| [IS-10](cybersecurity.md#is-10-identity-theft-red-flags-program)           | Identity Theft Red Flags Program             | Detect, prevent, mitigate ID theft                 | [Part 717 Subpart J](https://www.ecfr.gov/current/title-12/part-717#subpart-J)                                                                                                                 |
+| [IS-11](cybersecurity.md#is-11-vendor-risk-management)                     | Vendor Risk Management                       | Due diligence and contracts                        | [Part 748 App. A](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)                                                                                      |
+| [IS-12](cybersecurity.md#is-12-physical-security-facilities)               | Physical Security & Facilities               | Protect premises, media, visitors                  | [Part 748 App. A](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)                                                                                      |
+| [IS-13](cybersecurity.md#is-13-ai-governance-usage-disclosure)             | AI Governance & Usage Disclosure             | Pro-AI with safeguards; privacy-aligned            | [GLBA](https://www.law.cornell.edu/uscode/text/15/chapter-94), [Part 748 App. A](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)                       |
+| [IS-14](cybersecurity.md#is-14-logging-monitoring-alerting)                | Logging, Monitoring & Alerting               | Detect anomalies; evidence                         | [Part 748 App. A](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)                                                                                      |
+| [IS-15](cybersecurity.md#is-15-acceptable-use-communications-systems)      | Acceptable Use & Communications Systems      | Staff conduct; email; internet; BYOD               | [Part 748 App. A](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)                                                                                      |
+| [IS-16](cybersecurity.md#is-16-social-media)                               | Social Media                                 | Roles; disclaimers; approval                       | _(supporting; ensure coordination with marketing rules as applicable)_                                                                                                                         |
+| [IS-17](cybersecurity.md#is-17-training-awareness-testing)                 | Training, Awareness & Testing                | Security training; phishing sims                   | [Part 748 App. A](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)                                                                                      |
+| [IS-18](cybersecurity.md#is-18-records-management-retention)               | Records Management & Retention               | Retention schedules                                | [Part 749](https://www.ecfr.gov/current/title-12/part-749)                                                                                                                                     |
 
-### 4. SERVICE PROVIDERS
+***
 
-Consistent with the Credit Union’s Vendor Due Diligence & Oversight policy, management will require its service providers, by contract, to implement appropriate measures designed to protect against unauthorized access to or use of member information that could result in substantial harm or inconvenience to any member. To that end, the credit union will receive assurances that third parties will handle member information in a manner commensurate with regulatory guidance and the Credit Union’s information security policies and expectations.
+### IS-01 — Governance & Oversight
 
-### 5. SECURITY OF PHYSICAL FACILITIES
+* **WHY (Reg cite):** Board-approved information security program; oversight, resources, accountability. [12 CFR Part 748](https://www.ecfr.gov/current/title-12/chapter-VII/subchapter-A/part-748).
+* **SYSTEM BEHAVIOR:** Maintain a single authoritative “Security Program” record with owners, charter, KPIs, and review cadence; produce quarterly and annual reports to Board/Supervisory Committee.
+* **TRIGGERS (human → event):** Board cycle starts → `(governance.board.cycle)`; Policy up for review → `(policy.review.due)`.
+* **INPUTS (human → field):** Owner → `(gov.owner.user_id)`; Next review date → `(gov.next_review.date)`; KPIs list → `(gov.kpis.array)`.
+* **OUTPUTS:** Board deck; policy redlines; decision log.
+* **TIMERS/SLAs:** Annual policy approval; quarterly KPI report **≤30 days** post-quarter.
+* **EDGE CASES:** Emergency interim policy; document temporary exceptions with expiry.
+* **AUDIT LOGS:** `policy.updated`, `board.report.submitted`, `exception.approved`.
+* **ACCESS CONTROL:** Read: all staff; Write: Compliance/IS lead; Approve: Board/Committee.
+* **ALERTS/METRICS:** % controls green; open POA\&Ms; overdue reviews.
 
-1. **Physical Access Authorizations.**\
-   Access to locations containing member information is restricted to people with "need-to-know" access to member information. Management shall maintain a list of employees who have physical access to media storage containing member information, or information systems that store, process, or transmit member information. The list shall be reviewed on a Credit Union-defined frequency. Management shall issue credentials for access to facilities based on the physical access authorization process.
-2. **Physical Access Control.**\
-   Management shall control access to non-public Credit Union facilities using Credit Union-defined physical access control devices/systems (e.g., physical locks, key card readers). An inventory of access control devices/systems shall be maintained. A procedure will be established to revoke or disable key cards when employees are transferred or separated.
-3. **Monitoring Physical Access.**\
-   The Credit Union shall monitor physical access to areas where the information system resides using access logs. The Credit Union will monitor intrusion alarm systems and surveillance cameras.
-4. **Visitor Control.**\
-   Visitors to the Credit Union without a "need-to-know" authorization will be escorted as necessary within the nonpublic and administrative areas of the Credit Union, and off-site storage areas by a Credit Union employee with "need-to-know" authorization. Credit Union employees will maintain logs of visitor access to non-public Credit Union areas. All Credit Union employees are required to obtain verbal confirmation of all visitors requesting access to secure spaces from a Credit Union sponsor. Email will not be accepted as visitor authorization.
-5. **Physical and Environmental Protections for Information Systems.**\
-   The following controls shall be deployed, as feasible, to protect the Credit Union’s on-premise information systems from physical and environmental threats:
-   * Emergency power shut-off capability (easily accessible to authorized personnel)
-   * Automatic emergency lighting
-   * Fire protection and detection devices
-   * Temperature and humidity controls
-   * Water damage protection (accessible and functional master shutoff or isolation valves)
-   * Additional controls may be deployed, as necessary
-6. **Staff Controls for Information Handling.**
-   1. **Preventing Inadvertent Disclosure.**\
-      Credit Union staff who handle member information ("Users") will take all necessary steps to ensure that member information is not inadvertently disclosed to people who do not have a "need-to-know" authorization. When not in use, or when not under direct visual supervision, member information must be stored in a secure storage area such as a locked vault, a cabinet, or a locked desk. Reproduction of member information is permitted only as necessary to perform required work.
-   2. **Transport.**\
-      Physical transport of member information will require the use of a trusted courier such as internal mail staff, the US Postal Service, UPS, Federal Express, or a contracted courier service. All member information and documents sent via such couriers must be enclosed in an opaque and sealed envelope. Whenever member information is sent over external computer networks, it must be sent in encrypted form.
-   3. **Destruction.**\
-      When member information is no longer required (but the computers will be used elsewhere), and when legal or regulatory requirements for its retention no longer apply, it must be destroyed according to approved methods as authorized by . Destruction will include rendering the information unreadable and include complete eradication of residual electronic information required by FACTA and other applicable laws and regulations to be destroyed. The Credit Union will ensure that all contracts between the Credit Union and service providers who have access to or store member information will include contractual requirements that the service provider disposes of member information in a manner consistent with FACTA and other applicable laws and regulations. The Credit Union will ensure that vital records will not be destroyed.
-7. **Theft Protection.**\
-   All Credit Union computers and network equipment must be physically secured with anti-theft devices if located in an open office environment. Local area network servers must be placed in locked cabinets, locked closets, or locked computer rooms. Transportable computers must be placed in locked cabinets or secured via other locking systems when in the office but not in use. Computer and network gear may not be removed from Credit Union offices unless the User has first obtained permission from .
+### IS-02 — Enterprise Risk Assessment
 
-### 6. CONTROLS FOR ACCESS SECURITY
+* **WHY (Reg cite):** Identify reasonably foreseeable threats; assess risk and adequacy of controls. [Part 748 App. A](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748).
+* **SYSTEM BEHAVIOR:** Maintain risk register mapped to assets, threats, controls (NIST categories optional); include fraud/scam, social engineering, ID theft, and AI risks.
+* **TRIGGERS:** Risk assessment cycle → `(risk.assessment.due)`; Major change → `(risk.assessment.change)`.
+* **INPUTS:** Asset list → `(risk.assets.table)`; Threats → `(risk.threats.array)`; Impact/Likelihood → `(risk.scores.matrix)`.
+* **OUTPUTS:** Risk report to Board; POA\&M.
+* **TIMERS/SLAs:** **≤12 months** between assessments; POA\&M updates **monthly**.
+* **EDGE CASES:** New product fast-track: perform lightweight RA within **10 business days**.
+* **AUDIT LOGS:** `risk.register.updated`, `risk.report.issued`.
+* **ACCESS CONTROL:** Read: management; Write: Risk/IS; Approve: Board/Supervisory.
+* **ALERTS/METRICS:** # high risks; # overdue POA\&M items.
 
-1. **Responsibilities of Information Supervisor, Custodians, and Users.**
-   1. **Supervisor.**\
-      The Information Supervisor or her/his delegate(s) within the Credit Union, bears the responsibility for the acquisition, development, and maintenance of production applications that process member information. For each type of member information, the Supervisor will determine the critical nature of the information, define which Users will be permitted to access it, and define its authorized uses.
-   2. **Custodian.**\
-      A Custodian is a Credit Union staff person who is in physical or logical possession of member information. The following departments and staff positions are considered Custodians: . Whenever member information is maintained on a personal computer, that User is also the Custodian. A Custodian is responsible for safeguarding member information and maintaining security measures defined by the Supervisor.
-   3. **Users.**\
-      Users are responsible for complying with any Credit Union member information security policy, procedure, and standard. Questions about the appropriate handling of a specific type of member information should be directed to either the member information Custodian or the Supervisor.
-2. **Member Information Classification and Confidentiality.**
-   1. **Information Sensitivity Classification.**\
-      Member information is generally designated as nonpublic and may be disclosed only to people authorized to receive it. Authorization is granted by the Supervisor, consistent with the Credit Union's Privacy Policy, and otherwise on a "need-to-know" basis. Unless specified otherwise by the CEO, all Credit Union employees have access and "need-to-know" authorization for member information.
-   2. **Password Complexity.**\
-      The Credit Union will require members utilizing the Credit Union’s Internet-based services to use several controls to appropriately authenticate members' access to Credit Union products, services and systems as outlined in Policy 2225 – Digital Banking.
-   3. **Default Classification.**\
-      Member information will be classified and treated as nonpublic, as per the definition of member information in NCUA guidelines (Appendix A to Part 748).
-   4. **Disclosure.**\
-      Disclosure of member information to any staff person or nonaffiliated third party without a "need-to-know" authorization is prohibited. Employees must be familiar with and agree to the confidentiality provisions and member information security provisions in the Credit Union’s Employee Handbook. Member information Custodians must verify the existence of a signed confidentiality agreement before disclosure to non-employees.
-3. **System Access Controls.**\
-   The Credit Union will create system access controls to restrict access to and safeguard member information that is collected and stored by the Credit Union.
-   1. **Employees.**\
-      The Credit Union will use pre-employment background checks and employment job descriptions to address employee access to member information, dual controls/segregation, and duties for processing transactions and handling member information. Employees may require rescreening, as necessary, when their job duties change and include increased information handling and/or security responsibilities.
-   2. **Passwords.**\
-      Password controls will be implemented to limit system access to member information. Passwords may not be stored in computers without access control systems, written down and left where unauthorized people might discover them, or in other locations where unauthorized people might discover them. Passwords may not be shared or revealed to anyone else besides the authorized user. Passwords will be constructed consistent with Policy 2225 – Digital Banking.
-4. **Access Control System Design.**
-   1. **Internal Network Connections.**\
-      All Credit Union computers connected to internal computer networks will have an approved password-based access control system. All computers handling member information will employ approved password-based access control systems.
-   2. **External Network Connections.**\
-      All inbound connections to Credit Union computers from external networks must be protected with an approved dynamic password access control system. Employees must not establish external, internal, intranet, or extranet network connections to the Credit Union’s network without the specific approval of a systems administrator.
-   3. **Boot Protection and Screen Savers.**\
-      All computer users will obtain boot protection through a fixed password and a screen saver. Multi-user Credit Union systems must employ automatic log-out systems that terminate a user's session after a certain period of inactivity.
-   4. **Unique User IDs and Passwords.**\
-      All critical access control systems must utilize user IDs and passwords unique to each User, to protect Users from unwarranted suspicion associated with computer crime and abuse and to help maintain the integrity of member information by reducing unexplained errors and omissions.
-   5. **Unsuccessful Logon Attempts.**\
-      Critical access control systems will be configured to allow only a Credit Union-defined number of failed login attempts to authenticate a user (over a defined timespan) before the account automatically locks for a defined timespan or until it is unlocked by a systems administrator.
-   6. **Asset Inventory:**\
-      The CU will maintain an inventory of all physical and digital assets, including hardware, software, and data repositories to ensure proper oversight and management.
-5. **Managing System Privileges.**
-   1. **Access Requests.**\
-      Requests for new user IDs and changed privileges must be in writing and approved by the User’s manager before a Systems Administrator fulfills these requests.
-   2. **Compliance and Confidentiality Statement/Agreement.**\
-      All Users wishing to use Credit Union multi-user computer systems must sign a compliance and confidentiality agreement before being issued a user ID.
-   3. **Access Denial.**\
-      All user IDs inactive for or more days will automatically have the associated privileges suspended or revoked. When Users are transferred to a different job, their system privileges will be changed to reflect their new job duties. At employment separation, all Credit Union property in the employee's possession must be returned to the Credit Union, and all system access privileges shall be terminated. Management reserves the right to revoke the system privileges of any User at any time.
-   4. **Prohibited Activities.**\
-      Users must not test or attempt to compromise Credit Union computer or communication system security measures unless specifically approved in advance and in writing by the . Incidents involving unapproved system cracking (hacking), password cracking (guessing), file decryption, bootleg software copying, short-cuts bypassing system security measures, pranks or practical jokes, or similar unauthorized attempts to compromise security measures may be unlawful and will be considered serious violations of this Policy.
+### IS-03 — Asset Inventory & Classification
 
-### 7. CONTROLS FOR INTERNAL SECURITY
+* **WHY (Reg cite):** Know where member info resides; assign owners and protections. [Part 748 App. A](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748).
+* **SYSTEM BEHAVIOR:** Maintain CMDB of hardware, software, data stores, vendors; classify data (e.g., Public, Internal, Confidential/NPI).
+* **TRIGGERS:** New asset onboard → `(asset.onboarded)`; Asset decommission → `(asset.decom.started)`.
+* **INPUTS:** Asset record → `(asset.record.json)`; Data class → `(asset.data.class)`.
+* **OUTPUTS:** Current inventory; data flow maps.
+* **TIMERS/SLAs:** Inventory delta posted within **5 business days** of change; quarterly attestation.
+* **EDGE CASES:** Shadow IT → quarantine until inventoried.
+* **AUDIT LOGS:** `asset.created`, `asset.updated`, `asset.retired`.
+* **ACCESS CONTROL:** Read: IS/Ops; Write: Owners/IS.
+* **ALERTS/METRICS:** % assets with owner/classification; % vendor assets with DPAs.
 
-1. **Standards.**\
-   The is responsible for setting standards of conduct for Credit Union employees and Users of member information including compliance with the provisions of this Policy and all member information security procedures conveyed to them verbally or in writing.
-2. **Dual Controls.**\
-   Configuration or setting changes for any information security systems or controls, e.g., firewall and other monitoring systems, or any other elements of the Credit Union's Information System that could directly affect member information are made by the , or outsourced service provider, only with express written permission by the .
-3. **Display of Information.**\
-   All computer display screens must be positioned such that the information cannot be readily viewed through a window, by people walking in a hallway, or by people waiting in reception and related areas.
-4. **Encryption.**\
-   When member information is transmitted over any communication network provided by an organization outside the Credit Union, it must be sent in encrypted form. Member information entrusted to the Credit Union by a third party must be encrypted when sent over external network systems. _(Best practice is for all data at rest and in transit to be encrypted using AES-256 or an equivalent standard, adhering to NIST-approved practices.)_
-5. **Layered Security.**\
-   Segregating public and private networks, deploying overlapping controls for access and asset protection
-6. **Held in Storage.**\
-   Whenever member information is not actively used, it must be stored in encrypted form if unauthorized individuals can access it.
-7. **Permissible Methods.**\
-   Encryption of member information at rest (in storage) or in transit (on a network) must be achieved via commercially available products approved by . All encryption algorithms, modes of operation, and key management systems must be consistent with internal standards issued by .
-8. **Information Loss.**\
-   Whenever encryption is used, employees must not delete the sole readable version of the member information unless they have first demonstrated that the decryption process can reestablish a readable version of the member information.
-9. **Encryption Keys.**\
-   Encryption keys used for member information are always classified as member information. Access to such keys must be strictly limited to those who have "need-to-know" authorization. Likewise, encryption keys must always be encrypted when sent over a network.
-10. **Broadcast Systems.**\
-    Portable phones using radio technology as well as cellular phones must not be used for data transmissions containing member information unless the connection is encrypted. Likewise, other broadcast networking technologies, such as radio-based local area networks or wireless (“wi-fi”) networks, must not be used for member information unless the link is encrypted.
-11. **Network Changes.**\
-    Except for emergency situations, all changes to Credit Union computer networks must be documented in a work order request and approved in advance by . Emergency changes to the Credit Union networks may be made only by people authorized by . Change management policy details are described in the Configuration Management Policy (See Policy 4305).
-12. **New Systems Set-Up.**\
-    Employees must not establish external, internal, intranet, or extranet network connections to the Credit Union’s network without the specific approval of .
-13. **Systems Removal and Disposal.**\
-    Computer Equipment with an internal disk drive(s) (“hard drive”) being removed for relocation or disposal must have the disk drive(s) render any information unreadable. Devices with hard drives containing member data may also include multi-function copiers/scanners/printers. If the equipment is being relocated to another Credit Union user, the disk drive(s) may be erased using software specifically designed to render any data on the disk drive(s) unusable. Data erasure must meet minimum Department of Defense (DOD) guidelines. If the equipment is being discarded, sold, or given away, the disk drive(s) must be removed and physically destroyed before removal. If data destruction is performed by a third party, destruction must be performed on-site with Credit Union supervision and a certificate of destruction should be issued by the third party.
-14. **Application Development.**\
-    All software development and software maintenance activities performed by in-house staff must subscribe to a Software Development Life Cycle framework and adhere to the Credit Union’s Information System policies, standards, procedures, and systems development conventions regarding testing, training, and documentation.
-    1. **Written Specifications.**\
-       All software developed by in-house employees, and intended to process critical, valuable, member information, must have a written formal specification, which includes a discussion of both security risks and controls (including access control systems and contingency plans).
-    2. **Security Sign-Off Required.**\
-       Before being used for production processing, new or substantially changed application systems must have received written approval from the .
-    3. **Formal Change Control.**\
-       All computer and communications systems used for production processing at the Credit Union must employ a documented change control process.
-15. **Handling Security Information.**\
-    Information about security measures for Credit Union computer and network systems is confidential and may not be released to people not possessing "need-to-know" access.
-16. **User Training.**\
-    Employees will receive recurring cybersecurity training. Quarterly phishing simulations will be conducted to enhance employee awareness of social engineering tactics and measure readiness. Additionally, the CU should consider specialized training for any user in a high-risk role, such as an IT administrator.
+### IS-04 — Change Management & Configuration Control
 
-### 8. INCIDENT DETECTION
+* **WHY (Reg cite):** Prevent unauthorized changes; ensure testing and rollback. [Part 748 App. A](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748).
+* **SYSTEM BEHAVIOR:** RFC workflow (risk, test evidence, backout, approval); CAB for medium/high risk; infra as code preferred; emergency changes documented post-hoc.
+* **TRIGGERS:** Engineer submits RFC → `(change.request.submitted)`; Emergency change → `(change.emergency.invoked)`.
+* **INPUTS:** Risk level → `(change.risk.level)`; Approver → `(change.approver.user_id)`; Backout → `(change.backout.plan)`.
+* **OUTPUTS:** Approved RFC; change tickets; release notes.
+* **TIMERS/SLAs:** CAB review **≤3 business days**; emergency post-review **≤24 hours**.
+* **EDGE CASES:** Security patch out of band; expedite path with auto-approval rules.
+* **AUDIT LOGS:** `change.approved`, `change.deployed`, `change.rolled_back`.
+* **ACCESS CONTROL:** Approve: CAB/IS; Deploy: DevOps.
+* **ALERTS/METRICS:** Change failure rate; % changes with tests.
 
-The Committee is responsible for the compilation, regular maintenance, and annual testing of contingency plans for all Credit Union information systems, including the creation of an Incident Response Plan and coordination of an Incident Response Team. This Team is mobilized in the event of a hacker intrusion, a virus infection, and other security-related events. The Credit Union shall also ensure that its contracts with service providers require the service providers to disclose any information regarding any breach of security resulting from unauthorized intrusion into the credit union’s member information system maintained by the service provider.
+### IS-05 — Vulnerability Testing & Penetration Testing
 
-1. **Actions Taken in the Event of an Incident.**\
-   In the event of an incident, the Credit Union will undertake the following actions as soon as possible:
-   1. Assess the nature and scope of the incident and identify each member information system and types of member information that have been accessed or misused;
-   2. Notify the appropriate authorities as set forth below in the Response Program;
-   3. Take prompt and appropriate measures to prevent further unauthorized access or use of member information which may or may not include monitoring, freezing or closing affected accounts if feasible and appropriate while preserving records and other evidence;
-   4. Notify members when such notice is warranted and per the Guidance and notice format promulgated by the NCUA/FTC;
-   5. Take appropriate and prompt corrective measures; and
-   6. Complete annual incident response tabletop exercises that will simulate real-world scenarios to evaluate readiness and refine the Incident Response Plan.
-2. **Preventing Computer Viruses and Similar Intrusions.**\
-   A computer virus may cause slower computer response time, inexplicable loss of files, changed modification dates for files, increased file sizes, and total failure of Credit Union's computers.
-   1. **Screening Programs Enabled.**\
-      To ensure continued uninterrupted service, for individual computers and networks, all computer Users must keep current versions of approved virus screening software enabled on their computers and not bypass the scanning process. If possible, approved virus screening software shall be centrally managed by authorized Credit Union personnel.
-   2. **Eradication Process.**\
-      If Users suspect infection by a computer virus, they must immediately stop using the infected computer and contact the .
-   3. **Clean Back-Ups.**\
-      To assist with the post-virus-infection restoration of normal microcomputer activities, all computer software must be copied before its initial usage, and such copies must be stored in a secure location.
-   4. **Software Sources.**\
-      To prevent problems with viruses, and Trojan horses, Credit Union computers and networks must not run software that comes from sources other than those approved by the Information Systems Manager or other authorized person at the Credit Union.
-3. **Disaster Recovery.**\
-   The Credit Union will take whatever measures necessary to protect against the destruction, loss, or damage of member information due to potential environmental hazards, such as fire and water damage or technical failures and outside intrusions.
-   1. These measures shall include the development of a disaster recovery plan to prepare for catastrophic acts. The Credit Union will evaluate potential threats, establish business impact levels, and determine critical systems and necessary resources through ongoing risk assessment activities. The disaster recovery plan will include the following information and procedures, at minimum:
-      * roles and responsibilities;
-      * record preservation methods;
-      * alternate storage and processing site provisions;
-      * alternate telecommunications service provisions;
-      * communication methods for employees and members; and,
-      * notification of applicable regulators.
-   2. Management will train employees in their roles and responsibilities in the disaster recovery plan. The Credit Union will test contingency and disaster recovery assumptions annually. The test results will be documented and reported to Credit Union officials. Disaster recovery and contingency plans will be coordinated with the Credit Union’s risk assessment and incident response plan. The disaster recovery plan will be documented and submitted to the Board and/or Supervisory Committee for approval.
-   3. **Back-Up Responsibility and Schedules.**\
-      To protect the Credit Union's information systems/facilities from loss or damage, the is responsible for making periodic back-ups. All critical member information resident on Credit Union computer systems and networks must be periodically backed-up. The will define which member information and which programs/systems are to be backed-up, the frequency of back-up, the type of back-up, and the method of back-up. Secure storage of back-up media is the responsibility of the . Storage media from multi-user systems must be stored in fireproof safes, at a separate location at least several city blocks away from the system being backed-up and physically protected against unauthorized access.
-4. **Monitoring.**\
-   Management will be responsible for regularly monitoring its information systems for detection of any intrusions. Computer systems handling member information must securely log all significant computer security relevant events. The , or person designated by the , will monitor and review system logs in real time, at least daily, and will implement a real time alert mechanism. Log records will contain information that establishes what type of event occurred, when the event occurred, where the event occurred, the source of the event, the outcome, and the identity of any individuals or subjects associated with the event. Logs containing computer security relevant events must be retained for at least months. During this period, logs may be accessible only by authorized people.
+* **WHY (Reg cite):** Ongoing testing appropriate to risk. [Part 748 App. A](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748).
+* **SYSTEM BEHAVIOR:** Schedule automated scans; annual external pen-test; triage/patch per severity; track to closure in POA\&M.
+* **TRIGGERS:** Scan window → `(vuln.scan.scheduled)`; Pen-test start → `(pentest.started)`.
+* **INPUTS:** Targets → `(vuln.targets.list)`; Findings → `(vuln.findings.table)`.
+* **OUTPUTS:** Reports; remediation tickets; executive summary.
+* **TIMERS/SLAs:** Critical patching **≤7 days**; High **≤15**; Medium **≤30** (Assumption—needs confirmation).
+* **EDGE CASES:** Compensating control documented if vendor patch not available.
+* **AUDIT LOGS:** `scan.completed`, `finding.remediated`.
+* **ACCESS CONTROL:** Read: IS/Engineering leadership; Write: SecOps.
+* **ALERTS/METRICS:** MTTR by severity; open criticals.
 
-### 9. RESPONSE PROGRAM
+### IS-06 — Access Control & Authentication
 
-Management will be responsible for developing and implementing a risk-based response program to address incidents of unauthorized access to member information, according to the Credit Union’s Incident Response Policy **(See Policy 4125).** This includes Cyber Incident Reporting as required under NCUA Regulations Part 748.
+* **WHY (Reg cite):** Least privilege, unique IDs, strong authentication. [Part 748 App. A](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748).
+* **SYSTEM BEHAVIOR:** Enforce SSO/MFA; role-based access; joiner/mover/leaver automation; lockouts; password policy consistent with digital banking controls.
+* **TRIGGERS:** Hire → `(hr.user.onboarded)`; Transfer → `(hr.user.transferred)`; Termination → `(hr.user.separated)`.
+* **INPUTS:** Role → `(iam.role.id)`; Manager approval → `(iam.approval.signature)`; Access expiry → `(iam.access.expiry)`.
+* **OUTPUTS:** Provisioned accounts; access review attestations.
+* **TIMERS/SLAs:** Termination deprovision **same day**; periodic access reviews **quarterly**.
+* **EDGE CASES:** Break-glass accounts with heightened logging.
+* **AUDIT LOGS:** `iam.provisioned`, `iam.deprovisioned`, `iam.role_changed`, `auth.failed.lockout`.
+* **ACCESS CONTROL:** Approve: Manager + Data Owner; Execute: IAM.
+* **ALERTS/METRICS:** Orphaned accounts; privileged access count.
 
-1. **Cyber Incident Report.**\
-   The Credit Union will notify the NCUA via email, telephone, or other similar method of a reportable cyber incident as soon as possible, but no later than 72 hours after the possible reportable cyber incident is believed to have occurred.
+### IS-07 — Data Protection, Encryption & Disposal
 
-### 10. CREDIT UNION SYSTEMS AND FACILITIES USE POLICY
+* **WHY (Reg cite):** Protect NPI; secure disposal. [Part 748 App. A](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748); [16 CFR Part 682](https://www.ecfr.gov/current/title-16/chapter-I/subchapter-F/part-682).
+* **SYSTEM BEHAVIOR:** Encrypt data in transit and at rest; enforce DLP for email and file sharing; approved crypto (e.g., AES-256, TLS 1.2+); disposal renders data unreadable; secure media handling.
+* **TRIGGERS:** New data store → `(data.store.created)`; Disposal request → `(data.disposal.requested)`.
+* **INPUTS:** Data class → `(data.class)`; Key owner → `(kms.key.owner)`; Retention code → `(records.schedule.code)`.
+* **OUTPUTS:** Encryption configs; disposal certificates.
+* **TIMERS/SLAs:** Disposal within **30 days** of eligibility unless litigation hold.
+* **EDGE CASES:** Third-party hosted data—contractual destruction certification.
+* **AUDIT LOGS:** `kms.key.used`, `data.exported`, `data.disposed`.
+* **ACCESS CONTROL:** KMS custodians limited; dual control for key rotation.
+* **ALERTS/METRICS:** % stores encrypted; DLP incidents.
 
-1. **Off-Site Physical Security.**\
-   At alternative worksites, reasonable precautions should be taken to protect Credit Union hardware, software, and member information from theft, damage, and misuse. The Credit Union maintains the right to conduct inspections of telecommuter offices with one or more days advance notice. All employees who keep member information at their homes to do Credit Union work must have furniture, which can be locked, for the proper storage of this information. Telecommuter employees will have adequate means to communicate with Credit Union response personnel in the event of security incidents.
-   1. **Off-Site Systems.**\
-      Computer systems provided by the Credit Union may **not** be modified in any way without the knowledge and authorization of the . Similarly, employees may not bring their home computers into the office to process member information without prior approval from the . Employees in the possession of portable, laptop, notebook, palmtop, and other transportable computers containing member information must not leave these computers unattended at any time.
-   2. **Removable Storage Media.**\
-      Whenever member information is written to a removable media, the storage media must be marked. When not in use, this media must be locked in a safe, furniture, or a similarly secured location. Member information stored on removable storage media will be encrypted.
-   3. **Removal of Information.**\
-      Member information may not be removed from Credit Union premises unless there has been prior approval from the . This policy includes member information stored on portable computer hard disks, removable media, hard-copy output, paper memos, and the like. An exception is made for authorized off-site back-ups.
-   4. **Remote Printing.**\
-      Printers must not be left unattended if member information is being printed or will soon be printed. The people attending the printer must be authorized to examine the information being printed. Unattended printing is permitted only if the area surrounding a printer is physically protected such that people who are not authorized to see the material being printed may not enter.
-2. **Personal Use.**\
-   Unless a contractual agreement specifies otherwise, all information stored on or transmitted by Credit Union computer and communications systems is Credit Union property. Management reserves the right to examine all information stored in or transmitted by these systems. Employees will have no expectation of privacy associated with the information they store in or send through these systems.
-   1. **Activity Monitoring.**\
-      Employees may be subject to electronic monitoring while on Credit Union premises and while using Credit Union information systems. In areas where there is a reasonable expectation of privacy, such as restrooms, dressing rooms, and locker rooms, no electronic monitoring will be performed.
-   2. **Information Inspection and Removal.**\
-      At any time and without prior notice, Management reserves the right to examine archived electronic mail, personal file directories, hard disk drive files, and other information stored on Credit Union information systems. The Credit Union additionally retains the right to remove from its information systems any material it views as offensive or potentially illegal.
-   3. **Personal Use and Precautions.**\
-      Employees are prohibited from using Credit Union time, facilities, equipment, or supplies for private gain or advantage. Personal use is allowed according to the Credit Union’s Electronic Communications/Acceptable Use Policy (See Policy 2222). Users must take steps to prevent member information from being inadvertently damaged or destroyed. Smoking, eating, and drinking may not be done while using computers. Likewise, magnetic media should be kept away from heat (such as direct sunlight) as well as magnetic fields.
-3. **Software Licenses.**\
-   The Credit Union purchases licenses granting the use of software programs used by employees in the conduct of Credit Union business. Unauthorized software copying is prohibited. Users may not copy software provided by Credit Union to any storage media (floppy disk, magnetic tape, etc.), or disclose software to outside parties without written permission from the . Ordinary backup copies are an authorized exception to this policy. Unless specifically authorized by the , Credit Union employees may not acquire, possess, trade, or use hardware or software tools that could be employed to evaluate or compromise information systems security.
-4. **Internet Connections.**\
-   Employees are discouraged from accessing the Internet with Credit Union computers and networks except in the course of Credit Union business (see the Credit Union’s Electronic Communications/Acceptable Use Policy **(See Policy 2222)**. Internet access is permitted only through Credit Union firewalls. Employees are prohibited from making connections to the internet using non-approved devices such as mobile wireless hotspots, wireless access points, etc., from Credit Union-owned devices without express approval from the .
-   1. **Third Party Identification.**\
-      Release of member information related to that specific member shall be only through the Credit Union encrypted Internet Banking system or over the telephone if the Internet Banking system cannot provide secure transmission of the message.
-   2. **Disclaimers and Removal of Public Postings.**\
-      Whenever an employee posts a message to an Internet discussion group (listserv), an electronic bulletin board, or another public information system, this message must be accompanied by words indicating that the comments do not represent the official position of the Credit Union. Any electronic mail sent by Credit Union employees to Internet discussion groups, electronic bulletin boards, or other public forums may be reviewed and removed by if determined to be inconsistent with the Credit Union's business objectives or existing policy.
-   3. **Setting Up Web Pages.**\
-      Users must not place Credit Union material on any publicly accessible computer system (including Internet web pages) unless first approved by the . Similarly, Users are prohibited from establishing any electronic commerce arrangements over the Internet unless first obtaining approval of the .
-   4. **Handling Materials Downloaded from the Internet.**\
-      All software and files downloaded from non-Credit Union sources via the Internet (or any other public network) should be screened with virus/intrusion detection software, before decompression and before being run or examined via another program such as a word processing package.
+### IS-08 — Backup & Disaster Recovery
 
-### 11. PROGRAM REVIEW
+* **WHY (Reg cite):** Preserve vital records; recover operations. [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749).
+* **SYSTEM BEHAVIOR:** Define RTO/RPO by system; offsite/immutable backups; periodic restore tests; DR runbook with roles and comms.
+* **TRIGGERS:** Backup job start → `(backup.job.started)`; DR test scheduled → `(dr.test.scheduled)`.
+* **INPUTS:** System criticality → `(bcdr.criticality.tier)`; RTO/RPO → `(bcdr.targets)`.
+* **OUTPUTS:** Backup logs; restore test reports; DR exercise report.
+* **TIMERS/SLAs:** Weekly restore verification; annual full DR exercise.
+* **EDGE CASES:** Ransomware isolation; clean-room restores.
+* **AUDIT LOGS:** `backup.completed`, `restore.verified`, `dr.exercise.completed`.
+* **ACCESS CONTROL:** Backup vault restricted; dual control for destructive ops.
+* **ALERTS/METRICS:** Backup success rate; last successful restore age.
 
-1. **Program Review.**\
-   Subsequent to annual vulnerability testing, the and will seek to adjust, as appropriate, the Program in light of any relevant changes in technology, the sensitivity of Credit Union member information, internal or external threats to member information, and Credit Union changing business arrangements and changes to member information systems. The findings of this review will form the basis of the report to the Board.
-2. **Security Controls Testing.**\
-   Management will regularly test the key controls, systems and procedures of the Program to confirm that they control the risks and achieve the overall objectives of the Program. At least , an independent third party or staff independent of the individuals who develop or maintain the Program will test the Program. Testing will include an assessment of exterior defenses, internal security, physical security, and administrative procedures. A managed security service may be used to periodically scan firewall and web servers for resident hacking programs as the Committee deems necessary.
-3. **Flaw Remediation.**\
-   Discovered vulnerabilities or flaws will be addressed by the Credit Union’s flaw remediation and configuration change management processes, which are outlined in the Patch Management Policy (see Policy 4310) and the Configuration Management Policy (see Policy 4305). Appropriate timelines and plans of action will be established to remediate vulnerabilities. Remediation activities will be reported and approved by the Board. Any exceptions to the flaw remediation processes including vendor limitations or risk acceptance must be formally documented and approved by the Board of Directors.
-4. **Training.**\
-   Management will train Credit Union staff to recognize, respond, and report to regulatory and law enforcement agencies, any unauthorized or fraudulent attempts to obtain member information. Additionally, staff shall be trained to recognize and report insider threat behaviors, including but not limited to, attempts to gain unauthorized access to sensitive member information and policy violations. All employees and the Board of Directors will regularly receive training specific to cybercrime including but not limited to ID theft, social engineering, email security, internet security, password security, etc. The is responsible for training the Information Systems staff, Custodians, and Users in the provisions of this Policy, and pertinent Program procedures and standards. Specialized training and development programs will be provided to employees who have information security responsibilities. General and specialized information security training activities will be documented. Documentation shall be retained according to the Credit Union’s information retention schedule. Plans for information security training will be submitted to the Board and/or Supervisory Committee for approval.
-5. **Outsourcing of Services.**\
-   Management will implement a risk management process for outsourcing services, under the direction of the Board, according to the Credit Union’s Vendor Due Diligence and Oversight policy (See Policy 2185).
+### IS-09 — Incident Response & Cyber Incident Reporting
 
-### 12. INFORMATION HANDLING AND RETENTION
+* **WHY (Reg cite):** Response program & notifications. [Part 748 App. B](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20B%20to%20Part%20748); 72-hour notice: [§748.1(c)](https://www.ecfr.gov/current/title-12/part-748#p-748.1%28c%29).
+* **SYSTEM BEHAVIOR:** Maintain IR plan, team roster, and playbooks (malware, credential compromise, vendor breach, BEC, data leakage); coordinate with law enforcement; determine member notice.
+* **TRIGGERS:** Suspected incident → `(incident.suspected)`; Confirmed reportable → `(incident.reportable.confirmed)`.
+* **INPUTS:** Impacted systems → `(ir.scope.assets)`; Data elements → `(ir.data.elements)`; Decision log → `(ir.decision.log)`.
+* **OUTPUTS:** Incident ticket; NCUA report; member notices; lessons learned.
+* **TIMERS/SLAs:** NCUA notice **≤72 hours**; member notice per App. B (without unreasonable delay).
+* **EDGE CASES:** Third-party breach where scope unclear—initiate joint investigation and interim notice strategy.
+* **AUDIT LOGS:** `ir.playbook.invoked`, `ncua.report.sent`, `member.notice.sent`.
+* **ACCESS CONTROL:** IR team only; legal holds applied.
+* **ALERTS/METRICS:** MTTD/MTTR; # reportables; tabletop frequency.
 
-Management will be responsible for ensuring that member information is retained and disposed according to Credit Union guidelines. Information retention procedures will be coordinated with related areas of the information security program including, but not limited to, security incident response planning and disaster recovery planning.
+### IS-10 — Identity Theft Red Flags Program
 
-### 13. SOCIAL MEDIA
+* **WHY (Reg cite):** Detect, prevent, mitigate identity theft. [12 CFR Part 717 Subpart J](https://www.ecfr.gov/current/title-12/part-717#subpart-J).
+* **SYSTEM BEHAVIOR:** Maintain red-flag matrix (alerts, docs, activity patterns); step-up verification; account holds.
+* **TRIGGERS:** Flag hit → `(redflag.hit)`; Address change prior to new card → `(address.change.before.card)`.
+* **INPUTS:** Flag type → `(redflag.type)`; Verification outcome → `(redflag.verify.result)`.
+* **OUTPUTS:** Case notes; SAR referral where applicable.
+* **TIMERS/SLAs:** Review red-flag cases **same day**; rule review **quarterly**.
+* **EDGE CASES:** Elder fraud escalation; EWA/fintech partner channel anomalies.
+* **AUDIT LOGS:** `redflag.case.opened`, `redflag.case.closed`.
+* **ACCESS CONTROL:** Fraud ops; restricted read to support teams.
+* **ALERTS/METRICS:** False positive rate; time to resolution.
 
-The Credit Union will also comply with their Social Media Policy which sets forth limitations regarding employee use of social media and will assist the Credit Union in effectively managing participation in social media. Because social media channels have the potential to blur the lines between personal voice and institutional voice, the responsibility of carefully observing this policy rests with all employees. In approaching social media behavior, employees must use the same judgment and consideration that is given in executing any business transaction.
+### IS-11 — Vendor Risk Management
 
-### 14. EMERGING AREAS
+* **WHY (Reg cite):** Ensure service providers protect member info. [Part 748 App. A](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748).
+* **SYSTEM BEHAVIOR:** Due diligence (security, privacy, SOC reports), contractual safeguards (breach notice, disposition, right to audit), ongoing monitoring.
+* **TRIGGERS:** New vendor → `(vendor.onboard.requested)`; Renewal → `(vendor.renewal.due)`; Incident → `(vendor.incident.reported)`.
+* **INPUTS:** Diligence pack → `(vendor.dd.pack)`; Data types → `(vendor.data.scope)`.
+* **OUTPUTS:** Risk rating; contract clauses; monitoring calendar.
+* **TIMERS/SLAs:** High-risk vendors annual review; breach notice windows per contract (Assumption—set **24–72h**).
+* **EDGE CASES:** Sub-processors disclosure and approval.
+* **AUDIT LOGS:** `vendor.approved`, `vendor.review.completed`.
+* **ACCESS CONTROL:** VRM owned by Compliance/Procurement.
+* **ALERTS/METRICS:** % critical vendors with current SOC; SLA breaches.
 
-**AI and Automation Risk Management:**\
-Artificial Intelligence and machine learning systems must be secured against threats such as model tampering and data poisoning. Risk mitigation strategies will be integrated into system design and operations.
+### IS-12 — Physical Security & Facilities
 
-**Internet of Things (IOT) and Mobile Device Security:**\
-IOT devices and mobile devices connected to CU networks must comply with all security measures.
+* **WHY (Reg cite):** Protect facilities, media, and visitors. [Part 748 App. A](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748).
+* **SYSTEM BEHAVIOR:** Card/access controls; visitor escort & logs; CCTV/alarm monitoring; secure areas for servers/media; environmental protections.
+* **TRIGGERS:** Visitor arrival → `(visitor.checkin)`; Badge revoke → `(badge.revoke.request)`.
+* **INPUTS:** Access list → `(phys.access.whitelist)`; Visitor log → `(visitor.log.entry)`.
+* **OUTPUTS:** Access logs; incident tickets.
+* **TIMERS/SLAs:** Badge deactivation **≤24h** post-separation.
+* **EDGE CASES:** Emergency access with post-event review.
+* **AUDIT LOGS:** `door.access.granted`, `visitor.logged`.
+* **ACCESS CONTROL:** Facilities/IS.
+* **ALERTS/METRICS:** Tailgating alerts; access exceptions.
+
+### IS-13 — AI Governance & Usage Disclosure
+
+* **WHY (Reg cite):** Safeguards for NPI when using AI; privacy and security controls. [GLBA](https://www.law.cornell.edu/uscode/text/15/chapter-94); [Part 748 App. A](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748).
+* **SYSTEM BEHAVIOR:** Default **pro-AI** posture with controls: AI Use Register; DPIA for models/tools; vendor/feature review; disclosure of AI use in member-facing workflows; no unapproved uploads of NPI to external AI.
+* **TRIGGERS:** New AI tool/workflow → `(ai.use.proposed)`; Model update → `(ai.model.change)`.
+* **INPUTS:** Purpose → `(ai.purpose.text)`; Data categories → `(ai.data.classes)`; DPIA result → `(ai.dpia.result)`.
+* **OUTPUTS:** AI registry entry; user disclosures; guardrail configs (e.g., content filters, PII scrubbing).
+* **TIMERS/SLAs:** DPIA prior to production; registry update **≤5 days**.
+* **EDGE CASES:** Fine-tuning with member data requires explicit approval and documented minimization/pseudonymization.
+* **AUDIT LOGS:** `ai.tool.approved`, `ai.guardrail.blocked`, `ai.disclosure.rendered`.
+* **ACCESS CONTROL:** Approvals by IS/Privacy; usage by authorized teams.
+* **ALERTS/METRICS:** # blocked PII egress attempts; model drift alerts (Assumption).
+
+### IS-14 — Logging, Monitoring & Alerting
+
+* **WHY (Reg cite):** Monitor for anomalies; support IR. [Part 748 App. A](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748).
+* **SYSTEM BEHAVIOR:** Centralize logs (SIEM); time-sync; retain security-relevant logs; real-time alerting for critical events.
+* **TRIGGERS:** New system onboard → `(logging.source.added)`; Offense detected → `(siem.offense.created)`.
+* **INPUTS:** Log source metadata → `(logging.source.meta)`; Retention → `(logging.retention.days)`.
+* **OUTPUTS:** Dashboards; alerts; case artifacts.
+* **TIMERS/SLAs:** Daily review of critical alerts; log retention **≥12 months** (Assumption—align with records schedule).
+* **EDGE CASES:** Privacy by design for employee monitoring; minimize PII in logs.
+* **AUDIT LOGS:** `siem.ingest.started`, `alert.acknowledged`, `case.closed`.
+* **ACCESS CONTROL:** Least privilege to logs; IR team full read.
+* **ALERTS/METRICS:** Alert fatigue score; mean acknowledge time.
+
+### IS-15 — Acceptable Use & Communications Systems
+
+* **WHY (Reg cite):** Human control surface for many risks. [Part 748 App. A](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748).
+* **SYSTEM BEHAVIOR:** Document what employees can/can’t do with devices, email, messaging, internet, removable media; monitoring notice; BYOD constraints; remote work safeguards.
+* **TRIGGERS:** New hire → `(hr.onboard.policy.ack)`; Policy update → `(policy.au.updated)`.
+* **INPUTS:** User acknowledgment → `(policy.ack.timestamp)`; Device enrollment → `(mdm.device.id)`.
+* **OUTPUTS:** Signed acknowledgments; MDM compliance posture.
+* **TIMERS/SLAs:** Acknowledgment required **before** access is granted.
+* **EDGE CASES:** Reasonable personal use; protected concerted activity respected per law (Assumption—labor counsel to confirm).
+* **AUDIT LOGS:** `policy.ack.logged`, `mdm.noncompliant.flag`.
+* **ACCESS CONTROL:** HR/IS maintain records.
+* **ALERTS/METRICS:** % devices compliant; phishing sim failure rate (ties to [IS-17](cybersecurity.md#is-17-training-awareness-testing)).
+
+### IS-16 — Social Media
+
+* **WHY (Reg cite):** Prevent brand/data leakage; ensure disclosures and approvals (marketing rules may apply separately).
+* **SYSTEM BEHAVIOR:** Pre-approval for corporate posts; disclaimers for personal posts; no member info disclosure; escalate scams/impersonation.
+* **TRIGGERS:** Post request → `(social.post.requested)`; Impersonation report → `(social.impersonation.flagged)`.
+* **INPUTS:** Channel → `(social.channel)`; Content → `(social.content.id)`.
+* **OUTPUTS:** Approved posts; takedown/impersonation reports.
+* **TIMERS/SLAs:** Takedown escalation **same day**.
+* **EDGE CASES:** Employee bio linking—training provided.
+* **AUDIT LOGS:** `social.post.approved`, `social.takedown.requested`.
+* **ACCESS CONTROL:** Marketing/Comms; Security for takedowns.
+* **ALERTS/METRICS:** # spoof domains/accounts detected.
+
+### IS-17 — Training, Awareness & Testing
+
+* **WHY (Reg cite):** Personnel competence underpins the program. [Part 748 App. A](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748).
+* **SYSTEM BEHAVIOR:** Role-based training; quarterly phishing simulations; high-risk role deep-dives; records retained.
+* **TRIGGERS:** New role → `(training.assignment.created)`; Phishing sim → `(phish.sim.launched)`.
+* **INPUTS:** Curriculum → `(training.curriculum.id)`; Completion → `(training.completion.timestamp)`.
+* **OUTPUTS:** Completion reports; improvement plan.
+* **TIMERS/SLAs:** New hire training within **30 days**; annual refreshers.
+* **EDGE CASES:** Re-training for repeated phishing failures.
+* **AUDIT LOGS:** `training.assigned`, `training.completed`.
+* **ACCESS CONTROL:** HR/Compliance own LMS.
+* **ALERTS/METRICS:** Completion %; phish fail rate trend.
+
+### IS-18 — Records Management & Retention
+
+* **WHY (Reg cite):** Preserve required records; dispose timely. [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749).
+* **SYSTEM BEHAVIOR:** Apply retention schedule by record class; legal hold process; align with disposal in [IS-07](cybersecurity.md#is-07-data-protection-encryption-disposal).
+* **TRIGGERS:** Record created → `(records.item.created)`; Retention met → `(records.expired)`.
+* **INPUTS:** Record class → `(records.class.code)`; Hold flag → `(records.hold.flag)`.
+* **OUTPUTS:** Retention schedule; destruction log.
+* **TIMERS/SLAs:** Destruction queue processed **monthly** (unless on hold).
+* **EDGE CASES:** Mixed content systems—declare record in M365/G Suite equivalents (Assumption).
+* **AUDIT LOGS:** `records.destroyed`, `hold.applied`.
+* **ACCESS CONTROL:** Records manager; custodians by function.
+* **ALERTS/METRICS:** Over-retained items; holds age.
+
+***
+
+## Embedded Checklists & Templates <a href="#checklists" id="checklists"></a>
+
+* **Board Pack:** Annual program report template; risk heatmap; POA\&M summary.
+* **Risk Assessment:** Asset/threat/control matrix; scoring rubric.
+* **Change Management:** RFC form; CAB agenda; emergency change post-mortem.
+* **Vuln/Pen-Test:** Scope request; false positive challenge; remediation plan.
+* **Access Management:** JML checklist; privileged access request; quarterly review attestation.
+* **Incident Response:** NCUA 72-hour notification script; member notice template; law-enforcement coordination checklist; tabletop scenario pack.
+* **Red Flags:** Rules matrix; verification scripts; escalation tree; SAR referral cue sheet.
+* **Vendor Risk:** Diligence checklist (security/privacy/SOC); contract clause library; monitoring plan.
+* **Data Protection:** Encryption standards quick-ref; disposal certificate template; DLP exception form.
+* **Backup/DR:** Restore test runbook; communications tree; alt-site checklist.
+* **AI Governance:** DPIA template; AI Use Register schema; disclosure snippets; prompt-safety/do-not-paste guidance.
+* **Acceptable Use & Social:** Acknowledgment form; remote work setup list; social disclaimer boilerplate.
+
+***
+
+## Governance & Sign-Off <a href="#governance" id="governance"></a>
+
+* **Owner:** \{{Owner, Title\}}
+* **Approvals:** \{{Approver 1, Title\}}; \{{Approver 2, Title\}}
+* **Review Cadence:** Annual, or sooner upon material changes (product, technology, vendor, incident).
+* **Cross-References:** Vendor Due Diligence & Oversight; Configuration Management; Patch Management; Incident Response Policy; Electronic Communications/Acceptable Use; Records Retention Schedule.
+
+***
+
+### Assumptions & Gaps
+
+* **Deadlines & SLAs:** Where not explicitly set by regulation (e.g., vuln remediation windows, log retention months), conservative industry-standard targets were assumed—confirm with Risk/Board.
+* **AI Controls:** GLBA and NCUA safeguarding principles applied to AI; specific disclosure language to be finalized with Privacy and Legal.
+* **Social Media & Marketing Rules:** This policy sets security/usage boundaries; marketing compliance (e.g., Reg Z advertising) is out of scope here and should be addressed in a separate policy if applicable.
+* **Placeholders:** \{{ORGANIZATION\}}, OWNER/APPROVERS, and SCOPE to be populated; integrate any REFERENCE\_POLICY clauses only where they strengthen controls without duplicating this spec.
