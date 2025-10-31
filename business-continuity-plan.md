@@ -12,6 +12,7 @@
 * [ ] Monitoring and detection. Who is responsible for that?&#x20;
 * [ ] PIR. Post-incident reviews. Includes testing. Did the system work? What worked well? What needs to be improved? What steps are we going to take to improve it?&#x20;
 * [ ] Instant response protocol. Detect the incident, you respond, and then you recover? What are the actual steps.&#x20;
+* [ ] Specifically call out major IT failure. How do we respond to that? Especially as a digital-first platform, who takes control and what are our plans to respond.&#x20;
 
 {% code overflow="wrap" %}
 ```markdown

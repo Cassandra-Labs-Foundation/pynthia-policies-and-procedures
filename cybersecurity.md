@@ -7,11 +7,14 @@
 * [ ] Hardware and software. What's acceptable? What kind of vetting does each elemetn have to go through
 * [ ] Use of social media.&#x20;
 * [ ] Use of AI. **This is going to be a huge thing to discuss.** Here is what we plan odoing, and these are the protections in place.&#x20;
+  * [ ] At Pynthia specifically, we want to be as pro-AI as we can be from a regulatory perspective.&#x20;
+  * [ ] All AI used must be disclosed and must comply with our Privacy policy&#x20;
 * [ ] Data protection and backup.&#x20;
 * [ ] Pen-testing and vulnerability assesments. If this is done internally or outsourced.&#x20;
 * [ ] Change management. What's the process we go through for any kind of IT change.&#x20;
 * [ ] Identity Theft. How do we protect accounts? Detecting red flags?&#x20;
 * [ ] Review. Cadence.&#x20;
+* [ ] Frauds and Scams.&#x20;
 
 \# (Credit Union) Information Security Policy
 

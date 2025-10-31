@@ -11,7 +11,7 @@ description: >-
 
 Requirements from Patrick
 
-* [ ] Get the Base 2 framework template (>100 pages)&#x20;
+* [ ] Get the Basel 2 framework template (>100 pages)&#x20;
 * [ ] Extract what's relevant (apply Elon's algorithm)&#x20;
 * [ ] CapAdd + Liquidity caluclations need to be in the policy&#x20;
 
