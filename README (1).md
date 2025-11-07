@@ -1,5 +1,14 @@
 # Privacy
 
+Patrick's requirements
+
+* [ ] &#x20;governance (who does it apply to, ownerships, reporting frequency)
+* [ ] Scope&#x20;
+* [ ] Who is it outsourced to?&#x20;
+* [ ] Outward facing statement to users vs. internal facing policy that explains exactly how we handle and dispose of information internally
+* [ ] Who is responsible for reporting breaches?&#x20;
+* [ ] What's the review cadence?
+
 ## **Purpose and Objectives** <a href="#purpose-and-objectives" id="purpose-and-objectives"></a>
 
 This policy reaffirms and formalizes the bank’s realization of and respect for the privacy expectations and rights of our customers regarding financial information and other related information, which the bank has or gathers in the normal course of business. It is intended to provide guidance to bank personnel with respect to the physical safeguarding of information, as well as assurance to our customers. The rules apply only to information about individuals. Therefore, the rules do not apply to information about businesses, corporations, partnerships, or similar entities. Attempts to identify all customers or signers will be made prior to the release of information. We will also, of course, act in compliance with all applicable laws and regulations.
