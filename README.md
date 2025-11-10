@@ -1,6 +1,6 @@
 # Rulebook
 
-[README (1).md](<README (1).md> "mention") — to be uploaded
+[README (1).md](<README (1).md> "mention")&#x20;
 
 [aml-cft.md](aml-cft.md "mention")
 
@@ -24,9 +24,9 @@
 
 [resolution.md](resolution.md "mention")
 
-[liquidity.md](liquidity.md "mention") — to be uploaded
+[liquidity.md](liquidity.md "mention")
 
-[contingency-funding-plan.md](contingency-funding-plan.md "mention") — to be uploaded
+[contingency-funding-plan.md](contingency-funding-plan.md "mention")
 
 [lending.md](lending.md "mention") — todo
 

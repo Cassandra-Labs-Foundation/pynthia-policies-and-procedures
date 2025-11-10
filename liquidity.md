@@ -1,401 +1,420 @@
 # Liquidity
 
-Patrick's Requirements
-
-* [ ] Mismatch ratios (daily, weekly, monthly, annually)
-* [ ] At what level of liquidity are we required to notify the regulator of liquidity issues
-  * [ ] NCUA's liquidity thresholds (how do we calculate them)
-* [ ] notification protocol&#x20;
-
-{% embed url="https://docs.google.com/spreadsheets/d/1oQHyVdvWmo3OTZL_b4HSq_I4lNgs17F0/edit?gid=2101222972#gid=2101222972" %}
-
-[Liquidity tab](https://docs.google.com/spreadsheets/d/13MKgcPwa3zNDU2RRHh8YGvanibiu29jE/edit?gid=1511635179#gid=1511635179)
-
-## CONTINGENCY FUNDING PLAN
-
-## PURPOSE
-
-The purpose of the contingency funding plan is to establish procedures which will ensure the liquidity of the Bank is properly managed in a stressful or crisis situation.
-
-## ROLE OF SENIOR MANAGEMENT
-
-It is the responsibility of the Chief Financial Officer (CFO) and Chief Executive Officer (CEO), in combination with the members of the Bank’s ALCO Committee, to continually monitor and analyze the Bank’s loan portfolio, deposit structure and investment portfolio to maintain adequate liquidity under all circumstances.
-
-\
-
-
-## MANAGEMENT OBJECTIVES
-
-Management intends to maintain high quality and dependable sources of funding through the normal course of business.  As a bank, funding operations are highly dependent on customer activity.  Therefore, management will use an array of alternative funding sources to augment and stabilize the funding of the bank.  As such, the overall funds risk management strategy is multi-faceted, and includes the following objectives: &#x20;
-
-\
-
-
-* The ability to identify a potential liquidity short-fall – The Bank monitors its Net Loans to Deposits ratio on a daily basis to ensure compliance with ALCO limits.  Cash letters and available lines of credit are also monitored on a daily basis. Material short term changes in investment and deposit portfolios are also monitored and taken into consideration. The Bank uses a loan pipeline report to monitor short-term expected loan growth. For longer term planning, the Bank utilizes a Sources and Uses of funds out 90 days with two shock scenarios (worst case and likely case) to identify and address liquidity short-falls.&#x20;
-* The ability to respond appropriately to liquidity short-fall - The CFO and CEO, along with other members of the ALCO Committee, will determine the appropriate response to an identified liquidity short-fall. In the event that external communications are required, the Bank’s Board of Directors will also be involved.
-
-\
-
-
-In a stressed scenario, such as a liquidity crisis, should the need arise to contact external parties, the responsibilities would be as follows:
-
-\
-
-
-CEO:  Regulators, Press and Significant Customers
-
-CFO:  Investors, External Auditors, Vendors (if appropriate)
-
-\
-
-
-The internal communication in a stressed scenario would consist of the CEO contacting the Board and executive management, the CEO would then direct the CFO to compile necessary reports, i.e. Sources and Uses of Cash, Large Depositor Report, Daily Liquidity Reports, to allow the Board and management to understand the severity of the circumstances and to implement the appropriate responses.
-
-\
-
-
-* The ability to raise funds in an acceptable time frame – The Bank maintains collateralized credit lines with the Federal Home Loan Bank of Seattle (FHLB) and the Federal Reserve Bank (FRB) which can be used in the event of a liquidity short-fall. These lines are tested periodically in order to ensure availability and ease of access. The Bank also maintains a subscription to QwickRate which can be used to raise funds.
-* The ability to raise funds at an acceptable cost – In a normal operating environment, it is the Bank’s objective to utilize the lowest cost sources of funding available in order to maximize net interest margin. In a stressed operating environment, higher cost funding sources may be utilized in order to meet liquidity time-lines.
-
-## LIQUIDITY SOURCES
-
-The day to day maintenance and use of the Bank’s primary liquidity sources will be under the supervision of the CFO. The source of funds utilized to fulfill liquidity requirements at any given time may vary based on a number of factors including: 1) the projected duration of time the funds will be needed; 2) the specific cause(s) of the liquidity need; 3) the current and projected interest rate outlook; 4) the current and projected economic conditions; and 5) the current and projected balance sheet composition. These and any other relevant factors will be evaluated by the CFO and CEO to determine the appropriate liquidity source.
-
-\
-
-
-The following are the Bank’s major internal and external liquidity sources:
-
-#### Internal:
-
-Federal Funds Sold – Overnight federal funds sold resulting from increased deposits or reductions in the loan or investment portfolios, will be utilized as needed to meet day to day liquidity requirements.
-
-\
-
-
-Investment Portfolio – The Bank maintains a portfolio of Available-for-Sale securities. As certain of these securities have been pledged as collateral for deposits or lines of credit and this source is not as liquid as others, the investment portfolio is a secondary source of liquidity.
-
-\
-
-
-Saleable Assets – It is the policy of the Bank to structure its commercial real estate loans to meet the requirements of the secondary market in the event that the Bank elects to sell these loans to provide additional liquidity.&#x20;
-
-#### External:
-
-FHLB Advances – The Bank maintains a collateralized line of credit with the Federal Home Loan Bank of Seattle which can be utilized as needed to meet day to day liquidity requirements.  This line is tested periodically to ensure its availability.
-
-Federal Reserve Discount Window – The Bank has established a collateralized line of credit through the Federal Reserve in San Francisco which can be utilized as needed to meet day to day liquidity requirements. This line is tested periodically to ensure its availability.
-
-QwickRate – The Bank maintains a subscription to QwickRate which allows us to obtain additional deposits from institutional investors through the wholesale CD market. These deposits are considered non-brokered, core deposits. The determination to use this source is dependent on the rate, availability of deposits in our local market, availability of other liquidity sources, and the time frame involved.
-
-\
-
-
-## LIQUIDITY MONITORING&#x20;
-
-\
-
-
-The primary measurement of liquidity concern is the following:     &#x20;
-
-\
-
-
-Liquid Assets:  Cash + Balances Due from Banks + Securities + Fed Fund Sold /Total Assets
-
-#### NORMAL ENVIRONMENT
-
-#### Liquidity is considered “Normal” when liquid assets exceed 10% assets
-
-* Maintain lines on contingency funding schedule
-* Maintain collateral position for contingency purposes.
-* Report availabilities to board or delegated committee in normal course of business
-
-\
-\
-
-
-ALCO meetings are held at least quarterly. The minutes of the ALCO meetings are presented to the Board.
-
-&#x20;At ALCO meetings, the following information is routinely presented and discussed.&#x20;
-
-\
-
-
-* Sources and Uses of funds out 90 days with two shock scenarios (worst case and likely case).&#x20;
-* Capital Ratios as compared to Policy&#x20;
-* Liquidity Ratios as compared to Policy
-* ALX – Quarterly&#x20;
-* Large Depositor Report
-* Lines of Credit Report
-* Articles and publications discussing economic conditions
-* Loan to Deposit Ratio
-
-\
-
-
-The LOAN TO DEPOSIT ratio shall be equal to or less than 85%.  &#x20;
-
-#### STRESSED ENVIRONMENT
-
-#### Liquidity is considered “Watch” when liquid assets are below 10% assets or there is a 20% decrease in deposits (excluding brokered and financial institution deposits)
-
-* Inventory liquidity facilities
-* Conduct audit of liquidity facilities
-* Ensure collateral is pledged to facilities
-* Test or make contact with sources to ensure availability
-* Update contingency funding schedule for any changes
-* Notify senior management of any changes
-* Inform operational staff of liquidity level
-
-#### Liquidity is considered “Low” when liquid assets are below Watch or there is a 30% decrease in deposits (excluding brokered and financial institution deposits)&#x20;
-
-* Hold senior level meetings to determine best strategy
-* Estimate duration of low liquidity position
-* Consider selling securities or marketable loans if situation looks permanent
-* Consider permanent funding if situation looks permanent.
-* Consider ALM and IRR impacts of funding decisions
-* Inform operational staff of senior management decisions
-* Inform board or delegated committee, if material
-
-#### Liquidity is considered “Critical” when liquid assets are below Watch or there is a 40% or more decrease in deposits (excluding brokered and financial institution deposits)&#x20;
-
-* Permanent funding and/or asset liquidation is required to return liquidity to normal levels.
-* #### Remove the amount borrowed on facility from schedule of availability
-* This level constitutes a “run” on the bank.&#x20;
-* Report circumstances and action taken to Board of Directors.
-
-\
-\
-
-
-ALCO meetings are held monthly. The minutes of the ALCO meetings are presented to the Board.
-
-&#x20;
-
-Any sudden or protracted withdrawal of deposits will be addressed by the CEO and CFO. Excluded from these withdrawals will be the normal, monthly quarterly and seasonal fluctuations in both public and non-public funds. The Executive Management team will attempt to determine the possible cause(s) for the outflow of funds, which may include:
-
-\
-
-
-1\. Management changes or departures
-
-2\. Rumors concerning the safety and soundness of the Bank or banks in general
-
-3\. Unfavorable press
-
-4\. Asset quality problems
-
-5\. Failure of or trouble at an in-market competitor
-
-6\. Rumors or announcement of a merger
-
-\
-
-
-Once the potential cause(s) of the outflow has been identified, a determination of the potential severity of the stress situation and the likelihood of its persistence will be assessed by the ALCO committee. The severity of the situation will determine the appropriate course of action.
-
-\
-
-
-## CONTINGENT FUNDING MANAGEMENT RISKS
-
-#### Becoming less than Well Capitalized
-
-## Becoming less than well capitalized poses the single biggest risk to continued operations for “business as usual”. &#x20;
-
-* Deposit insurance will increase substantially
-* Bank earnings will decline significantly due to the increase expense
-* FHLB status would likely deteriorate to “custody status” only
-* Bank would not be able to use its blanket lien
-* Bank will have to replace blanket lien with loans and securities
-* Must seek FDIC waiver to accept or renew any brokered deposits
-* Waiver is unlikely to be obtained
-* Bank may not pay a rate of interest exceeding the FDIC-defined "national rate."&#x20;
-* Funding could likely be hampered
-* Fed funds lines of credit will likely be canceled or will require collateral
-* Cash letter and lines accounts will need to be secured
-
-\
-
-
-#### Becoming Undercapitalized
-
-## If the bank becomes undercapitalized then further restrictions become applicable as follows:
-
-* The bank shall pay no management fee to any person having control
-* The bank shall not permit its average total assets during any calendar quarter to exceed its average total assets during the preceding calendar quarter unless
-* The bank shall not, directly or indirectly, acquire any interest in any company or insured depository institution, establish or acquire any additional branch office, or engage in any new line of business&#x20;
-* The bank may be required to sell enough shares or obligations of the institution so that the institution will be adequately capitalized after the sale.&#x20;
-* The bank shall not accept deposits from correspondent depository institutions, including renewals and rollovers of prior deposits.&#x20;
-* The bank may be required to take any other action that the regulatory agency determines will better carry out the purpose of this section than any of the actions described in this paragraph.&#x20;
-* The bank shall not pay any bonus to any senior executive officer nor provide compensation at a rate exceeding that officer’s average rate of compensation.
-
-#### Change in credit rating
-
-The bank does not have a National Recognized Statistical Rating from a third party organization.  Generally, community banks are too small to have a firm consider them for a rating, plus the service tends to be cost prohibitive.  The bigger risk to community banks is the scoring models used by FITCH, IDC, Weis and others using call report data which arrive at  estimated “CAMELS” rating.  Due to the lack of a formal credit rating, the risk of customers monitoring such scoring models is low. This event would not be expected to cause any significant liquidity issue.
-
-#### Deterioration in asset quality
-
-## Deterioration in asset quality generally produces strains on earnings and capital.  Earnings are strained as assets are moved to non-accrual status and provisions for future or potential losses increase.  These actions cause both net interest income and provision expenses to increase.  Capital becomes strained because earnings are not enough to augment capital and/or absorb the increase risk.  Management shall consider shrinking the asset size of the bank during such times to ensure capital protection is commensurate with the risk of the bank. Deterioration in asset quality results in lower lending limits possibly causing existing customers to refinance elsewhere; when loans leave the bank, the relationship is also at risk. If this scenario causes a decrease in deposits, liquidity could be affected. If liquidity declines or deposits decrease 10% to 40% or more, the steps will be taken that are listed in the “stressed environment” section of this CFP. &#x20;
-
-#### Unplanned asset growth
-
-## The bank does not expect rapid asset growth, rather growth in a controlled fashion and in proportion to capital.  Rapid growth produces strains on management, personnel, systems and earnings.  Rapid growth also increases the risk profile of the bank, as many changes occur in all areas of the bank at once.
-
-#### Loss of access to market funding sources
-
-## The biggest risk to losing market funding sources is losing access to the FHLB system, brokered deposits and fed funds lines of credit.  These sources represent the extent of wholesale funding sources used by community banks.  The goal of the bank is to maintain these facilities so they are used in the normal course of business as well as for contingent funding sources.  If the bank loses access to such sources, the primary goal for re-establishing such facilities is to secure with readily marketable collateral, or loans in the case of the FHLB.  The bank may be required to liquidate loans in order to produce cash to purchase securities for these facilities.   This scenario stresses liquid assets, mostly the access to cash. Loss of access to funding sources requires the bank to keep liquidity available such as investment CD’s that can be redeemed as needed, short term securities held AVS, and accurate and complete loan files able to be pledged.
-
-#### Operating losses
-
-## Operating losses signal operational deficiencies and increasing risk to creditors, correspondent banks, and providers of wholesale funds.   The bank will try to minimize losses during poor economic times but fully recognize all known losses in order that counterparties, regulators, creditors and others may fully know the extent of the bank’s problems.  Furthermore, the transparency in financial statements is designed to provide faith in management’s ability to manage the crisis.  Management will also maintain capital at levels that mitigate occasional years of operational losses.  Losses can be caused by difficult economic conditions, defalcations, judgment, borrower issues and more.  Early recognition and full disclosure remain the best proactive measures.  Operating losses result in lower lending limits possibly causing existing customers to refinance elsewhere; when loans leave the bank, the relationship is also at risk. If this scenario causes a decrease in deposits, liquidity could be affected. If liquidity declines or deposits decrease 10% to 40% or more, the steps will be taken that are listed in the “stressed environment” section of this CFP. &#x20;
-
-\
-
-
-#### Negative Press
-
-## Negative press mostly affects the public perception of the bank and therefore will affect retail funding of the bank.  Negative press can be warranted and unwarranted but nonetheless must be dealt with on equally important resolve.  Retail funding is sensitive to negative press and bad press would likely cause declines in deposit volumes from non-core customers.  Sustained negative press would eventually cause core customer deposits to leave.  Management will make every effort to contact its core customers during periods of negative press to keep them apprised of problems and corrective actions.  During these times, management will be responsible for coordinating customer efforts and responses.  Any contact with the media shall be made by the President and CEO or his delegate.  Negative press creates the risk of a “run on the bank”. If deposits decrease 40% or more the steps will be taken that are listed in the “Critical” liquidity section of this CFP. &#x20;
-
-\
-\
-
-
-#### Other events
-
-## The bank should stay aware of other possible risks that may or potentially could affect the liquidity of the bank. &#x20;
-
-\
-
-
-## EARLY WARNING INDICATORS
-
-Senior management shall monitor for potential liquidity stress events by using early warning indicators, event triggers, and reportable levels.  By recognizing potential stress events early, senior management can proactively position itself into progressive states of readiness as an event evolves. This proactive stance also provides senior management with the opportunity for communicating among different levels and outside parties.&#x20;
-
-\
-
-
-Early warning indicators include the following:
-
-\
-
-
-* Rapid asset growth funded with potentially volatile liabilities;
-* Growing or undue concentrations in assets or liabilities;
-* Negative trends or heightened risk associated with a particular product line;
-* Third-party ratings and downgrades;
-* Negative publicity;
-* Significant deterioration in earnings, asset quality, and overall financial condition;
-* Difficulty accessing longer-term funding;
-* Increasing collateral margin requirements;
-* Rising funding costs in a stable market;
-* Increasing redemptions of CDs before maturity;
-* Correspondent banks eliminate or decrease lines.
-
-\
-
-
-PRECURSORY ACTION PLANS &#x20;
-
-In light of impending liquidity problems, management may take proactive steps to obtain liquidity and funding for the bank.  Management will work to stave off any liquidity and funding problems by taking proactive steps.  Liquidity and funding changes in the normal course of business or low volume changes can be handled with relative ease.  Significant and sudden changes in liquidity and funding may cause strains on the bank if management is not prepared accordingly. &#x20;
-
-\
-
-
-The following is a list of precursory action plans:&#x20;
-
-Precursory action plans - Management
-
-* Maintain brokered deposit registrations&#x20;
-* Maintain FHLB membership&#x20;
-* Maintain FRB Primary Credit availability
-* Make any necessary collateral pledges&#x20;
-* Investigate access to capital if needed
-* Notify correspondent banks and other interested parties
-
-Precursory action plans – Assets
-
-* Purchase securities for use in pledging
-* Sell securities to roll into fed funds sold
-* Allow securities maturities to roll into fed fund sold
-* Identify loans that can be sold
-* Identify loans that can be participated to upstream correspondent banks
-* Identify loans from the remaining loans that can be pledged
-* Suspend lending activities
-
-Precursory action plans - Liabilities
-
-* Lengthen term of certificates of deposits
-* Lengthen term of FHLB borrowings
-* Lengthen term of FRB Primary Credit borrowings
-* Purchase brokered deposits for added liquidity
-
-\
-\
-
-
-## STRESS TESTING
-
-Bank managers must focus on adequate liquidity during both normal and stress times.  Prudent managers use scenario stress testing analysis to evaluate the effect of bank-specific and systemic event conditions on liquidity adequacy.  Bank-specific scenarios may include scenarios with deteriorating asset quality, decreased credit capacity, or operational deficiencies.  Systemic events affect the industry’s overall liquidity levels and may involve disruptions to the broader liquidity markets and payment system. &#x20;
-
-\
-
-
-## Key elements of a stress test would include the following:
-
-\
-
-
-* Valid base case scenario
-* Robust bank-specific crisis
-* Robust system stress crisis
-* Clearly defined external market/economic context
-* Clearly defined scenario articulation
-* Sufficient severity in crisis
-* Transparency and understanding of results
-* Senior management involvement in the process
-* Credible senior management actions
-* Simple and clear presentation of results
-* Easily understood liquidity funding metrics
-
-\
-\
-
-
-Stress testing can be presented using different types of formats.  Some of the acceptable formats are:
-
-\
-
-
-* Cash flow projections
-* Balance sheet impacts
-* Combination of both
-
-\
-
-
-Stress testing shall be conducted as needed.
-
-## CONTINGENT FUNDING MANAGEMENT
-
-#### Responsibilities Review
-
-* ## The Board or a delegated committee shall review liquidity and dependency ratios quarterly for strategic positioning review
-* The CFO and/or CEO shall review the bank’s liquidity and cash positions daily. &#x20;
-* The CFO and/or CEO shall be responsible for executing borrowings.
-* The CFO and/or CEO shall be responsible for monitoring early warning indicators
-* The CFO and/or CEO shall be responsible for monitoring event triggers
-* The CFO and/or CEO shall be responsible for executing action plans
-* The CFO and/or CEO shall be responsible for executing precursory action plans
-* The CEO and/or CFO shall be responsible for apprising the board or delegated committee of any significant changes in CFP capacity. &#x20;
-* The CFO shall be responsible for maintaining the CFP schedule&#x20;
-* The CFO shall be responsible for keeping CFP facilities in good standing
-* The CFO shall be responsible for determining best use of collateral
-
-#### Reporting Exceptions
-
-* Exceptions shall be reported to the board or a delegated committee within 30 days of the exception. &#x20;
-
-\
-\
+\{{ORGANIZATION\}} maintains a risk-based Liquidity Policy and a written Contingency Funding Plan (CFP) covering \{{SCOPE\}}. The Liquidity Policy defines what we measure, limit, and report in normal conditions. The CFP defines how we detect stress, escalate, and execute funding actions when indicators breach triggers. Requirements align to **NCUA** rules; external authorities cited are statutes/regs only.
+
+***
+
+## Multi-Rule Authority Table <a href="#authority" id="authority"></a>
+
+| Topic                                          | Scope                                                                                                                                                                   | Key Clauses / Notes                                                                                                                                 |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **NCUA Liquidity & CFP Rule**                  | Liquidity program, board-approved policy; CFP required for ≥ $50MM; documented access to a **federal** contingent source (CLF and/or Fed Discount Window) for ≥ $250MM. | **12 CFR §741.12** — [https://www.ecfr.gov/current/title-12/part-741/section-741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12) |
+| **Central Liquidity Facility (CLF) Statute**   | Eligibility, membership/agent membership, purpose of federal emergency liquidity for credit unions.                                                                     | **12 U.S.C. §§1795–1795k** — [https://www.law.cornell.edu/uscode/text/12/chapter-14](https://www.law.cornell.edu/uscode/text/12/chapter-14)         |
+| **Federal Reserve Advances (Discount Window)** | Authority for Federal Reserve advances to depository institutions. (Used as federal contingent source.)                                                                 | **12 U.S.C. §347b** — [https://www.law.cornell.edu/uscode/text/12/347b](https://www.law.cornell.edu/uscode/text/12/347b)                            |
+
+> Scope choice is NCUA-only. OCC/FDIC materials are excluded unless directly applicable to federally insured credit unions.
+
+***
+
+## Timing Matrix <a href="#timing-matrix" id="timing-matrix"></a>
+
+| Scenario                             | Trigger (human → event)                                       |             Deadline | Content Reference          | Control                                                                              |
+| ------------------------------------ | ------------------------------------------------------------- | -------------------: | -------------------------- | ------------------------------------------------------------------------------------ |
+| Daily liquidity monitoring           | “Close-of-day pack ready” → (liquidity.daily\_ready)          |        T+0 DLY 17:00 | LAR, gaps, top depositors  | [LP-05](liquidity.md#lp-05-liquid-assets-ratio-bands--watchlowcritical)              |
+| Stress test cycle                    | “Quarterly ALCO review” → (alco.q\_review)                    |        End of Q +5bd | Pack + assumptions log     | [LP-07](liquidity.md#lp-07-stress-testing-scenarios--horizons)                       |
+| Regulator notification — Level 2/3   | “CFP Level 2 or 3 activated” → (cfp.level\_changed)           |         **24 hours** | Event memo; action plan    | [LP-10](liquidity.md#lp-10-regulatory-notification-triggers--protocol)               |
+| Discount Window / CLF readiness test | “Annual no-funds draw scheduled” → (facility.test\_scheduled) |           **Annual** | Test report; contact sheet | [LP-11](liquidity.md#lp-11-contingent-federal-liquidity-access-clf--discount-window) |
+| Board reporting                      | “Quarterly Board meeting” → (board.q\_meeting)                |        **Quarterly** | KPIs vs limits; breaches   | [LP-09](liquidity.md#lp-09-reporting-cadence-opsalcoBoard)                           |
+| Crisis comms to major depositors     | “Outflow > 30% 10d or LAR < 8%” → (liquidity.outflow\_major)  | As approved same day | Scripted update            | [CFP-05](liquidity.md#cfp-05-external-communications--stakeholder-matrix)            |
+
+***
+
+## Control Index <a href="#control-index" id="control-index"></a>
+
+| ID                                                                                   | Control Name                   | Purpose                                  | Primary Rule(s)                   |
+| ------------------------------------------------------------------------------------ | ------------------------------ | ---------------------------------------- | --------------------------------- |
+| [LP-01](liquidity.md#lp-01-policy-scope--risk-appetite)                              | Policy Scope & Risk Appetite   | Define scope, roles, appetite.           | §741.12                           |
+| [LP-02](liquidity.md#lp-02-definitions--ratios-catalogue)                            | Definitions & Ratios Catalogue | Standardize metrics and terms.           | §741.12                           |
+| [LP-03](liquidity.md#lp-03-maturity-mismatch-limits-dailyweeklymonthlyannual)        | Maturity Mismatch Limits       | Set time-bucket gap limits.              | §741.12                           |
+| [LP-04](liquidity.md#lp-04-survival-horizon--coverage-days)                          | Survival Horizon Targets       | Ensure days-of-coverage under stress.    | §741.12                           |
+| [LP-05](liquidity.md#lp-05-liquid-assets-ratio-bands--watchlowcritical)              | Liquid Assets Ratio Bands      | Early-warning bands that drive CFP.      | §741.12                           |
+| [LP-06](liquidity.md#lp-06-funding-concentration--counterparty-limits)               | Funding Concentration Limits   | Cap dependence on single sources.        | §741.12                           |
+| [LP-07](liquidity.md#lp-07-stress-testing-scenarios--horizons)                       | Stress Testing                 | Quarterly scenarios; intraday peaks.     | §741.12                           |
+| [LP-08](liquidity.md#lp-08-data-quality--model-governance)                           | Data & Model Governance        | Assumptions, validation, lineage.        | §741.12                           |
+| [LP-09](liquidity.md#lp-09-reporting-cadence-opsalcoBoard)                           | Reporting Cadence              | Daily ops, weekly ALCO, quarterly Board. | §741.12                           |
+| [LP-10](liquidity.md#lp-10-regulatory-notification-triggers--protocol)               | Regulator Notification         | When/how to notify NCUA.                 | §741.12                           |
+| [LP-11](liquidity.md#lp-11-contingent-federal-liquidity-access-clf--discount-window) | Federal Contingent Access      | CLF and Fed Discount Window readiness.   | §741.12; 12 USC 1795; 12 USC 347b |
+| [LP-12](liquidity.md#lp-12-collateral--encumbrance-management)                       | Collateral & Encumbrance       | Track/optimize pledged assets.           | §741.12                           |
+| [LP-13](liquidity.md#lp-13-wholesale--listing-service-deposits-guardrails)           | Wholesale Deposits Guardrails  | Safe use of listing-service CDs.         | §741.12                           |
+| [CFP-01](liquidity.md#cfp-01-cfp-purpose--activation-levels)                         | CFP Purpose & Activation       | Define levels and governance.            | §741.12                           |
+| [CFP-02](liquidity.md#cfp-02-early-warning-indicators--event-triggers)               | Early-Warning Indicators       | Detect emerging liquidity stress.        | §741.12                           |
+| [CFP-03](liquidity.md#cfp-03-escalation-ladder--crisis-roles)                        | Escalation & Roles             | Decision rights and team.                | §741.12                           |
+| [CFP-04](liquidity.md#cfp-04-funding-playbooks--draw-order)                          | Funding Playbooks              | Order of draw; internal/external.        | §741.12                           |
+| [CFP-05](liquidity.md#cfp-05-external-communications--stakeholder-matrix)            | Comms & Stakeholders           | Who contacts whom and when.              | §741.12                           |
+| [CFP-06](liquidity.md#cfp-06-regulator-liaison-protocols)                            | Regulator Liaison              | Structured contact with NCUA.            | §741.12                           |
+| [CFP-07](liquidity.md#cfp-07-liquidity-drills--after-action-reviews)                 | Drills & AARs                  | Exercise plan and remediate.             | §741.12                           |
+| [CFP-08](liquidity.md#cfp-08-documentation--retention-10-years)                      | Documentation & Retention      | Evidence for exams (10 years).           | §741.12                           |
+
+***
+
+## LP-01 — Policy Scope & Risk Appetite
+
+* **WHY (Reg cite):** Board-approved liquidity program and CFP are required (12 CFR §741.12).
+* **SYSTEM BEHAVIOR:** Enforce a single liquidity standard across \{{SCOPE\}}; align ALCO dashboards and alerts to limits.
+* **TRIGGERS (human → event):** “Policy approved/updated” → (policy.approved); “Limit table updated” → (limit.table\_updated).
+* **INPUTS (human → field):** Scope statement → (policy.scope); Risk appetite text → (risk.appetite); Limit table → (limit.table).
+* **OUTPUTS:** Versioned policy PDF/MD; limit registry JSON.
+* **TIMERS/SLAs:** Review **annual**; ad-hoc within 10bd after material changes.
+* **EDGE CASES:** BaaS partner launches with novel flow → temporary overlay documented.
+* **AUDIT LOGS:** (policy.versioned), (limit.registry\_saved).
+* **ACCESS CONTROL:** Owner: CFO; Approvers: CEO, Board.
+* **ALERTS/METRICS:** (metric.policy\_past\_due), (metric.limit\_waivers\_open).
+
+***
+
+## LP-02 — Definitions & Ratios Catalogue
+
+* **WHY (Reg cite):** Common definitions ensure consistent measurement/reporting (§741.12).
+* **SYSTEM BEHAVIOR:** Central library for LAR, cumulative mismatch, survival horizon, concentration.
+* **TRIGGERS:** “Metric added/edited” → (metric.lib\_changed).
+* **INPUTS:** Formula → (metric.formula); Data source → (metric.datasource).
+* **OUTPUTS:** Markdown table; machine-readable schema.
+* **TIMERS/SLAs:** Keep formulas synced with GL mapping **daily**.
+* **EDGE CASES:** Data source outage → fallback to prior day with flag.
+* **AUDIT LOGS:** (metric.lib\_published).
+* **ACCESS CONTROL:** CFO owns; Liquidity Analyst edits; read-only for others.
+* **ALERTS/METRICS:** (metric.schema\_drift\_detected).
+
+***
+
+## LP-03 — Maturity Mismatch Limits (Daily/Weekly/Monthly/Annual)
+
+* **WHY (Reg cite):** Governance over cash-flow gaps is core to liquidity safety (§741.12).
+* **SYSTEM BEHAVIOR:** Compute cumulative gaps in buckets: O/N, 2–7d, 8–30d, 31–90d, 91–365d, >1y; compare to limits.
+* **TRIGGERS:** “EOD gaps posted” → (liquidity.gap\_calculated).
+* **INPUTS:** Contractual/behavioral flows → (flow.table); limits → (gap.limits).
+* **OUTPUTS:** Gap chart; breach report.
+* **TIMERS/SLAs:** Calculate **daily** by 16:00.
+* **EDGE CASES:** Large unscheduled payoff → recalc intra-day.
+* **AUDIT LOGS:** (gap.calc\_run), (gap.breach\_logged).
+* **ACCESS CONTROL:** CFO approves limit changes; ALCO oversight.
+* **ALERTS/METRICS:** (alert.gap\_breach), (metric.days\_negative\_gap).
+
+***
+
+## LP-04 — Survival Horizon & Coverage Days
+
+* **WHY (Reg cite):** Ability to meet obligations under stress is required (§741.12).
+* **SYSTEM BEHAVIOR:** Model survival days for idiosyncratic and combined stress.
+* **TRIGGERS:** “Stress run completed” → (stress.run\_done).
+* **INPUTS:** Outflow assumptions → (stress.assumptions); facility headroom → (facility.headroom).
+* **OUTPUTS:** Survival-days KPI; waterfall of actions.
+* **TIMERS/SLAs:** Quarterly + ad-hoc within 2bd when EWIs spike.
+* **EDGE CASES:** Facility operational issue → remove and re-run.
+* **AUDIT LOGS:** (stress.pack\_issued).
+* **ACCESS CONTROL:** CFO owns models; independent review annually.
+* **ALERTS/METRICS:** (alert.survival\_below\_target).
+
+***
+
+## LP-05 — Liquid Assets Ratio (Bands: Watch/Low/Critical)
+
+* **WHY (Reg cite):** Internal thresholds provide early warning and map to CFP (§741.12).
+* **SYSTEM BEHAVIOR:** Compute **LAR** and classify: Normal ≥10%; Watch <10%; Low <8%; Critical <6% (policy-set).
+* **TRIGGERS:** “Close-of-day balances loaded” → (balances.loaded).
+* **INPUTS:** Cash/Fed/corporate CU balances (bal.cash); AFS unencumbered (sec.afs\_free); total assets (bal.assets).
+* **OUTPUTS:** Band status; breach/near-miss log.
+* **TIMERS/SLAs:** Daily by 16:00; alerts real-time on breach.
+* **EDGE CASES:** Late custodian file → provisional LAR with flag.
+* **AUDIT LOGS:** (lar.calc\_saved), (lar.band\_changed).
+* **ACCESS CONTROL:** Read for ops; write restricted to Liquidity team.
+* **ALERTS/METRICS:** (alert.lar\_watch), (alert.lar\_low), (alert.lar\_critical).
+
+***
+
+## LP-06 — Funding Concentration & Counterparty Limits
+
+* **WHY (Reg cite):** Prevent over-reliance on single sources (§741.12).
+* **SYSTEM BEHAVIOR:** Track top 10 depositors; single-provider and facility reliance limits.
+* **TRIGGERS:** “New deposit ≥ $250k” → (deposit.large\_new).
+* **INPUTS:** Depositor exposures (exp.top10); provider shares (exp.provider\_pct).
+* **OUTPUTS:** Concentration report; waiver workflow.
+* **TIMERS/SLAs:** Update **daily**; waivers within 2bd.
+* **EDGE CASES:** Temporarily exceed limit during crisis → document CFP linkage.
+* **AUDIT LOGS:** (waiver.requested), (waiver.closed).
+* **ACCESS CONTROL:** ALCO approves waivers.
+* **ALERTS/METRICS:** (alert.concentration\_exceed).
+
+***
+
+## LP-07 — Stress Testing (Scenarios & Horizons)
+
+* **WHY (Reg cite):** CFP must be supported by credible stress testing (§741.12).
+* **SYSTEM BEHAVIOR:** Run idiosyncratic, systemic, combined; include intraday peaks and BaaS shocks.
+* **TRIGGERS:** “Quarter opened” → (calendar.q\_open).
+* **INPUTS:** Scenarios (stress.scenarios); parameters (stress.params).
+* **OUTPUTS:** Pack with survival, gaps, actions.
+* **TIMERS/SLAs:** **Quarterly**; re-run within 5bd upon major EWI.
+* **EDGE CASES:** Data stale → mark and proceed with conservative overlays.
+* **AUDIT LOGS:** (stress.pack\_signed).
+* **ACCESS CONTROL:** CFO owner; Independent reviewer sign-off.
+* **ALERTS/METRICS:** (metric.stress\_on\_time).
+
+***
+
+## LP-08 — Data Quality & Model Governance
+
+* **WHY (Reg cite):** Reliable inputs and validated methods (§741.12).
+* **SYSTEM BEHAVIOR:** Maintain lineage; reconcile to GL; catalog assumptions.
+* **TRIGGERS:** “Source mapping changed” → (data.mapping\_changed).
+* **INPUTS:** Mapping table (data.map); assumption log (model.assumptions).
+* **OUTPUTS:** Validation memo; change log.
+* **TIMERS/SLAs:** Annual independent review; GL tie-out **daily**.
+* **EDGE CASES:** Partial day outages → flag and annotate KPIs.
+* **AUDIT LOGS:** (model.review\_done).
+* **ACCESS CONTROL:** Segregation between builders/reviewers.
+* **ALERTS/METRICS:** (metric.recon\_breaks).
+
+***
+
+## LP-09 — Reporting Cadence (Ops/ALCO/Board)
+
+* **WHY (Reg cite):** Governance visibility required (§741.12).
+* **SYSTEM BEHAVIOR:** Auto-generate daily ops pack; weekly ALCO digest; quarterly Board deck.
+* **TRIGGERS:** “EOD data posted” → (report.auto\_run).
+* **INPUTS:** KPIs, breaches, actions (report.inputs).
+* **OUTPUTS:** PDF/MD packs with sign-offs.
+* **TIMERS/SLAs:** Daily 17:00; Weekly Fri 12:00; Quarterly +5bd.
+* **EDGE CASES:** Holiday shifts → move to prior business day.
+* **AUDIT LOGS:** (report.published).
+* **ACCESS CONTROL:** Read to execs; edit Liquidity team.
+* **ALERTS/METRICS:** (metric.report\_ontime).
+
+***
+
+## LP-10 — Regulatory Notification Triggers & Protocol
+
+* **WHY (Reg cite):** Material liquidity issues must be escalated to NCUA (§741.12 purpose).
+* **SYSTEM BEHAVIOR:** When **CFP Level 2 or 3** activates, or **CLF/Discount Window** used/attempted, or **survival < 15d** (combined) or **LAR < 6%**, prepare and send NCUA memo.
+* **TRIGGERS:** “Level changed to 2/3” → (cfp.level\_changed); “Federal facility draw” → (facility.fed\_used).
+* **INPUTS:** Event memo (notify.memo); contact list (notify.contacts).
+* **OUTPUTS:** Email to examiner/region; incident log entry.
+* **TIMERS/SLAs:** **Within 24 hours.**
+* **EDGE CASES:** After-hours trigger → notify next calendar day by 10:00 and document.
+* **AUDIT LOGS:** (notify.sent), (notify.ack\_received).
+* **ACCESS CONTROL:** CEO sender; CFO drafter; Board Chair CC.
+* **ALERTS/METRICS:** (metric.notifications\_on\_time).
+
+***
+
+## LP-11 — Contingent Federal Liquidity Access (CLF & Discount Window)
+
+* **WHY (Reg cite):** ≥ $250MM must document access to a federal contingent source (§741.12); CLF statute **12 USC 1795**, Fed advances **12 USC 347b**.
+* **SYSTEM BEHAVIOR:** Maintain membership/agent access to **CLF** and operational readiness for **Discount Window**; keep collateral schedules current; conduct annual test (funded or no-funds).
+* **TRIGGERS:** “Annual test due” → (facility.test\_due).
+* **INPUTS:** Pledge inventory (collateral.inventory); legal docs (facility.docs).
+* **OUTPUTS:** Test report; contact sheet; readiness checklist.
+* **TIMERS/SLAs:** **Annual** by month-end of anniversary.
+* **EDGE CASES:** Counterparty portal outage → phone protocol.
+* **AUDIT LOGS:** (facility.test\_complete).
+* **ACCESS CONTROL:** CFO controls; Treasury Ops prepares files.
+* **ALERTS/METRICS:** (metric.facility\_headroom), (metric.docs\_expiring).
+
+***
+
+## LP-12 — Collateral & Encumbrance Management
+
+* **WHY (Reg cite):** Liquidity depends on pledgeable capacity (§741.12).
+* **SYSTEM BEHAVIOR:** Track eligible/unencumbered balances and haircuts by counterparty; optimize pledges.
+* **TRIGGERS:** “Security pledged/released” → (collateral.change).
+* **INPUTS:** Collateral file (collateral.file); haircuts (collateral.haircut).
+* **OUTPUTS:** Headroom dashboard.
+* **TIMERS/SLAs:** Update **daily**; re-check T+0 after large moves.
+* **EDGE CASES:** Margin call → intraday pledge flow.
+* **AUDIT LOGS:** (collateral.state\_saved).
+* **ACCESS CONTROL:** Dual control for pledges.
+* **ALERTS/METRICS:** (alert.headroom\_low).
+
+***
+
+## LP-13 — Wholesale / Listing-Service Deposits Guardrails
+
+* **WHY (Reg cite):** Manage optionality and rollover risk in non-core funding (§741.12).
+* **SYSTEM BEHAVIOR:** Allow approved listing services with tenor laddering; enforce pricing authority; stress runoff assumptions.
+* **TRIGGERS:** “New listing CD booked” → (deposit.listing\_new).
+* **INPUTS:** Provider master (provider.list); ladder plan (ladder.plan).
+* **OUTPUTS:** Exposure report; maturity wall chart.
+* **TIMERS/SLAs:** Update **daily**; ALCO monthly.
+* **EDGE CASES:** Rate spike → pause new tenors > policy.
+* **AUDIT LOGS:** (deposit.provider\_approved).
+* **ACCESS CONTROL:** CFO approval required.
+* **ALERTS/METRICS:** (alert.listing\_too\_concentrated).
+
+***
+
+## CFP-01 — CFP Purpose & Activation Levels
+
+* **WHY (Reg cite):** Written CFP required; executable under stress (§741.12).
+* **SYSTEM BEHAVIOR:** Define activation **Level 1 (Watch)**, **Level 2 (Low)**, **Level 3 (Critical)** tied to [LP-05](liquidity.md#lp-05-liquid-assets-ratio-bands--watchlowcritical).
+* **TRIGGERS:** “Band changed” → (lar.band\_changed).
+* **INPUTS:** Level thresholds (cfp.thresholds).
+* **OUTPUTS:** Activation record; tasking orders.
+* **TIMERS/SLAs:** Transition actions started within **2 hours** of Level 2/3.
+* **EDGE CASES:** False positive → revert with note.
+* **AUDIT LOGS:** (cfp.activated), (cfp.deactivated).
+* **ACCESS CONTROL:** CEO authorizes Levels 2–3.
+* **ALERTS/METRICS:** (metric.time\_to\_activate).
+
+***
+
+## CFP-02 — Early-Warning Indicators & Event Triggers
+
+* **WHY (Reg cite):** Detect stress early to preserve optionality (§741.12).
+* **SYSTEM BEHAVIOR:** Monitor: rapid asset growth via volatile liabilities; undue concentrations; negative press; earnings/asset-quality deterioration; rising funding costs; margin calls; early CD redemptions; correspondent line cuts.
+* **TRIGGERS:** “EWI threshold reached” → (ewi.threshold\_hit).
+* **INPUTS:** Indicator values (ewi.values); thresholds (ewi.thresholds).
+* **OUTPUTS:** EWI dashboard; alerts.
+* **TIMERS/SLAs:** Review **daily**; summarize **weekly** to CEO.
+* **EDGE CASES:** Rumor-based press → escalate to Comms lead.
+* **AUDIT LOGS:** (ewi.alert\_logged).
+* **ACCESS CONTROL:** CFO owner; Risk read-only.
+* **ALERTS/METRICS:** (alert.ewi\_red).
+
+***
+
+## CFP-03 — Escalation Ladder & Crisis Roles
+
+* **WHY (Reg cite):** Clear decision rights enable timely action (§741.12).
+* **SYSTEM BEHAVIOR:** CEO leads external comms; CFO runs liquidity ops; ALCO advises; Board approves extraordinary measures.
+* **TRIGGERS:** “Crisis team paged” → (crisis.page\_sent).
+* **INPUTS:** Contact matrix (team.roster); delegation file (auth.matrix).
+* **OUTPUTS:** Call notes; decision log.
+* **TIMERS/SLAs:** Convene within **60 minutes** of Level 2/3.
+* **EDGE CASES:** CEO unavailable → designate Acting CEO.
+* **AUDIT LOGS:** (crisis.meeting\_started).
+* **ACCESS CONTROL:** CEO controls spokesperson list.
+* **ALERTS/METRICS:** (metric.escalation\_time).
+
+***
+
+## CFP-04 — Funding Playbooks & Draw Order
+
+* **WHY (Reg cite):** CFP must specify actionable funding sources (§741.12).
+* **SYSTEM BEHAVIOR:** See internal and external draw order below.
+
+{% stepper %}
+{% step %}
+### Internal
+
+* Cash/Fed balances
+* Unencumbered AFS (sell/pledge)
+* Saleable/participation-ready loans
+{% endstep %}
+
+{% step %}
+### External
+
+* FHLB (if eligible)
+* Fed **Discount Window** (12 USC 347b)
+* **CLF** (12 USC 1795)
+* Listing-service CDs within [LP-13](liquidity.md#lp-13-wholesale--listing-service-deposits-guardrails)
+{% endstep %}
+{% endstepper %}
+
+* **TRIGGERS:** “Funding shortfall detected” → (funding.shortfall).
+* **INPUTS:** Sources table (funding.sources); haircuts (collateral.haircut).
+* **OUTPUTS:** Draw orders; tickets; confirmations.
+* **TIMERS/SLAs:** Execute first-line actions within **2 hours** of Level 2.
+* **EDGE CASES:** Facility outage → alternate path per contact sheet.
+* **AUDIT LOGS:** (funding.draw\_executed).
+* **ACCESS CONTROL:** Dual authorization on external draws.
+* **ALERTS/METRICS:** (metric.cost\_of\_funds), (metric.draw\_time).
+
+***
+
+## CFP-05 — External Communications & Stakeholder Matrix
+
+* **WHY (Reg cite):** Controlled communication mitigates run risk (§741.12 intent).
+* **SYSTEM BEHAVIOR:** CEO is sole spokesperson; use scripted updates to major depositors/partners; PR prepared.
+* **TRIGGERS:** “Comms approved” → (comms.approved).
+* **INPUTS:** Scripts (comms.script); stakeholder list (stake.list).
+* **OUTPUTS:** Sent emails; call logs.
+* **TIMERS/SLAs:** Issue within same day for Level 2/3.
+* **EDGE CASES:** Media inquiry → approved statement only.
+* **AUDIT LOGS:** (comms.sent).
+* **ACCESS CONTROL:** Comms team edit; Board view.
+* **ALERTS/METRICS:** (metric.comms\_latency).
+
+***
+
+## CFP-06 — Regulator Liaison Protocols
+
+* **WHY (Reg cite):** Maintain timely, accurate updates to NCUA (§741.12).
+* **SYSTEM BEHAVIOR:** Maintain examiner/region contacts; event memos; follow-ups; incident log.
+* **TRIGGERS:** “Regulator requested update” → (ncua.update\_req).
+* **INPUTS:** Memo (ncua.memo); attachments (ncua.attach).
+* **OUTPUTS:** Email with receipt; log.
+* **TIMERS/SLAs:** Respond within **1bd** unless otherwise directed.
+* **EDGE CASES:** Conflicting requests → elevate to CEO/Board Chair.
+* **AUDIT LOGS:** (ncua.update\_sent).
+* **ACCESS CONTROL:** CEO primary, CFO backup.
+* **ALERTS/METRICS:** (metric.ncua\_sla\_met).
+
+***
+
+## CFP-07 — Liquidity Drills & After-Action Reviews
+
+* **WHY (Reg cite):** Demonstrate operability of CFP and federal access (§741.12).
+* **SYSTEM BEHAVIOR:** Annual no-funds or funded test of CLF or Discount Window; tabletop exercises; remediation tracking.
+* **TRIGGERS:** “Drill scheduled” → (drill.scheduled).
+* **INPUTS:** Scenario (drill.scenario); participants (drill.roster).
+* **OUTPUTS:** AAR with owners/dates.
+* **TIMERS/SLAs:** AAR published within **10bd** of drill.
+* **EDGE CASES:** Missed objective → immediate corrective plan.
+* **AUDIT LOGS:** (drill.completed), (aar.published).
+* **ACCESS CONTROL:** CFO/CEO co-owners.
+* **ALERTS/METRICS:** (metric.remediation\_ontrack).
+
+***
+
+## CFP-08 — Documentation & Retention (10 years)
+
+* **WHY (Reg cite):** Evidence of compliance and effectiveness (§741.12).
+* **SYSTEM BEHAVIOR:** Retain policies, limits, packs, notifications, facility tests, drills, and AARs **for 10 years**.
+* **TRIGGERS:** “Record finalized” → (record.finalized).
+* **INPUTS:** Artifact blob (record.blob); metadata (record.meta).
+* **OUTPUTS:** Immutable archive; index.
+* **TIMERS/SLAs:** Index within 2bd of creation.
+* **EDGE CASES:** PII/privileged content → restricted vault.
+* **AUDIT LOGS:** (record.archived).
+* **ACCESS CONTROL:** Legal hold capable; role-based access.
+* **ALERTS/METRICS:** (metric.retention\_gaps).
+
+***
+
+## Embedded Checklists & Templates <a href="#checklists" id="checklists"></a>
+
+* **NCUA Notification Pack:** Event memo template; KPIs; draw confirmations; next-steps grid.
+* **Facility Readiness Pack:** Contact sheet; legal docs checklist; collateral file; annual test script.
+* **Daily Liquidity Pack:** LAR & band; survival days; cumulative gaps; top depositors; facility headroom.
+* **EWI Dashboard:** Indicator list; thresholds; commentary field.
+* **Comms Scripts:** Major depositor update; partner message; press holding statement.
+
+***
+
+## Governance & Sign-Off <a href="#governance" id="governance"></a>
+
+* **Owner:** \{{OWNER & APPROVERS\}} (CFO).
+* **Approvals:** CEO; Board.
+* **Review Cadence:** Annual at minimum; earlier on material changes.
+* **Cross-Refs:** Controls link within this document only. No separate documents are required to operate the plan.
+
+***
+
+### Assumptions & Gaps
+
+* Internal **LAR bands (10/8/6%)** and specific gap limits are policy-set to operationalize §741.12 (Assumption—needs Board confirmation).
+* Use of **FHLB** is included **if eligible**; not an NCUA mandate (Assumption—confirm eligibility).
+* Wholesale/listing-service usage guardrails are internal policy (Assumption—tune to business model).
+
+***
