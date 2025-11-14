@@ -30,10 +30,10 @@
 
 [lending.md](lending.md "mention") — todo
 
-[enterprise-risk-management.md](enterprise-risk-management.md "mention") — todo
+[enterprise-risk-management.md](enterprise-risk-management.md "mention")
 
-[outsourcing-and-vendor-management.md](outsourcing-and-vendor-management.md "mention") — todo
+[outsourcing-and-vendor-management.md](outsourcing-and-vendor-management.md "mention")
 
-[investment.md](investment.md "mention") — todo
+[investment.md](investment.md "mention")
 
-[collections.md](collections.md "mention") — todo
+[collections.md](collections.md "mention")
