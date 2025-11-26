@@ -28,7 +28,7 @@
 
 [contingency-funding-plan.md](contingency-funding-plan.md "mention")
 
-[lending.md](lending.md "mention") — todo
+[lending.md](lending.md "mention")
 
 [enterprise-risk-management.md](enterprise-risk-management.md "mention")
 
