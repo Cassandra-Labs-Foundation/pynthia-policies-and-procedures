@@ -1,6 +1,6 @@
 # Rulebook
 
-[README (1).md](<README (1).md> "mention")&#x20;
+[readme-1.md](readme-1.md "mention")&#x20;
 
 [aml-cft.md](aml-cft.md "mention")
 

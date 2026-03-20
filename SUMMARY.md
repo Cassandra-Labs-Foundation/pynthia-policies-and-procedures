@@ -1,7 +1,7 @@
 # Table of contents
 
 * [Rulebook](README.md)
-* [Privacy](<README (1).md>)
+* [Privacy](readme-1.md)
 * [Office of Foreign Assets Control](office-of-foreign-assets-control.md)
 * [Fair Lending](fair-lending.md)
 * [Compliance](compliance.md)
