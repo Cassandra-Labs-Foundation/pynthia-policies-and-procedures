@@ -2,7 +2,7 @@
 
 ### GENERAL POLICY STATEMENT
 
-Pynthia Federal Credit Union (“Pynthia”) will extend credit only on a safe-and-sound, non-discriminatory basis across all channels and partner programs. All acceptance and denial decisions must be based on neutral creditworthiness factors, consistent with the Equal Credit Opportunity Act (ECOA/Reg B), Fair Housing Act, TILA/Reg Z (including ATR/QM), HMDA/Reg C, FCRA, NCUA rules, and this policy. Steering, discriminatory product placement, and insider loans to employees are prohibited. This policy is also a design spec for Pynthia’s lending systems and BaaS integrations.
+Pynthia Federal Credit Union ("Pynthia") will extend credit only on a safe-and-sound, non-discriminatory basis across all channels and partner programs. All acceptance and denial decisions must be based on neutral creditworthiness factors, consistent with the Equal Credit Opportunity Act (ECOA/Reg B), Fair Housing Act, TILA/Reg Z (including ATR/QM), HMDA/Reg C, FCRA, NCUA rules, and this policy. Steering, discriminatory product placement, and insider loans to employees are prohibited. This policy is also a design spec for Pynthia's lending systems and BaaS integrations.
 
 ***
 
@@ -29,7 +29,7 @@ Pynthia Federal Credit Union (“Pynthia”) will extend credit only on a safe-a
 | ----------------------------------------- | -------------------------------------------------------------------- | -----------------------------------------------------------------: | ------------------------------------- | ----------------------------------------------------------------- |
 | Completed app decision                    | Application deemed complete → `application.completed`                |                                                     30 days (ECOA) | ECOA/Reg B §1002.9                    | [FL-07](lending.md#fl-07-adverse-action-notifications)            |
 | Incomplete app – AA                       | Lender decides to deny incomplete app → `decision.denied.incomplete` |                                                     30 days (ECOA) | ECOA/Reg B §1002.9(c)                 | [FL-07](lending.md#fl-07-adverse-action-notifications)            |
-| Incomplete app – notice of incompleteness | Lender requests missing info → `notice.incomplete.sent`              |                               “Reasonable” period stated in notice | ECOA/Reg B §1002.9(c)                 | [FL-07](lending.md#fl-07-adverse-action-notifications)            |
+| Incomplete app – notice of incompleteness | Lender requests missing info → `notice.incomplete.sent`              |                               "Reasonable" period stated in notice | ECOA/Reg B §1002.9(c)                 | [FL-07](lending.md#fl-07-adverse-action-notifications)            |
 | Existing account AA                       | Adverse action on existing account → `account.adverse_action`        |                                                     30 days (ECOA) | ECOA/Reg B §1002.9(a)(3)              | [FL-07](lending.md#fl-07-adverse-action-notifications)            |
 | Counteroffer not accepted                 | Counteroffer made → `decision.counteroffer.made`                     |                                 90 days to send AA if not accepted | ECOA/Reg B §1002.9(a)(1)(iv)          | [FL-07](lending.md#fl-07-adverse-action-notifications)            |
 | Appraisal/valuation copy                  | Appraisal/valuation completed → `valuation.completed`                | Promptly upon completion and before closing (or promptly after AA) | Reg B §1002.14(a)                     | [FL-06](lending.md#fl-06-appraisals-valuations-collateral)        |
@@ -38,28 +38,30 @@ Pynthia Federal Credit Union (“Pynthia”) will extend credit only on a safe-a
 | Non-accrual move                          | Loan hits 90+ DPD → `loan.delinquency.90_plus`                       |                          At or shortly after 90 DPD (configurable) | REF\_1 non-accrual rules              | [FL-01](lending.md#fl-01-governance-roles-program-scope)          |
 | Charge-off (unsecured)                    | Unsecured loan 90+ DPD → `loan.unsecured.90_plus`                    |                             Charge-off by month-end (configurable) | REF\_1 collections rules              | [FL-01](lending.md#fl-01-governance-roles-program-scope)          |
 | Rate sheet refresh                        | New APOR data published → `apor.weekly_update`                       |                                           Weekly (operational SLA) | REF\_3 pricing                        | [FL-10](lending.md#fl-10-pricing-rate-sheets-hpml)                |
-| Fair lending risk assessment              | FL assessment cycle start → `flra.cycle_start`                       |                  At least annually (Assumption—needs confirmation) | Patrick: Fair Lending risk assessment | [FL-13](lending.md#fl-13-fair-lending-risk-assessment-monitoring) |
+| Fair lending risk assessment              | FL assessment cycle start → `flra.cycle_start`                       |                  At least annually (Assumption—needs confirmation) | Patrick: Fair Lending risk assessment | [FL-29](fair-lending.md#fl-29-monitoring-reviews) (Fair Lending Policy) |
 
 ***
 
 ### CONTROL INDEX <a href="#control-index" id="control-index"></a>
 
-| ID                                                                     | Control Name                                    | Purpose                                                                                     | Primary Rule(s)                          |
-| ---------------------------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------- | ---------------------------------------- |
-| [FL-01](lending.md#fl-01-governance-roles-program-scope)               | Governance, Roles & Program Scope               | Define ownership, roles, and oversight for lending & fair lending, including BaaS/partners. | ECOA/Reg B §1002.4; NCUA 701.31          |
-| [FL-02](lending.md#fl-02-product-eligibility-prohibited-practices)     | Product Eligibility & Prohibited Practices      | Define eligible products and ban high-risk / abusive or discriminatory products.            | Reg Z; FHA; NCUA safety & soundness      |
-| [FL-03](lending.md#fl-03-applications-acceptance-denial-standards)     | Applications, Acceptance & Denial Standards     | Standardize intake, acceptance/denial criteria, and neutral-factor underwriting bundle.     | Reg B §§1002.4–6; 1002.13                |
-| [FL-04](lending.md#fl-04-credit-scoring-adverse-credit-history)        | Credit Scoring & Adverse Credit History         | Govern use of scores, derogatory history, and alternative credit data.                      | ECOA/Reg B; FCRA; REF\_1/REF\_3 rules    |
-| [FL-05](lending.md#fl-05-atr-qm-mortgage-underwriting)                 | ATR/QM & Mortgage Underwriting                  | Implement ATR 8 factors, QM classification, and DTI/ratio rules.                            | Reg Z §1026.43                           |
-| [FL-06](lending.md#fl-06-appraisals-valuations-collateral)             | Appraisals, Valuations & Collateral             | Manage valuations, appraisal delivery, and LTV rules.                                       | Reg B §1002.14; Reg Z; FHA/NCUA 701.31   |
-| [FL-07](lending.md#fl-07-adverse-action-notifications)                 | Adverse Action & Notifications                  | Govern denials, AA notices, timelines, and secondary review.                                | Reg B §1002.9; FCRA §615(a)              |
-| [FL-08](lending.md#fl-08-exceptions-mitigants-overrides)               | Exceptions, Mitigating Factors & Overrides      | Define how exceptions are detected, approved, logged, and monitored.                        | ECOA/Reg B; internal risk mgmt           |
-| [FL-09](lending.md#fl-09-documentation-recordkeeping-retention)        | Documentation, Recordkeeping & Retention        | Standardize what must be in the file/system and how long it’s retained.                     | Reg B §1002.12; Reg C; FCRA              |
-| [FL-10](lending.md#fl-10-pricing-rate-sheets-hpml)                     | Pricing, Rate Sheets & HPML Controls            | Govern rate sheets, HPML tests, and pricing exceptions.                                     | Reg Z §§1026.35–36                       |
-| [FL-11](lending.md#fl-11-ofac-sanctions-gate)                          | OFAC & Sanctions Gate                           | Embed OFAC/sanctions screening into the lending flow.                                       | BSA/OFAC; FFIEC BSA/AML guidance         |
-| [FL-12](lending.md#fl-12-prequalification-marketing-steering-controls) | Prequalification, Marketing & Steering Controls | Prevent steering; control prequal and product placement.                                    | Reg B; Reg Z §1026.36(e); FHA            |
-| [FL-13](lending.md#fl-13-fair-lending-risk-assessment-monitoring)      | Fair Lending Risk Assessment & Monitoring       | Run ongoing fair lending risk assessments and analytics.                                    | ECOA/FHA; NCUA FL guidance               |
-| [FL-14](lending.md#fl-14-insider-lending-employee-conflicts)           | Insider Lending & Employee Conflicts            | Implement “no insider loans to employees” posture and conflicts controls.                   | NCUA safety & soundness; internal policy |
+> Controls FL-01 through FL-14 govern operational lending. Fair lending compliance controls (FL-20–FL-31) are maintained in the [Fair Lending Policy](fair-lending.md).
+
+| ID                                                                     | Control Name                                    | Purpose                                                                                     | Primary Rule(s)                          | Fair Lending Cross-Reference                                                   |
+| ---------------------------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------- | ---------------------------------------- | ------------------------------------------------------------------------------ |
+| [FL-01](lending.md#fl-01-governance-roles-program-scope)               | Governance, Roles & Program Scope               | Define ownership, roles, and oversight for lending & fair lending, including BaaS/partners. | ECOA/Reg B §1002.4; NCUA 701.31          | —                                                                              |
+| [FL-02](lending.md#fl-02-product-eligibility-prohibited-practices)     | Product Eligibility & Prohibited Practices      | Define eligible products and ban high-risk / abusive or discriminatory products.            | Reg Z; FHA; NCUA safety & soundness      | —                                                                              |
+| [FL-03](lending.md#fl-03-applications-acceptance-denial-standards)     | Applications, Acceptance & Denial Standards     | Standardize intake, acceptance/denial criteria, and neutral-factor underwriting bundle.     | Reg B §§1002.4–6; 1002.13                | —                                                                              |
+| [FL-04](lending.md#fl-04-credit-scoring-adverse-credit-history)        | Credit Scoring & Adverse Credit History         | Govern use of scores, derogatory history, and alternative credit data.                      | ECOA/Reg B; FCRA; REF\_1/REF\_3 rules    | [FL-22](fair-lending.md#fl-22-evaluation-pricing-rules) (Evaluation & Pricing Rules) |
+| [FL-05](lending.md#fl-05-atr-qm-mortgage-underwriting)                 | ATR/QM & Mortgage Underwriting                  | Implement ATR 8 factors, QM classification, and DTI/ratio rules.                            | Reg Z §1026.43                           | —                                                                              |
+| [FL-06](lending.md#fl-06-appraisals-valuations-collateral)             | Appraisals, Valuations & Collateral             | Manage valuations, appraisal delivery, and LTV rules.                                       | Reg B §1002.14; Reg Z; FHA/NCUA 701.31   | [FL-23](fair-lending.md#fl-23-appraisal-independence-rov) (Appraisal Independence & ROV) |
+| [FL-07](lending.md#fl-07-adverse-action-notifications)                 | Adverse Action & Notifications                  | Govern denials, AA notices, timelines, and secondary review.                                | Reg B §1002.9; FCRA §615(a)              | [FL-24](fair-lending.md#fl-24-action-taken-notices) (Action-Taken Notices)     |
+| [FL-08](lending.md#fl-08-exceptions-mitigants-overrides)               | Exceptions, Mitigating Factors & Overrides      | Define how exceptions are detected, approved, logged, and monitored.                        | ECOA/Reg B; internal risk mgmt           | —                                                                              |
+| [FL-09](lending.md#fl-09-documentation-recordkeeping-retention)        | Documentation, Recordkeeping & Retention        | Standardize what must be in the file/system and how long it's retained.                     | Reg B §1002.12; Reg C; FCRA              | [FL-31](fair-lending.md#fl-31-record-retention) (Record Retention)             |
+| [FL-10](lending.md#fl-10-pricing-rate-sheets-hpml)                     | Pricing, Rate Sheets & HPML Controls            | Govern rate sheets, HPML tests, and pricing exceptions.                                     | Reg Z §§1026.35–36                       | [FL-22](fair-lending.md#fl-22-evaluation-pricing-rules) / [FL-27](fair-lending.md#fl-27-lo-compensation-anti-steering) |
+| [FL-11](lending.md#fl-11-ofac-sanctions-gate)                          | OFAC & Sanctions Gate                           | Embed OFAC/sanctions screening into the lending flow.                                       | BSA/OFAC; FFIEC BSA/AML guidance         | —                                                                              |
+| [FL-12](lending.md#fl-12-prequalification-marketing-steering-controls) | Prequalification, Marketing & Steering Controls | Prevent steering; control prequal and product placement.                                    | Reg B; Reg Z §1026.36(e); FHA            | [FL-27](fair-lending.md#fl-27-lo-compensation-anti-steering) (LO Comp & Anti-Steering) |
+| [FL-13](lending.md#fl-13-fair-lending-risk-assessment-monitoring)      | Fair Lending Risk Assessment & Monitoring       | Cross-reference to primary monitoring control in the Fair Lending Policy.                   | ECOA/FHA; NCUA FL guidance               | [FL-29](fair-lending.md#fl-29-monitoring-reviews) (Monitoring & Reviews) — **primary** |
+| [FL-14](lending.md#fl-14-insider-lending-employee-conflicts)           | Insider Lending & Employee Conflicts            | Implement "no insider loans to employees" posture and conflicts controls.                   | NCUA safety & soundness; internal policy | —                                                                              |
 
 ***
 
@@ -87,7 +89,7 @@ Pynthia Federal Credit Union (“Pynthia”) will extend credit only on a safe-a
   * Policy review at least annually. `(Assumption—needs confirmation)`
   * Governance mapping updated within 30 days of new product/program approval.
 * EDGE CASES:
-  * BaaS partners with their own policies: system must store and link partner policies and note where Pynthia’s controls are stricter.
+  * BaaS partners with their own policies: system must store and link partner policies and note where Pynthia's controls are stricter.
 * AUDIT LOGS:
   * `policy.change.logged`
   * `program.scope.tagged`
@@ -104,7 +106,7 @@ Pynthia Federal Credit Union (“Pynthia”) will extend credit only on a safe-a
 
 * WHY (Reg cite): Reg Z (HPML, abusive products), ECOA/Reg B, FHA, NCUA safety & soundness; Patrick: steering procedures, risk posture.
 * SYSTEM BEHAVIOR:
-  * Maintain a machine-readable “credit box” per product, including allowed collateral, LTV, terms, and prohibited product flags.
+  * Maintain a machine-readable "credit box" per product, including allowed collateral, LTV, terms, and prohibited product flags.
   * Block creation of applications for explicitly prohibited products (e.g., payday, vehicle-title, tax RALs, private education loans as defined in Reg Z, stated-income/no-doc).
 * TRIGGERS:
   * Product configured/edited → `product.config.updated`
@@ -131,7 +133,7 @@ Pynthia Federal Credit Union (“Pynthia”) will extend credit only on a safe-a
 
 #### FL-03 — Applications, Acceptance & Denial Standards <a href="#fl-03-applications-acceptance-denial-standards" id="fl-03-applications-acceptance-denial-standards"></a>
 
-* WHY (Reg cite): Reg B §§1002.4–6, 1002.9, 1002.13 (apps, evaluation, GMI); Patrick: “ACCEPTANCE AND DENIAL OF LOAN APPLICATIONS”.
+* WHY (Reg cite): Reg B §§1002.4–6, 1002.9, 1002.13 (apps, evaluation, GMI); Patrick: "ACCEPTANCE AND DENIAL OF LOAN APPLICATIONS".
 * SYSTEM BEHAVIOR:
   * Enforce a standardized underwriting bundle: application data, credit history, income/assets, debt analysis, DTI, collateral/LTV, OFAC, ATR/QM (where applicable) summarized into a CAR-equivalent object.
   * Require that acceptance and denial decisions are based on neutral factors only; prohibited bases and location proxies are never used.
@@ -167,7 +169,7 @@ Pynthia Federal Credit Union (“Pynthia”) will extend credit only on a safe-a
 
 #### FL-04 — Credit Scoring & Adverse Credit History <a href="#fl-04-credit-scoring-adverse-credit-history" id="fl-04-credit-scoring-adverse-credit-history"></a>
 
-* WHY (Reg cite): ECOA/Reg B (fair evaluation), FCRA (credit reports, adverse action), Patrick’s emphasis on fair lending risk.
+* WHY (Reg cite): ECOA/Reg B (fair evaluation), FCRA (credit reports, adverse action), Patrick's emphasis on fair lending risk.
 * SYSTEM BEHAVIOR:
   * Use empirically derived credit scores as a second check, not sole decision driver.
   * Implement configurable FICO bands (e.g., unsecured ≥725, secured ≥660 – candidate values) with exception routing for lower scores or severe derogatories.
@@ -193,6 +195,7 @@ Pynthia Federal Credit Union (“Pynthia”) will extend credit only on a safe-a
   * Only designated users/services may pull or view full reports.
 * ALERTS/METRICS:
   * Metric: % of denials driven primarily by credit score; review for disparate impact.
+* SEE ALSO: [FL-22 (Evaluation & Pricing Rules)](fair-lending.md#fl-22-evaluation-pricing-rules) for fair lending requirements on scoring models and income-source treatment.
 
 ***
 
@@ -260,12 +263,13 @@ Pynthia Federal Credit Union (“Pynthia”) will extend credit only on a safe-a
   * Only designated staff/roles may order/assign appraisals.
 * ALERTS/METRICS:
   * Metric: % of loans with timely appraisal delivery; % of LTV-over-limit exceptions.
+* SEE ALSO: [FL-23 (Appraisal Independence & ROV)](fair-lending.md#fl-23-appraisal-independence-rov) for fair lending requirements on appraiser independence, bias prevention, and the reconsideration-of-value (ROV) pathway.
 
 ***
 
 #### FL-07 — Adverse Action & Notifications <a href="#fl-07-adverse-action-notifications" id="fl-07-adverse-action-notifications"></a>
 
-* WHY (Reg cite): Reg B §1002.9; FCRA §615(a); Patrick: “ACCEPTANCE AND DENIAL OF LOAN APPLICATIONS”.
+* WHY (Reg cite): Reg B §1002.9; FCRA §615(a); Patrick: "ACCEPTANCE AND DENIAL OF LOAN APPLICATIONS".
 * SYSTEM BEHAVIOR:
   * For any denial or counteroffer, enforce ECOA/Reg B and FCRA AA notice content and timing.
   * Require a second-level review of all denials to check for consistency, alternatives, and potential fair lending concerns.
@@ -294,6 +298,7 @@ Pynthia Federal Credit Union (“Pynthia”) will extend credit only on a safe-a
   * Only underwriters/Loan Ops may finalize AA notices; Compliance has read access.
 * ALERTS/METRICS:
   * Metric: timeliness of AA notices; distribution of AA reasons across segments.
+* SEE ALSO: [FL-24 (Action-Taken Notices)](fair-lending.md#fl-24-action-taken-notices) for compliance-layer notice content requirements, score disclosure fields, and joint/guarantor nuances.
 
 ***
 
@@ -332,8 +337,8 @@ Pynthia Federal Credit Union (“Pynthia”) will extend credit only on a safe-a
 
 * WHY (Reg cite): Reg B §1002.12; Reg C; FCRA; dossier file checklist.
 * SYSTEM BEHAVIOR:
-  * Enforce a “credit package” schema for every loan and prequal, including all required documents and calculated fields.
-  * Apply retention rules: ≥25 months for apps, GMI, evaluation data, AA notices, prescreened solicitations (longer per CU standard).
+  * Enforce a "credit package" schema for every loan and prequal, including all required documents and calculated fields.
+  * Apply retention rules: ≥25 months for apps, GMI, evaluation data, AA notices, prescreened solicitations (longer per CU standard). See [FL-31](fair-lending.md#fl-31-record-retention) for the complete retention grid including business-credit tiers, litigation holds, and self-test records.
 * TRIGGERS:
   * File created → `credit_package.created`
   * File closed/denied → `credit_package.closed`
@@ -345,9 +350,9 @@ Pynthia Federal Credit Union (“Pynthia”) will extend credit only on a safe-a
   * Retention/expiration schedule.
 * TIMERS/SLAs:
   * All required docs must be present before booking.
-  * Retention windows enforced in archival system.
+  * Retention windows enforced in archival system per [FL-31](fair-lending.md#fl-31-record-retention).
 * EDGE CASES:
-  * Digitized legacy files: must be mapped into credit-package schema or labeled as “legacy”.
+  * Digitized legacy files: must be mapped into credit-package schema or labeled as "legacy".
 * AUDIT LOGS:
   * `credit_package.updated`
   * `record.archived`
@@ -355,6 +360,7 @@ Pynthia Federal Credit Union (“Pynthia”) will extend credit only on a safe-a
   * Role-based access to sensitive docs (GMI, income docs, etc.).
 * ALERTS/METRICS:
   * Metric: file completeness at booking; missing-doc exception rates.
+* SEE ALSO: [FL-31 (Record Retention)](fair-lending.md#fl-31-record-retention) for the authoritative retention grid covering all record types, business-credit tiers, and litigation hold procedures.
 
 ***
 
@@ -379,7 +385,7 @@ Pynthia Federal Credit Union (“Pynthia”) will extend credit only on a safe-a
 * TIMERS/SLAs:
   * Rate sheets refreshed at least weekly. _(candidate operational standard)_
 * EDGE CASES:
-  * BaaS/partner pricing engines: must feed results into Pynthia’s HPML/exception engine as well.
+  * BaaS/partner pricing engines: must feed results into Pynthia's HPML/exception engine as well.
 * AUDIT LOGS:
   * `pricing.hpml_test.run`
   * `pricing.exception.approved`
@@ -387,6 +393,7 @@ Pynthia Federal Credit Union (“Pynthia”) will extend credit only on a safe-a
   * Only designated roles can edit rate sheets or margins.
 * ALERTS/METRICS:
   * Metric: HPML incidence; pricing-exception rate by product/partner.
+* SEE ALSO: [FL-22 (Evaluation & Pricing Rules)](fair-lending.md#fl-22-evaluation-pricing-rules) for fair lending requirements on pricing fairness and the monthly compliance exception review; [FL-27 (LO Compensation & Anti-Steering)](fair-lending.md#fl-27-lo-compensation-anti-steering) for LO compensation rules and anti-steering evidence requirements.
 
 ***
 
@@ -414,7 +421,7 @@ Pynthia Federal Credit Union (“Pynthia”) will extend credit only on a safe-a
 * ACCESS CONTROL:
   * Only BSA/Compliance or designated systems can alter OFAC configuration.
 * ALERTS/METRICS:
-  * Metric: count of matches and overrides; ensure they’re reviewed.
+  * Metric: count of matches and overrides; ensure they're reviewed.
 
 ***
 
@@ -446,15 +453,15 @@ Pynthia Federal Credit Union (“Pynthia”) will extend credit only on a safe-a
   * Only product managers and Compliance can modify product-ranking algorithms.
 * ALERTS/METRICS:
   * Metric: distribution of product selections vs eligibility across groups; used in steering reviews.
+* SEE ALSO: [FL-27 (LO Compensation & Anti-Steering)](fair-lending.md#fl-27-lo-compensation-anti-steering) for the compliance-layer LO compensation rules, meaningful-alternatives evidence requirements, and the Compliance waiver process when fewer than 3 options are available.
 
 ***
 
 #### FL-13 — Fair Lending Risk Assessment & Monitoring <a href="#fl-13-fair-lending-risk-assessment-monitoring" id="fl-13-fair-lending-risk-assessment-monitoring"></a>
 
-* WHY (Reg cite): ECOA, FHA, NCUA fair lending expectations; Patrick: “Fair Lending risk assessment”.
-* SYSTEM BEHAVIOR:
-  * Maintain data necessary for periodic quantitative and qualitative fair lending risk assessments (by product, channel, partner, geography).
-  * Support independent fair lending reviews (e.g., using NCUA Fair Lending Guide) with reproducible datasets and logs.
+> **This control is a cross-reference entry.** The full fair lending monitoring and risk assessment framework is maintained in [FL-29 (Monitoring & Reviews)](fair-lending.md#fl-29-monitoring-reviews) of the Fair Lending Policy. Operational lending teams should refer to FL-29 for dataset requirements, segmentation specs, disparity analytics cadence, redlining review process, and Board reporting obligations.
+
+* WHY (Reg cite): ECOA, FHA, NCUA fair lending expectations.
 * TRIGGERS:
   * Assessment cycle start → `flra.cycle_start`
   * Model or policy change → `flra.model_or_policy_changed`
@@ -462,27 +469,20 @@ Pynthia Federal Credit Union (“Pynthia”) will extend credit only on a safe-a
   * App, approval, denial, pricing, and loss data with GMI where applicable `(flra.dataset)`
   * Partner and channel tags `(flra.segment_tags)`
 * OUTPUTS:
-  * FL risk assessment reports and remediation plans.
+  * FL risk assessment reports and remediation plans — see [FL-29](fair-lending.md#fl-29-monitoring-reviews).
 * TIMERS/SLAs:
-  * Full FL risk assessment at least annually; targeted reviews as risk changes.
-* EDGE CASES:
-  * Smaller portfolios with sparse data: rely more on qualitative controls and benchmarking.
-* AUDIT LOGS:
-  * `flra.report.issued`
-  * `flra.remediation.tracked`
+  * Full FL risk assessment at least annually; targeted reviews as risk changes — cadence governed by [FL-29](fair-lending.md#fl-29-monitoring-reviews).
 * ACCESS CONTROL:
   * Access to sensitive FL analytics restricted to Compliance, Fair Lending, and senior management.
-* ALERTS/METRICS:
-  * Metric: number of identified FL risk issues open/closed; track remediation timeliness.
 
 ***
 
 #### FL-14 — Insider Lending & Employee Conflicts <a href="#fl-14-insider-lending-employee-conflicts" id="fl-14-insider-lending-employee-conflicts"></a>
 
-* WHY (Reg cite): NCUA safety & soundness; conflicts of interest; Patrick: “No insider loans to employees”.
+* WHY (Reg cite): NCUA safety & soundness; conflicts of interest; Patrick: "No insider loans to employees".
 * SYSTEM BEHAVIOR:
   * Implement a strict posture that Pynthia will not offer insider-only or preferential loan programs to employees.
-  * (Assumption—needs confirmation: whether **all** loans to employees are prohibited, or only preferential/insider terms. This control is written to prohibit _preferential_ terms; if the intent is “no loans at all to employees,” the eligibility logic must be changed accordingly.)
+  * (Assumption—needs confirmation: whether **all** loans to employees are prohibited, or only preferential/insider terms. This control is written to prohibit _preferential_ terms; if the intent is "no loans at all to employees," the eligibility logic must be changed accordingly.)
   * Tag applications where borrower or co-borrower is an employee, officer, director, or related party and enforce standard or stricter underwriting and pricing (never looser).
 * TRIGGERS:
   * App submitted → `application.created`
@@ -525,7 +525,7 @@ Packs the team will assemble (driven by the merged dossier):
 * Prequalification & Steering Checklist
   * Prequal criteria, standardized letter templates, product menu and ranking logic review questions.
 * Fair Lending Risk Assessment Template
-  * Dataset schema, segmentation specs (product, channel, partner, geography, GMI), methods used, remediation-tracking layout.
+  * See [FL-29 (Monitoring & Reviews)](fair-lending.md#fl-29-monitoring-reviews) in the Fair Lending Policy for the authoritative dataset schema, segmentation specs, and remediation-tracking layout.
 
 ***
 
@@ -534,12 +534,12 @@ Packs the team will assemble (driven by the merged dossier):
 * Owner: Chief Lending Officer (CLO) is the primary owner of this policy and responsible for operationalization in all lending systems and partner programs.
 * Fair Lending / Compliance: Chief Compliance Officer / Fair Lending Officer is responsible for:
   * Ensuring alignment with ECOA/Reg B, FHA, TILA/Reg Z, HMDA/Reg C, FCRA, NCUA rules.
-  * Coordinating annual Fair Lending Risk Assessments and independent reviews.
+  * Coordinating annual Fair Lending Risk Assessments and independent reviews — see [Fair Lending Policy](fair-lending.md).
 * Board / Committee Oversight:
   * Board (or designated Lending/Fair Lending Committee) approves this policy and any material changes.
   * Receives regular reports on:
     * Exceptions and mitigants (from [FL-08](lending.md#fl-08-exceptions-mitigants-overrides)),
-    * Fair lending analytics and risk assessments (from [FL-13](lending.md#fl-13-fair-lending-risk-assessment-monitoring)),
+    * Fair lending analytics and risk assessments (from [FL-29](fair-lending.md#fl-29-monitoring-reviews) in the Fair Lending Policy),
     * Insider/employee lending activity (from [FL-14](lending.md#fl-14-insider-lending-employee-conflicts)).
 * Review Cadence:
   * Policy reviewed at least annually and upon major regulatory or product changes.
@@ -552,7 +552,7 @@ Packs the team will assemble (driven by the merged dossier):
 ### ASSUMPTIONS & GAPS
 
 * DTI Standards: Dossier includes both 35% and 43% DTI guidelines; this policy treats 43% as the primary consumer DTI guideline with capacity for stricter overlays (e.g., 35% mortgage or product-specific DTIs). _(Assumption—needs confirmation: which DTI tier(s) Pynthia will adopt as default vs exception.)_
-* Product LTV / Term Tables: Specific LTV/term limits (autos, HELOCs, lots, physician loans, etc.) are treated as configurable parameters seeded from the dossier. They must be calibrated to Pynthia’s actual risk appetite and product set. _(Needs parameterization.)_
+* Product LTV / Term Tables: Specific LTV/term limits (autos, HELOCs, lots, physician loans, etc.) are treated as configurable parameters seeded from the dossier. They must be calibrated to Pynthia's actual risk appetite and product set. _(Needs parameterization.)_
 * Non-Accrual & Charge-Off Timers: 90/120-day triggers and OREO appraisal timelines are imported as candidate rules from a community-bank context; Pynthia must confirm alignment with its accounting and collection standards.
-* Insider Loans to Employees: Patrick’s requirement is “No insider loans to employees.” This draft implements a no preferential insider loan posture; if the intent is to prohibit all loans to employees, eligibility logic and HR/member linking must be tightened and documented.
-* Frequency of Fair Lending Risk Assessments: Policy assumes at least annual FL risk assessment; Pynthia may choose a more frequent cadence based on risk.
+* Insider Loans to Employees: Patrick's requirement is "No insider loans to employees." This draft implements a no preferential insider loan posture; if the intent is to prohibit all loans to employees, eligibility logic and HR/member linking must be tightened and documented.
+* Frequency of Fair Lending Risk Assessments: Policy assumes at least annual FL risk assessment; cadence is governed by [FL-29](fair-lending.md#fl-29-monitoring-reviews) in the Fair Lending Policy.
