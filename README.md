@@ -1,39 +1,39 @@
 # Rulebook
 
-[readme-1.md](readme-1.md "mention")&#x20;
+[readme-1.md](readme-1/readme-1.md "mention")&#x20;
 
-[aml-cft.md](aml-cft.md "mention")
+[aml-cft.md](aml-cft/aml-cft.md "mention")
 
-[compliance.md](compliance.md "mention")
+[compliance.md](compliance/compliance.md "mention")
 
-[cybersecurity.md](cybersecurity.md "mention")
+[cybersecurity.md](cybersecurity/cybersecurity.md "mention")
 
-[basel-ii-standardized-approach-framework.md](basel-ii-standardized-approach-framework.md "mention") (premature)
+[basel-ii-standardized-approach-framework.md](basel-ii-standardized-approach-framework/basel-ii-standardized-approach-framework.md "mention") (premature)
 
-[cash-control.md](cash-control.md "mention")
+[cash-control.md](cash-control/cash-control.md "mention")
 
-[fair-lending.md](fair-lending.md "mention")
+[fair-lending.md](fair-lending/fair-lending.md "mention")
 
-[business-continuity-plan.md](business-continuity-plan.md "mention")
+[business-continuity-plan.md](business-continuity-plan/business-continuity-plan.md "mention")
 
-[office-of-foreign-assets-control.md](office-of-foreign-assets-control.md "mention") (waiting on Persona/KYC provider)
+[office-of-foreign-assets-control.md](office-of-foreign-assets-control/office-of-foreign-assets-control.md "mention") (waiting on Persona/KYC provider)
 
-[customer-due-diligence.md](customer-due-diligence.md "mention")
+[customer-due-diligence.md](customer-due-diligence/customer-due-diligence.md "mention")
 
-[charitable-donation-accounts.md](charitable-donation-accounts.md "mention")
+[charitable-donation-accounts.md](charitable-donation-accounts/charitable-donation-accounts.md "mention")
 
-[resolution.md](resolution.md "mention")
+[resolution.md](resolution/resolution.md "mention")
 
-[liquidity.md](liquidity.md "mention")
+[liquidity.md](liquidity/liquidity.md "mention")
 
-[contingency-funding-plan.md](contingency-funding-plan.md "mention")
+[contingency-funding-plan.md](contingency-funding-plan/contingency-funding-plan.md "mention")
 
-[lending.md](lending.md "mention")
+[lending.md](lending/lending.md "mention")
 
-[enterprise-risk-management.md](enterprise-risk-management.md "mention")
+[enterprise-risk-management.md](enterprise-risk-management/enterprise-risk-management.md "mention")
 
-[outsourcing-and-vendor-management.md](outsourcing-and-vendor-management.md "mention")
+[outsourcing-and-vendor-management.md](outsourcing-and-vendor-management/outsourcing-and-vendor-management.md "mention")
 
-[investment.md](investment.md "mention")
+[investment.md](investment/investment.md "mention")
 
-[collections.md](collections.md "mention")
+[collections.md](collections/collections.md "mention")
