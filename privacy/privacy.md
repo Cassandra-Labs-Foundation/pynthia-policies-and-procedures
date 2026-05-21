@@ -8,23 +8,23 @@
 
 | ID                                                               | Title                                                                         |
 | ---------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| [PR-01](readme-1.md#pr-01-privacy-notice-lifecycle)              | Privacy Notice Lifecycle (Initial, Annual, Revised)                           |
-| [PR-02](readme-1.md#pr-02-opt-out-capture-and-honoring)          | Opt-Out Capture & Honoring                                                    |
-| [PR-03](readme-1.md#pr-03-permissible-disclosures-exceptions)    | Permissible Disclosures & Exceptions (Service Providers, Servicing, Legal)    |
-| [PR-04](readme-1.md#pr-04-customer-access-authentication)        | Customer Access & Authentication (Identity Verification before Disclosure)    |
-| [PR-05](readme-1.md#pr-05-data-accuracy-corrections)             | Data Accuracy & Corrections (Address/Name/Tax Forms; Red Flags)               |
-| [PR-06](readme-1.md#pr-06-employee-access-minimization-training) | Employee Access Minimization & Training                                       |
-| [PR-07](readme-1.md#pr-07-third-party-oversight-and-contracts)   | Third-Party Oversight & Contracts (GLBA Addenda)                              |
-| [PR-08](readme-1.md#pr-08-secure-disposal-of-nppi)               | Secure Disposal of NPPI                                                       |
-| [PR-09](readme-1.md#pr-09-incident-response-breach-notification) | Incident Response & Breach Notification                                       |
-| [PR-10](readme-1.md#pr-10-recordkeeping-board-reporting)         | Recordkeeping, Complaints & Board Reporting                                   |
-| [PR-11](readme-1.md#pr-11-website-posting-and-e-sign-delivery)   | Website Posting & E-SIGN Delivery                                             |
-| [PR-12](readme-1.md#pr-12-state-variants-ccpa-vt-nv)             | State Variants (CA/CPRA, Vermont, Nevada) — **Non-GLBA data only**            |
-| [PR-13](readme-1.md#pr-13-anonymization-and-aggregation)         | Anonymization & Aggregation (Non-Identifiable Data) _(right-sized; optional)_ |
-| [PR-14](readme-1.md#pr-14-cookies-and-online-tracking)           | Cookies & Online Tracking (U.S. web/app telemetry) _(non-GLBA)_               |
-| [PR-15](readme-1.md#pr-15-third-party-app-connections)           | Third-Party App/Account Connections & APIs _(if offered)_                     |
-| [PR-16](readme-1.md#pr-16-biometric-data-for-kyc)                | Biometric Data for KYC _(only if vendor uses it)_                             |
-| [PR-17](readme-1.md#pr-17-childrens-data)                        | Children’s Data (COPPA posture)                                               |
+| [PR-01](privacy.md#pr-01-privacy-notice-lifecycle)              | Privacy Notice Lifecycle (Initial, Annual, Revised)                           |
+| [PR-02](privacy.md#pr-02-opt-out-capture-and-honoring)          | Opt-Out Capture & Honoring                                                    |
+| [PR-03](privacy.md#pr-03-permissible-disclosures-exceptions)    | Permissible Disclosures & Exceptions (Service Providers, Servicing, Legal)    |
+| [PR-04](privacy.md#pr-04-customer-access-authentication)        | Customer Access & Authentication (Identity Verification before Disclosure)    |
+| [PR-05](privacy.md#pr-05-data-accuracy-corrections)             | Data Accuracy & Corrections (Address/Name/Tax Forms; Red Flags)               |
+| [PR-06](privacy.md#pr-06-employee-access-minimization-training) | Employee Access Minimization & Training                                       |
+| [PR-07](privacy.md#pr-07-third-party-oversight-and-contracts)   | Third-Party Oversight & Contracts (GLBA Addenda)                              |
+| [PR-08](privacy.md#pr-08-secure-disposal-of-nppi)               | Secure Disposal of NPPI                                                       |
+| [PR-09](privacy.md#pr-09-incident-response-breach-notification) | Incident Response & Breach Notification                                       |
+| [PR-10](privacy.md#pr-10-recordkeeping-board-reporting)         | Recordkeeping, Complaints & Board Reporting                                   |
+| [PR-11](privacy.md#pr-11-website-posting-and-e-sign-delivery)   | Website Posting & E-SIGN Delivery                                             |
+| [PR-12](privacy.md#pr-12-state-variants-ccpa-vt-nv)             | State Variants (CA/CPRA, Vermont, Nevada) — **Non-GLBA data only**            |
+| [PR-13](privacy.md#pr-13-anonymization-and-aggregation)         | Anonymization & Aggregation (Non-Identifiable Data) _(right-sized; optional)_ |
+| [PR-14](privacy.md#pr-14-cookies-and-online-tracking)           | Cookies & Online Tracking (U.S. web/app telemetry) _(non-GLBA)_               |
+| [PR-15](privacy.md#pr-15-third-party-app-connections)           | Third-Party App/Account Connections & APIs _(if offered)_                     |
+| [PR-16](privacy.md#pr-16-biometric-data-for-kyc)                | Biometric Data for KYC _(only if vendor uses it)_                             |
+| [PR-17](privacy.md#pr-17-childrens-data)                        | Children’s Data (COPPA posture)                                               |
 
 ***
 
@@ -48,14 +48,14 @@
 
 | Scenario                                  | Trigger (human → event)                             |                                                              Deadline | Content Reference            | Control                                                          |
 | ----------------------------------------- | --------------------------------------------------- | --------------------------------------------------------------------: | ---------------------------- | ---------------------------------------------------------------- |
-| Provide **Initial Privacy Notice**        | Relationship established → `(account.opened)`       |                                      **At/Before** relationship start | Reg P §1016.4                | [PR-01](readme-1.md#pr-01-privacy-notice-lifecycle)              |
-| **Annual Notice** (if not exempt)         | Annual cycle due → `(notice.annual.check)`          |                                                   **Every 12 months** | Reg P §1016.5                | [PR-01](readme-1.md#pr-01-privacy-notice-lifecycle)              |
-| **Revised Notice** before new sharing     | Material change approved → `(notice.revision.prep)` |                                                   **Prior** to change | Reg P §1016.8                | [PR-01](readme-1.md#pr-01-privacy-notice-lifecycle)              |
-| **Opt-Out** effective & propagated        | Opt-out submitted → `(privacy.optout.submitted)`    | Immediate enforcement; full propagation ≤30 days _(program standard)_ | Reg P §1016.7                | [PR-02](readme-1.md#pr-02-opt-out-capture-and-honoring)          |
-| **Secure disposal**                       | Retention met → `(records.retention.expired)`       |                                     **≤90 days** _(program standard)_ | 16 CFR Part 682              | [PR-08](readme-1.md#pr-08-secure-disposal-of-nppi)               |
-| **Incident/breach** notify                | NPPI compromise → `(security.incident.opened)`      |                         Without unreasonable delay; state clocks vary | NCUA §748 App. B; state laws | [PR-09](readme-1.md#pr-09-incident-response-breach-notification) |
-| **Board report**                          | Packet ready → `(privacy.report.board.ready)`       |                                                 **At least annually** | NCUA §748                    | [PR-10](readme-1.md#pr-10-recordkeeping-board-reporting)         |
-| **Cookie/“Do Not Sell/Share”** (non-GLBA) | Web visit (CA) → `(cookie.banner.shown)`            |                                 **Before** non-essential tracking/ads | CA/CPRA                      | [PR-14](readme-1.md#pr-14-cookies-and-online-tracking)           |
+| Provide **Initial Privacy Notice**        | Relationship established → `(account.opened)`       |                                      **At/Before** relationship start | Reg P §1016.4                | [PR-01](privacy.md#pr-01-privacy-notice-lifecycle)              |
+| **Annual Notice** (if not exempt)         | Annual cycle due → `(notice.annual.check)`          |                                                   **Every 12 months** | Reg P §1016.5                | [PR-01](privacy.md#pr-01-privacy-notice-lifecycle)              |
+| **Revised Notice** before new sharing     | Material change approved → `(notice.revision.prep)` |                                                   **Prior** to change | Reg P §1016.8                | [PR-01](privacy.md#pr-01-privacy-notice-lifecycle)              |
+| **Opt-Out** effective & propagated        | Opt-out submitted → `(privacy.optout.submitted)`    | Immediate enforcement; full propagation ≤30 days _(program standard)_ | Reg P §1016.7                | [PR-02](privacy.md#pr-02-opt-out-capture-and-honoring)          |
+| **Secure disposal**                       | Retention met → `(records.retention.expired)`       |                                     **≤90 days** _(program standard)_ | 16 CFR Part 682              | [PR-08](privacy.md#pr-08-secure-disposal-of-nppi)               |
+| **Incident/breach** notify                | NPPI compromise → `(security.incident.opened)`      |                         Without unreasonable delay; state clocks vary | NCUA §748 App. B; state laws | [PR-09](privacy.md#pr-09-incident-response-breach-notification) |
+| **Board report**                          | Packet ready → `(privacy.report.board.ready)`       |                                                 **At least annually** | NCUA §748                    | [PR-10](privacy.md#pr-10-recordkeeping-board-reporting)         |
+| **Cookie/“Do Not Sell/Share”** (non-GLBA) | Web visit (CA) → `(cookie.banner.shown)`            |                                 **Before** non-essential tracking/ads | CA/CPRA                      | [PR-14](privacy.md#pr-14-cookies-and-online-tracking)           |
 
 ***
 
@@ -63,23 +63,23 @@
 
 | ID                                                               | Control Name                         | Purpose                                                   | Primary Rule(s)                       |
 | ---------------------------------------------------------------- | ------------------------------------ | --------------------------------------------------------- | ------------------------------------- |
-| [PR-01](readme-1.md#pr-01-privacy-notice-lifecycle)              | Privacy Notice Lifecycle             | Deliver initial/annual/revised notices & record delivery. | Reg P §1016.4–§1016.5–§1016.8–§1016.9 |
-| [PR-02](readme-1.md#pr-02-opt-out-capture-and-honoring)          | Opt-Out Capture & Honoring           | Provide, record, and enforce opt-outs.                    | Reg P §1016.7                         |
-| [PR-03](readme-1.md#pr-03-permissible-disclosures-exceptions)    | Permissible Disclosures & Exceptions | Apply service-provider/servicing/legal exceptions.        | Reg P §1016.13–§1016.15               |
-| [PR-04](readme-1.md#pr-04-customer-access-authentication)        | Customer Access & Authentication     | Verify identity before disclosures to customers.          | §1016.9; NCUA §748; RFPA              |
-| [PR-05](readme-1.md#pr-05-data-accuracy-corrections)             | Data Accuracy & Corrections          | Correct & propagate changes; Red Flags.                   | Reg V; Part 717                       |
-| [PR-06](readme-1.md#pr-06-employee-access-minimization-training) | Employee Access & Training           | Least-privilege; onboarding/annual training.              | NCUA §748 App. A                      |
-| [PR-07](readme-1.md#pr-07-third-party-oversight-and-contracts)   | Third-Party Oversight & Contracts    | GLBA addenda; data maps; monitoring.                      | Reg P §1016.13; NCUA §748             |
-| [PR-08](readme-1.md#pr-08-secure-disposal-of-nppi)               | Secure Disposal of NPPI              | Destroy NPPI/media securely per schedule.                 | 16 CFR Part 682                       |
-| [PR-09](readme-1.md#pr-09-incident-response-breach-notification) | Incident Response & Breach           | Detect/contain/notify; SAR if needed.                     | NCUA §748 App. B; state               |
-| [PR-10](readme-1.md#pr-10-recordkeeping-board-reporting)         | Recordkeeping & Board Reporting      | Logs, complaints, metrics to Board.                       | NCUA §748                             |
-| [PR-11](readme-1.md#pr-11-website-posting-and-e-sign-delivery)   | Website & E-SIGN Delivery            | Host/post; capture e-consent artifacts.                   | §1016.9; 15 USC §7001                 |
-| [PR-12](readme-1.md#pr-12-state-variants-ccpa-vt-nv)             | State Variants                       | Apply stricter state rules to non-GLBA data.              | CA/CPRA; VT; NV                       |
-| [PR-13](readme-1.md#pr-13-anonymization-and-aggregation)         | Anonymization & Aggregation          | Use of non-identifiable data for analytics/R\&D.          | Program control                       |
-| [PR-14](readme-1.md#pr-14-cookies-and-online-tracking)           | Cookies & Online Tracking            | Govern non-GLBA telemetry; consent where required.        | CA/CPRA; e-signals                    |
-| [PR-15](readme-1.md#pr-15-third-party-app-connections)           | Third-Party App Connections          | Govern customer-authorized data flows via APIs.           | Reg P; RFPA                           |
-| [PR-16](readme-1.md#pr-16-biometric-data-for-kyc)                | Biometric Data for KYC               | Limit/contractualize vendor biometric use.                | State biometric laws; GLBA            |
-| [PR-17](readme-1.md#pr-17-childrens-data)                        | Children’s Data                      | Not directed to under-13; rapid removal.                  | COPPA                                 |
+| [PR-01](privacy.md#pr-01-privacy-notice-lifecycle)              | Privacy Notice Lifecycle             | Deliver initial/annual/revised notices & record delivery. | Reg P §1016.4–§1016.5–§1016.8–§1016.9 |
+| [PR-02](privacy.md#pr-02-opt-out-capture-and-honoring)          | Opt-Out Capture & Honoring           | Provide, record, and enforce opt-outs.                    | Reg P §1016.7                         |
+| [PR-03](privacy.md#pr-03-permissible-disclosures-exceptions)    | Permissible Disclosures & Exceptions | Apply service-provider/servicing/legal exceptions.        | Reg P §1016.13–§1016.15               |
+| [PR-04](privacy.md#pr-04-customer-access-authentication)        | Customer Access & Authentication     | Verify identity before disclosures to customers.          | §1016.9; NCUA §748; RFPA              |
+| [PR-05](privacy.md#pr-05-data-accuracy-corrections)             | Data Accuracy & Corrections          | Correct & propagate changes; Red Flags.                   | Reg V; Part 717                       |
+| [PR-06](privacy.md#pr-06-employee-access-minimization-training) | Employee Access & Training           | Least-privilege; onboarding/annual training.              | NCUA §748 App. A                      |
+| [PR-07](privacy.md#pr-07-third-party-oversight-and-contracts)   | Third-Party Oversight & Contracts    | GLBA addenda; data maps; monitoring.                      | Reg P §1016.13; NCUA §748             |
+| [PR-08](privacy.md#pr-08-secure-disposal-of-nppi)               | Secure Disposal of NPPI              | Destroy NPPI/media securely per schedule.                 | 16 CFR Part 682                       |
+| [PR-09](privacy.md#pr-09-incident-response-breach-notification) | Incident Response & Breach           | Detect/contain/notify; SAR if needed.                     | NCUA §748 App. B; state               |
+| [PR-10](privacy.md#pr-10-recordkeeping-board-reporting)         | Recordkeeping & Board Reporting      | Logs, complaints, metrics to Board.                       | NCUA §748                             |
+| [PR-11](privacy.md#pr-11-website-posting-and-e-sign-delivery)   | Website & E-SIGN Delivery            | Host/post; capture e-consent artifacts.                   | §1016.9; 15 USC §7001                 |
+| [PR-12](privacy.md#pr-12-state-variants-ccpa-vt-nv)             | State Variants                       | Apply stricter state rules to non-GLBA data.              | CA/CPRA; VT; NV                       |
+| [PR-13](privacy.md#pr-13-anonymization-and-aggregation)         | Anonymization & Aggregation          | Use of non-identifiable data for analytics/R\&D.          | Program control                       |
+| [PR-14](privacy.md#pr-14-cookies-and-online-tracking)           | Cookies & Online Tracking            | Govern non-GLBA telemetry; consent where required.        | CA/CPRA; e-signals                    |
+| [PR-15](privacy.md#pr-15-third-party-app-connections)           | Third-Party App Connections          | Govern customer-authorized data flows via APIs.           | Reg P; RFPA                           |
+| [PR-16](privacy.md#pr-16-biometric-data-for-kyc)                | Biometric Data for KYC               | Limit/contractualize vendor biometric use.                | State biometric laws; GLBA            |
+| [PR-17](privacy.md#pr-17-childrens-data)                        | Children’s Data                      | Not directed to under-13; rapid removal.                  | COPPA                                 |
 
 ***
 
@@ -325,10 +325,10 @@
 
 * **Ownership:** Privacy Officer (with BSA/AML Officer) owns this policy and the privacy program.
 * **Applies To:** All directors, officers, employees, temporary staff, and vendors with access to NPPI.
-* **Outsourcing:** Where privacy operations are outsourced, contracts must meet [PR-07](readme-1.md#pr-07-third-party-oversight-and-contracts).
+* **Outsourcing:** Where privacy operations are outsourced, contracts must meet [PR-07](privacy.md#pr-07-third-party-oversight-and-contracts).
 * **Reporting:** Privacy Officer reports to the Board (or committee) **at least annually** and ad hoc for material incidents.
 * **Review Cadence:** **Annual** Board review/approval; interim updates upon law/practice/product changes.
-* **Breach Responsibility:** Business owners must escalate suspected incidents immediately per [PR-09](readme-1.md#pr-09-incident-response-breach-notification).
+* **Breach Responsibility:** Business owners must escalate suspected incidents immediately per [PR-09](privacy.md#pr-09-incident-response-breach-notification).
 * **Internal vs External:** Public-facing notice is a concise summary; this internal policy governs detailed handling and disposal.
 * **Cross-References:** Information Security Policy (NCUA §748), Vendor Risk Management, Incident Response Plan, Records Retention Schedule.
 

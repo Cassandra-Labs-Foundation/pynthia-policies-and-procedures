@@ -1,7 +1,7 @@
 # Table of contents
 
 * [Rulebook](README.md)
-* [Privacy](readme-1/readme-1.md)
+* [Privacy](privacy/privacy.md)
 * [Office of Foreign Assets Control](office-of-foreign-assets-control/office-of-foreign-assets-control.md)
 * [Fair Lending](fair-lending/fair-lending.md)
 * [Compliance](compliance/compliance.md)
@@ -22,3 +22,9 @@
 * [Investment](investment/investment.md)
 * [Collections](collections/collections.md)
 * [Lending](lending/lending.md)
+* [Audit](audit/audit.md)
+* [Asset/Liability Management](asset-liability/asset-liability.md)
+* [Interest Rate Risk](interest-rate-risk/interest-rate-risk.md)
+* [Truth in Savings](truth-in-savings/truth-in-savings.md)
+* [Conflict of Interest](conflict-of-interest/conflict-of-interest.md)
+* [Record Retention](record-retention/record-retention.md)
