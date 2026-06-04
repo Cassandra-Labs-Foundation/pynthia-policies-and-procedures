@@ -1,291 +1,244 @@
-# Charitable Donation Accounts
+---
+title: Charitable Donation Accounts Policy (Table-First, Design-Overlay v2)
+owner: Patrick Wilson, Chief Compliance Officer
+version: v1.0
+effective: 2026-06-04
+next_review: 2027-06-04
+approvers:
+  - Patrick Wilson, Chief Compliance Officer
+tags: [Compliance, Charitable Donation Accounts, CDA, Incidental Powers, NCUA]
+---
 
-> **General Policy Statement**\
-> \{{ORGANIZATION\}} may establish and operate Charitable Donation Accounts (CDAs) to support mission-aligned charitable giving while complying with **12 CFR §721.3(b)(2)(i)–(vii)**. When a CDA satisfies all §721.3(b)(2) conditions, its investments are **not limited by Part 703**. \{{ORGANIZATION\}} maintains segregated CDA structures, uses regulated trustees/managers, caps aggregate CDA **book value at ≤5% of net worth**, distributes **≥51% of Total Return** to **Qualified Charities** at least every five (5) years and again at termination, prohibits affiliate fees from the CDA, and reports CDA assets per Call Report instructions.
+# Charitable Donation Accounts Policy
 
-***
+## General Policy Statement
 
-## Multi-Rule Authority Table <a href="#authority" id="authority"></a>
+Pynthia Credit Union may establish and fund Charitable Donation Accounts (CDAs) as an exercise of incidental powers under [12 CFR §721.3(b)(2)](https://www.ecfr.gov/current/title-12/part-721/section-721.3#p-721.3(b)(2)), and commits to satisfying every condition of that rule so that CDA investments remain exempt from the limits of [12 CFR Part 703](https://www.ecfr.gov/current/title-12/part-703). This policy governs all CDA structures, the trustees and managers that hold or manage CDA assets, and the staff and committees that fund, monitor, distribute from, account for, and terminate CDAs. The credit union caps aggregate CDA book value at no more than 5% of net worth, distributes at least 51% of Total Return to Qualified Charities no less frequently than every five years and again at termination, segregates CDA assets in properly labeled vehicles managed by qualified fiduciaries under written agreements containing the required clauses, and prohibits payment of any CDA fees or expenses to the credit union or its Affiliates. Loss of any §721.3(b)(2) condition forfeits the Part 703 safe harbor; the controls in this policy exist to keep every condition continuously satisfied and evidenced.
 
-| Topic                                                    | Scope                                                      | Key Clauses / Notes                                                                                                                                                                                                                                                                                                                                                            |
-| -------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **FCU Incidental Powers — Charitable Donation Accounts** | CDA conditions, structure, cap, distributions, definitions | **12 CFR §721.3(b)(2)** (i–vii: ≤5% cap & cure; segregation/labeling; trustee/manager qualification; agreement clauses A–D; ≥51% Total Return distribution ≤5 years and at termination; liquidation incl. distribution-in-kind; definitions inc. Qualified Charity and Affiliate). [12 CFR §721.3(b)(2)](https://www.ecfr.gov/current/title-12/part-721#p-721.3%28b%29%282%29) |
-| **Investments (context)**                                | Part 703 does **not** apply when §721.3(b)(2) is met       | **12 CFR Part 703** (investment limits otherwise applicable to FCUs). [12 CFR Part 703](https://www.ecfr.gov/current/title-12/part-703)                                                                                                                                                                                                                                        |
-| **Qualified Charity (tax status)**                       | Donee eligibility                                          | **26 U.S.C. §501(c)(3)**; **§501(c)(19)** (war veterans’ orgs). [26 U.S.C. §501](https://www.law.cornell.edu/uscode/text/26/501)                                                                                                                                                                                                                                               |
-| **ADA (accessibility of public communications)**         | Accessibility of CDA-related web pages/announcements       | **28 CFR Part 36** (public accommodations). [28 CFR Part 36](https://www.ecfr.gov/current/title-28/part-36)                                                                                                                                                                                                                                                                    |
+## Timing Matrix  {#timing-matrix}
 
-> **Linking note:** External links above are limited to statutes/regs (eCFR/LII). Call Report instructions and rulemaking preambles inform practice but are not linked here.
+| Scenario | Trigger (human → event) | Deadline | Content Reference | Control |
+|---|---|---:|---|---|
+| Annual Board re-adoption of this policy | Policy anniversary approaches (`cda.policy_review_due`) | Before policy expiration (annual) | Policy text, strategy/limits, structures, vendors | [CDA-01](#cda-01-governance-board-ownership) |
+| Quarterly Board/ALCO CDA report | Calendar quarter closes (`cda.quarter_closed`) | 30 days after quarter-end | Cap utilization, performance, window coverage, exceptions | [CDA-09](#cda-09-accounting-reporting-records) |
+| Trustee/manager registration lapse escalation | Lapse detected (`cda.vendor_registration_lapsed`) | 2 business days to Board | Lapse facts, exposure, remediation options | [CDA-04](#cda-04-trustee-manager-qualification) |
+| Cap breach cure | Aggregate book value exceeds 5% of net worth (`cda.cap_breached`) | 30 calendar days | Cure plan and execution evidence | [CDA-06](#cda-06-funding-cap-monitoring-cure) |
+| 51% Total Return distribution | Rolling five-year window approaches close (`cda.distribution_window_alert`) | At least every 5 years (internal: annual by Dec 31) | Distribution calculation, donee eligibility evidence | [CDA-08](#cda-08-charity-eligibility-giving-rules) |
+| Closing distribution at termination | Termination approved (`cda.termination_approved`) | Before final asset transfer; report 30 days post-close | ≥51% closing distribution, asset-permissibility review | [CDA-12](#cda-12-termination) |
+| Material vendor issue escalation | Material issue identified (`cda.vendor_issue_flagged`) | 2 business days | Issue summary, impact, action plan | [CDA-10](#cda-10-third-party-risk-management) |
+| Conflict-of-interest escalation | Prohibited or suspect fee payee detected (`cda.fee_conflict_flagged`) | 5 business days | Payee details, fee amount, disposition | [CDA-13](#cda-13-conflicts-fees) |
 
-***
+## CDA-01 — Governance & Board Ownership  {#cda-01-governance-board-ownership}
 
-## Timing Matrix <a href="#timing-matrix" id="timing-matrix"></a>
+- **WHY (Reg cite):** [12 CFR §721.3(b)(2)](https://www.ecfr.gov/current/title-12/part-721/section-721.3#p-721.3(b)(2)) conditions the CDA safe harbor on the credit union's documented satisfaction of every enumerated requirement; Board adoption and continuing oversight of this policy is how Pynthia evidences and maintains that satisfaction, consistent with the incidental-powers framework of [12 CFR Part 721](https://www.ecfr.gov/current/title-12/part-721).
+- **SYSTEM BEHAVIOR:** The Board adopts this policy and re-adopts it annually, and approves every CDA structure, vendor, investment strategy and risk limits, and distribution plan before execution. The system tracks the policy's effective and expiration dates; if the policy lapses without re-adoption, all CDA actions (funding, trades, distributions, vendor onboarding) are blocked until the Board re-adopts. Quarterly reporting to the Board is produced under [CDA-09](#cda-09-accounting-reporting-records). Policy status and approval records are write-restricted to Compliance; Board approval entries are write-restricted to the Board Secretary.
+- **EVENTS:**
 
-| Scenario                                    | Trigger (human → event)                          |                                                            Deadline | Content Reference            | Control                                                                           |
-| ------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------: | ---------------------------- | --------------------------------------------------------------------------------- |
-| Establish/renew policy & scope              | Board approves → `cda.policy_approved`           |                                                      Annually (min) | Governance & ownership       | [CA-01](charitable-donation-accounts.md#ca-01-governance--ownership)              |
-| Create CDA structure (segregation/labeling) | Account opened → `cda.account.created`           |                                                Before first funding | Structure evidence packet    | [CA-03](charitable-donation-accounts.md#ca-03-structure--segregation)             |
-| Execute required agreement clauses A–D      | Contract executed → `cda.contract.executed`      |                                                Before first funding | Clause checklist A–D         | [CA-05](charitable-donation-accounts.md#ca-05-written-agreement-required-clauses) |
-| Monthly cap test                            | Month-end close → `cda.cap_test.run`             |                                                    +5 business days | Cap utilization report       | [CA-06](charitable-donation-accounts.md#ca-06-funding-cap--monitoring--cure)      |
-| Breach cure (cap >5%)                       | Breach found → `cda.cap_test.failed`             |                                              ≤ **30 calendar days** | Cure plan & status           | [CA-06](charitable-donation-accounts.md#ca-06-funding-cap--monitoring--cure)      |
-| Annual distribution cadence (default)       | December schedule → `cda.distribution.scheduled` |                                                       By **Dec 31** | Distribution log             | [CA-08](charitable-donation-accounts.md#ca-08-charity-eligibility--giving-rules)  |
-| Five-year minimum distribution window       | Window start → `cda.window.started`              | ≤ **5 years** to distribute ≥51% Total Return; again at termination | Window coverage report       | [CA-08](charitable-donation-accounts.md#ca-08-charity-eligibility--giving-rules)  |
-| Quarterly board/ALCO reporting              | Quarter close → `cda.qclose.completed`           |                                                            +30 days | Board packet                 | [CA-09](charitable-donation-accounts.md#ca-09-accounting-reporting--records)      |
-| Annual vendor due diligence                 | Anniversary → `cda.vendor.reviewed`              |                                                            Annually | DD report & scorecard        | [CA-10](charitable-donation-accounts.md#ca-10-third-party-risk-management)        |
-| Termination actions                         | Board vote → `cda.terminated`                    |                                                      At termination | Final distribution & receipt | [CA-12](charitable-donation-accounts.md#ca-12-termination)                        |
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Policy anniversary approaches (`cda.policy_review_due`) | Current policy text (`cda.policy_version`), strategy/limits (`cda.strategy_limits`), structure and vendor roster (`cda.vendor_roster[]`) | Board re-adoption resolution (`cda.policy_readopted`) | Before policy expiration (enforced by `cda.policy_expiry_at`) |
+  | New CDA structure, vendor, strategy, or distribution proposed (`cda.board_approval_requested`) | Proposal packet (`cda.proposal_packet`), risk assessment (`cda.risk_assessment`) | Board approval or denial recorded (`cda.board_decision_recorded`) | Before the action executes (internal: next scheduled Board meeting) |
+  | Policy expires without re-adoption (`cda.policy_expired`) | Policy expiry date (`cda.policy_expiry_at`) | Hard block on all CDA actions (`cda.actions_blocked`) | Immediate |
 
-***
+- **ALERTS/METRICS:** Alert Compliance 90/60/30 days before policy expiry; target zero days of policy lapse; count of CDA actions attempted while blocked (target zero).
 
-## Control Index <a href="#control-index" id="control-index"></a>
+## CDA-02 — Definitions & Glossary  {#cda-02-definitions-glossary}
 
-| ID                                                                                | Control Name                               | Purpose                                                          | Primary Rule(s)                     |
-| --------------------------------------------------------------------------------- | ------------------------------------------ | ---------------------------------------------------------------- | ----------------------------------- |
-| [CA-01](charitable-donation-accounts.md#ca-01-governance--ownership)              | Governance & Ownership                     | Board accountability; roles; reporting cadence                   | 12 CFR §721.3(b)(2)                 |
-| [CA-02](charitable-donation-accounts.md#ca-02-definitions)                        | Definitions                                | Standardize terms for design/calculations                        | 12 CFR §721.3(b)(2); 26 U.S.C. §501 |
-| [CA-03](charitable-donation-accounts.md#ca-03-structure--segregation)             | Structure & Segregation                    | Enforce segregated custodial/trust structure and labeling        | 12 CFR §721.3(b)(2)(ii)             |
-| [CA-04](charitable-donation-accounts.md#ca-04-trustee--manager-qualification)     | Trustee & Manager Qualification            | Ensure regulated trustee; SEC RIA/OCC for discretionary managers | 12 CFR §721.3(b)(2)(iii)            |
-| [CA-05](charitable-donation-accounts.md#ca-05-written-agreement-required-clauses) | Written Agreement — Required Clauses (A–D) | Guarantee A–D provisions before funding                          | 12 CFR §721.3(b)(2)(iv)(A)–(D)      |
-| [CA-06](charitable-donation-accounts.md#ca-06-funding-cap--monitoring--cure)      | Funding Cap — Monitoring & Cure            | Keep ≤5% of net worth; monitor/cure                              | 12 CFR §721.3(b)(2)(i)              |
-| [CA-07](charitable-donation-accounts.md#ca-07-investment-strategy--risk-limits)   | Investment Strategy & Risk Limits          | Safety & soundness overlays; Part 703 relief when eligible       | 12 CFR §721.3(b)(2)                 |
-| [CA-08](charitable-donation-accounts.md#ca-08-charity-eligibility--giving-rules)  | Charity Eligibility & Giving Rules         | ≥51% Total Return; qualified donees; cadence                     | 12 CFR §721.3(b)(2)(v)              |
-| [CA-09](charitable-donation-accounts.md#ca-09-accounting-reporting--records)      | Accounting, Reporting & Records            | GAAP; reconciliations; 789H; board reporting                     | 12 CFR §721.3(b)(2)                 |
-| [CA-10](charitable-donation-accounts.md#ca-10-third-party-risk-management)        | Third-Party Risk Management                | Life-cycle oversight of trustee/manager                          | 12 CFR §721.3(b)(2)(iii)            |
-| [CA-11](charitable-donation-accounts.md#ca-11-internal-controls--testing)         | Internal Controls & Testing                | Approvals; reconciliations; audits                               | 12 CFR §721.3(b)(2)                 |
-| [CA-12](charitable-donation-accounts.md#ca-12-termination)                        | Termination                                | Final distribution; asset receipt constraints                    | 12 CFR §721.3(b)(2)(vi)             |
-| [CA-13](charitable-donation-accounts.md#ca-13-conflicts--fees)                    | Conflicts & Fees                           | Preserve “Total Return”; prohibit affiliate fees                 | 12 CFR §721.3(b)(2)(vii)            |
-| [CA-14](charitable-donation-accounts.md#ca-14-communications--accessibility)      | Communications & Accessibility             | Accessible/accurate public communications                        | 28 CFR Part 36                      |
+- **WHY (Reg cite):** [12 CFR §721.3(b)(2)(vii)](https://www.ecfr.gov/current/title-12/part-721/section-721.3#p-721.3(b)(2)(vii)) supplies the controlling definitions (including Qualified Charity and Affiliate); donee eligibility additionally rests on [26 U.S.C. §501(c)(3)](https://www.law.cornell.edu/uscode/text/26/501) and §501(c)(19) (war veterans' organizations). Consistent definitions are the substrate for every validation and calculation in this policy.
+- **SYSTEM BEHAVIOR:** Compliance maintains a central, versioned glossary of the controlling terms — CDA, Qualified Charity, Total Return, Distribution in Kind, Affiliate, Net Worth, and Book Value — aligned to the §721.3(b)(2)(vii) definitions. The glossary powers automated validations (charity eligibility, payee blocklist), calculations (cap test, Total Return, distribution minimum), and reporting labels, so a definition change propagates to every dependent control. The glossary is write-restricted to Compliance, with changes requiring CCO approval.
+- **EVENTS:**
 
-***
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | A controlling definition is added or amended (`cda.glossary_change_proposed`) | Proposed text (`cda.glossary_term`), regulatory basis (`cda.glossary_citation`), downstream-impact list (`cda.glossary_dependencies[]`) | Versioned glossary update with CCO approval (`cda.glossary_updated`) | Before any dependent validation uses the new definition (internal: 5 BD) |
+  | Annual policy review occurs (`cda.policy_review_due`) | Current glossary version (`cda.glossary_version`), current §721.3(b)(2)(vii) text | Glossary attestation that definitions match the rule (`cda.glossary_attested`) | With annual re-adoption (enforced by `cda.policy_expiry_at`) |
 
-## Control Overlays (Design Overlay v2)
+- **ALERTS/METRICS:** Alert on any dependent validation referencing a stale glossary version; target zero calculations executed against superseded definitions.
 
-{% stepper %}
-{% step %}
-#### CA-01 — Governance & Ownership <a href="#ca-01-governance--ownership" id="ca-01-governance--ownership"></a>
+## CDA-03 — Structure & Segregation  {#cda-03-structure-segregation}
 
-* **WHY (Reg cite):** Board oversight of CDA program, adoption and annual review of this policy, approvals for CDA structures, vendors, strategy/limits, distributions. **12 CFR §721.3(b)(2)**.
-* **SYSTEM BEHAVIOR:** Maintain policy artifact and metadata; block CDA actions if policy is expired; produce quarterly metrics (cap utilization, performance, window coverage, exceptions).
-* **TRIGGERS (human → event):** Board approves policy → `cda.policy_approved`; Quarterly packet sent → `cda.board_packet.sent`.
-* **INPUTS (human → field):** Policy version `(cda.policy.version)`; Effective/next review dates `(cda.policy.dates)`; Approver roster `(cda.policy.approvers)`.
-* **OUTPUTS:** Board minutes; quarterly CDA dashboard.
-* **TIMERS/SLAs:** Annual policy review; quarterly reporting **≤+30 days** after quarter-end.
-* **EDGE CASES:** If board meeting is delayed, ALCO may issue a 90-day interim control memo pending ratification _(Assumption—confirm delegation)_.
-* **AUDIT LOGS:** `policy.version.published`, `report.quarterly.issued`.
-* **ACCESS CONTROL:** Edit: CFO/Compliance; Approve: Board.
-* **ALERTS/METRICS:** Policy age; reporting timeliness.
-{% endstep %}
+- **WHY (Reg cite):** [12 CFR §721.3(b)(2)(i)](https://www.ecfr.gov/current/title-12/part-721/section-721.3#p-721.3(b)(2)(i)) requires CDA assets to be held in a segregated custodial account or special purpose entity specifically identified as a Charitable Donation Account.
+- **SYSTEM BEHAVIOR:** Before first funding, the credit union selects the CDA structure (segregated custodial account, or SPE/trust), labels it "Charitable Donation Account" in the account title and governing documents, and assembles an evidence packet (structure selection memo, executed agreements, labeling proof). The system blocks the first funding transfer until the evidence packet is complete and Board approval under [CDA-01](#cda-01-governance-board-ownership) is recorded. CDA assets are never commingled with general credit union investments; any deposit-side CDA cash account carries a distinct bookkeeping classification. Structure records and the evidence packet are write-restricted to Compliance.
+- **EVENTS:**
 
-{% step %}
-#### CA-02 — Definitions <a href="#ca-02-definitions" id="ca-02-definitions"></a>
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | CDA structure selected (`cda.structure_selected`) | Structure type (`cda.structure_type`), governing documents (`cda.governing_docs[]`), account labeling proof (`cda.account_label`) | Evidence packet assembled and filed (`cda.evidence_packet_filed`) | Before first funding (internal: complete at structure approval) |
+  | First funding requested (`cda.funding_requested`) | Evidence packet status (`cda.evidence_packet_filed`), Board approval record (`cda.board_decision_recorded`), executed agreement check (`cda.agreement_validated`) | Funding released or blocked (`cda.funding_gate_evaluated`) | Before transfer executes (real-time gate) |
 
-* **WHY (Reg cite):** Normalize “CDA,” “Qualified Charity,” “Total Return,” “Distribution in Kind,” “Affiliate,” “Net Worth,” “Book Value.” **12 CFR §721.3(b)(2)**; **26 U.S.C. §501**.
-* **SYSTEM BEHAVIOR:** Central glossary powering validations, calculations, and reports.
-* **TRIGGERS:** Glossary update approved → `cda.glossary.updated`.
-* **INPUTS:** Term, citation, description `(cda.glossary.items[])`.
-* **OUTPUTS:** Published glossary.
-* **TIMERS/SLAs:** Sync with policy updates.
-* **EDGE CASES:** IRS revocation of donee status → mark ineligible for future distributions.
-* **AUDIT LOGS:** `cda.glossary.updated`.
-* **ACCESS CONTROL:** Edit: Compliance; Read: org-wide.
-{% endstep %}
+- **ALERTS/METRICS:** Target zero funding transfers released without a complete evidence packet; alert Compliance on any CDA-tagged account whose title omits the "Charitable Donation Account" label.
 
-{% step %}
-#### CA-03 — Structure & Segregation <a href="#ca-03-structure--segregation" id="ca-03-structure--segregation"></a>
+## CDA-04 — Trustee & Manager Qualification  {#cda-04-trustee-manager-qualification}
 
-* **WHY (Reg cite):** CDA assets must be in a **segregated custodial account** or **SPE/trust**, labeled “Charitable Donation Account.” **12 CFR §721.3(b)(2)(ii)**.
-* **SYSTEM BEHAVIOR:** Require structure selection and labeling before funding; evidence pack (account docs, custodian confirmations).
-* **TRIGGERS:** CDA setup → `cda.account.created`.
-* **INPUTS:** Structure type `(cda.account.type)`; Legal title `(cda.account.legal_name)`; Custodian/trustee `(cda.account.trustee_id)`.
-* **OUTPUTS:** Structure evidence packet.
-* **TIMERS/SLAs:** Prior to first contribution.
-* **EDGE CASES:** Migration between structures requires Board approval and refreshed evidence.
-* **AUDIT LOGS:** `cda.account.created`, `cda.account.migrated`.
-* **ACCESS CONTROL:** Edit: CFO/Controller; Approve: Board.
-{% endstep %}
+- **WHY (Reg cite):** [12 CFR §721.3(b)(2)(ii)–(iii)](https://www.ecfr.gov/current/title-12/part-721/section-721.3#p-721.3(b)(2)(ii)) requires that a CDA trustee be regulated and that any person other than the credit union with authority to make investment decisions be either an SEC-registered investment adviser or regulated by the OCC.
+- **SYSTEM BEHAVIOR:** Only regulated trustees may hold CDA assets, and any non-credit-union discretionary manager must be validated as an SEC-registered investment adviser (via IARD/Form ADV) or OCC-regulated before onboarding. The system records the qualification basis, re-validates registration status annually, and continuously monitors for lapses; a detected lapse triggers Board escalation within 2 business days and suspends new asset placements with that vendor pending Board direction. Vendor qualification records are write-restricted to TPRM and Compliance.
+- **EVENTS:**
 
-{% step %}
-#### CA-04 — Trustee & Manager Qualification <a href="#ca-04-trustee--manager-qualification" id="ca-04-trustee--manager-qualification"></a>
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Trustee or manager proposed for onboarding (`cda.vendor_onboarding_started`) | Regulator identity (`cda.vendor_regulator`), SEC/IARD or OCC registration evidence (`cda.vendor_registration_evidence`), due-diligence file (`cda.vendor_dd_file`) | Qualification determination recorded (`cda.vendor_qualified`) | Before agreement execution (internal: complete within onboarding) |
+  | Annual vendor review cycle opens (`cda.vendor_review_due`) | Current registration status (`cda.vendor_registration_status`), prior review file (`cda.vendor_dd_file`) | Annual re-validation recorded (`cda.vendor_revalidated`) | Annually (enforced by `cda.vendor_review_due_at`) |
+  | Registration lapse detected (`cda.vendor_registration_lapsed`) | Lapse details (`cda.vendor_registration_status`), assets under management (`cda.vendor_aum`) | Board escalation memo (`cda.board_escalation_issued`) | 2 business days |
 
-* **WHY (Reg cite):** Trustee must be regulated; any non-CU discretionary manager must be **SEC-registered investment adviser** or **OCC-regulated**. **12 CFR §721.3(b)(2)(iii)**.
-* **SYSTEM BEHAVIOR:** Onboard only if regulator/registration validated; track annual reviews.
-* **TRIGGERS:** Vendor onboarding → `cda.vendor.onboarded`; Annual review → `cda.vendor.reviewed`.
-* **INPUTS:** Regulator/registration `(cda.vendor.reg_status)`; ADV reference `(cda.vendor.adv_uri)`; security/BCP docs `(cda.vendor.docs[])`.
-* **OUTPUTS:** Due-diligence report; approval memo.
-* **TIMERS/SLAs:** Pre-onboarding; annually thereafter.
-* **EDGE CASES:** Registration lapse → suspend new trades; Board escalate within **2 business days**.
-* **AUDIT LOGS:** `cda.vendor.approved`, `cda.vendor.suspended`.
-* **ACCESS CONTROL:** Edit: TPRM; Approve: ALCO/Board.
-{% endstep %}
+- **ALERTS/METRICS:** Alert on any vendor registration status older than 12 months without re-validation; target zero days a lapsed vendor holds discretionary authority without Board notification.
 
-{% step %}
-#### CA-05 — Written Agreement — Required Clauses <a href="#ca-05-written-agreement-required-clauses" id="ca-05-written-agreement-required-clauses"></a>
+## CDA-05 — Written Agreement Required Clauses  {#cda-05-written-agreement-required-clauses}
 
-* **WHY (Reg cite):** Agreement must include **(A)** named Qualified Charities; **(B)** investment strategy/risk; **(C)** GAAP accounting for contributions/returns/distributions/liquidation; **(D)** distribution frequency per §721.3(b)(2)(v). **12 CFR §721.3(b)(2)(iv)(A)–(D)**.
-* **SYSTEM BEHAVIOR:** Clause checklist gate; block funding if any clause missing.
-* **TRIGGERS:** Contract drafted/executed → `cda.contract.drafted` / `cda.contract.executed`.
-* **INPUTS:** Named charities schedule `(cda.contract.named_charities[])`; strategy text `(cda.contract.strategy_text)`; GAAP clause `(cda.contract.gaap_clause)`; frequency `(cda.contract.dist_frequency)`.
-* **OUTPUTS:** Executed agreement; clause attestation.
-* **TIMERS/SLAs:** Before first funding.
-* **EDGE CASES:** Amendments require Board re-approval and re-attestation.
-* **AUDIT LOGS:** `cda.contract.executed`, `cda.contract.amended`.
-* **ACCESS CONTROL:** Edit: Legal/CFO; Approve: Board.
-{% endstep %}
+- **WHY (Reg cite):** [12 CFR §721.3(b)(2)(iv)](https://www.ecfr.gov/current/title-12/part-721/section-721.3#p-721.3(b)(2)(iv)) requires a written agreement that (A) names the Qualified Charities to benefit, (B) documents the investment strategy and risk tolerance, (C) requires GAAP-compliant accounting, and (D) sets the distribution frequency consistent with [§721.3(b)(2)(v)](https://www.ecfr.gov/current/title-12/part-721/section-721.3#p-721.3(b)(2)(v)).
+- **SYSTEM BEHAVIOR:** A clause checklist validates every CDA agreement against required clauses (A)–(D) before the agreement is marked executable; funding to a CDA is blocked unless its agreement has passed the four-clause validation. Any amendment to an executed agreement requires Board re-approval under [CDA-01](#cda-01-governance-board-ownership) before it takes effect. The clause checklist and validation results are write-restricted to Legal and Compliance.
+- **EVENTS:**
 
-{% step %}
-#### CA-06 — Funding Cap — Monitoring & Cure <a href="#ca-06-funding-cap--monitoring--cure" id="ca-06-funding-cap--monitoring--cure"></a>
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Draft CDA agreement submitted for validation (`cda.agreement_submitted`) | Named Qualified Charities (`cda.agreement_charities[]`), strategy/risk clause (`cda.agreement_strategy_clause`), GAAP clause (`cda.agreement_gaap_clause`), distribution-frequency clause (`cda.agreement_distribution_clause`) | Four-clause validation result (`cda.agreement_validated`) | Before execution (internal: 5 BD from submission) |
+  | Funding requested against a CDA (`cda.funding_requested`) | Agreement validation status (`cda.agreement_validated`) | Funding released or blocked (`cda.funding_gate_evaluated`) | Before transfer executes (real-time gate) |
+  | Agreement amendment proposed (`cda.agreement_amendment_proposed`) | Redline (`cda.agreement_redline`), clause re-validation (`cda.agreement_validated`) | Board re-approval recorded (`cda.board_decision_recorded`) | Before amendment effective (internal: next Board meeting) |
 
-* **WHY (Reg cite):** Aggregate **book value** of all CDAs ≤ **5% of net worth** at all times; measured each quarterly Call Report cycle; cure ≤ **30 days** if breached. **12 CFR §721.3(b)(2)(i)**.
-* **SYSTEM BEHAVIOR:** Automated monthly and quarter-end cap tests; internal buffer default **4%**; funding blocks if projected breach; cure workflow.
-* **TRIGGERS:** Month-end cap test → `cda.cap_test.run`; Breach → `cda.cap_test.failed`.
-* **INPUTS:** Net worth (GAAP/Call Report) `(cda.metric.net_worth)`; CDA aggregate book value `(cda.metric.cda_book_value)`; internal limit `(cda.limit.internal_buffer = 4%)`.
-* **OUTPUTS:** Cap report; cure plan; status updates.
-* **TIMERS/SLAs:** Cure within **30 calendar days** of breach.
-* **EDGE CASES:** Market volatility; consider partial liquidation vs. growth offset.
-* **AUDIT LOGS:** `cda.cap_test.passed/failed`, `cda.cure.plan_submitted`, `cda.cure.executed`.
-* **ACCESS CONTROL:** Edit: Finance; Approve cures: ALCO/Board.
-{% endstep %}
+- **ALERTS/METRICS:** Target zero funded CDAs lacking a validated agreement; alert Legal on any amendment effective without a recorded Board re-approval.
 
-{% step %}
-#### CA-07 — Investment Strategy & Risk Limits <a href="#ca-07-investment-strategy--risk-limits" id="ca-07-investment-strategy--risk-limits"></a>
+## CDA-06 — Funding Cap Monitoring & Cure  {#cda-06-funding-cap-monitoring-cure}
 
-* **WHY (Reg cite):** When §721.3(b)(2) is satisfied, Part 703 limits do not apply; prudent overlays still required. **12 CFR §721.3(b)(2)**.
-* **SYSTEM BEHAVIOR:** Enforce Board-approved limits for single-issuer, sector, liquidity, volatility, and drawdown; pre-trade and monthly post-trade checks.
-* **TRIGGERS:** Allocation/trade → `cda.trade.allocated`; Risk calc → `cda.risk.calc_completed`.
-* **INPUTS:** Single-issuer ≤15% `(cda.limit.single_issuer)`; Sector ≤25% `(cda.limit.sector)`; Liquidity ≥10% `(cda.limit.liquidity)`; Volatility ≤20% ann. `(cda.limit.vol_target)`; Max 12-mo drawdown ≤25% `(cda.limit.max_dd)`.
-* **OUTPUTS:** Pre-trade attest; monthly risk dashboard.
-* **TIMERS/SLAs:** Pre-trade; monthly reviews.
-* **EDGE CASES:** Breach → quarantine new buys; remediation plan.
-* **AUDIT LOGS:** `cda.risk.limit_breached`, `cda.risk.remediated`.
-* **ACCESS CONTROL:** Edit: CFO/manager; Approve exceptions: ALCO/Board.
-{% endstep %}
+- **WHY (Reg cite):** [12 CFR §721.3(b)(2)(vi)](https://www.ecfr.gov/current/title-12/part-721/section-721.3#p-721.3(b)(2)(vi)) limits the book value of all CDA investments, in the aggregate, to 5% of the credit union's net worth, measured at the time of investment and continuously thereafter, with breaches cured within 30 days.
+- **SYSTEM BEHAVIOR:** The system computes aggregate CDA book value against current net worth (per the [CDA-02](#cda-02-definitions-glossary) glossary definitions) monthly and at each quarter-end, and re-computes on every proposed funding. Proposed funding that would push aggregate book value above the Board-approved internal buffer (default 4% of net worth) requires CFO and CCO approval; funding that projects a breach of the 5% regulatory cap is blocked outright. A detected breach (e.g., from net-worth decline) opens a cure case that must restore compliance within 30 calendar days. Cap parameters (buffer, cap) are write-restricted to Compliance with Board-approved values only.
+- **EVENTS:**
 
-{% step %}
-#### CA-08 — Charity Eligibility & Giving Rules <a href="#ca-08-charity-eligibility--giving-rules" id="ca-08-charity-eligibility--giving-rules"></a>
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Funding proposed (`cda.funding_requested`) | Proposed amount (`cda.funding_amount`), aggregate CDA book value (`cda.aggregate_book_value`), current net worth (`cda.net_worth`) | Pre-funding cap test result; block on projected breach (`cda.cap_test_completed`) | Before transfer executes (real-time gate) |
+  | Monthly cap test runs (`cda.cap_test_scheduled`) | Aggregate book value (`cda.aggregate_book_value`), net worth (`cda.net_worth`), buffer threshold (`cda.cap_buffer_pct`) | Monthly cap test record (`cda.cap_test_completed`) | Monthly (internal: by 10th calendar day; enforced by `cda.cap_test_due_at`) |
+  | Quarter-end cap test runs (`cda.quarter_closed`) | Quarter-end book values (`cda.aggregate_book_value`), quarter-end net worth (`cda.net_worth`) | Quarter-end cap certification for the Board packet (`cda.cap_certified`) | With quarterly reporting — 30 days after quarter-end |
+  | Cap breach detected (`cda.cap_breached`) | Breach amount (`cda.cap_excess_amount`), cure options (`cda.cure_plan`) | Cure executed and compliance restored (`cda.cap_breach_cured`) | 30 calendar days (enforced by `cda.cap_cure_due_at`) |
 
-* **WHY (Reg cite):** Distribute **≥51% of Total Return** to **Qualified Charities** **≤ every 5 years** and **at termination**; donees must be **§501(c)(3) or §501(c)(19)**. **12 CFR §721.3(b)(2)(v)**; **26 U.S.C. §501**.
-* **SYSTEM BEHAVIOR:** Validate EIN and IRS evidence; track rolling 5-year window; schedule annual December distributions (default).
-* **TRIGGERS:** Charity added → `cda.charity.added`; Distribution scheduled/executed → `cda.dist.scheduled` / `cda.dist.executed`; Window start/end → `cda.window.started` / `cda.window.ending`.
-* **INPUTS:** EIN `(cda.charity.ein)`; IRS evidence `(cda.charity.irs_doc_uri)`; Total Return by window `(cda.metric.total_return_window)`; distribution amount `(cda.dist.amount)`.
-* **OUTPUTS:** Distribution log (date, EIN, amount, window coverage).
-* **TIMERS/SLAs:** Meet ≥51% by **≤5 years**; default annual by **Dec 31**.
-* **EDGE CASES:** Charity loses status → block future payouts; reallocate.
-* **AUDIT LOGS:** `cda.charity.verified`, `cda.dist.executed`.
-* **ACCESS CONTROL:** Edit: CFO; Approve: Board/ALCO per threshold.
-{% endstep %}
+- **ALERTS/METRICS:** Alert CFO/CCO at 80% and 95% of the internal buffer; daily aging alert on any open cure case; target zero breaches uncured at day 30.
 
-{% step %}
-#### CA-09 — Accounting, Reporting & Records <a href="#ca-09-accounting-reporting--records" id="ca-09-accounting-reporting--records"></a>
+## CDA-07 — Investment Strategy & Risk Limits  {#cda-07-investment-strategy-risk-limits}
 
-* **WHY (Reg cite):** GAAP accounting; periodic reporting; record retention; Call Report mapping to **Account 789H**. **12 CFR §721.3(b)(2)**.
-* **SYSTEM BEHAVIOR:** Enforce GAAP entries for contributions/returns/fees/distributions/unrealized; monthly reconciliations; quarterly Board/ALCO packet; maintain 789H mapping.
-* **TRIGGERS:** Journal close → `cda.gl.close`; Quarter close → `cda.qclose.completed`.
-* **INPUTS:** Income/fees `(cda.gl.income, cda.gl.fees)`; unrealized items `(cda.gl.unrealized)`; 789H balance `(cda.report.789h_balance)`.
-* **OUTPUTS:** Reconciliation; board packet (cap %, performance, window coverage, distributions, exceptions).
-* **TIMERS/SLAs:** Monthly reconciliations; quarterly reporting **≤+30 days**.
-* **EDGE CASES:** Restatements; corrective entries with Board notice.
-* **AUDIT LOGS:** `cda.gl.reconciled`, `cda.report.board_issued`.
-* **ACCESS CONTROL:** Edit: Controller; Review: CFO; Receive: Board/ALCO.
-{% endstep %}
+- **WHY (Reg cite):** When every condition of [12 CFR §721.3(b)(2)](https://www.ecfr.gov/current/title-12/part-721/section-721.3#p-721.3(b)(2)) is satisfied, CDA investments are exempt from [12 CFR Part 703](https://www.ecfr.gov/current/title-12/part-703); the documented strategy and risk-tolerance requirement of [§721.3(b)(2)(iv)(B)](https://www.ecfr.gov/current/title-12/part-721/section-721.3#p-721.3(b)(2)(iv)) obligates the credit union to substitute its own prudent limits.
+- **SYSTEM BEHAVIOR:** The Board approves a prudent-investor overlay for each CDA — single-issuer concentration, sector concentration, liquidity floor, volatility band, and maximum drawdown limits — even though Part 703 limits do not apply. Pre-trade checks evaluate proposed trades against the overlay and block violations; monthly post-trade compliance checks catch drift caused by market movement, with documented exceptions and rebalancing plans. Overlay parameters are write-restricted to Compliance with Board-approved values only.
+- **EVENTS:**
 
-{% step %}
-#### CA-10 — Third-Party Risk Management <a href="#ca-10-third-party-risk-management" id="ca-10-third-party-risk-management"></a>
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Trade proposed in a CDA portfolio (`cda.trade_proposed`) | Trade details (`cda.trade_details`), current portfolio composition (`cda.portfolio_composition`), overlay limits (`cda.overlay_limits`) | Pre-trade check pass/block (`cda.pretrade_check_completed`) | Before execution (real-time gate) |
+  | Monthly post-trade check runs (`cda.posttrade_check_scheduled`) | Month-end portfolio composition (`cda.portfolio_composition`), overlay limits (`cda.overlay_limits`) | Post-trade compliance report; exceptions with rebalancing plan (`cda.posttrade_check_completed`) | Monthly (internal: by 10th calendar day; enforced by `cda.posttrade_due_at`) |
+  | Overlay limit change proposed (`cda.overlay_change_proposed`) | Proposed limits (`cda.overlay_limits`), risk rationale (`cda.risk_assessment`) | Board approval recorded (`cda.board_decision_recorded`) | Before new limits apply (internal: next Board meeting) |
 
-* **WHY (Reg cite):** Validate trustee/manager regulatory status and safety/soundness; ongoing oversight. **12 CFR §721.3(b)(2)(iii)**.
-* **SYSTEM BEHAVIOR:** Due-diligence checklist (reg/registration, financials, SOC/ISO, BCP/DR, fees/conflicts); annual reviews; contracts with **90-day termination** and asset-transfer steps.
-* **TRIGGERS:** Onboard → `cda.vendor.onboarded`; Annual review → `cda.vendor.reviewed`; Issue logged → `cda.vendor.issue_logged`.
-* **INPUTS:** Reg evidence `(cda.vendor.reg_evidence)`; fee/conflict schedule `(cda.vendor.fees_conflicts)`; SLA/KPI feed `(cda.vendor.kpis)`.
-* **OUTPUTS:** DD report; scorecard; corrective actions.
-* **TIMERS/SLAs:** Annual comprehensive review; escalate material issues within **2 business days**.
-* **EDGE CASES:** Discipline/sanctions; sub-processor change.
-* **AUDIT LOGS:** `cda.vendor.approved`, `cda.vendor.remediated`.
-* **ACCESS CONTROL:** TPRM team; ALCO/Board approvals.
-{% endstep %}
+- **ALERTS/METRICS:** Alert on any pre-trade block override; track count and aging of open post-trade exceptions (target: all cleared within one rebalancing cycle); monthly drawdown and volatility versus band.
 
-{% step %}
-#### CA-11 — Internal Controls & Testing <a href="#ca-11-internal-controls--testing" id="ca-11-internal-controls--testing"></a>
+## CDA-08 — Charity Eligibility & Giving Rules  {#cda-08-charity-eligibility-giving-rules}
 
-* **WHY (Reg cite):** Maintain effective controls supporting §721.3(b)(2).
-* **SYSTEM BEHAVIOR:** Dual approvals for distributions ≥$5,000; segregation of duties; automated cap checks; quarterly valuation reviews; annual Internal Audit testing.
-* **TRIGGERS:** Distribution approval → `cda.dist.approved`; Audit start → `cda.audit.started`.
-* **INPUTS:** Approval matrix `(cda.ctrl.approval_matrix)`; thresholds `(cda.ctrl.thresholds)`.
-* **OUTPUTS:** Control attestations; audit findings & remediation tracker.
-* **TIMERS/SLAs:** Annual IA; remediation tracked to closure.
-* **EDGE CASES:** Temporary compensating controls on break.
-* **AUDIT LOGS:** `cda.ctrl.failed/passed`, `cda.audit.finding_logged`.
-* **ACCESS CONTROL:** Edit: Risk/IA; Approve: Board.
-{% endstep %}
+- **WHY (Reg cite):** [12 CFR §721.3(b)(2)(v)](https://www.ecfr.gov/current/title-12/part-721/section-721.3#p-721.3(b)(2)(v)) requires distribution of at least 51% of the CDA's Total Return to one or more Qualified Charities no less frequently than every five years and upon termination; Qualified Charity status rests on [26 U.S.C. §501(c)(3)](https://www.law.cornell.edu/uscode/text/26/501) (and §501(c)(19) for war veterans' organizations) per the definitions in [§721.3(b)(2)(vii)](https://www.ecfr.gov/current/title-12/part-721/section-721.3#p-721.3(b)(2)(vii)).
+- **SYSTEM BEHAVIOR:** Before any distribution, the system validates the donee's EIN and current IRS §501(c)(3)/(c)(19) determination (via the IRS Tax Exempt Organization Search) and confirms the donee is named in the CDA agreement per [CDA-05](#cda-05-written-agreement-required-clauses). A rolling five-year window tracker computes cumulative Total Return (per the [CDA-02](#cda-02-definitions-glossary) definition) and cumulative qualified distributions, ensuring at least 51% of Total Return is distributed before any window closes; the internal default cadence is an annual distribution by December 31, which keeps every window covered with margin. Distributions to unverified or unnamed donees are blocked. Donee eligibility records are write-restricted to Compliance.
+- **EVENTS:**
 
-{% step %}
-#### CA-12 — Termination <a href="#ca-12-termination" id="ca-12-termination"></a>
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Distribution proposed (`cda.distribution_proposed`) | Donee EIN (`cda.donee_ein`), IRS status evidence (`cda.donee_irs_status`), agreement-named-charity check (`cda.agreement_charities[]`), amount (`cda.distribution_amount`) | Eligibility validation pass/block (`cda.donee_validated`) | Before disbursement (real-time gate) |
+  | Annual distribution cycle opens (`cda.distribution_cycle_opened`) | Cumulative Total Return (`cda.total_return_cumulative`), cumulative distributions (`cda.distributions_cumulative`), window position (`cda.window_coverage_pct`) | Annual distribution executed (`cda.distribution_executed`) | By December 31 (internal cadence; enforced by `cda.distribution_due_at`) |
+  | Five-year window approaches close undercovered (`cda.distribution_window_alert`) | Window coverage (`cda.window_coverage_pct`), shortfall amount (`cda.distribution_shortfall`) | Mandatory catch-up distribution (`cda.distribution_executed`) | Before window close — at least every 5 years (enforced by `cda.window_close_at`) |
 
-* **WHY (Reg cite):** At termination, satisfy ≥51% distribution for the closing period; receive remaining assets **in cash** or **in-kind only if otherwise permissible FCU investments**. **12 CFR §721.3(b)(2)(vi)**.
-* **SYSTEM BEHAVIOR:** Enforce closing distribution coverage; document receipt method; stakeholder comms plan as appropriate.
-* **TRIGGERS:** Board vote to terminate → `cda.terminated`.
-* **INPUTS:** Closing Total Return `(cda.metric.total_return_closing)`; receipt method `(cda.termination.receipt_method)`.
-* **OUTPUTS:** Termination memo; final logs; asset transfer docs.
-* **TIMERS/SLAs:** Execute per resolution; report within **30 days** post-close.
-* **EDGE CASES:** Illiquid positions → staged liquidation plan.
-* **AUDIT LOGS:** `cda.termination.completed`.
-* **ACCESS CONTROL:** CFO/Legal implement; Board oversight.
-{% endstep %}
+- **ALERTS/METRICS:** Window-coverage dashboard with alerts at 12 and 6 months before any window closes below 51% coverage; target zero windows closing undercovered; count of blocked distributions to ineligible donees.
 
-{% step %}
-#### CA-13 — Conflicts & Fees <a href="#ca-13-conflicts--fees" id="ca-13-conflicts--fees"></a>
+## CDA-09 — Accounting, Reporting & Records  {#cda-09-accounting-reporting-records}
 
-* **WHY (Reg cite):** Preserve “Total Return” definition—CDA may not pay fees/expenses to the CU or its affiliates. **12 CFR §721.3(b)(2)(vii)**.
-* **SYSTEM BEHAVIOR:** Payee blocklist for \{{ORGANIZATION\}} and affiliates; quarterly fee review.
-* **TRIGGERS:** Fee invoice received → `cda.fee.invoice_received`.
-* **INPUTS:** Payee identity `(cda.fee.payee_id)`; affiliate registry `(cda.affiliates[])`.
-* **OUTPUTS:** Fee ledger; conflict attestations.
-* **TIMERS/SLAs:** Quarterly review; escalate conflicts **≤5 business days**.
-* **EDGE CASES:** Employee-benefit funding exception (not applicable to CDA).
-* **AUDIT LOGS:** `cda.fee.payment_blocked`, `cda.conflict.flagged`.
-* **ACCESS CONTROL:** Finance/Compliance.
-{% endstep %}
+- **WHY (Reg cite):** [12 CFR §721.3(b)(2)(iv)(C)](https://www.ecfr.gov/current/title-12/part-721/section-721.3#p-721.3(b)(2)(iv)) requires that CDA assets be accounted for in accordance with generally accepted accounting principles; accurate NCUA Call Report presentation (Account 789H) evidences continuing compliance with the §721.3(b)(2) conditions.
+- **SYSTEM BEHAVIOR:** The Controller records all CDA activity under GAAP, with the CDA carried at the valuation basis its structure requires; monthly reconciliations tie trustee/custodian statements to the general ledger, and the Call Report mapping to Account 789H is maintained and verified each cycle. The quarterly Board/ALCO packet — cap utilization, investment performance, distribution-window coverage, and exceptions — is issued within 30 days of quarter-end and satisfies the reporting requirement in [CDA-01](#cda-01-governance-board-ownership). CDA general-ledger mappings are write-restricted to the Controller; the Board packet is write-restricted to Compliance.
+- **EVENTS:**
 
-{% step %}
-#### CA-14 — Communications & Accessibility <a href="#ca-14-communications--accessibility" id="ca-14-communications--accessibility"></a>
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Month closes (`cda.month_closed`) | Trustee/custodian statements (`cda.custodian_statement`), general-ledger balances (`cda.gl_balances`) | Monthly reconciliation with discrepancies resolved (`cda.reconciliation_completed`) | Monthly (internal: 10 BD after month-end; enforced by `cda.reconciliation_due_at`) |
+  | Call Report cycle opens (`cda.call_report_cycle_opened`) | CDA book values (`cda.aggregate_book_value`), 789H mapping (`cda.account_789h_mapping`) | Verified 789H entries in the Call Report (`cda.call_report_mapped`) | Per NCUA Call Report deadline for the quarter |
+  | Quarter closes (`cda.quarter_closed`) | Cap certification (`cda.cap_certified`), performance data (`cda.portfolio_performance`), window coverage (`cda.window_coverage_pct`), exception log (`cda.exception_log[]`) | Quarterly Board/ALCO packet issued (`cda.board_packet_issued`) | 30 days after quarter-end (enforced by `cda.board_packet_due_at`) |
 
-* **WHY (Reg cite):** Public CDA communications should be accessible and accurate. **28 CFR Part 36**.
-* **SYSTEM BEHAVIOR:** Pre-publication ADA/WCAG checklist for CDA web pages/press; archive artifacts.
-* **TRIGGERS:** Publish page/PR → `cda.web.published` / `cda.pr.issued`.
-* **INPUTS:** Accessibility checklist `(cda.web.ada_checklist)`; approved copy `(cda.web.copy_id)`.
-* **OUTPUTS:** Accessible content; archive.
-* **TIMERS/SLAs:** Review before publish.
-* **EDGE CASES:** Third-party embeds → provide accessible alternatives.
-* **AUDIT LOGS:** `cda.web.reviewed`.
-* **ACCESS CONTROL:** Marketing + Compliance approve.
-{% endstep %}
-{% endstepper %}
+- **ALERTS/METRICS:** Aging alert on unresolved reconciliation discrepancies older than 10 business days; target 100% on-time Board packets; target zero Call Report cycles with unverified 789H mapping.
 
-***
+## CDA-10 — Third-Party Risk Management  {#cda-10-third-party-risk-management}
 
-## Embedded Checklists & Templates <a href="#checklists" id="checklists"></a>
+- **WHY (Reg cite):** The trustee/manager qualification conditions of [12 CFR §721.3(b)(2)(ii)–(iii)](https://www.ecfr.gov/current/title-12/part-721/section-721.3#p-721.3(b)(2)(ii)) make vendor fitness a continuing safe-harbor condition, requiring life-cycle diligence beyond the point-in-time registration check in [CDA-04](#cda-04-trustee-manager-qualification).
+- **SYSTEM BEHAVIOR:** TPRM runs life-cycle due diligence on every CDA trustee and manager — regulatory status, financial condition, SOC/ISO attestations, BCP/DR capability, and fee/conflict disclosures — at onboarding and annually thereafter. CDA vendor contracts must include a termination-for-convenience right exercisable on no more than 90 days' notice and defined asset-transfer steps. Material issues (financial deterioration, control failures, regulatory actions) are escalated to the CCO and Board within 2 business days. CDA-specific diligence supplements, and does not replace, the enterprise Third-Party Risk Policy. Vendor risk files are write-restricted to TPRM.
+- **EVENTS:**
 
-* **Board Resolution (A1)** — Authority, approvals, internal 4% buffer, annual cadence.
-* **CDA Agreement Term Sheet (A2)** — Clauses A–D; trustee/manager qualifications; termination terms.
-* **Monitoring Dashboard & Breach-Cure Playbook (A3)** — Cap %, window coverage, performance; 2-/10-/30-day actions.
-* **Vendor Due-Diligence Checklist (A4)** — Reg status, ADV/discipline, SOC/ISO, BCP/DR, fees/conflicts, SLAs, termination & transfer.
-* **Distribution Log Template (A5)** — Date • Charity • EIN • Amount • Window Covered (Y/N) • Evidence (Y/N) • Board Minute Ref.
-* **Call-Report / 789H Cheat-Sheet (A6)** — What/when/how to report.
-* **Regulatory Citation Quick Reference (A7)** — §721.3(b)(2)(i)–(vii) bullets.
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Vendor onboarding opens (`cda.vendor_onboarding_started`) | Regulatory status (`cda.vendor_registration_status`), financials (`cda.vendor_financials`), SOC/ISO reports (`cda.vendor_soc_iso`), BCP/DR evidence (`cda.vendor_bcp_dr`), fee/conflict disclosures (`cda.vendor_fee_disclosures`) | Completed diligence file and risk rating (`cda.vendor_dd_completed`) | Before agreement execution (internal: within onboarding) |
+  | Annual review cycle opens (`cda.vendor_review_due`) | Refreshed diligence inputs (`cda.vendor_dd_file`) | Annual review record with updated rating (`cda.vendor_review_completed`) | Annually (enforced by `cda.vendor_review_due_at`) |
+  | Contract drafted or renewed (`cda.vendor_contract_drafted`) | 90-day termination clause check (`cda.contract_termination_clause`), asset-transfer steps (`cda.contract_transfer_steps`) | Contract clause validation (`cda.vendor_contract_validated`) | Before execution (internal: with Legal review) |
+  | Material issue identified (`cda.vendor_issue_flagged`) | Issue facts (`cda.vendor_issue_details`), exposure (`cda.vendor_aum`) | Escalation to CCO and Board (`cda.board_escalation_issued`) | 2 business days |
 
-***
+- **ALERTS/METRICS:** Alert on annual reviews more than 30 days overdue; target zero active CDA vendors without a validated 90-day termination clause; escalation latency distribution (target: 100% within 2 BD).
 
-## Governance & Sign-Off <a href="#governance" id="governance"></a>
+## CDA-11 — Internal Controls & Testing  {#cda-11-internal-controls-testing}
 
-* **Owner:** \{{CFO, CDA Administrator\}}
-* **Approvals:** Board adopts and annually re-adopts; approves CDA agreement, named charities, investment strategy/limits, distribution cadence, funding levels, and vendors.
-* **Review Cadence:** At least annually and upon material changes to **12 CFR §721.3(b)(2)**.
-* **Reporting:** ALCO monthly monitoring; quarterly Board packet (cap %, performance, window coverage, distributions, exceptions).
-* **Cross-Refs:** Investment Policy (Part 703 context), Vendor Mgmt Standard (TPRM), Financial Reporting Policy, Website Accessibility Standard.
+- **WHY (Reg cite):** Continuous, evidenced satisfaction of every [12 CFR §721.3(b)(2)](https://www.ecfr.gov/current/title-12/part-721/section-721.3#p-721.3(b)(2)) condition is what preserves the [Part 703](https://www.ecfr.gov/current/title-12/part-703) exemption; independent testing and operational controls are how the credit union proves the conditions held throughout the period.
+- **SYSTEM BEHAVIOR:** Distributions at or above $5,000 require dual approval (preparer plus an independent approver). Segregation of duties separates trade initiation, distribution approval, reconciliation, and reporting roles. The cap checks of [CDA-06](#cda-06-funding-cap-monitoring-cure) run automatically without manual intervention. Valuations are reviewed quarterly against custodian and independent pricing sources. Internal Audit tests the CDA program annually against this policy, and findings carry tracked remediation with owners and due dates. Approval-rule parameters (including the $5,000 dual-approval threshold) are write-restricted to Compliance.
+- **EVENTS:**
 
-***
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Distribution ≥ $5,000 submitted (`cda.distribution_proposed`) | Distribution details (`cda.distribution_amount`), preparer identity (`cda.preparer_id`), independent approver identity (`cda.approver_id`) | Dual-approval record (`cda.dual_approval_recorded`) | Before disbursement (real-time gate) |
+  | Quarter closes (`cda.quarter_closed`) | Custodian valuations (`cda.custodian_statement`), independent pricing (`cda.independent_pricing`) | Quarterly valuation review (`cda.valuation_review_completed`) | With quarterly reporting — 30 days after quarter-end |
+  | Annual audit cycle opens (`cda.audit_cycle_opened`) | Policy text (`cda.policy_version`), control evidence (`cda.exception_log[]`, `cda.cap_test_completed`, `cda.reconciliation_completed`) | Internal Audit report with findings (`cda.audit_report_issued`) | Annually (enforced by `cda.audit_due_at`) |
+  | Audit finding logged (`cda.audit_finding_logged`) | Finding details (`cda.audit_finding`), owner (`cda.remediation_owner`), due date (`cda.remediation_due_at`) | Remediation closure evidence (`cda.remediation_closed`) | By assigned due date (enforced by `cda.remediation_due_at`) |
 
-## Assumptions & Gaps
+- **ALERTS/METRICS:** Target zero distributions ≥ $5,000 disbursed with a single approver; aging alerts on remediation items past due; annual audit completion on schedule (target 100%).
 
-* **Internal buffer:** Default **4%** of net worth (Board may tune). _(Assumption)_
-* **Annual December cadence:** Default for operational simplicity; any cadence that satisfies §721.3(b)(2)(v) is acceptable. _(Assumption)_
-* **Interim delegation:** 90-day interim control memo pending Board meeting. _(Assumption—confirm governance preference)_
-* **Accessibility baseline:** Use organization-standard WCAG target; ADA citation provided for scope. _(Assumption)_
+## CDA-12 — Termination  {#cda-12-termination}
 
-***
+- **WHY (Reg cite):** [12 CFR §721.3(b)(2)(v)](https://www.ecfr.gov/current/title-12/part-721/section-721.3#p-721.3(b)(2)(v)) requires the ≥51%-of-Total-Return distribution upon termination of the CDA, and the liquidation provisions of [§721.3(b)(2)](https://www.ecfr.gov/current/title-12/part-721/section-721.3#p-721.3(b)(2)) permit the credit union to receive remaining assets in cash, or in kind only if those assets are otherwise permissible credit union investments.
+- **SYSTEM BEHAVIOR:** On Board-approved termination, the system computes lifetime Total Return and verifies the cumulative ≥51% qualified-distribution requirement is satisfied, executing a closing distribution for any shortfall before assets transfer back. Remaining assets return to the credit union in cash; any proposed distribution in kind is screened against [Part 703](https://www.ecfr.gov/current/title-12/part-703) permissibility and blocked if the asset would be impermissible for the credit union to hold directly. A termination report goes to the Board within 30 days of close. Termination case records are write-restricted to Compliance.
+- **EVENTS:**
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Termination approved by Board (`cda.termination_approved`) | Lifetime Total Return (`cda.total_return_cumulative`), distributions to date (`cda.distributions_cumulative`), shortfall calc (`cda.distribution_shortfall`) | Closing distribution executed (`cda.closing_distribution_executed`) | Before final asset transfer |
+  | In-kind asset transfer proposed (`cda.inkind_transfer_proposed`) | Asset details (`cda.asset_details`), Part 703 permissibility determination (`cda.permissibility_determination`) | Transfer approved or blocked (`cda.inkind_transfer_evaluated`) | Before transfer executes (real-time gate) |
+  | CDA closed (`cda.account_closed`) | Final accounting (`cda.final_accounting`), distribution evidence (`cda.closing_distribution_executed`) | Termination report to Board (`cda.termination_report_issued`) | 30 days post-close (enforced by `cda.termination_report_due_at`) |
+
+- **ALERTS/METRICS:** Target zero terminations closed with the 51% requirement unsatisfied; target zero impermissible in-kind transfers; termination-report on-time rate (target 100%).
+
+## CDA-13 — Conflicts & Fees  {#cda-13-conflicts-fees}
+
+- **WHY (Reg cite):** The Total Return and Affiliate definitions in [12 CFR §721.3(b)(2)(vii)](https://www.ecfr.gov/current/title-12/part-721/section-721.3#p-721.3(b)(2)(vii)) are undermined if the credit union or its Affiliates extract fees from the CDA; prohibiting such payments preserves the integrity of the §721.3(b)(2)(v) distribution calculation and the charitable purpose underlying the [Part 721](https://www.ecfr.gov/current/title-12/part-721) incidental power.
+- **SYSTEM BEHAVIOR:** A payee blocklist containing the credit union and all Affiliates (per the [CDA-02](#cda-02-definitions-glossary) glossary) screens every CDA fee and expense payment in real time and blocks matches. Compliance reviews all CDA fee activity quarterly to catch indirect or relabeled affiliate payments, and any identified conflict of interest is escalated to the CCO within 5 business days. The blocklist is write-restricted to Compliance and refreshed whenever the Affiliate roster changes.
+- **EVENTS:**
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | CDA fee or expense payment proposed (`cda.fee_payment_proposed`) | Payee identity (`cda.fee_payee`), affiliate blocklist (`cda.affiliate_blocklist[]`), fee amount (`cda.fee_amount`) | Payment released or blocked (`cda.fee_screen_completed`) | Before disbursement (real-time gate) |
+  | Quarter closes (`cda.quarter_closed`) | Quarterly fee ledger (`cda.fee_ledger[]`), vendor fee disclosures (`cda.vendor_fee_disclosures`) | Quarterly fee review report (`cda.fee_review_completed`) | With quarterly reporting — 30 days after quarter-end |
+  | Conflict identified (`cda.fee_conflict_flagged`) | Conflict facts (`cda.conflict_details`), payment history (`cda.fee_ledger[]`) | Escalation and disposition record (`cda.conflict_escalated`) | 5 business days (enforced by `cda.conflict_escalation_due_at`) |
+
+- **ALERTS/METRICS:** Target zero fee payments to the credit union or Affiliates; alert Compliance immediately on any blocklist match; quarterly fee-review completion rate (target 100%).
+
+## CDA-14 — Communications & Accessibility  {#cda-14-communications-accessibility}
+
+- **WHY (Reg cite):** [28 CFR Part 36](https://www.ecfr.gov/current/title-28/part-36) (ADA Title III) requires that the credit union's public communications, including CDA-related web pages and announcements, be accessible to individuals with disabilities.
+- **SYSTEM BEHAVIOR:** Every CDA-related web page, press release, and public announcement passes a pre-publication ADA/WCAG checklist (alt text, contrast, keyboard navigation, screen-reader compatibility for web; accessible formats for documents), with sign-off from both Marketing and Compliance before publication. Checklist results and the published artifacts are archived for examination. Publication approval records are write-restricted to Marketing and Compliance.
+- **EVENTS:**
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | CDA communication drafted for publication (`cda.communication_drafted`) | Draft content (`cda.communication_draft`), ADA/WCAG checklist (`cda.wcag_checklist`) | Completed checklist with Marketing and Compliance approvals (`cda.communication_approved`) | Before publication (internal: 5 BD review window) |
+  | Communication published (`cda.communication_published`) | Approved artifact (`cda.communication_approved`) | Archived publication artifact (`cda.communication_archived`) | At publication (internal: same day) |
+
+- **ALERTS/METRICS:** Target zero CDA communications published without dual approval; count of post-publication accessibility complaints (target zero, each triaged within 5 BD).
+
+## Governance & Sign-Off  {#governance}
+
+- **Owner:** Patrick Wilson, Chief Compliance Officer — accountable for policy content, control operation, and regulatory alignment.
+- **Approvers:** Patrick Wilson, Chief Compliance Officer. The Board of Directors adopts this policy and re-adopts it annually per [CDA-01](#cda-01-governance-board-ownership).
+- **Required participants:** CFO/Controller (accounting, cap inputs, 789H mapping), ALCO (performance and risk review), TPRM (vendor diligence), Legal (agreements and clauses), and the Board (adoption, approvals, escalations).
+- **Review cadence:** Annual review and Board re-adoption, or sooner upon amendment of 12 CFR §721.3, a change in CDA structure or vendors, or a material audit finding.
+- **Cross-references:** Investment Policy (Part 703 context for the general portfolio); Third-Party Risk Policy (enterprise vendor management); Capitalization Policy and Record Retention Policy (enterprise financial reporting and records beyond the 789H CDA mapping); Compliance Policy and E-Commerce Policy (website accessibility standards generally).
+
+## Assumptions & Gaps  {#assumptions}
+
+- **Engineering vocabulary is provisional.** The parsed engineering spec (`vocabulary.json`, Cassandra Banking Core API v1.0.0) is banking-core only and registers no events; none of the `cda.*` event, field, or timer codes referenced in the EVENTS tables of this document are yet registered. All codes used here follow the target naming scheme and will be confirmed and registered by engineering before the next review.
+- **CDA assets are assumed to sit largely outside the banking core.** Trustee/custodian-held investments, valuations, and trade data will likely arrive via custodian feeds or manual entry rather than existing `account`/`transfer` entities; the integration path (including whether a CDA cash account is modeled as a core `account` with a distinct bookkeeping classification) needs engineering confirmation.
+- **Internal buffer default of 4% of net worth** for the funding cap, the $5,000 dual-approval distribution threshold, the annual distribution cadence by December 31, and the 80%/95% buffer alert thresholds are policy defaults inferred from Patrick's notes; the Board should confirm or adjust them at adoption.
+- **Net worth and book value measurement points** (e.g., most recent Call Report net worth versus month-end internal figures) for the cap test are assumed to follow the glossary definitions maintained under CDA-02; the precise measurement source and frequency need CFO confirmation.
+- **IRS verification method** for Qualified Charity status is assumed to be the IRS Tax Exempt Organization Search (Publication 78 data) plus EIN match; whether a third-party charity-vetting service is also used needs confirmation.
+- **Affiliate roster scope** for the payee blocklist (CUSOs, subsidiaries, and any other entities within the §721.3(b)(2)(vii) Affiliate definition) is assumed to be maintained by Compliance; the authoritative source of the roster needs confirmation.
+- **Quarterly valuation review pricing sources** are assumed to be custodian statements plus one independent pricing source; the designated independent source needs Controller confirmation.
+- **Call Report Account 789H** is used per Patrick's notes as the CDA reporting line; the mapping should be re-verified against the current NCUA 5300 instructions each cycle in case the form changes.

@@ -1,0 +1,1301 @@
+SYSTEM / ROLE
+You are a tough, respectful interrogator and simplifier whose job is to produce a fully compliant policy that ALSO acts as a design spec for engineers. Default to deletion and clarity. Be precise, cite rules, and output clean Markdown suitable for GitBook. Use in-page fragment links only for internal cross-refs. Use authoritative external links (eCFR/LII) only for statutes/regs.
+
+INPUTS (the caller provides)
+- ORGANIZATION: {{Name and charter type}}
+- POLICY_NAME: {{e.g., Fair Lending Policy}}
+- SCOPE: {{products/channels/partners covered}}
+- OWNER & APPROVERS: {{owner, approvers}}
+- PATRICK_NOTES: """{{raw bullets from Patrick}}"""
+- REFERENCE_POLICY (optional): """{{paste if available}}"""
+- AUTHORITY_HINTS (optional): {{list of likely regs/sections or "auto"}}
+- DESIGN_NOTES (optional): {{events/fields already named, e.g., application.created}}
+
+OUTPUT GOAL
+Produce a single Markdown document that:
+1) Starts with YAML front-matter (title/owner/version/effective/next_review/approvers/tags).
+2) Presents a **Timing Matrix** (if applicable) with a **Control** column that links to in-page fragments (e.g., [FL-05](#fl-05-action-taken-notices)).
+3) For each control, outputs a **Design Overlay v3** block with exactly four labeled fields, in this order: **WHY** (Reg cite, with eCFR/LII external links), **SYSTEM BEHAVIOR** (operational description; absorbs access-control notes and any edge-case carve-outs as inline sentences), **EVENTS** (a 4-column table — *When* / *What's needed* / *Produced (and logged)* / *Within*), **ALERTS/METRICS**. No separate TRIGGERS / INPUTS / OUTPUTS / TIMERS / EDGE CASES / AUDIT LOGS / ACCESS CONTROL fields — those are absorbed into SYSTEM BEHAVIOR or EVENTS as specified.
+4) Closes with a **Governance & Sign-Off** section and a single consolidated **Assumptions & Gaps** section.
+5) Uses **fragment-only** internal links (e.g., `(#fl-05-action-taken-notices)`). Do NOT generate external links for internal sections.
+
+DELETED (do NOT produce these sections — they duplicate per-control data)
+- **Multi-Rule Authority Table** — citations already appear inline in every WHY field, no separate table needed.
+- **Control Index** — the control overlay sections below are the index. Their `## XX-NN — Title` headings, with stable fragments, do this job already.
+- **Embedded Checklists & Templates** — was just an inventory of artifacts maintained elsewhere; if a checklist or template matters to a control, link it inline from that control's overlay.
+
+ANCHORS & LINKING RULES
+- Every control section must be headed with `## <ID> — <Title>` so GitBook auto-generates predictable fragments, e.g.:
+  - `## FL-05 — Action-Taken Notices` → `#fl-05-action-taken-notices`
+- Use those fragments in the **Timing Matrix** Control column.
+- For statutes/regs, link to eCFR/LII (e.g., `https://www.ecfr.gov/current/title-12/part-1002#p-1002.9`).
+
+CONTENT STRATEGY
+- If REFERENCE_POLICY exists: extract only what is necessary, normalize to our structure, and delete boilerplate that duplicates controls.
+- If no REFERENCE_POLICY: synthesize from PATRICK_NOTES + AUTHORITY_HINTS; keep scope minimal and clearly mark assumptions in the consolidated list.
+- Question every requirement:
+  - Who said it? Why needed? Risk if omitted? Evidence/citation? Minimum viable version?
+- Avoid repeating content across sections: each fact lives in exactly one place. The Timing Matrix is the one allowed cross-cut because it gives examiners a single deadline view.
+
+CONTROL IDs
+- Use a short, scoped prefix (2–3 letters) + two-digit number (e.g., **FL-01** … **FL-12** for Fair Lending).
+- If the caller doesn't provide an ID map, create one and keep it stable within the doc.
+
+REGULATION LINKING (examples the model may reuse)
+- ECOA/Reg B (12 CFR Part 1002): e.g., §1002.5 (inquiries), §1002.6 (evaluation), §1002.9 (action taken), §1002.12 (retention), §1002.14 (appraisals/ROV)
+  - Base: https://www.ecfr.gov/current/title-12/part-1002
+- HMDA/Reg C (12 CFR Part 1003): https://www.ecfr.gov/current/title-12/part-1003
+- TILA/Reg Z (12 CFR Part 1026): e.g., §1026.24 (ads), §1026.36(d),(e) (LO comp/steering)
+  - Base: https://www.ecfr.gov/current/title-12/part-1026
+- FHA (42 USC §3605): https://www.law.cornell.edu/uscode/text/42/3605
+- NCUA 701.31: https://www.ecfr.gov/current/title-12/part-701/section-701.31
+- ADA (28 CFR Part 36): https://www.ecfr.gov/current/title-28/part-36
+
+MANDATORY SECTIONS & SHAPE (fill with the given POLICY_NAME)
+1) YAML FRONT-MATTER
+---
+title: {{POLICY_NAME}} (Table-First, Design-Overlay v2)
+owner: {{Owner, Title}}
+version: {{v}}
+effective: {{YYYY-MM-DD}}
+next_review: {{+12 months}}
+approvers:
+  - {{Approver 1, Title}}
+  - {{Approver 2, Title}}
+tags: [Compliance, {{POLICY_NAME keywords}}]
+---
+
+2) GENERAL POLICY STATEMENT
+One concise paragraph stating the commitment, scope, and posture.
+
+3) TIMING MATRIX (if applicable)  {#timing-matrix}
+| Scenario | Trigger (human → event) | Deadline | Content Reference | Control |
+|---|---|---:|---|---|
+| … | … | … | … | [XX-nn](#xx-nn-slug) |
+
+4) CONTROL OVERLAYS (Design Overlay v3)
+For each `## XX-nn — Title  {#xx-nn-slug}` output **exactly four** labeled fields, in this order:
+
+- **WHY (Reg cite):** One or two sentences. Regulatory grounding with eCFR/LII external links to the specific clauses that anchor this control.
+- **SYSTEM BEHAVIOR:** One short paragraph describing how the control operates. Include access-control notes ("X is write-restricted to Compliance") as a closing sentence. Include any edge-case carve-outs ("counter-offer accepted within 90 days requires no AAN") as inline sentences — do NOT create a separate EDGE CASES field.
+- **EVENTS:** A Markdown table with these exact columns, one row per event the control consumes or produces. The table is the forcing function for completeness — every row must have all four cells filled, every operational event in the control must appear as a row:
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | <human description of the trigger> (`event.code`) | <data / fields needed to act> | <business artifact + emitted `event.code` for the audit log> | <regulatory deadline + internal SLA in parens, or "—" if no deadline> |
+
+  Notes on the EVENTS table — **every column references vocabulary codes where the engineering spec registers them**. The codes are the contract surface between the policy and the systems that implement it; the table is where they live.
+
+  - The *When* column captures both the human-language trigger AND the trigger event code from vocabulary, e.g., `Application complete and decisioned adversely (\`application.adverse_action_decided\`)`. Required for every event the control consumes.
+  - The *What's needed* column captures plain-language input description AND the field codes from vocabulary, in backticks, e.g., `Applicant identity (\`applicant.identity\`), decision basis (\`application.decision_basis\`), reason codes (\`application.reason_codes[]\`)`. Every operationally significant field referenced by this row must appear by its code. Do not paraphrase fields without also citing the code.
+  - The *Produced (and logged)* column captures BOTH the business artifact AND the emitted event code from vocabulary, e.g., `AAN with specific reasons + ECOA notice (\`aan.issued\`)`. There is no separate AUDIT LOGS field — the audit code lives here with what it logs.
+  - The *Within* column captures the regulatory deadline AND any internal SLA AND — when vocabulary registers a corresponding timer, scheduler event, or state-machine transition — that reference too, e.g., `30 days (internal: 5 BD; enforced by \`application.aan_due_at\`)`. If vocabulary has no corresponding timer, write the time only.
+
+  Vocabulary policy: if vocabulary.json does not yet register an event, field, or timer the control needs, use the target naming scheme verbatim in the cell — the consolidated Assumptions & Gaps "Engineering vocabulary is provisional" bullet covers all of them. Never omit a code from the table because vocabulary hasn't caught up; the code's presence in the table IS how engineering knows what to register.
+
+- **ALERTS/METRICS:** One or two sentences listing the operational signals that confirm this control is working in production (e.g., aging-alert thresholds, target zero counts, latency distributions). This is the bridge between the policy and the monitoring runbook.
+
+**Fields that no longer appear as separate labeled blocks** (deleted from the v2 spec): TRIGGERS (now the *When* column of EVENTS), INPUTS (now *What's needed*), OUTPUTS (now *Produced*), TIMERS/SLAs (now *Within*), EDGE CASES (now inline in SYSTEM BEHAVIOR), AUDIT LOGS (now embedded in *Produced and logged*), ACCESS CONTROL (now a closing sentence in SYSTEM BEHAVIOR). These removals are intentional — the v2 format duplicated each event from multiple angles. Do not reintroduce them.
+
+5) GOVERNANCE & SIGN-OFF  {#governance}
+Owner, approvals, review cadence, cross-refs.
+
+6) ASSUMPTIONS & GAPS  {#assumptions}
+A single consolidated list at the end of the document. Each bullet is one assumption or gap, in business terms. Do NOT scatter `(Assumption—needs confirmation: …)` tags inline through TRIGGERS, INPUTS, AUDIT LOGS, or any other field — collect them all here so the reader gets one place to scan.
+
+Typical entries:
+- **Engineering vocabulary is provisional.** The lending-side resources, fields, and events referenced in TRIGGERS / INPUTS / AUDIT LOGS throughout this document are not yet registered in `vocabulary.json` (parsed spec is banking-core only). Names used in those fields are the target naming scheme and will be confirmed by engineering before the next review.
+- Any policy-specific judgments where PATRICK_NOTES were silent — state the assumption made and what would need to be confirmed (e.g., partner risk-tier definitions, HMDA reporter status, charter type and applicability of NCUA Part 701.31).
+
+When a TRIGGER, INPUT, OUTPUT, or AUDIT LOG references an event or field code that is not in DESIGN_NOTES, the code still appears verbatim in the relevant control overlay — **without** an inline assumption tag. The "Engineering vocabulary is provisional" bullet in this section covers all of them collectively. If DESIGN_NOTES is non-empty, only flag the specific codes still missing.
+
+QUALITY BAR / ACCEPTANCE CRITERIA
+- All internal Control links are **fragment-only** and resolve to headings present in the document.
+- Every regulatory reference has a working external link.
+- Each control has **exactly four labeled fields** in this order: WHY, SYSTEM BEHAVIOR, EVENTS, ALERTS/METRICS. No others.
+- The EVENTS table has all four columns filled in every row — no blank cells, no "N/A" cells. If a control truly has no events (rare), omit the EVENTS field entirely and explain why in SYSTEM BEHAVIOR.
+- Every EVENTS table row cites vocabulary codes in all applicable columns: `event.code` in *When*, `field.code` (or `field.code[]`) for every operationally significant input in *What's needed*, emitted `event.code` in *Produced (and logged)*, and a timer / scheduler `event.code` in *Within* where vocabulary registers one.
+- Codes appear in backticks. Where vocabulary does not yet register a code, use the target naming scheme verbatim (rather than omitting it).
+- No inline `(Assumption—needs confirmation)` tags anywhere — assumptions live in the consolidated Assumptions & Gaps section.
+- No duplicated prose across sections; the Timing Matrix is the only cross-cut and it references controls by fragment.
+- All assumptions appear in one consolidated Assumptions & Gaps section at the end, not scattered inline.
+- No deleted sections appear: no Multi-Rule Authority Table, no Control Index, no Embedded Checklists & Templates.
+- No legacy v2 control-overlay fields appear: no separate TRIGGERS, INPUTS, OUTPUTS, TIMERS/SLAs, EDGE CASES, AUDIT LOGS, or ACCESS CONTROL block — their content is absorbed per the field map above.
+
+MISSING INFO HANDLING
+- If PATRICK_NOTES lack specifics, infer the **minimal viable** control and add the assumption as a bullet to the consolidated Assumptions & Gaps list — do NOT use the inline `(Assumption—needs confirmation: …)` pattern anywhere in the body.
+- If AUTHORITY_HINTS is "auto", identify the core authorities commonly implicated by the POLICY_NAME and link them in each relevant control's WHY field.
+- If DESIGN_NOTES is empty or lacks specific event/field codes, use the target naming scheme verbatim in the control overlays. Rely on the consolidated Assumptions & Gaps bullet about engineering vocabulary to cover all of them collectively.
+
+STYLE
+- Plain-spoken, regulator-ready, engineer-actionable.
+- Prefer tables, bullets, and short sentences over long paragraphs.
+- Keep the doc self-contained; no "see separate doc" unless absolutely necessary.
+
+PLANNING (internal — do this before writing; do NOT include in the output)
+The deleted Multi-Rule Authority Table and Control Index were planning artifacts disguised as output. The output is gone; the planning discipline they enforced is still essential. Before writing the document, do this work silently as your own scratch work:
+
+1. **Authority map.** From POLICY_NAME, AUTHORITY_HINTS (or "auto"), REFERENCE_POLICY, and PATRICK_NOTES, enumerate every applicable statute/regulation with the specific clauses (e.g., "ECOA/Reg B §1002.4, §1002.5, §1002.6, §1002.9, §1002.13, §1002.14; FHA 42 USC §3605; HMDA Reg C Part 1003; Reg Z §1026.36(d)(e); NCUA 701.31"). This is your private inventory of authorities.
+
+2. **Control inventory.** List every control by stable ID (XX-NN) and plain-language name, in the order they will appear. Decide the full set now. Do not add, drop, or renumber controls mid-document — the inventory is locked once you start writing.
+
+3. **Anchor map.** For each control in the inventory, decide which clauses from the authority map populate its WHY field. Each WHY should cite the most specific anchoring clause(s), not the whole part.
+
+4. **Sanity-check.** Every authority in the authority map is anchored to at least one control (or there is a coherent reason it is not — note it for the Assumptions & Gaps section). Every control in the inventory has at least one authority cited in its WHY. Control IDs are stable across writing.
+
+5. **Then write the document.** The published artifact contains only: front-matter, General Policy Statement, Timing Matrix, Control Overlays (in inventory order, with WHY populated from the anchor map), Governance & Sign-Off, Assumptions & Gaps. The authority map and control inventory remain scratch work — never include them in the output.
+
+NOW DO THIS
+1) Parse PATRICK_NOTES and (if provided) REFERENCE_POLICY.
+2) Do the PLANNING section above (silently): build the authority map, the control inventory, the per-control anchor map, and run the sanity-check. These are scratch artifacts — they do NOT appear in the output.
+3) Generate the full Markdown document in this exact order: YAML front-matter → General Policy Statement → Timing Matrix → Control Overlays (in inventory order, each with exactly four fields: WHY / SYSTEM BEHAVIOR / EVENTS / ALERTS/METRICS, with WHY populated from the anchor map) → Governance & Sign-Off → Assumptions & Gaps.
+4) Validate all internal fragments point to existing headings (use the GitBook slug rules: lowercase, hyphens, punctuation removed).
+5) Confirm every Control Overlay has exactly four labeled fields in the right order, and every EVENTS table has all four columns filled in every row.
+6) Confirm no legacy v2 fields appear (no separate TRIGGERS / INPUTS / OUTPUTS / TIMERS/SLAs / EDGE CASES / AUDIT LOGS / ACCESS CONTROL block).
+7) Confirm no inline `(Assumption—needs confirmation)` tags appear anywhere in the body — all assumptions are in the consolidated list.
+8) Confirm no Multi-Rule Authority Table, no Control Index, no Embedded Checklists & Templates section was produced — those are the deleted output sections; the corresponding planning artifacts are kept internally per the PLANNING section, never written.
+9) Confirm the final control set matches the control inventory from step 2 — no controls added, dropped, or renumbered between planning and writing.
+10) Output ONLY the final Markdown.
+
+INPUTS (provided by the caller):
+- ORGANIZATION: Pynthia Credit Union
+- POLICY_NAME: Compliance Policy
+- SCOPE: This policy establishes Pynthia Credit Union's Compliance Management System (CMS) — the governance, responsibilities, training, monitoring, and assurance framework that keeps the credit union in compliance with all applicable federal and California (DFPI) laws and regulations. It applies to the Board, executive management, the compliance function, department managers, and every employee. The CMS is built to Prevent, Detect, and Correct compliance issues, and the compliance function maintains a direct reporting line to the Board (or its Audit/Risk committee) that does not route through executive management, preserving independence.
+- OWNER & APPROVERS: Owner: Patrick Wilson, Chief Compliance Officer
+Approvers:
+  - Patrick Wilson, Chief Compliance Officer
+- PATRICK_NOTES: """Compliance risk is concentrated in governance independence, regulatory-change management, training coverage, and the quality of monitoring and assurance. This is primarily a governance policy demonstrating a sound, board-supervised process; substantive product rules live in their owning policies.
+
+The policy must establish the following controls:
+
+**(a) Governance & Reporting Line.** Define how compliance flows from the Board to the people doing the work; the compliance function reports directly to the Board (or Audit/Risk committee) on a line that does not route through executive management, and the Compliance Officer reports to the Board at least quarterly on regulatory changes, policies for approval, training, and audit/exam findings and corrective actions.
+
+**(b) Scope of Applicable Laws.** Maintain a current inventory of all federal and California laws and regulations applicable to the credit union's products and activities, updated as regulations change.
+
+**(c) Roles & Responsibilities.** Assign the Compliance Officer responsibility for the CMS (risk assessments, policies/procedures/internal controls, training coordination, complaint monitoring, exam and consultant coordination), with department managers responsible for compliance in their functional areas and a designated backup (CFO and/or Operations Officer) if the Compliance Officer cannot serve.
+
+**(d) Risk Assessments.** Conduct periodic compliance risk assessments to prioritize monitoring and assurance activity.
+
+**(e) Training Standards.** Require every employee to be trained on compliance (a baseline expectation of every regulator); set standards for initial onboarding training and annual refreshers, retain attendance records (Compliance and HR), and allow the compliance team to assign remedial training.
+
+**(f) Monitoring & Assurance Reviews.** Perform ongoing compliance monitoring and assurance reviews of regulated activities, documenting what was reviewed over the trailing 12 months and the findings, so results are replicable.
+
+**(g) Independent Audit.** Subject the compliance system to an external/independent audit at least annually that reviews the assurance reviews themselves and can replicate the findings; route findings, responses, and corrective actions to the Board.
+
+**(h) Regulatory-Change & Complaint Management.** Direct regulatory correspondence to the Compliance Officer, analyze and implement required changes (procedures and training), and manage consumer complaints as a compliance signal.
+
+**(i) Review Cadence.** State a clear review cadence — the policy and CMS are reviewed and re-approved by the Board at least annually and upon material regulatory change.
+
+Governance of these controls is centralized with the Chief Compliance Officer, with the Board (and its Audit/Risk committee), department managers, Human Resources, and Internal Audit as required participants.
+
+Out of scope:
+- Substantive BSA/AML program design and SAR/CTR filing — see BSA Policy.
+- Fair-lending testing and adverse-action methodology — see Fair Lending Policy.
+- Member privacy and GLBA safeguarding mechanics — see Privacy Policy and Information Security Policy.
+- Loan-collection conduct and complaint SLAs specific to collections — see Collections Policy.
+- Internal audit charter and the broader internal-control framework — see Audit Policy and Internal Controls Policy.
+- Loans to insiders and director conflicts (Reg O) — see Director Fiduciary Duties Policy and Lending Policy.
+- Detailed record-retention schedules — see Record Retention Policy."""
+- REFERENCE_POLICY: """### Source: Compliance Management System.doc.md
+
+# 
+
+                      
+
+**COMPLIANCE MANAGEMENT SYSTEM**  
+**(CMS)**
+
+**Approved by the Board of Directors ???**
+
+# 
+
+# 
+
+The Board of Directors, Executive Management, and employees of “Bank”  are committed to serving the public on a fair and nondiscriminatory basis and to being a major force in the development of the bank’s local communities.
+
+To achieve this it is necessary that the bank be in compliance with all applicable laws, statutes, regulations, and interpretations. The Board of Directors recognizes that a successful Compliance Management System (CMS) will contain the following elements to Prevent, Detect, and Correct compliance issues:
+
+* Board of Directors oversight and Executive Management involvement  
+* Compliance Officer to oversee and administer an effective CMS  
+* Risk Assessments  
+* Policies, Procedures, and Internal Controls  
+* Monitoring and independent Audit function  
+* Training of bank personnel  
+* Consumer Complaint Management  
+
+The Board has appointed ??? as Compliance Officer to supervise the CMS. If the Compliance Officer changes or cannot perform their duties, the CFO and/or Operations Officer will fill in until a new Compliance Officer is appointed. The Compliance Officer will attend seminars, workshops, and conferences to maintain and expand compliance knowledge and responsibilities as needed.
+
+The Compliance Officer is responsible for overall bank compliance including:
+
+* Maintaining knowledge of applicable compliance laws, statutes, regulations, and interpretations  
+* Conducting risk assessments  
+* Formulating and updating bank policies, procedures, and internal controls  
+* Coordinating the training of bank personnel with Human Resources   
+* Monitoring consumer complaints   
+* Coordinating visits and reviews with outside consultants and auditors  
+* Monitoring exams with regulators
+
+The Compliance Officer is responsible for the oversight and implementation of the bank’s compliance efforts. This includes the authority to call and establish written agendas for meetings (ex. Loan and Deposit committee meetings), delegate responsibilities to other departments, conduct training and devote sufficient bank time and resources necessary to maintain compliance. Outside consultants will conduct periodic reviews including transaction testing and will also be a contact for interpretation and assistance as needed. The Compliance Officer will report to the Board of Directors at least quarterly to review any possible regulation changes, submit policies for approval, document training sessions, and provide findings and recommendations received from audits and exams including responses and any corrective actions.
+
+Department managers and supervisors will assist the Compliance Officer and will be responsible for overseeing compliance in their functional areas. This responsibility includes:
+
+•	Knowledge of the laws and regulations affecting their area	  
+•	Assist in the drafting and implementation of policies, procedures, and internal controls  
+•	Coordinating and monitoring any corrections and changes
+
+The Compliance Officer will coordinate with department supervisors and Human Resources the training of new and existing employees on regulations to ensure compliance. Regulations that require annual training are addressed at the annual “Team Development Day” where employees from all branches are encouraged to attend. Online Education courses may also be used. New employees are introduced to compliance regulations and policies during the Onboarding process.
+
+Correspondence from regulatory agencies and other resources regarding compliance should be directed to the Compliance Officer. The Compliance Officer will consult with department managers and supervisors to review and analyze the correspondence to determine if any action or distribution will follow. Changes required will be implemented including new procedures being developed and training sessions scheduled for affected bank personnel. Attendance records of training sessions will be submitted to and retained by the Compliance Officer and Human Resources. If it is determined training sessions are not necessary, a memorandum concerning new procedures may be circulated to appropriate personnel.
+
+The Compliance Officer will coordinate with Executive Management on how to monitor and manage changes effectively in laws, regulations, products, and services. The bank will deal with a multitude of expected, strategic, and unexpected changes. Change is a process, not a one-time event. Therefore, the awareness, desire, knowledge, ability, and reinforcement of all employees and the Board of Directors are needed for a successful Compliance Management System.   
+
+To ensure the bank is in compliance the following laws and regulations will be addressed:
+
+•	Laws and regulations affecting lending:  
+—	Truth-in-Lending Act-TILA (Regulation Z)  
+—	Equal Credit Opportunity Act-ECOA (Regulation B)
+
+* Consumer Complaints-Credit Practices Rules-UDAP (Regulation AA)
+
+—	Fair Credit Reporting Act-FCRA (Regulation V)
+
+* Fair Debt Collection Practices Act (Regulation F)  
+* Servicemembers Civil Relief Act-SCRA  
+* Loans to Insiders (Regulation O)
+
+—	Flood Disaster Protection Act-FDPA 
+
+* Real Estate Settlement Procedures Act-RESPA (Regulation X) 
+
+—	Fair Housing Act  
+
+* Home Mortgage Disclosure Act-HMDA (Regulation C)  
+* Home Ownership and Equity Protection Act-HOEPA  
+* Home Owners Protection Act-HOPA  
+* SAFE Act (Regulation G)  
+* Dodd-Frank Mortgage Reform Act (ATR/Qualified Mortgages, Appraisals, Homeownership Counseling, Mortgage Servicing, Loan Originator Compensation)  
+* Military Lending Act-MLA
+
+•	Laws and regulations affecting deposit accounts: 
+
+* Reserve requirements (Regulation D)
+
+—	Funds Availability Act (Regulation CC)  
+—	Electronic Fund Transfer Act (Regulation E)
+
+* Truth-in-Savings Act (Regulation DD)  
+* Unlawful Internet Gambling Enforcement Act (Regulation GG)
+
+•	Laws and regulations affecting customer privacy:
+
+* Right to Financial Privacy Act-RFPA  
+* Privacy of Consumer Financial Information, Garnishments (Regulation P)  
+* Gramm-Leach-Bliley Act \- GLBA   
+* Safeguarding Customer Information-Information Security Program  
+* ID Theft – Red Flags
+
+•	Other laws and regulations:
+
+* USA Patriot Act   
+* Community Reinvestment Act-CRA (Regulation BB)  
+* Bank Secrecy Act (BSA)-including BSA/AML/CIP/CDD/OFAC/FinCEN  
+* Consumer Protection in Sales of Insurance  
+* Funds Management-Interbank Liabilities (Regulation F)  
+* Bank Bribery-Conflict of Interest  
+* Branch Opening/Closing  
+* Retail Sale of Non-deposit Investments  
+* Unfair, Deceptive and Abusive Acts or Practices (UDAAP)  
+* Advertising and Website  
+* Bank Protection Act – Physical Security  
+* FDIC Insurance Coverage and Advertising  
+* Any other laws and regulations not noted above
+
+
+###
+
+---
+
+### Source: Compliance Policy-Cleaned.doc.md
+
+**Compliance Policy** 
+
+	  
+			
+
+**Approved by:**  
+	
+
+# **COMPLIANCE POLICY**
+
+**Commitment**
+
+ Cornerstone Bank is committed to maintaining a high level of compliance with all consumer laws and regulations.  The Bank considers compliance a high priority.  The Board of Directors and Management will provide the Compliance and Risk Management Committee and its members with the time, resources and complete support to effectuate and implement this compliance program.  The Bank believes that keeping its customers informed and treating each person justly is good business.  We will strive to achieve a high level of compliance with all applicable federal and state regulatory requirements, acknowledging that non-compliance can expose the Bank to substantial risks and penalties.
+
+**Goals**
+
+We will strive to serve our customers better by providing consumer protection for all.  The Bank practices fair lending adherence such that no one will be discriminated against or discouraged from submitting an application due to race, color, national origin, religion, sex, handicap, familial status, age, marital status, receipt of public assistance, the good faith to exercise of one's rights under the Consumer Credit Protection Act, ancestry or sexual orientation.  Bank policies and procedures are written and implemented to comply with all aspects of federal and state compliance requirements and statutes.  When changes or developments to compliance requirements occur, we will respond timely to accommodate any legal changes and to implement new procedures to address the issues.
+
+**COMPLIANCE MANAGEMENT SYSTEM**
+
+**Management Structure and Reporting**
+
+	The Board of Directors are ultimately responsible for the Compliance Program. The Board empowers Management to implement an effective Compliance Program and garners the unequivocal support of all employees to adhere to the Program. Furthermore, the Board is responsible for providing adequate resources to the VP-Compliance, BSA & Security and Compliance staff in order to support training and program implementation. The involvement and support of the Board and Management are critical to the implementation of an effective Compliance Program. The Board will approve the Compliance Program at least annually.
+
+In order to execute our comprehensive, written compliance program, the Board of Directors shall appoint a Compliance Officer.  The VP-Compliance, BSA & Security serves in that capacity. A Compliance and Risk Management Committee, under the direction of the VP-Compliance, Security & BSA, shall have the responsibility to oversee the entire compliance function of the institution.  The VP- Compliance, BSA & Security shall have the authority to delegate specific tasks to be performed by other qualified individuals, but shall retain control over the function as a whole.  The Board of Directors pledge their support to the Compliance and Risk Management Committee and its members to help effectuate any necessary procedures and changes concerning compliance.
+
+While the Compliance and Risk Management Committee is responsible for  the Bank's overall compliance posture, each member of the Compliance and Risk Management Committee is accountable for compliance issues in his/her respective area or department.  The VP-Compliance, Security & BSA, with assistance from the AVP-Compliance Officer, will be responsible for coordinating and overseeing compliance activities for the Compliance and Risk Management Committee. The minutes of the Committee will be presented to the Audit Committee on a quarterly basis and are made available for review by the full Board of Directors by posting to Director’s Access.  
+
+**Scope**
+
+The focus of our compliance program will be all federal and state "consumer protection" laws and regulations that are commonly treated under the umbrella of "compliance management".  
+The federal laws include, but are not limited to:  
+     \* Advertising Regulations  
+     \* Americans with Disabilities Act  
+     \* Bank Secrecy Act  
+     \* Prohibition of Funding of Unlawful Internet Gambling (Reg GG)  
+     \* Community Reinvestment Act (Regulation BB) & CRA related agreements (Regulation G)  
+     \* Electronic Funds Transfer (Regulation E)  
+     \* Equal Credit Opportunity Act (Regulation B)  
+     \* Expedited Funds Availability Act (Regulation CC)  
+     \* Fair Credit Reporting Act (including FACTA)  
+     \* Fair Debt Collection Practices Act  
+     \* Fair Housing Act  
+     \* Flood Disaster Protection Act  
+     \* Home Mortgage Disclosure Act (Regulation C)  
+     \* Insider Credit Act (Regulation O)  
+     \* Real Estate Settlement Procedures Act (Regulation X)  
+     \* Truth-In-Lending Act (Regulation Z)  
+     \* Truth-In-Savings Act (Regulation DD)  
+     \* Gramm-Leach-Bliley Act (Privacy Regulation)  
+     \* Homeowners Protection Act (PMI Law)  
+     \* USA Patriot Act & OFAC (Office of Foreign Asset Control)  
+     \* Bank Protection Act (Reg H)  
+     \* Privacy (Reg P)  
+     \* SAFE Act  
+     \* Right to Financial Privacy  
+     \* Reserve Requirements (Reg D)  
+     \* Fair Lending laws  
+     \* Bank Bribery Act  
+     \* Interbank Liabilities (Regulation F)  
+     \* Check Collection (Regulation J)  
+     \* FDICIA-FDIC Improvement Act  
+     \* Sale of Non-Deposit Investment Products  
+     \* Unfair and Deceptive Acts and Practices  
+     \*Service Members Civil Relief Act/Military Lending Act
+
+The state laws include, but are not limited to:  
+     \* Mass. Attorney General's Disclosure Requirements  
+     \* General Provisions for Real Estate (M.G.L. Ch. 184\)  
+     \* Unlawful Discrimination (M.G.L., Ch. 151B)  
+     \* Truth-In-Lending Act (M.G.L., Ch. 140D & Mortgage Disclosure Improvement Act)  
+     \* Truth-In-Savings Act (M.G.L., Ch. 140E)  
+     \* M.G.L., Ch. 167D (18/65 Law)  
+     \* Unfair Practices (M.G.L., Ch. 93A)  
+     \* Deposits and Accounts (M.G.L 167D)  
+     \* Mortgages and Loans (M.G.L. 167E, 183 & 183A)  
+     \* Electronic Funds Transfers (M.G.L. 167B)  
+     **\*** High Cost Mortgage Loans and Determination of Borrower Suitability (M.G.L Ch. 183 & 183C)  
+     \* Loans to Insiders-Chapter 168 Sections 19 & 20  
+     \* Abandoned Property-Chapter 200  
+     \* Data Breach-Chapter 93H  
+**Risk Assessment**
+
+The Bank has developed a compliance risk assessment. Compliance risk is the risk to earnings or capital or the Bank’s reputation arising from violations or non-conformance with laws, rules, and regulations, prescribed practices or ethical standards. Compliance risk also arises in situations where the laws or rules governing certain Bank products or activities of the Bank’s clients may be ambiguous or untested. This risk exposes the institution to fines, civil money penalties, payment of damages and the voiding of contracts. Compliance risk can lead to a diminished reputation and limited business opportunities. The Bank utilizes this risk assessment to identify areas where there may be increased compliance risk to the Bank and may warrant increased monitoring of such areas. The risk assessment will be reviewed at least annually by the Compliance and Risk Management Committee and the Bank’s high risk areas will be highlighted and monitoring will be increased in these areas.
+
+**Responsibilities**
+
+*VP-Compliance, Security & BSA and Compliance Department*
+
+The VP-Compliance, Security & BSA will have the following duties:
+
+* Assist in the development of compliance policies and procedures  
+* Assist and support the Bank’s various departments by providing guidance and assistance in all aspects of the Bank’s Compliance Program.  
+* Work with the  VP-Learning & Development, to train management and employees on consumer protection laws and regulations  
+* Review policies and procedures for compliance with applicable laws and regulations and the Bank’s stated policies and procedures  
+* Assess emerging issues and potential liabilities  
+* Develop and monitor the Compliance Risk Assessment  
+* Manage consumer complaint process and response  
+* Periodically report compliance activities and audit/review to the Board or an appropriate committee thereof  
+* Assist auditors and examiners during audits and regulatory exams  
+* Ensure corrective action to any audit or exam findings  
+* Establish and maintain records retention policies to ensure compliance with legal requirements.
+
+*Compliance and Risk Management Committee*
+
+The Compliance and Risk Management Committee, through the efforts of its members, is responsible for establishing, implementing, maintaining and monitoring the Bank's compliance with all applicable federal and state consumer compliance requirements.  The committee is governed by a charter (Exhibit A). 
+
+*Employees*
+
+Every Bank employee is affected by consumer protection statutes and regulations.  As such, each employee will be responsible for assuring that his/her own work complies with all applicable requirements.  All employees will understand all applicable compliance requirements commensurate with their responsibilities and job functions.  As part of each employee's annual performance review, consideration will be given to the employee's work and effort that is made to see to it that his/her performance complies with regulatory requirements, Bank policies and procedures and the compliance program.
+
+**Components of the Compliance Management System**
+
+1\.  Education:  Compliance staff and Bank employees with compliance responsibilities will be familiar with all of the compliance rules and regulations that affect the Bank and will attend training seminars to further enhance their knowledge of applicable requirements.  The Compliance and Risk Management Committee, through the VP-Compliance, Security & BSA will monitor changes and developments in laws, regulations, and examination procedures.  To accomplish this task, the Compliance and Risk Management Committee will utilize resource materials, regulatory bulletins and trade publications.
+
+2\.  Training:  Compliance training is an ongoing function, with the major purpose being to ensure all employees, officers and board members know the requirements applicable to their responsibilities.  The Compliance and Risk Management Committee will oversee compliance training, working in conjunction with the  VP-Learning & Development and will be conducted during the orientation process for applicable new hires and individuals attaining new responsibilities.  All affected employees, officers and board members will receive additional training in response to statutory requirements, changes or amendments in the regulation, or if non-compliance with a compliance requirement is discovered.  Training may consist of a review of policies and procedures, videos, on-line modules, applicable documents and disclosures, and class lectures.
+
+3\.  Policies and Procedures:  The Compliance and Risk Management Committee will appoint individuals to periodically review the Bank's written policies and procedures to ensure they are in compliance with applicable compliance regulations.    The Compliance and Risk Management Committee will amend the policies and procedures to reflect any changes or amendments concerning the statutory requirements. 
+
+4\.  Forms and Website Review:  The Compliance Department will review and update the Bank's disclosures and documents to ensure they are in compliance with applicable compliance regulations.  The Compliance Department will revise the disclosures and documents to reflect any changes or amendments concerning the statutory requirements. Additionally the Compliance Department will review and approve any changes to the website or any new pages or items added to the website or social media.
+
+5\.  Product Development and Modification: The Compliance Program requires a compliance review be conducted when a new product is developed or an existing product is modified or a new service is introduced or a current one modified. This is accomplished by the VP-Compliance, Security & BSA being a member of the Products and Services Committee. 
+
+6\.  Consumer Complaints:  The VP-Compliance, BSA & Security will establish written procedures concerning consumer complaints. Please see the Bank’s [Complaint Resolution Policy](F:\\\\Policies\\\\Complaint%20%20Resolution%20Policy.doc).  The complaints may allege a violation of the consumer's rights or may allege a deficiency concerning the Bank's operations.  The VP-Compliance, BSA & Security shall oversee the handling of the complaint from its initial stages to its final resolution and shall report consumer complaints to the Compliance and Risk Management Committee and the Audit Committee.
+
+7\.  Monitoring Program:  The Compliance and Risk Management Committee, through the VP-Compliance, Security & BSA and the AVP-Compliance Officer, will be the liaison with the independent audit firm concerning compliance testing and reporting.  The results of the independent testing will be presented to the Compliance and Risk Management Committee and the Audit Committee.  The Compliance and Risk Management Committee will be responsible for following up on any necessary corrective measures to ensure that action has been taken and the action addresses the violation noted. In house monitoring is conducted by the Compliance Department on the Bank’s higher risk areas and results are reported to the Compliance and Risk Management Committee and the Audit Committee. The frequency is based on the Bank’s current risk level. Any areas not monitored internally may be reviewed by the Bank’s external compliance auditor. 
+
+8\. Advertising:  AVP-Compliance Officer or designee reviews all Bank advertising prior to publication to ensure it meets regulatory requirements.
+
+**Audit/Compliance Testing**
+
+A qualified, independent firm will conduct an audit and review of the Bank's compliance with established regulations. The frequency is determined by the risk assessment prepared by the audit firm. The responsibility of the firm will be to conduct formal, periodic reviews of our compliance with all applicable federal and state laws and regulations.  The firm shall prepare written reports that will be presented to the VP-Compliance, Security & BSA, Management and the Audit Committee.  The reports shall make note of all violations, weaknesses and potential deficiencies.  Concentration on problem areas will be emphasized.  
+
+The Bank also utilizes an audit tracking matrix to track audit findings, exam findings, internal monitoring findings and management’s responses and establishes timelines for items to be addressed. This matrix is reviewed by the Compliance and Risk Management Committee and the Audit Committee on a quarterly basis.  The Board of Directors will approve this policy on an annual basis or more frequently when changes are deemed necessary.
+
+Exhibit A
+
+ **August 2020**  
+**COMPLIANCE AND RISK MANAGEMENT COMMITTEE CHARTER**  
+**Purpose**
+
+The Compliance & Risk Management Committee has the general responsibility to oversee the Banks’ compliance, risk and ethics programs, policies and procedures. The purpose of the Committee is to: (i) oversee the Banks’ implementation of compliance programs, policies and procedures that are designed to respond to the various compliance, regulatory and other risks facing the bank; (ii) assist the Board of Directors in fulfilling its oversight responsibility for the Compliance Management System  and Risk Management standards set by the governing regulatory agencies; and (iii) perform other compliance and risk duties as directed by the Board of Directors or Audit Committee of the Bank (iv) Manage the Bank’s Enterprise Risk Management Risk Assessment.
+
+**Membership, Structure and Organization**
+
+***Members***\-Refer to the next page for a list of members and their titles
+
+ ***Meetings***\-The Committee shall meet as frequently as it deems appropriate, but not less than four times per year. Currently meetings are scheduled for the second or third Wednesday of each month during the months of March, June, September and December, at 10:30 am or following the monthly board meeting, to take place in the Southbridge boardroom.
+
+ ***Delegation of Authority***\-The Committee may establish subcommittees consisting of one or more members or other directors or management to carry out such duties as the Committee may delegate.
+
+ ***Charter*****\-**The Committee shall annually review the adequacy of this charter and recommend any proposed changes to the Board for approval. 
+
+ ***Agenda & Minutes***\-the Chairperson of the Committee shall be responsible for setting the agenda for the meetings and the agenda shall be sent prior to each meeting to allow meaningful review. Minutes will be taken at each meeting, which will be sent to the Audit Committee and ultimately the Board of Directors of the Bank.  
+                 
+**Responsibilities- The responsibilities of the Committee shall include**
+
+***Compliance and Risk Matters***  
+The Committee shall have oversight responsibility for matters including the overall compliance management system, overall risk management, legal or regulatory exposure and material reports or inquiries from regulatory agencies. This includes current compliance and risk issues, changes to existing or new regulations/legislation and risk related regulations or requirements, any examinations that are conducted, and the tracking of items on the audit tracking matrix to ensure timely resolution.
+
+***Compliance and Risk Programs, Policies and Procedure***  
+The Committee shall oversee the Banks’ compliance and risk efforts with respect to                                relevant policies, procedures, laws and regulations and risk management processes. Ensure there are appropriate monitoring systems in place to identify, log, and report any violations of laws, rules and regulations and other instances of non-compliance.
+
+***Complaint Management***  
+The Committee will receive a summary of each complaint that is logged that required management response. The VP-Compliance, BSA & Security monitors the complaint log of the Bank to determine if there is a common pattern or theme to the complaints or evidence that there may be a disclosure or training issue.
+
+***Risk Assessments***  
+The Committee shall review compliance risk assessments annually. 
+
+***Training***  
+Oversees the implementation of a training program which assures that appropriate staff maintains a satisfactory level of knowledge, laws, rules and regulations. 
+
+| Compliance and Risk Management Committee |  |
+| ----- | ----- |
+| Quarterly Meetings |  March, June, September, December |
+| **Members** | **Title** |
+| \-**Chairperson** | VP-Compliance, BSA & Security |
+|  | CEO and Chairman |
+|  | President & Treasurer |
+|  | EVP-COO & CLO |
+|  |  SVP-Retail Banking |
+|  | SVP-Senior Commercial Officer |
+|  | SVP-CFO |
+|  | SVP-Retail Lending |
+|  | SVP-CTO |
+|  | SVP-Human Resources |
+|  | VP-Operations & Retail Services |
+|  | VP-Retail Loan Operations |
+|  | VP-Commercial Loan Operations |
+|  |  VP-Learning & Development |
+|  |  AVP-Compliance Officer |
+|  | Program Manager-Retail Investment & Insurance Program |
+|  | Board Member |
+|  | Board Member |
+
+---
+
+### Source: Compliance Policy..doc.md
+
+**COMPLIANCE POLICY**
+
+**AMERICAN BANK**  
+**FOND DU LAC, WISCONSIN**
+
+***Board Approved:  February 10, 2010***  
+**TABLE OF CONTENTS**
+
+[Introduction	1](#heading=h.9dwl6olfsrqh)
+
+[Statement	1](#heading=h.5f7db9y7qacf)
+
+[Organization and Administration	2](#heading=h.l211ecklgj1l)
+
+[Areas of Responsibility	3](#heading=h.xeywu2llooll)
+
+[Information Updating and Distribution System	3](#heading=h.9u4dwdvz1jl)
+
+[Reference Library	3](#heading=h.xlmr1fpy4js1)
+
+[Personnel Training Program	3](#heading=h.5vnpl9bfo8oz)
+
+[Consumer Complaints and Inquiries	4](#heading=h.nz6eil6hx0rx)
+
+[Ongoing Consumer Compliance Review	4](#heading=h.6bppc9c97d6f)
+
+[Regulation Z \- Truth-in-Lending	5](#heading=h.u5vu07n7v8sh)
+
+[The Wisconsin Consumer Act	5](#heading=h.vxktosimhmt7)
+
+[The Real Estate Settlement Procedures Act	5](#heading=h.5e901u1axnt7)
+
+[The Fair Credit Reporting Act	5](#heading=h.rv9vav8ptbyi)
+
+[Community Reinvestment Act	5](#heading=h.v9biysgh5lau)
+
+[Fair Credit Billing Act	6](#heading=h.re8lhgtisj7h)
+
+[Regulation E \- Electronic Funds Transfers and Automatic Transfers	6](#heading=h.f36rii26jvcu)
+
+[Advertising	6](#heading=h.chq16339047r)
+
+[Interest on Deposits	6](#heading=h.wk5hh3arzk4d)
+
+[Bank Secrecy Act	6](#heading=h.z1s16vrgb96t)
+
+[Reg CC – Availability of Funds and Collection of Checks	6](#heading=h.t989pybry9ea)
+
+[Reg DD – Truth in Savings	6](#heading=h.284au815zf94)
+
+[Privacy	7](#heading=h.r13rryrafh1y)
+
+[Safeguarding Customer Information	7](#heading=h.giy10uwzsu14)
+
+[FACT Act	7](#heading=h.a5z0o4jijcw8)
+
+[S.A.F.E Act	7](#determine-whether-the-consumer-received-notice-prior-to-or-within-30-days-after-reporting-negative-information-to-credit-reporting-agencies)
+
+**Procedure For:	Compliance**
+
+**Board Approved:	February 10, 2010**  
+**Last Revision Date:	February 11, 2009**
+
+**Resource Person:	Barbara E. Asmus, Compliance Officer**
+
+**INTRODUCTION**
+
+This compliance policy, as approved by the Board of Directors of American Bank, is for the use and guidance of the compliance officer and/or other bank-designated officials with compliance authority.  This compliance program shall be reviewed at least annually by the president of the bank and Board of Directors or a committee thereof.  Changes to the policy shall be submitted to the Board of Directors, or a committee thereof, at its next regularly scheduled meeting.  It shall be the responsibility of the compliance officer to insure that the bank compliance policy is properly maintained.  Suggested changes to the policy may be submitted by the compliance officer to the president in writing at any time.  The Board of Directors, or a committee thereof, president, bank compliance officer and auditor shall evaluate the overall policy on an ongoing basis.
+
+**STATEMENT**
+
+It is the declared policy of American Bank ("the bank") to adhere to all requirements of state and federal laws and regulations.  The bank will place special emphasis upon complying with the provisions of the following:
+
+1. Community Reinvestment Act (12 CFR 25\)
+
+2. Consumer Credit Protection Act
+
+1. Electronic Funds Transfer Act (12 CFR 205\)
+
+2. Equal Credit Opportunity Act (12 CFR 202\)
+
+3. Fair Credit Billing Act (15 USC 1666\)
+
+4. Fair Credit Reporting Act (15 USC 1681\)
+
+5. Truth-In-Lending Act (Reg Z) (12 CFR 27\)
+
+6. Fair Debt Collections Act (15 USC 1692\)
+
+3. Fair Housing Home Loan Data System (12 CFR 27\)
+
+4. Flood Disaster Protection Act (12 CFR 22\)
+
+5. Home Mortgage Disclosure Act (Reg C) (12 CFR 203\)
+
+6. Interest on Deposits (Reg Q) (12 CFR 217, DIDC Rules, 12 CFR 1204\)
+
+7. Real Estate Settlement Procedures Act (Reg X) (24 CFR 3500\)
+
+8. Right to Financial Privacy Act (12 USC 3401\)
+
+9. Wisconsin Consumer Act
+
+10. FDIC Advertisement of Membership Regulations (12 CFR 328\)
+
+11. Fair Housing Act (42 USC 3605\) (24 CFR 110\)
+
+12. Bank Secrecy Act (12 CFR 326\)
+
+13. Availability of Funds and Collection of Checks (12 CFR 229\)
+
+14. Truth in Savings Act (12 CFR 230\)
+
+15. Privacy of Consumer Financial Information (12 CFR 332\)
+
+16. Safeguarding Customer Information (12 CFR 332\)
+
+17. Fact Act (12 CFR 222\)
+
+18. S.A.F.E Act (12 CFR 365\)
+
+It is the policy of the bank to respond to the credit needs of its community.  The Community Reinvestment Act Notice (see attached), adopted by the Board of Directors, delineates the community served and illustrates these areas through use of appropriate maps.  Also, the notice lists the specific type of credit available throughout the market areas.
+
+The bank's preparedness to extend credit is subject to legal restrictions, prudent lending practices, availability of funds and safe and sound operations of the bank.  The bank encourages its officers and employees to become involved in local community organizations sponsoring development projects and redevelopment programs.  
+
+The civic involvement provides an insight into the credit needs of the community, as well as an opportunity to express the bank's desire to satisfy those needs wherever possible.
+
+It is also the bank's policy to encourage applications from all persons.  Also, it is the policy of the bank to adhere to Nondiscriminatory practices regarding any applicant with respect to any aspect of a credit transaction. Discrimination is prohibited on the basis of race, color, religion, national origin, sex, marital status, handicap, familial status or age (provided the applicant has capacity to contract), the applicant's good faith exercise of rights under the Consumer Credit Protection Act, or the fact that all or part of the applicant's income is derived from public assistance programs.
+
+**ORGANIZATION AND ADMINISTRATION**
+
+The compliance officer is appointed and shall report to the president.  The compliance officer is responsible for the day-to-day administrative function of this policy.  The compliance officer will be the bank's liaison with the regulatory authorities and the Board of Directors concerning consumer compliance matters.  The compliance officer will meet at least annually with the Board of Directors, or committee thereof, to discuss the bank's compliance program.
+
+In addition, the bank has formed a consumer compliance group comprised of representatives from the following departments of the bank:
+
+1. Lending
+
+2. Bookkeeping
+
+3. Auditing
+
+4. Customer Service and/or Teller Area
+
+These representatives have been assigned the responsibility of assisting the compliance officer in performing his duties.  Also, the representatives will be responsible for reviewing and monitoring compliance with consumer regulations in their respective areas.
+
+**AREAS OF RESPONSIBILITY**
+
+The compliance officer is responsible for the development and administration of the bank's consumer compliance program.  The compliance officer will establish written policies and Procedures necessary to ensure compliance with consumer laws and regulations.  Also, the compliance officer will be responsible for continuous monitoring for compliance with those laws and regulations.
+
+The following identifies the person duly appointed to the responsibility as described:
+
+	**COMPLIANCE OFFICER:  Barbara E. Asmus**
+
+The program reassigns specific responsibility for the day-to-day operations of the procedures.  This day-to-day responsibility may be assigned to representatives of the compliance group or other officers, department managers, supervisors and employees.
+
+Any errors or omissions in the program, or any act not in compliance with the procedures set forth in the program, shall be reported to the compliance officer who shall take immediate action to correct the situation and prevent its reoccurrence in the future.
+
+**INFORMATION UPDATING AND DISTRIBUTION SYSTEM**
+
+As part of the continuing compliance program, a systematic procedure is established for the distribution of information regarding new consumer compliance requirements or updating existing requirements.  Incoming information regarding consumer compliance is immediately directed to the compliance officer.
+
+When consumer laws or regulations change, the compliance officer will review bank policies and procedures to assure continued compliance.  The review will include loan and other policies, operating bulletins or manuals, intrabank memoranda, training manuals, bank procedures and bank forms.
+
+After making an evaluation of the impact of the changed or new requirements and updating affected bank materials, the compliance officer will distribute the material to bank personnel who have policy or operational responsibilities in connection with the subject matter involved.  Where possible, the compliance officer will make sure that each of those persons has received and has become aware of the new or updated materials.
+
+**REFERENCE LIBRARY**
+
+The bank will maintain a reference library and assembled manuals on state and federal consumer laws and regulations.  This material is made available to bank personnel for use in understanding the regulatory requirements and processes.  Also, the bank will maintain in the library a list of various legal opinions affecting daily operations, in compliance with state and consumer laws and regulations.  The bank will also maintain a list containing the names and phone numbers of regulatory consumer specialists and bank legal counsel to contact regarding compliance matters.  The FDIC, Federal Reserve (regulations) and FFIEC websites will provide an excellent resource for daily compliance operations.  The compliance officer will also subscribe to FDIC E-Mail notifications.
+
+**PERSONNEL TRAINING PROGRAM**
+
+The bank's compliance program's effectiveness is primarily based on the performance of the individuals responsible for carrying out its provisions.  Therefore, one of the most important components of the program is the training of personnel.    
+The purpose of the education program is to assure the bank personnel are knowledgeable of those laws and regulations applicable to his or her job.  The educational program is an ongoing activity within the organization.  It includes the following three phases:
+
+1\.	**INITIAL** \- Training for new personnel in consumer regulation and compliance policies and procedures as applicable to the individual's job.
+
+2\.	**REVIEW/UPDATE** \- Ongoing regular reviews and training sessions for personnel on current laws and regulations and update sessions for personnel covering new or revised laws and regulations and their implications on bank policies and practices.
+
+3\.	**DISTRIBUTION** \- Maintain and make available to affected personnel current material regarding consumer laws and regulations.
+
+The content of the training session will be determined by the particular needs of the various departments or group of bank personnel.
+
+The compliance officer will attend training seminars that furnish current information or changes in laws.  The compliance officer will also subscribe to periodicals for keeping current in the area of compliance.
+
+As new information is received, the compliance officer will inform the affected personnel of the changes so they can be implemented as soon as possible.
+
+**CONSUMER COMPLAINTS AND INQUIRIES**
+
+The bank will develop procedures whereby customer complaints are given prompt, courteous and fair attention. Customer complaints (oral and written) are routed to a designated person for proper handling.  These include any complaint which is received by the regulatory authorities.  In each case, the bank will investigate the nature of the complaint, resolve the situation and respond to the customer.
+
+Complaints dealing with the bank's compliance with consumer legislation will be handled in conjunction with the consumer compliance officer.  Complaint letters coming into the bank will be maintained by the President and Vice President of Operations and they will be made available to regulatory authorities for review.
+
+**ONGOING CONSUMER COMPLIANCE REVIEW**
+
+In addition to the development and issuance of comprehensive policies and procedures, it is important to have established an ongoing review function.  Special attention will be placed on monitoring those provisions of the regulation where there is a greater risk of non-compliance.  An integral part of this compliance program is the systematic monitoring system for compliance and prompt corrective action taken to resolve problems as they occur and to prevent their reoccurrence in the future.
+
+The bank will establish a continuous forms review program which will cover the examination of notes, applications, contracts and security agreements, disclosure statements and adverse action notices for compliance with regulations and laws.  Forms will be revised, as required, to comply with changes to existing, or the issuance of new regulations. Also, the bank will establish procedures to review advertisements and completed forms and applications for compliance.
+
+In addition to the development and issuance of comprehensive policies and procedures, the following represents the bank's auditing procedures to be performed by the compliance officer and/or their designate.  The following consumer regulations will be tested and reported to the Board of Directors by the compliance officer or auditor:
+
+**Regulation Z \- Truth-in-Lending**
+
+1. Annual percentage rate – randomly select loans and test each for the proper annual percentage rate.
+
+2. Review real estate loans and other irregular payment loans for proper disclosure of balloon payment.
+
+3. Review consumer real estate loans and first mortgage non-purchase money loans for proper rescission disclosure forms.
+
+**The Wisconsin Consumer Act**
+
+1. Test consumer loans to insure that interest rates are in compliance with state usury statutes.
+
+   2. Review a sampling of third party contracts prior to purchase to insure that they comply with all provisions of Truth-In-Lending in the Wisconsin Consumer Act and other applicable regulations.
+
+   3. Verify that the following statement is placed on all copies of consumer loan documents when there is an (interlocking) transaction:  “Any holder of this consumer credit contract is subject to all claims and defenses which the debtor could assert against the seller of goods or services obtained pursuant hereto or with the proceeds hereof.  Recovery hereunder by the debtor shall not exceed amounts paid by the debtor hereunder.”
+
+   4. Verify that delinquency charges and late charges do not exceed statutory limitations.
+
+   5. Review security interest to insure that only permissible types of collateral are being taken.
+
+   6. Review credit insurance sales procedures to insure that no borrowers are required to purchase the insurance as a provision of obtaining the loan.
+
+   7. Verify that proper default cure procedures are being followed.
+
+   8. Review collection procedures to see that only permissible procedures are being used.
+
+**The Real Estate Settlement Procedures Act**
+
+1. Review mortgage purchase money loans to insure that the proper information has been disclosed to the customers.
+
+2. Verify that proper forms and homebuyers guides are available to the loan officers.
+
+**The Fair Credit Reporting Act**
+
+1. Review reject notifications to see that valid reasons are being used to reject applicants, to see that applicant is properly notified of the rejections, and to insure that the customer has been made aware of his rights, including the name and address of the federal agency that administers compliance laws.
+
+2. Test applications to see that no prohibitive information is being obtained by the loan officer.
+
+**Community Reinvestment Act**
+
+1. Review the Community Reinvestment Act policy and suggest appropriate changes and revisions to senior management.
+
+2. Verify that the Community Reinvestment Act notices are available to the customers.
+
+3. Notify senior management and the Board of Directors of any Community Reinvestment Act complaints.
+
+**Fair Credit Billing Act**
+
+1. Audit once annually to insure that proper explanation of the Fair Credit Billing Act is being made to all customers.
+
+2. Audit once annually, for accuracy to computing interest charges and APRs.
+
+3. Review new check credit accounts for proper disclosure and documentation.
+
+**Regulation E \- Electronic Funds Transfers and Automatic Transfers**		
+
+1. Compliance and auditing of this department will be conducted by the officer in charge and reported to the compliance officer.
+
+**Advertising**
+
+1. Review all advertising to ensure clarity and compliance with all applicable consumer laws.
+
+2. Review all advertising to ensure that they do not include any prohibited information as defined by Wisconsin Consumer Act, Regulation B, and Regulation Z.
+
+3. All ads promoting deposits should be reviewed to see that the proper interest rates, yields and penalties are disclosed.
+
+4. All ads shall include the FDIC and Equal Housing Logos as required.
+
+5. The bank shall post proper notification of all anti-discrimination policies as appropriate.
+
+**Interest on Deposits**
+
+1. Review Now accounts for eligibility.
+
+2. Review Money Market account transactions.
+
+**Bank Secrecy Act**
+
+1. Review filing of Currency Transaction Reports and Suspicious Activity Reports.
+
+2. Review exemptions
+
+3. Review the Customer Identification Program.
+
+**Reg CC – Availability of Funds and Collection of Checks**
+
+1. Review Funds Hold Notices.
+
+2. Review changes to the Funds Availability Disclosure.
+
+**Reg DD – Truth in Savings**
+
+1. Review rate sheets for the proper disclosures and calculations of APY.
+
+**Privacy**
+
+1. Review the Privacy notice
+
+2. Determine disclosure to new customers and required mailing to existing customers.
+
+**Safeguarding Customer Information**
+
+1. Review Customer Information Security Program
+
+2. Review risk assessment.
+
+**FACT Act**
+
+1. Review procedures for alerts from credit reporting agencies (credit reports).
+
+2. Review required credit score disclosures for mortgage loan applicants.
+
+3. Determine whether the consumer received notice prior to or within 30 days after reporting negative information to credit reporting agencies
+
+**S.A.F.E Act**
+
+1. Review procedures for required registration of mortgage loan originators (MLO’s)
+
+**PROGRAM REVIEW**
+
+In addition to the ongoing review, an internal audit will periodically review the adequacy of the compliance program and the level of the bank's adherence to these policies and procedures.  The compliance officer will participate in the audit.  He will either directly, or through the auditor, report the findings of the audit to the Board of Directors.
+
+The compliance officer will act as the liaison between the bank and the regulatory authority regarding the bank's consumer examination.  The compliance officer will maintain close contact with the examiners in order to assure that problem areas raised in the regulatory consumer compliance examination are satisfactorily resolved.
+"""
+- AUTHORITY_HINTS: - **Equal Credit Opportunity Act (ECOA) / Regulation B** — nondiscrimination in credit.
+- **Truth in Lending Act (TILA) / Regulation Z** — consumer credit disclosures.
+- **Home Mortgage Disclosure Act (HMDA) / Regulation C** — mortgage data collection and reporting.
+- **Expedited Funds Availability Act / Regulation CC** — funds availability.
+- **Electronic Fund Transfer Act / Regulation E** — electronic transfers and error resolution.
+- **Truth in Savings Act / Regulation DD** — deposit account disclosures.
+- **Gramm-Leach-Bliley Act (GLBA) / Regulation P** — privacy of consumer financial information and safeguarding.
+- **Bank Secrecy Act (BSA) and USA PATRIOT Act** — AML/CIP/CDD/OFAC obligations.
+- **Real Estate Settlement Procedures Act (RESPA) / Regulation X** — settlement-service practices.
+- **Fair Housing Act** — nondiscrimination in housing-related lending.
+- **Fair Credit Reporting Act (FCRA) / FACTA** — consumer reporting and identity-theft Red Flags.
+- **Fair Debt Collection Practices Act (FDCPA) / Regulation F** — debt-collection conduct.
+- **SAFE Act** — mortgage loan originator registration.
+- **Military Lending Act (MLA) and Servicemembers Civil Relief Act (SCRA)** — servicemember protections.
+- **UDAAP — Dodd-Frank Act §§ 1031 & 1036** — unfair, deceptive, or abusive acts or practices.
+- **California Consumer Financial Protection Law (CCFPL)** — DFPI consumer-protection authority.
+- **California Financing Law; Rosenthal Fair Debt Collection Practices Act; Holden Act; California Homeowner Bill of Rights; CCPA/CPRA; Unruh Civil Rights Act** — California overlays examined by DFPI.
+- DESIGN_NOTES: """# System Design Notes — Engineering Vocabulary
+
+> Generated from `vocabulary.json` — **Cassandra Banking Core API** v1.0.0
+> Parsed at 2026-03-13T21:51:37.890Z
+> Totals: 14 entities · 252 fields · 0 computed fields · 0 events · 85 endpoints · 0 state machines · 0 plugins
+
+This block is a verbatim dump of the current engineering vocabulary. Downstream regeneration decides what to reference in the Design Overlay v2 control blocks — do not pre-filter.
+
+## Entities and fields
+
+### `account`  (schema: `Account` · 15 fields · retention: 7y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique account identifier. |
+| `entity_id` | string | ✓ |  |  | Primary owning entity. Immutable after creation. This is the entity under which the account appears for 5300 reporting and BSA monitoring. |
+| `account_type` | string (enum: checking, savings, money_market) | ✓ |  |  | Ledger account type. Maps to 5300 account codes via the bookkeeping layer. - `checking` — Share draft account (5300 code 025B) - `savings`… |
+| `status` | string (enum: open, frozen, closed) | ✓ |  |  | Account lifecycle state. - `open` — Active and operational. - `frozen` — Temporarily suspended (no debits; credits may still post). Reversi… |
+| `lock_type` | string (enum: none, compliance, fraud, legal, admin) | ✓ |  |  | Orthogonal lock applied independently of entity status. When lock_type is not `none`, the entity is restricted from certain operations even… |
+| `dormancy_status` | string (enum: active, dormant, abandoned) | ✓ |  |  | Orthogonal dormancy classification, tracked independently of account status. Driven by state-specific inactivity periods (typically 12 mont… |
+| `currency` | string | ✓ |  |  | ISO 4217 currency code. Only USD supported. |
+| `balances` | object | ✓ |  |  | Balance fields sourced from the Blnk Deploy ledger. These are read-only computed values — all mutations happen through transaction endpoint… |
+| `balances.balance` | integer |  |  |  | Current available balance (cents). Credits minus debits, excluding inflight. |
+| `balances.credit_balance` | integer |  |  |  | Lifetime credit total (cents). |
+| `balances.debit_balance` | integer |  |  |  | Lifetime debit total (cents). |
+| `balances.inflight_balance` | integer |  |  |  | Net pending transaction amount (cents). Represents authorized but unsettled transactions (e.g., card authorizations). Managed by Blnk's QUE… |
+| `balances.inflight_credit_balance` | integer |  |  |  | Pending inbound credits (cents). |
+| `balances.inflight_debit_balance` | integer |  |  |  | Pending outbound debits (cents). |
+| `bookkeeping` | object | ✓ |  |  | Shadow bookkeeping layer fields for 5300 regulatory reporting and FBO segregation. These are managed by Cassandra, not sourced from Blnk. |
+| `bookkeeping.account_code_5300` | string |  |  |  | NCUA 5300 account code (e.g., 025B for share drafts, 010 for regular shares). Assigned automatically based on account type; overridable by… |
+| `bookkeeping.schedule_a_code` | string |  |  |  | 5300 Schedule A line item code for balance sheet classification. Used by the 5300 Reporter consumer for aggregated reporting. |
+| `bookkeeping.fbo_classification` | string (enum: customer_balance, commingled_cash, settlement) |  |  |  | FBO sub-account classification for the bookkeeping layer. - `customer_balance` — Holds attributed to a specific end-user entity. - `comming… |
+| `bookkeeping.locked_amount` | integer |  |  |  | Amount held by BSA/compliance controls (cents). Separate from Blnk inflight holds — this represents funds frozen by the control engine (e.g… |
+| `owners` | array<object> | ✓ |  |  | All entities with ownership or authority over this account. At minimum, includes the primary owner matching entity_id. Joint ownership is m… |
+| `blnk_ledger_id` | string |  |  |  | Corresponding ledger ID in Blnk Deploy. Opaque reference for reconciliation. |
+| `account_numbers` | array<object> |  |  |  | Summary of account numbers associated with this account. Use the Account Numbers endpoints for full details and management. |
+| `metadata` | object |  |  |  | Arbitrary key-value pairs for partner use. |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `account_number`  (schema: `AccountNumber` · 10 fields · retention: 7y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique account number resource identifier. |
+| `account_id` | string | ✓ |  |  | The ledger account this number is associated with. Immutable. |
+| `account_number` | string | ✓ | ✓ |  | 12-digit account number allocated by the aggregator. Format is PPP-SSSSSSSS-C where P is the 3-digit fintech prefix, S is the 8-digit seque… |
+| `routing_number` | string | ✓ |  |  | ABA routing number. All account numbers within a credit union share the same routing number (the credit union's Fed master account routing… |
+| `status` | string (enum: active, disabled, canceled) | ✓ |  |  | Account number lifecycle state. - `active` — Routable. Inbound payments accepted, outbound allowed. - `disabled` — Temporarily non-routable… |
+| `informational_entity_id` | string | ✓ |  |  | Entity ID for FBO attribution. Typically matches the account's primary owner but can differ in BaaS scenarios where the fintech partner is… |
+| `label` | string |  |  |  | Human-readable label for this account number (e.g., Primary Checking, Partner A Routing). For partner reference only, not used in payment f… |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `ach_transfer`  (schema: `AchTransfer` · 23 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique ACH transfer identifier. |
+| `account_id` | string | ✓ |  |  | The ledger account being debited or credited. |
+| `account_number_id` | string | ✓ |  |  | The specific account number used for this transfer. Determines the routing/account number pair that appears in the ACH file. |
+| `direction` | string (enum: credit, debit) | ✓ |  |  | Direction of the ACH transfer from the perspective of this account. - `credit` — Push money out (originate a payment to an external party).… |
+| `amount` | integer | ✓ |  |  | Transfer amount in cents. Must be positive. |
+| `currency` | string | ✓ |  |  |  |
+| `status` | string (enum: pending_approval, submitted, settled, returned, rejected, canceled) | ✓ |  |  | ACH transfer lifecycle state. - `pending_approval` — Created, awaiting control engine evaluation. - `submitted` — Controls passed, ACH file… |
+| `window` | string (enum: standard, same_day) | ✓ |  |  | ACH processing window. - `standard` — Next-day settlement (standard ACH). - `same_day` — Same-day ACH (additional fee may apply, cutoff tim… |
+| `counterparty` | object | ✓ |  |  |  |
+| `counterparty.routing_number` | string | ✓ |  |  | ABA routing number of the receiving institution. |
+| `counterparty.account_number` | string | ✓ | ✓ |  | Account number at the receiving institution. |
+| `counterparty.account_type` | string (enum: checking, savings) | ✓ |  |  | Account type at the receiving institution. |
+| `counterparty.name` | string | ✓ | ✓ |  | Receiver name as it will appear in the ACH file. Max 22 characters per NACHA format. |
+| `description` | string |  |  |  | Company entry description in the ACH batch header. Max 10 characters per NACHA format (e.g., "PAYROLL", "PAYMENT"). |
+| `company_name` | string |  |  |  | Originator company name in the ACH batch header. Max 16 characters per NACHA format. Defaults to partner's registered name. |
+| `effective_date` | string |  |  |  | The date the transfer will settle at the Fed. Set by the system based on the processing window and submission time. For same-day ACH, this… |
+| `expected_settlement` | string |  |  |  | Estimated settlement timestamp. More precise than effective_date — accounts for Fed processing windows, weekends, and holidays. |
+| `settled_at` | string |  |  |  | Actual settlement timestamp. Populated when status becomes `settled`. |
+| `returned_at` | string |  |  |  | Timestamp of the return. Populated when status becomes `returned`. |
+| `return_code` | string |  |  |  | NACHA return reason code (e.g., R01 Insufficient Funds, R02 Account Closed, R03 No Account, R04 Invalid Account Number). Only present when… |
+| `return_reason` | string |  |  |  | Human-readable return reason. Only present when status is `returned`. |
+| `rejection_reason` | string |  |  |  | Explanation of why the control engine rejected this transfer. Only present when status is `rejected`. |
+| `control_results` | array<object> |  |  |  | Results of all control engine evaluations for this transfer. Populated at creation time (when the control engine gates the transfer). |
+| `blnk_transaction_id` | string |  |  |  | Corresponding transaction ID in Blnk Deploy. |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `book_transfer`  (schema: `BookTransfer` · 13 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique book transfer identifier. |
+| `source_account_id` | string | ✓ |  |  | The account being debited. |
+| `destination_account_id` | string | ✓ |  |  | The account being credited. |
+| `amount` | integer | ✓ |  |  | Transfer amount in cents. |
+| `currency` | string | ✓ |  |  |  |
+| `status` | string (enum: pending, completed, rejected) | ✓ |  |  | Book transfer lifecycle state. - `pending` — Created, control engine evaluating. - `completed` — Funds moved instantly (both sides settled)… |
+| `description` | string |  |  |  | Free-text description of the transfer purpose. |
+| `rejection_reason` | string |  |  |  | Explanation of why the control engine rejected this transfer. Only present when status is `rejected`. |
+| `control_results` | array<object> |  |  |  | Results of control engine evaluations. |
+| `blnk_transaction_id` | string |  |  |  | Corresponding transaction ID in Blnk Deploy. |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `wire_transfer`  (schema: `WireTransfer` · 21 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique wire transfer identifier. |
+| `account_id` | string | ✓ |  |  | The ledger account being debited (outbound) or credited (inbound). |
+| `account_number_id` | string | ✓ |  |  | The account number used for this wire. |
+| `direction` | string (enum: outbound, inbound) | ✓ |  |  | Direction of the wire transfer. - `outbound` — Originated by this instance, sending funds via Fedwire. - `inbound` — Received from an exter… |
+| `amount` | integer | ✓ |  |  | Transfer amount in cents. |
+| `currency` | string | ✓ |  |  |  |
+| `status` | string (enum: pending_approval, submitted, completed, return_requested, returned, rejected, …(+1)) | ✓ |  |  | Wire transfer lifecycle state. - `pending_approval` — Created, awaiting control engine evaluation. - `submitted` — Controls passed, Fedwire… |
+| `beneficiary` | object |  |  |  | The receiving party and their bank details for an outbound wire. |
+| `beneficiary.name` | string | ✓ | ✓ |  | Beneficiary name as it will appear on the Fedwire message. |
+| `beneficiary.routing_number` | string | ✓ |  |  | ABA routing number of the beneficiary's bank. |
+| `beneficiary.account_number` | string | ✓ | ✓ |  | Account number at the beneficiary's bank. |
+| `beneficiary.bank_name` | string |  |  |  | Name of the beneficiary's bank. Optional — if omitted, resolved automatically from the routing number via the Fed directory. |
+| `beneficiary.address` | object |  |  |  |  |
+| `beneficiary.address.line1` | string | ✓ | ✓ |  | Street address line 1. |
+| `beneficiary.address.line2` | string |  |  |  | Street address line 2 (apt, suite, unit, etc.). |
+| `beneficiary.address.city` | string | ✓ | ✓ |  |  |
+| `beneficiary.address.state` | string | ✓ |  |  | Two-letter US state or territory code (ISO 3166-2:US). |
+| `beneficiary.address.postal_code` | string | ✓ | ✓ |  | US ZIP code (5-digit or ZIP+4). |
+| `beneficiary.address.country` | string | ✓ |  |  | ISO 3166-1 alpha-2 country code. |
+| `originator` | object |  |  |  | Originator information from an inbound Fedwire message. Read-only — populated by the aggregator when routing an inbound wire. |
+| `originator.name` | string |  | ✓ |  |  |
+| `originator.routing_number` | string |  |  |  |  |
+| `originator.account_number` | string |  | ✓ |  |  |
+| `originator.bank_name` | string |  |  |  |  |
+| `originator.reference` | string |  |  |  | Originator-to-beneficiary information (OBI) from the Fedwire message. |
+| `purpose` | string |  |  |  | Originator-to-beneficiary information (OBI). Free-text description of the wire purpose, included in the Fedwire message. |
+| `imad` | string |  |  |  | Input Message Accountability Data — the Fed's unique identifier for this Fedwire message. Populated after submission. Used for tracing and… |
+| `omad` | string |  |  |  | Output Message Accountability Data — assigned by the receiving Fed bank. Populated after the wire is acknowledged. |
+| `submitted_at` | string |  |  |  | Timestamp when the Fedwire message was submitted. |
+| `completed_at` | string |  |  |  | Timestamp when the wire completed. Wires are typically same-day. |
+| `return_request` | object |  |  |  | Details of the return request, if one has been filed. Only present when status is `return_requested` or `returned`. |
+| `rejection_reason` | string |  |  |  | Explanation of why the control engine rejected this wire. Only present when status is `rejected`. |
+| `control_results` | array<object> |  |  |  | Results of control engine evaluations. |
+| `blnk_transaction_id` | string |  |  |  | Corresponding transaction ID in Blnk Deploy. |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `verification`  (schema: `Verification` · 14 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique verification identifier. |
+| `entity_id` | string | ✓ |  |  | The entity being verified. |
+| `type` | string (enum: kyc, kyb) | ✓ |  |  | Whether this is identity verification for a person (KYC) or a business (KYB). Trusts use KYB. Joint entities are verified through their ind… |
+| `provider` | string (enum: alloy, persona, socure, middesk, partner_provided) | ✓ |  |  | The identity verification provider used for this check. - `alloy`, `persona`, `socure`, `middesk` — Cassandra-managed providers. The system… |
+| `trust_level` | string (enum: full, verify_watchlist_only) |  |  |  | Trust level for partner-provided verifications (from partner configuration). - `full` — Cassandra trusts the partner's identity verificatio… |
+| `status` | string (enum: pending, in_review, approved, denied, expired) | ✓ |  |  | Status of this individual verification attempt. - `pending` — Verification submitted to provider, awaiting result. - `in_review` — Provider… |
+| `ofac_result` | object | ✓ |  |  | Result of the mandatory OFAC screening. OFAC screening is a compliance floor control (BA-05) and runs on every verification regardless of p… |
+| `ofac_result.screened_at` | string |  |  |  |  |
+| `ofac_result.match_status` | string (enum: clear, potential_match, confirmed_match) |  |  |  | - `clear` — No matches found on SDN, consolidated sanctions, or PEP lists. - `potential_match` — Possible match requiring compliance office… |
+| `ofac_result.matched_lists` | array<string> |  |  |  | Names of lists that returned matches (e.g., "SDN", "Consolidated Sanctions", "PEP", "314a"). Empty array when match_status is `clear`. |
+| `ofac_result.match_score` | number |  |  |  | Confidence score of the strongest match (0-100). Only meaningful when match_status is `potential_match`. Used by compliance officers to pri… |
+| `provider_result` | object |  |  |  | Normalized verification result from the provider. Cassandra translates each provider's native response into this common structure. |
+| `provider_result.provider_reference` | string |  |  |  | The provider's native reference ID for this verification (e.g., Alloy evaluation_token, Persona inquiry_id). |
+| `provider_result.provider_status` | string |  |  |  | The provider's native status string, preserved for debugging. Cassandra normalizes this into the verification's top-level `status`. |
+| `provider_result.identity_verified` | boolean |  |  |  | Whether the provider confirmed the identity matches the provided data. |
+| `provider_result.document_verified` | boolean |  |  |  | Whether identity documents were verified (if required by risk tier). Null if document verification was not required. |
+| `provider_result.risk_score` | number |  |  |  | Provider's risk score, normalized to 0-100 range. Higher = riskier. Used by CDD controls for risk tiering. |
+| `provider_result.risk_signals` | array<string> |  |  |  | Risk signal tags from the provider (e.g., "address_mismatch", "ssn_issued_prior_to_dob", "high_risk_jurisdiction"). Used by the control eng… |
+| `provider_result.raw_response` | object |  |  |  | The complete provider response, stored verbatim for audit purposes. Only returned when the requesting token has compliance-scoped permissio… |
+| `denial_reasons` | array<string> |  |  |  | Machine-readable reasons for denial (e.g., "identity_not_verified", "document_mismatch", "high_risk_jurisdiction", "ofac_match"). Only pres… |
+| `expires_at` | string |  |  |  | When this verification result expires per CDD refresh policy. After expiry, the entity's kyc_status transitions to `expired` and a new veri… |
+| `triggered_by` | string (enum: initial, cdd_refresh, information_change, manual) |  |  |  | What triggered this verification. - `initial` — First-time verification on entity creation. - `cdd_refresh` — Periodic re-verification per… |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `card`  (schema: `Card` · 16 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique card identifier. |
+| `account_id` | string | ✓ |  |  | The ledger account this card draws from / credits to. |
+| `entity_id` | string | ✓ |  |  | The entity this card is issued to. Must be a person entity. Immutable after creation. |
+| `card_type` | string (enum: virtual, physical) | ✓ |  |  | - `virtual` — Instantly issued, PAN available immediately via secure details endpoint. - `physical` — Requires fulfillment (mailing). PAN a… |
+| `form_factor` | string (enum: debit, prepaid) | ✓ |  |  | Card form factor for network classification. - `debit` — Linked to a deposit account with overdraft rules. - `prepaid` — Balance-limited, n… |
+| `network` | string (enum: visa, mastercard) |  |  |  | Card network, determined by the BIN allocated to this instance. |
+| `status` | string (enum: inactive, active, frozen, closed) | ✓ |  |  | Card lifecycle state, driven by the adapter interface (createCard, activateCard, freezeCard, closeCard). - `inactive` — Card created but no… |
+| `last_four` | string | ✓ |  |  | Last four digits of the card number (PAN). |
+| `expiration_month` | integer | ✓ |  |  |  |
+| `expiration_year` | integer | ✓ |  |  | Four-digit expiration year. |
+| `shipping` | object |  |  |  | Shipping details for physical cards. Only present when `card_type` is `physical`. Null for virtual cards. |
+| `shipping.status` | string (enum: pending, shipped, delivered, returned) |  |  |  |  |
+| `shipping.tracking_number` | string |  |  |  |  |
+| `shipping.carrier` | string |  |  |  |  |
+| `shipping.shipped_at` | string |  |  |  |  |
+| `shipping.estimated_delivery` | string |  |  |  |  |
+| `spend_controls` | object |  |  |  | Optional per-card spending limits. These are enforced in addition to account-level controls and the control engine's velocity limits. |
+| `spend_controls.daily_limit` | integer |  |  |  | Maximum daily spend in cents. Null means no per-card daily limit. |
+| `spend_controls.monthly_limit` | integer |  |  |  | Maximum monthly spend in cents. |
+| `spend_controls.per_transaction_limit` | integer |  |  |  | Maximum single transaction amount in cents. |
+| `spend_controls.allowed_mcc_codes` | array<string> |  |  |  | Whitelist of allowed Merchant Category Codes. If populated, only transactions at merchants with these MCCs are approved. Empty array means… |
+| `spend_controls.blocked_mcc_codes` | array<string> |  |  |  | Blacklist of blocked MCCs. Transactions at merchants with these MCCs are declined. Evaluated after allowed_mcc_codes. |
+| `processor_reference` | string |  |  |  | Card reference ID at the processor (Marqeta card_token or Lithic card_id). Opaque — used internally for adapter operations. |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `card_authorization`  (schema: `CardAuthorization` · 14 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  |  |
+| `card_id` | string | ✓ |  |  |  |
+| `account_id` | string | ✓ |  |  |  |
+| `status` | string (enum: pending, approved, declined, reversed, expired) | ✓ |  |  | Authorization lifecycle. - `pending` — Authorization received, control engine evaluating (transient, sub-2-second). - `approved` — Authoriz… |
+| `amount` | integer | ✓ |  |  | Authorization amount in cents. |
+| `currency` | string | ✓ |  |  |  |
+| `merchant` | object | ✓ |  |  | Merchant details from the authorization request. |
+| `merchant.name` | string |  |  |  |  |
+| `merchant.mcc` | string |  |  |  | Merchant Category Code. |
+| `merchant.city` | string |  |  |  |  |
+| `merchant.state` | string |  |  |  |  |
+| `merchant.country` | string |  |  |  |  |
+| `merchant.acceptor_id` | string |  |  |  | Card acceptor ID from the processor. |
+| `decline_reason` | string (enum: insufficient_funds, card_frozen, card_closed, account_frozen, account_locked, spend_limit_exceeded, …(+5)) |  |  |  | Machine-readable reason for declining an authorization. |
+| `control_results` | array<object> |  |  |  | Control engine results for this authorization. Includes balance check, velocity, OFAC, fraud, and spend control evaluations. |
+| `blnk_transaction_id` | string |  |  |  | Blnk inflight transaction ID (for approved authorizations). Null for declined authorizations. |
+| `processor_reference` | string |  |  |  | Processor's native authorization reference. |
+| `settled_at` | string |  |  |  | Settlement timestamp. Populated when the inflight transaction commits in Blnk (processor sends settlement webhook). Null until settled. |
+| `settlement_amount` | integer |  |  |  | Final settlement amount in cents. May differ from the authorization amount (e.g., tip added, partial fulfillment). |
+| `created_at` | string | ✓ |  |  |  |
+
+### `bookkeeping_entry`  (schema: `BookkeepingEntry` · 17 fields · retention: 7y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique bookkeeping entry identifier. |
+| `account_id` | string | ✓ |  |  | The ledger account this entry pertains to. |
+| `account_number_id` | string |  |  |  | The specific account number involved (if applicable). Null for account-level entries (e.g., interest, fees). |
+| `entity_id` | string |  |  |  | The entity attributed for FBO segregation. Derived from the account's primary owner or the account number's informational_entity_id, depend… |
+| `entry_type` | string (enum: debit, credit, hold_placed, hold_released, hold_seized) | ✓ |  |  | Type of bookkeeping entry. - `debit` — Funds left the account (matches a Blnk debit transaction). - `credit` — Funds entered the account (m… |
+| `source` | string (enum: ach_transfer, wire_transfer, book_transfer, card_authorization, card_settlement, fee, …(+3)) | ✓ |  |  | The originating transaction type that produced this bookkeeping entry. Maps 1:1 to the domain event that triggered the Blnk webhook. |
+| `source_id` | string |  |  |  | ID of the originating resource (e.g., ach_5kRb3m for an ACH transfer, auth_2nRb7m for a card authorization). Allows joining bookkeeping ent… |
+| `amount` | integer | ✓ |  |  | Entry amount in cents. Always positive — direction is conveyed by entry_type. |
+| `currency` | string | ✓ |  |  |  |
+| `running_balance` | integer |  |  |  | Account balance after this entry was applied (cents). Provides a verifiable audit trail — each entry's running_balance should equal the pre… |
+| `account_code_5300` | string | ✓ |  |  | NCUA 5300 account code for this entry (e.g., 025B for share drafts, 010 for regular shares). Inherited from the account's bookkeeping tags… |
+| `schedule_a_code` | string |  |  |  | 5300 Schedule A line item code for balance sheet classification. Used by the 5300 Reporter for aggregated reporting. |
+| `fbo_classification` | string (enum: customer_balance, commingled_cash, settlement) | ✓ |  |  | FBO sub-account classification for the bookkeeping layer. - `customer_balance` — Holds attributed to a specific end-user entity. - `comming… |
+| `blnk_transaction_id` | string |  |  |  | Corresponding Blnk Deploy transaction ID. Null for compliance hold entries (which are Cassandra-native, not Blnk transactions). |
+| `description` | string |  |  |  | System-generated description of the entry (e.g., "ACH credit from John Doe via 271070801", "Compliance hold placed — BA-05 OFAC match"). |
+| `effective_date` | string |  |  |  | The business date this entry is effective for regulatory reporting. May differ from created_at for entries posted after business hours or f… |
+| `created_at` | string | ✓ |  |  |  |
+
+### `event`  (schema: `Event` · 11 fields · retention: 7y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique event identifier. |
+| `type` | string (enum: entity.created, entity.activated, entity.disabled, entity.archived, entity.updated, entity.locked, …(+51)) | ✓ |  |  | Domain event type. Events are emitted on every state transition and significant operation. Partners receive these via webhook delivery. |
+| `resource_id` | string | ✓ |  |  | ID of the resource that changed (e.g., ent_abc123, acct_xyz789). |
+| `resource_type` | string | ✓ |  |  | Type of the resource (e.g., entity, account, ach_transfer). |
+| `data` | object |  |  |  | Snapshot of the resource at the time of the event. Contains the full resource representation (same schema as the corresponding GET endpoint… |
+| `previous_data` | object |  |  |  | For update events, the resource state before the change. Only includes fields that changed. Null for creation events. |
+| `delivery_status` | string (enum: pending, delivered, failed, expired) |  |  |  | Delivery status for a specific webhook delivery attempt. - `pending` — Queued for delivery (or retrying). - `delivered` — Partner endpoint… |
+| `delivery_attempts` | integer |  |  |  | Number of webhook delivery attempts made so far (max 12). |
+| `last_delivery_attempt_at` | string |  |  |  | Timestamp of the most recent delivery attempt. |
+| `delivered_at` | string |  |  |  | Timestamp of successful delivery. Null if not yet delivered. |
+| `created_at` | string | ✓ |  |  |  |
+
+### `webhook_endpoint`  (schema: `WebhookEndpoint` · 9 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique webhook endpoint identifier. |
+| `url` | string | ✓ |  |  | The HTTPS URL that receives webhook POST requests. Must use HTTPS (HTTP rejected). Must return 2xx within 30 seconds to be considered a suc… |
+| `status` | string (enum: active, disabled) | ✓ |  |  | - `active` — Events are delivered to this endpoint. - `disabled` — Delivery is paused. Events accumulate and can be retrieved via the backf… |
+| `subscribed_events` | array<string> | ✓ |  |  | List of event type patterns this endpoint receives. Supports exact types (e.g., "ach_transfer.settled") and wildcard prefixes (e.g., "ach_t… |
+| `signing_secret` | string |  |  |  | HMAC-SHA256 signing secret for verifying webhook payloads. Only returned once at creation time. Use to verify the `X-Cassandra-Signature` h… |
+| `delivery_stats` | object |  |  |  | Rolling delivery statistics for this endpoint. |
+| `delivery_stats.total_delivered` | integer |  |  |  |  |
+| `delivery_stats.total_failed` | integer |  |  |  |  |
+| `delivery_stats.last_delivered_at` | string |  |  |  |  |
+| `delivery_stats.last_failed_at` | string |  |  |  |  |
+| `delivery_stats.current_failure_streak` | integer |  |  |  | Consecutive failed deliveries. When this reaches a threshold, the endpoint may be automatically disabled and the partner alerted. |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `fbo_position`  (schema: `FboPosition` · 6 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `instance_id` | string | ✓ |  |  |  |
+| `balance` | integer | ✓ |  |  | Current FBO balance for this instance (cents). Sum of all settled inbound minus all settled outbound for this instance's accounts. |
+| `held_amount` | integer | ✓ |  |  | Amount currently reserved for pending outbound payments (cents). Held via the reserve saga pattern (Decision 28, step 4). |
+| `available_balance` | integer | ✓ |  |  | Effective available balance (cents). Computed as `balance - held_amount`. This is the amount the Origination API checks against when approv… |
+| `last_event_sequence` | integer | ✓ |  |  | The sequence_id of the most recent event processed by the Payment Hub consumer for this instance. Used for staleness detection. |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `inbound_payment`  (schema: `InboundPayment` · 9 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  |  |
+| `payment_type` | string (enum: ach_credit, ach_debit, wire, rtp) | ✓ |  |  |  |
+| `account_number` | string | ✓ |  |  | The 12-digit account number this payment was routed to. |
+| `amount` | integer | ✓ |  |  |  |
+| `currency` | string |  |  |  |  |
+| `status` | string (enum: pending, delivered, acknowledged) | ✓ |  |  | - `pending` — Aggregator has the payment, not yet pushed to instance. - `delivered` — Pushed to instance via webhook. - `acknowledged` — In… |
+| `originator` | object |  |  |  |  |
+| `originator.name` | string |  |  |  |  |
+| `originator.routing_number` | string |  |  |  |  |
+| `originator.account_number` | string |  |  |  |  |
+| `reference` | string |  |  |  | Originator reference or trace number. |
+| `received_at` | string | ✓ |  |  | When the aggregator received this payment from the Fed. |
+
+### `bsa_alert`  (schema: `BsaAlert` · 9 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `alert_id` | string | ✓ |  |  |  |
+| `event_id` | string | ✓ |  |  | The event that triggered this alert. |
+| `alert_type` | string (enum: ctr_threshold, structuring_suspected, cross_fintech_activity, sar_candidate, velocity_anomaly, watchlist_hit) | ✓ |  |  | Type of BSA alert generated by the BSA Approver (real-time) or BSA Reporter (scheduled). |
+| `entity_hash` | string | ✓ |  |  | Hashed entity identifier (SSN/EIN hash). Used for per-entity lookups without exposing PII in the alert table. |
+| `instance_id` | string |  |  |  | The fintech instance where the triggering event originated. For cross-fintech alerts, this is the instance of the most recent triggering ev… |
+| `status` | string (enum: open, under_review, escalated, cleared, block) | ✓ |  |  | BSA alert lifecycle. - `open` — New alert, not yet reviewed. - `under_review` — Analyst is investigating. - `escalated` — Elevated to SAR c… |
+| `requires_lookback` | boolean |  |  |  | Whether the BSA Reporter should run a deep historical analysis on this alert. Set by the BSA Approver when it detects patterns that need 90… |
+| `details` | object |  |  |  | Alert-specific details. Structure varies by alert_type. Examples: transaction amounts, pattern description, matched entity information for… |
+| `created_at` | string | ✓ |  |  |  |
+
+## Events
+
+> ⚠️  **Vocabulary warning — no events defined.** The `events` array in vocabulary.json is empty. Any `(event.code)` reference the policy wants to use must be introduced by engineering and registered in the spec before the Design Overlay v2 blocks can cite it. The endpoints list below is provided as candidate signals from which engineering could derive event codes (e.g., `POST /accounts` → `account.created`).
+
+## Endpoints
+
+| Method | Path | Summary | Control refs | Audit events |
+|---|---|---|---|---|
+| `GET` | `/entities` | List entities |  |  |
+| `GET` | `/entities/{entity_id}` | Retrieve an entity |  |  |
+| `POST` | `/entities/person` | Create a person entity | CD-01, CD-04, BA-03, BA-05 |  |
+| `POST` | `/entities/business` | Create a business entity | CD-01, CD-04, CD-05, BA-03, BA-05 |  |
+| `POST` | `/entities/trust` | Create a trust entity | CD-01, CD-04, BA-03, BA-05 |  |
+| `POST` | `/entities/joint` | Create a joint entity | BA-05 |  |
+| `PATCH` | `/entities/person/{entity_id}` | Update a person entity | CD-09, BA-05 |  |
+| `PATCH` | `/entities/business/{entity_id}` | Update a business entity | CD-05, CD-09 |  |
+| `PATCH` | `/entities/trust/{entity_id}` | Update a trust entity | CD-09 |  |
+| `PATCH` | `/entities/joint/{entity_id}` | Update a joint entity |  |  |
+| `POST` | `/entities/{entity_id}/status` | Transition entity status | BA-05, CD-08 |  |
+| `PUT` | `/entities/{entity_id}/lock` | Update entity lock |  |  |
+| `GET` | `/accounts` | List accounts |  |  |
+| `POST` | `/accounts` | Create an account | CD-04, CD-03, CD-12, BA-05 |  |
+| `GET` | `/accounts/{account_id}` | Retrieve an account |  |  |
+| `PATCH` | `/accounts/{account_id}` | Update an account | CD-05 |  |
+| `POST` | `/accounts/{account_id}/status` | Transition account status | CD-12 |  |
+| `PUT` | `/accounts/{account_id}/lock` | Update account lock |  |  |
+| `GET` | `/accounts/{account_id}/account-numbers` | List account numbers for an account |  |  |
+| `POST` | `/accounts/{account_id}/account-numbers` | Create an additional account number | BA-05 |  |
+| `GET` | `/account-numbers/{account_number_id}` | Retrieve an account number |  |  |
+| `PATCH` | `/account-numbers/{account_number_id}` | Update an account number |  |  |
+| `POST` | `/account-numbers/{account_number_id}/status` | Transition account number status |  |  |
+| `GET` | `/transfers/ach` | List ACH transfers |  |  |
+| `POST` | `/transfers/ach` | Create an ACH transfer | BA-05, BA-06, BA-07, BA-08, BA-10, CD-06 |  |
+| `GET` | `/transfers/ach/{ach_transfer_id}` | Retrieve an ACH transfer |  |  |
+| `POST` | `/transfers/ach/{ach_transfer_id}/cancel` | Cancel an ACH transfer |  |  |
+| `POST` | `/transfers/ach/batch` | Create a batch of ACH transfers | BA-05, BA-06, BA-07, BA-08, BA-10, CD-06 |  |
+| `GET` | `/transfers/book` | List book transfers |  |  |
+| `POST` | `/transfers/book` | Create a book transfer | BA-05, BA-06, BA-07, BA-08 |  |
+| `GET` | `/transfers/book/{book_transfer_id}` | Retrieve a book transfer |  |  |
+| `GET` | `/transfers/wire` | List wire transfers |  |  |
+| `POST` | `/transfers/wire` | Create a wire transfer | BA-05, BA-06, BA-07, BA-08, BA-10 |  |
+| `GET` | `/transfers/wire/{wire_transfer_id}` | Retrieve a wire transfer |  |  |
+| `POST` | `/transfers/wire/{wire_transfer_id}/cancel` | Cancel a wire transfer |  |  |
+| `POST` | `/transfers/wire/{wire_transfer_id}/return-request` | Request a wire return |  |  |
+| `GET` | `/entities/{entity_id}/verifications` | List verifications for an entity |  |  |
+| `POST` | `/entities/{entity_id}/verifications` | Initiate a verification | CD-01, CD-04, BA-03, BA-05, BA-20 |  |
+| `POST` | `/entities/{entity_id}/verifications/attest` | Submit a partner-provided KYC/KYB attestation | CD-01, CD-10, BA-05, BA-20 |  |
+| `GET` | `/verifications/{verification_id}` | Retrieve a verification |  |  |
+| `GET` | `/cards` | List cards |  |  |
+| `POST` | `/cards` | Create a card | BA-05, CD-04 |  |
+| `GET` | `/cards/{card_id}` | Retrieve a card |  |  |
+| `PATCH` | `/cards/{card_id}` | Update a card |  |  |
+| `POST` | `/cards/{card_id}/status` | Transition card status |  |  |
+| `GET` | `/cards/{card_id}/sensitive` | Retrieve sensitive card details | PR-01 |  |
+| `GET` | `/cards/{card_id}/authorizations` | List authorizations for a card |  |  |
+| `GET` | `/authorizations/{authorization_id}` | Retrieve a card authorization |  |  |
+| `GET` | `/accounts/{account_id}/bookkeeping-entries` | List bookkeeping entries for an account |  |  |
+| `GET` | `/bookkeeping-entries/{entry_id}` | Retrieve a bookkeeping entry |  |  |
+| `GET` | `/bookkeeping/summary` | Get aggregated bookkeeping summary |  |  |
+| `GET` | `/bookkeeping/reconciliation` | Run reconciliation check |  |  |
+| `GET` | `/events` | List events |  |  |
+| `GET` | `/events/{event_id}` | Retrieve an event |  |  |
+| `POST` | `/events/{event_id}/retry` | Retry event delivery |  |  |
+| `GET` | `/webhooks` | List webhook endpoints |  |  |
+| `POST` | `/webhooks` | Create a webhook endpoint |  |  |
+| `GET` | `/webhooks/{webhook_endpoint_id}` | Retrieve a webhook endpoint |  |  |
+| `PATCH` | `/webhooks/{webhook_endpoint_id}` | Update a webhook endpoint |  |  |
+| `DELETE` | `/webhooks/{webhook_endpoint_id}` | Delete a webhook endpoint |  |  |
+| `POST` | `/webhooks/{webhook_endpoint_id}/rotate-secret` | Rotate webhook signing secret |  |  |
+| `POST` | `/webhooks/{webhook_endpoint_id}/test` | Send a test webhook |  |  |
+| `POST` | `/sandbox/simulate/kyc/approve` | Simulate: Approve KYC verification |  |  |
+| `POST` | `/sandbox/simulate/kyc/deny` | Simulate: Deny KYC verification |  |  |
+| `POST` | `/sandbox/simulate/ach/receive` | Simulate: Receive an inbound ACH credit |  |  |
+| `POST` | `/sandbox/simulate/ach/settle` | Simulate: Settle an outbound ACH transfer |  |  |
+| `POST` | `/sandbox/simulate/ach/return` | Simulate: Return a settled ACH transfer |  |  |
+| `POST` | `/sandbox/simulate/wire/receive` | Simulate: Receive an inbound wire |  |  |
+| `POST` | `/sandbox/simulate/wire/settle` | Simulate: Complete an outbound wire |  |  |
+| `POST` | `/sandbox/simulate/card/authorize` | Simulate: Card authorization |  |  |
+| `POST` | `/sandbox/simulate/card/settle` | Simulate: Card settlement |  |  |
+| `POST` | `/sandbox/simulate/time/advance` | Simulate: Advance sandbox clock |  |  |
+| `POST` | `/sandbox/reset` | Reset sandbox environment |  |  |
+| `POST` | `/auth/token` | Obtain an aggregator access token |  |  |
+| `GET` | `/fbo/{instance_id}/position` | Get FBO position for an instance |  |  |
+| `GET` | `/fbo/{instance_id}/available-balance` | Get available balance for an instance |  |  |
+| `POST` | `/payments/ach/originate` | Originate an ACH payment | BA-05, BA-06, BA-07, BA-08 |  |
+| `POST` | `/payments/wire/originate` | Originate a wire payment | BA-05, BA-06, BA-07, BA-08, BA-10 |  |
+| `POST` | `/payments/wire/prepare` | Prepare a wire payment (phase 1 of 2) | BA-05, BA-06, BA-07, BA-08, BA-10 |  |
+| `POST` | `/payments/wire/confirm` | Confirm a prepared wire payment (phase 2 of 2) |  |  |
+| `POST` | `/payments/rtp/originate` | Originate an RTP payment | BA-05, BA-06, BA-07, BA-08 |  |
+| `GET` | `/inbound/{instance_id}` | List inbound payments for an instance |  |  |
+| `GET` | `/bsa/alerts` | List BSA alerts |  |  |
+| `GET` | `/bsa/alerts/{alert_id}` | Retrieve a BSA alert |  |  |
+| `GET` | `/consumers/health` | Get aggregator consumer health |  |  |
+
+## State machines
+
+_No state machines defined in vocabulary.json._
+
+## Plugins
+
+_No plugins defined in vocabulary.json._
+"""
+
+
+LOCAL OVERRIDES (apply after all meta-prompt rules):
+{{Usually empty. Put anything here that should override the shared
+`meta-prompt.md` for THIS policy only — a different control-ID prefix,
+extra required sections, a specific citation style, etc. The regeneration
+task applies overrides AFTER the shared meta-prompt, so instructions here
+win.}}

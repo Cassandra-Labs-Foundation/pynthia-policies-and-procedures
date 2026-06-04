@@ -1,270 +1,223 @@
-# Cash Control
+---
+title: Cash Policy (Table-First, Design-Overlay v2)
+owner: Patrick Wilson, Chief Compliance Officer
+version: v3.0
+effective: 2026-06-04
+next_review: 2027-06-04
+approvers:
+  - Patrick Wilson, Chief Compliance Officer
+tags: [Compliance, Cash, Cash Control, Cash Management, Dual Control, Reconciliation, Vault, ATM]
+---
 
-> **General Policy Statement** \{{ORGANIZATION\}} maintains a board-approved, risk-based program to safeguard cash and cash-equivalent devices. The Board **delegates** day-to-day control to management while retaining **ultimate responsibility** through limit approval, surprise cash counts, independent audits, and review of Supervisory Committee and regulatory examinations. The program sets quantified cash limits (enterprise, vault, teller, ATM/ITM, recyclers, petty cash), enforces **dual control and segregation of duties**, requires daily reconciliation to the GL, monitors over/short, prescribes ATM/night-drop handling and shipments, and governs seasonal deviations aligned with **fidelity bond (surety) coverage**. Governance ties into the **BSA/AML program** (31 CFR §1020.210) for internal controls, training, and independent testing. See the **Authority Table** below.
+## General Policy Statement
 
-***
+Pynthia Credit Union safeguards all cash and cash-equivalent devices — vaults, teller drawers, ATMs/ITMs, cash recyclers, petty cash, night depositories, and cash shipments — through board-approved limits, dual control, segregation of duties, daily general-ledger tie-out, and surprise counts. This policy merges the former Cash Control and Cash Management policies into a single program covering every employee who handles cash and every location and channel where cash is received, disbursed, stored, shipped, or reconciled. The Board delegates day-to-day control to management while retaining ultimate responsibility through limit approval, surprise counts, independent audits, and review of Supervisory Committee and regulatory examinations; cash-risk indicators and exceptions feed the BSA/AML governance cadence.
 
-## Multi-Rule Authority Table <a href="#authority" id="authority"></a>
+## Timing Matrix {#timing-matrix}
 
-| Topic                                                     | Scope                                                                                                                        | Key Clauses / Notes                                                                                                                                                                                                           |
-| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Federal Credit Union Act (FCUA)**                       | Board duties; safety & soundness; supervisory committee; fidelity bond authority                                             | **12 U.S.C. Chapter 14 (FCUA)** (e.g., §§1751–1795k) provides statutory foundation for credit union governance and safety & soundness expectations. [12 U.S.C. Ch. 14](https://www.law.cornell.edu/uscode/text/12/chapter-14) |
-| **Bank Secrecy Act (BSA)**                                | AML program; internal controls; training; independent testing; risk-based monitoring (governance link to cash handling)      | **31 U.S.C. Subchapter II (BSA)** including §5318(h) (AML program). [31 U.S.C. Subchapter II](https://www.law.cornell.edu/uscode/text/31/subtitle-IV/chapter-53/subchapter-II)                                                |
-| **NCUA Security Program**                                 | Written security program; procedures for robberies/burglaries/embezzlement; dual control/assignment expectations             | **12 CFR §748.1** (establish & maintain security program). [12 CFR §748.1](https://www.ecfr.gov/current/title-12/part-748#p-748.1)                                                                                            |
-| **BSA/AML Program (FinCEN rule for banks/credit unions)** | Board-approved AML program; internal controls, training, independent testing; risk-based CDD                                 | **31 CFR §1020.210**. [31 CFR §1020.210](https://www.ecfr.gov/current/title-31/part-1020#p-1020.210)                                                                                                                          |
-| **Fidelity (Surety) Bond**                                | Minimum bond coverage; board duty to ensure adequate protection for cash exposures and seasonal adjustments                  | **12 CFR Part 713**. [12 CFR Part 713](https://www.ecfr.gov/current/title-12/part-713)                                                                                                                                        |
-| **Supervisory Committee Audits**                          | Surprise cash counts; verification; scope of audits/reviews; reporting to Board                                              | **12 CFR Part 715**. [12 CFR Part 715](https://www.ecfr.gov/current/title-12/part-715)                                                                                                                                        |
-| **Records Preservation & Retention**                      | Maintain reconciliation packs, count sheets, dual-control logs, device load sheets, exception registers for required periods | **12 CFR Part 749**. [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749)                                                                                                                                        |
+| Scenario | Trigger (human → event) | Deadline | Content Reference | Control |
+|---|---|---:|---|---|
+| Enterprise cash exceeds board-approved cap | EOD aggregation crosses cap → `cash.enterprise_limit.breached` | **Same business day** remediation (Treasury invests excess) | Enterprise limit schedule | [CSH-03](#csh-03-enterprise-cash-limit) |
+| Device/location load above limit without exception ticket | Load request exceeds limit → `cash.location_limit.exceeded` | **Real-time** warn/block at point of load | Per-asset limits schedule | [CSH-04](#csh-04-location-device-cash-limits) |
+| Key/combination rotation | Personnel change or rotation timer → `cash.custody.rotation_due` | On personnel change; otherwise **≤90 days** | Custodian registry | [CSH-05](#csh-05-dual-control-keys-combinations) |
+| Access revocation on termination | HR separation posted → `hr.user.separated` | **Immediate** (same day) | Custodian registry | [CSH-05](#csh-05-dual-control-keys-combinations) |
+| Daily cash-to-GL reconciliation | Business day close → `cash.recon.day_closed` | **Same-day** tie-out to GL | Reconciliation pack | [CSH-06](#csh-06-reconciliation-gl-controls) |
+| Over/short variance investigation | Variance posted → `cash.overshort.posted` | Investigate within **1 business day** | Over/short register | [CSH-07](#csh-07-over-short-monitoring) |
+| Inbound/outbound shipment verification | Courier receipt logged → `cash.shipment.received` / `cash.shipment.dispatched` | **Same-day** verification against courier receipts and GL | Shipment log | [CSH-08](#csh-08-atm-itm-night-drop-shipments) |
+| Surprise cash count | Count scheduler fires → `cash.surprise_count.due` | **At least monthly per site**; variances resolved within **1 business day** | Count sheets | [CSH-09](#csh-09-surprise-cash-counts-audits) |
+| Seasonal deviation approval | Deviation memo submitted → `cash.deviation.requested` | Board approval **before** limits are exceeded; temporary limits **sunset on end date** | Board deviation memo | [CSH-10](#csh-10-seasonal-deviations-exceptions) |
+| New-hire cash training | Hire in covered role → `hr.user.hired_covered_role` | Initial training within **30 days** of hire; refresher **annually** | Training curriculum | [CSH-11](#csh-11-training-competency) |
+| Monthly KPI/KRI publication | Month end closes → `cash.kri.month_closed` | Within **15 calendar days** of month end | KRI dashboard | [CSH-12](#csh-12-monitoring-reporting-recordkeeping) |
+| Quarterly Board summary | Quarter end closes → `cash.governance.quarter_closed` | Next regular Board meeting after quarter end | Board cash summary | [CSH-01](#csh-01-governance-delegation) |
+| Annual policy review | Review tickler fires → `policy.review.due` | **≤12 months** between approvals | This policy | [CSH-01](#csh-01-governance-delegation) |
 
-***
+## CSH-01 — Governance & Delegation {#csh-01-governance-delegation}
 
-## Timing Matrix <a href="#timing-matrix" id="timing-matrix"></a>
+- **WHY (Reg cite):** The Federal Credit Union Act vests management of the credit union in the Board ([12 U.S.C. §1761b](https://www.law.cornell.edu/uscode/text/12/1761b)), and the BSA/AML program rule requires a board-approved program with internal controls into which cash-risk governance feeds ([31 CFR §1020.210](https://www.ecfr.gov/current/title-31/section-1020.210); [31 U.S.C. §5318(h)](https://www.law.cornell.edu/uscode/text/31/5318)).
+- **SYSTEM BEHAVIOR:** The credit union maintains this policy as a board-approved, living document. The Board approves the limits schedule annually and on any change; cash-risk KRIs feed the AML governance dashboard monthly; exceptions are tracked in an attested register and reported on the BSA governance cadence (annual review, monthly KRIs, quarterly Board summaries). If a limits-schedule change is needed between annual reviews, it follows the same Board-approval path before taking effect. The limits schedule and exception register are write-restricted to Compliance; the Board approval record is write-restricted to the Board secretary.
+- **EVENTS:**
 
-| Scenario                                              | Trigger (human → event)                                                 |                                                    Deadline | Content Reference                 | Control                                                            |
-| ----------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------: | --------------------------------- | ------------------------------------------------------------------ |
-| Daily teller/vault/device reconciliation to GL        | Close of business → `eod.close_started`                                 |                            **Same business day** (by close) | Reconciliation packs              | [CA-06](cash.md#ca-06-reconciliation--gl-controls)         |
-| Over/short variance investigation                     | Variance detected → `cash.var.detected`                                 |  **1 business day** to investigate; escalate ≥ ${threshold} | Over/Short log & case memo        | [CA-07](cash.md#ca-07-overshort-monitoring)                |
-| Surprise cash counts (all sites/devices)              | Monthly plan → `audit.surprise_scheduled`                               |                               **At least monthly** per site | Count sheets; variance follow-up  | [CA-09](cash.md#ca-09-surprise-cash-counts--audits)        |
-| Key/combination rotation                              | Custodian change or interval reached → `access.rotate_due`              | **Immediately** on personnel change; else every **90 days** | Key/combo register                | [CA-05](cash.md#ca-05-dual-control-keys-combos-access)     |
-| Seasonal limit deviation request                      | Cash forecast shows exceedance → `limits.deviation.requested`           |                    **Pre-approval** before exceeding limits | Board memo; insurance endorsement | [CA-10](cash.md#ca-10-seasonal-deviations--exceptions)     |
-| ATM/ITM/night-drop retrieval/load                     | Route start → `device.service.start`                                    |                         **Dual control at time of service** | Load sheets; video (if available) | [CA-08](cash.md#ca-08-atmitmnight-drop-procedures)         |
-| **Cash shipment receive/dispatch under dual control** | Shipment arrival/departure → `shipment.arrived` / `shipment.dispatched` |                  **At event time**; log and verify same day | Shipment log; courier receipts    | [CA-08](cash.md#ca-08-atmitmnight-drop-procedures)         |
-| **Initial & annual training completion**              | New hire/onboarding → `lms.assign.initial`                              |             **Within 30 days** of hire; annually thereafter | LMS records; proficiency check    | [CA-11](cash.md#ca-11-training--competency)                |
-| Board reporting pack                                  | Month close → `reporting.month_close`                                   |                    **Within 15 calendar days** of month end | KPIs/KRIs; exception list         | [CA-12](cash.md#ca-12-monitoring-reporting--recordkeeping) |
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Annual review tickler fires (`policy.review.due`) | Current policy text (`policy.document_id`), limits schedule (`cash.limits_schedule`), prior-year exception register (`cash.exception_register`) | Board-approved policy and limits schedule (`policy.board_approved`) | ≤12 months between approvals (enforced by `policy.review_due_at`) |
+  | Month end closes (`cash.kri.month_closed`) | Cash KRI values (`cash.kri.values[]`), open exceptions (`cash.exception_register.open[]`) | KRI feed posted to AML governance dashboard (`aml.dashboard.cash_kri_posted`) | 15 calendar days after month end (internal: 10 CD) |
+  | Quarter end closes (`cash.governance.quarter_closed`) | Quarterly KRI trend (`cash.kri.trend`), exception summary (`cash.exception_register.summary`), surprise-count results (`cash.surprise_count.results[]`) | Board cash summary delivered and minuted (`board.cash_summary.delivered`) | Next regular Board meeting after quarter end |
 
-***
+- **ALERTS/METRICS:** Overdue policy review (target zero), KRI publication latency vs. the 15-day deadline, count of exceptions open >30 days, Board summaries delivered on time (target 4/4 per year).
 
-## Control Index <a href="#control-index" id="control-index"></a>
+## CSH-02 — Scope & Applicability {#csh-02-scope-applicability}
 
-| ID                                                                 | Control Name                          | Purpose                                            | Primary Rule(s)                               |
-| ------------------------------------------------------------------ | ------------------------------------- | -------------------------------------------------- | --------------------------------------------- |
-| [CA-01](cash.md#ca-01-governance--delegation)              | Governance & Delegation               | Assign accountability; Board oversight             | FCUA; 12 CFR §748.1; §748.2; 31 CFR §1020.210 |
-| [CA-02](cash.md#ca-02-scope--applicability)                | Scope & Applicability                 | Define employees, activities, locations            | FCUA; §748.1                                  |
-| [CA-03](cash.md#ca-03-enterprise-cash-limit)               | Enterprise Cash Limit                 | Cap total cash vs. assets; invest excess           | FCUA; Part 713                                |
-| [CA-04](cash.md#ca-04-location--device-cash-limits)        | Location & Device Cash Limits         | Set per-vault/teller/ATM/ITM/recycler/petty limits | §748.1; Part 713                              |
-| [CA-05](cash.md#ca-05-dual-control-keys-combos-access)     | Dual Control, Keys & Combos           | Protect custody/access; rotation                   | §748.1; 31 CFR §1020.210                      |
-| [CA-06](cash.md#ca-06-reconciliation--gl-controls)         | Reconciliation & GL Controls          | Tie cash to GL; documentation                      | Part 749; 31 CFR §1020.210                    |
-| [CA-07](cash.md#ca-07-overshort-monitoring)                | Over/Short Monitoring                 | Detect patterns; thresholds/discipline             | §748.1; Part 715; 31 CFR §1020.210            |
-| [CA-08](cash.md#ca-08-atmitmnight-drop-procedures)         | ATM/ITM/Night-Drop & Shipments        | Dual control; device handling; shipments           | §748.1; Part 715                              |
-| [CA-09](cash.md#ca-09-surprise-cash-counts--audits)        | Surprise Cash Counts & Audits         | Independent checks; SC oversight                   | Part 715                                      |
-| [CA-10](cash.md#ca-10-seasonal-deviations--exceptions)     | Seasonal Deviations & Exceptions      | Temporary limit increases & insurance              | Part 713                                      |
-| [CA-11](cash.md#ca-11-training--competency)                | Training & Competency                 | Role-based proficiency; annual refresh             | 31 U.S.C. §5318(h); 31 CFR §1020.210          |
-| [CA-12](cash.md#ca-12-monitoring-reporting--recordkeeping) | Monitoring, Reporting & Recordkeeping | KPIs/KRIs; retention                               | §748.2; Part 749; 31 CFR §1020.210            |
+- **WHY (Reg cite):** NCUA's security program rule requires written procedures covering each office and the assets at risk ([12 CFR §748.1(b)](https://www.ecfr.gov/current/title-12/part-748/section-748.1)), and AML internal controls must be commensurate with the institution's footprint ([31 CFR §1020.210](https://www.ecfr.gov/current/title-31/section-1020.210)).
+- **SYSTEM BEHAVIOR:** Compliance maintains a coverage registry that tags every covered employee, cash-handling activity, and location/channel (branches, operations center, ATMs/ITMs, recyclers, night depositories). Coverage must be updated before go-live of any new cash-bearing asset or new cash-handling role. At small sites where full segregation of duties is impractical, the registry documents the compensating reviews (e.g., manager review of the reconciler's own work) in lieu of separation. The coverage registry is write-restricted to Compliance.
+- **EVENTS:**
 
-***
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | New cash-bearing asset or role proposed (`cash.coverage.change_requested`) | Asset/role description (`cash.asset.descriptor`), location/channel (`cash.location.id`), assigned custodians (`cash.custodian.user_ids[]`) | Coverage registry updated with tags and any compensating-review note (`cash.coverage.updated`) | Before go-live (internal: ≥5 BD before activation) |
+  | Periodic coverage attestation (`cash.coverage.attestation_due`) | Current registry (`cash.coverage.registry`), HR roster of covered roles (`hr.roster.covered_roles[]`) | Attested coverage registry (`cash.coverage.attested`) | Annually with policy review (enforced by `cash.coverage.attestation_due_at`) |
 
-## Control Overlays (Design Overlay v2)
+- **ALERTS/METRICS:** Count of cash-bearing assets live without a coverage tag (target zero), days between asset go-live and registry update, small-site compensating reviews completed vs. scheduled.
 
-{% stepper %}
-{% step %}
-### Governance & Delegation <a href="#ca-01-governance--delegation" id="ca-01-governance--delegation"></a>
+## CSH-03 — Enterprise Cash Limit {#csh-03-enterprise-cash-limit}
 
-* **WHY (Reg cite):** Board governance under **FCUA**; written security and BSA programs under **12 CFR §748.1–§748.2**; AML program elements (internal controls, independent testing, training) under **31 U.S.C. §5318(h)** and **31 CFR §1020.210**.
-* **SYSTEM BEHAVIOR:** Maintain a living policy; Board approves limits schedule; cash-risk KRIs feed the AML governance dashboard; exceptions tracked and reported via BSA governance cadence.
-* **TRIGGERS (human → event):** Board approval → `governance.policy_approved`; SC/audit report submitted → `report.audit_submitted`.
-* **INPUTS (human → field):** Approver roster `(gov.approvers[])`; limits schedule `(limits.table)`; bond coverage `(insurance.bond_amount)`; AML program refs `(aml.controls_refs)`.
-* **OUTPUTS:** Board minutes; limits appendix; exception register; AML governance packet entries.
-* **TIMERS/SLAs:** Annual review; monthly cash KRIs into AML dashboard; quarterly Board summaries.
-* **EDGE CASES:** Interim regulatory change—Chair ratifies; Board at next meeting.
-* **AUDIT LOGS:** `policy.version.published`, `limits.appendix.updated`, `aml.dashboard.updated`.
-* **ACCESS CONTROL:** Publish: CFO/Ops/Compliance (BSA Officer); Read: enterprise.
-* **ALERTS/METRICS:** Policy age; open exceptions past due; AML control mapping completeness.
-{% endstep %}
+- **WHY (Reg cite):** Holding excess un-invested cash is a safety-and-soundness exposure under the Board's FCUA management duty ([12 U.S.C. §1761b](https://www.law.cornell.edu/uscode/text/12/1761b)) and inflates the exposure the fidelity bond must cover ([12 CFR Part 713](https://www.ecfr.gov/current/title-12/part-713)).
+- **SYSTEM BEHAVIOR:** Total cash on hand across all locations and devices is capped at a board-approved percentage of total assets. The system aggregates all location/device balances at end of day, compares to the cap, and auto-notifies Treasury to invest excess when the aggregate approaches or exceeds the cap. Breaches are remediated the same business day; if a same-day shipment or investment is operationally impossible (e.g., courier cutoff missed), the breach is logged as an exception with next-business-day remediation and reported per [CSH-01](#csh-01-governance-delegation). The cap value is write-restricted to the Board approval workflow.
+- **EVENTS:**
 
-{% step %}
-### Scope & Applicability <a href="#ca-02-scope--applicability" id="ca-02-scope--applicability"></a>
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | End-of-day aggregation runs (`cash.enterprise_position.computed`) | Per-location balances (`cash.location.balance[]`), total assets (`gl.total_assets`), board cap percentage (`cash.enterprise_limit.pct`) | Enterprise cash position record (`cash.enterprise_position.posted`) | Each business day at close (enforced by `cash.enterprise_position.schedule`) |
+  | Position crosses warning threshold (`cash.enterprise_limit.warning`) | Position vs. cap delta (`cash.enterprise_position.headroom`) | Treasury auto-notification to invest excess (`treasury.invest_excess.notified`) | Same business day |
+  | Position breaches cap (`cash.enterprise_limit.breached`) | Breach amount (`cash.enterprise_position.excess`), remediation plan (`cash.remediation.plan`) | Same-day remediation record + exception entry if unremediated (`cash.enterprise_limit.remediated`, `cash.exception.logged`) | Same business day (enforced by `cash.enterprise_limit.remediation_due_at`) |
 
-* **WHY (Reg cite):** FCUA governance and **§748.1** require comprehensive coverage; AML program must cover all relevant lines (**31 CFR §1020.210**).
-* **SYSTEM BEHAVIOR:** Tag covered **employees** (tellers, vault custodians, branch managers, ops/accounting, armored-courier liaisons, ATM/ITM custodians), **activities** (receipt, disbursement, shipment, storage, reconciliation, discrepancy handling, training, emergency/disaster), and **locations/channels** (branches, ops center, ATMs/ITMs, recyclers, night depository).
-* **TRIGGERS:** New location/device/role created → `coverage.object_added`.
-* **INPUTS:** Role matrix `(scope.roles[])`; asset inventory `(assets.locations[], assets.devices[])`.
-* **OUTPUTS:** Coverage map used by AML/BSA control inventory.
-* **TIMERS/SLAs:** Update before go-live of any new asset/role.
-* **EDGE CASES:** Small sites—document compensating reviews and BSA monitoring ties.
-* **AUDIT LOGS:** `scope.updated`.
-* **ACCESS CONTROL:** Ops updates; Compliance/BSA approves.
-* **ALERTS/METRICS:** % assets with assigned custodians/limits; % mapped to AML controls.
-{% endstep %}
+- **ALERTS/METRICS:** Days at >90% of cap, breach count per quarter (target zero), median remediation time, excess-cash dollars invested per Treasury notification.
 
-{% step %}
-### Enterprise Cash Limit <a href="#ca-03-enterprise-cash-limit" id="ca-03-enterprise-cash-limit"></a>
+## CSH-04 — Location & Device Cash Limits {#csh-04-location-device-cash-limits}
 
-* **WHY (Reg cite):** Prudently limit cash; ensure bond coverage (Part 713); inform AML liquidity/anomaly context (31 CFR §1020.210 internal controls).
-* **SYSTEM BEHAVIOR:** Enforce **Total Cash** ≤ **{X%\} of total assets**; auto-notify Treasury to invest excess; post breach flags to AML monitoring context.
-* **TRIGGERS:** Liquidity report run → `treasury.liquidity_generated`; forecast exceedance → `limits.breach.forecast`.
-* **INPUTS:** `(finance.total_assets)`, `(cash.on_hand_total)`, `(limits.enterprise_pct)`.
-* **OUTPUTS:** Daily liquidity pack; invest instruction; AML context update.
-* **TIMERS/SLAs:** Remediate same day when exceeded.
-* **EDGE CASES:** Seasonal needs—use [CA-10](cash.md#ca-10-seasonal-deviations--exceptions).
-* **AUDIT LOGS:** `limits.enterprise.breached`, `treasury.invest_ordered`.
-* **ACCESS CONTROL:** Treasury executes; CFO reviews.
-* **ALERTS/METRICS:** Days over cap; max deviation; bond headroom.
-{% endstep %}
+- **WHY (Reg cite):** NCUA's security program requires controls that limit currency exposure at each office and device ([12 CFR §748.1(b)](https://www.ecfr.gov/current/title-12/part-748/section-748.1)), and fidelity bond adequacy depends on enforced per-asset limits ([12 CFR Part 713](https://www.ecfr.gov/current/title-12/part-713)).
+- **SYSTEM BEHAVIOR:** Compliance maintains board-approved per-asset limits for each vault, teller drawer, ATM, ITM/VTM, recycler, and petty cash fund. The system enforces limits in real time at the point of load: loads above limit are warned, and blocked unless an approved exception ticket is attached. Vault, ATM, ITM, and recycler operations require two custodians present; teller drawers and petty cash are single-custodian assets governed by the over/short regime in [CSH-07](#csh-07-over-short-monitoring). The limits table is write-restricted to Compliance under Board approval.
+- **EVENTS:**
 
-{% step %}
-### Location & Device Cash Limits <a href="#ca-04-location--device-cash-limits" id="ca-04-location--device-cash-limits"></a>
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Cash load requested for a device or location (`cash.load.requested`) | Asset ID and current balance (`cash.asset.id`, `cash.asset.balance`), load amount (`cash.load.amount`), per-asset limit (`cash.asset.limit`), exception ticket if any (`cash.exception_ticket.id`) | Load approved, warned, or blocked decision (`cash.load.decided`) | Real time at point of load |
+  | Load would exceed limit without ticket (`cash.location_limit.exceeded`) | Overage amount (`cash.load.overage`), requesting custodians (`cash.custodian.user_ids[]`) | Block + exception alert to branch manager and Compliance (`cash.limit_block.alerted`) | Real time |
+  | Limits schedule changed (`cash.limits_schedule.updated`) | Board approval reference (`board.approval.id`), new limit values (`cash.asset.limit[]`) | Versioned limits schedule effective (`cash.limits_schedule.effective`) | Before new limits are enforced |
 
-* **WHY (Reg cite):** Prevent excessive exposure per vault/teller/ATM/ITM/recycler/petty fund; align to bond and security expectations (**§748.1**, Part 713); tie exceptions to AML internal control reviews (**31 CFR §1020.210**).
-* **SYSTEM BEHAVIOR:** Maintain per-asset limits: **Vault ${vault\_limit}**, **Teller ${teller\_limit}**, **ATM ${atm\_limit}**, **ITM/VTM ${itm\_limit}**, **Recycler ${recycler\_limit}**, **Petty ${petty\_limit}**; system warns/blocks loads above limit without exception ticket; feed exception telemetry to AML case mgmt.
-* **TRIGGERS:** Load initiated → `device.load.started`; start of day issue → `teller.drawer.issued`.
-* **INPUTS:** `(limits.by_asset[asset_id])`; `(asset.cash_level)`.
-* **OUTPUTS:** Load sheet; approval trail; AML exception signal.
-* **TIMERS/SLAs:** Real-time enforcement.
-* **EDGE CASES:** Service outage—manual log with two signatures; back-entry within 1 business day.
-* **AUDIT LOGS:** `device.load.completed`, `limits.exception.approved`.
-* **ACCESS CONTROL:** Dual custodians for vault/ATM/ITM/recycler operations.
-* **ALERTS/METRICS:** Breach attempts; exception frequency by site; AML exception count.
-{% endstep %}
+- **ALERTS/METRICS:** Blocked-load count by site, loads completed with exception tickets vs. total, assets persistently >85% of limit, dual-custodian attestation rate on vault/ATM/ITM/recycler operations (target 100%).
 
-{% step %}
-### Dual Control, Keys & Combos <a href="#ca-05-dual-control-keys-combos-access" id="ca-05-dual-control-keys-combos-access"></a>
+## CSH-05 — Dual Control, Keys & Combinations {#csh-05-dual-control-keys-combinations}
 
-* **WHY (Reg cite):** Physical/operational controls (**§748.1**); AML internal controls mandate (**31 CFR §1020.210**).
-* **SYSTEM BEHAVIOR:** Enforce **dual control** for vault access, shipments, ATM/ITM loads, night-drop retrieval; maintain key/combination custodian registry; rotate on personnel change or every **90 days**; sealed backups.
-* **TRIGGERS:** Staff change → `hr.staff.change`; rotation due → `access.rotate_due`.
-* **INPUTS:** `(access.custodians[])`; `(access.rotate_days)`.
-* **OUTPUTS:** Key/combo register; change certificates; AML control inventory update.
-* **TIMERS/SLAs:** Immediate revocation on termination.
-* **EDGE CASES:** Emergency access—incident ticket; post-event review.
-* **AUDIT LOGS:** `access.revoked`, `combo.changed`.
-* **ACCESS CONTROL:** Need-to-know; background-checked roles only.
-* **ALERTS/METRICS:** Overdue rotations; single-custodian attempts blocked.
-{% endstep %}
+- **WHY (Reg cite):** NCUA's security program requires procedures to safeguard currency against robbery and embezzlement, including controlled access devices ([12 CFR §748.1(b)](https://www.ecfr.gov/current/title-12/part-748/section-748.1)); dual control over cash custody is a core internal control expected by the AML program rule ([31 CFR §1020.210](https://www.ecfr.gov/current/title-31/section-1020.210)).
+- **SYSTEM BEHAVIOR:** Dual control is mandatory for vault access, cash shipments, ATM/ITM loads, and night-drop retrieval: two authorized custodians must each attest presence before the operation proceeds. Compliance maintains a key/combination custodian registry mapping every key, combination half, and access credential to a named individual. Combinations and keys rotate on any personnel change affecting a custodian and at least every 90 days regardless; on termination, all assignments are revoked immediately (same day) and the affected combinations changed. A sealed master copy of combinations/keys is held in the dual-control key box for emergencies; any emergency use triggers a dual-control audit before sole control is restored. The custodian registry is write-restricted to Compliance, with HR feed read access.
+- **EVENTS:**
 
-{% step %}
-### Reconciliation & GL Controls <a href="#ca-06-reconciliation--gl-controls" id="ca-06-reconciliation--gl-controls"></a>
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Dual-control operation initiated (`cash.dual_control.initiated`) | Asset ID (`cash.asset.id`), two custodian attestations (`cash.custodian.attestations[]`) | Operation authorized with both identities logged (`cash.dual_control.completed`) | Real time; operation blocked until second attestation |
+  | Rotation timer or personnel change (`cash.custody.rotation_due`) | Affected assignments (`cash.custody.assignments[]`), new custodian designations (`cash.custodian.user_ids[]`) | Rotated keys/combinations and updated registry (`cash.custody.rotated`) | On personnel change; otherwise ≤90 days (enforced by `cash.custody.rotation_due_at`) |
+  | HR separation posted for a custodian (`hr.user.separated`) | Separated user (`hr.user.id`), their custody assignments (`cash.custody.assignments[]`) | Immediate revocation + combination change order (`cash.custody.revoked`) | Same day (internal: before end of shift) |
+  | Emergency master-copy access (`cash.keybox.opened`) | Two authorizing officers (`cash.custodian.attestations[]`), reason (`cash.keybox.reason`) | Emergency access record + mandatory follow-up dual-control audit (`cash.keybox.access_logged`, `cash.audit.scheduled`) | Audit before sole control is restored |
 
-* **WHY (Reg cite):** Reliable records and retrievability (**Part 749**); AML internal controls & independent testing rely on reconciliations (**31 CFR §1020.210**).
-* **SYSTEM BEHAVIOR:** Daily reconcile **teller, vault, ATM/ITM, recyclers, petty** to GL and subsidiary ledgers; zero-balance suspense within **{X} days**; require documentation for all postings; provide AML investigators access to reconciliation evidence.
-* **TRIGGERS:** EOD close → `eod.close_started`; device settlement file → `device.settlement.posted`.
-* **INPUTS:** `(device.report)`; `(gl.batch)`; `(gl.docs[])`.
-* **OUTPUTS:** Reconciliation pack; exception list; AML evidence references.
-* **TIMERS/SLAs:** Same-day tie-out; suspense aging reviewed daily.
-* **EDGE CASES:** System outage → manual count; back-post with dual approval.
-* **AUDIT LOGS:** `recon.completed`, `suspense.cleared`.
-* **ACCESS CONTROL:** Separate custody vs. posting vs. reconciliation.
-* **ALERTS/METRICS:** Late recons; suspense aging > {X} days.
-{% endstep %}
+- **ALERTS/METRICS:** Overdue rotations (target zero), time-to-revoke on termination (target same day, 100%), single-attestation attempts blocked, emergency key-box openings per quarter with audit completion rate.
 
-{% step %}
-### Over/Short Monitoring <a href="#ca-07-overshort-monitoring" id="ca-07-overshort-monitoring"></a>
+## CSH-06 — Reconciliation & GL Controls {#csh-06-reconciliation-gl-controls}
 
-* **WHY (Reg cite):** Detect losses/embezzlement; governance visibility (**§748.1**, **Part 715**); anomalies feed AML monitoring (**31 CFR §1020.210**).
-* **SYSTEM BEHAVIOR:** Track over/short **per person and location**; set thresholds for coaching/discipline; analyze patterns; escalate large or recurring items; auto-signal repeated anomalies to AML case mgmt.
-* **TRIGGERS:** Variance logged → `cash.var.detected`.
-* **INPUTS:** `(cash.var.amount)`; `(cash.var.owner)`; `(cash.var.reason_code)`.
-* **OUTPUTS:** Monthly dashboard; case memos; AML anomaly hooks.
-* **TIMERS/SLAs:** Investigate within **1 business day**; report monthly.
-* **EDGE CASES:** Repeated near-limit shorts—initiate retraining/rotation.
-* **AUDIT LOGS:** `var.case.opened`, `var.case.closed`.
-* **ACCESS CONTROL:** Managers/Compliance view; HR discipline records.
-* **ALERTS/METRICS:** Top N outliers; repeat-offender count; AML referrals.
-{% endstep %}
+- **WHY (Reg cite):** Records preservation rules require accurate, current books ([12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749)), and AML internal controls depend on cash positions tying to the general ledger so anomalies surface ([31 CFR §1020.210](https://www.ecfr.gov/current/title-31/section-1020.210)).
+- **SYSTEM BEHAVIOR:** Every teller drawer, vault, ATM/ITM, recycler, and petty cash fund reconciles to the general ledger daily with same-day tie-out. Unmatched items post to a cash suspense account and must clear within defined aging (internal standard: 5 business days; items aging beyond 10 business days escalate to the Controller and Compliance). Duties are segregated: the person with custody of cash does not post entries, and the person who posts does not perform the reconciliation; at small sites, the compensating reviews documented under [CSH-02](#csh-02-scope-applicability) apply. Suspense write-offs are write-restricted to the Controller with Compliance countersign.
+- **EVENTS:**
 
-{% step %}
-### ATM/ITM/Night-Drop & Shipments <a href="#ca-08-atmitmnight-drop-procedures" id="ca-08-atmitmnight-drop-procedures"></a>
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Business day closes (`cash.recon.day_closed`) | Physical/device counts (`cash.asset.count[]`), GL cash balances (`gl.cash_accounts.balance[]`), prior-day suspense (`gl.cash_suspense.items[]`) | Daily reconciliation pack with tie-out result (`cash.recon.completed`) | Same business day (enforced by `cash.recon.due_at`) |
+  | Tie-out fails (`cash.recon.variance_found`) | Variance amount and asset (`cash.recon.variance`, `cash.asset.id`) | Suspense entry + over/short referral to [CSH-07](#csh-07-over-short-monitoring) (`gl.cash_suspense.posted`, `cash.overshort.posted`) | Same business day |
+  | Suspense item ages past threshold (`gl.cash_suspense.aged`) | Item age and amount (`gl.cash_suspense.item`), research notes (`cash.recon.research_notes`) | Escalation to Controller/Compliance and resolution or approved write-off (`gl.cash_suspense.escalated`, `gl.cash_suspense.cleared`) | Clear within 5 BD; escalate at 10 BD (enforced by `gl.cash_suspense.aging_timer`) |
 
-* **WHY (Reg cite):** Secure handling and chain of custody (**§748.1**); audits (**Part 715**); AML internal controls require documented, testable procedures (**31 CFR §1020.210**).
-* **SYSTEM BEHAVIOR:** Dual-control **load/retrieval**; cassette totals recorded; night-drop logged with seal capture and (where available) video; **cash shipments** (inbound/outbound) logged, sealed, countersigned with courier receipts; match courier/fed credit to GL same day.
-* **TRIGGERS:** Route start → `device.service.start`; bag opened → `nightdrop.bag.opened`; shipment events → `shipment.dispatched` / `shipment.arrived`.
-* **INPUTS:** `(device.load_sheet)`; `(device.seal_id)`; `(courier.ticket_id)`; `(shipment.manifest_id)`.
-* **OUTPUTS:** Device balancing report; night-drop log; shipment log; GL postings.
-* **TIMERS/SLAs:** Post night-drop **same day**; ATM/ITM balance at service completion; shipments verified and logged same day.
-* **EDGE CASES:** Seal mismatch—stop, escalate, incident ticket; shipment discrepancy—immediate count and courier escalation.
-* **AUDIT LOGS:** `device.load.completed`, `nightdrop.processed`, `shipment.logged`.
-* **ACCESS CONTROL:** Named dual custodians only; shipment signers authenticated.
-* **ALERTS/METRICS:** Seal exceptions; shipment discrepancy rate; time-to-post.
-{% endstep %}
+- **ALERTS/METRICS:** Same-day tie-out completion rate (target 100%), suspense items >5 BD and >10 BD (target zero at 10 BD), segregation-of-duties conflicts detected in role assignments (target zero).
 
-{% step %}
-### Surprise Cash Counts & Audits <a href="#ca-09-surprise-cash-counts--audits" id="ca-09-surprise-cash-counts--audits"></a>
+## CSH-07 — Over/Short Monitoring {#csh-07-over-short-monitoring}
 
-* **WHY (Reg cite):** Independent verification (**Part 715**); AML independent testing leverages count results (**31 CFR §1020.210**).
-* **SYSTEM BEHAVIOR:** Perform **surprise counts** across tellers, vaults, devices **at least monthly** per site; Supervisory Committee/independent audit conducts periodic reviews; feed results to AML independent testing workpapers; remediate findings.
-* **TRIGGERS:** Count scheduled → `audit.surprise_scheduled`.
-* **INPUTS:** `(audit.count.sheet)`; `(audit.findings[])`.
-* **OUTPUTS:** Variance report; remediation tracker; AML testing references.
-* **TIMERS/SLAs:** Variances resolved within **1 business day**; findings closed by due date.
-* **EDGE CASES:** Inability to count—document; reschedule within 48h.
-* **AUDIT LOGS:** `audit.count.completed`, `finding.closed`.
-* **ACCESS CONTROL:** SC/Audit independence preserved.
-* **ALERTS/METRICS:** Count coverage %; open findings aging.
-{% endstep %}
+- **WHY (Reg cite):** Recurring cash variances are a primary embezzlement and suspicious-activity signal the security program and AML program must detect ([12 CFR §748.1](https://www.ecfr.gov/current/title-12/part-748/section-748.1); [31 U.S.C. §5318(h)](https://www.law.cornell.edu/uscode/text/31/5318)).
+- **SYSTEM BEHAVIOR:** Every over/short is recorded per person and per location and posted the same day it is discovered — drawer balances are never adjusted without a correcting transaction. Variances are investigated within 1 business day: starting cash verified, the drawer hand-counted (straps broken, no machine count) under supervisor or designee control, and transactions reviewed if unresolved; the custodian remains at their station until dismissed by the supervisor. Coaching and discipline thresholds are maintained by HR with Compliance (cumulative count and gross-dollar bands per rolling 12 months); a cumulative or single unresolved variance at the discipline threshold triggers a formal performance evaluation, retraining, and increased random counts. Trainees accrue measured variances only after their first 90 days. Recurring or anomalous patterns (e.g., repeated shorts at one drawer or location) are signaled to AML case management. The over/short register is write-restricted to branch supervisors and Compliance.
+- **EVENTS:**
 
-{% step %}
-### Seasonal Deviations & Exceptions <a href="#ca-10-seasonal-deviations--exceptions" id="ca-10-seasonal-deviations--exceptions"></a>
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Variance discovered at balancing (`cash.overshort.posted`) | Person and location (`cash.custodian.user_id`, `cash.location.id`), amount and direction (`cash.overshort.amount`), correcting transaction (`gl.correction.txn_id`) | Over/short register entry posted same day (`cash.overshort.recorded`) | Same day discovered |
+  | Investigation opened (`cash.overshort.investigation_opened`) | Drawer recount result (`cash.asset.count`), transaction review notes (`cash.overshort.research_notes`) | Resolution or unresolved determination (`cash.overshort.resolved` / `cash.overshort.unresolved`) | 1 business day (enforced by `cash.overshort.investigation_due_at`) |
+  | Threshold crossed per person (`cash.overshort.threshold_crossed`) | 12-month cumulative count and gross dollars (`cash.overshort.cumulative`), threshold bands (`cash.overshort.thresholds`) | Coaching/discipline action record + evaluation if at discipline band (`hr.coaching.recorded`) | Within 5 BD of threshold crossing |
+  | Anomalous pattern detected (`cash.overshort.anomaly_detected`) | Pattern descriptor (`cash.overshort.pattern`), person/location history (`cash.overshort.history[]`) | AML case-management referral (`aml.case.referred`) | Within 1 BD of detection |
+  | Month end closes (`cash.kri.month_closed`) | Register totals by person and site (`cash.overshort.monthly_summary`) | Monthly over/short report to management and the [CSH-01](#csh-01-governance-delegation) KRI feed (`cash.overshort.report_issued`) | 15 calendar days after month end |
 
-* **WHY (Reg cite):** Temporary higher cash needs must be documented and bonded (Part 713); AML governance demands documented exceptions (31 CFR §1020.210).
-* **SYSTEM BEHAVIOR:** Formal **deviation memo** to Board: reason, duration, revised limits, bond/insurance adjustments; system whitelists temporary limits with expiry; AML exception log updated.
-* **TRIGGERS:** Deviation request → `limits.deviation.requested`; Board vote → `limits.deviation.approved`.
-* **INPUTS:** `(limits.deviation.forecast)`; `(insurance.endorsement_id)`.
-* **OUTPUTS:** Approved deviation record; whitelist entry; AML exception note.
-* **TIMERS/SLAs:** Approval **before** exceeding limits; sunset on end date.
-* **EDGE CASES:** Emergency surge—Chair + CEO interim approval, ratify next Board.
-* **AUDIT LOGS:** `limits.deviation.entered`, `limits.deviation.expired`.
-* **ACCESS CONTROL:** CFO/Ops propose; Board approves.
-* **ALERTS/METRICS:** Active deviations; days since last review.
-{% endstep %}
+- **ALERTS/METRICS:** Investigations open >1 BD (target zero), per-person 12-month gross variance distribution, AML referral count, unresolved-variance dollars per month.
 
-{% step %}
-### Training & Competency <a href="#ca-11-training--competency" id="ca-11-training--competency"></a>
+## CSH-08 — ATM/ITM/Night-Drop & Shipments {#csh-08-atm-itm-night-drop-shipments}
 
-* **WHY (Reg cite):** BSA program requires training (**31 U.S.C. §5318(h)**; **31 CFR §1020.210**); security program effectiveness depends on trained staff (**§748.1**).
-* **SYSTEM BEHAVIOR:** Initial + **annual** training: policy/limits, handling accuracy, counterfeit detection, fraud schemes, emergency/robbery response, dual control, device & **shipment** procedures; role-specific proficiency checks; training completion feeds AML program metrics.
-* **TRIGGERS:** New hire → `hr.hire.created`; annual cycle → `lms.annual_due`.
-* **INPUTS:** `(lms.course_ids[])`; `(lms.completions)`; `(lms.proficiency_scores)`.
-* **OUTPUTS:** Training records; proficiency attestations; AML training metrics.
-* **TIMERS/SLAs:** Complete within **30 days** of hire; annually thereafter.
-* **EDGE CASES:** Failed proficiency—remediation and retest.
-* **AUDIT LOGS:** `lms.completed`, `lms.remediation.assigned`.
-* **ACCESS CONTROL:** Managers view team status; HR system of record.
-* **ALERTS/METRICS:** Completion rate; proficiency scores; overdue training counts.
-{% endstep %}
+- **WHY (Reg cite):** The security program rule requires procedures for safekeeping currency in transit and in unattended devices ([12 CFR §748.1(b)](https://www.ecfr.gov/current/title-12/part-748/section-748.1)); shipment and device-service records are retainable evidence under [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749).
+- **SYSTEM BEHAVIOR:** Device loads/retrievals (ATM, ITM, recycler) and night-drop handling are performed under dual control with seal numbers captured at every custody hand-off; a broken or mismatched seal stops the process and opens an immediate variance investigation. All inbound and outbound cash shipments are logged and verified the same day against armored-courier receipts and the GL; discrepancies post to suspense under [CSH-06](#csh-06-reconciliation-gl-controls) and the courier is notified the same day. Night-drop bags are logged at retrieval and contents verified under dual control before crediting. Shipment scheduling and courier-liaison records are write-restricted to Operations with Compliance read access.
+- **EVENTS:**
 
-{% step %}
-### Monitoring, Reporting & Recordkeeping <a href="#ca-12-monitoring-reporting--recordkeeping" id="ca-12-monitoring-reporting--recordkeeping"></a>
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Device load or retrieval performed (`cash.device.serviced`) | Two custodian attestations (`cash.custodian.attestations[]`), cassette/seal numbers (`cash.seal.numbers[]`), load/retrieval amounts (`cash.load.amount`) | Device service record with seals (`cash.device.service_logged`) | Real time at service |
+  | Night-drop retrieved (`cash.nightdrop.retrieved`) | Bag IDs and seals (`cash.nightdrop.bag_ids[]`, `cash.seal.numbers[]`), dual-control attestations (`cash.custodian.attestations[]`) | Verified contents credited + log entry (`cash.nightdrop.verified`) | Same business day as retrieval |
+  | Shipment dispatched or received (`cash.shipment.dispatched` / `cash.shipment.received`) | Courier receipt (`courier.receipt.id`), declared amount (`cash.shipment.amount`), GL entry (`gl.cash_in_transit.entry`) | Same-day verification record; discrepancy to suspense if unmatched (`cash.shipment.verified`, `gl.cash_suspense.posted`) | Same business day (enforced by `cash.shipment.verification_due_at`) |
+  | Seal broken or mismatched (`cash.seal.mismatch`) | Expected vs. found seals (`cash.seal.expected`, `cash.seal.found`), custodians present (`cash.custodian.attestations[]`) | Halt + immediate variance investigation opened (`cash.overshort.investigation_opened`) | Immediate; investigation per [CSH-07](#csh-07-over-short-monitoring) timelines |
 
-* **WHY (Reg cite):** Ongoing oversight; evidence retention (**12 CFR §748.2**, **Part 749**); AML program requires internal controls & independent testing (**31 CFR §1020.210**).
-* **SYSTEM BEHAVIOR:** Monthly KPIs/KRIs (limit breaches, late recons, over/short trends, shipment discrepancies, device exceptions); exception log with officer attestation; retain evidence (count sheets, load/ship logs, dual-control logs, recon packs, courier tickets, audit/exam reports, Board materials) per schedule; provide exports for AML independent testing and examiner requests.
-* **TRIGGERS:** Month close → `reporting.month_close`; file archived → `records.archive`.
-* **INPUTS:** `(kpi.dataset[])`; `(records.schedule)`; `(aml.testing_requests[])`.
-* **OUTPUTS:** Board/Committee dashboards; records index; AML testing binder extracts.
-* **TIMERS/SLAs:** Publish within **15 days** of month end; retention **≥ {X years}** per record type.
-* **EDGE CASES:** Litigation hold supersedes purge.
-* **AUDIT LOGS:** `report.sent`, `records.purged`, `exam.export.generated`.
-* **ACCESS CONTROL:** Records custodian role; examiner read-only export.
-* **ALERTS/METRICS:** On-time report %; retrieval success rate; open exceptions aging.
-{% endstep %}
-{% endstepper %}
+- **ALERTS/METRICS:** Shipments unverified at end of day (target zero), seal-mismatch count per quarter, night-drop bags pending verification overnight (target zero), dual-control attestation completeness on device services (target 100%).
 
-***
+## CSH-09 — Surprise Cash Counts & Audits {#csh-09-surprise-cash-counts-audits}
 
-## Embedded Checklists & Templates <a href="#checklists" id="checklists"></a>
+- **WHY (Reg cite):** Supervisory Committee audit and verification duties include cash counts ([12 CFR Part 715](https://www.ecfr.gov/current/title-12/part-715)), and AML independent testing must cover cash-handling controls ([31 CFR §1020.210(b)(1)(ii)](https://www.ecfr.gov/current/title-31/section-1020.210)).
+- **SYSTEM BEHAVIOR:** Surprise counts are performed across tellers, vaults, and devices at least monthly per site, scheduled by an unpredictable selector and executed under dual control by someone independent of the asset's custodian. The custodian never leaves during their drawer's count, and counts are hand-counts with straps broken. Variances are resolved within 1 business day via the [CSH-07](#csh-07-over-short-monitoring) investigation path. Results feed the Supervisory Committee, the independent audit, and AML independent testing. Count schedules are write-restricted to Compliance and concealed from custodians until execution.
+- **EVENTS:**
 
-* **Cash Limits Appendix (fill-in):** Enterprise {X% of assets}; Vault ${vault\_limit}; Teller ${teller\_limit}; ATM ${atm\_limit}; ITM/VTM ${itm\_limit}; Recycler ${recycler\_limit}; Petty ${petty\_limit}.
-* **Daily Reconciliation Checklist:** device reports → GL tie-out → variance case (≥ ${threshold}) → supervisory sign-off.
-* **Dual Control Pack:** custody roster; key/combo rotation log; sealed backup register; emergency access SOP.
-* **ATM/ITM/Night-Drop & Shipment SOP:** route plan; seal tracking; load/ship sheets; video capture note; courier receipt match to credit; exception path.
-* **Over/Short Playbook:** thresholds; coaching vs. discipline; Board escalation criteria; AML referral triggers.
-* **Seasonal Deviation Memo Template:** business case; risk/bond analysis; temporary limits; duration; rollback plan; Board resolution.
-* **Surprise Count Kit:** count sheet template; variance remediation form; independence attestations.
-* **Monthly Board/AML Pack:** KPIs/KRIs; exception register; findings tracker; attestations; AML training & testing status.
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Count scheduler fires (`cash.surprise_count.due`) | Selected assets (`cash.asset.id[]`), independent counter assignment (`cash.counter.user_id`), custodian of record (`cash.custodian.user_id`) | Executed count sheet with dual signatures (`cash.surprise_count.completed`) | At least monthly per site (enforced by `cash.surprise_count.schedule`) |
+  | Count variance found (`cash.surprise_count.variance`) | Counted vs. system balance (`cash.asset.count`, `cash.asset.balance`) | Variance investigation opened (`cash.overshort.investigation_opened`) | Resolve within 1 business day |
+  | Quarter end closes (`cash.governance.quarter_closed`) | Quarterly count results (`cash.surprise_count.results[]`) | Results package to Supervisory Committee, independent audit, and AML independent testing (`supervisory.count_results.delivered`) | With the quarterly Board summary in [CSH-01](#csh-01-governance-delegation) |
 
-***
+- **ALERTS/METRICS:** Sites with no count in a calendar month (target zero), variance rate per 100 counts, average variance resolution time, count-schedule predictability checks (no custodian counted on a fixed pattern).
 
-## Governance & Sign-Off <a href="#governance" id="governance"></a>
+## CSH-10 — Seasonal Deviations & Exceptions {#csh-10-seasonal-deviations-exceptions}
 
-* **Owner:** \{{CFO or Operations/BSA Officer, Title\}}
-* **Approvals:** \{{Board Chair, Title\}}; \{{CEO, Title\}}
-* **Review Cadence:** Annual Board approval; interim updates upon material changes in operations, coverage, or regulation.
-* **Reporting:** Monthly KPIs/KRIs to Management; quarterly summary to Board; Supervisory Committee/Audit reports routed on issuance; metrics integrated into AML/BSA governance dashboards.
-* **Cross-Refs:** FCUA; Security Program (12 CFR §748.1); BSA/AML Program (31 U.S.C. §5318(h); 31 CFR §1020.210); Fidelity Bond (Part 713); Supervisory Committee (Part 715); Records (Part 749).
+- **WHY (Reg cite):** The Board's duty to maintain adequate fidelity bond coverage extends to temporary exposure increases ([12 CFR §713.2](https://www.ecfr.gov/current/title-12/part-713/section-713.2)), and limit changes are Board business under the FCUA ([12 U.S.C. §1761b](https://www.law.cornell.edu/uscode/text/12/1761b)).
+- **SYSTEM BEHAVIOR:** Any planned exceedance of cash limits (e.g., holiday demand, branch opening) requires a formal Board deviation memo stating the reason, duration, revised limits, and any bond/insurance adjustment — approved before limits are exceeded. Approved deviations are loaded as whitelisted temporary limits in the enforcement engine and sunset automatically on the memo's end date, after which standard limits re-apply without further action. Unplanned, unavoidable exceedances (e.g., an unexpectedly large member deposit at closing) are handled as same-day exceptions under [CSH-03](#csh-03-enterprise-cash-limit) and [CSH-04](#csh-04-location-device-cash-limits) rather than deviations. Deviation memos and whitelist entries are write-restricted to Compliance under Board approval.
+- **EVENTS:**
 
-***
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Deviation memo submitted (`cash.deviation.requested`) | Reason and duration (`cash.deviation.reason`, `cash.deviation.period`), revised limits (`cash.deviation.limits[]`), bond/insurance assessment (`insurance.bond.adjustment`) | Board decision recorded (`cash.deviation.board_decided`) | Before the deviation start date |
+  | Deviation approved (`cash.deviation.approved`) | Approved memo reference (`board.approval.id`) | Whitelisted temporary limits active in enforcement engine (`cash.limits_whitelist.activated`) | Effective on start date only |
+  | Deviation end date reached (`cash.deviation.expired`) | Whitelist entry (`cash.limits_whitelist.entry`) | Automatic sunset; standard limits restored (`cash.limits_whitelist.sunset`) | On end date (enforced by `cash.deviation.sunset_at`) |
 
-## Assumptions & Gaps
+- **ALERTS/METRICS:** Limits exceeded without an approved deviation (target zero), whitelist entries active past end date (target zero), deviation lead time (approval date vs. start date).
 
-* **Placeholders:** `{X%}`, `\${vault_limit}`, `\${teller_limit}`, `\${atm_limit}`, `\${itm_limit}`, `\${recycler_limit}`, `\${petty_limit}`, `{threshold}`, `{X years}` require Board approval and insertion into the Limits Appendix.
-* **Scope Clarification Needed:** Confirm complete employee/asset inventory for [CA-02](cash.md#ca-02-scope--applicability).
-* **Device Coverage:** If cash recyclers or ITMs are not deployed, delete related rows/controls or mark “not in use.”
-* **Compensating Controls:** Where segregation is impractical (very small sites), document approvals and enhanced reviews under [CA-06](cash.md#ca-06-reconciliation--gl-controls) and [CA-09](cash.md#ca-09-surprise-cash-counts--audits).
+## CSH-11 — Training & Competency {#csh-11-training-competency}
+
+- **WHY (Reg cite):** The security program rule requires initial and periodic training of officers and employees in security procedures ([12 CFR §748.1(b)](https://www.ecfr.gov/current/title-12/part-748/section-748.1)), and the AML program rule requires training for appropriate personnel ([31 CFR §1020.210(b)(1)(iii)](https://www.ecfr.gov/current/title-31/section-1020.210)).
+- **SYSTEM BEHAVIOR:** Every employee in a covered role completes initial cash training within 30 days of hire and an annual refresher. The curriculum covers handling accuracy, counterfeit detection, fraud schemes, robbery and emergency response, dual control, and device/shipment procedures, with role-specific proficiency checks (e.g., vault custodians demonstrate dual-control and seal procedures; tellers demonstrate balancing and counterfeit detection). New hires acknowledge this policy in writing before operating a cash drawer. Employees who fail a proficiency check are restricted from the corresponding cash duty until they pass a retest. Training records are write-restricted to HR/Training with Compliance read access.
+- **EVENTS:**
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Hire into covered role (`hr.user.hired_covered_role`) | Role and curriculum assignment (`training.curriculum.id`), policy acknowledgment (`policy.acknowledgment.signed`) | Completed initial training + proficiency result (`training.initial.completed`) | 30 days of hire (enforced by `training.initial.due_at`) |
+  | Annual refresher cycle (`training.refresher.due`) | Covered-role roster (`hr.roster.covered_roles[]`), updated curriculum (`training.curriculum.id`) | Refresher completion records (`training.refresher.completed`) | Annually (enforced by `training.refresher.due_at`) |
+  | Proficiency check failed (`training.proficiency.failed`) | Failed competency (`training.competency.id`), affected duty (`cash.duty.id`) | Duty restriction until retest passed (`cash.duty.restricted`, `training.retest.passed`) | Restriction immediate; retest within 10 BD |
+
+- **ALERTS/METRICS:** Covered employees past the 30-day initial deadline (target zero), annual refresher completion rate (target 100% by cycle close), proficiency first-pass rate by role, employees operating cash duties while restricted (target zero).
+
+## CSH-12 — Monitoring, Reporting & Recordkeeping {#csh-12-monitoring-reporting-recordkeeping}
+
+- **WHY (Reg cite):** Records preservation requirements govern retention of cash evidence ([12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749)); Supervisory Committee verification and AML independent testing need exportable evidence ([12 CFR Part 715](https://www.ecfr.gov/current/title-12/part-715); [31 CFR §1020.210](https://www.ecfr.gov/current/title-31/section-1020.210)).
+- **SYSTEM BEHAVIOR:** Compliance publishes monthly cash KPIs/KRIs (limit utilization, breaches, over/short totals, suspense aging, count results, training currency) within 15 calendar days of month end, maintains an attested exception log, and retains required evidence — reconciliation packs, count sheets, dual-control logs, device load sheets, shipment receipts, and exception registers — per the records schedule (periods beyond cash-specific evidence are governed by the Record Retention Policy). On request, the system produces examiner and AML independent-testing exports covering any date range; a litigation hold supersedes any scheduled purge. Retention deletion and export generation are write-restricted to Compliance.
+- **EVENTS:**
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Month end closes (`cash.kri.month_closed`) | KPI/KRI source data (`cash.kri.values[]`), exception log (`cash.exception_register`) | Published KPI/KRI report (`cash.kri.published`) | 15 calendar days of month end (enforced by `cash.kri.publish_due_at`) |
+  | Evidence artifact created (`cash.evidence.created`) | Artifact type and retention class (`cash.evidence.type`, `records.retention.class`) | Artifact stored with retention timer (`cash.evidence.retained`) | Per records schedule (enforced by `records.retention.expires_at`) |
+  | Examiner or independent-testing request (`exam.export.requested`) | Date range and scope (`exam.export.scope`), requesting authority (`exam.requestor.id`) | Complete export package delivered (`exam.export.delivered`) | Within 5 business days of request |
+
+- **ALERTS/METRICS:** KRI publication latency vs. the 15-day deadline, exception-log attestation completeness, export turnaround time, evidence artifacts missing a retention class (target zero).
+
+## Governance & Sign-Off {#governance}
+
+- **Owner:** Patrick Wilson, Chief Compliance Officer — accountable for policy content, the limits schedule, the exception register, and the KRI feed to AML governance.
+- **Required participants:** Operations (device, shipment, and branch execution), Treasury/Finance (enterprise limit and excess-cash investment), BSA Officer (AML linkage, case referrals, independent testing), Supervisory Committee (surprise counts, verification, audit).
+- **Approvals:** Patrick Wilson, Chief Compliance Officer. The Board approves this policy, the limits schedule, and all deviations per [CSH-01](#csh-01-governance-delegation) and [CSH-10](#csh-10-seasonal-deviations-exceptions).
+- **Review cadence:** Annual policy review; monthly KRIs; quarterly Board summaries — all on the BSA governance cadence per [CSH-01](#csh-01-governance-delegation).
+- **Cross-references:** BSA Policy (AML program design, SAR/CTR, Travel Rule); Investment Policy and Liquidity Policy (investment of excess cash); Truth in Savings Policy and Member Policy (account terms/disclosures); Electronic Payment Systems Policy (wire/ACH controls); Information Security Policy (system security for cash-handling platforms); Record Retention Policy (retention schedules beyond cash-specific evidence).
+
+## Assumptions & Gaps {#assumptions}
+
+- **Engineering vocabulary is provisional.** The parsed engineering spec (`vocabulary.json`, Cassandra Banking Core API) is banking-core only and registers **no events** and no physical-cash resources. All `cash.*`, `gl.*`, `hr.*`, `training.*`, `courier.*`, `insurance.*`, `exam.*`, `supervisory.*`, `aml.*`, `board.*`, `policy.*`, and `treasury.*` event, field, and timer codes used in this document are the target naming scheme and will be confirmed and registered by engineering before the next review.
+- The board-approved enterprise cash cap is expressed as a percentage of total assets per Patrick's notes, but the specific percentage is not stated; the Board must set it in the limits schedule at first approval.
+- Per-asset limit dollar values (vault, teller, ATM, ITM/VTM, recycler, petty cash) are not specified; the legacy reference policy's branch limits ($10,000 / $5,000 / $2,000) are treated as historical examples only, not carried forward. The board-approved limits schedule will set current values.
+- Suspense aging standards (clear within 5 business days, escalate at 10) and the over/short coaching/discipline bands are minimum-viable internal standards inferred where Patrick's notes said "defined aging" and "thresholds"; Compliance and HR must confirm the bands, including whether the legacy reference policy's $25 supervisor sign-off, sub-$10 de minimis discount, 90-day trainee grace period, and $500/12-month evaluation trigger are retained.
+- The unpredictable count-selector design (how surprise counts are randomized and concealed) is assumed to be a system capability; if counts remain manually scheduled, Compliance must document how unpredictability is preserved.
+- Same-day enterprise-limit remediation assumes courier or investment channels are available before cutoff; the next-business-day exception path for missed cutoffs is an operational assumption to be confirmed with Treasury.
+- The fidelity bond review trigger for seasonal deviations assumes the existing Part 713 bond rider permits temporary limit increases; the insurance carrier's notice requirements need confirmation.
+- Pynthia's charter type (federal vs. federally insured state-chartered) is assumed federal; if state-chartered, parallel state cash-control requirements may apply and should be added at next review.
+- The commercial cash-management agreements supplied as reference material (business online banking, ACH/wire/RDC client agreements) address member-facing electronic services that are out of scope here per Patrick's notes; no member-facing cash-management product controls were carried into this policy.

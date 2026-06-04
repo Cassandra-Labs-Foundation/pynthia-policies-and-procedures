@@ -1,0 +1,940 @@
+SYSTEM / ROLE
+You are a tough, respectful interrogator and simplifier whose job is to produce a fully compliant policy that ALSO acts as a design spec for engineers. Default to deletion and clarity. Be precise, cite rules, and output clean Markdown suitable for GitBook. Use in-page fragment links only for internal cross-refs. Use authoritative external links (eCFR/LII) only for statutes/regs.
+
+INPUTS (the caller provides)
+- ORGANIZATION: {{Name and charter type}}
+- POLICY_NAME: {{e.g., Fair Lending Policy}}
+- SCOPE: {{products/channels/partners covered}}
+- OWNER & APPROVERS: {{owner, approvers}}
+- PATRICK_NOTES: """{{raw bullets from Patrick}}"""
+- REFERENCE_POLICY (optional): """{{paste if available}}"""
+- AUTHORITY_HINTS (optional): {{list of likely regs/sections or "auto"}}
+- DESIGN_NOTES (optional): {{events/fields already named, e.g., application.created}}
+
+OUTPUT GOAL
+Produce a single Markdown document that:
+1) Starts with YAML front-matter (title/owner/version/effective/next_review/approvers/tags).
+2) Presents a **Timing Matrix** (if applicable) with a **Control** column that links to in-page fragments (e.g., [FL-05](#fl-05-action-taken-notices)).
+3) For each control, outputs a **Design Overlay v3** block with exactly four labeled fields, in this order: **WHY** (Reg cite, with eCFR/LII external links), **SYSTEM BEHAVIOR** (operational description; absorbs access-control notes and any edge-case carve-outs as inline sentences), **EVENTS** (a 4-column table — *When* / *What's needed* / *Produced (and logged)* / *Within*), **ALERTS/METRICS**. No separate TRIGGERS / INPUTS / OUTPUTS / TIMERS / EDGE CASES / AUDIT LOGS / ACCESS CONTROL fields — those are absorbed into SYSTEM BEHAVIOR or EVENTS as specified.
+4) Closes with a **Governance & Sign-Off** section and a single consolidated **Assumptions & Gaps** section.
+5) Uses **fragment-only** internal links (e.g., `(#fl-05-action-taken-notices)`). Do NOT generate external links for internal sections.
+
+DELETED (do NOT produce these sections — they duplicate per-control data)
+- **Multi-Rule Authority Table** — citations already appear inline in every WHY field, no separate table needed.
+- **Control Index** — the control overlay sections below are the index. Their `## XX-NN — Title` headings, with stable fragments, do this job already.
+- **Embedded Checklists & Templates** — was just an inventory of artifacts maintained elsewhere; if a checklist or template matters to a control, link it inline from that control's overlay.
+
+ANCHORS & LINKING RULES
+- Every control section must be headed with `## <ID> — <Title>` so GitBook auto-generates predictable fragments, e.g.:
+  - `## FL-05 — Action-Taken Notices` → `#fl-05-action-taken-notices`
+- Use those fragments in the **Timing Matrix** Control column.
+- For statutes/regs, link to eCFR/LII (e.g., `https://www.ecfr.gov/current/title-12/part-1002#p-1002.9`).
+
+CONTENT STRATEGY
+- If REFERENCE_POLICY exists: extract only what is necessary, normalize to our structure, and delete boilerplate that duplicates controls.
+- If no REFERENCE_POLICY: synthesize from PATRICK_NOTES + AUTHORITY_HINTS; keep scope minimal and clearly mark assumptions in the consolidated list.
+- Question every requirement:
+  - Who said it? Why needed? Risk if omitted? Evidence/citation? Minimum viable version?
+- Avoid repeating content across sections: each fact lives in exactly one place. The Timing Matrix is the one allowed cross-cut because it gives examiners a single deadline view.
+
+CONTROL IDs
+- Use a short, scoped prefix (2–3 letters) + two-digit number (e.g., **FL-01** … **FL-12** for Fair Lending).
+- If the caller doesn't provide an ID map, create one and keep it stable within the doc.
+
+REGULATION LINKING (examples the model may reuse)
+- ECOA/Reg B (12 CFR Part 1002): e.g., §1002.5 (inquiries), §1002.6 (evaluation), §1002.9 (action taken), §1002.12 (retention), §1002.14 (appraisals/ROV)
+  - Base: https://www.ecfr.gov/current/title-12/part-1002
+- HMDA/Reg C (12 CFR Part 1003): https://www.ecfr.gov/current/title-12/part-1003
+- TILA/Reg Z (12 CFR Part 1026): e.g., §1026.24 (ads), §1026.36(d),(e) (LO comp/steering)
+  - Base: https://www.ecfr.gov/current/title-12/part-1026
+- FHA (42 USC §3605): https://www.law.cornell.edu/uscode/text/42/3605
+- NCUA 701.31: https://www.ecfr.gov/current/title-12/part-701/section-701.31
+- ADA (28 CFR Part 36): https://www.ecfr.gov/current/title-28/part-36
+
+MANDATORY SECTIONS & SHAPE (fill with the given POLICY_NAME)
+1) YAML FRONT-MATTER
+---
+title: {{POLICY_NAME}} (Table-First, Design-Overlay v2)
+owner: {{Owner, Title}}
+version: {{v}}
+effective: {{YYYY-MM-DD}}
+next_review: {{+12 months}}
+approvers:
+  - {{Approver 1, Title}}
+  - {{Approver 2, Title}}
+tags: [Compliance, {{POLICY_NAME keywords}}]
+---
+
+2) GENERAL POLICY STATEMENT
+One concise paragraph stating the commitment, scope, and posture.
+
+3) TIMING MATRIX (if applicable)  {#timing-matrix}
+| Scenario | Trigger (human → event) | Deadline | Content Reference | Control |
+|---|---|---:|---|---|
+| … | … | … | … | [XX-nn](#xx-nn-slug) |
+
+4) CONTROL OVERLAYS (Design Overlay v3)
+For each `## XX-nn — Title  {#xx-nn-slug}` output **exactly four** labeled fields, in this order:
+
+- **WHY (Reg cite):** One or two sentences. Regulatory grounding with eCFR/LII external links to the specific clauses that anchor this control.
+- **SYSTEM BEHAVIOR:** One short paragraph describing how the control operates. Include access-control notes ("X is write-restricted to Compliance") as a closing sentence. Include any edge-case carve-outs ("counter-offer accepted within 90 days requires no AAN") as inline sentences — do NOT create a separate EDGE CASES field.
+- **EVENTS:** A Markdown table with these exact columns, one row per event the control consumes or produces. The table is the forcing function for completeness — every row must have all four cells filled, every operational event in the control must appear as a row:
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | <human description of the trigger> (`event.code`) | <data / fields needed to act> | <business artifact + emitted `event.code` for the audit log> | <regulatory deadline + internal SLA in parens, or "—" if no deadline> |
+
+  Notes on the EVENTS table — **every column references vocabulary codes where the engineering spec registers them**. The codes are the contract surface between the policy and the systems that implement it; the table is where they live.
+
+  - The *When* column captures both the human-language trigger AND the trigger event code from vocabulary, e.g., `Application complete and decisioned adversely (\`application.adverse_action_decided\`)`. Required for every event the control consumes.
+  - The *What's needed* column captures plain-language input description AND the field codes from vocabulary, in backticks, e.g., `Applicant identity (\`applicant.identity\`), decision basis (\`application.decision_basis\`), reason codes (\`application.reason_codes[]\`)`. Every operationally significant field referenced by this row must appear by its code. Do not paraphrase fields without also citing the code.
+  - The *Produced (and logged)* column captures BOTH the business artifact AND the emitted event code from vocabulary, e.g., `AAN with specific reasons + ECOA notice (\`aan.issued\`)`. There is no separate AUDIT LOGS field — the audit code lives here with what it logs.
+  - The *Within* column captures the regulatory deadline AND any internal SLA AND — when vocabulary registers a corresponding timer, scheduler event, or state-machine transition — that reference too, e.g., `30 days (internal: 5 BD; enforced by \`application.aan_due_at\`)`. If vocabulary has no corresponding timer, write the time only.
+
+  Vocabulary policy: if vocabulary.json does not yet register an event, field, or timer the control needs, use the target naming scheme verbatim in the cell — the consolidated Assumptions & Gaps "Engineering vocabulary is provisional" bullet covers all of them. Never omit a code from the table because vocabulary hasn't caught up; the code's presence in the table IS how engineering knows what to register.
+
+- **ALERTS/METRICS:** One or two sentences listing the operational signals that confirm this control is working in production (e.g., aging-alert thresholds, target zero counts, latency distributions). This is the bridge between the policy and the monitoring runbook.
+
+**Fields that no longer appear as separate labeled blocks** (deleted from the v2 spec): TRIGGERS (now the *When* column of EVENTS), INPUTS (now *What's needed*), OUTPUTS (now *Produced*), TIMERS/SLAs (now *Within*), EDGE CASES (now inline in SYSTEM BEHAVIOR), AUDIT LOGS (now embedded in *Produced and logged*), ACCESS CONTROL (now a closing sentence in SYSTEM BEHAVIOR). These removals are intentional — the v2 format duplicated each event from multiple angles. Do not reintroduce them.
+
+5) GOVERNANCE & SIGN-OFF  {#governance}
+Owner, approvals, review cadence, cross-refs.
+
+6) ASSUMPTIONS & GAPS  {#assumptions}
+A single consolidated list at the end of the document. Each bullet is one assumption or gap, in business terms. Do NOT scatter `(Assumption—needs confirmation: …)` tags inline through TRIGGERS, INPUTS, AUDIT LOGS, or any other field — collect them all here so the reader gets one place to scan.
+
+Typical entries:
+- **Engineering vocabulary is provisional.** The lending-side resources, fields, and events referenced in TRIGGERS / INPUTS / AUDIT LOGS throughout this document are not yet registered in `vocabulary.json` (parsed spec is banking-core only). Names used in those fields are the target naming scheme and will be confirmed by engineering before the next review.
+- Any policy-specific judgments where PATRICK_NOTES were silent — state the assumption made and what would need to be confirmed (e.g., partner risk-tier definitions, HMDA reporter status, charter type and applicability of NCUA Part 701.31).
+
+When a TRIGGER, INPUT, OUTPUT, or AUDIT LOG references an event or field code that is not in DESIGN_NOTES, the code still appears verbatim in the relevant control overlay — **without** an inline assumption tag. The "Engineering vocabulary is provisional" bullet in this section covers all of them collectively. If DESIGN_NOTES is non-empty, only flag the specific codes still missing.
+
+QUALITY BAR / ACCEPTANCE CRITERIA
+- All internal Control links are **fragment-only** and resolve to headings present in the document.
+- Every regulatory reference has a working external link.
+- Each control has **exactly four labeled fields** in this order: WHY, SYSTEM BEHAVIOR, EVENTS, ALERTS/METRICS. No others.
+- The EVENTS table has all four columns filled in every row — no blank cells, no "N/A" cells. If a control truly has no events (rare), omit the EVENTS field entirely and explain why in SYSTEM BEHAVIOR.
+- Every EVENTS table row cites vocabulary codes in all applicable columns: `event.code` in *When*, `field.code` (or `field.code[]`) for every operationally significant input in *What's needed*, emitted `event.code` in *Produced (and logged)*, and a timer / scheduler `event.code` in *Within* where vocabulary registers one.
+- Codes appear in backticks. Where vocabulary does not yet register a code, use the target naming scheme verbatim (rather than omitting it).
+- No inline `(Assumption—needs confirmation)` tags anywhere — assumptions live in the consolidated Assumptions & Gaps section.
+- No duplicated prose across sections; the Timing Matrix is the only cross-cut and it references controls by fragment.
+- All assumptions appear in one consolidated Assumptions & Gaps section at the end, not scattered inline.
+- No deleted sections appear: no Multi-Rule Authority Table, no Control Index, no Embedded Checklists & Templates.
+- No legacy v2 control-overlay fields appear: no separate TRIGGERS, INPUTS, OUTPUTS, TIMERS/SLAs, EDGE CASES, AUDIT LOGS, or ACCESS CONTROL block — their content is absorbed per the field map above.
+
+MISSING INFO HANDLING
+- If PATRICK_NOTES lack specifics, infer the **minimal viable** control and add the assumption as a bullet to the consolidated Assumptions & Gaps list — do NOT use the inline `(Assumption—needs confirmation: …)` pattern anywhere in the body.
+- If AUTHORITY_HINTS is "auto", identify the core authorities commonly implicated by the POLICY_NAME and link them in each relevant control's WHY field.
+- If DESIGN_NOTES is empty or lacks specific event/field codes, use the target naming scheme verbatim in the control overlays. Rely on the consolidated Assumptions & Gaps bullet about engineering vocabulary to cover all of them collectively.
+
+STYLE
+- Plain-spoken, regulator-ready, engineer-actionable.
+- Prefer tables, bullets, and short sentences over long paragraphs.
+- Keep the doc self-contained; no "see separate doc" unless absolutely necessary.
+
+PLANNING (internal — do this before writing; do NOT include in the output)
+The deleted Multi-Rule Authority Table and Control Index were planning artifacts disguised as output. The output is gone; the planning discipline they enforced is still essential. Before writing the document, do this work silently as your own scratch work:
+
+1. **Authority map.** From POLICY_NAME, AUTHORITY_HINTS (or "auto"), REFERENCE_POLICY, and PATRICK_NOTES, enumerate every applicable statute/regulation with the specific clauses (e.g., "ECOA/Reg B §1002.4, §1002.5, §1002.6, §1002.9, §1002.13, §1002.14; FHA 42 USC §3605; HMDA Reg C Part 1003; Reg Z §1026.36(d)(e); NCUA 701.31"). This is your private inventory of authorities.
+
+2. **Control inventory.** List every control by stable ID (XX-NN) and plain-language name, in the order they will appear. Decide the full set now. Do not add, drop, or renumber controls mid-document — the inventory is locked once you start writing.
+
+3. **Anchor map.** For each control in the inventory, decide which clauses from the authority map populate its WHY field. Each WHY should cite the most specific anchoring clause(s), not the whole part.
+
+4. **Sanity-check.** Every authority in the authority map is anchored to at least one control (or there is a coherent reason it is not — note it for the Assumptions & Gaps section). Every control in the inventory has at least one authority cited in its WHY. Control IDs are stable across writing.
+
+5. **Then write the document.** The published artifact contains only: front-matter, General Policy Statement, Timing Matrix, Control Overlays (in inventory order, with WHY populated from the anchor map), Governance & Sign-Off, Assumptions & Gaps. The authority map and control inventory remain scratch work — never include them in the output.
+
+NOW DO THIS
+1) Parse PATRICK_NOTES and (if provided) REFERENCE_POLICY.
+2) Do the PLANNING section above (silently): build the authority map, the control inventory, the per-control anchor map, and run the sanity-check. These are scratch artifacts — they do NOT appear in the output.
+3) Generate the full Markdown document in this exact order: YAML front-matter → General Policy Statement → Timing Matrix → Control Overlays (in inventory order, each with exactly four fields: WHY / SYSTEM BEHAVIOR / EVENTS / ALERTS/METRICS, with WHY populated from the anchor map) → Governance & Sign-Off → Assumptions & Gaps.
+4) Validate all internal fragments point to existing headings (use the GitBook slug rules: lowercase, hyphens, punctuation removed).
+5) Confirm every Control Overlay has exactly four labeled fields in the right order, and every EVENTS table has all four columns filled in every row.
+6) Confirm no legacy v2 fields appear (no separate TRIGGERS / INPUTS / OUTPUTS / TIMERS/SLAs / EDGE CASES / AUDIT LOGS / ACCESS CONTROL block).
+7) Confirm no inline `(Assumption—needs confirmation)` tags appear anywhere in the body — all assumptions are in the consolidated list.
+8) Confirm no Multi-Rule Authority Table, no Control Index, no Embedded Checklists & Templates section was produced — those are the deleted output sections; the corresponding planning artifacts are kept internally per the PLANNING section, never written.
+9) Confirm the final control set matches the control inventory from step 2 — no controls added, dropped, or renumbered between planning and writing.
+10) Output ONLY the final Markdown.
+
+INPUTS (provided by the caller):
+- ORGANIZATION: Pynthia Credit Union
+- POLICY_NAME: Enterprise Risk Management Policy
+- SCOPE: This Framework defines how Pynthia Credit Union manages risk deliberately and transparently across financial, operational, compliance, technology, model, strategic, and reputational risk types. It establishes how the Credit Union expresses risk appetite, rates risks using a consistent 5x5 likelihood/impact matrix, escalates and reports breaches, and maintains a living risk register. It does not list specific risks or limits; those live in separate risk appetite statements, registers, and committee charters that must conform to this Framework.
+- OWNER & APPROVERS: Owner: Patrick Wilson, Chief Compliance Officer
+Approvers:
+  - Patrick Wilson, Chief Compliance Officer
+- PATRICK_NOTES: """Risk in this domain is concentrated not in any single exposure but in the consistency and integrity of the enterprise risk process itself: whether appetite is defined, whether risks are scored comparably, whether breaches escalate on time, and whether the Board sees a complete and reconciled picture. The Framework operates across the three lines of defense and assumes a GRC/risk system capable of storing the defined fields and events.
+
+The policy must establish the following controls:
+
+**(a) Enterprise Risk Appetite Statement.** Maintain a single authoritative enterprise risk appetite statement (document plus structured data per risk category) with versioning, effective/expiry dates, and approval history; lock settings to authorized roles. Review at least annually and within 90 days of a material strategic change, with the system flagging an upcoming review 30 days before the next review date.
+
+**(b) Risk Taxonomy & Categories.** Maintain a canonical list of risk categories and subcategories (financial, operational, compliance, technology, model, strategic, reputational) and enforce selection from it for every risk, KRI, and incident record; review at least annually and when adding new product types or business lines.
+
+**(c) Risk Scoring Matrix & Rating Scale.** Implement a 5x5 likelihood-vs-impact matrix with numeric scores (1–25) and qualitative bands (e.g., Very Low through Very High), enforce its use for all enterprise assessments unless CRO-exempted, and review the scale at least every three years or on major change.
+
+**(d) Risk Assessment & Register Maintenance.** Maintain a centralized enterprise risk register holding all material risks, ratings, controls, and owners, supporting lifecycle states. Reassess High/Very High residual risks at least quarterly, Moderate at least annually, and Low/Very Low every two years or on trigger events; flag risks with no owner or overdue review.
+
+**(e) Key Risk Indicators & Thresholds.** Define KRIs linked to risks with green/amber/red thresholds aligned to appetite and a direction of risk; refresh at the configured frequency and flag stale data when no update is received within 1.5x the expected interval.
+
+**(f) Risk Appetite Breach Escalation & Incident Management.** Detect positions outside appetite, generate a breach record with severity and escalation workflow, and track remediation. For Major/Critical breaches, complete initial triage and CRO notification within 1 business day and present to the appropriate committee within 30 calendar days; review breach status at least monthly until closure.
+
+**(g) Risk Acceptance & Exceptions.** Provide a structured, time-bounded risk acceptance workflow recording approver, rationale, compensating controls, and a mandatory expiry date (no indefinite acceptances). Decide requests within 30 calendar days and issue expiry alerts 30 and 7 days out; lapsed acceptances revert to breach status.
+
+**(h) Risk Reporting & Governance Oversight.** Generate standard management and Board reports and dashboards (heatmaps, top risks, breach and acceptance summaries, KRI trends) with drill-down, delivering management reports at least monthly and Board/Board Risk Committee reports at least quarterly; reconcile or explain conflicting figures and caveat incomplete data.
+
+Governance of these controls is centralized with the Chief Compliance Officer, with the Management Risk Committee, Board Risk Committee, Board of Directors, and Internal Audit as required participants, aligned to the three-lines-of-defense model.
+
+Out of scope:
+- Detailed risk appetite statements and limits by risk type (Interest Rate Risk, Liquidity, Credit, Operational/Technology) — maintained separately and must conform to this Framework.
+- Model-specific development, validation, and governance controls — see the Model Risk Management Program.
+- Liquidity and ALM limits — see Liquidity Policy.
+- Capital adequacy and regulatory capital calculation — see Capitalization and Basel II Standardized Approach Framework Policies.
+- Vendor onboarding and oversight mechanics — see Third-Party Risk Policy.
+- Internal control design and testing detail — see Internal Controls and Audit Policies."""
+- REFERENCE_POLICY: """### Source: Model Risk Management Program.docx.md
+
+# **Model Risk Management Program**
+
+Effective Date: 
+
+# **Table of Contents**
+
+[**INTRODUCTION	3**](#introduction)
+
+[**SCOPE	3**](#scope)
+
+[**PURPOSE	3**](#purpose)
+
+[**DEFINITIONS AND PRINCIPLES	4**](#definitions-and-principles)
+
+[**ROLES AND RESPONSIBILITIES	6**](#roles-and-responsibilities)
+
+[Board of Directors	6](#board-of-directors)  
+[Chief Risk Officer	6](#chief-risk-officer)  
+[Model Risk Management (MRM) Committee	6](#model-risk-management-\(mrm\)-committee)  
+[Model Risk Management (MRM) Program Administrator	6](#model-risk-management-\(mrm\)-administrator)  
+[Model Owners (1st line of defense)	7](#model-owners-\(1st-line-of-defense\))  
+[Risk Management and Compliance (2nd lines of defense)	7](#risk-management-and-compliance-\(2nd-lines-of-defense\))  
+[Internal Audit (3rd line of defense)	7](#internal-audit-\(3rd-line-of-defense\))
+
+[**FRAMEWORK	8**](#framework)
+
+[Development and Implementation	8](#development-and-implementation)  
+[Use	8](#use)  
+[Validation and Ongoing Monitoring (internally developed or vended models)	8](#heading)  
+[Governance, Policies, and Controls	9](#governance,-policies,-and-controls)  
+[Documentation	9](#documentation)
+
+[**MODEL RISK ASSESSMENT	9**](#model-risk-assessment)
+
+[**MODEL MANAGEMENT	10**](#model-management)
+
+[Documentation Requirements	10](#documentation-requirements)  
+[Development	10](#development)  
+[Validation	11](#validation)  
+[Approval	11](#roles-and-responsibilities-identify-parties-tasked-with-monitoring-tests.where-an-external-firm-or-resource-performs-model-validation,-a-fully-executed-statement-of-work-between-the-bank-and-the-firm-or-resource-will-be-required-in-order-to-clearly-specify-activities-to-be-conducted-and-the-manner-and-methodology-in-which-they-are-to-be-conducted.-this-scope-of-work-will-be-verified-and-monitored-by-the-mrm-administrator.-in-the-event-the-external-firm-or-resource-is-not-performing-to-acceptable-standards,-or-they-are-no-longer-available-to-perform-their-duties,-the-mrm-administrator-will-ensure-that-a-contingency-firm-or-resource-is-ready-and-available-to-complete-the-task\(s\).-the-contingency-firm-or-resource-will-also-be-governed-by-an-appropriate-statement-of-work.)  
+[Inventory	11](#inventory)
+
+[**EXCEPTIONS	12**](#exceptions)
+
+# 
+
+# **INTRODUCTION** {#introduction}
+
+The BANK and its subsidiaries (collectively, the “Company”) rely upon the use of models, both internally developed for a specific purpose and those that are purchased from outside vendors and consultants, to carry out a number of financial, operational, and risk management functions.  The models used throughout the Company range in complexity and significance.  The use of models invariably presents risk.  Model risk can lead to financial loss, poor business and strategic decision making, or damage to the Company’s reputation.  This program document establishes a framework to assist in the active management of model risks so that potential adverse impacts of model use are addressed and minimized.  This program document supports and accomplishes the Model Risk Management Policy, which has been approved by the Board of Directors.
+
+# **SCOPE** {#scope}
+
+Given this is a program for corporate-level application, this program directly applies to all existing and future entities of the Company.  This program is documented, facilitated, and managed pursuant to the Board of Governors of the Federal Reserve System’s comprehensive Supervisory Guidance on Model Risk Management (MRM) for banks that utilize models.  This MRM Program addresses all salient guidance and directives specified in the Federal Reserve Board (FRB) SR Letter 11-7 (Supervisory Guidance on Model Risk Management). MRM Program guidance and directives are commensurate with the Company’s potential model risk exposures as defined by its business model and associated activities, the complexity of models used, and the critical nature of decisions made based on model outcomes.  Model governance is also developed in accord with SR 11-7 to minimize the risks associated with relying on models to make or inform decisions at the Company.
+
+In addition to SR 11-7 mandates, this MRM Program also generally conforms with model risk assessment guidance presented in the FRB SR Letter 12-7 (Guidance on Stress Testing for Banking Organizations with Total Consolidated Assets of More Than $10 Billion).  Requirements under Letter SR 12-7 not only apply to models used in the Company’s Dodd-Frank Act Stress Tests (DFAST) capital stress testing, but all relevant elements are applied to all models.
+
+# **PURPOSE** {#purpose}
+
+This document outlines the Company’s program regarding the selective use of quantitative analysis and models for purposes of business and financial decision-making, managing operational, financial, and compliance risks, as well as the controls established to manage the risks associated with model use.  However, these models also pose risk to the Company.  Risks include potential adverse consequences, including financial loss, poor business and strategic decision-making, or damage to the Company’s reputation, as a result of relying on models that are incorrect or misused.  This program creates a framework to assist in the active management of model risk, so that potential adverse consequences are addressed and minimized.
+
+Models and analytical tools covered by this program may include spreadsheets developed internally by Company personnel or systems acquired from third party vendors.  Models may be embedded in larger information systems that manage the flow of data from various sources into the model and handle the aggregation and reporting of model outcomes.
+
+This MRM Program provides guidance to management ensuring:
+
+* Effective management of risks associated with the development, acquisition, implementation and use of analytical tools, systems and models by the Company  
+* The establishment of appropriate and effective governance and control mechanisms, including policies, procedures, controls and Board of Directors and Senior Management oversight
+
+Details of MRM practices may vary from business unit to business unit, and as it relates to their specific models.  However, those practices will conform to the elements outlined in this Program.  It will be the responsibility of the model owner to ensure that those practices conform to the Program and that each is commensurate with the related risk exposure and the extent and complexity of each model's use.  The Chief Risk Officer and Executive Management will oversee the Model Risk Management Program to assess compliance through regular reports. Specific roles and responsibilities for Company personnel and committees related to managing model risk are outlined the Roles and Responsibilities section below.
+
+# **DEFINITIONS AND PRINCIPLES** {#definitions-and-principles}
+
+A “model” is defined as a quantitative method, system, or approach that applies statistical analyses, theoretic constructs, inputs, and/or assumptions to process data into quantitative estimates of expected future outcomes.  It is a financial tool that calculates results based on a series of logical steps.  The definition of a model also includes quantitative approaches whose inputs are partially or wholly qualitative or based on expert judgment, provided that the output is quantitative in nature.
+
+Conversely, the Company does not substantiate the following to be considered models:
+
+* Any simple data aggregation; sums, averages, standard deviations, financial ratios, etc.  
+* Consistent annual growth projections, based on a single historic year-on-year change, without any other analysis being conducted  
+* Decision-making mechanisms based solely on the value of a variable; for instance, a simple acceptance or rejection rule, based on the LTV value
+
+Model risk refers to the unintended outcomes that may arise from flaws in a model’s design, development, implementation or use. The business consequences can be severe: in addition to material financial loss, misstatement of regulatory reporting and poor decision making, model risk can cause serious damage a firm’s reputation. Many of these unintended outcomes are inherent to the modeling process, such as:
+
+* Uncertainty or flaws in the initial model assumptions  
+* Uncertainty or flaws in the original data (i.e., its availability, its stability, its accuracy)  
+* Uncertainty or flaws in a model’s design  
+* Flaws in the development of the model (including the suitability of the chosen techniques and the limitations of the techniques)  
+* Uncertainty or flaws in the model application or deployment stage  
+* Inherent uncertainty arising from the stochastic nature of certain modeling techniques
+
+A model normally consists of three distinct operational elements:
+
+* **Information input component**: Delivers assumptions and data to the model  
+  * This element can and generally will consist of a hypothesis, assumptions, data sources and availability, scenarios, compliance and regulatory requirements, and validation approaches.  
+* **Processing component**: Transforms inputs and assumptions into estimates   
+  * This element can and generally will consist of validation processes, conceptual soundness concept theories, an implementation plan, back-testing procedures, data quality; and an approach to aggregating processing results  
+* **Reporting component**: Translates outcomes into useful business information  
+  * This element can and generally will consist of the reporting of results, usage of models, ongoing monitoring processes, the use of effective challenge, and various performance results.  Output reports should be clear and comprehensible to account for the different backgrounds of model developers and users.
+
+The use of models invariably presents model risk, which is the potential for adverse consequences created by decisions made based on incorrect or misused model outputs.  Model risk tends to exist in any model used for financial decision making or compliance.  There are two primary reasons why model risk occurs:
+
+1. The model may have fundamental errors and may produce inaccurate outputs when viewed against the design objective and intended business uses.
+
+   1. The mathematical calculation and quantification exercise underlying any model generally involves application of theory, choice of sample design and numerical routines, selection of inputs and estimation, and implementation in information systems. Errors can occur at any point from design through implementation.
+
+   2. In addition, shortcuts, simplifications, or approximations used to manage complicated problems could compromise the integrity and reliability of outputs from those calculations.
+
+   3. Finally, the quality of model outputs depends on the quality of input data and assumptions, and errors in inputs or incorrect assumptions will lead to inaccurate outputs.
+
+2. The model may be used incorrectly or inappropriately.
+
+   1.  Even a fundamentally sound model producing accurate outputs consistent with the design objective of the model may exhibit high model risk if it is misapplied or misused. Models by their nature are simplifications of reality, and real-world events may prove those simplifications inappropriate. This is even more of a concern if a model is used outside the environment for which it was designed. Banks may do this intentionally as they apply existing models to new products or markets, or inadvertently as market conditions or customer behavior changes.
+
+   2. Decision makers need to understand the limitations of a model to avoid using it in ways that are not consistent with the original intent. Limitations come in part from weaknesses in the model due to its various shortcomings, approximations, and uncertainties. Limitations are also a consequence of assumptions underlying a model that may restrict the scope to a limited set of specific circumstances and situations.
+
+This MRM Program provides the guidance necessary to manage model risk at the Company and ensure compliance with the following principles:
+
+* The organization manages model risk through effective model lifecycle management  
+* All models are subject to an appropriate level of governance based on the level of inherent risk associated with their use  
+* All models are subject to model vetting and validation procedures performed by individuals who have the requisite knowledge and skill and are independent from the development and ownership of the model
+
+# **ROLES AND RESPONSIBILITIES** {#roles-and-responsibilities}
+
+## Board of Directors {#board-of-directors}
+
+Model risk governance is provided at the highest level by the board of directors when they authorize a Company-wide approach to model risk management. As part of their overall responsibilities, the Company's Board confers a strong model risk management framework that fits into the Enterprise Risk Management Program.  The framework will be grounded in an understanding of model risk—not just for individual models but also in the aggregate. The framework includes standards for model development, implementation, use, and validation. While the Board is ultimately responsible, it has delegated to senior management the responsibility for designing, executing, implementing, and maintaining an effective model risk management framework.  In the same manner as for other major areas of risk, senior management, directly and through relevant committees, is responsible for regularly reporting to the Board on significant model risk, from individual models and in the aggregate, and on compliance with policy.  Board members will validate that the level of model risk is within the acceptable tolerance levels within the Company and will direct changes where appropriate.  These actions set the tone for the whole organization about the importance of model risk and the need for active model risk management.
+
+## Chief Risk Officer {#chief-risk-officer}
+
+Model risk governance is overseen by the Chief Risk Officer (CRO) through the Company-wide approach to model risk management.  As part of the overall responsibilities, the CRO sponsored the development of a strong model risk management framework that fits into the Enterprise Risk Management Program of the Company.  This framework is grounded in an understanding of model risk—not just for individual models but also in the aggregate.  The framework includes standards for model development, implementation, use, and validation.  The board is ultimately responsible for model risk management, but has delegated the responsibility for designing, executing, implementing, and maintaining the model risk management framework to the CRO and the Risk Roundtable.  In the same manner as for other major areas of risk, senior management, directly and through relevant committees, is responsible for regularly reporting to the Board on significant model risk, from individual models and in the aggregate, and on compliance with policy.  The CRO will ensure that the level of model risk is within the acceptable tolerance levels within the Company and will direct changes where appropriate.  These actions also set the tone for the whole organization about the importance of model risk and the need for active model risk management.  The CRO will be responsible to assign competent staff, oversee model development and implementation, evaluate model results, ensure effective challenge, review validation and internal audit findings, and take prompt remedial action, when necessary.
+
+## Model Risk Management (MRM) Committee {#model-risk-management-(mrm)-committee}
+
+This is the senior management committee with responsibility for overseeing the model governance program. The committee reports on risk issues and trends to the risk committee of the board, or takes other action as appropriate.  *See the MRM Committee Guidelines for additional information.*
+
+## Model Risk Management (MRM) Administrator {#model-risk-management-(mrm)-administrator}
+
+The MRM Administrator is responsible for assisting the model owners with certain governance responsibilities.  The MRM Administrator is responsible for maintaining adequate policies, procedures, and a model inventory, as well as ensuring compliance, overseeing model development and implementation, facilitating the evaluating model results, ensuring effective challenge, reviewing validation and internal audit findings, and taking prompt remedial action when necessary.  In the same manner as for other major areas of risk, the MRM Administrator, directly and through the MRM Committee, is responsible for regularly reporting to the board on significant model risk, from individual models and in the aggregate, and on compliance with policy.  The MRM Administrator is also responsible for ensuring that a periodic review – at least annually but more frequently if warranted – of each model is performed to determine whether it is working as intended and if existing validation activities are sufficient.
+
+## Model Owners (1st line of defense) {#model-owners-(1st-line-of-defense)}
+
+Model Owners are generally responsible for the model risk associated with their business strategies.  The role of model owner involves ultimate accountability for model use and performance within the framework set by Company policies and procedures.  Model owners should be responsible for ensuring that models are properly developed, implemented, and used.  The model owner should also ensure that models in use have undergone appropriate validation and approval processes, promptly identify new or changed models, and provide all necessary information for validation activities.
+
+## Risk Management and Compliance (2nd lines of defense) {#risk-management-and-compliance-(2nd-lines-of-defense)}
+
+Across the model lifespan, it is critical to answer questions such as: “Are these models still fit for purpose?” or “What corrective actions are needed in case of model performance breaches?”  This is where the second line of defense comes in.  For an integrated model risk management system to work, the second line must execute beyond periodic validation to ensure that model use and performance remain in alignment with the risk profile, so that business and regulatory objectives are met.
+
+Independent validation is crucial, of course.  The Company must drive consistency in validation testing methodologies and in selecting appropriate data sets, so that results aren’t skewed.  In addition to back-testing for performance, the Company will leverage effective challenge testing of competing models and/or decision strategies on random samples from production populations. Validation documentation is critical, and must be made readily accessible to internal stakeholders and regulators.
+
+Beyond validations, a cycle of model performance monitoring must occur.  This monitoring confirms that each model has been correctly implemented, and that it is being used and is performing as intended.
+
+Model validation and ongoing monitoring will help the Company mitigate model risk, including temporary and permanent remediation.  It is important to implement a mix of short- and long-term remediation planning.  While this may not address all issues related to model use and performance, it will help provide the appropriate processes, controls and technologies to determine and address the root causes of model degradation.
+
+## Internal Audit (3rd line of defense) {#internal-audit-(3rd-line-of-defense)}
+
+The Company's Internal Audit function will assess the overall effectiveness of the model risk management framework, including the framework's ability to address both types of model risk; a) fundamental errors in models, and b) incorrect or inappropriate use of models, for individual models and in the aggregate.  Findings from Internal Audit related to models will be documented and reported to the Board’s Audit Committee and Enterprise Risk Committee.  The Director of Internal Audit will ensure that the audit team has appropriate skills, and has adequate stature in the organization to assist in model risk management.  Internal Audit's role is to evaluate whether model risk management is comprehensive, rigorous, and effective.  If some Internal Audit staff perform certain model validation activities, then they should not be involved in the assessment of the overall model risk management framework.  Internal Audit will verify records of model use and validation to test whether validations are performed in a timely manner and whether models are subject to controls that appropriately account for any weaknesses in validation activities.  Accuracy and completeness of the model inventory should be assessed.  In addition, processes for establishing and monitoring limits on model usage will be evaluated.  Internal Audit will determine whether procedures for updating models are clearly documented, and test whether those procedures are being carried out as specified.  Internal Audit will also check that model owners and control groups are meeting documentation standards, including risk reporting.  Additionally, Internal Audit will perform assessments of supporting operational systems and evaluate the reliability of data used by models.  Internal Audit also has an important role in ensuring that validation work is conducted properly and that appropriate effective challenge is being carried out.  It must evaluate the objectivity, competence, and organizational standing of the key validation participants, with the ultimate goal of ascertaining whether those participants have the right incentives to discover and report deficiencies.  Internal audit will review validation activities conducted by internal and external parties with the same rigor to see if those activities are being conducted in accordance with this guidance.
+
+# **FRAMEWORK** {#framework}
+
+The framework for the Model Risk Management Program is set forth to clearly define the requirements for maintaining an effective MRM program. The key areas covered in the following section, as defined by the Supervisory Guidance on Model Risk Management (SR 11-7), are as follows:
+
+## Development and Implementation {#development-and-implementation}
+
+* A clear definition of a model’s purpose (statement of purpose) must be provided   
+* Data and other information should be appropriate, should undergo rigorous quality testing, as well as checks to ensure its use is justified, and any approximations should be thoroughly documented   
+* Testing procedures must be documented to assess the accuracy, robustness, stability, and limitations of the model, as well as a behavior test for different input values   
+* A standard definition for what would be considered acceptable “conservative” limits must be well documented for each model   
+* The entire development process must be documented in detail   
+* All components of a model must be reviewed during the development process, including for conceptual soundness, mathematical and statistical correctness, as well as comparisons to alternative theories/approaches 
+
+## Use {#use}
+
+* User feedback provides an opportunity to check model performance   
+* Reports must be provided using estimations and model output values for different sets of inputs, in order to provide indicators of model precision, robustness, and stability   
+* Prudent use of models must include suitably defensible conservative approaches, stress tests, and/or possible capital buffers for model risk 
+
+## Validation and Ongoing Monitoring (internally developed or vended models)
+
+* Evaluation of Conceptual Soundness   
+  * Assess the quality of model design and construction  
+  * Review documentation and evidence supporting methods and variables used  
+  * Ensure any judgment used is well informed, carefully considered, and consistent with industry standards  
+* Validation   
+  * Validators must have knowledge and expertise and be familiar with the lines of business in which the model is used  
+  * The Program Administrator will maintain a proper model validation schedule  
+  * Validation must apply to all models, whether developed in-house or by third parties  
+  * Validation must apply to all model components  
+  * Validation must be commensurate with model use, complexity, and materiality  
+  * Validation must require independence between model developers and users  
+  * Staff conducting validation efforts should have explicit authority to challenge developers and users and to elevate their findings, including issues and deficiencies  
+  * The extent of validation activities prior to models being placed into production is directly related to the model’s risk level, complexity, and whether it is an internally-developed or a vended model  
+* Ongoing Monitoring   
+  * Confirm model is properly implemented and used/performing as intended  
+  * Benchmark to compare model input and output to estimates  
+  * Document an overall plan for monitoring each model – test plan, results falling within and outside of expected ranges, and action plan including risk acceptance process  
+* Outcome Analysis   
+  * Compare model outputs to actual outcomes (i.e., back-testing)  
+  * Compare output with expected outputs – including accuracy, completeness, appropriate indicators of performance and limitations, as well as being specifically informative  
+* Effective challenge of models may come directly from the 3 Lines of Defense structure, but suggestions and criticism may come from sources fully independent of the MRM structure   
+* Internal validation activities may be conducted by internal resources that have experience with validating models; otherwise, model validation activities will be conducted by external resources that have been vetted through the Bank’s Vendor Management Program, as well as the MRM Administrator and Internal Audit   
+* Internal Audit must verify the effectiveness of this framework   
+* Validation cadence will be required and scheduled based upon the appropriate model’s risk level:   
+  * High risk models will be validated every 12-18 months  
+  * Medium risk models will be validated every 18-24 months  
+  * Low risk models will be validated every36 months
+
+## Governance, Policies, and Controls {#governance,-policies,-and-controls}
+
+* The MRM Policy is approved by the Board of Directors, which should be regularly informed about any significant model risks   
+* The three basic roles within this MRM framework are:   
+  * Ownership (use of models)  
+  * Control (model risk measurement, limit setting and monitoring)  
+  * Compliance (by the other two roles)  
+* The Company must maintain a full inventory of all models in use   
+* Where appropriate and/or necessary, utilize external resources to perform validation and compliance tasks   
+* All models must be reviewed at least annually and whenever they undergo material changes 
+
+## Documentation {#documentation}
+
+* Each model must be documented with a level of detail that would permit a third-party to understand the operation, limitations, and key assumptions of the each model   
+* Regarding third-party models (vendor models), adequate documentation must be provided so that the model can be properly validated 
+
+# **MODEL RISK ASSESSMENT** {#model-risk-assessment}
+
+Materiality of decisions made based on model outcomes, computational complexity, and audiences are key considerations in creating risk weightings (prioritizations) relating to the MRM Program design.  Materiality is assessed in both qualitative and quantitative terms as follows, and the assessment is used to inform the scope and comprehensiveness of model documentation, vetting, review, validation, and monitoring.
+
+Model risk ratings are determined based on a management approved scoring methodology unless otherwise decided by the Program Administrator.
+
+# **MODEL MANAGEMENT** {#model-management}
+
+## Documentation Requirements {#documentation-requirements}
+
+Without adequate documentation, the Company’s model risk management program will be ineffective.  Documentation of model development and validation will be sufficiently detailed so that parties unfamiliar with a model can understand how the model operates, its limitations, and its key assumptions.  Documentation will provide for continuity of operations, make compliance with policy transparent, and help track recommendations, responses, and exceptions.
+
+The Company will benefit from advances in information and knowledge management systems and electronic documentation to improve timeliness and accessibility of the various records and reports produced in the model risk management process.  
+
+Documentation takes time and effort, and developers and users who know the models well may not appreciate the value.  Model developers have responsibility during model development for thorough documentation, which should be kept up-to-date as the model and application environment changes.  In addition, the Company will ensure that other participants in model risk management activities document their work, including ongoing monitoring, process verification, benchmarking, and outcomes analysis.  Also, line of business or other decision makers will document information leading to selection of a given model and its subsequent validation.  For cases in which the Company uses models from a vendor or other third party, it will ensure that appropriate documentation of the third-party approach is available so that the model can be appropriately validated.
+
+Validation reports will articulate model aspects that were reviewed, highlighting potential deficiencies over a range of financial and economic conditions, and determining whether adjustments or other compensating controls are warranted.  Effective validation reports include clear executive summaries, with a statement of model purpose and an accessible synopsis of model and validation results, including major limitations and key assumptions.  The Program Administrator will ensure that the Director of Internal Audit receives a copy of every validation report.
+
+## Development {#development}
+
+The Company has minimum development standards for model development.  Each model has a clear statement of purpose.  Internal guidelines contained in the Model Risk Management Standard prescribe the extent and nature of model development testing – depending on type and materiality of model.  Controls are in place to verify the appropriate mapping of models to business applications.  A formal assessment of quality and relevance of data is used in the Company’s approach to model development.  Appropriate reviews are also conducted to identify potential compliance-related issues.  The same standard applies for any redevelopment work associated with existing models.
+
+With regard to vended models, depending on the risk level of the model, it will be necessary to identify a contingency model, in the event there are material, uncorrectable issues with the primary model selected.
+
+## Validation {#validation}
+
+Systems and processes are in place to ensure data and reporting integrity, together with controls and testing to ensure proper implementation of models, effective systems integration, and appropriate use.  The Company employs testing to determine if models are performing as intended:
+
+* Evaluating the conceptual soundness of the model  
+* Checking the model's accuracy  
+* Demonstrating model robustness and stability  
+* Evaluating the model’s behavior over a range of input values  
+* Assessing the impact of assumptions  
+* Ongoing monitoring  
+* Comparing the model’s output against corresponding actual outcomes
+
+Testing is also undertaken to determine performance under various scenarios and conditions:
+
+* Business as usual as well as non-standard or extreme testing
+
+Testing includes not only specific models, but also the model as a component in larger systems.  Testing activities, whether internally developed or vended models, are well documented with reasonably detailed test plans and clear, understandable test results.  Testing activities commensurate with model complexity and criticality.  Company’s procedures should detail the firm’s testing activities, including minimum requirements and documentation standards, including:
+
+* Description of testing approach utilized and supporting rationale.  
+* Details of test results (pass/fail/needs improvement) and supporting evidence.  
+  * Suspension or discontinuing use where significant validation findings or errors in quantitative testing are discovered  
+* Inventory of specific issues identified with assigned level of urgency.  
+* Required communication of test results to relevant stakeholders.  
+* Standards, processes and timelines to remediate deficiencies for poor or under-performing models.
+
+Roles and responsibilities identify parties tasked with monitoring tests.Where an external firm or resource performs model validation, a fully executed statement of work between the Bank and the firm or resource will be required in order to clearly specify activities to be conducted and the manner and methodology in which they are to be conducted.  This scope of work will be verified and monitored by the MRM Administrator.  In the event the external firm or resource is not performing to acceptable standards, or they are no longer available to perform their duties, the MRM Administrator will ensure that a contingency firm or resource is ready and available to complete the task(s).  The contingency firm or resource will also be governed by an appropriate statement of work.
+
+## Approval
+
+Models will be approved at multiple stages within the process by various leadership levels within the organization:
+
+* Development  
+* Validation  
+* Implementation  
+* Change Management  
+* Retirement
+
+## Inventory {#inventory}
+
+Banks should maintain a comprehensive set of information for models implemented for use, under development for implementation, or recently retired. While each line of business may maintain its own inventory, the MRM Administrator charged with maintaining a firm-wide inventory of all models, which should assist a bank in evaluating its model risk in the aggregate. Any variation of a model that warrants a separate validation should be included as a separate model and cross-referenced with other variations. While the inventory may contain varying levels of information, given different model complexity and the Company's overall level of model usage, the following are some general guidelines. The inventory should describe the purpose and products for which the model is designed, actual or expected usage, and any restrictions on use. It is useful for the inventory to list the type and source of inputs used by a given model and underlying components (which may include other models), as well as model outputs and their intended use. It should also indicate whether models are functioning properly, provide a description of when they were last updated, and list any exceptions to policy. Other items include the names of individuals responsible for various aspects of the model development and validation; the dates of completed and planned validation activities; and the time frame during which the model is expected to remain valid. 
+
+# **EXCEPTIONS** {#exceptions}
+
+For models and model activities that have occurred after the approval of this MRM Program, an exception to this Program could occur in any of the circumstances identified below:
+
+* Use of a model or modified model that has not been approved for use   
+* Use of an inappropriate model (e.g., a model that is approved for one product or asset class is applied to a different product or asset or use of parameters that are outside of the approved quantitative guidelines);  
+* Failure of validation, vetting, or other similar review for an in-use model, including failure of a model to meet predefined performance benchmarks  
+* Back testing or other monitoring results suggest that the performance of the model may be inadequate
+
+Any exception requests received in regard to this program will be addressed individually and the Company’s Chief Risk Officer will ultimately determine the result of each request.
+"""
+- AUTHORITY_HINTS: - **NCUA Requirements for Insurance — Risk Policies (12 CFR §741.3 and Appendix A to Part 741)** — require written policies and risk management programs, including interest-rate-risk policy and program expectations, for federally insured credit unions.
+- **NCUA ERM & Risk Appetite Guidance (NCUA Examiner's Guide — Enterprise Risk Management & Basic Components of ERM; NCUA Enterprise Risk Appetite Statement)** — set expectations for enterprise risk management, risk appetite, and risk culture, used as a structuring benchmark.
+- **Model Risk Management Guidance (Federal Reserve SR 11-7 and parallel OCC/FDIC adoptions)** — set development, validation, and governance expectations for model-based risk assessments and quantitative tools.
+- **12 CFR Part 741 (safety-and-soundness expectations)** — underpins identification, measurement, monitoring, and control of risk.
+- **Internal governance documents** — Pynthia Board Charter, Risk Committee Charter, ALCO Charter, Model Risk Management Program, and key risk-type policies (Credit, Liquidity, Operational/Technology, BSA/AML, etc.) that must align to this Framework.
+- DESIGN_NOTES: """# System Design Notes — Engineering Vocabulary
+
+> Generated from `vocabulary.json` — **Cassandra Banking Core API** v1.0.0
+> Parsed at 2026-03-13T21:51:37.890Z
+> Totals: 14 entities · 252 fields · 0 computed fields · 0 events · 85 endpoints · 0 state machines · 0 plugins
+
+This block is a verbatim dump of the current engineering vocabulary. Downstream regeneration decides what to reference in the Design Overlay v2 control blocks — do not pre-filter.
+
+## Entities and fields
+
+### `account`  (schema: `Account` · 15 fields · retention: 7y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique account identifier. |
+| `entity_id` | string | ✓ |  |  | Primary owning entity. Immutable after creation. This is the entity under which the account appears for 5300 reporting and BSA monitoring. |
+| `account_type` | string (enum: checking, savings, money_market) | ✓ |  |  | Ledger account type. Maps to 5300 account codes via the bookkeeping layer. - `checking` — Share draft account (5300 code 025B) - `savings`… |
+| `status` | string (enum: open, frozen, closed) | ✓ |  |  | Account lifecycle state. - `open` — Active and operational. - `frozen` — Temporarily suspended (no debits; credits may still post). Reversi… |
+| `lock_type` | string (enum: none, compliance, fraud, legal, admin) | ✓ |  |  | Orthogonal lock applied independently of entity status. When lock_type is not `none`, the entity is restricted from certain operations even… |
+| `dormancy_status` | string (enum: active, dormant, abandoned) | ✓ |  |  | Orthogonal dormancy classification, tracked independently of account status. Driven by state-specific inactivity periods (typically 12 mont… |
+| `currency` | string | ✓ |  |  | ISO 4217 currency code. Only USD supported. |
+| `balances` | object | ✓ |  |  | Balance fields sourced from the Blnk Deploy ledger. These are read-only computed values — all mutations happen through transaction endpoint… |
+| `balances.balance` | integer |  |  |  | Current available balance (cents). Credits minus debits, excluding inflight. |
+| `balances.credit_balance` | integer |  |  |  | Lifetime credit total (cents). |
+| `balances.debit_balance` | integer |  |  |  | Lifetime debit total (cents). |
+| `balances.inflight_balance` | integer |  |  |  | Net pending transaction amount (cents). Represents authorized but unsettled transactions (e.g., card authorizations). Managed by Blnk's QUE… |
+| `balances.inflight_credit_balance` | integer |  |  |  | Pending inbound credits (cents). |
+| `balances.inflight_debit_balance` | integer |  |  |  | Pending outbound debits (cents). |
+| `bookkeeping` | object | ✓ |  |  | Shadow bookkeeping layer fields for 5300 regulatory reporting and FBO segregation. These are managed by Cassandra, not sourced from Blnk. |
+| `bookkeeping.account_code_5300` | string |  |  |  | NCUA 5300 account code (e.g., 025B for share drafts, 010 for regular shares). Assigned automatically based on account type; overridable by… |
+| `bookkeeping.schedule_a_code` | string |  |  |  | 5300 Schedule A line item code for balance sheet classification. Used by the 5300 Reporter consumer for aggregated reporting. |
+| `bookkeeping.fbo_classification` | string (enum: customer_balance, commingled_cash, settlement) |  |  |  | FBO sub-account classification for the bookkeeping layer. - `customer_balance` — Holds attributed to a specific end-user entity. - `comming… |
+| `bookkeeping.locked_amount` | integer |  |  |  | Amount held by BSA/compliance controls (cents). Separate from Blnk inflight holds — this represents funds frozen by the control engine (e.g… |
+| `owners` | array<object> | ✓ |  |  | All entities with ownership or authority over this account. At minimum, includes the primary owner matching entity_id. Joint ownership is m… |
+| `blnk_ledger_id` | string |  |  |  | Corresponding ledger ID in Blnk Deploy. Opaque reference for reconciliation. |
+| `account_numbers` | array<object> |  |  |  | Summary of account numbers associated with this account. Use the Account Numbers endpoints for full details and management. |
+| `metadata` | object |  |  |  | Arbitrary key-value pairs for partner use. |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `account_number`  (schema: `AccountNumber` · 10 fields · retention: 7y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique account number resource identifier. |
+| `account_id` | string | ✓ |  |  | The ledger account this number is associated with. Immutable. |
+| `account_number` | string | ✓ | ✓ |  | 12-digit account number allocated by the aggregator. Format is PPP-SSSSSSSS-C where P is the 3-digit fintech prefix, S is the 8-digit seque… |
+| `routing_number` | string | ✓ |  |  | ABA routing number. All account numbers within a credit union share the same routing number (the credit union's Fed master account routing… |
+| `status` | string (enum: active, disabled, canceled) | ✓ |  |  | Account number lifecycle state. - `active` — Routable. Inbound payments accepted, outbound allowed. - `disabled` — Temporarily non-routable… |
+| `informational_entity_id` | string | ✓ |  |  | Entity ID for FBO attribution. Typically matches the account's primary owner but can differ in BaaS scenarios where the fintech partner is… |
+| `label` | string |  |  |  | Human-readable label for this account number (e.g., Primary Checking, Partner A Routing). For partner reference only, not used in payment f… |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `ach_transfer`  (schema: `AchTransfer` · 23 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique ACH transfer identifier. |
+| `account_id` | string | ✓ |  |  | The ledger account being debited or credited. |
+| `account_number_id` | string | ✓ |  |  | The specific account number used for this transfer. Determines the routing/account number pair that appears in the ACH file. |
+| `direction` | string (enum: credit, debit) | ✓ |  |  | Direction of the ACH transfer from the perspective of this account. - `credit` — Push money out (originate a payment to an external party).… |
+| `amount` | integer | ✓ |  |  | Transfer amount in cents. Must be positive. |
+| `currency` | string | ✓ |  |  |  |
+| `status` | string (enum: pending_approval, submitted, settled, returned, rejected, canceled) | ✓ |  |  | ACH transfer lifecycle state. - `pending_approval` — Created, awaiting control engine evaluation. - `submitted` — Controls passed, ACH file… |
+| `window` | string (enum: standard, same_day) | ✓ |  |  | ACH processing window. - `standard` — Next-day settlement (standard ACH). - `same_day` — Same-day ACH (additional fee may apply, cutoff tim… |
+| `counterparty` | object | ✓ |  |  |  |
+| `counterparty.routing_number` | string | ✓ |  |  | ABA routing number of the receiving institution. |
+| `counterparty.account_number` | string | ✓ | ✓ |  | Account number at the receiving institution. |
+| `counterparty.account_type` | string (enum: checking, savings) | ✓ |  |  | Account type at the receiving institution. |
+| `counterparty.name` | string | ✓ | ✓ |  | Receiver name as it will appear in the ACH file. Max 22 characters per NACHA format. |
+| `description` | string |  |  |  | Company entry description in the ACH batch header. Max 10 characters per NACHA format (e.g., "PAYROLL", "PAYMENT"). |
+| `company_name` | string |  |  |  | Originator company name in the ACH batch header. Max 16 characters per NACHA format. Defaults to partner's registered name. |
+| `effective_date` | string |  |  |  | The date the transfer will settle at the Fed. Set by the system based on the processing window and submission time. For same-day ACH, this… |
+| `expected_settlement` | string |  |  |  | Estimated settlement timestamp. More precise than effective_date — accounts for Fed processing windows, weekends, and holidays. |
+| `settled_at` | string |  |  |  | Actual settlement timestamp. Populated when status becomes `settled`. |
+| `returned_at` | string |  |  |  | Timestamp of the return. Populated when status becomes `returned`. |
+| `return_code` | string |  |  |  | NACHA return reason code (e.g., R01 Insufficient Funds, R02 Account Closed, R03 No Account, R04 Invalid Account Number). Only present when… |
+| `return_reason` | string |  |  |  | Human-readable return reason. Only present when status is `returned`. |
+| `rejection_reason` | string |  |  |  | Explanation of why the control engine rejected this transfer. Only present when status is `rejected`. |
+| `control_results` | array<object> |  |  |  | Results of all control engine evaluations for this transfer. Populated at creation time (when the control engine gates the transfer). |
+| `blnk_transaction_id` | string |  |  |  | Corresponding transaction ID in Blnk Deploy. |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `book_transfer`  (schema: `BookTransfer` · 13 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique book transfer identifier. |
+| `source_account_id` | string | ✓ |  |  | The account being debited. |
+| `destination_account_id` | string | ✓ |  |  | The account being credited. |
+| `amount` | integer | ✓ |  |  | Transfer amount in cents. |
+| `currency` | string | ✓ |  |  |  |
+| `status` | string (enum: pending, completed, rejected) | ✓ |  |  | Book transfer lifecycle state. - `pending` — Created, control engine evaluating. - `completed` — Funds moved instantly (both sides settled)… |
+| `description` | string |  |  |  | Free-text description of the transfer purpose. |
+| `rejection_reason` | string |  |  |  | Explanation of why the control engine rejected this transfer. Only present when status is `rejected`. |
+| `control_results` | array<object> |  |  |  | Results of control engine evaluations. |
+| `blnk_transaction_id` | string |  |  |  | Corresponding transaction ID in Blnk Deploy. |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `wire_transfer`  (schema: `WireTransfer` · 21 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique wire transfer identifier. |
+| `account_id` | string | ✓ |  |  | The ledger account being debited (outbound) or credited (inbound). |
+| `account_number_id` | string | ✓ |  |  | The account number used for this wire. |
+| `direction` | string (enum: outbound, inbound) | ✓ |  |  | Direction of the wire transfer. - `outbound` — Originated by this instance, sending funds via Fedwire. - `inbound` — Received from an exter… |
+| `amount` | integer | ✓ |  |  | Transfer amount in cents. |
+| `currency` | string | ✓ |  |  |  |
+| `status` | string (enum: pending_approval, submitted, completed, return_requested, returned, rejected, …(+1)) | ✓ |  |  | Wire transfer lifecycle state. - `pending_approval` — Created, awaiting control engine evaluation. - `submitted` — Controls passed, Fedwire… |
+| `beneficiary` | object |  |  |  | The receiving party and their bank details for an outbound wire. |
+| `beneficiary.name` | string | ✓ | ✓ |  | Beneficiary name as it will appear on the Fedwire message. |
+| `beneficiary.routing_number` | string | ✓ |  |  | ABA routing number of the beneficiary's bank. |
+| `beneficiary.account_number` | string | ✓ | ✓ |  | Account number at the beneficiary's bank. |
+| `beneficiary.bank_name` | string |  |  |  | Name of the beneficiary's bank. Optional — if omitted, resolved automatically from the routing number via the Fed directory. |
+| `beneficiary.address` | object |  |  |  |  |
+| `beneficiary.address.line1` | string | ✓ | ✓ |  | Street address line 1. |
+| `beneficiary.address.line2` | string |  |  |  | Street address line 2 (apt, suite, unit, etc.). |
+| `beneficiary.address.city` | string | ✓ | ✓ |  |  |
+| `beneficiary.address.state` | string | ✓ |  |  | Two-letter US state or territory code (ISO 3166-2:US). |
+| `beneficiary.address.postal_code` | string | ✓ | ✓ |  | US ZIP code (5-digit or ZIP+4). |
+| `beneficiary.address.country` | string | ✓ |  |  | ISO 3166-1 alpha-2 country code. |
+| `originator` | object |  |  |  | Originator information from an inbound Fedwire message. Read-only — populated by the aggregator when routing an inbound wire. |
+| `originator.name` | string |  | ✓ |  |  |
+| `originator.routing_number` | string |  |  |  |  |
+| `originator.account_number` | string |  | ✓ |  |  |
+| `originator.bank_name` | string |  |  |  |  |
+| `originator.reference` | string |  |  |  | Originator-to-beneficiary information (OBI) from the Fedwire message. |
+| `purpose` | string |  |  |  | Originator-to-beneficiary information (OBI). Free-text description of the wire purpose, included in the Fedwire message. |
+| `imad` | string |  |  |  | Input Message Accountability Data — the Fed's unique identifier for this Fedwire message. Populated after submission. Used for tracing and… |
+| `omad` | string |  |  |  | Output Message Accountability Data — assigned by the receiving Fed bank. Populated after the wire is acknowledged. |
+| `submitted_at` | string |  |  |  | Timestamp when the Fedwire message was submitted. |
+| `completed_at` | string |  |  |  | Timestamp when the wire completed. Wires are typically same-day. |
+| `return_request` | object |  |  |  | Details of the return request, if one has been filed. Only present when status is `return_requested` or `returned`. |
+| `rejection_reason` | string |  |  |  | Explanation of why the control engine rejected this wire. Only present when status is `rejected`. |
+| `control_results` | array<object> |  |  |  | Results of control engine evaluations. |
+| `blnk_transaction_id` | string |  |  |  | Corresponding transaction ID in Blnk Deploy. |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `verification`  (schema: `Verification` · 14 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique verification identifier. |
+| `entity_id` | string | ✓ |  |  | The entity being verified. |
+| `type` | string (enum: kyc, kyb) | ✓ |  |  | Whether this is identity verification for a person (KYC) or a business (KYB). Trusts use KYB. Joint entities are verified through their ind… |
+| `provider` | string (enum: alloy, persona, socure, middesk, partner_provided) | ✓ |  |  | The identity verification provider used for this check. - `alloy`, `persona`, `socure`, `middesk` — Cassandra-managed providers. The system… |
+| `trust_level` | string (enum: full, verify_watchlist_only) |  |  |  | Trust level for partner-provided verifications (from partner configuration). - `full` — Cassandra trusts the partner's identity verificatio… |
+| `status` | string (enum: pending, in_review, approved, denied, expired) | ✓ |  |  | Status of this individual verification attempt. - `pending` — Verification submitted to provider, awaiting result. - `in_review` — Provider… |
+| `ofac_result` | object | ✓ |  |  | Result of the mandatory OFAC screening. OFAC screening is a compliance floor control (BA-05) and runs on every verification regardless of p… |
+| `ofac_result.screened_at` | string |  |  |  |  |
+| `ofac_result.match_status` | string (enum: clear, potential_match, confirmed_match) |  |  |  | - `clear` — No matches found on SDN, consolidated sanctions, or PEP lists. - `potential_match` — Possible match requiring compliance office… |
+| `ofac_result.matched_lists` | array<string> |  |  |  | Names of lists that returned matches (e.g., "SDN", "Consolidated Sanctions", "PEP", "314a"). Empty array when match_status is `clear`. |
+| `ofac_result.match_score` | number |  |  |  | Confidence score of the strongest match (0-100). Only meaningful when match_status is `potential_match`. Used by compliance officers to pri… |
+| `provider_result` | object |  |  |  | Normalized verification result from the provider. Cassandra translates each provider's native response into this common structure. |
+| `provider_result.provider_reference` | string |  |  |  | The provider's native reference ID for this verification (e.g., Alloy evaluation_token, Persona inquiry_id). |
+| `provider_result.provider_status` | string |  |  |  | The provider's native status string, preserved for debugging. Cassandra normalizes this into the verification's top-level `status`. |
+| `provider_result.identity_verified` | boolean |  |  |  | Whether the provider confirmed the identity matches the provided data. |
+| `provider_result.document_verified` | boolean |  |  |  | Whether identity documents were verified (if required by risk tier). Null if document verification was not required. |
+| `provider_result.risk_score` | number |  |  |  | Provider's risk score, normalized to 0-100 range. Higher = riskier. Used by CDD controls for risk tiering. |
+| `provider_result.risk_signals` | array<string> |  |  |  | Risk signal tags from the provider (e.g., "address_mismatch", "ssn_issued_prior_to_dob", "high_risk_jurisdiction"). Used by the control eng… |
+| `provider_result.raw_response` | object |  |  |  | The complete provider response, stored verbatim for audit purposes. Only returned when the requesting token has compliance-scoped permissio… |
+| `denial_reasons` | array<string> |  |  |  | Machine-readable reasons for denial (e.g., "identity_not_verified", "document_mismatch", "high_risk_jurisdiction", "ofac_match"). Only pres… |
+| `expires_at` | string |  |  |  | When this verification result expires per CDD refresh policy. After expiry, the entity's kyc_status transitions to `expired` and a new veri… |
+| `triggered_by` | string (enum: initial, cdd_refresh, information_change, manual) |  |  |  | What triggered this verification. - `initial` — First-time verification on entity creation. - `cdd_refresh` — Periodic re-verification per… |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `card`  (schema: `Card` · 16 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique card identifier. |
+| `account_id` | string | ✓ |  |  | The ledger account this card draws from / credits to. |
+| `entity_id` | string | ✓ |  |  | The entity this card is issued to. Must be a person entity. Immutable after creation. |
+| `card_type` | string (enum: virtual, physical) | ✓ |  |  | - `virtual` — Instantly issued, PAN available immediately via secure details endpoint. - `physical` — Requires fulfillment (mailing). PAN a… |
+| `form_factor` | string (enum: debit, prepaid) | ✓ |  |  | Card form factor for network classification. - `debit` — Linked to a deposit account with overdraft rules. - `prepaid` — Balance-limited, n… |
+| `network` | string (enum: visa, mastercard) |  |  |  | Card network, determined by the BIN allocated to this instance. |
+| `status` | string (enum: inactive, active, frozen, closed) | ✓ |  |  | Card lifecycle state, driven by the adapter interface (createCard, activateCard, freezeCard, closeCard). - `inactive` — Card created but no… |
+| `last_four` | string | ✓ |  |  | Last four digits of the card number (PAN). |
+| `expiration_month` | integer | ✓ |  |  |  |
+| `expiration_year` | integer | ✓ |  |  | Four-digit expiration year. |
+| `shipping` | object |  |  |  | Shipping details for physical cards. Only present when `card_type` is `physical`. Null for virtual cards. |
+| `shipping.status` | string (enum: pending, shipped, delivered, returned) |  |  |  |  |
+| `shipping.tracking_number` | string |  |  |  |  |
+| `shipping.carrier` | string |  |  |  |  |
+| `shipping.shipped_at` | string |  |  |  |  |
+| `shipping.estimated_delivery` | string |  |  |  |  |
+| `spend_controls` | object |  |  |  | Optional per-card spending limits. These are enforced in addition to account-level controls and the control engine's velocity limits. |
+| `spend_controls.daily_limit` | integer |  |  |  | Maximum daily spend in cents. Null means no per-card daily limit. |
+| `spend_controls.monthly_limit` | integer |  |  |  | Maximum monthly spend in cents. |
+| `spend_controls.per_transaction_limit` | integer |  |  |  | Maximum single transaction amount in cents. |
+| `spend_controls.allowed_mcc_codes` | array<string> |  |  |  | Whitelist of allowed Merchant Category Codes. If populated, only transactions at merchants with these MCCs are approved. Empty array means… |
+| `spend_controls.blocked_mcc_codes` | array<string> |  |  |  | Blacklist of blocked MCCs. Transactions at merchants with these MCCs are declined. Evaluated after allowed_mcc_codes. |
+| `processor_reference` | string |  |  |  | Card reference ID at the processor (Marqeta card_token or Lithic card_id). Opaque — used internally for adapter operations. |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `card_authorization`  (schema: `CardAuthorization` · 14 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  |  |
+| `card_id` | string | ✓ |  |  |  |
+| `account_id` | string | ✓ |  |  |  |
+| `status` | string (enum: pending, approved, declined, reversed, expired) | ✓ |  |  | Authorization lifecycle. - `pending` — Authorization received, control engine evaluating (transient, sub-2-second). - `approved` — Authoriz… |
+| `amount` | integer | ✓ |  |  | Authorization amount in cents. |
+| `currency` | string | ✓ |  |  |  |
+| `merchant` | object | ✓ |  |  | Merchant details from the authorization request. |
+| `merchant.name` | string |  |  |  |  |
+| `merchant.mcc` | string |  |  |  | Merchant Category Code. |
+| `merchant.city` | string |  |  |  |  |
+| `merchant.state` | string |  |  |  |  |
+| `merchant.country` | string |  |  |  |  |
+| `merchant.acceptor_id` | string |  |  |  | Card acceptor ID from the processor. |
+| `decline_reason` | string (enum: insufficient_funds, card_frozen, card_closed, account_frozen, account_locked, spend_limit_exceeded, …(+5)) |  |  |  | Machine-readable reason for declining an authorization. |
+| `control_results` | array<object> |  |  |  | Control engine results for this authorization. Includes balance check, velocity, OFAC, fraud, and spend control evaluations. |
+| `blnk_transaction_id` | string |  |  |  | Blnk inflight transaction ID (for approved authorizations). Null for declined authorizations. |
+| `processor_reference` | string |  |  |  | Processor's native authorization reference. |
+| `settled_at` | string |  |  |  | Settlement timestamp. Populated when the inflight transaction commits in Blnk (processor sends settlement webhook). Null until settled. |
+| `settlement_amount` | integer |  |  |  | Final settlement amount in cents. May differ from the authorization amount (e.g., tip added, partial fulfillment). |
+| `created_at` | string | ✓ |  |  |  |
+
+### `bookkeeping_entry`  (schema: `BookkeepingEntry` · 17 fields · retention: 7y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique bookkeeping entry identifier. |
+| `account_id` | string | ✓ |  |  | The ledger account this entry pertains to. |
+| `account_number_id` | string |  |  |  | The specific account number involved (if applicable). Null for account-level entries (e.g., interest, fees). |
+| `entity_id` | string |  |  |  | The entity attributed for FBO segregation. Derived from the account's primary owner or the account number's informational_entity_id, depend… |
+| `entry_type` | string (enum: debit, credit, hold_placed, hold_released, hold_seized) | ✓ |  |  | Type of bookkeeping entry. - `debit` — Funds left the account (matches a Blnk debit transaction). - `credit` — Funds entered the account (m… |
+| `source` | string (enum: ach_transfer, wire_transfer, book_transfer, card_authorization, card_settlement, fee, …(+3)) | ✓ |  |  | The originating transaction type that produced this bookkeeping entry. Maps 1:1 to the domain event that triggered the Blnk webhook. |
+| `source_id` | string |  |  |  | ID of the originating resource (e.g., ach_5kRb3m for an ACH transfer, auth_2nRb7m for a card authorization). Allows joining bookkeeping ent… |
+| `amount` | integer | ✓ |  |  | Entry amount in cents. Always positive — direction is conveyed by entry_type. |
+| `currency` | string | ✓ |  |  |  |
+| `running_balance` | integer |  |  |  | Account balance after this entry was applied (cents). Provides a verifiable audit trail — each entry's running_balance should equal the pre… |
+| `account_code_5300` | string | ✓ |  |  | NCUA 5300 account code for this entry (e.g., 025B for share drafts, 010 for regular shares). Inherited from the account's bookkeeping tags… |
+| `schedule_a_code` | string |  |  |  | 5300 Schedule A line item code for balance sheet classification. Used by the 5300 Reporter for aggregated reporting. |
+| `fbo_classification` | string (enum: customer_balance, commingled_cash, settlement) | ✓ |  |  | FBO sub-account classification for the bookkeeping layer. - `customer_balance` — Holds attributed to a specific end-user entity. - `comming… |
+| `blnk_transaction_id` | string |  |  |  | Corresponding Blnk Deploy transaction ID. Null for compliance hold entries (which are Cassandra-native, not Blnk transactions). |
+| `description` | string |  |  |  | System-generated description of the entry (e.g., "ACH credit from John Doe via 271070801", "Compliance hold placed — BA-05 OFAC match"). |
+| `effective_date` | string |  |  |  | The business date this entry is effective for regulatory reporting. May differ from created_at for entries posted after business hours or f… |
+| `created_at` | string | ✓ |  |  |  |
+
+### `event`  (schema: `Event` · 11 fields · retention: 7y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique event identifier. |
+| `type` | string (enum: entity.created, entity.activated, entity.disabled, entity.archived, entity.updated, entity.locked, …(+51)) | ✓ |  |  | Domain event type. Events are emitted on every state transition and significant operation. Partners receive these via webhook delivery. |
+| `resource_id` | string | ✓ |  |  | ID of the resource that changed (e.g., ent_abc123, acct_xyz789). |
+| `resource_type` | string | ✓ |  |  | Type of the resource (e.g., entity, account, ach_transfer). |
+| `data` | object |  |  |  | Snapshot of the resource at the time of the event. Contains the full resource representation (same schema as the corresponding GET endpoint… |
+| `previous_data` | object |  |  |  | For update events, the resource state before the change. Only includes fields that changed. Null for creation events. |
+| `delivery_status` | string (enum: pending, delivered, failed, expired) |  |  |  | Delivery status for a specific webhook delivery attempt. - `pending` — Queued for delivery (or retrying). - `delivered` — Partner endpoint… |
+| `delivery_attempts` | integer |  |  |  | Number of webhook delivery attempts made so far (max 12). |
+| `last_delivery_attempt_at` | string |  |  |  | Timestamp of the most recent delivery attempt. |
+| `delivered_at` | string |  |  |  | Timestamp of successful delivery. Null if not yet delivered. |
+| `created_at` | string | ✓ |  |  |  |
+
+### `webhook_endpoint`  (schema: `WebhookEndpoint` · 9 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique webhook endpoint identifier. |
+| `url` | string | ✓ |  |  | The HTTPS URL that receives webhook POST requests. Must use HTTPS (HTTP rejected). Must return 2xx within 30 seconds to be considered a suc… |
+| `status` | string (enum: active, disabled) | ✓ |  |  | - `active` — Events are delivered to this endpoint. - `disabled` — Delivery is paused. Events accumulate and can be retrieved via the backf… |
+| `subscribed_events` | array<string> | ✓ |  |  | List of event type patterns this endpoint receives. Supports exact types (e.g., "ach_transfer.settled") and wildcard prefixes (e.g., "ach_t… |
+| `signing_secret` | string |  |  |  | HMAC-SHA256 signing secret for verifying webhook payloads. Only returned once at creation time. Use to verify the `X-Cassandra-Signature` h… |
+| `delivery_stats` | object |  |  |  | Rolling delivery statistics for this endpoint. |
+| `delivery_stats.total_delivered` | integer |  |  |  |  |
+| `delivery_stats.total_failed` | integer |  |  |  |  |
+| `delivery_stats.last_delivered_at` | string |  |  |  |  |
+| `delivery_stats.last_failed_at` | string |  |  |  |  |
+| `delivery_stats.current_failure_streak` | integer |  |  |  | Consecutive failed deliveries. When this reaches a threshold, the endpoint may be automatically disabled and the partner alerted. |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `fbo_position`  (schema: `FboPosition` · 6 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `instance_id` | string | ✓ |  |  |  |
+| `balance` | integer | ✓ |  |  | Current FBO balance for this instance (cents). Sum of all settled inbound minus all settled outbound for this instance's accounts. |
+| `held_amount` | integer | ✓ |  |  | Amount currently reserved for pending outbound payments (cents). Held via the reserve saga pattern (Decision 28, step 4). |
+| `available_balance` | integer | ✓ |  |  | Effective available balance (cents). Computed as `balance - held_amount`. This is the amount the Origination API checks against when approv… |
+| `last_event_sequence` | integer | ✓ |  |  | The sequence_id of the most recent event processed by the Payment Hub consumer for this instance. Used for staleness detection. |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `inbound_payment`  (schema: `InboundPayment` · 9 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  |  |
+| `payment_type` | string (enum: ach_credit, ach_debit, wire, rtp) | ✓ |  |  |  |
+| `account_number` | string | ✓ |  |  | The 12-digit account number this payment was routed to. |
+| `amount` | integer | ✓ |  |  |  |
+| `currency` | string |  |  |  |  |
+| `status` | string (enum: pending, delivered, acknowledged) | ✓ |  |  | - `pending` — Aggregator has the payment, not yet pushed to instance. - `delivered` — Pushed to instance via webhook. - `acknowledged` — In… |
+| `originator` | object |  |  |  |  |
+| `originator.name` | string |  |  |  |  |
+| `originator.routing_number` | string |  |  |  |  |
+| `originator.account_number` | string |  |  |  |  |
+| `reference` | string |  |  |  | Originator reference or trace number. |
+| `received_at` | string | ✓ |  |  | When the aggregator received this payment from the Fed. |
+
+### `bsa_alert`  (schema: `BsaAlert` · 9 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `alert_id` | string | ✓ |  |  |  |
+| `event_id` | string | ✓ |  |  | The event that triggered this alert. |
+| `alert_type` | string (enum: ctr_threshold, structuring_suspected, cross_fintech_activity, sar_candidate, velocity_anomaly, watchlist_hit) | ✓ |  |  | Type of BSA alert generated by the BSA Approver (real-time) or BSA Reporter (scheduled). |
+| `entity_hash` | string | ✓ |  |  | Hashed entity identifier (SSN/EIN hash). Used for per-entity lookups without exposing PII in the alert table. |
+| `instance_id` | string |  |  |  | The fintech instance where the triggering event originated. For cross-fintech alerts, this is the instance of the most recent triggering ev… |
+| `status` | string (enum: open, under_review, escalated, cleared, block) | ✓ |  |  | BSA alert lifecycle. - `open` — New alert, not yet reviewed. - `under_review` — Analyst is investigating. - `escalated` — Elevated to SAR c… |
+| `requires_lookback` | boolean |  |  |  | Whether the BSA Reporter should run a deep historical analysis on this alert. Set by the BSA Approver when it detects patterns that need 90… |
+| `details` | object |  |  |  | Alert-specific details. Structure varies by alert_type. Examples: transaction amounts, pattern description, matched entity information for… |
+| `created_at` | string | ✓ |  |  |  |
+
+## Events
+
+> ⚠️  **Vocabulary warning — no events defined.** The `events` array in vocabulary.json is empty. Any `(event.code)` reference the policy wants to use must be introduced by engineering and registered in the spec before the Design Overlay v2 blocks can cite it. The endpoints list below is provided as candidate signals from which engineering could derive event codes (e.g., `POST /accounts` → `account.created`).
+
+## Endpoints
+
+| Method | Path | Summary | Control refs | Audit events |
+|---|---|---|---|---|
+| `GET` | `/entities` | List entities |  |  |
+| `GET` | `/entities/{entity_id}` | Retrieve an entity |  |  |
+| `POST` | `/entities/person` | Create a person entity | CD-01, CD-04, BA-03, BA-05 |  |
+| `POST` | `/entities/business` | Create a business entity | CD-01, CD-04, CD-05, BA-03, BA-05 |  |
+| `POST` | `/entities/trust` | Create a trust entity | CD-01, CD-04, BA-03, BA-05 |  |
+| `POST` | `/entities/joint` | Create a joint entity | BA-05 |  |
+| `PATCH` | `/entities/person/{entity_id}` | Update a person entity | CD-09, BA-05 |  |
+| `PATCH` | `/entities/business/{entity_id}` | Update a business entity | CD-05, CD-09 |  |
+| `PATCH` | `/entities/trust/{entity_id}` | Update a trust entity | CD-09 |  |
+| `PATCH` | `/entities/joint/{entity_id}` | Update a joint entity |  |  |
+| `POST` | `/entities/{entity_id}/status` | Transition entity status | BA-05, CD-08 |  |
+| `PUT` | `/entities/{entity_id}/lock` | Update entity lock |  |  |
+| `GET` | `/accounts` | List accounts |  |  |
+| `POST` | `/accounts` | Create an account | CD-04, CD-03, CD-12, BA-05 |  |
+| `GET` | `/accounts/{account_id}` | Retrieve an account |  |  |
+| `PATCH` | `/accounts/{account_id}` | Update an account | CD-05 |  |
+| `POST` | `/accounts/{account_id}/status` | Transition account status | CD-12 |  |
+| `PUT` | `/accounts/{account_id}/lock` | Update account lock |  |  |
+| `GET` | `/accounts/{account_id}/account-numbers` | List account numbers for an account |  |  |
+| `POST` | `/accounts/{account_id}/account-numbers` | Create an additional account number | BA-05 |  |
+| `GET` | `/account-numbers/{account_number_id}` | Retrieve an account number |  |  |
+| `PATCH` | `/account-numbers/{account_number_id}` | Update an account number |  |  |
+| `POST` | `/account-numbers/{account_number_id}/status` | Transition account number status |  |  |
+| `GET` | `/transfers/ach` | List ACH transfers |  |  |
+| `POST` | `/transfers/ach` | Create an ACH transfer | BA-05, BA-06, BA-07, BA-08, BA-10, CD-06 |  |
+| `GET` | `/transfers/ach/{ach_transfer_id}` | Retrieve an ACH transfer |  |  |
+| `POST` | `/transfers/ach/{ach_transfer_id}/cancel` | Cancel an ACH transfer |  |  |
+| `POST` | `/transfers/ach/batch` | Create a batch of ACH transfers | BA-05, BA-06, BA-07, BA-08, BA-10, CD-06 |  |
+| `GET` | `/transfers/book` | List book transfers |  |  |
+| `POST` | `/transfers/book` | Create a book transfer | BA-05, BA-06, BA-07, BA-08 |  |
+| `GET` | `/transfers/book/{book_transfer_id}` | Retrieve a book transfer |  |  |
+| `GET` | `/transfers/wire` | List wire transfers |  |  |
+| `POST` | `/transfers/wire` | Create a wire transfer | BA-05, BA-06, BA-07, BA-08, BA-10 |  |
+| `GET` | `/transfers/wire/{wire_transfer_id}` | Retrieve a wire transfer |  |  |
+| `POST` | `/transfers/wire/{wire_transfer_id}/cancel` | Cancel a wire transfer |  |  |
+| `POST` | `/transfers/wire/{wire_transfer_id}/return-request` | Request a wire return |  |  |
+| `GET` | `/entities/{entity_id}/verifications` | List verifications for an entity |  |  |
+| `POST` | `/entities/{entity_id}/verifications` | Initiate a verification | CD-01, CD-04, BA-03, BA-05, BA-20 |  |
+| `POST` | `/entities/{entity_id}/verifications/attest` | Submit a partner-provided KYC/KYB attestation | CD-01, CD-10, BA-05, BA-20 |  |
+| `GET` | `/verifications/{verification_id}` | Retrieve a verification |  |  |
+| `GET` | `/cards` | List cards |  |  |
+| `POST` | `/cards` | Create a card | BA-05, CD-04 |  |
+| `GET` | `/cards/{card_id}` | Retrieve a card |  |  |
+| `PATCH` | `/cards/{card_id}` | Update a card |  |  |
+| `POST` | `/cards/{card_id}/status` | Transition card status |  |  |
+| `GET` | `/cards/{card_id}/sensitive` | Retrieve sensitive card details | PR-01 |  |
+| `GET` | `/cards/{card_id}/authorizations` | List authorizations for a card |  |  |
+| `GET` | `/authorizations/{authorization_id}` | Retrieve a card authorization |  |  |
+| `GET` | `/accounts/{account_id}/bookkeeping-entries` | List bookkeeping entries for an account |  |  |
+| `GET` | `/bookkeeping-entries/{entry_id}` | Retrieve a bookkeeping entry |  |  |
+| `GET` | `/bookkeeping/summary` | Get aggregated bookkeeping summary |  |  |
+| `GET` | `/bookkeeping/reconciliation` | Run reconciliation check |  |  |
+| `GET` | `/events` | List events |  |  |
+| `GET` | `/events/{event_id}` | Retrieve an event |  |  |
+| `POST` | `/events/{event_id}/retry` | Retry event delivery |  |  |
+| `GET` | `/webhooks` | List webhook endpoints |  |  |
+| `POST` | `/webhooks` | Create a webhook endpoint |  |  |
+| `GET` | `/webhooks/{webhook_endpoint_id}` | Retrieve a webhook endpoint |  |  |
+| `PATCH` | `/webhooks/{webhook_endpoint_id}` | Update a webhook endpoint |  |  |
+| `DELETE` | `/webhooks/{webhook_endpoint_id}` | Delete a webhook endpoint |  |  |
+| `POST` | `/webhooks/{webhook_endpoint_id}/rotate-secret` | Rotate webhook signing secret |  |  |
+| `POST` | `/webhooks/{webhook_endpoint_id}/test` | Send a test webhook |  |  |
+| `POST` | `/sandbox/simulate/kyc/approve` | Simulate: Approve KYC verification |  |  |
+| `POST` | `/sandbox/simulate/kyc/deny` | Simulate: Deny KYC verification |  |  |
+| `POST` | `/sandbox/simulate/ach/receive` | Simulate: Receive an inbound ACH credit |  |  |
+| `POST` | `/sandbox/simulate/ach/settle` | Simulate: Settle an outbound ACH transfer |  |  |
+| `POST` | `/sandbox/simulate/ach/return` | Simulate: Return a settled ACH transfer |  |  |
+| `POST` | `/sandbox/simulate/wire/receive` | Simulate: Receive an inbound wire |  |  |
+| `POST` | `/sandbox/simulate/wire/settle` | Simulate: Complete an outbound wire |  |  |
+| `POST` | `/sandbox/simulate/card/authorize` | Simulate: Card authorization |  |  |
+| `POST` | `/sandbox/simulate/card/settle` | Simulate: Card settlement |  |  |
+| `POST` | `/sandbox/simulate/time/advance` | Simulate: Advance sandbox clock |  |  |
+| `POST` | `/sandbox/reset` | Reset sandbox environment |  |  |
+| `POST` | `/auth/token` | Obtain an aggregator access token |  |  |
+| `GET` | `/fbo/{instance_id}/position` | Get FBO position for an instance |  |  |
+| `GET` | `/fbo/{instance_id}/available-balance` | Get available balance for an instance |  |  |
+| `POST` | `/payments/ach/originate` | Originate an ACH payment | BA-05, BA-06, BA-07, BA-08 |  |
+| `POST` | `/payments/wire/originate` | Originate a wire payment | BA-05, BA-06, BA-07, BA-08, BA-10 |  |
+| `POST` | `/payments/wire/prepare` | Prepare a wire payment (phase 1 of 2) | BA-05, BA-06, BA-07, BA-08, BA-10 |  |
+| `POST` | `/payments/wire/confirm` | Confirm a prepared wire payment (phase 2 of 2) |  |  |
+| `POST` | `/payments/rtp/originate` | Originate an RTP payment | BA-05, BA-06, BA-07, BA-08 |  |
+| `GET` | `/inbound/{instance_id}` | List inbound payments for an instance |  |  |
+| `GET` | `/bsa/alerts` | List BSA alerts |  |  |
+| `GET` | `/bsa/alerts/{alert_id}` | Retrieve a BSA alert |  |  |
+| `GET` | `/consumers/health` | Get aggregator consumer health |  |  |
+
+## State machines
+
+_No state machines defined in vocabulary.json._
+
+## Plugins
+
+_No plugins defined in vocabulary.json._
+"""
+
+
+LOCAL OVERRIDES (apply after all meta-prompt rules):
+{{Usually empty. Put anything here that should override the shared
+`meta-prompt.md` for THIS policy only — a different control-ID prefix,
+extra required sections, a specific citation style, etc. The regeneration
+task applies overrides AFTER the shared meta-prompt, so instructions here
+win.}}

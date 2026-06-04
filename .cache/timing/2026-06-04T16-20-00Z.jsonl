@@ -1,0 +1,135 @@
+{"event": "run_start", "ts": 1780590000.502323, "ts_iso": "2026-06-04T16:20:00Z", "wall_elapsed_s": 0.0}
+{"event": "deps_checked", "ts": 1780590000.5232327, "wall_elapsed_s": 0.021}
+{"event": "manifest_read", "ts": 1780590000.5432699, "wall_elapsed_s": 0.041}
+{"event": "policy_started", "ts": 1780590022.3946843, "wall_elapsed_s": 21.892, "phase": "audit", "detail": {"slug": "audit"}}
+{"event": "prep_done", "ts": 1780590022.4780118, "wall_elapsed_s": 21.976, "phase": "audit", "detail": {"source": "dynamic via skill (cached)", "refs": "2/2"}}
+{"event": "policy_started", "ts": 1780590022.495544, "wall_elapsed_s": 21.993, "phase": "basel-ii-standardized-approach-framework", "detail": {"slug": "basel-ii-standardized-approach-framework"}}
+{"event": "prep_done", "ts": 1780590022.5692132, "wall_elapsed_s": 22.067, "phase": "basel-ii-standardized-approach-framework", "detail": {"source": "dynamic via skill (cached)", "refs": "0/0"}}
+{"event": "policy_started", "ts": 1780590022.5867205, "wall_elapsed_s": 22.084, "phase": "bsa", "detail": {"slug": "bsa"}}
+{"event": "prep_done", "ts": 1780590022.6637864, "wall_elapsed_s": 22.161, "phase": "bsa", "detail": {"source": "dynamic via skill (cached)", "refs": "4/4"}}
+{"event": "policy_started", "ts": 1780590022.681865, "wall_elapsed_s": 22.18, "phase": "business-continuity-plan", "detail": {"slug": "business-continuity-plan"}}
+{"event": "prep_done", "ts": 1780590022.7686763, "wall_elapsed_s": 22.266, "phase": "business-continuity-plan", "detail": {"source": "dynamic via skill (cached)", "refs": "3/4"}}
+{"event": "policy_started", "ts": 1780590022.7859988, "wall_elapsed_s": 22.284, "phase": "capitalization", "detail": {"slug": "capitalization"}}
+{"event": "prep_done", "ts": 1780590022.855922, "wall_elapsed_s": 22.354, "phase": "capitalization", "detail": {"source": "dynamic via skill (cached)", "refs": "1/1"}}
+{"event": "policy_started", "ts": 1780590022.8729658, "wall_elapsed_s": 22.371, "phase": "cash", "detail": {"slug": "cash"}}
+{"event": "prep_done", "ts": 1780590022.956688, "wall_elapsed_s": 22.454, "phase": "cash", "detail": {"source": "dynamic via skill (cached)", "refs": "5/5"}}
+{"event": "policy_started", "ts": 1780590022.9729178, "wall_elapsed_s": 22.471, "phase": "charitable-donation-accounts", "detail": {"slug": "charitable-donation-accounts"}}
+{"event": "prep_done", "ts": 1780590023.04094, "wall_elapsed_s": 22.539, "phase": "charitable-donation-accounts", "detail": {"source": "dynamic via skill (cached)", "refs": "0/0"}}
+{"event": "policy_started", "ts": 1780590023.0575368, "wall_elapsed_s": 22.555, "phase": "collections", "detail": {"slug": "collections"}}
+{"event": "prep_done", "ts": 1780590023.1267464, "wall_elapsed_s": 22.624, "phase": "collections", "detail": {"source": "dynamic via skill (cached)", "refs": "1/1"}}
+{"event": "policy_started", "ts": 1780590023.1432204, "wall_elapsed_s": 22.641, "phase": "compliance", "detail": {"slug": "compliance"}}
+{"event": "prep_done", "ts": 1780590023.2160656, "wall_elapsed_s": 22.714, "phase": "compliance", "detail": {"source": "dynamic via skill (cached)", "refs": "3/3"}}
+{"event": "policy_started", "ts": 1780590023.2345247, "wall_elapsed_s": 22.732, "phase": "director-fiduciary-duties", "detail": {"slug": "director-fiduciary-duties"}}
+{"event": "prep_done", "ts": 1780590023.311505, "wall_elapsed_s": 22.809, "phase": "director-fiduciary-duties", "detail": {"source": "dynamic via skill (cached)", "refs": "3/3"}}
+{"event": "policy_started", "ts": 1780590023.328521, "wall_elapsed_s": 22.826, "phase": "e-commerce", "detail": {"slug": "e-commerce"}}
+{"event": "prep_done", "ts": 1780590023.403011, "wall_elapsed_s": 22.901, "phase": "e-commerce", "detail": {"source": "dynamic via skill (cached)", "refs": "1/1"}}
+{"event": "policy_started", "ts": 1780590023.420064, "wall_elapsed_s": 22.918, "phase": "electronic-payment-systems", "detail": {"slug": "electronic-payment-systems"}}
+{"event": "prep_done", "ts": 1780590023.4901392, "wall_elapsed_s": 22.988, "phase": "electronic-payment-systems", "detail": {"source": "dynamic via skill (cached)", "refs": "2/2"}}
+{"event": "policy_started", "ts": 1780590023.5061977, "wall_elapsed_s": 23.004, "phase": "enterprise-risk-management", "detail": {"slug": "enterprise-risk-management"}}
+{"event": "prep_done", "ts": 1780590023.5767455, "wall_elapsed_s": 23.074, "phase": "enterprise-risk-management", "detail": {"source": "dynamic via skill (cached)", "refs": "1/1"}}
+{"event": "policy_started", "ts": 1780590023.5935388, "wall_elapsed_s": 23.091, "phase": "fair-lending", "detail": {"slug": "fair-lending"}}
+{"event": "prep_done", "ts": 1780590023.6654987, "wall_elapsed_s": 23.163, "phase": "fair-lending", "detail": {"source": "dynamic via skill (cached)", "refs": "1/1"}}
+{"event": "policy_started", "ts": 1780590023.68354, "wall_elapsed_s": 23.181, "phase": "information-security", "detail": {"slug": "information-security"}}
+{"event": "prep_done", "ts": 1780590023.7573106, "wall_elapsed_s": 23.255, "phase": "information-security", "detail": {"source": "dynamic via skill (cached)", "refs": "3/3"}}
+{"event": "policy_started", "ts": 1780590023.7765002, "wall_elapsed_s": 23.274, "phase": "internal-controls", "detail": {"slug": "internal-controls"}}
+{"event": "prep_done", "ts": 1780590023.8467412, "wall_elapsed_s": 23.344, "phase": "internal-controls", "detail": {"source": "dynamic via skill (cached)", "refs": "1/1"}}
+{"event": "policy_started", "ts": 1780590023.8632479, "wall_elapsed_s": 23.361, "phase": "investment", "detail": {"slug": "investment"}}
+{"event": "prep_done", "ts": 1780590023.939368, "wall_elapsed_s": 23.437, "phase": "investment", "detail": {"source": "dynamic via skill (cached)", "refs": "2/2"}}
+{"event": "policy_started", "ts": 1780590023.956256, "wall_elapsed_s": 23.454, "phase": "lending", "detail": {"slug": "lending"}}
+{"event": "prep_done", "ts": 1780590024.0218651, "wall_elapsed_s": 23.52, "phase": "lending", "detail": {"source": "dynamic via skill (cached)", "refs": "0/0"}}
+{"event": "policy_started", "ts": 1780590024.0385306, "wall_elapsed_s": 23.536, "phase": "liquidity", "detail": {"slug": "liquidity"}}
+{"event": "prep_done", "ts": 1780590024.1233523, "wall_elapsed_s": 23.621, "phase": "liquidity", "detail": {"source": "dynamic via skill (cached)", "refs": "9/11"}}
+{"event": "policy_started", "ts": 1780590024.1398613, "wall_elapsed_s": 23.638, "phase": "member", "detail": {"slug": "member"}}
+{"event": "prep_done", "ts": 1780590024.2136893, "wall_elapsed_s": 23.711, "phase": "member", "detail": {"source": "dynamic via skill (cached)", "refs": "3/3"}}
+{"event": "policy_started", "ts": 1780590024.2311985, "wall_elapsed_s": 23.729, "phase": "privacy", "detail": {"slug": "privacy"}}
+{"event": "prep_done", "ts": 1780590024.3080776, "wall_elapsed_s": 23.806, "phase": "privacy", "detail": {"source": "dynamic via skill (cached)", "refs": "2/2"}}
+{"event": "policy_started", "ts": 1780590024.3248162, "wall_elapsed_s": 23.822, "phase": "record-retention", "detail": {"slug": "record-retention"}}
+{"event": "prep_done", "ts": 1780590024.3954306, "wall_elapsed_s": 23.893, "phase": "record-retention", "detail": {"source": "dynamic via skill (cached)", "refs": "1/1"}}
+{"event": "policy_started", "ts": 1780590024.4138167, "wall_elapsed_s": 23.911, "phase": "reimbursement-insurance-indemnification", "detail": {"slug": "reimbursement-insurance-indemnification"}}
+{"event": "prep_done", "ts": 1780590024.4845164, "wall_elapsed_s": 23.982, "phase": "reimbursement-insurance-indemnification", "detail": {"source": "dynamic via skill (cached)", "refs": "0/0"}}
+{"event": "policy_started", "ts": 1780590024.5019855, "wall_elapsed_s": 24.0, "phase": "resolution", "detail": {"slug": "resolution"}}
+{"event": "prep_done", "ts": 1780590024.5800958, "wall_elapsed_s": 24.078, "phase": "resolution", "detail": {"source": "dynamic via skill (cached)", "refs": "2/2"}}
+{"event": "policy_started", "ts": 1780590024.5972934, "wall_elapsed_s": 24.095, "phase": "third-party-risk", "detail": {"slug": "third-party-risk"}}
+{"event": "prep_done", "ts": 1780590024.675086, "wall_elapsed_s": 24.173, "phase": "third-party-risk", "detail": {"source": "dynamic via skill (cached)", "refs": "4/4"}}
+{"event": "policy_started", "ts": 1780590024.6925874, "wall_elapsed_s": 24.19, "phase": "truth-in-savings", "detail": {"slug": "truth-in-savings"}}
+{"event": "prep_done", "ts": 1780590024.7628047, "wall_elapsed_s": 24.26, "phase": "truth-in-savings", "detail": {"source": "dynamic via skill (cached)", "refs": "1/1"}}
+{"event": "policy_generated", "ts": 1780590323.4858208, "wall_elapsed_s": 322.983, "phase": "audit", "detail": {"output_chars": "33490"}}
+{"event": "policy_validated", "ts": 1780590323.503901, "wall_elapsed_s": 323.002, "phase": "audit", "detail": {"corrective_pass": "false"}}
+{"event": "policy_written", "ts": 1780590323.521297, "wall_elapsed_s": 323.019, "phase": "audit"}
+{"event": "policy_generated", "ts": 1780590376.7432683, "wall_elapsed_s": 376.241, "phase": "basel-ii-standardized-approach-framework", "detail": {"output_chars": "34276"}}
+{"event": "policy_validated", "ts": 1780590376.7618256, "wall_elapsed_s": 376.26, "phase": "basel-ii-standardized-approach-framework", "detail": {"corrective_pass": "false"}}
+{"event": "policy_written", "ts": 1780590376.7807715, "wall_elapsed_s": 376.278, "phase": "basel-ii-standardized-approach-framework"}
+{"event": "policy_generated", "ts": 1780590383.0456429, "wall_elapsed_s": 382.543, "phase": "capitalization", "detail": {"output_chars": "33016"}}
+{"event": "policy_validated", "ts": 1780590383.0649471, "wall_elapsed_s": 382.563, "phase": "capitalization", "detail": {"corrective_pass": "false"}}
+{"event": "policy_written", "ts": 1780590383.0845933, "wall_elapsed_s": 382.582, "phase": "capitalization"}
+{"event": "policy_generated", "ts": 1780590408.678283, "wall_elapsed_s": 408.176, "phase": "compliance", "detail": {"output_chars": "32042"}}
+{"event": "policy_validated", "ts": 1780590408.699698, "wall_elapsed_s": 408.197, "phase": "compliance", "detail": {"corrective_pass": "false"}}
+{"event": "policy_written", "ts": 1780590408.720303, "wall_elapsed_s": 408.218, "phase": "compliance"}
+{"event": "policy_generated", "ts": 1780590448.957957, "wall_elapsed_s": 448.456, "phase": "charitable-donation-accounts", "detail": {"output_chars": "38945"}}
+{"event": "policy_validated", "ts": 1780590448.977823, "wall_elapsed_s": 448.476, "phase": "charitable-donation-accounts", "detail": {"corrective_pass": "true"}}
+{"event": "policy_written", "ts": 1780590448.9968305, "wall_elapsed_s": 448.495, "phase": "charitable-donation-accounts"}
+{"event": "policy_generated", "ts": 1780590454.3290281, "wall_elapsed_s": 453.827, "phase": "enterprise-risk-management", "detail": {"output_chars": "32003"}}
+{"event": "policy_validated", "ts": 1780590454.3540359, "wall_elapsed_s": 453.852, "phase": "enterprise-risk-management", "detail": {"corrective_pass": "false"}}
+{"event": "policy_written", "ts": 1780590454.3769424, "wall_elapsed_s": 453.875, "phase": "enterprise-risk-management"}
+{"event": "policy_generated", "ts": 1780590461.891386, "wall_elapsed_s": 461.389, "phase": "e-commerce", "detail": {"output_chars": "36887"}}
+{"event": "policy_validated", "ts": 1780590461.9129274, "wall_elapsed_s": 461.411, "phase": "e-commerce", "detail": {"corrective_pass": "false"}}
+{"event": "policy_written", "ts": 1780590461.9359736, "wall_elapsed_s": 461.434, "phase": "e-commerce"}
+{"event": "policy_generated", "ts": 1780590475.3030238, "wall_elapsed_s": 474.801, "phase": "electronic-payment-systems", "detail": {"output_chars": "38133"}}
+{"event": "policy_validated", "ts": 1780590475.3288326, "wall_elapsed_s": 474.827, "phase": "electronic-payment-systems", "detail": {"corrective_pass": "false"}}
+{"event": "policy_written", "ts": 1780590475.3492901, "wall_elapsed_s": 474.847, "phase": "electronic-payment-systems"}
+{"event": "policy_generated", "ts": 1780590475.6276906, "wall_elapsed_s": 475.125, "phase": "collections", "detail": {"output_chars": "41837"}}
+{"event": "policy_validated", "ts": 1780590475.645259, "wall_elapsed_s": 475.143, "phase": "collections", "detail": {"corrective_pass": "false"}}
+{"event": "policy_written", "ts": 1780590475.6637833, "wall_elapsed_s": 475.161, "phase": "collections"}
+{"event": "policy_generated", "ts": 1780590487.4524202, "wall_elapsed_s": 486.95, "phase": "internal-controls", "detail": {"output_chars": "24462"}}
+{"event": "policy_validated", "ts": 1780590487.473144, "wall_elapsed_s": 486.971, "phase": "internal-controls", "detail": {"corrective_pass": "false"}}
+{"event": "policy_written", "ts": 1780590487.493009, "wall_elapsed_s": 486.991, "phase": "internal-controls"}
+{"event": "policy_generated", "ts": 1780590488.4744134, "wall_elapsed_s": 487.972, "phase": "business-continuity-plan", "detail": {"output_chars": "42374"}}
+{"event": "policy_validated", "ts": 1780590488.495847, "wall_elapsed_s": 487.994, "phase": "business-continuity-plan", "detail": {"corrective_pass": "false"}}
+{"event": "policy_written", "ts": 1780590488.5215526, "wall_elapsed_s": 488.019, "phase": "business-continuity-plan"}
+{"event": "policy_generated", "ts": 1780590497.0613573, "wall_elapsed_s": 496.559, "phase": "director-fiduciary-duties", "detail": {"output_chars": "42247"}}
+{"event": "policy_validated", "ts": 1780590497.0796344, "wall_elapsed_s": 496.577, "phase": "director-fiduciary-duties", "detail": {"corrective_pass": "false"}}
+{"event": "policy_written", "ts": 1780590497.0981126, "wall_elapsed_s": 496.596, "phase": "director-fiduciary-duties"}
+{"event": "policy_generated", "ts": 1780590498.8906941, "wall_elapsed_s": 498.388, "phase": "cash", "detail": {"output_chars": "37407"}}
+{"event": "policy_validated", "ts": 1780590498.9100268, "wall_elapsed_s": 498.408, "phase": "cash", "detail": {"corrective_pass": "false"}}
+{"event": "policy_written", "ts": 1780590498.9292862, "wall_elapsed_s": 498.427, "phase": "cash"}
+{"event": "policy_generated", "ts": 1780590508.1066382, "wall_elapsed_s": 507.604, "phase": "record-retention", "detail": {"output_chars": "28660"}}
+{"event": "policy_validated", "ts": 1780590508.125901, "wall_elapsed_s": 507.624, "phase": "record-retention", "detail": {"corrective_pass": "false"}}
+{"event": "policy_written", "ts": 1780590508.144276, "wall_elapsed_s": 507.642, "phase": "record-retention"}
+{"event": "policy_generated", "ts": 1780590544.2570121, "wall_elapsed_s": 543.755, "phase": "fair-lending", "detail": {"output_chars": "41400"}}
+{"event": "policy_validated", "ts": 1780590544.276226, "wall_elapsed_s": 543.774, "phase": "fair-lending", "detail": {"corrective_pass": "true"}}
+{"event": "policy_written", "ts": 1780590544.2944965, "wall_elapsed_s": 543.792, "phase": "fair-lending"}
+{"event": "policy_generated", "ts": 1780590547.5820508, "wall_elapsed_s": 547.08, "phase": "reimbursement-insurance-indemnification", "detail": {"output_chars": "31826"}}
+{"event": "policy_validated", "ts": 1780590547.6010969, "wall_elapsed_s": 547.099, "phase": "reimbursement-insurance-indemnification", "detail": {"corrective_pass": "true"}}
+{"event": "policy_written", "ts": 1780590547.6233678, "wall_elapsed_s": 547.121, "phase": "reimbursement-insurance-indemnification"}
+{"event": "policy_generated", "ts": 1780590561.2366967, "wall_elapsed_s": 560.734, "phase": "member", "detail": {"output_chars": "38048"}}
+{"event": "policy_validated", "ts": 1780590561.2583985, "wall_elapsed_s": 560.756, "phase": "member", "detail": {"corrective_pass": "false"}}
+{"event": "policy_written", "ts": 1780590561.2781076, "wall_elapsed_s": 560.776, "phase": "member"}
+{"event": "policy_generated", "ts": 1780590590.0869827, "wall_elapsed_s": 589.585, "phase": "truth-in-savings", "detail": {"output_chars": "24462"}}
+{"event": "policy_validated", "ts": 1780590590.1058977, "wall_elapsed_s": 589.604, "phase": "truth-in-savings", "detail": {"corrective_pass": "false"}}
+{"event": "policy_written", "ts": 1780590590.126129, "wall_elapsed_s": 589.624, "phase": "truth-in-savings"}
+{"event": "policy_generated", "ts": 1780590601.0296855, "wall_elapsed_s": 600.527, "phase": "lending", "detail": {"output_chars": "44817"}}
+{"event": "policy_validated", "ts": 1780590601.0519912, "wall_elapsed_s": 600.55, "phase": "lending", "detail": {"corrective_pass": "false"}}
+{"event": "policy_written", "ts": 1780590601.0742807, "wall_elapsed_s": 600.572, "phase": "lending"}
+{"event": "policy_generated", "ts": 1780590612.725351, "wall_elapsed_s": 612.223, "phase": "information-security", "detail": {"output_chars": "51388"}}
+{"event": "policy_validated", "ts": 1780590612.7474203, "wall_elapsed_s": 612.245, "phase": "information-security", "detail": {"corrective_pass": "false"}}
+{"event": "policy_written", "ts": 1780590612.7678745, "wall_elapsed_s": 612.266, "phase": "information-security"}
+{"event": "policy_generated", "ts": 1780590615.2492418, "wall_elapsed_s": 614.747, "phase": "bsa", "detail": {"output_chars": "62152"}}
+{"event": "policy_validated", "ts": 1780590615.2739012, "wall_elapsed_s": 614.772, "phase": "bsa", "detail": {"corrective_pass": "false"}}
+{"event": "policy_written", "ts": 1780590615.2977889, "wall_elapsed_s": 614.795, "phase": "bsa"}
+{"event": "policy_generated", "ts": 1780590626.685536, "wall_elapsed_s": 626.183, "phase": "investment", "detail": {"output_chars": "50732"}}
+{"event": "policy_validated", "ts": 1780590626.7096817, "wall_elapsed_s": 626.207, "phase": "investment", "detail": {"corrective_pass": "false"}}
+{"event": "policy_written", "ts": 1780590626.7479956, "wall_elapsed_s": 626.246, "phase": "investment"}
+{"event": "policy_generated", "ts": 1780590648.9006338, "wall_elapsed_s": 648.398, "phase": "resolution", "detail": {"output_chars": "40548"}}
+{"event": "policy_validated", "ts": 1780590648.9247575, "wall_elapsed_s": 648.422, "phase": "resolution", "detail": {"corrective_pass": "false"}}
+{"event": "policy_written", "ts": 1780590648.9510486, "wall_elapsed_s": 648.449, "phase": "resolution"}
+{"event": "policy_generated", "ts": 1780590675.2965925, "wall_elapsed_s": 674.794, "phase": "privacy", "detail": {"output_chars": "48577"}}
+{"event": "policy_validated", "ts": 1780590675.3185139, "wall_elapsed_s": 674.816, "phase": "privacy", "detail": {"corrective_pass": "false"}}
+{"event": "policy_written", "ts": 1780590675.3387015, "wall_elapsed_s": 674.836, "phase": "privacy"}
+{"event": "policy_generated", "ts": 1780590687.8875885, "wall_elapsed_s": 687.385, "phase": "third-party-risk", "detail": {"output_chars": "35374"}}
+{"event": "policy_validated", "ts": 1780590687.9092474, "wall_elapsed_s": 687.407, "phase": "third-party-risk", "detail": {"corrective_pass": "true"}}
+{"event": "policy_written", "ts": 1780590687.9325686, "wall_elapsed_s": 687.43, "phase": "third-party-risk"}
+{"event": "policy_generated", "ts": 1780590744.408343, "wall_elapsed_s": 743.906, "phase": "liquidity", "detail": {"output_chars": "57331"}}
+{"event": "policy_validated", "ts": 1780590744.4294424, "wall_elapsed_s": 743.927, "phase": "liquidity", "detail": {"corrective_pass": "false"}}
+{"event": "policy_written", "ts": 1780590744.4505286, "wall_elapsed_s": 743.948, "phase": "liquidity"}
+{"event": "status_md_written", "ts": 1780590785.5779812, "wall_elapsed_s": 785.076}
+{"event": "run_end", "ts": 1780590791.4808128, "wall_elapsed_s": 790.978}

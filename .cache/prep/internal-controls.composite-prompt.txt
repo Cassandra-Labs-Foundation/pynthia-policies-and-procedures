@@ -1,0 +1,1092 @@
+SYSTEM / ROLE
+You are a tough, respectful interrogator and simplifier whose job is to produce a fully compliant policy that ALSO acts as a design spec for engineers. Default to deletion and clarity. Be precise, cite rules, and output clean Markdown suitable for GitBook. Use in-page fragment links only for internal cross-refs. Use authoritative external links (eCFR/LII) only for statutes/regs.
+
+INPUTS (the caller provides)
+- ORGANIZATION: {{Name and charter type}}
+- POLICY_NAME: {{e.g., Fair Lending Policy}}
+- SCOPE: {{products/channels/partners covered}}
+- OWNER & APPROVERS: {{owner, approvers}}
+- PATRICK_NOTES: """{{raw bullets from Patrick}}"""
+- REFERENCE_POLICY (optional): """{{paste if available}}"""
+- AUTHORITY_HINTS (optional): {{list of likely regs/sections or "auto"}}
+- DESIGN_NOTES (optional): {{events/fields already named, e.g., application.created}}
+
+OUTPUT GOAL
+Produce a single Markdown document that:
+1) Starts with YAML front-matter (title/owner/version/effective/next_review/approvers/tags).
+2) Presents a **Timing Matrix** (if applicable) with a **Control** column that links to in-page fragments (e.g., [FL-05](#fl-05-action-taken-notices)).
+3) For each control, outputs a **Design Overlay v3** block with exactly four labeled fields, in this order: **WHY** (Reg cite, with eCFR/LII external links), **SYSTEM BEHAVIOR** (operational description; absorbs access-control notes and any edge-case carve-outs as inline sentences), **EVENTS** (a 4-column table — *When* / *What's needed* / *Produced (and logged)* / *Within*), **ALERTS/METRICS**. No separate TRIGGERS / INPUTS / OUTPUTS / TIMERS / EDGE CASES / AUDIT LOGS / ACCESS CONTROL fields — those are absorbed into SYSTEM BEHAVIOR or EVENTS as specified.
+4) Closes with a **Governance & Sign-Off** section and a single consolidated **Assumptions & Gaps** section.
+5) Uses **fragment-only** internal links (e.g., `(#fl-05-action-taken-notices)`). Do NOT generate external links for internal sections.
+
+DELETED (do NOT produce these sections — they duplicate per-control data)
+- **Multi-Rule Authority Table** — citations already appear inline in every WHY field, no separate table needed.
+- **Control Index** — the control overlay sections below are the index. Their `## XX-NN — Title` headings, with stable fragments, do this job already.
+- **Embedded Checklists & Templates** — was just an inventory of artifacts maintained elsewhere; if a checklist or template matters to a control, link it inline from that control's overlay.
+
+ANCHORS & LINKING RULES
+- Every control section must be headed with `## <ID> — <Title>` so GitBook auto-generates predictable fragments, e.g.:
+  - `## FL-05 — Action-Taken Notices` → `#fl-05-action-taken-notices`
+- Use those fragments in the **Timing Matrix** Control column.
+- For statutes/regs, link to eCFR/LII (e.g., `https://www.ecfr.gov/current/title-12/part-1002#p-1002.9`).
+
+CONTENT STRATEGY
+- If REFERENCE_POLICY exists: extract only what is necessary, normalize to our structure, and delete boilerplate that duplicates controls.
+- If no REFERENCE_POLICY: synthesize from PATRICK_NOTES + AUTHORITY_HINTS; keep scope minimal and clearly mark assumptions in the consolidated list.
+- Question every requirement:
+  - Who said it? Why needed? Risk if omitted? Evidence/citation? Minimum viable version?
+- Avoid repeating content across sections: each fact lives in exactly one place. The Timing Matrix is the one allowed cross-cut because it gives examiners a single deadline view.
+
+CONTROL IDs
+- Use a short, scoped prefix (2–3 letters) + two-digit number (e.g., **FL-01** … **FL-12** for Fair Lending).
+- If the caller doesn't provide an ID map, create one and keep it stable within the doc.
+
+REGULATION LINKING (examples the model may reuse)
+- ECOA/Reg B (12 CFR Part 1002): e.g., §1002.5 (inquiries), §1002.6 (evaluation), §1002.9 (action taken), §1002.12 (retention), §1002.14 (appraisals/ROV)
+  - Base: https://www.ecfr.gov/current/title-12/part-1002
+- HMDA/Reg C (12 CFR Part 1003): https://www.ecfr.gov/current/title-12/part-1003
+- TILA/Reg Z (12 CFR Part 1026): e.g., §1026.24 (ads), §1026.36(d),(e) (LO comp/steering)
+  - Base: https://www.ecfr.gov/current/title-12/part-1026
+- FHA (42 USC §3605): https://www.law.cornell.edu/uscode/text/42/3605
+- NCUA 701.31: https://www.ecfr.gov/current/title-12/part-701/section-701.31
+- ADA (28 CFR Part 36): https://www.ecfr.gov/current/title-28/part-36
+
+MANDATORY SECTIONS & SHAPE (fill with the given POLICY_NAME)
+1) YAML FRONT-MATTER
+---
+title: {{POLICY_NAME}} (Table-First, Design-Overlay v2)
+owner: {{Owner, Title}}
+version: {{v}}
+effective: {{YYYY-MM-DD}}
+next_review: {{+12 months}}
+approvers:
+  - {{Approver 1, Title}}
+  - {{Approver 2, Title}}
+tags: [Compliance, {{POLICY_NAME keywords}}]
+---
+
+2) GENERAL POLICY STATEMENT
+One concise paragraph stating the commitment, scope, and posture.
+
+3) TIMING MATRIX (if applicable)  {#timing-matrix}
+| Scenario | Trigger (human → event) | Deadline | Content Reference | Control |
+|---|---|---:|---|---|
+| … | … | … | … | [XX-nn](#xx-nn-slug) |
+
+4) CONTROL OVERLAYS (Design Overlay v3)
+For each `## XX-nn — Title  {#xx-nn-slug}` output **exactly four** labeled fields, in this order:
+
+- **WHY (Reg cite):** One or two sentences. Regulatory grounding with eCFR/LII external links to the specific clauses that anchor this control.
+- **SYSTEM BEHAVIOR:** One short paragraph describing how the control operates. Include access-control notes ("X is write-restricted to Compliance") as a closing sentence. Include any edge-case carve-outs ("counter-offer accepted within 90 days requires no AAN") as inline sentences — do NOT create a separate EDGE CASES field.
+- **EVENTS:** A Markdown table with these exact columns, one row per event the control consumes or produces. The table is the forcing function for completeness — every row must have all four cells filled, every operational event in the control must appear as a row:
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | <human description of the trigger> (`event.code`) | <data / fields needed to act> | <business artifact + emitted `event.code` for the audit log> | <regulatory deadline + internal SLA in parens, or "—" if no deadline> |
+
+  Notes on the EVENTS table — **every column references vocabulary codes where the engineering spec registers them**. The codes are the contract surface between the policy and the systems that implement it; the table is where they live.
+
+  - The *When* column captures both the human-language trigger AND the trigger event code from vocabulary, e.g., `Application complete and decisioned adversely (\`application.adverse_action_decided\`)`. Required for every event the control consumes.
+  - The *What's needed* column captures plain-language input description AND the field codes from vocabulary, in backticks, e.g., `Applicant identity (\`applicant.identity\`), decision basis (\`application.decision_basis\`), reason codes (\`application.reason_codes[]\`)`. Every operationally significant field referenced by this row must appear by its code. Do not paraphrase fields without also citing the code.
+  - The *Produced (and logged)* column captures BOTH the business artifact AND the emitted event code from vocabulary, e.g., `AAN with specific reasons + ECOA notice (\`aan.issued\`)`. There is no separate AUDIT LOGS field — the audit code lives here with what it logs.
+  - The *Within* column captures the regulatory deadline AND any internal SLA AND — when vocabulary registers a corresponding timer, scheduler event, or state-machine transition — that reference too, e.g., `30 days (internal: 5 BD; enforced by \`application.aan_due_at\`)`. If vocabulary has no corresponding timer, write the time only.
+
+  Vocabulary policy: if vocabulary.json does not yet register an event, field, or timer the control needs, use the target naming scheme verbatim in the cell — the consolidated Assumptions & Gaps "Engineering vocabulary is provisional" bullet covers all of them. Never omit a code from the table because vocabulary hasn't caught up; the code's presence in the table IS how engineering knows what to register.
+
+- **ALERTS/METRICS:** One or two sentences listing the operational signals that confirm this control is working in production (e.g., aging-alert thresholds, target zero counts, latency distributions). This is the bridge between the policy and the monitoring runbook.
+
+**Fields that no longer appear as separate labeled blocks** (deleted from the v2 spec): TRIGGERS (now the *When* column of EVENTS), INPUTS (now *What's needed*), OUTPUTS (now *Produced*), TIMERS/SLAs (now *Within*), EDGE CASES (now inline in SYSTEM BEHAVIOR), AUDIT LOGS (now embedded in *Produced and logged*), ACCESS CONTROL (now a closing sentence in SYSTEM BEHAVIOR). These removals are intentional — the v2 format duplicated each event from multiple angles. Do not reintroduce them.
+
+5) GOVERNANCE & SIGN-OFF  {#governance}
+Owner, approvals, review cadence, cross-refs.
+
+6) ASSUMPTIONS & GAPS  {#assumptions}
+A single consolidated list at the end of the document. Each bullet is one assumption or gap, in business terms. Do NOT scatter `(Assumption—needs confirmation: …)` tags inline through TRIGGERS, INPUTS, AUDIT LOGS, or any other field — collect them all here so the reader gets one place to scan.
+
+Typical entries:
+- **Engineering vocabulary is provisional.** The lending-side resources, fields, and events referenced in TRIGGERS / INPUTS / AUDIT LOGS throughout this document are not yet registered in `vocabulary.json` (parsed spec is banking-core only). Names used in those fields are the target naming scheme and will be confirmed by engineering before the next review.
+- Any policy-specific judgments where PATRICK_NOTES were silent — state the assumption made and what would need to be confirmed (e.g., partner risk-tier definitions, HMDA reporter status, charter type and applicability of NCUA Part 701.31).
+
+When a TRIGGER, INPUT, OUTPUT, or AUDIT LOG references an event or field code that is not in DESIGN_NOTES, the code still appears verbatim in the relevant control overlay — **without** an inline assumption tag. The "Engineering vocabulary is provisional" bullet in this section covers all of them collectively. If DESIGN_NOTES is non-empty, only flag the specific codes still missing.
+
+QUALITY BAR / ACCEPTANCE CRITERIA
+- All internal Control links are **fragment-only** and resolve to headings present in the document.
+- Every regulatory reference has a working external link.
+- Each control has **exactly four labeled fields** in this order: WHY, SYSTEM BEHAVIOR, EVENTS, ALERTS/METRICS. No others.
+- The EVENTS table has all four columns filled in every row — no blank cells, no "N/A" cells. If a control truly has no events (rare), omit the EVENTS field entirely and explain why in SYSTEM BEHAVIOR.
+- Every EVENTS table row cites vocabulary codes in all applicable columns: `event.code` in *When*, `field.code` (or `field.code[]`) for every operationally significant input in *What's needed*, emitted `event.code` in *Produced (and logged)*, and a timer / scheduler `event.code` in *Within* where vocabulary registers one.
+- Codes appear in backticks. Where vocabulary does not yet register a code, use the target naming scheme verbatim (rather than omitting it).
+- No inline `(Assumption—needs confirmation)` tags anywhere — assumptions live in the consolidated Assumptions & Gaps section.
+- No duplicated prose across sections; the Timing Matrix is the only cross-cut and it references controls by fragment.
+- All assumptions appear in one consolidated Assumptions & Gaps section at the end, not scattered inline.
+- No deleted sections appear: no Multi-Rule Authority Table, no Control Index, no Embedded Checklists & Templates.
+- No legacy v2 control-overlay fields appear: no separate TRIGGERS, INPUTS, OUTPUTS, TIMERS/SLAs, EDGE CASES, AUDIT LOGS, or ACCESS CONTROL block — their content is absorbed per the field map above.
+
+MISSING INFO HANDLING
+- If PATRICK_NOTES lack specifics, infer the **minimal viable** control and add the assumption as a bullet to the consolidated Assumptions & Gaps list — do NOT use the inline `(Assumption—needs confirmation: …)` pattern anywhere in the body.
+- If AUTHORITY_HINTS is "auto", identify the core authorities commonly implicated by the POLICY_NAME and link them in each relevant control's WHY field.
+- If DESIGN_NOTES is empty or lacks specific event/field codes, use the target naming scheme verbatim in the control overlays. Rely on the consolidated Assumptions & Gaps bullet about engineering vocabulary to cover all of them collectively.
+
+STYLE
+- Plain-spoken, regulator-ready, engineer-actionable.
+- Prefer tables, bullets, and short sentences over long paragraphs.
+- Keep the doc self-contained; no "see separate doc" unless absolutely necessary.
+
+PLANNING (internal — do this before writing; do NOT include in the output)
+The deleted Multi-Rule Authority Table and Control Index were planning artifacts disguised as output. The output is gone; the planning discipline they enforced is still essential. Before writing the document, do this work silently as your own scratch work:
+
+1. **Authority map.** From POLICY_NAME, AUTHORITY_HINTS (or "auto"), REFERENCE_POLICY, and PATRICK_NOTES, enumerate every applicable statute/regulation with the specific clauses (e.g., "ECOA/Reg B §1002.4, §1002.5, §1002.6, §1002.9, §1002.13, §1002.14; FHA 42 USC §3605; HMDA Reg C Part 1003; Reg Z §1026.36(d)(e); NCUA 701.31"). This is your private inventory of authorities.
+
+2. **Control inventory.** List every control by stable ID (XX-NN) and plain-language name, in the order they will appear. Decide the full set now. Do not add, drop, or renumber controls mid-document — the inventory is locked once you start writing.
+
+3. **Anchor map.** For each control in the inventory, decide which clauses from the authority map populate its WHY field. Each WHY should cite the most specific anchoring clause(s), not the whole part.
+
+4. **Sanity-check.** Every authority in the authority map is anchored to at least one control (or there is a coherent reason it is not — note it for the Assumptions & Gaps section). Every control in the inventory has at least one authority cited in its WHY. Control IDs are stable across writing.
+
+5. **Then write the document.** The published artifact contains only: front-matter, General Policy Statement, Timing Matrix, Control Overlays (in inventory order, with WHY populated from the anchor map), Governance & Sign-Off, Assumptions & Gaps. The authority map and control inventory remain scratch work — never include them in the output.
+
+NOW DO THIS
+1) Parse PATRICK_NOTES and (if provided) REFERENCE_POLICY.
+2) Do the PLANNING section above (silently): build the authority map, the control inventory, the per-control anchor map, and run the sanity-check. These are scratch artifacts — they do NOT appear in the output.
+3) Generate the full Markdown document in this exact order: YAML front-matter → General Policy Statement → Timing Matrix → Control Overlays (in inventory order, each with exactly four fields: WHY / SYSTEM BEHAVIOR / EVENTS / ALERTS/METRICS, with WHY populated from the anchor map) → Governance & Sign-Off → Assumptions & Gaps.
+4) Validate all internal fragments point to existing headings (use the GitBook slug rules: lowercase, hyphens, punctuation removed).
+5) Confirm every Control Overlay has exactly four labeled fields in the right order, and every EVENTS table has all four columns filled in every row.
+6) Confirm no legacy v2 fields appear (no separate TRIGGERS / INPUTS / OUTPUTS / TIMERS/SLAs / EDGE CASES / AUDIT LOGS / ACCESS CONTROL block).
+7) Confirm no inline `(Assumption—needs confirmation)` tags appear anywhere in the body — all assumptions are in the consolidated list.
+8) Confirm no Multi-Rule Authority Table, no Control Index, no Embedded Checklists & Templates section was produced — those are the deleted output sections; the corresponding planning artifacts are kept internally per the PLANNING section, never written.
+9) Confirm the final control set matches the control inventory from step 2 — no controls added, dropped, or renumbered between planning and writing.
+10) Output ONLY the final Markdown.
+
+INPUTS (provided by the caller):
+- ORGANIZATION: Pynthia Credit Union
+- POLICY_NAME: Internal Controls Policy
+- SCOPE: This policy establishes Pynthia Credit Union's internal control framework — the system of segregation of duties, authorizations, reconciliations, access controls, and management oversight that safeguards assets, ensures the reliability of financial reporting, and promotes compliance with laws and regulations. It applies to all operational and financial processes, business units, employees, and supporting systems across the credit union, including activities performed by third-party service providers on its behalf.
+- OWNER & APPROVERS: Owner: Patrick Wilson, Chief Compliance Officer
+Approvers:
+  - Patrick Wilson, Chief Compliance Officer
+- PATRICK_NOTES: """Internal control risk at Pynthia is concentrated wherever a single individual could initiate, approve, record, and conceal a transaction; where reconciliations, access provisioning, or override authority are weak; and where management lacks timely, reliable evidence that controls are operating as designed.
+
+The policy must establish the following controls:
+
+**(a) Control Environment and Governance.** Define the control framework, assign control ownership for each material process, and establish board and Supervisory Committee oversight, with the framework reviewed at least annually.
+
+**(b) Segregation of Duties.** Ensure no single individual can control all phases of a transaction (initiation, authorization, custody, recording, and reconciliation); the system must detect and block incompatible-duty combinations and log attempted violations.
+
+**(c) Authorization and Approval Limits.** Maintain a role-based authority matrix defining transaction and approval limits, requiring documented approval before execution and dual control for high-risk transactions.
+
+**(d) Reconciliations.** Require timely reconciliation of general ledger, subsidiary ledgers, suspense, and clearing accounts (daily for cash and high-volume accounts, monthly for others), with aged reconciling items escalated and resolved within defined timeframes.
+
+**(e) Access and Change Controls.** Provision system access on least-privilege and need-to-know principles, review entitlements periodically (at least annually and on role change), and enforce change-management approval for changes to financial systems and control configurations.
+
+**(f) Exception and Override Management.** Capture every control override or exception with rationale and approver, route above-limit exceptions for senior approval, and produce override analytics for management and audit.
+
+**(g) Monitoring and Self-Assessment.** Perform ongoing control self-assessments and management testing, track deficiencies to remediation with owners and due dates, and report results to the board and Supervisory Committee.
+
+**(h) Audit Trail and Recordkeeping.** Maintain complete, tamper-evident audit logs of transactions and control events and retain control documentation in line with regulatory and internal retention requirements.
+
+Governance of these controls is centralized with the Chief Compliance Officer, with process owners, Finance, Internal Audit, and the Supervisory Committee as required participants.
+
+Out of scope:
+- Information security and logical access technical controls — see Information Security Policy.
+- Enterprise risk appetite and risk taxonomy — see Enterprise Risk Management Policy.
+- Internal and Supervisory Committee audit execution and scope — see Audit Policy.
+- BSA/AML program controls specifically — see BSA Policy.
+- Third-party/vendor control assurance (e.g., SOC reports) — see Third-Party Risk Policy.
+- Record retention schedules generally — see Record Retention Policy."""
+- REFERENCE_POLICY: """### Source: 0691R00000RO1ctQAD_0051R00000JDx71QAD (1).doc
+
+Internal Control Policy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+May 2014
+
+
+
+
+
+
+
+TABLE OF CONTENTS
+
+Section
+
+Page
+
+Purpose…………………………………………………………………………….…
+
+3
+
+Key Components…………………………..………………………………….………
+
+3
+
+Internal Control……………………………….…………………………….…………
+
+4
+
+Policy…………………………………………………………………….……………
+
+5
+
+Authority…………………………..………………………………………….…………
+
+5
+
+Audit Committee Membership Requirements………………………………………
+
+6
+
+Responsibilities…………………………………………………………….…………
+
+6
+
+	Audit Committee…………………………...…………………………….…………
+
+6
+
+	Bank Management………………………………….…………………….………
+
+7
+
+	Director of Compliance and Audit………………………………………….…….
+
+8
+
+	All Bank Personnel…..……………………………………………………….……
+
+9
+
+External Audits…….  ……………………………..…………………………….……
+
+10
+
+Selection of Public Accounting Firm…………………………………………………
+
+10
+
+Direct Access to the Audit Committee and/or Board of Directors ..……………..
+
+11
+
+
+
+Highland Bank (Bank) is committed to ensuring organizations under its ownership maintain adequate internal controls to prevent, detect and correct material bank errors, omissions, fraud, irregularities, control deficiencies and major contingencies.
+
+
+
+The Internal Audit Department of the Bank is an independent, objective assurance and consulting function designed to add value and improve the Bank's operations.  The Internal Audit function has been established within the Bank as a service to management, the Board of Directors (Board) and Audit Committee.  It is a high-level control which functions by identifying, reviewing and evaluating the adequacy, effectiveness and efficiency of the systems of control and reporting the results of these evaluations to appropriate parties to facilitate corrective action.  Internal Audit helps the Bank accomplish its objectives by bringing a systematic, disciplined approach to evaluating and improving the effectiveness of risk management, control, and governance processes.
+
+
+
+
+
+PURPOSE
+
+
+
+The primary responsibility of the Internal Audit function is to periodically examine the records of the Bank’s functions to ensure that:
+
+
+
+Financial information is accurate and reliable;
+
+Internal controls and safeguards are adequate, effective, and efficient;
+
+Regulatory and legal requirements are being complied with;
+
+Bank policies and procedures are being followed; and
+
+Bank Management and the Audit Committee are provided with an independent report of ongoing operations.
+
+
+
+The primary objective of the Internal Audit function is to assist management and the Audit Committee in the effective discharge of their responsibilities by furnishing them with accurate and timely information regarding the adequacy and effectiveness of controls established throughout the enterprise to manage financial, operational and regulatory risks.
+
+
+
+KEY COMPONENTS
+
+
+
+The internal control review process includes the following key components:
+
+
+
+Internal control oversight functions performed by the Audit Committee;
+
+On-going internal control review and testing;
+
+Authorize access to records, personnel, and physical properties relevant to the performance of internal audits.
+
+Audit Committee and management review and acceptance of internal control review and internal monitoring reports;
+
+Regulatory examinations and consultant reviews;
+
+Authorize the transmittal of various confidential regulatory reports or supervisory actions to external auditors.
+
+Set forth the expectations of the external auditors’ role in expressing an opinion on the Bank’s financial statements.; and
+
+Annual report to the Audit Committee on assessing the internal control function.  (MN Rules 2675.2600 - 2675.2640)
+
+
+
+INTERNAL CONTROL
+
+Internal control is a process, not one event or circumstance, but rather a series of actions that are built into the Bank’s operating activities.  Controls are a means to an end, not an end in themselves.  As the Bank’s risks change, the control system must change to ensure it remains effective.  If controls are no longer effective, they need to be improved or eliminated.
+
+
+
+An effective system of internal controls can only be expected to provide reasonable assurance that the Bank is managing its risks.  Even the best systems will be affected by limitations inherent in all aspects of business (i.e., human errors or mistakes, faulty decision making, the need for cost-benefit decisions, etc.).
+
+
+
+Internal controls should be designed to ensure the Bank’s success in meeting objectives in three overlapping categories – operations, financial information and compliance.  Failure to achieve these objectives can have significant consequences.  Establishing an effective system of internal controls can provide reasonable assurance that risks are being properly managed.
+
+
+
+Duties will be separated where possible so that at least two people will be involved in processing any transaction.  These separate transaction activities are:
+
+
+
+Authorization
+
+Execution
+
+Recording
+
+Reconciling
+
+
+
+In the instances where separating these activities is not practical, the Bank will use job rotation or close supervisory review to ensure that improper or erroneous transactions are detected in a timely manner.
+
+
+
+POLICY
+
+
+
+State of Minnesota Rules 2675.2600, Subpart 1, requires a written internal control system be established.  This Policy and other related written policies and procedures will provide the detail necessary to support fulfillment with this requirement.  In addition, a report describing the scope of coverage and effectiveness of the internal control system shall be reviewed for adequacy and approved by the Audit Committee annually.  Documentation of internal audit procedures performed in testing this internal control system and any resulting reports must be maintained by the Bank for inspection by supervisory examiners and the external auditors.
+
+
+
+If the bank’s total asset size is $500 million or more as of the beginning of the year, a management report signed by Bank’s Chief Executive Officer and Chief Financial Officer will be prepared as of the end of the most recent fiscal year.  It will contain a statement regarding the following management responsibilities:
+
+Preparation of the institution’s annual financial statement
+
+Establishment and maintenance of adequate internal controls and procedures for financial reporting, including a description of the activities the controls encompass
+
+Compliance with the laws and regulations relating to safety and soundness that are designated by the FDIC and the bank’s primary regulator
+
+The guidelines in Appendix A to 12 CFR 363 expand on the requirements relating to this management report.  Based on the guidelines, Management should review and report on the effectiveness of internal controls relating to the safeguarding of assets, as well as the existence and effectiveness of those controls on the management of assets, including loan underwriting and documentation.  The independent public accountant must attest to management’s assertions.  Supporting documentation for the management report should demonstrate that safeguarding of assets has been considered.
+
+
+
+AUTHORITY
+
+
+
+The Board shall designate a Director of Compliance and Audit (Auditor).  The Auditor reports functionally to the Audit Committee and administratively to the Bank’s Chief Financial Officer.  Through this structure, the Internal Audit Department is granted full and complete access to any information and other resources relevant to any particular audit project or audit objective, and may meet privately with one or more of the Audit Committee members or outside Board members whenever circumstances warrant.  The Auditor, or their designee, is responsible for reporting matters relating to the Bank’s internal controls to the President or designate, with unfettered and direct access to the Audit Committee and Board, including outside Audit Committee members, outside directors, and the Bank shareholders.
+
+
+
+The Auditor, or their designee, has the authority to perform internal control reviews on a “surprise” basis and has full access to all areas, books, records, properties, securities, and accounting procedures relating to the Bank’s activities at any time deemed appropriate and necessary to carry out their responsibilities.  The Auditor, or their designee, shall have the authority to seek the President’s or designee’s approval to direct implementation of corrective action upon discovering weaknesses in internal controls.
+
+
+
+The Internal Audit Department does not; however, have any authority over any of the activities or operations reviewed.  Line management is solely responsible and accountable for all business results, including any results directly attributable to implementation of specific audit recommendations.
+
+
+
+Audit Committee Membership Requirements
+
+If the bank’s total asset size is $500 million or more but less than $1 billion, the following conditions will apply to the Audit Committee:
+
+At least two members of the Audit Committee must have financial expertise.
+
+No member of the Audit Committee may be a large customer.
+
+The Audit Committee must have access to its own legal counsel.
+
+A large customer is defined in Appendix A to 12 CFR 363 as follows:
+
+Any individual or entity (including a controlling person of any such entity) which, in the determination of the board of directors, has such significant direct or indirect credit or other relationships with the institution, the termination of which likely would materially and adversely affect the institution’s financial condition or results of operations, should be considered a `large customer’ for purposes of section 363.5(b).
+
+
+
+RESPONSIBILITIES
+
+
+
+Audit Committee
+
+
+
+While Bank Management is primarily responsible for maintaining a sound system of internal controls and preparing financial statements that are reliable and reasonably accurate, internal control oversight is an important aspect of the management oversight function performed by the Audit Committee.  By approving and monitoring performance of this policy, the Audit Committee fulfills a major portion of this oversight function.  Under the “prudent man” and “standard of care” concepts of business law, the Audit Committee members may be held personally liable for the lack of protection of corporate assets, as well as noncompliance with laws and regulations.
+
+
+
+The Audit Committee’s responsibilities include:
+
+
+
+Establishing policies to ensure the proper and profitable conduct of banking activities, the safety of the Bank’s assets, and the accuracy and adequacy of periodic reports to shareholders, regulatory bodies, and in some instances, the general public.
+
+
+
+Maintaining open channels of direct and unfettered communication to its members, both individually and collectively, by the Auditor and CPA firm if, and when, requested.
+
+
+
+Reviewing promptly all regulatory examination, internal control, internal monitoring, consultant, and external audit reports, noting such review and acceptance in the meeting minutes.
+
+
+
+Reviewing and approving management’s response to regulatory examinations, internal control, internal monitoring, consultant, and external audit reports.
+
+
+
+Reviewing of financial, operational and management reports prepared by the mainframe system or by individuals, noting unexplained fluctuations, budget deviations, and other symptoms of possible internal control deficiencies.
+
+
+
+Ensuring that the individuals performing the annual audit meet the requirements of the Qualifications of Examining Authority rule regarding the qualification and independence requirements for individuals performing the audit.
+
+
+
+Approving annually the scope, coverage and effectiveness of the written internal control system.
+
+
+
+Bank Management:
+
+
+
+Bank Management’s responsibilities include:
+
+
+
+Implementing policies and enforcing a system of internal control as approved by the Audit Committee.
+
+
+
+Managing and supervising the internal audit/control function of the Bank.  This responsibility cannot be delegated.
+
+
+
+Fostering a positive corporate attitude towards sound internal controls and compliance with policies, procedures, laws and regulations.
+
+
+
+Supporting publicly the Auditor’s role.
+
+
+
+Maintaining current documentation of written policies and procedures for all significant functions of the Bank.
+
+
+
+Maintaining a sound system of internal controls.
+
+
+
+Preparing financial statements that are reliable and reasonably accurate.
+
+
+
+Responding promptly to the Auditor any action taken to correct any findings noted in written reports by regulatory agencies, the Auditor, or their designee, consultants or external auditors.
+
+
+
+Ensuring internal control weaknesses noted in regulatory examinations; internal control, internal monitoring, consultant, and external audit reports are adequately corrected.  All managers and supervisors will give complete cooperation to the process in their area(s) of responsibility.
+
+
+
+Director of Compliance and Audit (Auditor)
+
+
+
+It is a requisite that the Auditor have access to any area or records required.  They will maintain control of those records until such time as the audit is completed and will maintain sufficient work papers to verify scope and deficiencies and to support conclusions.  Work papers may be provided to external auditors, regulators, and the Audit Committee if requested.
+
+
+
+Throughout the audit’s procedures, statistical sampling may be used, with the type (numerical, proportional, or judgmental) left to the discretion of the Auditor, or their designee. The Auditor, or their designee, must document the decision process used to determine the sample size in the work papers.
+
+
+
+The Auditor’s responsibilities include:
+
+
+
+Performing all actions deemed necessary to review and evaluate the soundness, effectiveness, adequacy, accuracy, and application of accounting, administrative and other established business operating controls (i.e., policies, procedures, standards, etc.).  These controls include those established to achieve the following results:
+
+
+
+Reliability of financial and operational information (management data) for use in management decision-making; 
+
+Properly safeguarded resources, including information and human resources; 
+
+Compliance with established policies/procedures, applicable laws and regulations, and generally accepted standards of prudent business management; and
+
+Effective and efficient utilization of resources to achieve established business goals and objectives.
+
+
+
+Developing a comprehensive assessment of risks and appropriate annual audit plan which will cover all significant organizational activities over an appropriate time cycle to ascertain that they are being performed and exceptions noted are corrected.
+
+
+
+Promoting a high level of control awareness throughout the Bank.
+
+
+
+Maintaining effective communications with all departments of the Bank and demonstrating a thorough working knowledge of their activities.
+
+
+
+Determining the extent to which the Bank’s assets are accounted for and safeguarded from losses of all kinds.
+
+
+
+Reporting to management and the Audit Committee, in writing and upon report completion, opportunities identified for strengthening established business operating controls on a timely basis.
+
+
+
+Requesting management to promptly respond and correct deficiencies, exceptions and other weaknesses noted during the internal control and internal monitoring reviews.
+
+
+
+Providing summary reports of follow up to the Audit Committee quarterly for monitoring purposes.
+
+
+
+Coordinating examinations by external auditors, loan review consultants, the FDIC and the State of Minnesota to facilitate and expedite the examination process and monitoring implementation of needed corrective action.
+
+
+
+Coordinating with the external auditors to ensure compliance with the Annual Audit Report rule which establishes minimum performance and reporting requirements for the annual audit required by Minnesota Statutes, section 48.10.
+
+
+
+Coordinating management’s response to recommendations, suggestions and violations of law and regulations contained in regulatory examination, consultant, and external audit examination reports.
+
+
+
+Reviewing of the Bank’s policies and procedures, in light of examinations by external auditors, consultants, the Federal Deposit Insurance Corporation (FDIC), and the State of Minnesota.
+
+
+
+Exercising due professional care and for handling all information and other assets reviewed during the course of ongoing audit work in a prudent and professional manner.
+
+
+
+Communicating, in writing, each year to the CPA firm (or the CPA firm may include their acknowledgment in the engagement letter) that the Audit Committee expects the CPA firm to be independent (as defined by Generally Accepted Auditing Standards).
+
+
+
+Developing policies and procedures to guide internal audit staff in the audit of various areas of the bank, including checklists, questionnaires, and flow charts to aid the internal audit staff.
+
+
+
+All Bank Personnel
+
+
+
+While the Auditor is responsible for the coordination and testing of internal controls and the Audit Committee is responsible for the oversight of the internal control process, each employee is responsible for ensuring that internal controls in their function exist and work as designed.  Bank personnel are expected to cooperate in making the internal control process effective.  Bank personnel are also expected to report any weakness in internal controls to the Auditor or to their supervisor who, in turn, will be responsible for reporting the weakness the Auditor.
+
+
+
+EXTERNAL AUDITS
+
+
+
+Due to the Bank’s asset size, a full-scope audit is not required under 12 CFR 363, Annual Independent Audits and Reporting Requirements.  The Bank’s Board of Directors had determined that a full-scope audit will not be conducted until such time as the bank reaches the threshold in 12 CFR 363.  Until such time the Board has directed that the minimum annual examination requirements, pursuant to Minnesota Statutes, section 48.10 and Rule 2675.2610, will be performed through a combination of internal and external audits.  
+
+
+
+The Annual Examination Report will be submitted to the Board no later than 30 days after the completion of the required examinations.
+"""
+- AUTHORITY_HINTS: - **NCUA 12 CFR Part 715 (Supervisory Committee Audits and Verifications)** — requires an internal control structure supporting an annual audit and member account verification by the Supervisory Committee.
+- **NCUA 12 CFR §741.3 (Criteria for Insurance)** — sound business and home office practices, including adequate internal controls and recordkeeping, as a condition of insurability.
+- **NCUA 12 CFR Part 748 (Security Program, Suspicious Activity, and Records)** — internal controls over security, recordkeeping, and the BSA/AML compliance program.
+- **Federal Credit Union Act (12 U.S.C. §1761b)** — Supervisory Committee duties to ensure internal controls are established and effectively maintained.
+- **FFIEC and NCUA examiner guidance on internal controls** — expectations for the control environment, risk assessment, control activities, information and communication, and monitoring (COSO-aligned framework).
+- DESIGN_NOTES: """# System Design Notes — Engineering Vocabulary
+
+> Generated from `vocabulary.json` — **Cassandra Banking Core API** v1.0.0
+> Parsed at 2026-03-13T21:51:37.890Z
+> Totals: 14 entities · 252 fields · 0 computed fields · 0 events · 85 endpoints · 0 state machines · 0 plugins
+
+This block is a verbatim dump of the current engineering vocabulary. Downstream regeneration decides what to reference in the Design Overlay v2 control blocks — do not pre-filter.
+
+## Entities and fields
+
+### `account`  (schema: `Account` · 15 fields · retention: 7y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique account identifier. |
+| `entity_id` | string | ✓ |  |  | Primary owning entity. Immutable after creation. This is the entity under which the account appears for 5300 reporting and BSA monitoring. |
+| `account_type` | string (enum: checking, savings, money_market) | ✓ |  |  | Ledger account type. Maps to 5300 account codes via the bookkeeping layer. - `checking` — Share draft account (5300 code 025B) - `savings`… |
+| `status` | string (enum: open, frozen, closed) | ✓ |  |  | Account lifecycle state. - `open` — Active and operational. - `frozen` — Temporarily suspended (no debits; credits may still post). Reversi… |
+| `lock_type` | string (enum: none, compliance, fraud, legal, admin) | ✓ |  |  | Orthogonal lock applied independently of entity status. When lock_type is not `none`, the entity is restricted from certain operations even… |
+| `dormancy_status` | string (enum: active, dormant, abandoned) | ✓ |  |  | Orthogonal dormancy classification, tracked independently of account status. Driven by state-specific inactivity periods (typically 12 mont… |
+| `currency` | string | ✓ |  |  | ISO 4217 currency code. Only USD supported. |
+| `balances` | object | ✓ |  |  | Balance fields sourced from the Blnk Deploy ledger. These are read-only computed values — all mutations happen through transaction endpoint… |
+| `balances.balance` | integer |  |  |  | Current available balance (cents). Credits minus debits, excluding inflight. |
+| `balances.credit_balance` | integer |  |  |  | Lifetime credit total (cents). |
+| `balances.debit_balance` | integer |  |  |  | Lifetime debit total (cents). |
+| `balances.inflight_balance` | integer |  |  |  | Net pending transaction amount (cents). Represents authorized but unsettled transactions (e.g., card authorizations). Managed by Blnk's QUE… |
+| `balances.inflight_credit_balance` | integer |  |  |  | Pending inbound credits (cents). |
+| `balances.inflight_debit_balance` | integer |  |  |  | Pending outbound debits (cents). |
+| `bookkeeping` | object | ✓ |  |  | Shadow bookkeeping layer fields for 5300 regulatory reporting and FBO segregation. These are managed by Cassandra, not sourced from Blnk. |
+| `bookkeeping.account_code_5300` | string |  |  |  | NCUA 5300 account code (e.g., 025B for share drafts, 010 for regular shares). Assigned automatically based on account type; overridable by… |
+| `bookkeeping.schedule_a_code` | string |  |  |  | 5300 Schedule A line item code for balance sheet classification. Used by the 5300 Reporter consumer for aggregated reporting. |
+| `bookkeeping.fbo_classification` | string (enum: customer_balance, commingled_cash, settlement) |  |  |  | FBO sub-account classification for the bookkeeping layer. - `customer_balance` — Holds attributed to a specific end-user entity. - `comming… |
+| `bookkeeping.locked_amount` | integer |  |  |  | Amount held by BSA/compliance controls (cents). Separate from Blnk inflight holds — this represents funds frozen by the control engine (e.g… |
+| `owners` | array<object> | ✓ |  |  | All entities with ownership or authority over this account. At minimum, includes the primary owner matching entity_id. Joint ownership is m… |
+| `blnk_ledger_id` | string |  |  |  | Corresponding ledger ID in Blnk Deploy. Opaque reference for reconciliation. |
+| `account_numbers` | array<object> |  |  |  | Summary of account numbers associated with this account. Use the Account Numbers endpoints for full details and management. |
+| `metadata` | object |  |  |  | Arbitrary key-value pairs for partner use. |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `account_number`  (schema: `AccountNumber` · 10 fields · retention: 7y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique account number resource identifier. |
+| `account_id` | string | ✓ |  |  | The ledger account this number is associated with. Immutable. |
+| `account_number` | string | ✓ | ✓ |  | 12-digit account number allocated by the aggregator. Format is PPP-SSSSSSSS-C where P is the 3-digit fintech prefix, S is the 8-digit seque… |
+| `routing_number` | string | ✓ |  |  | ABA routing number. All account numbers within a credit union share the same routing number (the credit union's Fed master account routing… |
+| `status` | string (enum: active, disabled, canceled) | ✓ |  |  | Account number lifecycle state. - `active` — Routable. Inbound payments accepted, outbound allowed. - `disabled` — Temporarily non-routable… |
+| `informational_entity_id` | string | ✓ |  |  | Entity ID for FBO attribution. Typically matches the account's primary owner but can differ in BaaS scenarios where the fintech partner is… |
+| `label` | string |  |  |  | Human-readable label for this account number (e.g., Primary Checking, Partner A Routing). For partner reference only, not used in payment f… |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `ach_transfer`  (schema: `AchTransfer` · 23 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique ACH transfer identifier. |
+| `account_id` | string | ✓ |  |  | The ledger account being debited or credited. |
+| `account_number_id` | string | ✓ |  |  | The specific account number used for this transfer. Determines the routing/account number pair that appears in the ACH file. |
+| `direction` | string (enum: credit, debit) | ✓ |  |  | Direction of the ACH transfer from the perspective of this account. - `credit` — Push money out (originate a payment to an external party).… |
+| `amount` | integer | ✓ |  |  | Transfer amount in cents. Must be positive. |
+| `currency` | string | ✓ |  |  |  |
+| `status` | string (enum: pending_approval, submitted, settled, returned, rejected, canceled) | ✓ |  |  | ACH transfer lifecycle state. - `pending_approval` — Created, awaiting control engine evaluation. - `submitted` — Controls passed, ACH file… |
+| `window` | string (enum: standard, same_day) | ✓ |  |  | ACH processing window. - `standard` — Next-day settlement (standard ACH). - `same_day` — Same-day ACH (additional fee may apply, cutoff tim… |
+| `counterparty` | object | ✓ |  |  |  |
+| `counterparty.routing_number` | string | ✓ |  |  | ABA routing number of the receiving institution. |
+| `counterparty.account_number` | string | ✓ | ✓ |  | Account number at the receiving institution. |
+| `counterparty.account_type` | string (enum: checking, savings) | ✓ |  |  | Account type at the receiving institution. |
+| `counterparty.name` | string | ✓ | ✓ |  | Receiver name as it will appear in the ACH file. Max 22 characters per NACHA format. |
+| `description` | string |  |  |  | Company entry description in the ACH batch header. Max 10 characters per NACHA format (e.g., "PAYROLL", "PAYMENT"). |
+| `company_name` | string |  |  |  | Originator company name in the ACH batch header. Max 16 characters per NACHA format. Defaults to partner's registered name. |
+| `effective_date` | string |  |  |  | The date the transfer will settle at the Fed. Set by the system based on the processing window and submission time. For same-day ACH, this… |
+| `expected_settlement` | string |  |  |  | Estimated settlement timestamp. More precise than effective_date — accounts for Fed processing windows, weekends, and holidays. |
+| `settled_at` | string |  |  |  | Actual settlement timestamp. Populated when status becomes `settled`. |
+| `returned_at` | string |  |  |  | Timestamp of the return. Populated when status becomes `returned`. |
+| `return_code` | string |  |  |  | NACHA return reason code (e.g., R01 Insufficient Funds, R02 Account Closed, R03 No Account, R04 Invalid Account Number). Only present when… |
+| `return_reason` | string |  |  |  | Human-readable return reason. Only present when status is `returned`. |
+| `rejection_reason` | string |  |  |  | Explanation of why the control engine rejected this transfer. Only present when status is `rejected`. |
+| `control_results` | array<object> |  |  |  | Results of all control engine evaluations for this transfer. Populated at creation time (when the control engine gates the transfer). |
+| `blnk_transaction_id` | string |  |  |  | Corresponding transaction ID in Blnk Deploy. |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `book_transfer`  (schema: `BookTransfer` · 13 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique book transfer identifier. |
+| `source_account_id` | string | ✓ |  |  | The account being debited. |
+| `destination_account_id` | string | ✓ |  |  | The account being credited. |
+| `amount` | integer | ✓ |  |  | Transfer amount in cents. |
+| `currency` | string | ✓ |  |  |  |
+| `status` | string (enum: pending, completed, rejected) | ✓ |  |  | Book transfer lifecycle state. - `pending` — Created, control engine evaluating. - `completed` — Funds moved instantly (both sides settled)… |
+| `description` | string |  |  |  | Free-text description of the transfer purpose. |
+| `rejection_reason` | string |  |  |  | Explanation of why the control engine rejected this transfer. Only present when status is `rejected`. |
+| `control_results` | array<object> |  |  |  | Results of control engine evaluations. |
+| `blnk_transaction_id` | string |  |  |  | Corresponding transaction ID in Blnk Deploy. |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `wire_transfer`  (schema: `WireTransfer` · 21 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique wire transfer identifier. |
+| `account_id` | string | ✓ |  |  | The ledger account being debited (outbound) or credited (inbound). |
+| `account_number_id` | string | ✓ |  |  | The account number used for this wire. |
+| `direction` | string (enum: outbound, inbound) | ✓ |  |  | Direction of the wire transfer. - `outbound` — Originated by this instance, sending funds via Fedwire. - `inbound` — Received from an exter… |
+| `amount` | integer | ✓ |  |  | Transfer amount in cents. |
+| `currency` | string | ✓ |  |  |  |
+| `status` | string (enum: pending_approval, submitted, completed, return_requested, returned, rejected, …(+1)) | ✓ |  |  | Wire transfer lifecycle state. - `pending_approval` — Created, awaiting control engine evaluation. - `submitted` — Controls passed, Fedwire… |
+| `beneficiary` | object |  |  |  | The receiving party and their bank details for an outbound wire. |
+| `beneficiary.name` | string | ✓ | ✓ |  | Beneficiary name as it will appear on the Fedwire message. |
+| `beneficiary.routing_number` | string | ✓ |  |  | ABA routing number of the beneficiary's bank. |
+| `beneficiary.account_number` | string | ✓ | ✓ |  | Account number at the beneficiary's bank. |
+| `beneficiary.bank_name` | string |  |  |  | Name of the beneficiary's bank. Optional — if omitted, resolved automatically from the routing number via the Fed directory. |
+| `beneficiary.address` | object |  |  |  |  |
+| `beneficiary.address.line1` | string | ✓ | ✓ |  | Street address line 1. |
+| `beneficiary.address.line2` | string |  |  |  | Street address line 2 (apt, suite, unit, etc.). |
+| `beneficiary.address.city` | string | ✓ | ✓ |  |  |
+| `beneficiary.address.state` | string | ✓ |  |  | Two-letter US state or territory code (ISO 3166-2:US). |
+| `beneficiary.address.postal_code` | string | ✓ | ✓ |  | US ZIP code (5-digit or ZIP+4). |
+| `beneficiary.address.country` | string | ✓ |  |  | ISO 3166-1 alpha-2 country code. |
+| `originator` | object |  |  |  | Originator information from an inbound Fedwire message. Read-only — populated by the aggregator when routing an inbound wire. |
+| `originator.name` | string |  | ✓ |  |  |
+| `originator.routing_number` | string |  |  |  |  |
+| `originator.account_number` | string |  | ✓ |  |  |
+| `originator.bank_name` | string |  |  |  |  |
+| `originator.reference` | string |  |  |  | Originator-to-beneficiary information (OBI) from the Fedwire message. |
+| `purpose` | string |  |  |  | Originator-to-beneficiary information (OBI). Free-text description of the wire purpose, included in the Fedwire message. |
+| `imad` | string |  |  |  | Input Message Accountability Data — the Fed's unique identifier for this Fedwire message. Populated after submission. Used for tracing and… |
+| `omad` | string |  |  |  | Output Message Accountability Data — assigned by the receiving Fed bank. Populated after the wire is acknowledged. |
+| `submitted_at` | string |  |  |  | Timestamp when the Fedwire message was submitted. |
+| `completed_at` | string |  |  |  | Timestamp when the wire completed. Wires are typically same-day. |
+| `return_request` | object |  |  |  | Details of the return request, if one has been filed. Only present when status is `return_requested` or `returned`. |
+| `rejection_reason` | string |  |  |  | Explanation of why the control engine rejected this wire. Only present when status is `rejected`. |
+| `control_results` | array<object> |  |  |  | Results of control engine evaluations. |
+| `blnk_transaction_id` | string |  |  |  | Corresponding transaction ID in Blnk Deploy. |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `verification`  (schema: `Verification` · 14 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique verification identifier. |
+| `entity_id` | string | ✓ |  |  | The entity being verified. |
+| `type` | string (enum: kyc, kyb) | ✓ |  |  | Whether this is identity verification for a person (KYC) or a business (KYB). Trusts use KYB. Joint entities are verified through their ind… |
+| `provider` | string (enum: alloy, persona, socure, middesk, partner_provided) | ✓ |  |  | The identity verification provider used for this check. - `alloy`, `persona`, `socure`, `middesk` — Cassandra-managed providers. The system… |
+| `trust_level` | string (enum: full, verify_watchlist_only) |  |  |  | Trust level for partner-provided verifications (from partner configuration). - `full` — Cassandra trusts the partner's identity verificatio… |
+| `status` | string (enum: pending, in_review, approved, denied, expired) | ✓ |  |  | Status of this individual verification attempt. - `pending` — Verification submitted to provider, awaiting result. - `in_review` — Provider… |
+| `ofac_result` | object | ✓ |  |  | Result of the mandatory OFAC screening. OFAC screening is a compliance floor control (BA-05) and runs on every verification regardless of p… |
+| `ofac_result.screened_at` | string |  |  |  |  |
+| `ofac_result.match_status` | string (enum: clear, potential_match, confirmed_match) |  |  |  | - `clear` — No matches found on SDN, consolidated sanctions, or PEP lists. - `potential_match` — Possible match requiring compliance office… |
+| `ofac_result.matched_lists` | array<string> |  |  |  | Names of lists that returned matches (e.g., "SDN", "Consolidated Sanctions", "PEP", "314a"). Empty array when match_status is `clear`. |
+| `ofac_result.match_score` | number |  |  |  | Confidence score of the strongest match (0-100). Only meaningful when match_status is `potential_match`. Used by compliance officers to pri… |
+| `provider_result` | object |  |  |  | Normalized verification result from the provider. Cassandra translates each provider's native response into this common structure. |
+| `provider_result.provider_reference` | string |  |  |  | The provider's native reference ID for this verification (e.g., Alloy evaluation_token, Persona inquiry_id). |
+| `provider_result.provider_status` | string |  |  |  | The provider's native status string, preserved for debugging. Cassandra normalizes this into the verification's top-level `status`. |
+| `provider_result.identity_verified` | boolean |  |  |  | Whether the provider confirmed the identity matches the provided data. |
+| `provider_result.document_verified` | boolean |  |  |  | Whether identity documents were verified (if required by risk tier). Null if document verification was not required. |
+| `provider_result.risk_score` | number |  |  |  | Provider's risk score, normalized to 0-100 range. Higher = riskier. Used by CDD controls for risk tiering. |
+| `provider_result.risk_signals` | array<string> |  |  |  | Risk signal tags from the provider (e.g., "address_mismatch", "ssn_issued_prior_to_dob", "high_risk_jurisdiction"). Used by the control eng… |
+| `provider_result.raw_response` | object |  |  |  | The complete provider response, stored verbatim for audit purposes. Only returned when the requesting token has compliance-scoped permissio… |
+| `denial_reasons` | array<string> |  |  |  | Machine-readable reasons for denial (e.g., "identity_not_verified", "document_mismatch", "high_risk_jurisdiction", "ofac_match"). Only pres… |
+| `expires_at` | string |  |  |  | When this verification result expires per CDD refresh policy. After expiry, the entity's kyc_status transitions to `expired` and a new veri… |
+| `triggered_by` | string (enum: initial, cdd_refresh, information_change, manual) |  |  |  | What triggered this verification. - `initial` — First-time verification on entity creation. - `cdd_refresh` — Periodic re-verification per… |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `card`  (schema: `Card` · 16 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique card identifier. |
+| `account_id` | string | ✓ |  |  | The ledger account this card draws from / credits to. |
+| `entity_id` | string | ✓ |  |  | The entity this card is issued to. Must be a person entity. Immutable after creation. |
+| `card_type` | string (enum: virtual, physical) | ✓ |  |  | - `virtual` — Instantly issued, PAN available immediately via secure details endpoint. - `physical` — Requires fulfillment (mailing). PAN a… |
+| `form_factor` | string (enum: debit, prepaid) | ✓ |  |  | Card form factor for network classification. - `debit` — Linked to a deposit account with overdraft rules. - `prepaid` — Balance-limited, n… |
+| `network` | string (enum: visa, mastercard) |  |  |  | Card network, determined by the BIN allocated to this instance. |
+| `status` | string (enum: inactive, active, frozen, closed) | ✓ |  |  | Card lifecycle state, driven by the adapter interface (createCard, activateCard, freezeCard, closeCard). - `inactive` — Card created but no… |
+| `last_four` | string | ✓ |  |  | Last four digits of the card number (PAN). |
+| `expiration_month` | integer | ✓ |  |  |  |
+| `expiration_year` | integer | ✓ |  |  | Four-digit expiration year. |
+| `shipping` | object |  |  |  | Shipping details for physical cards. Only present when `card_type` is `physical`. Null for virtual cards. |
+| `shipping.status` | string (enum: pending, shipped, delivered, returned) |  |  |  |  |
+| `shipping.tracking_number` | string |  |  |  |  |
+| `shipping.carrier` | string |  |  |  |  |
+| `shipping.shipped_at` | string |  |  |  |  |
+| `shipping.estimated_delivery` | string |  |  |  |  |
+| `spend_controls` | object |  |  |  | Optional per-card spending limits. These are enforced in addition to account-level controls and the control engine's velocity limits. |
+| `spend_controls.daily_limit` | integer |  |  |  | Maximum daily spend in cents. Null means no per-card daily limit. |
+| `spend_controls.monthly_limit` | integer |  |  |  | Maximum monthly spend in cents. |
+| `spend_controls.per_transaction_limit` | integer |  |  |  | Maximum single transaction amount in cents. |
+| `spend_controls.allowed_mcc_codes` | array<string> |  |  |  | Whitelist of allowed Merchant Category Codes. If populated, only transactions at merchants with these MCCs are approved. Empty array means… |
+| `spend_controls.blocked_mcc_codes` | array<string> |  |  |  | Blacklist of blocked MCCs. Transactions at merchants with these MCCs are declined. Evaluated after allowed_mcc_codes. |
+| `processor_reference` | string |  |  |  | Card reference ID at the processor (Marqeta card_token or Lithic card_id). Opaque — used internally for adapter operations. |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `card_authorization`  (schema: `CardAuthorization` · 14 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  |  |
+| `card_id` | string | ✓ |  |  |  |
+| `account_id` | string | ✓ |  |  |  |
+| `status` | string (enum: pending, approved, declined, reversed, expired) | ✓ |  |  | Authorization lifecycle. - `pending` — Authorization received, control engine evaluating (transient, sub-2-second). - `approved` — Authoriz… |
+| `amount` | integer | ✓ |  |  | Authorization amount in cents. |
+| `currency` | string | ✓ |  |  |  |
+| `merchant` | object | ✓ |  |  | Merchant details from the authorization request. |
+| `merchant.name` | string |  |  |  |  |
+| `merchant.mcc` | string |  |  |  | Merchant Category Code. |
+| `merchant.city` | string |  |  |  |  |
+| `merchant.state` | string |  |  |  |  |
+| `merchant.country` | string |  |  |  |  |
+| `merchant.acceptor_id` | string |  |  |  | Card acceptor ID from the processor. |
+| `decline_reason` | string (enum: insufficient_funds, card_frozen, card_closed, account_frozen, account_locked, spend_limit_exceeded, …(+5)) |  |  |  | Machine-readable reason for declining an authorization. |
+| `control_results` | array<object> |  |  |  | Control engine results for this authorization. Includes balance check, velocity, OFAC, fraud, and spend control evaluations. |
+| `blnk_transaction_id` | string |  |  |  | Blnk inflight transaction ID (for approved authorizations). Null for declined authorizations. |
+| `processor_reference` | string |  |  |  | Processor's native authorization reference. |
+| `settled_at` | string |  |  |  | Settlement timestamp. Populated when the inflight transaction commits in Blnk (processor sends settlement webhook). Null until settled. |
+| `settlement_amount` | integer |  |  |  | Final settlement amount in cents. May differ from the authorization amount (e.g., tip added, partial fulfillment). |
+| `created_at` | string | ✓ |  |  |  |
+
+### `bookkeeping_entry`  (schema: `BookkeepingEntry` · 17 fields · retention: 7y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique bookkeeping entry identifier. |
+| `account_id` | string | ✓ |  |  | The ledger account this entry pertains to. |
+| `account_number_id` | string |  |  |  | The specific account number involved (if applicable). Null for account-level entries (e.g., interest, fees). |
+| `entity_id` | string |  |  |  | The entity attributed for FBO segregation. Derived from the account's primary owner or the account number's informational_entity_id, depend… |
+| `entry_type` | string (enum: debit, credit, hold_placed, hold_released, hold_seized) | ✓ |  |  | Type of bookkeeping entry. - `debit` — Funds left the account (matches a Blnk debit transaction). - `credit` — Funds entered the account (m… |
+| `source` | string (enum: ach_transfer, wire_transfer, book_transfer, card_authorization, card_settlement, fee, …(+3)) | ✓ |  |  | The originating transaction type that produced this bookkeeping entry. Maps 1:1 to the domain event that triggered the Blnk webhook. |
+| `source_id` | string |  |  |  | ID of the originating resource (e.g., ach_5kRb3m for an ACH transfer, auth_2nRb7m for a card authorization). Allows joining bookkeeping ent… |
+| `amount` | integer | ✓ |  |  | Entry amount in cents. Always positive — direction is conveyed by entry_type. |
+| `currency` | string | ✓ |  |  |  |
+| `running_balance` | integer |  |  |  | Account balance after this entry was applied (cents). Provides a verifiable audit trail — each entry's running_balance should equal the pre… |
+| `account_code_5300` | string | ✓ |  |  | NCUA 5300 account code for this entry (e.g., 025B for share drafts, 010 for regular shares). Inherited from the account's bookkeeping tags… |
+| `schedule_a_code` | string |  |  |  | 5300 Schedule A line item code for balance sheet classification. Used by the 5300 Reporter for aggregated reporting. |
+| `fbo_classification` | string (enum: customer_balance, commingled_cash, settlement) | ✓ |  |  | FBO sub-account classification for the bookkeeping layer. - `customer_balance` — Holds attributed to a specific end-user entity. - `comming… |
+| `blnk_transaction_id` | string |  |  |  | Corresponding Blnk Deploy transaction ID. Null for compliance hold entries (which are Cassandra-native, not Blnk transactions). |
+| `description` | string |  |  |  | System-generated description of the entry (e.g., "ACH credit from John Doe via 271070801", "Compliance hold placed — BA-05 OFAC match"). |
+| `effective_date` | string |  |  |  | The business date this entry is effective for regulatory reporting. May differ from created_at for entries posted after business hours or f… |
+| `created_at` | string | ✓ |  |  |  |
+
+### `event`  (schema: `Event` · 11 fields · retention: 7y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique event identifier. |
+| `type` | string (enum: entity.created, entity.activated, entity.disabled, entity.archived, entity.updated, entity.locked, …(+51)) | ✓ |  |  | Domain event type. Events are emitted on every state transition and significant operation. Partners receive these via webhook delivery. |
+| `resource_id` | string | ✓ |  |  | ID of the resource that changed (e.g., ent_abc123, acct_xyz789). |
+| `resource_type` | string | ✓ |  |  | Type of the resource (e.g., entity, account, ach_transfer). |
+| `data` | object |  |  |  | Snapshot of the resource at the time of the event. Contains the full resource representation (same schema as the corresponding GET endpoint… |
+| `previous_data` | object |  |  |  | For update events, the resource state before the change. Only includes fields that changed. Null for creation events. |
+| `delivery_status` | string (enum: pending, delivered, failed, expired) |  |  |  | Delivery status for a specific webhook delivery attempt. - `pending` — Queued for delivery (or retrying). - `delivered` — Partner endpoint… |
+| `delivery_attempts` | integer |  |  |  | Number of webhook delivery attempts made so far (max 12). |
+| `last_delivery_attempt_at` | string |  |  |  | Timestamp of the most recent delivery attempt. |
+| `delivered_at` | string |  |  |  | Timestamp of successful delivery. Null if not yet delivered. |
+| `created_at` | string | ✓ |  |  |  |
+
+### `webhook_endpoint`  (schema: `WebhookEndpoint` · 9 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique webhook endpoint identifier. |
+| `url` | string | ✓ |  |  | The HTTPS URL that receives webhook POST requests. Must use HTTPS (HTTP rejected). Must return 2xx within 30 seconds to be considered a suc… |
+| `status` | string (enum: active, disabled) | ✓ |  |  | - `active` — Events are delivered to this endpoint. - `disabled` — Delivery is paused. Events accumulate and can be retrieved via the backf… |
+| `subscribed_events` | array<string> | ✓ |  |  | List of event type patterns this endpoint receives. Supports exact types (e.g., "ach_transfer.settled") and wildcard prefixes (e.g., "ach_t… |
+| `signing_secret` | string |  |  |  | HMAC-SHA256 signing secret for verifying webhook payloads. Only returned once at creation time. Use to verify the `X-Cassandra-Signature` h… |
+| `delivery_stats` | object |  |  |  | Rolling delivery statistics for this endpoint. |
+| `delivery_stats.total_delivered` | integer |  |  |  |  |
+| `delivery_stats.total_failed` | integer |  |  |  |  |
+| `delivery_stats.last_delivered_at` | string |  |  |  |  |
+| `delivery_stats.last_failed_at` | string |  |  |  |  |
+| `delivery_stats.current_failure_streak` | integer |  |  |  | Consecutive failed deliveries. When this reaches a threshold, the endpoint may be automatically disabled and the partner alerted. |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `fbo_position`  (schema: `FboPosition` · 6 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `instance_id` | string | ✓ |  |  |  |
+| `balance` | integer | ✓ |  |  | Current FBO balance for this instance (cents). Sum of all settled inbound minus all settled outbound for this instance's accounts. |
+| `held_amount` | integer | ✓ |  |  | Amount currently reserved for pending outbound payments (cents). Held via the reserve saga pattern (Decision 28, step 4). |
+| `available_balance` | integer | ✓ |  |  | Effective available balance (cents). Computed as `balance - held_amount`. This is the amount the Origination API checks against when approv… |
+| `last_event_sequence` | integer | ✓ |  |  | The sequence_id of the most recent event processed by the Payment Hub consumer for this instance. Used for staleness detection. |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `inbound_payment`  (schema: `InboundPayment` · 9 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  |  |
+| `payment_type` | string (enum: ach_credit, ach_debit, wire, rtp) | ✓ |  |  |  |
+| `account_number` | string | ✓ |  |  | The 12-digit account number this payment was routed to. |
+| `amount` | integer | ✓ |  |  |  |
+| `currency` | string |  |  |  |  |
+| `status` | string (enum: pending, delivered, acknowledged) | ✓ |  |  | - `pending` — Aggregator has the payment, not yet pushed to instance. - `delivered` — Pushed to instance via webhook. - `acknowledged` — In… |
+| `originator` | object |  |  |  |  |
+| `originator.name` | string |  |  |  |  |
+| `originator.routing_number` | string |  |  |  |  |
+| `originator.account_number` | string |  |  |  |  |
+| `reference` | string |  |  |  | Originator reference or trace number. |
+| `received_at` | string | ✓ |  |  | When the aggregator received this payment from the Fed. |
+
+### `bsa_alert`  (schema: `BsaAlert` · 9 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `alert_id` | string | ✓ |  |  |  |
+| `event_id` | string | ✓ |  |  | The event that triggered this alert. |
+| `alert_type` | string (enum: ctr_threshold, structuring_suspected, cross_fintech_activity, sar_candidate, velocity_anomaly, watchlist_hit) | ✓ |  |  | Type of BSA alert generated by the BSA Approver (real-time) or BSA Reporter (scheduled). |
+| `entity_hash` | string | ✓ |  |  | Hashed entity identifier (SSN/EIN hash). Used for per-entity lookups without exposing PII in the alert table. |
+| `instance_id` | string |  |  |  | The fintech instance where the triggering event originated. For cross-fintech alerts, this is the instance of the most recent triggering ev… |
+| `status` | string (enum: open, under_review, escalated, cleared, block) | ✓ |  |  | BSA alert lifecycle. - `open` — New alert, not yet reviewed. - `under_review` — Analyst is investigating. - `escalated` — Elevated to SAR c… |
+| `requires_lookback` | boolean |  |  |  | Whether the BSA Reporter should run a deep historical analysis on this alert. Set by the BSA Approver when it detects patterns that need 90… |
+| `details` | object |  |  |  | Alert-specific details. Structure varies by alert_type. Examples: transaction amounts, pattern description, matched entity information for… |
+| `created_at` | string | ✓ |  |  |  |
+
+## Events
+
+> ⚠️  **Vocabulary warning — no events defined.** The `events` array in vocabulary.json is empty. Any `(event.code)` reference the policy wants to use must be introduced by engineering and registered in the spec before the Design Overlay v2 blocks can cite it. The endpoints list below is provided as candidate signals from which engineering could derive event codes (e.g., `POST /accounts` → `account.created`).
+
+## Endpoints
+
+| Method | Path | Summary | Control refs | Audit events |
+|---|---|---|---|---|
+| `GET` | `/entities` | List entities |  |  |
+| `GET` | `/entities/{entity_id}` | Retrieve an entity |  |  |
+| `POST` | `/entities/person` | Create a person entity | CD-01, CD-04, BA-03, BA-05 |  |
+| `POST` | `/entities/business` | Create a business entity | CD-01, CD-04, CD-05, BA-03, BA-05 |  |
+| `POST` | `/entities/trust` | Create a trust entity | CD-01, CD-04, BA-03, BA-05 |  |
+| `POST` | `/entities/joint` | Create a joint entity | BA-05 |  |
+| `PATCH` | `/entities/person/{entity_id}` | Update a person entity | CD-09, BA-05 |  |
+| `PATCH` | `/entities/business/{entity_id}` | Update a business entity | CD-05, CD-09 |  |
+| `PATCH` | `/entities/trust/{entity_id}` | Update a trust entity | CD-09 |  |
+| `PATCH` | `/entities/joint/{entity_id}` | Update a joint entity |  |  |
+| `POST` | `/entities/{entity_id}/status` | Transition entity status | BA-05, CD-08 |  |
+| `PUT` | `/entities/{entity_id}/lock` | Update entity lock |  |  |
+| `GET` | `/accounts` | List accounts |  |  |
+| `POST` | `/accounts` | Create an account | CD-04, CD-03, CD-12, BA-05 |  |
+| `GET` | `/accounts/{account_id}` | Retrieve an account |  |  |
+| `PATCH` | `/accounts/{account_id}` | Update an account | CD-05 |  |
+| `POST` | `/accounts/{account_id}/status` | Transition account status | CD-12 |  |
+| `PUT` | `/accounts/{account_id}/lock` | Update account lock |  |  |
+| `GET` | `/accounts/{account_id}/account-numbers` | List account numbers for an account |  |  |
+| `POST` | `/accounts/{account_id}/account-numbers` | Create an additional account number | BA-05 |  |
+| `GET` | `/account-numbers/{account_number_id}` | Retrieve an account number |  |  |
+| `PATCH` | `/account-numbers/{account_number_id}` | Update an account number |  |  |
+| `POST` | `/account-numbers/{account_number_id}/status` | Transition account number status |  |  |
+| `GET` | `/transfers/ach` | List ACH transfers |  |  |
+| `POST` | `/transfers/ach` | Create an ACH transfer | BA-05, BA-06, BA-07, BA-08, BA-10, CD-06 |  |
+| `GET` | `/transfers/ach/{ach_transfer_id}` | Retrieve an ACH transfer |  |  |
+| `POST` | `/transfers/ach/{ach_transfer_id}/cancel` | Cancel an ACH transfer |  |  |
+| `POST` | `/transfers/ach/batch` | Create a batch of ACH transfers | BA-05, BA-06, BA-07, BA-08, BA-10, CD-06 |  |
+| `GET` | `/transfers/book` | List book transfers |  |  |
+| `POST` | `/transfers/book` | Create a book transfer | BA-05, BA-06, BA-07, BA-08 |  |
+| `GET` | `/transfers/book/{book_transfer_id}` | Retrieve a book transfer |  |  |
+| `GET` | `/transfers/wire` | List wire transfers |  |  |
+| `POST` | `/transfers/wire` | Create a wire transfer | BA-05, BA-06, BA-07, BA-08, BA-10 |  |
+| `GET` | `/transfers/wire/{wire_transfer_id}` | Retrieve a wire transfer |  |  |
+| `POST` | `/transfers/wire/{wire_transfer_id}/cancel` | Cancel a wire transfer |  |  |
+| `POST` | `/transfers/wire/{wire_transfer_id}/return-request` | Request a wire return |  |  |
+| `GET` | `/entities/{entity_id}/verifications` | List verifications for an entity |  |  |
+| `POST` | `/entities/{entity_id}/verifications` | Initiate a verification | CD-01, CD-04, BA-03, BA-05, BA-20 |  |
+| `POST` | `/entities/{entity_id}/verifications/attest` | Submit a partner-provided KYC/KYB attestation | CD-01, CD-10, BA-05, BA-20 |  |
+| `GET` | `/verifications/{verification_id}` | Retrieve a verification |  |  |
+| `GET` | `/cards` | List cards |  |  |
+| `POST` | `/cards` | Create a card | BA-05, CD-04 |  |
+| `GET` | `/cards/{card_id}` | Retrieve a card |  |  |
+| `PATCH` | `/cards/{card_id}` | Update a card |  |  |
+| `POST` | `/cards/{card_id}/status` | Transition card status |  |  |
+| `GET` | `/cards/{card_id}/sensitive` | Retrieve sensitive card details | PR-01 |  |
+| `GET` | `/cards/{card_id}/authorizations` | List authorizations for a card |  |  |
+| `GET` | `/authorizations/{authorization_id}` | Retrieve a card authorization |  |  |
+| `GET` | `/accounts/{account_id}/bookkeeping-entries` | List bookkeeping entries for an account |  |  |
+| `GET` | `/bookkeeping-entries/{entry_id}` | Retrieve a bookkeeping entry |  |  |
+| `GET` | `/bookkeeping/summary` | Get aggregated bookkeeping summary |  |  |
+| `GET` | `/bookkeeping/reconciliation` | Run reconciliation check |  |  |
+| `GET` | `/events` | List events |  |  |
+| `GET` | `/events/{event_id}` | Retrieve an event |  |  |
+| `POST` | `/events/{event_id}/retry` | Retry event delivery |  |  |
+| `GET` | `/webhooks` | List webhook endpoints |  |  |
+| `POST` | `/webhooks` | Create a webhook endpoint |  |  |
+| `GET` | `/webhooks/{webhook_endpoint_id}` | Retrieve a webhook endpoint |  |  |
+| `PATCH` | `/webhooks/{webhook_endpoint_id}` | Update a webhook endpoint |  |  |
+| `DELETE` | `/webhooks/{webhook_endpoint_id}` | Delete a webhook endpoint |  |  |
+| `POST` | `/webhooks/{webhook_endpoint_id}/rotate-secret` | Rotate webhook signing secret |  |  |
+| `POST` | `/webhooks/{webhook_endpoint_id}/test` | Send a test webhook |  |  |
+| `POST` | `/sandbox/simulate/kyc/approve` | Simulate: Approve KYC verification |  |  |
+| `POST` | `/sandbox/simulate/kyc/deny` | Simulate: Deny KYC verification |  |  |
+| `POST` | `/sandbox/simulate/ach/receive` | Simulate: Receive an inbound ACH credit |  |  |
+| `POST` | `/sandbox/simulate/ach/settle` | Simulate: Settle an outbound ACH transfer |  |  |
+| `POST` | `/sandbox/simulate/ach/return` | Simulate: Return a settled ACH transfer |  |  |
+| `POST` | `/sandbox/simulate/wire/receive` | Simulate: Receive an inbound wire |  |  |
+| `POST` | `/sandbox/simulate/wire/settle` | Simulate: Complete an outbound wire |  |  |
+| `POST` | `/sandbox/simulate/card/authorize` | Simulate: Card authorization |  |  |
+| `POST` | `/sandbox/simulate/card/settle` | Simulate: Card settlement |  |  |
+| `POST` | `/sandbox/simulate/time/advance` | Simulate: Advance sandbox clock |  |  |
+| `POST` | `/sandbox/reset` | Reset sandbox environment |  |  |
+| `POST` | `/auth/token` | Obtain an aggregator access token |  |  |
+| `GET` | `/fbo/{instance_id}/position` | Get FBO position for an instance |  |  |
+| `GET` | `/fbo/{instance_id}/available-balance` | Get available balance for an instance |  |  |
+| `POST` | `/payments/ach/originate` | Originate an ACH payment | BA-05, BA-06, BA-07, BA-08 |  |
+| `POST` | `/payments/wire/originate` | Originate a wire payment | BA-05, BA-06, BA-07, BA-08, BA-10 |  |
+| `POST` | `/payments/wire/prepare` | Prepare a wire payment (phase 1 of 2) | BA-05, BA-06, BA-07, BA-08, BA-10 |  |
+| `POST` | `/payments/wire/confirm` | Confirm a prepared wire payment (phase 2 of 2) |  |  |
+| `POST` | `/payments/rtp/originate` | Originate an RTP payment | BA-05, BA-06, BA-07, BA-08 |  |
+| `GET` | `/inbound/{instance_id}` | List inbound payments for an instance |  |  |
+| `GET` | `/bsa/alerts` | List BSA alerts |  |  |
+| `GET` | `/bsa/alerts/{alert_id}` | Retrieve a BSA alert |  |  |
+| `GET` | `/consumers/health` | Get aggregator consumer health |  |  |
+
+## State machines
+
+_No state machines defined in vocabulary.json._
+
+## Plugins
+
+_No plugins defined in vocabulary.json._
+"""
+
+
+LOCAL OVERRIDES (apply after all meta-prompt rules):
+{{Usually empty. Put anything here that should override the shared
+`meta-prompt.md` for THIS policy only — a different control-ID prefix,
+extra required sections, a specific citation style, etc. The regeneration
+task applies overrides AFTER the shared meta-prompt, so instructions here
+win.}}

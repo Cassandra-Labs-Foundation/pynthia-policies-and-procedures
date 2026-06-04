@@ -1,648 +1,345 @@
-# Investment
+---
+title: Investment Policy (Table-First, Design-Overlay v2)
+owner: Patrick Wilson, Chief Compliance Officer
+version: v3.0
+effective: 2026-06-04
+next_review: 2027-06-04
+approvers:
+  - Patrick Wilson, Chief Compliance Officer
+tags: [Compliance, Investment, Part 703, ALM, Liquidity, Credit Risk, Treasury]
+---
 
-This Investment Policy establishes how the credit union will invest surplus funds and place other non-loan assets to protect safety and soundness, maintain adequate liquidity, earn a reasonable risk-adjusted yield, and comply with the Federal Credit Union Act, NCUA Part 703, and related regulations.([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/703.1?utm_source=chatgpt.com)) The Policy applies to **all investments, repurchase and reverse repurchase agreements, deposits, and other non-loan asset placements** held on the balance sheet, whether executed directly or through third parties.
+# Investment Policy
 
-### MULTI-RULE AUTHORITY TABLE <a href="#authority" id="authority"></a>
+## General Policy Statement
 
-| Topic                                                 | Scope                                                                                                                                                                                      | Key Clauses / Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **NCUA Part 703 – Investment and Deposit Activities** | Core authority for FCU investment and deposit activities, including policies, permissible investments, valuation, safekeeping, brokers, monitoring, conflicts, and prohibited investments. | [12 CFR Part 703 (Subpart A)](https://www.law.cornell.edu/cfr/text/12/part-703/subpart-A) ([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/part-703/subpart-A?utm_source=chatgpt.com)) – esp. [§703.1 Purpose and scope](https://www.law.cornell.edu/cfr/text/12/703.1), [§703.3 Investment policies](https://www.law.cornell.edu/cfr/text/12/703.3), [§703.4 Recordkeeping and documentation](https://www.law.cornell.edu/cfr/text/12/703.4), [§703.6 Credit analysis](https://www.law.cornell.edu/cfr/text/12/703.6), [§703.8 Broker-dealers](https://www.law.cornell.edu/cfr/text/12/703.8), [§703.9 Safekeeping](https://www.law.cornell.edu/cfr/text/12/703.9), [§703.11 Valuing securities](https://www.law.cornell.edu/cfr/text/12/703.11), [§703.12 Monitoring securities](https://www.law.cornell.edu/cfr/text/12/703.12), [§703.13 Permissible activities](https://www.law.cornell.edu/cfr/text/12/703.13), [§703.14 Permissible investments](https://www.law.cornell.edu/cfr/text/12/703.14), [§703.15–703.17 Prohibited activities/investments & conflicts](https://www.law.cornell.edu/cfr/text/12/703.17). ([eCFR](https://www.ecfr.gov/current/title-12/chapter-VII/subchapter-A/part-703/subpart-A?utm_source=chatgpt.com)) |
-| **Insurance & Insurability Criteria**                 | Investment policy must align with insurability and reserve criteria, including treatment of nonconforming investments for state charters.                                                  | [12 CFR §741.3](https://www.law.cornell.edu/cfr/text/12/741.3) (criteria; special reserve for nonconforming investments)([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/741.3?utm_source=chatgpt.com)).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| **Liquidity & Contingency Funding Plans**             | Liquidity policy, CFP, and contingent federal liquidity sources; investment portfolio is a key liquidity tool.                                                                             | [12 CFR §741.12](https://www.law.cornell.edu/cfr/text/12/741.12) (liquidity & CFP requirements by asset tier).([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/741.12?utm_source=chatgpt.com))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| **Repurchase / Reverse Repurchase Transactions**      | Conditions, maturity mismatch limits, and safe-and-sound practices for repos/borrowing repurchase agreements.                                                                              | Part 703 repurchase guidance and authority for maturity mismatch limits (e.g., 30-day mismatch baseline; expanded authority under §703.20).([eCFR](https://www.ecfr.gov/current/title-12/chapter-VII/subchapter-A/part-703?utm_source=chatgpt.com))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| **NCUA Investment Guidance (Credit & Ratings)**       | Independent credit analysis expectations; limited use of NRSRO ratings.                                                                                                                    | NCUA Supervisory Letter on replacing NRSRO reliance and expectations for internal credit analysis under §703.6.([NCUA](https://ncua.gov/files/supervisory-letters/LCU2013-05_SupervisoryLetter.pdf?utm_source=chatgpt.com))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| **NCUA Examiner Guides – Investments & Liquidity**    | Expectations on investment policies, concentration limits, monitoring, and integration with ALM and liquidity risk management.                                                             | NCUA Examiner’s Guide chapters on Investment Analysis & Liquidity Policy (investment policy must address credit, liquidity, interest rate, and concentration risk; liquidity policy & CFP expectations).([Published Guides](https://publishedguides.ncua.gov/examiner/Content/ExaminersGuide/Liquidity/RiskManagement/PolicyProcedureLimits.htm?utm_source=chatgpt.com))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+Pynthia Credit Union invests surplus funds and places non-loan assets to protect safety and soundness, maintain adequate liquidity, and earn a reasonable risk-adjusted yield while complying with the Federal Credit Union Act and [NCUA 12 CFR Part 703](https://www.ecfr.gov/current/title-12/part-703). This policy covers all investments, repurchase and reverse repurchase agreements, deposits, and other non-loan asset placements held on the balance sheet, whether executed directly or through third parties. Every covered position is tagged to this policy, traded only within board-approved authority and instrument limits, supported by documented pre-purchase credit analysis and valuation, safeguarded by segregation of duties and approved-intermediary controls, and monitored continuously for credit, interest-rate, liquidity, and concentration risk. Derivative authority under Part 703 Subpart B and retail nondeposit investment product sales are out of scope and require separate policies.
 
-### TIMING MATRIX <a href="#timing-matrix" id="timing-matrix"></a>
+## Timing Matrix {#timing-matrix}
 
-| Scenario                           | Trigger (human → event)                                                                                                                 |                                                                                                                                                                                                                                      Deadline | Content Reference                                         | Control                                                                                                                                                    |
-| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Annual Investment Policy Review    | Board schedules annual policy review meeting → `Board chair schedules annual review (governance.policy_review_scheduled)`               |                                     At least annually, not to exceed 12 months between approvals (per §703.3).([GovRegs](https://www.govregs.com/regulations/expand/title12_chapterVII_part703_subpartA_section703.3?utm_source=chatgpt.com)) | Board approval minutes template; redline of changes       | [IP-02](investment.md#ip-02-governance-board-oversight-and-delegations)                                                                                    |
-| New Investment Purchase            | Portfolio manager identifies candidate security → `Portfolio manager initiates pre-purchase review (investment.pre_purchase_initiated)` |                                                            Prior to trade execution (credit analysis per §703.6; valuation per §703.11).([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/703.6?utm_source=chatgpt.com)) | Pre-purchase due-diligence checklist; trade ticket        | [IP-11](investment.md#ip-11-pre-purchase-due-diligence-and-exceptions)                                                                                     |
-| Monthly Valuation & Monitoring     | Month-end close reached → `Finance closes month-end books (finance.month_end_closed)`                                                   |                                         Monthly, for fair value and monitoring reports (per §703.11–703.12).([eCFR](https://www.ecfr.gov/current/title-12/chapter-VII/subchapter-A/part-703/subpart-A/section-703.11?utm_source=chatgpt.com)) | Monthly investment valuation and limit-monitoring package | [IP-10](investment.md#ip-10-valuation-accounting-and-fair-value-measurement), [IP-12](investment.md#ip-12-ongoing-monitoring-reporting-and-stress-testing) |
-| Limit Breach (e.g., concentration) | System flags breach → `Limit engine flags breach (risk.limit_breach_detected)`                                                          | Same business day investigation; escalation to ALCO within 5 business days; board notification per §703.7 as needed.([GovInfo](https://www.govinfo.gov/link/cfr/12/703?link-type=pdf\&sectionnum=7\&year=mostrecent\&utm_source=chatgpt.com)) | Limit breach report; remediation plan                     | [IP-07](investment.md#ip-07-concentration-and-counterparty-limits), [IP-12](investment.md#ip-12-ongoing-monitoring-reporting-and-stress-testing)           |
-| Liquidity Stress Event             | Liquidity trigger (e.g., metric breach) → `Treasurer declares liquidity stress (liquidity.stress_declared)`                             |                             Within 1 business day: convene ALCO; within 2–5 business days: execute CFP actions consistent with §741.12.([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/741.12?utm_source=chatgpt.com)) | Liquidity stress playbook; CFP action log                 | [IP-06](investment.md#ip-06-liquidity-and-marketability-limits), [IP-17](investment.md#ip-17-contingency-planning-and-liquidity-stress-events)             |
-| Repo / Reverse Repo Initiation     | Treasurer plans repo transaction → `Treasurer initiates repo setup (repo.transaction_initiated)`                                        |                  Before entering transaction: confirm collateral eligibility, haircuts, and maturity match limits (Part 703 & supervisory guidance).([NCUA](https://ncua.gov/files/publications/irps/IRPS1985-02.pdf?utm_source=chatgpt.com)) | Repo term sheet; collateral schedule                      | [IP-09](investment.md#ip-09-repurchase-and-reverse-repurchase-agreements)                                                                                  |
-| Training & Competency Refresh      | HR / Compliance updates annual training calendar → `Compliance schedules annual training (training.annual_investment_scheduled)`        |                                                                                                                                                           At least annually for key investment staff and board members involved in oversight. | Training agenda; attendance records                       | [IP-16](investment.md#ip-16-training-competency-and-conflicts-of-interest)                                                                                 |
+| Scenario | Trigger (human → event) | Deadline | Content Reference | Control |
+|---|---|---:|---|---|
+| Policy review reminder | Next-review date approaching (`policy.review_due_soon`) | 60 and 30 days before `next_review` | Warning to CCO and board secretary | [IN-01](#in-01-policy-record-scope-and-covered-instruments) |
+| Board re-approval of policy and authority matrix | Prior board approval recorded (`policy.board_approved`) | ≤ 12 months from prior approval | Board minutes + approved policy version | [IN-02](#in-02-governance-board-oversight-and-delegations) |
+| Trade exception approval | Exception raised at trade entry (`trade.exception_raised`) | Before settlement | Documented exception with authorized approver | [IN-02](#in-02-governance-board-oversight-and-delegations) |
+| Permissible-instruments list review | Annual cycle or material Part 703 change (`instrument_list.review_due`) | At least annually | Updated allow-list mapped to Part 703 categories | [IN-03](#in-03-permissible-investments-and-prohibited-activities) |
+| ALCO IRR simulation | Quarterly cycle or threshold breach (`alm.irr_simulation_due`) | At least quarterly | IRR simulation results to ALCO | [IN-04](#in-04-interest-rate-risk-and-alm-integration) |
+| Pre-purchase credit file | Eligible non-government trade entered (`trade.entered`) | Before booking | Completed credit file + approval | [IN-05](#in-05-credit-risk-standards-and-downgrade-management) |
+| Annual credit re-analysis | Anniversary of credit file (`credit_file.reanalysis_due`) | At least annually | Documented re-analysis | [IN-05](#in-05-credit-risk-standards-and-downgrade-management) |
+| Downgrade review | Downgrade below internal investment-grade threshold (`security.downgraded`) | 5 business days | Downgrade review; board notification if material | [IN-05](#in-05-credit-risk-standards-and-downgrade-management) |
+| Liquidity capacity report | Monthly cycle, or stress declared (`liquidity.report_due`) | At least monthly | On-demand and 30-day stress liquidity report | [IN-06](#in-06-liquidity-and-marketability-limits) |
+| Concentration-limit review | Annual cycle (`limit_set.review_due`) | At least annually | Re-approved limit parameters | [IN-07](#in-07-concentration-and-counterparty-limits) |
+| Intermediary due-diligence review | Anniversary of approval (`intermediary.review_due`) | Annually | Refreshed due-diligence file | [IN-08](#in-08-approved-brokers-dealers-and-safekeepers) |
+| Safekeeping reconciliation | Month-end statement received (`safekeeping.statement_received`) | Monthly | Reconciliation per §703.9(c) | [IN-08](#in-08-approved-brokers-dealers-and-safekeepers) |
+| Repo collateral mark-to-market | Weekly cycle; daily in stress (`repo.collateral_revaluation_due`) | Weekly (daily in stress) | Updated collateral values; margin call on shortfall | [IN-09](#in-09-repurchase-and-reverse-repurchase-agreements) |
+| Fair-value update | Monthly pricing cycle (`security.fair_value_update_due`) | At least monthly | Updated fair values with pricing source and date | [IN-10](#in-10-valuation-accounting-and-fair-value-measurement) |
+| Pre-trade checklist | Trade entered for non-exempt instrument (`trade.entered`) | Before booking | Completed checklist linked to credit memo + valuation support | [IN-11](#in-11-pre-purchase-due-diligence-and-exceptions) |
+| Management portfolio report | Month-end (`portfolio.report_due`) | Monthly | Composition, duration, liquidity, gain/loss, limit-adherence report | [IN-12](#in-12-ongoing-monitoring-reporting-and-stress-testing) |
+| Board portfolio report | Quarter-end (`portfolio.board_report_due`) | At least quarterly | Board investment report | [IN-12](#in-12-ongoing-monitoring-reporting-and-stress-testing) |
+| Portfolio stress test | Annual cycle, or metrics approaching limits (`portfolio.stress_test_due`) | At least annually | Documented stress-scenario results | [IN-12](#in-12-ongoing-monitoring-reporting-and-stress-testing) |
+| Performance attribution | Quarter-end (`performance.attribution_due`) | Quarterly | Benchmark attribution by segment | [IN-13](#in-13-performance-measurement-and-benchmarks) |
+| Trade settlement reconciliation | Trade settles (`trade.settled`) | T+1 | Reconciled trade record | [IN-14](#in-14-trade-execution-controls-and-segregation-of-duties) |
+| Document attachment | Trade booked (`trade.booked`) | 2 business days | Indexed trade documentation | [IN-15](#in-15-recordkeeping-and-documentation-retention) |
+| Training / COI certification | Hire, role change, or annual cycle (`training.due`) | Before system access; annually thereafter | Completed training + COI certification | [IN-16](#in-16-training-competency-and-conflicts-of-interest) |
+| Contingency plan test | Annual cycle (`cfp.investment_test_due`) | At least annually | Documented liquidation-hierarchy test | [IN-17](#in-17-contingency-planning-and-liquidity-stress-events) |
+| Stress-event execution plan | Liquidity stress declared (`liquidity.stress_declared`) | 1 business day | Initial execution plan | [IN-17](#in-17-contingency-planning-and-liquidity-stress-events) |
+| Policy version re-approval | Material regulatory change or annual cycle (`policy.amendment_proposed`) | At least annually; earlier on material change | New approved version with redline and approval metadata | [IN-18](#in-18-policy-review-amendments-and-version-control) |
 
-### CONTROL INDEX <a href="#control-index" id="control-index"></a>
+## IN-01 — Policy Record, Scope, and Covered Instruments {#in-01-policy-record-scope-and-covered-instruments}
 
-| ID                                                                              | Control Name                                         | Purpose                                                                                                     | Primary Rule(s)                                                                                                                                                                                                                                                               |
-| ------------------------------------------------------------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [IP-01](investment.md#ip-01-policy-objectives-scope-and-covered-instruments)    | Policy Objectives, Scope, and Covered Instruments    | Anchor safety, liquidity, yield, and compliance objectives; define what assets are governed by this Policy. | [12 CFR §703.1](https://www.law.cornell.edu/cfr/text/12/703.1), [§703.3](https://www.law.cornell.edu/cfr/text/12/703.3) ([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/703.1?utm_source=chatgpt.com))                                                 |
-| [IP-02](investment.md#ip-02-governance-board-oversight-and-delegations)         | Governance, Board Oversight, and Delegations         | Define board responsibilities, delegations, and review cadence.                                             | [12 CFR §703.3](https://www.law.cornell.edu/cfr/text/12/703.3), [12 CFR §741.3](https://www.law.cornell.edu/cfr/text/12/741.3) ([GovInfo](https://www.govinfo.gov/content/pkg/CFR-2018-title12-vol7/pdf/CFR-2018-title12-vol7-part703.pdf?utm_source=chatgpt.com))            |
-| [IP-03](investment.md#ip-03-permissible-investments-and-prohibited-activities)  | Permissible Investments and Prohibited Activities    | Enumerate allowed instruments and explicitly bar prohibited activities.                                     | [12 CFR §703.13–703.16](https://www.law.cornell.edu/cfr/text/12/part-703/subpart-A) ([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/part-703/subpart-A?utm_source=chatgpt.com))                                                                        |
-| [IP-04](investment.md#ip-04-interest-rate-risk-management-and-alm-integration)  | Interest Rate Risk (IRR) & ALM Integration           | Integrate investments with IRR and ALM framework.                                                           | Part 703 preamble & guidance requiring IRR policy for investments; NCUA Examiner Guide on ALM.([Federal Register](https://www.federalregister.gov/documents/2003/06/03/03-13660/investment-and-deposit-activities-and-regulatory-flexibility-program?utm_source=chatgpt.com)) |
-| [IP-05](investment.md#ip-05-credit-risk-standards-and-downgrade-management)     | Credit Risk Standards and Downgrade Management       | Define minimum credit standards, analysis, monitoring, and downgrade responses.                             | [12 CFR §703.6](https://www.law.cornell.edu/cfr/text/12/703.6) ([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/703.6?utm_source=chatgpt.com))                                                                                                          |
-| [IP-06](investment.md#ip-06-liquidity-and-marketability-limits)                 | Liquidity and Marketability Limits                   | Ensure investments support daily and stressed liquidity needs.                                              | [12 CFR §703.1](https://www.law.cornell.edu/cfr/text/12/703.1), [12 CFR §741.12](https://www.law.cornell.edu/cfr/text/12/741.12) ([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/703.1?utm_source=chatgpt.com))                                        |
-| [IP-07](investment.md#ip-07-concentration-and-counterparty-limits)              | Concentration and Counterparty Limits                | Limit exposures by issuer, sector, instrument, and counterparty.                                            | Part 703 policy requirement to address concentration risk; NCUA investment guidance.([Federal Register](https://www.federalregister.gov/documents/2003/06/03/03-13660/investment-and-deposit-activities-and-regulatory-flexibility-program?utm_source=chatgpt.com))           |
-| [IP-08](investment.md#ip-08-approved-brokers-dealers-and-safekeepers)           | Approved Brokers, Dealers, and Safekeepers           | Approve and monitor intermediaries and safekeeping arrangements.                                            | [12 CFR §703.8](https://www.law.cornell.edu/cfr/text/12/703.8), [§703.9](https://www.law.cornell.edu/cfr/text/12/703.9) ([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/703.8?utm_source=chatgpt.com))                                                 |
-| [IP-09](investment.md#ip-09-repurchase-and-reverse-repurchase-agreements)       | Repurchase and Reverse Repurchase Agreements         | Govern collateral, haircuts, maturity matching, and counterparties for repos.                               | Part 703 repurchase guidance; supervisory policies on repos.([NCUA](https://ncua.gov/files/publications/irps/IRPS1985-02.pdf?utm_source=chatgpt.com))                                                                                                                         |
-| [IP-10](investment.md#ip-10-valuation-accounting-and-fair-value-measurement)    | Valuation, Accounting, and Fair Value                | Set rules for GAAP compliance, fair value measurement, and OTTI assessment.                                 | [12 CFR §703.4](https://www.law.cornell.edu/cfr/text/12/703.4), [§703.11](https://www.law.cornell.edu/cfr/text/12/703.11) ([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/703.4?utm_source=chatgpt.com))                                               |
-| [IP-11](investment.md#ip-11-pre-purchase-due-diligence-and-exceptions)          | Pre-Purchase Due Diligence and Exceptions            | Define documentation, approvals, and exception handling before purchase.                                    | [12 CFR §703.6](https://www.law.cornell.edu/cfr/text/12/703.6), NCUA credit-risk guidance.([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/703.6?utm_source=chatgpt.com))                                                                               |
-| [IP-12](investment.md#ip-12-ongoing-monitoring-reporting-and-stress-testing)    | Ongoing Monitoring, Reporting, and Stress Testing    | Require ongoing performance, risk, and compliance reporting to ALCO and Board.                              | [12 CFR §703.12](https://www.law.cornell.edu/cfr/text/12/703.12), [12 CFR §741.12](https://www.law.cornell.edu/cfr/text/12/741.12) ([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/703.11?utm_source=chatgpt.com))                                     |
-| [IP-13](investment.md#ip-13-performance-measurement-and-benchmarks)             | Performance Measurement and Benchmarks               | Align portfolio performance assessment with risk and policy limits.                                         | Part 703 safety-and-soundness expectations; examiner guidance.([Federal Register](https://www.federalregister.gov/documents/2003/06/03/03-13660/investment-and-deposit-activities-and-regulatory-flexibility-program?utm_source=chatgpt.com))                                 |
-| [IP-14](investment.md#ip-14-trade-execution-controls-and-segregation-of-duties) | Trade Execution, Controls, and Segregation of Duties | Ensure safe trade processing, confirmations, and reconciliations.                                           | [12 CFR §703.4(b)](https://www.law.cornell.edu/cfr/text/12/703.4) (internal controls and segregation of duties).([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/703.4?utm_source=chatgpt.com))                                                         |
-| [IP-15](investment.md#ip-15-recordkeeping-and-documentation-retention)          | Recordkeeping and Documentation Retention            | Define minimum records, retention periods, and accessibility.                                               | [12 CFR §703.4](https://www.law.cornell.edu/cfr/text/12/703.4) ([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/703.4?utm_source=chatgpt.com))                                                                                                          |
-| [IP-16](investment.md#ip-16-training-competency-and-conflicts-of-interest)      | Training, Competency, and Conflicts of Interest      | Set minimum training standards and manage conflicts.                                                        | [12 CFR §703.17](https://www.law.cornell.edu/cfr/text/12/703.17) (conflicts of interest).([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/part-703/subpart-A?utm_source=chatgpt.com))                                                                   |
-| [IP-17](investment.md#ip-17-contingency-planning-and-liquidity-stress-events)   | Contingency Planning and Liquidity Stress Events     | Specify stress tests and playbooks for adverse markets.                                                     | [12 CFR §741.12](https://www.law.cornell.edu/cfr/text/12/741.12) ([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/741.12?utm_source=chatgpt.com))                                                                                                       |
-| [IP-18](investment.md#ip-18-policy-review-amendments-and-version-control)       | Policy Review, Amendments, and Version Control       | Maintain compliant annual review and change control.                                                        | [12 CFR §703.3](https://www.law.cornell.edu/cfr/text/12/703.3) ([GovInfo](https://www.govinfo.gov/content/pkg/CFR-2018-title12-vol7/pdf/CFR-2018-title12-vol7-part703.pdf?utm_source=chatgpt.com))                                                                            |
+**WHY (Reg cite):** [12 CFR §703.3](https://www.ecfr.gov/current/title-12/part-703/section-703.3) requires a federal credit union's board to adopt a written investment policy consistent with the FCU Act and Part 703, addressing purposes, objectives, and risk characteristics; [§703.2](https://www.ecfr.gov/current/title-12/part-703/section-703.2) defines the instruments and activities in scope.
 
-### CONTROL OVERLAYS (Design Overlay v2)
+**SYSTEM BEHAVIOR:** The system maintains a single canonical Investment Policy record carrying effective and next-review dates, and every balance-sheet position covered by the policy — investments, repos, deposits, and other non-loan placements — is tagged to it at booking. The system warns the CCO and board secretary 60 and 30 days before the next-review date. If the review date lapses without board re-approval, existing positions remain governed by the prior approved version but the policy record and all tagged positions are flagged non-compliant until re-approval. The policy record and its dates are write-restricted to Compliance.
 
-#### IP-01 — Policy Objectives, Scope, and Covered Instruments
+**EVENTS:**
 
-* **WHY (Reg cite):** Part 703 requires a written investment policy consistent with the Act and other laws, addressing safety and soundness, including credit, liquidity, interest rate, and concentration risks.([GovRegs](https://www.govregs.com/regulations/expand/title12_chapterVII_part703_subpartA_section703.3?utm_source=chatgpt.com))
-* **SYSTEM BEHAVIOR:**
-  * Store a single canonical Investment Policy record with effective and next-review dates.
-  * Tag all portfolio positions that fall under this Policy (investments, repos, deposits, and other non-loan asset placements).
-* **TRIGGERS (human → event):**
-  * `Board approves new or revised Investment Policy (governance.investment_policy_approved)`
-  * `Compliance updates policy metadata in system (compliance.policy_record_updated)`
-* **INPUTS (human → field):**
-  * Policy title `(policy.title)`
-  * Effective date `(policy.effective_date)`
-  * Next review date `(policy.next_review_date)`
-  * Policy scope text `(policy.scope_text)`
-* **OUTPUTS:**
-  * Machine-readable policy scope used to determine which balance-sheet items must comply `(policy.scope_tags[])`.
-* **TIMERS/SLAs:**
-  * Max 12 months between board approvals; system warns 60 and 30 days before next\_review.
-* **EDGE CASES:**
-  * If policy lapses (no approval by next\_review), investments remain governed by prior policy but system flags as non-compliant until board action. (Assumption—needs confirmation: whether CU will impose an internal trading freeze if policy expires.)
-* **AUDIT LOGS (event names):**
-  * `policy.version_created`
-  * `policy.version_superseded`
-* **ACCESS CONTROL:**
-  * Edit: Compliance, CIO, and limited designees.
-  * View: Board, ALCO, internal audit, examiners (read-only export).
-* **ALERTS/METRICS:**
-  * Metric: “Days until Investment Policy review.”
-  * Alert when `days_until_review <= 60` and escalated at `<= 30`.
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| New covered position is booked (`position.booked`) | Instrument identifiers (`position.cusip`, `position.instrument_type`), policy reference (`policy.id`) | Position tagged to the canonical policy record (`position.policy_tagged`) | At booking (—) |
+| Next-review date approaches (`policy.review_due_soon`) | Policy record dates (`policy.effective_date`, `policy.next_review_date`) | Review warning to CCO and board secretary (`policy.review_warning_issued`) | 60 and 30 days before `next_review` (enforced by `policy.review_warning_at`) |
+| Review date passes without board approval (`policy.review_lapsed`) | Policy record (`policy.id`), latest board approval (`policy.board_approved_at`) | Policy record and tagged positions flagged non-compliant (`policy.noncompliance_flagged`) | Same day as lapse (internal: immediate) |
 
-#### IP-02 — Governance, Board Oversight, and Delegations
+**ALERTS/METRICS:** Count of positions lacking a policy tag (target zero); days-to-next-review dashboard; standing alert while `policy.noncompliance_flagged` is active.
 
-* **WHY (Reg cite):** Board must establish, approve, and at least annually review the investment policy, and ensure policies are within applicable law and regulations.([GovInfo](https://www.govinfo.gov/content/pkg/CFR-2018-title12-vol7/pdf/CFR-2018-title12-vol7-part703.pdf?utm_source=chatgpt.com))
-* **SYSTEM BEHAVIOR:**
-  * Maintain authority matrix for investment decision-making and limits by role.
-  * Link each trade and exception to an authorized approver.
-* **TRIGGERS (human → event):**
-  * `Board approves authorities/limits (governance.authority_matrix_approved)`
-  * `CEO or Board delegates investment authority (governance.authority_delegated)`
-  * `Board conducts annual oversight review (governance.oversight_review_completed)`
-* **INPUTS (human → field):**
-  * Role definition `(governance.role_code)`
-  * Single trade limit by role `(limit.single_trade_amount)`
-  * Aggregate monthly limit by role `(limit.monthly_amount)`
-  * Exception approval authority `(limit.exception_approver_role)`
-* **OUTPUTS:**
-  * Authority matrix report for Board and ALCO.
-  * Exception log with approver and rationale.
-* **TIMERS/SLAs:**
-  * Annual Board review of policy and authority matrix (≤ 12 months apart).
-  * Exceptions documented and approved **before** settlement.
-* **EDGE CASES:**
-  * Emergent trade needed when approver unavailable → escalation to next senior officer in matrix; auto-email to Board Chair within 1 business day for ratification. (Assumption—needs confirmation: appetite for post-facto ratification in emergencies.)
-* **AUDIT LOGS:**
-  * `governance.authority_matrix_updated`
-  * `trade.exception_approved`
-  * `board.investment_report_presented`
-* **ACCESS CONTROL:**
-  * Edit authorities: Board/CEO (via designated admin).
-  * Read-only: Investment staff, risk, internal audit.
-* **ALERTS/METRICS:**
-  * Count of trades executed by each role vs. assigned limits.
-  * Alerts when trade or exposure exceeds configured role limit.
+## IN-02 — Governance, Board Oversight, and Delegations {#in-02-governance-board-oversight-and-delegations}
 
-#### IP-03 — Permissible Investments and Prohibited Activities
+**WHY (Reg cite):** [12 CFR §703.3](https://www.ecfr.gov/current/title-12/part-703/section-703.3) requires the board to review the investment policy at least annually and to address delegation of authority, including who may make investment decisions and within what limits; [12 USC §1761b](https://www.law.cornell.edu/uscode/text/12/1761b) vests general management direction in the board.
 
-* **WHY (Reg cite):** Part 703 requires policies to define permissible investments and address prohibited activities/investments.([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/part-703/subpart-A?utm_source=chatgpt.com))
-* **SYSTEM BEHAVIOR:**
-  * Enforce an **allow-list** of instrument types and structures mapped to Part 703 categories (e.g., U.S. Treasuries, agency securities, municipal securities, corporate bonds, deposits, CUSO investments, repos, etc.).
-  * Block trade booking for instruments or activities tagged as prohibited or not permitted for the CU.
-* **TRIGGERS (human → event):**
-  * `CIO updates permissible investment list (investment.permissible_list_updated)`
-  * `Trader attempts to book trade (trade.booking_attempted)`
-* **INPUTS (human → field):**
-  * Instrument type `(instrument.type_code)` – e.g., `UST`, `AGCY_MBS`, `MUNI_GO`, `CORP`, `CD`, `CUSO`, `REPO`.
-  * Regulatory category `(instrument.reg_category)` mapped to Part 703.
-  * Prohibition flag `(instrument.prohibited_flag)`
-* **OUTPUTS:**
-  * Machine-enforced controls: permitted or rejected trade.
-  * Periodic summary by instrument category vs. policy.
-* **TIMERS/SLAs:**
-  * Permissible list review at least annually and whenever Part 703 changes materially.
-* **EDGE CASES:**
-  * Grandfathered or pilot investments handled via explicit tag `(instrument.status = 'grandfathered' / 'pilot')` with board approval reference and sunset date.
-* **AUDIT LOGS:**
-  * `instrument.type_created`
-  * `trade.booking_blocked_policy_violation`
-* **ACCESS CONTROL:**
-  * Edit permissible list: CIO, Compliance.
-  * Booking rights: Approved traders only.
-* **ALERTS/METRICS:**
-  * Number of blocked trades for policy reasons.
-  * Exposure by Part 703 category for Board reporting.
+**SYSTEM BEHAVIOR:** The system maintains an authority matrix defining investment decision rights, single-trade limits, and aggregate limits by role (CIO or equivalent, Treasury staff, ALCO/Investment Committee). Every trade and every exception must be linked to an authorized approver whose limits cover the transaction; trades without a valid approver link cannot proceed to settlement. Exceptions must be documented and approved before settlement — an exception approved after settlement is recorded as a violation, not an exception. The board reviews and approves the policy and the authority matrix at least annually, with no more than 12 months between approvals. The authority matrix is write-restricted to Compliance with board-approved changes only.
 
-#### IP-04 — Interest Rate Risk Management and ALM Integration
+**EVENTS:**
 
-* **WHY (Reg cite):** Part 703 and related guidance require investment policies to address interest rate risk; ALM policies may cover IRR across the balance sheet.([Federal Register](https://www.federalregister.gov/documents/2003/06/03/03-13660/investment-and-deposit-activities-and-regulatory-flexibility-program?utm_source=chatgpt.com))
-* **SYSTEM BEHAVIOR:**
-  * Capture effective duration, convexity, and cash-flow vectors for each security.
-  * Feed ALM models with current and stressed cash flows for IRR measurement.
-* **TRIGGERS (human → event):**
-  * `ALCO runs quarterly IRR simulation (alm.irr_simulation_run)`
-  * `New security booked requiring IRR parameters (investment.new_security_booked)`
-* **INPUTS (human → field):**
-  * Modeled duration `(risk.duration_effective)`
-  * Cash-flow schedule `(risk.cashflow_schedule[])`
-  * IRR bucket assignment `(risk.irr_bucket)`
-* **OUTPUTS:**
-  * Quarterly IRR reports to ALCO and Board showing contribution of investment portfolio to net interest income and EVE under rate shocks.
-* **TIMERS/SLAs:**
-  * At least quarterly ALM/IRR simulations; more frequent if risk thresholds are breached.
-* **EDGE CASES:**
-  * Complex structured securities where vendor models differ → store both vendor and internal scenarios; flag discrepancies above defined threshold.
-* **AUDIT LOGS:**
-  * `alm.irr_report_generated`
-  * `risk.model_params_changed`
-* **ACCESS CONTROL:**
-  * ALM parameters editable only by Risk/ALCO analyst roles.
-* **ALERTS/METRICS:**
-  * Contribution of investments to EVE and NII sensitivity vs. risk limits.
-  * Breach alerts tied into [IP-12](investment.md#ip-12-ongoing-monitoring-reporting-and-stress-testing).
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Trade is submitted for approval (`trade.approval_requested`) | Trade terms (`trade.amount`, `trade.instrument_type`), approver role and limits (`authority_matrix.role_limits`) | Approval decision linked to trade (`trade.approval_recorded`) | Before settlement (—) |
+| Exception is raised at trade entry (`trade.exception_raised`) | Exception rationale (`exception.rationale`), authorized approver (`exception.approver_id`) | Documented, approved exception (`trade.exception_approved`) | Before settlement (internal: same business day) |
+| Annual board review convenes (`policy.board_review_started`) | Current policy version (`policy.version`), authority matrix (`authority_matrix.version`) | Board approval with minutes reference (`policy.board_approved`) | ≤ 12 months from prior approval (enforced by `policy.board_approval_due_at`) |
 
-#### IP-05 — Credit Risk Standards and Downgrade Management
+**ALERTS/METRICS:** Count of trades settled without an approver link (target zero); count of post-settlement exception approvals (target zero); days since last board approval with escalation at month 11.
 
-* **WHY (Reg cite):** §703.6 requires documented credit analysis before purchase and at least annually thereafter for non-government/fully insured investments.([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/703.6?utm_source=chatgpt.com))
-* **SYSTEM BEHAVIOR:**
-  * Require a completed credit file and approval before booking eligible non-governmental investments.
-  * Track annual re-analysis due dates and rating/deterioration triggers with automated tasks.
-* **TRIGGERS (human → event):**
-  * `Analyst submits credit memo (credit.memo_submitted)`
-  * `Credit committee approves issuer/security (credit.approved)`
-  * `Rating feed update received (credit.rating_feed_updated)`
-* **INPUTS (human → field):**
-  * Internal rating `(credit.internal_rating)`
-  * External ratings snapshot `(credit.nrsro_ratings[])` (supporting evidence only)
-  * Annual review due date `(credit.next_review_due)`
-  * Downgrade action plan `(credit.downgrade_action_plan)`
-* **OUTPUTS:**
-  * Approved issuer/security list with internal ratings.
-  * Downgrade watch list and remedial action tracking.
-* **TIMERS/SLAs:**
-  * Pre-purchase credit analysis must be complete before trade.
-  * Annual review completed by `credit.next_review_due`.
-  * Downgrade from internal “investment grade” threshold: review within 5 business days; Board notified for material positions.
-* **EDGE CASES:**
-  * Sudden credit event (e.g., default/credit watch) without updated financials → immediate placement on internal watch list; interim qualitative memo before full refresh.
-* **AUDIT LOGS:**
-  * `credit.analysis_completed`
-  * `credit.rating_changed`
-  * `credit.watchlist_entry_created`
-* **ACCESS CONTROL:**
-  * Credit files editable by Credit/Risk only; read-only to traders.
-* **ALERTS/METRICS:**
-  * Count and total exposure of issuers on watch list.
-  * SLA adherence for annual reviews.
+## IN-03 — Permissible Investments and Prohibited Activities {#in-03-permissible-investments-and-prohibited-activities}
 
-#### IP-06 — Liquidity and Marketability Limits
+**WHY (Reg cite):** [12 CFR §703.13](https://www.ecfr.gov/current/title-12/part-703/section-703.13) and [§703.14](https://www.ecfr.gov/current/title-12/part-703/section-703.14) define permissible investment activities and investments for federal credit unions; [§703.15](https://www.ecfr.gov/current/title-12/part-703/section-703.15) and [§703.16](https://www.ecfr.gov/current/title-12/part-703/section-703.16) prohibit specified activities and investments, and [§703.17](https://www.ecfr.gov/current/title-12/part-703/section-703.17) prohibits related conflicts of interest.
 
-* **WHY (Reg cite):** Investments must support liquidity and CFP requirements under §741.12; policy must address liquidity risk.([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/741.12?utm_source=chatgpt.com))
-* **SYSTEM BEHAVIOR:**
-  * Tag each investment with liquidity classification (e.g., HQLA-like, marketable, thinly traded, illiquid).
-  * Calculate on-demand and 30-day stress liquidity capacity from investments.
-* **TRIGGERS (human → event):**
-  * `Treasurer updates liquidity assumptions (liquidity.assumption_updated)`
-  * `Liquidity coverage report generated (liquidity.coverage_report_generated)`
-* **INPUTS (human → field):**
-  * Liquidity bucket `(liquidity.bucket)`
-  * Expected days to liquidate `(liquidity.days_to_liquidate)`
-  * Haircut under stress `(liquidity.stress_haircut_pct)`
-* **OUTPUTS:**
-  * Liquidity coverage metrics incorporating investment portfolio under base and stress scenarios.
-* **TIMERS/SLAs:**
-  * At least monthly liquidity coverage report; more frequent in stress.
-* **EDGE CASES:**
-  * Investments with no observable market price → conservative liquidity classification and haircut; escalation to ALCO. (Assumption—needs confirmation: whether CU will set explicit internal minimum share of “readily marketable” securities.)
-* **AUDIT LOGS:**
-  * `liquidity.assumption_changed`
-* **ACCESS CONTROL:**
-  * Liquidity parameters editable by Treasury/Risk; read-only otherwise.
-* **ALERTS/METRICS:**
-  * Breach of minimum liquid-asset buffer triggers [IP-17](investment.md#ip-17-contingency-planning-and-liquidity-stress-events).
+**SYSTEM BEHAVIOR:** The system enforces an allow-list of instrument types, each mapped to its Part 703 category and citation. Trade entry validates the instrument against the allow-list; bookings of prohibited or non-permitted instruments are hard-blocked, with no override path below board level. The allow-list is reviewed at least annually and whenever Part 703 changes materially, and each review is recorded with the reviewer and outcome. The allow-list is write-restricted to Compliance.
 
-#### IP-07 — Concentration and Counterparty Limits
+**EVENTS:**
 
-* **WHY (Reg cite):** Investment policy must explain how concentration risk will be managed; Part 703 and NCUA guidance stress issuer, sector, and product concentration limits.([Federal Register](https://www.federalregister.gov/documents/2003/06/03/03-13660/investment-and-deposit-activities-and-regulatory-flexibility-program?utm_source=chatgpt.com))
-* **SYSTEM BEHAVIOR:**
-  * Maintain parameterized limits by issuer, sector, rating, product type, and counterparty.
-  * Enforce soft (warning) and hard (blocking) limits at trade entry.
-* **TRIGGERS (human → event):**
-  * `Risk team updates limit table (risk.limit_table_updated)`
-  * `Trade evaluated against limits (risk.limit_check_performed)`
-* **INPUTS (human → field):**
-  * Issuer identifier `(risk.issuer_id)`
-  * Sector classification `(risk.sector_code)`
-  * Limit type `(risk.limit_type)` – e.g., `issuer_pct_assets`, `sector_pct_capital`.
-  * Limit values `(risk.limit_value_pct)`
-* **OUTPUTS:**
-  * Concentration dashboard with current vs. limit metrics.
-  * Limit breach reports for ALCO and Board.
-* **TIMERS/SLAs:**
-  * At least annual review of concentration limits; earlier if portfolio profile changes materially.
-* **EDGE CASES:**
-  * Temporary breach due to balance-sheet shrinkage rather than new purchases → flagged but permitted with documented remediation plan.
-* **AUDIT LOGS:**
-  * `risk.limit_breach_detected`
-  * `risk.limit_exception_approved`
-* **ACCESS CONTROL:**
-  * Limits editable by Risk with CIO and Board-approved parameters.
-* **ALERTS/METRICS:**
-  * Number of limit exceptions granted; trend over time.
-  * Top 10 exposures vs. capital.
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Trade entered for any instrument (`trade.entered`) | Instrument classification (`position.instrument_type`), allow-list mapping (`instrument_list.part703_category`) | Permissibility pass or hard block (`trade.permissibility_checked` / `trade.blocked_prohibited`) | At trade entry, before booking (—) |
+| Allow-list review cycle starts (`instrument_list.review_due`) | Current allow-list (`instrument_list.version`), Part 703 change log (`regwatch.part703_changes[]`) | Re-approved or amended allow-list (`instrument_list.review_completed`) | At least annually; promptly on material Part 703 change (enforced by `instrument_list.review_due_at`) |
 
-#### IP-08 — Approved Brokers, Dealers, and Safekeepers
+**ALERTS/METRICS:** Count of blocked prohibited-instrument attempts (reviewed monthly for pattern); allow-list review aging alert at 11 months; target zero prohibited instruments on the balance sheet.
 
-* **WHY (Reg cite):** Part 703 requires due diligence and annual review of broker-dealers and safekeepers; safekeepers must be regulated and monitored under written custodial agreements.([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/703.8?utm_source=chatgpt.com))
-* **SYSTEM BEHAVIOR:**
-  * Maintain an approved list of broker-dealers and safekeepers with due-diligence fields and review dates.
-  * Block trades with unapproved intermediaries; require safekeeper linkage for each position.
-* **TRIGGERS (human → event):**
-  * `Board approves intermediary list (governance.intermediary_list_approved)`
-  * `Compliance completes annual broker review (counterparty.broker_review_completed)`
-* **INPUTS (human → field):**
-  * Broker-dealer name and registration `(counterparty.bd_name, counterparty.sec_reg_id)`
-  * Safekeeper name and regulator `(counterparty.safekeeper_regulator)`
-  * Last due-diligence date `(counterparty.last_dd_date)`
-  * Custodial agreement reference `(counterparty.custody_agreement_id)`
-* **OUTPUTS:**
-  * Approved intermediaries list for staff and examiners.
-  * Evidence of ordinary-care obligations in custodial agreements.
-* **TIMERS/SLAs:**
-  * Annual minimum due-diligence review per broker-dealer and safekeeper.
-  * Monthly reconciliation of safekeeping statements per §703.9(c).([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/703.9?utm_source=chatgpt.com))
-* **EDGE CASES:**
-  * Emergency trade required with non-approved dealer → flagged exception requiring CIO and Compliance approval plus prompt Board notification.
-* **AUDIT LOGS:**
-  * `counterparty.approved`
-  * `counterparty.review_overdue`
-* **ACCESS CONTROL:**
-  * Edits: Compliance / Risk; read-only to trading, Finance, ALCO.
-* **ALERTS/METRICS:**
-  * Intermediaries with overdue reviews.
-  * Volume and P\&L by broker-dealer.
+## IN-04 — Interest Rate Risk and ALM Integration {#in-04-interest-rate-risk-and-alm-integration}
 
-#### IP-09 — Repurchase and Reverse Repurchase Agreements
+**WHY (Reg cite):** [12 CFR §703.12(c)](https://www.ecfr.gov/current/title-12/part-703/section-703.12) requires at least quarterly assessment of how interest-rate changes affect securities; [12 CFR §741.3(b)(5)](https://www.ecfr.gov/current/title-12/part-741/section-741.3) requires a written interest-rate-risk management program as a condition of insurability.
 
-* **WHY (Reg cite):** NCUA policies on repos require safe-and-sound collateral practices and maturity match limits; borrowing repurchase maturity mismatch generally limited (e.g., 30 days) without expanded authority.([NCUA](https://ncua.gov/files/publications/irps/IRPS1985-02.pdf?utm_source=chatgpt.com))
-* **SYSTEM BEHAVIOR:**
-  * Represent each repo/reverse repo transaction with explicit fields for collateral, haircut, counterparties, and maturity mismatch.
-  * Prevent booking repos that violate internal or regulatory mismatch and collateral rules.
-* **TRIGGERS (human → event):**
-  * `Treasurer initiates repo transaction (repo.transaction_initiated)`
-  * `Collateral revaluation performed (repo.collateral_marked_to_market)`
-* **INPUTS (human → field):**
-  * Repo type `(repo.type)` – `classic_repo` / `reverse_repo`.
-  * Cash maturity date `(repo.maturity_date)`
-  * Collateral characteristics and valuation `(repo.collateral_type, repo.collateral_value)`
-  * Haircut `(repo.haircut_pct)`
-  * Mismatch days `(repo.maturity_mismatch_days)`
-* **OUTPUTS:**
-  * Repo exposure report by counterparty, collateral type, and maturity.
-  * Mismatch tracking vs. policy and authority (base vs. expanded).
-* **TIMERS/SLAs:**
-  * Daily mark-to-market of collateral in stress or volatile markets; at least weekly otherwise (Assumption—needs confirmation: specific revaluation cadence).
-* **EDGE CASES:**
-  * Collateral value shortfall vs. haircut → auto-alert and required margin call within defined timeframe (e.g., 1 business day).
-* **AUDIT LOGS:**
-  * `repo.trade_booked`
-  * `repo.margin_call_issued`
-* **ACCESS CONTROL:**
-  * Repo booking rights limited to Treasurer and designated staff.
-* **ALERTS/METRICS:**
-  * Total repo exposure vs. capital.
-  * Count of margin calls and any collateral shortfalls.
+**SYSTEM BEHAVIOR:** The system captures effective duration, convexity, and cash-flow vectors for every security at booking and on each revaluation, and feeds those analytics to the ALM models used for enterprise IRR measurement. ALCO runs IRR simulations on the investment portfolio at least quarterly and more frequently whenever IRR thresholds are breached. Simulation assumptions and results are retained with the run. Security-level analytics fields are write-restricted to Treasury with Risk review.
 
-#### IP-10 — Valuation, Accounting, and Fair-Value Measurement
+**EVENTS:**
 
-* **WHY (Reg cite):** §703.4 requires GAAP-compliant recordkeeping; §703.11 requires at least monthly fair value determination, with independent assessment of pricing sources.([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/703.4?utm_source=chatgpt.com))
-* **SYSTEM BEHAVIOR:**
-  * Capture book value, amortized cost, and fair value for each security.
-  * Store pricing source and date; support OTTI analysis.
-* **TRIGGERS (human → event):**
-  * `Month-end valuation run (valuation.month_end_run)`
-  * `New price feed loaded (valuation.price_feed_loaded)`
-* **INPUTS (human → field):**
-  * Fair value `(valuation.fair_value)`
-  * Price source `(valuation.price_source)` – vendor, broker-dealer, safekeeper.
-  * OTTI flag `(valuation.otti_flag)` and memo reference.
-* **OUTPUTS:**
-  * Monthly valuation report including unrealized gains/losses and pricing sources.
-  * OTTI recommendation list.
-* **TIMERS/SLAs:**
-  * Monthly fair value update for all securities; annual external/supervisory committee assessment of pricing reliability.([GovInfo](https://www.govinfo.gov/content/pkg/CFR-2014-title12-vol7/pdf/CFR-2014-title12-vol7-sec703-11.pdf?utm_source=chatgpt.com))
-* **EDGE CASES:**
-  * No reliable quote available → use substantially similar security, document methodology, and apply conservative price.([GovInfo](https://www.govinfo.gov/link/cfr/12/703?link-type=pdf\&sectionnum=12\&year=mostrecent\&utm_source=chatgpt.com))
-* **AUDIT LOGS:**
-  * `valuation.price_overridden`
-  * `valuation.otti_recorded`
-* **ACCESS CONTROL:**
-  * Pricing overrides restricted to CFO/Controller with dual-approval workflow.
-* **ALERTS/METRICS:**
-  * Percentage of positions using non-primary pricing sources.
-  * Unrealized loss as % of capital by product type.
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Security booked or revalued (`position.analytics_update_due`) | Security terms (`position.cusip`, `position.coupon`, `position.maturity_date`), market data (`market.yield_curve`) | Duration, convexity, cash-flow vectors stored (`position.analytics_updated`) | At booking; refreshed with each revaluation (—) |
+| Quarterly IRR cycle or threshold breach (`alm.irr_simulation_due`) | Portfolio analytics (`position.effective_duration`, `position.convexity`, `position.cashflow_vector[]`), scenario set (`alm.scenario_set`) | ALCO IRR simulation results (`alm.irr_simulation_completed`) | At least quarterly; more often on breach (enforced by `alm.irr_simulation_due_at`) |
 
-#### IP-11 — Pre-Purchase Due Diligence and Exceptions
+**ALERTS/METRICS:** Count of positions missing duration/convexity analytics (target zero); IRR simulation aging alert at day 80 of the quarter; threshold-breach alerts routed to ALCO chair within 1 business day.
 
-* **WHY (Reg cite):** §703.6 mandates documented credit analysis before purchase (with limited exceptions), and NCUA guidance requires independent risk assessment beyond ratings.([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/703.6?utm_source=chatgpt.com))
-* **SYSTEM BEHAVIOR:**
-  * Enforce a pre-trade checklist and approval workflow before any new investment is booked (other than U.S. government/fully insured instruments).
-  * Require linkage of each trade ticket to a credit memo and valuation support.
-* **TRIGGERS (human → event):**
-  * `Trader requests pre-purchase review (investment.pre_purchase_requested)`
-  * `Credit memo approved (credit.memo_approved)`
-  * `Exception requested (investment.exception_requested)`
-* **INPUTS (human → field):**
-  * Credit memo ID `(investment.credit_memo_id)`
-  * Legal documents references `(investment.legal_docs[])`
-  * Scenario analysis results `(investment.scenario_summary)`
-  * Exception rationale `(investment.exception_reason)`
-* **OUTPUTS:**
-  * Complete pre-purchase file for each investment, accessible for examiners.
-  * Exception log with Board-approved thresholds for what requires Board vs. ALCO sign-off.
-* **TIMERS/SLAs:**
-  * Pre-purchase checklist completed and approved before trade date.
-  * Exceptions (where permitted) documented before settlement.
-* **EDGE CASES:**
-  * Same issuer/add-on purchases within pre-defined limits may allow streamlined checklist referencing prior memo, but still require documented tie-back. (Assumption—needs confirmation: specific thresholds for streamlined process.)
-* **AUDIT LOGS:**
-  * `investment.pre_purchase_checklist_completed`
-  * `investment.exception_denied`
-* **ACCESS CONTROL:**
-  * Credit memo editing restricted to Credit/Risk; traders read-only.
-* **ALERTS/METRICS:**
-  * Ratio of trades with exceptions to total trades.
-  * Time to complete pre-purchase reviews.
+## IN-05 — Credit Risk Standards and Downgrade Management {#in-05-credit-risk-standards-and-downgrade-management}
 
-#### IP-12 — Ongoing Monitoring, Reporting, and Stress Testing
+**WHY (Reg cite):** [12 CFR §703.6](https://www.ecfr.gov/current/title-12/part-703/section-703.6) requires conducting and documenting a credit analysis before purchasing an investment (other than one issued or fully guaranteed by the U.S. government or its agencies) and updating it at least annually while the investment is held; NCUA Supervisory Letter [13-CU-05 / LCU 2013-05](https://ncua.gov/files/supervisory-letters/LCU2013-05_SupervisoryLetter.pdf) limits reliance on NRSRO ratings in favor of independent internal analysis.
 
-* **WHY (Reg cite):** §703.12 and related sections require at least monthly written reports on investments and monitoring of risk; liquidity rule requires CFP and stress planning.([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/703.11?utm_source=chatgpt.com))
-* **SYSTEM BEHAVIOR:**
-  * Generate recurring reports on portfolio composition, duration, liquidity, unrealized gains/losses, limit adherence, and risk metrics.
-  * Implement stress scenarios (rate shocks, spread widening, liquidity stress).
-* **TRIGGERS (human → event):**
-  * `Monthly investment report scheduled (reporting.investment_monthly_scheduled)`
-  * `Stress test scenario executed (risk.stress_test_run)`
-* **INPUTS (human → field):**
-  * Reporting period `(reporting.period_end_date)`
-  * Scenario definitions `(risk.stress_scenario_code)`
-  * Limit exception annotations `(risk.limit_exception_notes)`
-* **OUTPUTS:**
-  * Monthly management and Board packages; ALCO dashboards.
-  * Stress test results with recommended actions.
-* **TIMERS/SLAs:**
-  * Monthly management report; at least quarterly presentation to Board.
-  * Stress tests at least annually and more frequently when risk metrics approach limits.
-* **EDGE CASES:**
-  * Data gaps or vendor outages → contingency reporting with clearly marked estimates and follow-up corrections.
-* **AUDIT LOGS:**
-  * `reporting.package_sent_to_board`
-  * `risk.stress_test_recommendation_logged`
-* **ACCESS CONTROL:**
-  * Report definitions controlled by Risk/Finance; access for Board and examiners via secure portal or PDF.
-* **ALERTS/METRICS:**
-  * On-time completion of required reports.
-  * Number of open remediation items from stress tests.
+**SYSTEM BEHAVIOR:** The system requires a completed credit file — independent internal analysis, not ratings alone — and a recorded approval before any eligible non-government investment can be booked; bookings without a linked credit file are blocked. Each held position carries a re-analysis due date, and documented re-analysis must be completed at least annually. When a security is downgraded below the internal investment-grade threshold, a review must be completed within 5 business days, and the board is notified when the position is material under board-set thresholds. U.S. government and fully guaranteed instruments are exempt from the pre-purchase credit-file requirement. Credit files are write-restricted to Risk, with approvals recorded by authorized approvers per [IN-02](#in-02-governance-board-oversight-and-delegations).
 
-#### IP-13 — Performance Measurement and Benchmarks
+**EVENTS:**
 
-* **WHY (Reg cite):** While not prescribing specific benchmarks, NCUA expects investment activities to be consistent with safe and sound practices and risk tolerance; performance must be evaluated in that context.([Federal Register](https://www.federalregister.gov/documents/2003/06/03/03-13660/investment-and-deposit-activities-and-regulatory-flexibility-program?utm_source=chatgpt.com))
-* **SYSTEM BEHAVIOR:**
-  * Attribute portfolio total return and income relative to chosen benchmarks by segment (e.g., Treasuries vs. agencies vs. municipals).
-  * Ensure performance targets do not create incentives to breach risk limits.
-* **TRIGGERS (human → event):**
-  * `Quarter-end performance run (performance.quarter_end_run)`
-* **INPUTS (human → field):**
-  * Benchmark index code `(performance.benchmark_code)`
-  * Tracking error tolerance `(performance.tracking_error_limit)`
-* **OUTPUTS:**
-  * Quarterly performance vs. benchmark report; decomposition of return drivers and risk usage.
-* **TIMERS/SLAs:**
-  * Quarterly Board-level performance review as part of investment reporting.
-* **EDGE CASES:**
-  * Benchmark index changes → require ALCO approval and documented rationale.
-* **AUDIT LOGS:**
-  * `performance.benchmark_changed`
-* **ACCESS CONTROL:**
-  * Performance configuration editable by CIO and Risk.
-* **ALERTS/METRICS:**
-  * Tracking error and risk-adjusted return vs. policy; flags if performance is achieved via higher-than-approved risk.
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Eligible non-government trade entered (`trade.entered`) | Issuer financials and analysis inputs (`credit_file.issuer_analysis`), internal rating (`credit_file.internal_rating`), approver (`credit_file.approver_id`) | Completed credit file + booking approval (`credit_file.approved`) | Before booking (—) |
+| Annual re-analysis comes due (`credit_file.reanalysis_due`) | Current credit file (`credit_file.id`), updated issuer data (`credit_file.issuer_analysis`) | Documented re-analysis (`credit_file.reanalysis_completed`) | At least annually (enforced by `credit_file.reanalysis_due_at`) |
+| Downgrade below internal threshold (`security.downgraded`) | Position size (`position.book_value`), downgrade detail (`security.rating_change`), materiality threshold (`policy.materiality_threshold`) | Downgrade review; board notification if material (`security.downgrade_reviewed`, `board.notification_sent`) | 5 business days (enforced by `security.downgrade_review_due_at`) |
 
-#### IP-14 — Trade Execution, Controls, and Segregation of Duties
+**ALERTS/METRICS:** Count of bookings blocked for missing credit files; re-analysis aging report (alert at 30 days before due, escalation when overdue); downgrade-review latency distribution with target 100% within 5 business days.
 
-* **WHY (Reg cite):** §703.4 requires policies to address internal controls and segregation of duties in investment activities.([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/703.4?utm_source=chatgpt.com))
-* **SYSTEM BEHAVIOR:**
-  * Segregate responsibilities among trade initiation, approval, confirmation, settlement, and accounting.
-  * Enforce dual-control for trade entry and post-trade reconciliation.
-* **TRIGGERS (human → event):**
-  * `Trader enters trade (trade.entered)`
-  * `Back office confirms trade (trade.confirmation_received)`
-  * `Finance reconciles positions and cash (recon.reconciliation_completed)`
-* **INPUTS (human → field):**
-  * Trade ticket `(trade.ticket_id)`
-  * Approver `(trade.approver_user_id)`
-  * Confirmation document references `(trade.confirmation_doc_id)`
-* **OUTPUTS:**
-  * Exception reports for unmatched trades and unreconciled positions.
-* **TIMERS/SLAs:**
-  * Trade confirmation and reconciliation within T+1 (Assumption—needs confirmation: targeted T+1 vs. T+2 SLA).
-* **EDGE CASES:**
-  * Same person attempts to both enter and approve trade → system blocks and logs violation attempt.
-* **AUDIT LOGS:**
-  * `trade.approval_granted`
-  * `recon.break_logged`
-* **ACCESS CONTROL:**
-  * Clear role definitions ensuring no single individual can control an entire transaction lifecycle.
-* **ALERTS/METRICS:**
-  * Number of reconciliation breaks and age distribution.
-  * Attempts at violating segregation-of-duties rules.
+## IN-06 — Liquidity and Marketability Limits {#in-06-liquidity-and-marketability-limits}
 
-#### IP-15 — Recordkeeping and Documentation Retention
+**WHY (Reg cite):** [12 CFR §703.12](https://www.ecfr.gov/current/title-12/part-703/section-703.12) requires monthly reporting and ongoing monitoring of investments, and [12 CFR §741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12) requires liquidity planning in which the investment portfolio serves as a core contingent liquidity source.
 
-* **WHY (Reg cite):** §703.4 sets recordkeeping and documentation requirements for investments and related activities.([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/703.4?utm_source=chatgpt.com))
-* **SYSTEM BEHAVIOR:**
-  * Store and index all required documents: trade tickets, confirmations, credit memos, research, approvals, safekeeping statements, and reports.
-  * Support retention schedules consistent with regulatory and internal requirements.
-* **TRIGGERS (human → event):**
-  * `Document uploaded (records.document_uploaded)`
-  * `Retention policy applied (records.retention_policy_applied)`
-* **INPUTS (human → field):**
-  * Document type `(records.doc_type)`
-  * Linked trade or position ID `(records.linked_object_id)`
-  * Retention category `(records.retention_category)` and expiry `(records.retention_expiry_date)`
-* **OUTPUTS:**
-  * On-demand retrieval for examiners and internal audit.
-  * Retention and destruction logs (if/where permissible).
-* **TIMERS/SLAs:**
-  * Documents attached to trades within 2 business days of event.
-  * Retention periods at least equal to regulatory minimums; specifics to be set in Records Management Policy (cross-reference).
-* **EDGE CASES:**
-  * Missing or damaged records → flag, attempt reconstruction, and document limitation for audit/examiners.
-* **AUDIT LOGS:**
-  * `records.document_viewed`
-  * `records.document_deleted` (where allowed)
-* **ACCESS CONTROL:**
-  * Role-based read/write; sensitive documents restricted to need-to-know.
-* **ALERTS/METRICS:**
-  * Missing required documents by trade/position.
-  * Imminent retention expiry requiring legal hold assessment.
+**SYSTEM BEHAVIOR:** The system classifies every investment by liquidity bucket, estimated days-to-liquidate, and stress haircut at booking, refreshing the classification on revaluation or market disruption. It computes and reports on-demand liquidity capacity and 30-day stress liquidity capacity at least monthly, and more frequently when a liquidity stress is declared under [IN-17](#in-17-contingency-planning-and-liquidity-stress-events). Liquidity classifications are write-restricted to Treasury with Risk review.
 
-#### IP-16 — Training, Competency, and Conflicts of Interest
+**EVENTS:**
 
-* **WHY (Reg cite):** Part 703 requires management competence; conflicts of interest in investment activities are explicitly prohibited under §703.17.([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/part-703/subpart-A?utm_source=chatgpt.com))
-* **SYSTEM BEHAVIOR:**
-  * Track training completion for staff and board involved in investment oversight.
-  * Maintain conflict-of-interest disclosures for key personnel and vendors.
-* **TRIGGERS (human → event):**
-  * `New investment staff onboarded (hr.staff_onboarded)`
-  * `Annual COI certification requested (governance.coi_cert_requested)`
-* **INPUTS (human → field):**
-  * Required training modules `(training.module_codes[])`
-  * Completion status `(training.completed_flag)`
-  * COI disclosure statements `(governance.coi_disclosure_text)`
-* **OUTPUTS:**
-  * Training and COI compliance reports for Board and examiners.
-* **TIMERS/SLAs:**
-  * Initial training before granting system access to execute or approve investments.
-  * Annual refresher and COI certification for all covered persons.
-* **EDGE CASES:**
-  * Non-completion of training or COI certification → auto-suspension of investment system access until resolved.
-* **AUDIT LOGS:**
-  * `training.completed`
-  * `governance.coi_certified`
-* **ACCESS CONTROL:**
-  * Training records visible to HR, Compliance, and Internal Audit; summarized to Board.
-* **ALERTS/METRICS:**
-  * Training completion rates.
-  * COI issues logged and resolved.
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Position booked or revalued (`position.liquidity_classification_due`) | Instrument type and market depth (`position.instrument_type`, `market.depth_indicator`), haircut table (`liquidity.haircut_table`) | Liquidity bucket, days-to-liquidate, stress haircut stored (`position.liquidity_classified`) | At booking; refreshed on revaluation (—) |
+| Monthly liquidity reporting cycle (`liquidity.report_due`) | Classified positions (`position.liquidity_bucket`, `position.days_to_liquidate`, `position.stress_haircut`) | On-demand and 30-day stress liquidity capacity report (`liquidity.capacity_report_issued`) | Monthly; more frequent under stress (enforced by `liquidity.report_due_at`) |
 
-#### IP-17 — Contingency Planning and Liquidity Stress Events
+**ALERTS/METRICS:** Count of unclassified positions (target zero); stress liquidity capacity tracked against board minimums with alerting at 110% of minimum; report timeliness target 100% on schedule.
 
-* **WHY (Reg cite):** §741.12 requires a written CFP and planning for liquidity stress; investment portfolio is a core contingent liquidity source.([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/741.12?utm_source=chatgpt.com))
-* **SYSTEM BEHAVIOR:**
-  * Maintain predefined liquidity stress scenarios (e.g., deposit run, market stress, combined).
-  * Map investment liquidation hierarchy and playbooks tied into the CFP.
-* **TRIGGERS (human → event):**
-  * `Liquidity stress threshold breached (liquidity.threshold_breached)`
-  * `Board/ALCO declares CFP activation (liquidity.cfp_activated)`
-* **INPUTS (human → field):**
-  * Stress scenario parameters `(liquidity.stress_scenario)`
-  * Priority of liquidation `(liquidity.liquidation_priority)`
-* **OUTPUTS:**
-  * Liquidity stress test results and CFP action plans showing which securities would be sold/pledged and expected proceeds/timing.
-* **TIMERS/SLAs:**
-  * At least annual CFP test; more frequent for larger/complex CUs.
-  * Upon actual stress declaration, initial execution plan documented within 1 business day.
-* **EDGE CASES:**
-  * Market dislocation where planned sales not feasible at modeled haircuts → require revised plan and Board communication.
-* **AUDIT LOGS:**
-  * `liquidity.cfp_test_run`
-  * `liquidity.cfp_action_executed`
-* **ACCESS CONTROL:**
-  * CFP configuration controlled by Treasury/Risk; viewing access for Board and examiners.
-* **ALERTS/METRICS:**
-  * Liquidity coverage ratios under base and stress vs. policy minimums.
-  * Time to execute simulated CFP actions.
+## IN-07 — Concentration and Counterparty Limits {#in-07-concentration-and-counterparty-limits}
 
-#### IP-18 — Policy Review, Amendments, and Version Control
+**WHY (Reg cite):** [12 CFR §703.3](https://www.ecfr.gov/current/title-12/part-703/section-703.3) requires the investment policy to address concentration limits, including how much may be invested with any single obligor or in any given type of investment; the NCUA Examiner's Guide expects concentration risk in the investment portfolio to be measured and controlled.
 
-* **WHY (Reg cite):** §703.3 requires the Board to review the investment policy at least annually; §741.3 ties investment policies to insurability criteria.([GovInfo](https://www.govinfo.gov/content/pkg/CFR-2018-title12-vol7/pdf/CFR-2018-title12-vol7-part703.pdf?utm_source=chatgpt.com))
-* **SYSTEM BEHAVIOR:**
-  * Maintain full version history, redlines, and approval metadata for the Investment Policy.
-  * Drive review tasks and track completion.
-* **TRIGGERS (human → event):**
-  * `Policy review cycle starts (governance.policy_review_started)`
-  * `Board approves new version (governance.policy_version_approved)`
-* **INPUTS (human → field):**
-  * Version number `(policy.version)`
-  * Change summary `(policy.change_summary)`
-  * Approver list `(policy.approvers[])`
-* **OUTPUTS:**
-  * Version-controlled policy PDF/HTML for distribution.
-  * Review calendar and status tracking.
-* **TIMERS/SLAs:**
-  * Review not less than annually; earlier if regulatory changes materially affect Part 703 or related rules.
-* **EDGE CASES:**
-  * Emergency interim updates (e.g., new prohibited instrument) requiring prompt Board ratification at next meeting.
-* **AUDIT LOGS:**
-  * `policy.version_published`
-  * `policy.version_retired`
-* **ACCESS CONTROL:**
-  * Edit rights limited to Compliance/CIO; Board approves via governance workflow.
-* **ALERTS/METRICS:**
-  * “Days since last Board approval.”
-  * Count of outstanding follow-up items from prior reviews.
+**SYSTEM BEHAVIOR:** The system maintains parameterized limits by issuer, sector, rating band, product type, and counterparty, each with a soft threshold (warning) and a hard threshold (blocking). Limits are evaluated at trade entry: a trade breaching a soft limit proceeds with a logged warning routed to Risk; a trade breaching a hard limit is blocked and can proceed only as a documented, pre-settlement exception under [IN-02](#in-02-governance-board-oversight-and-delegations). The limit set is reviewed at least annually. Limit parameters are write-restricted to Risk with board-approved changes for hard limits.
 
-### EMBEDDED CHECKLISTS & TEMPLATES <a href="#checklists" id="checklists"></a>
+**EVENTS:**
 
-The following checklists and templates will be maintained (as separate artifacts) and referenced by this Policy:
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Trade entered (`trade.entered`) | Trade size (`trade.amount`), current exposures (`exposure.by_issuer`, `exposure.by_sector`, `exposure.by_counterparty`), limit parameters (`limit_set.parameters`) | Limit check result: pass, warning, or block (`trade.limit_checked`, `trade.limit_warning_issued`, `trade.limit_blocked`) | At trade entry, before booking (—) |
+| Annual limit review cycle (`limit_set.review_due`) | Current limit set (`limit_set.version`), exposure history (`exposure.history[]`) | Re-approved or amended limit parameters (`limit_set.review_completed`) | At least annually (enforced by `limit_set.review_due_at`) |
 
-{% stepper %}
-{% step %}
-### Pre-Purchase Due Diligence Checklist (IP-11)
+**ALERTS/METRICS:** Soft-limit warning volume by issuer/sector (trend reviewed at ALCO); hard-limit block count and exception ratio; limit-set review aging alert at 11 months.
 
-Minimum credit analysis fields, legal docs, scenario analysis, and approval signatures required prior to trade execution.
-{% endstep %}
+## IN-08 — Approved Brokers, Dealers, and Safekeepers {#in-08-approved-brokers-dealers-and-safekeepers}
 
-{% step %}
-### Broker/Dealer and Safekeeper Due-Diligence Template (IP-08)
+**WHY (Reg cite):** [12 CFR §703.8](https://www.ecfr.gov/current/title-12/part-703/section-703.8) restricts purchases and sales to broker-dealers meeting specified criteria after documented analysis; [12 CFR §703.9](https://www.ecfr.gov/current/title-12/part-703/section-703.9) requires qualified safekeeping arrangements and, under §703.9(c), obtaining and reconciling statements of purchased investments and repo collateral at least monthly.
 
-Registration checks, regulatory actions, financial condition, service quality, and annual re-approval sign-offs.
-{% endstep %}
+**SYSTEM BEHAVIOR:** The system maintains an approved-intermediaries list (brokers, dealers, safekeepers) with each entry's due-diligence date, review date, and supporting file. Trade entry validates the counterparty intermediary; trades with unapproved intermediaries are blocked. Due-diligence reviews are performed annually for every listed intermediary, covering financial capacity, regulatory standing (e.g., FINRA actions), and experience. Safekeeping statements are reconciled to internal records monthly per §703.9(c), with breaks investigated and cleared. The approved list is write-restricted to Compliance with board approval for additions.
 
-{% step %}
-### Monthly Investment Monitoring Pack Template (IP-10, IP-12, IP-13)
+**EVENTS:**
 
-Standardized set of tables and charts: composition, duration, liquidity, concentrations, performance vs. benchmark, and limit exceptions.
-{% endstep %}
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Trade entered naming an intermediary (`trade.entered`) | Intermediary identity (`trade.intermediary_id`), approved list (`intermediary.approved_list`) | Intermediary validation pass or block (`trade.intermediary_validated` / `trade.intermediary_blocked`) | At trade entry, before booking (—) |
+| Annual due-diligence anniversary (`intermediary.review_due`) | Intermediary financials and regulatory record (`intermediary.due_diligence_file`) | Refreshed due-diligence review (`intermediary.review_completed`) | Annually (enforced by `intermediary.review_due_at`) |
+| Month-end safekeeping statement received (`safekeeping.statement_received`) | Safekeeper statement (`safekeeping.statement`), internal position records (`position.holdings[]`) | Completed reconciliation with any breaks logged (`safekeeping.reconciliation_completed`) | Monthly per §703.9(c) (internal: 10 BD after statement; enforced by `safekeeping.reconciliation_due_at`) |
 
-{% step %}
-### Liquidity Stress & CFP Playbook (IP-06, IP-17)
+**ALERTS/METRICS:** Count of trades blocked for unapproved intermediaries; due-diligence aging alert at 11 months; unreconciled safekeeping breaks aging report with escalation at 30 days.
 
-Scenario definitions, trigger thresholds, communication trees, and prioritized liquidation/pledge lists.
-{% endstep %}
+## IN-09 — Repurchase and Reverse Repurchase Agreements {#in-09-repurchase-and-reverse-repurchase-agreements}
 
-{% step %}
-### Training and COI Certification Forms (IP-16)
+**WHY (Reg cite):** [12 CFR §703.13(c)–(d)](https://www.ecfr.gov/current/title-12/part-703/section-703.13) governs repurchase and reverse repurchase transactions, including the requirements that purchased securities be permissible investments, that the credit union receive daily assessments of their market value, and that adequate margin be maintained; NCUA repurchase guidance ([IRPS 1985-2](https://ncua.gov/files/publications/irps/IRPS1985-02.pdf)) sets safe-and-sound collateral, haircut, and maturity-mismatch practices, including the 30-day baseline mismatch limit.
 
-Modules checklist, attestation language, and COI disclosure forms.
-{% endstep %}
+**SYSTEM BEHAVIOR:** Every repo and reverse repo is represented with explicit collateral, haircut, counterparty, and maturity-mismatch fields; bookings that violate internal or regulatory mismatch and collateral rules are blocked at entry. Collateral is marked to market at least weekly, and daily when a stress is declared under [IN-17](#in-17-contingency-planning-and-liquidity-stress-events); the system issues margin calls automatically when collateral value falls below required margin. Repo counterparties must also clear the approved-intermediaries check in [IN-08](#in-08-approved-brokers-dealers-and-safekeepers). Repo terms are write-restricted to Treasury with dual entry verification.
 
-{% step %}
-### Board / ALCO Reporting Templates (IP-02, IP-12, IP-13)
+**EVENTS:**
 
-Standard agenda, dashboard, and summary pages used for recurring oversight meetings.
-{% endstep %}
-{% endstepper %}
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Repo or reverse repo entered (`repo.entered`) | Collateral detail (`repo.collateral_cusip`, `repo.haircut`), counterparty (`repo.counterparty_id`), maturity terms (`repo.maturity_mismatch_days`) | Validated booking or block (`repo.booked` / `repo.blocked_rule_violation`) | At entry, before booking (—) |
+| Collateral revaluation cycle (`repo.collateral_revaluation_due`) | Market prices (`market.collateral_prices`), required margin (`repo.required_margin`) | Updated collateral values (`repo.collateral_marked`) | Weekly; daily in stress (enforced by `repo.collateral_revaluation_due_at`) |
+| Collateral shortfall detected (`repo.margin_shortfall_detected`) | Shortfall amount (`repo.margin_shortfall_amount`), counterparty contacts (`repo.counterparty_id`) | Margin call issued (`repo.margin_call_issued`) | Same business day as detection (internal: by close of business) |
 
-### GOVERNANCE & SIGN-OFF <a href="#governance" id="governance"></a>
+**ALERTS/METRICS:** Count of blocked repo bookings by rule violated; collateral mark staleness alert (any repo unmarked > 7 days, > 1 day in stress); outstanding margin calls aging report with escalation at 2 business days.
 
-* **Policy Owner:** Chief Investment Officer (or equivalent), responsible for day-to-day administration and ensuring that systems and processes implement the controls described in [IP-01](investment.md#ip-01-policy-objectives-scope-and-covered-instruments) through [IP-18](investment.md#ip-18-policy-review-amendments-and-version-control).
-* **Board Responsibilities:**
-  * Approve the Investment Policy, permissible investment list, and authority matrix at least annually.([GovInfo](https://www.govinfo.gov/content/pkg/CFR-2018-title12-vol7/pdf/CFR-2018-title12-vol7-part703.pdf?utm_source=chatgpt.com))
-  * Review investment reports and CFP testing results with sufficient detail to discharge fiduciary and safety-and-soundness obligations.
-* **ALCO / Investment Committee Responsibilities (if constituted):**
-  * Implement Board-approved strategy within limits and risk appetite.
-  * Monitor compliance with this Policy, escalate breaches, and recommend changes to limits, strategies, or the Policy itself.
-* **Internal Audit / Supervisory Committee:**
-  * Periodically review adherence to this Policy, including trade execution, documentation, valuation, and reporting controls, and report findings to the Board.
-* **Review Cadence:**
-  * This Policy must be reviewed at least annually, and more frequently if material regulatory or risk-environment changes occur. Any material changes require Board approval.
+## IN-10 — Valuation, Accounting, and Fair-Value Measurement {#in-10-valuation-accounting-and-fair-value-measurement}
 
-### ASSUMPTIONS & GAPS
+**WHY (Reg cite):** [12 CFR §703.11](https://www.ecfr.gov/current/title-12/part-703/section-703.11) requires obtaining the fair value of investments at least monthly and assessing prices from sources independent of the seller for certain securities; [12 CFR §703.4](https://www.ecfr.gov/current/title-12/part-703/section-703.4) requires records sufficient to demonstrate compliance, including valuation support.
 
-* **Charter Type & Size:** This Policy assumes a federally insured credit union subject to Part 703 and §§741.3, 741.12. Thresholds for liquidity and CFP (e.g., $50M / $250M asset tiers) will need tailoring to actual asset size.([Legal Information Institute](https://www.law.cornell.edu/cfr/text/12/741.12?utm_source=chatgpt.com))
-* **SLAs & Limits:** Specific numeric limits (e.g., days to liquidate, haircut levels, reconciliation SLAs, concentration percentages) are intentionally left to implementation and should be set by ALCO/Board and embedded in system configuration.
-* **Derivative Activities:** This Policy does not address derivative authority under Part 703 Subpart B; if derivatives are contemplated, a separate Derivatives Policy and controls will be required.([ECFR.io](https://ecfr.io/Title-12/Part-703?utm_source=chatgpt.com))
-* **Nondeposit Investment Products (NDIPs):** This Policy is focused on balance-sheet investments and non-loan asset placements, not retail NDIP sales programs; any NDIP activities should be covered by a separate NDIP/retail investment sales policy to address customer disclosures and sales-practice risk.
+**SYSTEM BEHAVIOR:** The system captures book value, amortized cost, and fair value for every security, with the pricing source and pricing date stored alongside each fair-value observation. Fair values are updated at least monthly from independent pricing sources, and the position record supports other-than-temporary-impairment (OTTI) analysis by retaining valuation history and expected-cash-flow comparisons. Manual pricing overrides are restricted to the CFO or Controller and require dual approval; every override is logged with rationale. Valuation fields are otherwise write-restricted to the automated pricing feed.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Monthly pricing cycle (`security.fair_value_update_due`) | Independent prices (`pricing.source`, `pricing.as_of_date`), position inventory (`position.holdings[]`) | Updated fair values with source and date (`security.fair_value_updated`) | At least monthly per §703.11 (enforced by `security.fair_value_update_due_at`) |
+| Impairment indicator detected (`security.impairment_indicator_raised`) | Fair value vs. amortized cost (`position.fair_value`, `position.amortized_cost`), expected cash flows (`position.expected_cashflows[]`) | OTTI analysis with conclusion (`security.otti_analysis_completed`) | Quarter in which the indicator arises (internal: before quarter close) |
+| Pricing override requested (`pricing.override_requested`) | Override rationale (`pricing.override_rationale`), two approvers among CFO/Controller (`pricing.override_approvers[]`) | Approved override with dual sign-off (`pricing.override_applied`) | Before the overridden value is used in any report (—) |
+
+**ALERTS/METRICS:** Stale-price report (any position unpriced > 1 month, target zero); pricing-override count per quarter with each override reviewed by Internal Audit; OTTI candidates flagged vs. analyzed (target 100% analyzed by quarter close).
+
+## IN-11 — Pre-Purchase Due Diligence and Exceptions {#in-11-pre-purchase-due-diligence-and-exceptions}
+
+**WHY (Reg cite):** [12 CFR §703.6](https://www.ecfr.gov/current/title-12/part-703/section-703.6) requires documented pre-purchase credit analysis for non-exempt investments, and [12 CFR §703.4](https://www.ecfr.gov/current/title-12/part-703/section-703.4) requires records demonstrating that each investment decision was prudent and authorized.
+
+**SYSTEM BEHAVIOR:** The system enforces a pre-trade checklist and approval workflow: before booking, each trade must be linked to its credit memo (per [IN-05](#in-05-credit-risk-standards-and-downgrade-management)) and valuation support, except for U.S. government or fully insured/guaranteed instruments, which bypass the credit-memo step but still require checklist completion. Trades exceeding board-set thresholds that proceed on incomplete documentation are recorded in a board-visible exception log and require pre-settlement exception approval under [IN-02](#in-02-governance-board-oversight-and-delegations). Checklist templates are write-restricted to Compliance.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Trade entered for non-exempt instrument (`trade.entered`) | Credit memo link (`credit_file.id`), valuation support (`trade.valuation_support`), checklist items (`trade.pretrade_checklist`) | Completed checklist gating the booking (`trade.checklist_completed`) | Before booking (—) |
+| Checklist exception over board threshold (`trade.checklist_exception_raised`) | Exception detail (`exception.rationale`), threshold parameters (`policy.exception_threshold`) | Entry in board exception log (`trade.exception_logged`) | Before settlement; reported at next board meeting (—) |
+
+**ALERTS/METRICS:** Checklist completion rate at booking (target 100%); exception-log volume trended quarterly to the board; count of trades booked with missing valuation support (target zero).
+
+## IN-12 — Ongoing Monitoring, Reporting, and Stress Testing {#in-12-ongoing-monitoring-reporting-and-stress-testing}
+
+**WHY (Reg cite):** [12 CFR §703.12](https://www.ecfr.gov/current/title-12/part-703/section-703.12) requires at least monthly reports to the board (or investment-related committee) of investment purchases, sales, and holdings, and at least quarterly evaluation of fair value and risk; the NCUA Examiner's Guide expects stress testing of portfolio risk consistent with complexity.
+
+**SYSTEM BEHAVIOR:** The system generates recurring portfolio reports covering composition, duration, liquidity, realized/unrealized gain and loss, and limit adherence — monthly to management and ALCO, and at least quarterly to the board (with monthly purchase/sale/holdings detail available to the board per §703.12). Portfolio stress scenarios are run at least annually and more frequently as any monitored metric approaches its limit. Report generation is automated; report parameters are write-restricted to Risk.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Month-end management cycle (`portfolio.report_due`) | Position data (`position.holdings[]`), analytics (`position.effective_duration`, `position.liquidity_bucket`), limit results (`trade.limit_checked` history) | Management/ALCO portfolio report (`portfolio.management_report_issued`) | Monthly (internal: 10 BD after month-end; enforced by `portfolio.report_due_at`) |
+| Quarter-end board cycle (`portfolio.board_report_due`) | Monthly report series (`portfolio.management_report_issued` history), gain/loss summary (`portfolio.gain_loss_summary`) | Board investment report (`portfolio.board_report_issued`) | At least quarterly (enforced by `portfolio.board_report_due_at`) |
+| Stress-test cycle or metric approaching limit (`portfolio.stress_test_due`) | Scenario definitions (`stress.scenario_set`), position analytics (`position.cashflow_vector[]`, `position.stress_haircut`) | Documented stress results to ALCO and board (`portfolio.stress_test_completed`) | At least annually; more often near limits (enforced by `portfolio.stress_test_due_at`) |
+
+**ALERTS/METRICS:** Report delivery timeliness (target 100% on schedule); limit-adherence exceptions surfaced per report; stress-test aging alert at 11 months and automatic re-trigger when any metric crosses 90% of its limit.
+
+## IN-13 — Performance Measurement and Benchmarks {#in-13-performance-measurement-and-benchmarks}
+
+**WHY (Reg cite):** [12 CFR §703.3](https://www.ecfr.gov/current/title-12/part-703/section-703.3) requires the policy to state how investments relate to the credit union's objectives and risk tolerance; the NCUA Examiner's Guide expects performance to be measured in a way that does not encourage imprudent risk-taking.
+
+**SYSTEM BEHAVIOR:** The system attributes portfolio return and income to assigned benchmarks by portfolio segment quarterly, separating yield, price, and allocation effects. Performance targets and any incentive metrics referencing portfolio performance are reviewed by Risk to confirm they do not incentivize breaching the risk limits in [IN-04](#in-04-interest-rate-risk-and-alm-integration), [IN-06](#in-06-liquidity-and-marketability-limits), and [IN-07](#in-07-concentration-and-counterparty-limits). Benchmark assignments are write-restricted to Treasury with ALCO approval.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Quarter-end attribution cycle (`performance.attribution_due`) | Segment returns (`portfolio.segment_returns[]`), benchmark series (`benchmark.series[]`) | Benchmark attribution report by segment (`performance.attribution_completed`) | Quarterly (enforced by `performance.attribution_due_at`) |
+| Performance target proposed or changed (`performance.target_change_proposed`) | Proposed targets (`performance.targets`), current risk limits (`limit_set.parameters`) | Risk sign-off confirming no limit-breach incentive (`performance.target_risk_reviewed`) | Before the target takes effect (—) |
+
+**ALERTS/METRICS:** Attribution report timeliness (target 100% within 30 days of quarter-end); count of performance targets active without Risk sign-off (target zero).
+
+## IN-14 — Trade Execution, Controls, and Segregation of Duties {#in-14-trade-execution-controls-and-segregation-of-duties}
+
+**WHY (Reg cite):** [12 CFR §703.3](https://www.ecfr.gov/current/title-12/part-703/section-703.3) requires the policy to address how the credit union manages its investment program, and the NCUA Examiner's Guide expects segregation of duties among trade initiation, approval, settlement, and recordkeeping as a core internal control; [12 CFR §703.4](https://www.ecfr.gov/current/title-12/part-703/section-703.4) requires records evidencing each step.
+
+**SYSTEM BEHAVIOR:** The system segregates trade initiation, approval, confirmation, settlement, and accounting into distinct role-bound steps and enforces dual control: no single user may perform more than one conflicting step on the same transaction, and the system blocks any user from controlling a full transaction lifecycle. Trade confirmations from intermediaries are matched against internal tickets, and every settled trade is reconciled to ledger and safekeeping records within T+1. Role assignments are write-restricted to Compliance with quarterly access review.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Trade lifecycle step attempted (`trade.step_attempted`) | Acting user and role (`user.id`, `user.role`), prior step actors (`trade.step_history[]`) | Step permitted or blocked for SoD conflict (`trade.step_recorded` / `trade.sod_blocked`) | At each step, in real time (—) |
+| Intermediary confirmation received (`trade.confirmation_received`) | Confirmation terms (`confirmation.terms`), internal ticket (`trade.ticket`) | Matched confirmation or discrepancy flag (`trade.confirmation_matched` / `trade.confirmation_discrepancy_flagged`) | Same business day as receipt (internal: by close of business) |
+| Trade settles (`trade.settled`) | Settlement detail (`trade.settlement_amount`, `trade.settlement_date`), ledger and safekeeping records (`ledger.entries[]`, `safekeeping.holdings[]`) | Reconciled trade record (`trade.reconciliation_completed`) | T+1 (enforced by `trade.reconciliation_due_at`) |
+
+**ALERTS/METRICS:** SoD-block count (each investigated); unmatched confirmations aging (escalation at 2 business days); T+1 reconciliation completion rate (target 100%).
+
+## IN-15 — Recordkeeping and Documentation Retention {#in-15-recordkeeping-and-documentation-retention}
+
+**WHY (Reg cite):** [12 CFR §703.4](https://www.ecfr.gov/current/title-12/part-703/section-703.4) requires maintaining documentation of each investment transaction for as long as the investment is held (and analyses/reports as long as relevant), sufficient for examiners to evaluate compliance.
+
+**SYSTEM BEHAVIOR:** The system stores and indexes trade tickets, confirmations, credit memos, approvals, safekeeping statements, and portfolio reports against the related trade or position, each carrying a retention schedule consistent with §703.4 and the enterprise Record Retention Policy. Required documents must be attached to the trade record within 2 business days of booking; trades with missing documents past the window are flagged on the management report. Document deletion before retention expiry is blocked; index metadata is write-restricted to Operations.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Trade booked (`trade.booked`) | Required document set for the instrument type (`document.required_set`), uploaded artifacts (`document.files[]`) | Indexed documents linked to the trade (`document.attached`) | 2 business days (enforced by `document.attachment_due_at`) |
+| Retention schedule reached (`document.retention_expired`) | Retention rule (`document.retention_schedule`), legal-hold status (`document.legal_hold_flag`) | Disposition action recorded (`document.disposition_recorded`) | Per retention schedule; never before hold release (—) |
+
+**ALERTS/METRICS:** Trades with incomplete documentation past 2 BD (target zero, surfaced on monthly management report); retention-rule coverage of stored documents (target 100%).
+
+## IN-16 — Training, Competency, and Conflicts of Interest {#in-16-training-competency-and-conflicts-of-interest}
+
+**WHY (Reg cite):** [12 CFR §703.17](https://www.ecfr.gov/current/title-12/part-703/section-703.17) prohibits officials and employees involved in investment decisions from receiving anything of value in connection with the credit union's investment transactions, requiring conflict-of-interest discipline; [12 CFR §703.3](https://www.ecfr.gov/current/title-12/part-703/section-703.3) expects investment personnel to operate within defined, board-approved competence.
+
+**SYSTEM BEHAVIOR:** The system tracks required investment training and annual conflict-of-interest certifications for covered staff and board members. Investment-system access is granted only after required training is complete, and access is automatically suspended when training or COI certification lapses past its due date; suspended access is restored only on completion. Training and certification records are write-restricted to Compliance/HR.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Covered person hired or role changed (`training.assignment_created`) | Role-based curriculum (`training.required_curriculum`), person record (`user.id`) | Training completion gating system access (`training.completed`, `access.granted`) | Before system access (—) |
+| Annual training/COI cycle (`training.due`) | Outstanding requirements (`training.outstanding_items[]`, `coi.certification_due`) | Completed training and COI certification (`training.completed`, `coi.certified`) | Annually (enforced by `training.due_at`) |
+| Requirement lapses past due date (`training.lapsed`) | Lapsed items (`training.outstanding_items[]`), access roster (`access.roster`) | Automatic access suspension (`access.suspended`) | Same day as lapse (internal: immediate) |
+
+**ALERTS/METRICS:** Training/COI completion rate for covered population (target 100%); count of active users with lapsed requirements (target zero — auto-suspension makes any nonzero value an incident); suspension/restoration log reviewed quarterly.
+
+## IN-17 — Contingency Planning and Liquidity Stress Events {#in-17-contingency-planning-and-liquidity-stress-events}
+
+**WHY (Reg cite):** [12 CFR §741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12) requires liquidity policies and, by asset tier, a Contingency Funding Plan addressing stress events in which investment liquidation is a primary funding source.
+
+**SYSTEM BEHAVIOR:** The system maintains predefined liquidity stress scenarios and an investment-liquidation hierarchy (which positions to sell, in what order, at what expected haircuts) tied to the enterprise Contingency Funding Plan governed by the Liquidity Policy. The hierarchy and scenarios are tested at least annually. When an actual liquidity stress is declared, an initial execution plan applying the hierarchy must be documented within 1 business day, and the stress declaration tightens the monitoring cadences in [IN-06](#in-06-liquidity-and-marketability-limits) and [IN-09](#in-09-repurchase-and-reverse-repurchase-agreements). The liquidation hierarchy is write-restricted to Treasury with ALCO approval.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Annual contingency test cycle (`cfp.investment_test_due`) | Stress scenarios (`stress.scenario_set`), liquidation hierarchy (`cfp.liquidation_hierarchy`) | Documented test results (`cfp.investment_test_completed`) | At least annually (enforced by `cfp.investment_test_due_at`) |
+| Liquidity stress declared (`liquidity.stress_declared`) | Liquidation hierarchy (`cfp.liquidation_hierarchy`), current liquidity classifications (`position.liquidity_bucket`, `position.stress_haircut`) | Initial execution plan documented (`cfp.execution_plan_documented`) | 1 business day (enforced by `cfp.execution_plan_due_at`) |
+
+**ALERTS/METRICS:** Contingency test aging alert at 11 months; in a declared stress, execution-plan latency tracked against the 1-BD deadline; liquidation-hierarchy coverage of the portfolio (target 100% of positions ranked).
+
+## IN-18 — Policy Review, Amendments, and Version Control {#in-18-policy-review-amendments-and-version-control}
+
+**WHY (Reg cite):** [12 CFR §703.3](https://www.ecfr.gov/current/title-12/part-703/section-703.3) requires the board to review the investment policy at least annually, and [12 CFR §703.4](https://www.ecfr.gov/current/title-12/part-703/section-703.4) requires records — including superseded policy versions — sufficient to demonstrate the rules in effect for any historical transaction.
+
+**SYSTEM BEHAVIOR:** The system maintains full version history of this policy with redlines between versions and approval metadata (approver, body, date, minutes reference) on each version. Review occurs at least annually and earlier when a material regulatory change is identified; amendments take effect only after recorded approval, and every historical position remains linked to the version in force when it was booked. Version records are write-restricted to Compliance and immutable once approved.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Amendment proposed or material reg change identified (`policy.amendment_proposed`) | Draft changes (`policy.draft_redline`), regulatory trigger if any (`regwatch.part703_changes[]`) | Redlined draft routed for approval (`policy.redline_recorded`) | Before next board review; promptly on material change (—) |
+| Amendment approved (`policy.version_approved`) | Approval metadata (`policy.approver_ids[]`, `policy.minutes_reference`) | New immutable policy version with effective date (`policy.version_published`) | On approval; effective date as approved (—) |
+
+**ALERTS/METRICS:** Version-history completeness audit annually (every effective period covered, target 100%); count of amendments effective without approval metadata (target zero).
+
+## Governance & Sign-Off {#governance}
+
+- **Owner:** Patrick Wilson, Chief Compliance Officer — accountable for policy content, the canonical policy record ([IN-01](#in-01-policy-record-scope-and-covered-instruments)), and version control ([IN-18](#in-18-policy-review-amendments-and-version-control)).
+- **Approvers:** Patrick Wilson, Chief Compliance Officer. Board of Directors approval of the policy and authority matrix is required at least annually per [IN-02](#in-02-governance-board-oversight-and-delegations).
+- **Required participants:** Chief Investment Officer (or equivalent), ALCO/Investment Committee, Treasury, Risk, Finance, and the Internal Audit/Supervisory Committee, each in the roles assigned by the authority matrix.
+- **Review cadence:** At least annually (not to exceed 12 months between board approvals), and earlier on material regulatory change per [IN-18](#in-18-policy-review-amendments-and-version-control).
+- **Cross-references:** Derivatives Policy (Part 703 Subpart B authority — out of scope here); NDIP/Retail Investment Sales Policy; Liquidity Policy (enterprise liquidity program and CFP governance); Capitalization and Basel-II Standardized Approach Framework Policies; Record Retention Policy; Third-Party Risk Policy (broker/custodian vendor management beyond investment due diligence).
+
+## Assumptions & Gaps {#assumptions}
+
+- **Engineering vocabulary is provisional.** The investment-side resources, fields, events, and timers cited throughout the EVENTS tables (e.g., `trade.entered`, `position.booked`, `credit_file.approved`, `repo.collateral_marked`, `safekeeping.reconciliation_completed`) are not registered in `vocabulary.json` — the parsed spec is banking-core only (entities, transfers, cards, BSA) with zero events defined. All codes used here are the target naming scheme and will be confirmed by engineering before the next review.
+- **Charter type and Part 703 applicability.** Pynthia is treated as a federal credit union directly subject to 12 CFR Part 703. If Pynthia is state-chartered, the binding authority shifts to state law plus the §741.3 nonconforming-investment reserve requirement, and citations need re-anchoring.
+- **Internal investment-grade threshold.** PATRICK_NOTES require downgrade review below "the internal investment-grade threshold" without defining it. This policy assumes a board-approved internal rating scale exists; the threshold and the materiality threshold for board notification need board confirmation.
+- **Repo maturity-mismatch limit.** The NCUA 30-day baseline from IRPS 1985-2 is assumed as the regulatory mismatch reference; the internal mismatch limit parameters enforced at booking ([IN-09](#in-09-repurchase-and-reverse-repurchase-agreements)) need ALCO/board confirmation.
+- **Quantitative limits not yet parameterized.** Issuer, sector, rating, product, and counterparty limit values ([IN-07](#in-07-concentration-and-counterparty-limits)), liquidity capacity minimums ([IN-06](#in-06-liquidity-and-marketability-limits)), IRR thresholds ([IN-04](#in-04-interest-rate-risk-and-alm-integration)), and board exception thresholds ([IN-11](#in-11-pre-purchase-due-diligence-and-exceptions)) are structural in this policy; the numeric parameters live in the board-approved limit set and authority matrix, which the reference bank policy's diversification table can seed but does not bind.
+- **OTTI vs. CECL terminology.** The reference policy and PATRICK_NOTES use "OTTI"; current GAAP (ASU 2016-13/CECL) replaces OTTI for most debt securities with the allowance approach. [IN-10](#in-10-valuation-accounting-and-fair-value-measurement) retains the OTTI label per PATRICK_NOTES; Finance should confirm the accounting framework actually applied.
+- **Stress-declaration authority.** [IN-17](#in-17-contingency-planning-and-liquidity-stress-events) assumes the authority to declare a liquidity stress event sits with the CFP governance defined in the Liquidity Policy; the declaring role needs confirmation there.
+- **Reference policy is a bank document.** The Sound Community Bank reference policy was used only for structural ideas (reporting content, dealer due-diligence factors, safekeeping practice); its bank-specific limits, Tier 1 capital references, and FDIC/OCC framing were not carried over, since Pynthia's binding framework is the FCU Act and Part 703.
+- **Single-approver governance.** The CCO is currently the sole listed approver in front-matter. Board approval is regulatorily required for the investment policy (§703.3); the approvals block should be expanded to record the board (and any committee) once the approval workflow is confirmed.

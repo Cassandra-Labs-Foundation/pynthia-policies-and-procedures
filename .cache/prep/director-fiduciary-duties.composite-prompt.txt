@@ -1,0 +1,2682 @@
+SYSTEM / ROLE
+You are a tough, respectful interrogator and simplifier whose job is to produce a fully compliant policy that ALSO acts as a design spec for engineers. Default to deletion and clarity. Be precise, cite rules, and output clean Markdown suitable for GitBook. Use in-page fragment links only for internal cross-refs. Use authoritative external links (eCFR/LII) only for statutes/regs.
+
+INPUTS (the caller provides)
+- ORGANIZATION: {{Name and charter type}}
+- POLICY_NAME: {{e.g., Fair Lending Policy}}
+- SCOPE: {{products/channels/partners covered}}
+- OWNER & APPROVERS: {{owner, approvers}}
+- PATRICK_NOTES: """{{raw bullets from Patrick}}"""
+- REFERENCE_POLICY (optional): """{{paste if available}}"""
+- AUTHORITY_HINTS (optional): {{list of likely regs/sections or "auto"}}
+- DESIGN_NOTES (optional): {{events/fields already named, e.g., application.created}}
+
+OUTPUT GOAL
+Produce a single Markdown document that:
+1) Starts with YAML front-matter (title/owner/version/effective/next_review/approvers/tags).
+2) Presents a **Timing Matrix** (if applicable) with a **Control** column that links to in-page fragments (e.g., [FL-05](#fl-05-action-taken-notices)).
+3) For each control, outputs a **Design Overlay v3** block with exactly four labeled fields, in this order: **WHY** (Reg cite, with eCFR/LII external links), **SYSTEM BEHAVIOR** (operational description; absorbs access-control notes and any edge-case carve-outs as inline sentences), **EVENTS** (a 4-column table — *When* / *What's needed* / *Produced (and logged)* / *Within*), **ALERTS/METRICS**. No separate TRIGGERS / INPUTS / OUTPUTS / TIMERS / EDGE CASES / AUDIT LOGS / ACCESS CONTROL fields — those are absorbed into SYSTEM BEHAVIOR or EVENTS as specified.
+4) Closes with a **Governance & Sign-Off** section and a single consolidated **Assumptions & Gaps** section.
+5) Uses **fragment-only** internal links (e.g., `(#fl-05-action-taken-notices)`). Do NOT generate external links for internal sections.
+
+DELETED (do NOT produce these sections — they duplicate per-control data)
+- **Multi-Rule Authority Table** — citations already appear inline in every WHY field, no separate table needed.
+- **Control Index** — the control overlay sections below are the index. Their `## XX-NN — Title` headings, with stable fragments, do this job already.
+- **Embedded Checklists & Templates** — was just an inventory of artifacts maintained elsewhere; if a checklist or template matters to a control, link it inline from that control's overlay.
+
+ANCHORS & LINKING RULES
+- Every control section must be headed with `## <ID> — <Title>` so GitBook auto-generates predictable fragments, e.g.:
+  - `## FL-05 — Action-Taken Notices` → `#fl-05-action-taken-notices`
+- Use those fragments in the **Timing Matrix** Control column.
+- For statutes/regs, link to eCFR/LII (e.g., `https://www.ecfr.gov/current/title-12/part-1002#p-1002.9`).
+
+CONTENT STRATEGY
+- If REFERENCE_POLICY exists: extract only what is necessary, normalize to our structure, and delete boilerplate that duplicates controls.
+- If no REFERENCE_POLICY: synthesize from PATRICK_NOTES + AUTHORITY_HINTS; keep scope minimal and clearly mark assumptions in the consolidated list.
+- Question every requirement:
+  - Who said it? Why needed? Risk if omitted? Evidence/citation? Minimum viable version?
+- Avoid repeating content across sections: each fact lives in exactly one place. The Timing Matrix is the one allowed cross-cut because it gives examiners a single deadline view.
+
+CONTROL IDs
+- Use a short, scoped prefix (2–3 letters) + two-digit number (e.g., **FL-01** … **FL-12** for Fair Lending).
+- If the caller doesn't provide an ID map, create one and keep it stable within the doc.
+
+REGULATION LINKING (examples the model may reuse)
+- ECOA/Reg B (12 CFR Part 1002): e.g., §1002.5 (inquiries), §1002.6 (evaluation), §1002.9 (action taken), §1002.12 (retention), §1002.14 (appraisals/ROV)
+  - Base: https://www.ecfr.gov/current/title-12/part-1002
+- HMDA/Reg C (12 CFR Part 1003): https://www.ecfr.gov/current/title-12/part-1003
+- TILA/Reg Z (12 CFR Part 1026): e.g., §1026.24 (ads), §1026.36(d),(e) (LO comp/steering)
+  - Base: https://www.ecfr.gov/current/title-12/part-1026
+- FHA (42 USC §3605): https://www.law.cornell.edu/uscode/text/42/3605
+- NCUA 701.31: https://www.ecfr.gov/current/title-12/part-701/section-701.31
+- ADA (28 CFR Part 36): https://www.ecfr.gov/current/title-28/part-36
+
+MANDATORY SECTIONS & SHAPE (fill with the given POLICY_NAME)
+1) YAML FRONT-MATTER
+---
+title: {{POLICY_NAME}} (Table-First, Design-Overlay v2)
+owner: {{Owner, Title}}
+version: {{v}}
+effective: {{YYYY-MM-DD}}
+next_review: {{+12 months}}
+approvers:
+  - {{Approver 1, Title}}
+  - {{Approver 2, Title}}
+tags: [Compliance, {{POLICY_NAME keywords}}]
+---
+
+2) GENERAL POLICY STATEMENT
+One concise paragraph stating the commitment, scope, and posture.
+
+3) TIMING MATRIX (if applicable)  {#timing-matrix}
+| Scenario | Trigger (human → event) | Deadline | Content Reference | Control |
+|---|---|---:|---|---|
+| … | … | … | … | [XX-nn](#xx-nn-slug) |
+
+4) CONTROL OVERLAYS (Design Overlay v3)
+For each `## XX-nn — Title  {#xx-nn-slug}` output **exactly four** labeled fields, in this order:
+
+- **WHY (Reg cite):** One or two sentences. Regulatory grounding with eCFR/LII external links to the specific clauses that anchor this control.
+- **SYSTEM BEHAVIOR:** One short paragraph describing how the control operates. Include access-control notes ("X is write-restricted to Compliance") as a closing sentence. Include any edge-case carve-outs ("counter-offer accepted within 90 days requires no AAN") as inline sentences — do NOT create a separate EDGE CASES field.
+- **EVENTS:** A Markdown table with these exact columns, one row per event the control consumes or produces. The table is the forcing function for completeness — every row must have all four cells filled, every operational event in the control must appear as a row:
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | <human description of the trigger> (`event.code`) | <data / fields needed to act> | <business artifact + emitted `event.code` for the audit log> | <regulatory deadline + internal SLA in parens, or "—" if no deadline> |
+
+  Notes on the EVENTS table — **every column references vocabulary codes where the engineering spec registers them**. The codes are the contract surface between the policy and the systems that implement it; the table is where they live.
+
+  - The *When* column captures both the human-language trigger AND the trigger event code from vocabulary, e.g., `Application complete and decisioned adversely (\`application.adverse_action_decided\`)`. Required for every event the control consumes.
+  - The *What's needed* column captures plain-language input description AND the field codes from vocabulary, in backticks, e.g., `Applicant identity (\`applicant.identity\`), decision basis (\`application.decision_basis\`), reason codes (\`application.reason_codes[]\`)`. Every operationally significant field referenced by this row must appear by its code. Do not paraphrase fields without also citing the code.
+  - The *Produced (and logged)* column captures BOTH the business artifact AND the emitted event code from vocabulary, e.g., `AAN with specific reasons + ECOA notice (\`aan.issued\`)`. There is no separate AUDIT LOGS field — the audit code lives here with what it logs.
+  - The *Within* column captures the regulatory deadline AND any internal SLA AND — when vocabulary registers a corresponding timer, scheduler event, or state-machine transition — that reference too, e.g., `30 days (internal: 5 BD; enforced by \`application.aan_due_at\`)`. If vocabulary has no corresponding timer, write the time only.
+
+  Vocabulary policy: if vocabulary.json does not yet register an event, field, or timer the control needs, use the target naming scheme verbatim in the cell — the consolidated Assumptions & Gaps "Engineering vocabulary is provisional" bullet covers all of them. Never omit a code from the table because vocabulary hasn't caught up; the code's presence in the table IS how engineering knows what to register.
+
+- **ALERTS/METRICS:** One or two sentences listing the operational signals that confirm this control is working in production (e.g., aging-alert thresholds, target zero counts, latency distributions). This is the bridge between the policy and the monitoring runbook.
+
+**Fields that no longer appear as separate labeled blocks** (deleted from the v2 spec): TRIGGERS (now the *When* column of EVENTS), INPUTS (now *What's needed*), OUTPUTS (now *Produced*), TIMERS/SLAs (now *Within*), EDGE CASES (now inline in SYSTEM BEHAVIOR), AUDIT LOGS (now embedded in *Produced and logged*), ACCESS CONTROL (now a closing sentence in SYSTEM BEHAVIOR). These removals are intentional — the v2 format duplicated each event from multiple angles. Do not reintroduce them.
+
+5) GOVERNANCE & SIGN-OFF  {#governance}
+Owner, approvals, review cadence, cross-refs.
+
+6) ASSUMPTIONS & GAPS  {#assumptions}
+A single consolidated list at the end of the document. Each bullet is one assumption or gap, in business terms. Do NOT scatter `(Assumption—needs confirmation: …)` tags inline through TRIGGERS, INPUTS, AUDIT LOGS, or any other field — collect them all here so the reader gets one place to scan.
+
+Typical entries:
+- **Engineering vocabulary is provisional.** The lending-side resources, fields, and events referenced in TRIGGERS / INPUTS / AUDIT LOGS throughout this document are not yet registered in `vocabulary.json` (parsed spec is banking-core only). Names used in those fields are the target naming scheme and will be confirmed by engineering before the next review.
+- Any policy-specific judgments where PATRICK_NOTES were silent — state the assumption made and what would need to be confirmed (e.g., partner risk-tier definitions, HMDA reporter status, charter type and applicability of NCUA Part 701.31).
+
+When a TRIGGER, INPUT, OUTPUT, or AUDIT LOG references an event or field code that is not in DESIGN_NOTES, the code still appears verbatim in the relevant control overlay — **without** an inline assumption tag. The "Engineering vocabulary is provisional" bullet in this section covers all of them collectively. If DESIGN_NOTES is non-empty, only flag the specific codes still missing.
+
+QUALITY BAR / ACCEPTANCE CRITERIA
+- All internal Control links are **fragment-only** and resolve to headings present in the document.
+- Every regulatory reference has a working external link.
+- Each control has **exactly four labeled fields** in this order: WHY, SYSTEM BEHAVIOR, EVENTS, ALERTS/METRICS. No others.
+- The EVENTS table has all four columns filled in every row — no blank cells, no "N/A" cells. If a control truly has no events (rare), omit the EVENTS field entirely and explain why in SYSTEM BEHAVIOR.
+- Every EVENTS table row cites vocabulary codes in all applicable columns: `event.code` in *When*, `field.code` (or `field.code[]`) for every operationally significant input in *What's needed*, emitted `event.code` in *Produced (and logged)*, and a timer / scheduler `event.code` in *Within* where vocabulary registers one.
+- Codes appear in backticks. Where vocabulary does not yet register a code, use the target naming scheme verbatim (rather than omitting it).
+- No inline `(Assumption—needs confirmation)` tags anywhere — assumptions live in the consolidated Assumptions & Gaps section.
+- No duplicated prose across sections; the Timing Matrix is the only cross-cut and it references controls by fragment.
+- All assumptions appear in one consolidated Assumptions & Gaps section at the end, not scattered inline.
+- No deleted sections appear: no Multi-Rule Authority Table, no Control Index, no Embedded Checklists & Templates.
+- No legacy v2 control-overlay fields appear: no separate TRIGGERS, INPUTS, OUTPUTS, TIMERS/SLAs, EDGE CASES, AUDIT LOGS, or ACCESS CONTROL block — their content is absorbed per the field map above.
+
+MISSING INFO HANDLING
+- If PATRICK_NOTES lack specifics, infer the **minimal viable** control and add the assumption as a bullet to the consolidated Assumptions & Gaps list — do NOT use the inline `(Assumption—needs confirmation: …)` pattern anywhere in the body.
+- If AUTHORITY_HINTS is "auto", identify the core authorities commonly implicated by the POLICY_NAME and link them in each relevant control's WHY field.
+- If DESIGN_NOTES is empty or lacks specific event/field codes, use the target naming scheme verbatim in the control overlays. Rely on the consolidated Assumptions & Gaps bullet about engineering vocabulary to cover all of them collectively.
+
+STYLE
+- Plain-spoken, regulator-ready, engineer-actionable.
+- Prefer tables, bullets, and short sentences over long paragraphs.
+- Keep the doc self-contained; no "see separate doc" unless absolutely necessary.
+
+PLANNING (internal — do this before writing; do NOT include in the output)
+The deleted Multi-Rule Authority Table and Control Index were planning artifacts disguised as output. The output is gone; the planning discipline they enforced is still essential. Before writing the document, do this work silently as your own scratch work:
+
+1. **Authority map.** From POLICY_NAME, AUTHORITY_HINTS (or "auto"), REFERENCE_POLICY, and PATRICK_NOTES, enumerate every applicable statute/regulation with the specific clauses (e.g., "ECOA/Reg B §1002.4, §1002.5, §1002.6, §1002.9, §1002.13, §1002.14; FHA 42 USC §3605; HMDA Reg C Part 1003; Reg Z §1026.36(d)(e); NCUA 701.31"). This is your private inventory of authorities.
+
+2. **Control inventory.** List every control by stable ID (XX-NN) and plain-language name, in the order they will appear. Decide the full set now. Do not add, drop, or renumber controls mid-document — the inventory is locked once you start writing.
+
+3. **Anchor map.** For each control in the inventory, decide which clauses from the authority map populate its WHY field. Each WHY should cite the most specific anchoring clause(s), not the whole part.
+
+4. **Sanity-check.** Every authority in the authority map is anchored to at least one control (or there is a coherent reason it is not — note it for the Assumptions & Gaps section). Every control in the inventory has at least one authority cited in its WHY. Control IDs are stable across writing.
+
+5. **Then write the document.** The published artifact contains only: front-matter, General Policy Statement, Timing Matrix, Control Overlays (in inventory order, with WHY populated from the anchor map), Governance & Sign-Off, Assumptions & Gaps. The authority map and control inventory remain scratch work — never include them in the output.
+
+NOW DO THIS
+1) Parse PATRICK_NOTES and (if provided) REFERENCE_POLICY.
+2) Do the PLANNING section above (silently): build the authority map, the control inventory, the per-control anchor map, and run the sanity-check. These are scratch artifacts — they do NOT appear in the output.
+3) Generate the full Markdown document in this exact order: YAML front-matter → General Policy Statement → Timing Matrix → Control Overlays (in inventory order, each with exactly four fields: WHY / SYSTEM BEHAVIOR / EVENTS / ALERTS/METRICS, with WHY populated from the anchor map) → Governance & Sign-Off → Assumptions & Gaps.
+4) Validate all internal fragments point to existing headings (use the GitBook slug rules: lowercase, hyphens, punctuation removed).
+5) Confirm every Control Overlay has exactly four labeled fields in the right order, and every EVENTS table has all four columns filled in every row.
+6) Confirm no legacy v2 fields appear (no separate TRIGGERS / INPUTS / OUTPUTS / TIMERS/SLAs / EDGE CASES / AUDIT LOGS / ACCESS CONTROL block).
+7) Confirm no inline `(Assumption—needs confirmation)` tags appear anywhere in the body — all assumptions are in the consolidated list.
+8) Confirm no Multi-Rule Authority Table, no Control Index, no Embedded Checklists & Templates section was produced — those are the deleted output sections; the corresponding planning artifacts are kept internally per the PLANNING section, never written.
+9) Confirm the final control set matches the control inventory from step 2 — no controls added, dropped, or renumbered between planning and writing.
+10) Output ONLY the final Markdown.
+
+INPUTS (provided by the caller):
+- ORGANIZATION: Pynthia Credit Union
+- POLICY_NAME: Director Fiduciary Duties Policy
+- SCOPE: This policy sets out the fiduciary duties owed to Pynthia Credit Union by its directors, officers, and other persons with the power to direct management or policy, and the related conflict-of-interest, insider-transaction, and recordkeeping requirements they must observe. It applies to all directors, executive officers, principal shareholders, and any employee or contractor with decision-making authority, and covers the full set of fiduciary duties — loyalty, care, good faith, confidentiality, and the continuing obligation to disclose — with conflict-of-interest management as the operational implementation of the duty of loyalty.
+- OWNER & APPROVERS: Owner: Patrick Wilson, Chief Compliance Officer
+Approvers:
+  - Patrick Wilson, Chief Compliance Officer
+- PATRICK_NOTES: """The core risk is self-dealing and undisclosed conflicts that advance personal interests at the credit union's expense, plus regulatory limits on insider credit and affiliate transactions. The policy is the umbrella over the duties; conflict-of-interest disclosure is its primary operational mechanism.
+
+The policy must establish the following controls:
+
+**(a) The Fiduciary Duties.** Define and require adherence to the duties of loyalty (act in the credit union's best interest, not personal interest), care (informed decision-making, attendance, review of materials before voting), good faith (no fraud, intentional misconduct, or knowing violations of law), confidentiality (protect non-public information), and disclosure (proactive, continuing disclosure of conflicts).
+
+**(b) Conflict Identification & General Duties.** Require that covered persons not advance their own or related parties' interests at the credit union's expense, disclose to the Board all material information on any matter in which they have an interest, and not participate in the Board's discussion or vote on that matter; avoid even the appearance of a conflict.
+
+**(c) Annual & Continuing Disclosure.** Require an annual disclosure questionnaire from each director and officer (Exhibit A), an ad-hoc disclosure form when a conflict arises mid-year (Exhibit B, continuing obligation), and an annual record of insiders and their related interests reviewed for completeness.
+
+**(d) Management of Conflicts.** Provide for recusal, abstention from voting, independent review, and Board determination on conflicted matters; interested parties may not influence the Board's deliberations.
+
+**(e) Insider Transactions (Reg O).** Require that extensions of credit to insiders be on substantially the same terms and underwriting as comparable non-insider transactions; require prior Board approval (excluding the interested director) when aggregate credit to an insider and related interests exceeds the greater of $25,000 or 5% of unimpaired capital and surplus, or $500,000; observe the single-borrower lending limit (15%, plus 10% for readily marketable collateral) and the aggregate insider limit; report extensions promptly to the Board.
+
+**(f) Transactions With Affiliates (Reg W).** Limit covered transactions to 10% of unimpaired capital and surplus per affiliate and 20% in the aggregate, require collateral and market terms, prohibit purchase of low-quality assets, and maintain an affiliate list updated at least annually.
+
+**(g) Bank Bribery, Gifts & Kickbacks.** Prohibit soliciting or receiving anything of value in connection with credit union business; permit only de minimis gifts/entertainment within defined thresholds (Exhibit C); require disclosure of offers beyond what is authorized, with records reported to the Board.
+
+**(h) Corporate Opportunity & Tie-Ins.** Prohibit usurping corporate opportunities belonging to the credit union and prohibited tie-in arrangements; document Board rejection of opportunities as a matter of sound business judgment.
+
+**(i) Recordkeeping & Reporting.** Retain disclosures, insider/related-interest records, affiliate transaction records, and gift disclosures, and provide public disclosure of insider credit on written request as required.
+
+**(j) Training, Acknowledgment & Enforcement.** Distribute the policy to all directors and officers, require an annual signed acknowledgment and annual training, and define escalation, removal, and Board sanctions for willful violations (return of benefits, resignation, or dismissal).
+
+Governance of these controls is centralized with the Chief Compliance Officer, with the Board of Directors, Legal/General Counsel, and the Supervisory Committee as required participants.
+
+Out of scope:
+- Loan underwriting and the broader insider-lending operational process — see Lending Policy.
+- General compliance governance, whistleblower, and complaint intake — see Compliance Policy.
+- Retention schedules for disclosures and director records (typically permanent) — see Record Retention Policy.
+- Officer and director indemnification, insurance, and reimbursement — see Reimbursement, Insurance and Indemnification Policy.
+- Board resolutions, bylaws, and general governance mechanics — see Resolution Policy.
+- Enterprise affiliate/vendor risk beyond Reg W transaction limits — see Third-Party Risk Policy."""
+- REFERENCE_POLICY: """### Source: 4 Conflicts of Interest Policy.pdf
+
+Sound Community Bank
+
+
+
+
+        4.    POLICY ON CONFLICTS OF INTEREST,
+              TRANSACTIONS WITH AFFILIATES
+                 AND LOANS TO INSIDERS
+
+
+
+
+Approved 6/23/2013
+                                           Table of Contents
+                                                                                                                           Page
+I.      Introduction. ............................................................................................................ 1
+II.     Conflicts of Interest In General............................................................................... 1
+III.    Restrictions on Transactions With Affiliates. ......................................................... 2
+        A.      Covered Transactions.................................................................................. 2
+        B.      Quantitative Limits on Covered Transactions. ........................................... 2
+        C.      Safety and Soundness Requirement. ........................................................... 3
+        D.      Collateral Requirement for Credit Transactions. ........................................ 3
+        E.      No Purchase of Low-Quality Assets. .......................................................... 4
+        F.      Additional Prohibited Covered Transactions. ............................................. 4
+        G.      Valuation and Timing Principles for Credit Transactions. ......................... 4
+        H.      Valuation and Timing Principles for Asset Purchases. ............................... 5
+        I.      Valuation and Timing Principles for Extensions of Credit Secured by
+                Affiliate Securities. ..................................................................................... 6
+        J.      Exemptions from Certain Limits on Covered Transactions With Affiliates
+                ..................................................................................................................... 6
+        K.      Special Covered Transactions. .................................................................... 8
+        L.      Market Terms Requirement for Transactions With Affiliates .................... 8
+        M.      Prohibited Asset PurchasesInvolving Affiliates ......................................... 9
+        N.      Prohibited Advertisements and Agreements ............................................... 9
+IV.     Restrictions on Loans to Insiders. ......................................................................... 10
+        A.      Extensions of Credit to Insiders. ............................................................... 10
+        B.      Prior Board Approval. ............................................................................... 10
+        C.      Additional Limits on Amounts and Purposes of Extensions of Credit to
+                Executive Officers of the The Bank.......................................................... 11
+        D.      Overdrafts of Executive Officers and Directors. ...................................... 12
+        E.      Limit on Extension of Credit to One Insider. ........................................... 12
+        F.      Aggregate Limit on Extensions of Credit to Insiders. .............................. 13
+        G.      Responsibility of Insiders. ........................................................................ 13
+V.      Kickbacks. ............................................................................................................. 13
+VI.     Prohibited Tie-ins.................................................................................................. 14
+VII.    Recordkeeping and Reporting Requirements. ...................................................... 14
+        A.      Records of Transactions With Affiliates................................................... 14
+        B.      Identification of Insiders and Related Interests. ....................................... 15
+        C.      Disclosures to the Public On Request. ...................................................... 15
+VIII.   Usurpation of Corporate Opportunity. .................................................................. 16
+IX.     Notice and Sanctions............................................................................................. 16
+X.      Definitions............................................................................................................. 16
+        A.      Affiliate ..................................................................................................... 16
+        B.      Affiliated Company .................................................................................. 18
+        C.      Company. .................................................................................................. 18
+        D.      Control. ..................................................................................................... 18
+        E.      Credit Transaction. .................................................................................... 19
+        F.      Cross-Affiliate Netting Arrangement ....................................................... 19
+                                                           i
+       G.     Eligible Affiliate Activities. ...................................................................... 19
+       H.     Executive Officer. ..................................................................................... 21
+       I.     Extension of Credit. .................................................................................. 21
+       J.     Federally Related Mortgage Loan. ........................................................... 23
+       K.     Guarantee Issuance. .................................................................................. 23
+       L.     Immediate Family. .................................................................................... 23
+       M.     Insider. ...................................................................................................... 23
+       N.     Low-quality Asset. .................................................................................... 23
+       O.     Permissible Security.................................................................................. 24
+       P.     Principal Shareholder. ............................................................................... 24
+       Q.     Related Interest. ........................................................................................ 24
+       R.     Unimpaired Capital and Surplus ............................................................... 24
+XI.    Referenced Laws, Regulations and Policies ......................................................... 24
+       A.     Federal Laws ............................................................................................. 24
+       B.     Federal Regulations .................................................................................. 25
+       C.     Policies ...................................................................................................... 25
+XII.   Revisions ............................................................................................................... 25
+
+
+
+
+                                                        ii
+I.     Introduction
+
+       This Policy on Conflicts of Interest, Transactions with Affiliates and Loans to Insiders
+(the “Policy”) calls to the attention of the directors, officers and employees of Sound Community
+Bank (the “The Bank”):
+
+       $       the policies of The Bank on conflicts of interest and related party transactions;
+
+       $       specific regulatory restrictions on extensions of credit and other transactions
+               involving persons and companies that are affiliated with The Bank and its
+               affiliates, which The Bank must observe strictly; and
+       $       related record-keeping, disclosure and approval requirements for related party
+               transactions, which must be met by The Bank.
+
+        All directors and executive officers should receive and read a copy of this Policy and
+execute the acknowledgment form on the last page. The executive officers of The Bank should
+ensure that all other officers and the non-officer employees of The Bank whose responsibilities
+include matters within the scope of the Policy also receive and read a copy of this Policy. It is
+important to note that certain terms used in this Policy have technical definitions in the federal
+regulations or are specially defined herein. Those definitions are included in Section X of this
+Policy.
+
+II.    Conflicts of Interest In General
+
+        All directors, officers and employees of The Bank, and others (such as affiliates of The
+Bank), which are in a position to direct the management or policies of The Bank, or otherwise
+owe a fiduciary duty to The Bank, do the following:
+
+       $       not advance their own interests (business or personal), or those of others with
+               whom they have a business or personal relationship, at the expense of The Bank;
+       $       disclose to the Board of Directors of The Bank (the “Board”) all material non-
+               privileged information relevant to a decision by the Board on a matter or
+               transaction in which they (and, to the extent known to them, persons with whom
+               they have a personal or business relationship) have an interest, including the
+               nature and extent of the interest and the facts known about the matter or
+               transaction, and
+       $       not participate in the Board’s discussion of any such matter or transaction, and, as
+               to directors of The Bank, not vote on that matter or transaction.
+
+        It is not possible to list every practice or condition that may give rise to a conflict of
+interest. At a minimum, The Bank’s directors, officers and employees must act in good faith
+only on behalf of The Bank, exercising their appropriate care and loyalty to The Bank. The
+Bank’s directors, officers and employees must not act on behalf of themselves or any third
+parties, especially in transactions that are at the expense of The Bank or that constitute self-
+dealing or self-serving practices. In addition, these individuals must avoid any appearance of a
+conflict of interest. All directors, officers and employees should notify the President of The
+Bank (or such other person as the President may designate) of any known or potential conflicts
+of interest.
+        Transactions between The Bank and its affiliates are subject to special rules, described
+below, which limit such transactions and require that the terms of such transactions be as
+favorable to The Bank as would apply in a transaction with a non-affiliate. Loans and extensions
+of credit to insiders are also subject to special rules described below, which impose certain limits
+and requirements on such loans.
+
+III.      Restrictions on Transactions With Affiliates1
+
+        The types and amounts of transactions between The Bank and its affiliates (as defined in
+Section X below) are restricted as described below. For purposes of these restrictions, The Bank
+includes its subsidiaries, and a subsidiary generally is not deemed an affiliate, unless it is a
+depository institution or as otherwise indicated in the definition of affiliate below. In addition, to
+the extent that the proceeds of a transaction with a non-affiliate are used for the benefit of or are
+transferred to an affiliate, such transaction is considered to be a transaction with that affiliate,
+except to the extent that one of the exemptions in 12 C.F.R. §223.16 (b) and (c) (which are not
+specifically described in this Policy) is in place.
+
+       Although under certain circumstances The Bank may properly reimburse an affiliate for
+expenditures made by the affiliate on The Bank’s behalf, such as the payment of taxes, The Bank
+may not advance funds to the affiliate before they are needed by the affiliate, because advancing
+funds sooner provides the affiliate with the interest-free use of The Bank’s funds. Such an
+advance is regarded by the OTS as an interest-free loan, which is improper because The Bank
+would not make such a loan to a non-affiliate.
+
+          A.       Covered Transactions
+
+         Covered transactions2 consist of (i) extensions of credit (as defined in Section X below)
+to an affiliate; (ii) a purchase of an investment in a security issued by an affiliate; (iii) acceptance
+of securities issued by an affiliate as collateral for an extension of credit to any person or
+company; (iv) purchases of assets (including assets under an agreement to repurchase) from an
+affiliate;3 (v) guarantees, acceptances and letters of credit (including endorsements and standby
+letters of credit) issued on behalf of an affiliate; (vi) confirmations of a letter of credit issued by
+an affiliate; and (vii) a cross-affiliate netting arrangement (as defined in Section X below).
+
+          B.       Quantitative Limits on Covered Transactions
+
+       Covered transactions of The Bank with any single affiliate may not exceed, in the
+aggregate, 10% of The Bank’s unimpaired capital and surplus.
+
+      Covered transactions of The Bank with all affiliates may not exceed, in the aggregate,
+20% of The Bank’s unimpaired capital and surplus.
+
+1
+  Sections 23A and 23B of the Federal Reserve Act, Regulation W (12 C.F.R. Part 223), Section 11(a) of HOLA and 12
+C.F.R. §563.41.
+
+2
+    12 C.F.R. §223.3(h).
+
+3
+  Unless specifically exempted from the category of covered transactions by order or regulation of the Board of
+Governors of the Federal Reserve System (the “Federal Reserve”).
+
+                                                            2
+          C.       Safety and Soundness Requirement
+
+       Notwithstanding any authority it has to engage in a transaction with an affiliate, The
+Bank may not engage in any transaction with an affiliate that is inconsistent with safe and sound
+banking practices.
+
+          D.       Collateral Requirement for Credit Transactions4
+
+         Each credit transaction (as defined in Section X below) with an affiliate must be secured
+at the time of the transaction by collateral with a market value equal to the amounts described
+below. The Bank must perfect an enforceable security interest in the collateral, which must be
+valid in bankruptcy, in order for the credit transaction to be considered secured. If this security
+interest in the collateral is not a first priority security interest, the value of the collateral, for
+purposes of meeting the required levels noted below, must be reduced by the lesser of the
+amount of any senior security interest or the amount of the credit secured by that senior security
+interest. Collateral that is retired or amortized must be replaced so as to maintain the required
+percentage of collateral market value relative to the outstanding credit. Low-quality assets (as
+defined in Section X below), securities issued by an affiliate, equity securities of The Bank, debt
+securities of The Bank that qualify as capital, intangible assets (including servicing assets) and
+guarantee issuances are not eligible collateral for meeting this requirement. The required
+collateral and market value percentages are as follows:
+
+          $        100% of the credit if the collateral consists of (i) obligations of the United States
+                   or its agencies; (ii) obligations fully guaranteed as to principal and interest by the
+                   United States or its agencies; (iii) notes, drafts, bills of exchange or banker’s
+                   acceptances eligible for rediscount or purchase by a Federal Home Loan Bank or
+                   Federal Reserve Bank, or (iv) a segregated, earmarked deposit account with The
+                   Bank;
+
+          $        110% of the credit if the collateral consists of obligations of a State or political
+                   subdivision of a State;
+
+          $        120% of the credit if the collateral consists of other debt instruments, including
+                   loans and receivables, or
+
+          $      130% of the credit if the collateral consists of stock, leases or other real or
+                 personal property.
+          These collateral requirements do not apply to
+
+          $        an acceptance already fully secured by attached documents or other property
+                   involved in the transaction with an ascertainable market value;
+
+          $        the unused portion of an extension of credit to an affiliate, as long as The Bank
+                   does not have a legal obligation to advance additional funds under the extension
+                   of credit until the required collateral is provided, or
+
+          $        the purchase from a non-affiliate of a debt security in a bona fide secondary
+                   market transaction.
+4
+    12 C.F.R. §223.14.
+
+                                                      3
+          E.        No Purchase of Low-Quality Assets5
+
+         The Bank may not purchase a low-quality asset (as defined in Section X below) from an
+affiliate unless, pursuant to an independent credit evaluation, the commitment to purchase was
+made prior to the acquisition of the asset by the affiliate. The provision does not apply to the
+renewal of or an extension of additional credit with respect to The Bank’s participation in a loan
+to a non-affiliate that was originated by an affiliate if:
+
+          $         the loan was not a low-quality asset at the time the participation was purchased;
+
+          $         the renewal or extension of additional credit is approved by the Board (or as
+                    otherwise permitted under 12 C.F.R. §223.15(2)(ii), as necessary to protect The
+                    Bank’s investment by enhancing the ultimate collection of the debt;
+
+          $         The Bank’s share of the renewal or extension of additional credit does not exceed
+                    its proportional share of the original indebtedness by more than 5 percent (or any
+                    higher level approved by the OTS), and
+
+          $         The Bank notifies the OTS about the renewal of extension of credit in writing
+                    within 20 days of consummation.
+
+          F.        Additional Prohibited Covered Transactions6
+
+         The Bank may make an extension of credit directly to an affiliate, only if that affiliate
+engages solely in eligible affiliate activities (as defined in Section X below), which are those
+activities that are permissible for a bank holding company.
+
+          $         An extension of credit to a non-affiliate that benefits an affiliate not engaged
+                    solely in eligible affiliate activities is not prohibited by this restriction.
+
+          $     This prohibition includes a purchase of assets subject to the affiliate’s agreement
+                to repurchase the assets, unless the purchase involves the U.S. Treasury securities
+                transactions or other asset purchases described in 12 C.F.R. §563.41(c)(1)(ii)(A-
+                C).
+        The Bank may not purchase or invest in any securities issued by any affiliate, other than a
+subsidiary (including a subsidiary depository institution). In addition, when acting as fiduciary,
+The Bank may not purchase any assets from an affiliate (including securities), unless permitted
+by the instrument creating the fiduciary relationship, by court order or by the law governing the
+fiduciary relationship.
+
+          G.        Valuation and Timing Principles for Credit Transactions7
+
+          In determining the application of the quantitative limits on covered transactions, credit
+
+5
+    12 C.F.R. §223.15.
+
+6
+    12 C.F.R. §563.41(c).
+
+7
+    12 C.F.R. §223.21.
+
+                                                      4
+transactions are initially valued at the greater of:
+
+          $        the principal amount of the transaction;
+
+          $        the amount owed by the affiliate, or
+
+          $        the sum of the amount already provided to and any amount required to be
+                   provided to an affiliate.
+
+An outstanding credit transaction with an affiliate that is purchased or acquired from a non-
+affiliate is initially valued at the sum of the total consideration given (including liabilities
+assumed), plus any additional amounts required to be provided to the affiliate.
+
+          A credit transaction is deemed to occur at the time:
+
+          $        The Bank is legally obligated to make an extension of credit or issue a guarantee
+                   issuance;
+
+          $        The Bank enters into a cross-affiliate netting arrangement, or
+
+          $        The Bank acquires an extension of credit or guarantee issuance.
+
+         In general, The Bank is not permitted to purchase of invest in debt securities of an
+affiliate. This prohibition does not apply to debt securities of financial institution subsidiaries or
+any other subsidiary. The valuation and timing rules for permissible purchases or investments in
+debt securities of an affiliate are provided in 12 C.F.R. §223.23 (the details of which are not
+included in this Policy).
+
+         If The Bank has an outstanding credit transaction with a non-affiliate that becomes an
+affiliate, the treatment of that credit transaction under the quantitative and collateral requirements
+is governed by 12 C.F.R. §223.21(b)(2) (the details of which are not included in this Policy).
+
+          H.       Valuation and Timing Principles for Asset Purchases8
+
+       Except for the transactions listed below, any asset purchased from an affiliate must be
+valued initially at the total amount of consideration (including assumed liabilities) given by The
+Bank; however, this valuation may be reduced to reflect amortization or depreciation
+inconsistent with GAAP.
+
+          $        Purchases of extensions of credit to an affiliate are valued as if they were a credit
+                   transaction.
+
+          $        Permitted purchases of debt securities of affiliates are governed by 12 C.F.R.
+                   §223.23.
+
+          $        Transfers of subsidiaries of an affiliate to The Bank, which became an operating
+                   subsidiary, are governed by 12 C.F.R. §223.31 (the details of which are not
+                   included in this Policy).
+8
+    12 C.F.R. §223.22.
+
+                                                     5
+          $        Purchases from an affiliate of a line of credit, revolving credit facility or similar
+                   credit arrangement with a non-affiliate must be valued at the total consideration
+                   given by The Bank, plus any additional amounts that The Bank may be required
+                   to provide under the credit arrangement.
+
+      An asset purchase begins the day the asset is acquired and ends when The Bank no longer
+owns or holds the asset.
+
+       If The Bank purchases an asset from a non-affiliate in contemplation of that non-affiliate
+becoming an affiliate, the treatment of that asset purchase under the quantitative limits for
+covered transactions is governed by 12 C.F.R. §223.22(b)(2) (the details of which are not
+included in this Policy).
+
+          I.       Valuation and Timing Principles for Extensions of Credit Secured by Affiliate
+                   Securities
+
+        If The Bank extends credit to a non-affiliate which is secured by debt or equity securities
+of an affiliate the valuation of that covered transaction is governed by 12 C.F.R. §223.24 (the
+details of which are not included in this Policy).
+
+          J.       Exemptions from Certain Limits on Covered Transactions With Affiliates9
+
+        The covered transactions listed below are exempt from the quantitative limits and the
+collateral requirement, but continue to be subject to the safety and soundness requirement and
+the low-quality asset prohibition.
+
+          $        Any transaction between The Bank and any depository institution, if either entity
+                   owns or controls at least 80% of the voting securities of the other, or if the same
+                   company controls at least 80% of the voting securities of both of them.
+
+          $        The purchase of loans by The Bank from an affiliated depository institution
+                   without recourse.
+
+          $        A purchase assets from an affiliate (including an operating subsidiary acquisition
+                   described below) in connection with a transfer of securities issued by an affiliate
+                   to The Bank, which is part of an internal corporate reorganization of a holding
+                   company and otherwise meets all the requirements in 12 C.F.R. §223.41(d)(1)-
+                   (7).
+
+          $        The purchase of certain marketable securities from an affiliate that is an SEC
+                   registered or Federal Reserve approved broker dealer which otherwise meets the
+                   requirements in 223.42(f)(1)-(6).
+
+        The covered transactions listed below are exempt from the quantitative limits, the
+collateral requirements and the low quality asset prohibition, but are still subject to the safety and
+soundness requirement.
+
+
+9
+    12 C.F.R. §§223.41-43.
+
+                                                      6
+          $         Correspondent banking deposits by The Bank in an affiliated depository
+                    institution that represents an ongoing, working balance maintained in the ordinary
+                    course of correspondent business.
+
+          $         Immediate credit extended by The Bank to an affiliate for uncollected items
+                    received in the ordinary course of business.
+
+          $         Extension of credit to an affiliate to the extent it is and remains secured by
+                    obligations of, or fully guaranteed by, the United States and its agencies or a
+                    segregated, earmarked deposit amount at The Bank for the sole purpose of and
+                    identified as securing credit transactions with affiliates.
+
+          $         The purchase of any securities of an affiliate engaged solely in the services listed
+                    in 12 U.S.C. §1843(c)(1).
+
+          $         The purchase from an affiliate of assets with a readily identifiable and publicly
+                    available market quotation and purchased at or below the current quotation, which
+                    otherwise meets the requirements of 12 C.F.R §223.42(f).
+
+          $         The purchase of municipal securities from an affiliate that is an SEC registered or
+                    Federal Reserved approved broker dealer which otherwise meets the requirements
+                    in 223.42(g)(i)-(3).
+
+          $         The purchase from an affiliate of an extension of credit originated by The Bank
+                    and previously sold to that affiliate subject to a repurchase agreement or under
+                    recourse.
+
+          $         The purchase of assets from an affiliate by any de novo financial institution
+                    subsidiary of The Bank, if the de novo regulator approves the purchase in writing.
+
+          $         The acquisition of assets or extensions of credit from an affiliated financial
+                    institution, if approved under the Bank Merger Act.
+
+          $         Purchasing extensions of credit from an affiliate on a nonrecourse basis, if the
+                    other requirements 223.42(k) are met.10
+          $         Intraday (or one business day) extensions of credit to affiliates, if the other
+                    requirements of 223.42(l) are met.
+
+          $         The purchase of a security from an affiliate that is SEC registered or Federal
+                    Reserve approved broker dealer, if The Bank or affiliate acts exclusively as a
+                    riskless principal in the transaction and the security is not issued, underwritten or
+                    sold (as other than a riskless principal).
+
+        The Bank may request an exemption from any imposed requirement or limitation on its
+transactions with affiliates by submitting a written request to the General Counsel of the Federal
+Reserve, which describes the transaction and affiliate relationship in detail and explains why an
+exemption is appropriate and is in the public interest and consistent with Section 23A.
+
+
+10
+     This constitutes the exception in former Federal Reserve regulation 250.250.
+
+                                                             7
+          K.        Special Covered Transactions
+
+        If The Bank acquires the securities of an affiliate for consideration (including an
+assumption of liabilities), and as a result of that acquisition, the affiliate becomes an operating
+subsidiary of The Bank, that transaction will be treated as a purchase of assets subject to the
+valuation rules and step transaction exemption in 12 C.F.R. §223.31 (the details of which are not
+included in this Policy).
+
+         A derivative transaction includes any derivative contract listed in sections III.E.1.a.
+through d. of Appendix A to 12 C.F.R. Part 225 and any similar derivative contract, including a
+credit derivative contract. If The Bank engages in any derivative transaction with an affiliate, the
+transaction must meet the market terms requirement described below. Prior to entering into any
+derivatives with an affiliate, The Bank must establish policies and procedures reasonably
+designed to manage any credit exposure from such transactions in a safe and sound manner,
+including ensuring compliance with the market terms requirement described below and
+monitoring and controlling the credit exposure from derivative transactions with any one affiliate
+and all affiliates in the aggregate (including specific credit limits, mark-to-market procedures and
+collateral requirements). In addition, in any credit derivative between The Bank and a non-
+affiliate, by which The Bank provides credit protection for an affiliate’s obligations, shall be
+treated as a guarantee on behalf of an affiliate. The following agreements are deemed to be
+credit derivatives providing credit protection for an obligation of an affiliate:
+
+          $         The Bank, for a fee, agrees to compensate a non-affiliate for any default of the
+                    underlying obligation of an affiliate, or
+
+          $         The Bank, in exchange for payments based on the total return of the underlying
+                    obligation of the affiliate, agrees to pay the non-affiliate a spread over funding
+                    costs plus any depreciation in the value of the underlying obligation of the
+                    affiliate.
+
+        If The Bank purchases an asset from one affiliate in a transaction that is subject to an
+exemption noted above but the continued ownership of the purchased asset by The Bank is a
+covered transaction with a different affiliate, which does not qualify for any exemption, the
+transaction is only exempt as to the purchase of the asset. All the covered transaction limits will
+continue to apply as to the holding of the asset.11
+
+          L.        Market Terms Requirement for Transactions With Affiliates12
+
+        All the transactions with affiliates listed below must be on terms and under
+circumstances, including credit standards, that are substantially the same as or at least as
+favorable to The Bank as those prevailing at the time for comparable transactions with parties
+that are not affiliates or, in the absence of comparable transactions, on terms and under
+circumstances, including credit standards, that in good faith would be offered to parties that are
+not affiliates:
+
+
+11
+     12 C.F.R. §223.71.
+
+12
+     Section 23B of the Federal Reserve Act and 12 C.F.R. §223.51-.52.
+
+                                                              8
+          $          any covered transaction (except for certain exempt transactions identified in 12
+                     C.F.R. §223.52(a)(1));
+
+          $          sale of a security or other asset to an affiliate, including an asset subject to an
+                     agreement to repurchase;
+
+          $          the payment of money or the furnishing of a service to an affiliate under contract,
+                     lease or otherwise; and
+
+          $          any transaction in which an affiliate acts as an agent or broker or receives a fee for
+                     its services to The Bank or to any other person.
+
+      This market terms requirement also applies to any transaction or series of transactions by
+The Bank with a non-affiliate if:
+
+          $          any affiliate has a financial interest in the non-affiliate;
+
+          $          any affiliate participates in the transaction or series of transactions, or
+
+          $          any proceeds of the transaction are used for the benefit of or are transferred to any
+                     affiliate.
+
+          M.         Prohibited Purchases of Assets as Fiduciary13
+
+         The Bank is prohibited from purchasing, as fiduciary, any security or other asset from an
+affiliate, unless the purchase is permitted under the instrument creating the fiduciary relationship,
+by court order or by the law of the jurisdiction governing the fiduciary relationship.
+
+         The Bank is prohibited from knowingly purchasing or otherwise acquiring, as principal
+or fiduciary, any security during the existence of any underwriting or selling syndicate, if an
+affiliate is a principal underwriter of the security.14
+
+          N.         Prohibited Advertisements and Agreements15
+
+         The Bank and its affiliates may not publish any advertisement or enter into any
+agreement stating or suggesting that The Bank will in any way be responsible for the obligations
+of its affiliates. This restriction does not prohibit The Bank from entering into a guarantee
+issuance or cross-affiliate netting arrangement that otherwise merits all the requirements of this
+Part III of this policy or from making reference to guarantee issuance a cross-affiliate netting
+arrangement, if otherwise required by law.
+
+
+13
+     12 C.F.R. §223.53
+
+14
+    For purposes of this “principal underwriter” means any underwriter in a primary distribution of securities who (i) is in
+privacy of contract with the issuer or any affiliated person of the issuer; (ii) initiates or directs, along or with others, the formation
+of an underwriting syndicate, or (iii) is allowed a greater rate of gross commission, spread or other profit greater than another
+underwriter in the distribution.
+
+15
+     12 C.F.R. §223.54.
+
+                                                                    9
+IV.        Restrictions on Loans to Insiders16
+
+           A.       Extensions of Credit to Insiders
+
+        Subject to the restrictions listed below, The Bank (including its subsidiaries and any
+company it controls) may make an extension of credit (as defined in Section X below) to a
+director, executive officer (as defined in Section X below) or any other insider (as defined in
+Section X below) of The Bank or an insider of an affiliated company (as defined in Section X
+below).17 These extensions of credit to insiders must be made only:
+
+           $        upon substantially the same terms (including interest rate and collateral) as
+                    comparable transactions with persons who are not insiders or employed by The
+                    Bank;
+
+           $        following credit underwriting standards not less stringent than those prevailing
+                    for, comparable transactions with persons who are not insiders or employed by
+                    The Bank, and
+
+           $        if the extension of credit does not involve more than normal risk of repayment or
+                    present other unfavorable features to The Bank.
+
+         These restrictions do not apply for extensions of credit to insiders in accordance with a
+benefit or compensation program involving any extension of credit that is widely available to
+The Bank employees, or, in the case of insiders of an affiliated company, to employees of that
+affiliated company, and that does not give preference to insiders over other employees of The
+Bank or the affiliated company.
+
+        These restrictions on extensions of credit to insiders of an affiliated company do not
+apply if: (i) the affiliated company does not control (as defined in Section X below) The Bank
+and does not have assets constituting 10% or more of the consolidated assets of The Bank’s
+ultimate parent holding company, and (ii) the specific insider does not participate in major
+policy-making functions of The Bank and is excluded from doing so by resolution of The Bank’s
+Board or the bylaws of The Bank.
+
+       A participation in an extension of credit sold by The Bank without recourse is no longer
+an extension of credit by The Bank.
+
+           B.       Prior Board Approval
+
+        Prior approval of a majority of the entire Board (excluding any interested director) is
+required for any extension of credit (including a line of credit) to an insider of The Bank or an
+insider of an affiliated company, if aggregate extensions of credit to such person (including
+related interests (as defined in Section X below) of such person) exceed either: (i) the greater of
+$25,000 or 5% of The Bank’s unimpaired capital and surplus (as defined in Section X below), or
+
+16
+     Sections 22(g) and (h) of the Federal Reserve Act, 12 C.F.R. Part 215, Section 11(b) of HOLA and 12 C.F.R. §563.43.
+
+17
+     Note in the definitions that for purposes of the restrictions on loans to insiders, executive officer includes the Chairman of
+the Board.
+
+                                                                 10
+(ii) $500,000. No interested party may participate directly or indirectly in the Board’s
+discussion, deliberations or voting on the credit, which includes any attempt to influence the
+voting. Board approval of a line of credit for an insider is valid for 14 months.
+
+          C.        Additional Limits on Amounts and Purposes of Extensions of Credit to Executive
+                    Officers of The Bank18
+
+       Extensions of credit to an executive officer of The Bank must be of a type The Bank can
+make to other borrowers and are restricted to the following amounts and purposes:
+
+          $         any amount for the purpose of financing the education of the officer’s children;
+
+          $         any amount for the purpose of financing or refinancing the purchase,
+                    maintenance, construction or improvement of one residence (primary, secondary
+                    or vacation) owned by the executive officer, if secured by a first lien on that
+                    residence; provided, that only one such residence loan to each insider may be
+                    outstanding under this authority at any one time, and a refinancing is limited to
+                    the amount of the existing extension of credit, closing costs and any additional
+                    amounts for the maintenance or improvement of that residence;
+
+          $         in any amount, if the extension of credit is secured by permissible security (as
+                    defined in Section X below); and
+
+          $         up to 2.5% of The Bank’s unimpaired capital and surplus in the aggregate (or
+                    $25,000 if higher), but in no event exceeding $100,000, for any other purpose.
+
+        In addition, loans to any partnership in which one or more of the executive officers of
+The Bank are partners or hold a majority interest shall be limited, per partnership, to 2.5% of The
+Bank’s unimpaired capital and surplus (or $25,000 if higher), but in no event more than
+$100,000. The total amount of any extension of credit to such a partnership shall be treated for
+purposes of the similar limitation on loans to individual executive officers as an extension of
+credit to each executive officer of The Bank who is a partner of the partnership.
+
+        Before any extension of credit can be made to an executive officer of The Bank, the
+officer must submit a current detailed financial statement. All extensions of credit to executive
+officers of The Bank must be reported promptly to the Board. The Bank must have in writing
+the right to demand immediate repayment of extensions of credit to an executive officer at any
+time at which that officer is indebted to one or more other The Banks or banks in an aggregate
+amount greater than the credit The Bank could extend to the officer for the same purpose.
+
+       Notwithstanding these limits on credit extended to an executive officer of The Bank, an
+executive officer may endorse or guarantee for the protection of The Bank any loan or other asset
+previously acquired by The Bank in good faith or may incur an indebtedness to The Bank for the
+purpose of protecting The Bank against loss or giving financial assistance to The Bank.
+
+
+
+
+18
+     Section 22(g) of the Federal Reserve Act and 12 U.S.C. §215.5.
+
+                                                              11
+           D.       Overdrafts of Executive Officers and Directors19
+
+        The payment of an overdraft on the account of an executive officer or director of The
+Bank or an affiliated company of The Bank requires a written, interest-bearing, preauthorized
+credit plan that specifies a method of repayment or prior written authorization to transfer funds
+from another account of the executive officer or director at The Bank; provided, however, that
+inadvertent overdrafts not exceeding $1,000 in the aggregate may be paid if the account is not
+overdrawn more than five business days and The Bank charges the same fee it charges to outside
+customers in similar circumstances.
+
+           E.       Limit on Extension of Credit to One Insider20
+
+        The limit on extensions of credit to any one insider of The Bank or an affiliated company
+(including all related interests of such an insider) is The Bank’s general lending limit, which is
+15% of The Bank’s unimpaired capital and surplus for loans not fully secured by readily
+marketable collateral21 and an additional 10% of unimpaired capital and surplus for loans fully
+secured by readily marketable collateral.22
+
+           F.       Aggregate Limit on Extensions of Credit to Insiders
+
+        Aggregate extensions credit to all insiders of The Bank and its affiliated companies
+(including all related interests of such persons) must not exceed The Bank’s unimpaired capital
+and surplus. This limit does not apply to extensions of credit secured by permissible security.
+
+       If The Bank has deposits of less than $100 million, the Board, in an annual resolution,
+may increase this aggregate limit up to two times The Bank’s unimpaired capital and surplus if:
+
+           $        the Board determines this higher level is consistent with prudent, safe and
+                    sound banking practices, in light of The Bank’s experience in insider
+                    lending, and is necessary to attract or retain directors or prevent restricting
+                    credit in small communities;
+
+           $        the Board resolution sets forth the facts and reasoning underlying the
+                    Board’s decision and the percentage of unimpaired capital and surplus
+                    currently outstanding in extensions of credit to insiders;
+
+           $        The Bank at least meets all applicable fully phased-in capital requirements, and
+
+           $        The Bank received a satisfactory composite rating in its most recent report
+                    of examination.
+
+19
+     12 C.F.R. §215.4(e).
+
+20
+     12 C.F.R. §215.4(c).
+
+21
+   To be readily marketable, collateral must have a market value determined by reliable and continuously available price
+quotations.
+
+22
+    Statutory exceptions to this general lending limit in 12 U.S.C. §84 continue to apply for purposes of this limit on loans to
+insiders.
+
+                                                                 12
+If the Board authorizes this higher lending amount and The Bank subsequently fails to meet the
+required capital or exam rating requirement, no further extensions of credit to insiders may be
+made if the aggregate of all such extensions of credit outstanding is more than The Bank’s
+unimpaired capital and surplus.
+
+          G.        Responsibility of Insiders23
+
+        No executive officer, director or principal shareholder (as defined in Section X below) of
+The Bank or any affiliated company shall knowingly receive or shall knowingly permit that
+person’s related interests to receive, directly or indirectly, any extension of credit from The Bank
+not in compliance with these restrictions on loans to insiders.
+
+V.        Kickbacks24
+
+        No officer, director, employee, agent or attorney of The Bank may solicit or receive on
+behalf of himself, herself or any third party (other than The Bank) anything of value from any
+person for or in connection with any transaction, business or confidential information of The
+Bank, whether before or after the consummation of a transaction, except for bona fide salary,
+wages, fees or other compensation paid or reimbursed in the ordinary course of business.
+Violation of this prohibition can be a criminal offense, and subject to punishment by
+imprisonment and a fine. Questions about whether an item may be accepted should be directed
+to the President of The Bank or such person as the President may designate. Generally speaking,
+the following items are not prohibited:
+
+          $         acceptance of gifts, gratuities, amenities or favors based on obvious family or
+                    personal relationships (such as those with parents, children or spouse) when
+                    circumstances make it clear that the motivating factor is those relationships, rather
+                    than the business of The Bank;
+
+          $         acceptance of meals, refreshments, travel arrangements or accommodations, or
+                    entertainment, all of reasonable value, in the course of a meeting or other
+                    occasion, the purpose of which is to hold bona fide business discussions or to
+                    foster better business relations; provided, however, that the expense would be
+                    paid for by The Bank as a reasonable business expense if not paid for by another
+                    party;
+
+          $         acceptance of loans from other financial institutions on customary terms to
+                    finance proper and usual activities, such as home mortgage loans;
+
+          $         acceptance of advertising or promotional material of reasonable value such as
+                    pens, pencils, note pads, key chains, calendars and similar items;
+
+          $         acceptance of discounts or rebates on merchandise or services that do not exceed
+                    those available to other customers;
+
+
+23
+     12 C.F.R. §215.6.
+
+24
+     18 U.S.C. §215; Guidelines for Compliance With the Federal Bank Bribery Law, 52 Fed. Reg. 43941 (1987).
+
+                                                            13
+           $         acceptance of gifts of reasonable value related to commonly recognized events or
+                     occasions, such as a promotion, new job, wedding, retirement, Christmas or bar or
+                     bat mitzvah, and
+
+           $         acceptance of civic, charitable, educational or religious organizational awards for
+                     recognition of service and accomplishment.
+
+        If any officer, director, employee, agent or attorney of The Bank is offered or sent
+something of value by a customer or prospective customer of The Bank beyond what is
+authorized herein, that officer, director, employee, agent or attorney must disclose such offer or
+delivery to the President of The Bank or such person as the President may designate. The
+President or the President’s designee shall maintain written records of these disclosures, which
+will be periodically reported to the Board.
+
+VI.        Prohibited Tie-ins25
+
+        The Bank may not in any manner extend credit, lease or sell property of any kind, or
+furnish any service, or fix or vary the price or other consideration for any of the foregoing, on the
+condition or requirement:
+
+           $         that the customer obtains additional credit, property or service from The Bank, or
+                     from any subsidiary or affiliate of The Bank, other than a loan, discount, deposit,
+                     or trust service;
+
+           $         that the customer provide additional credit, property or service to The Bank, or to
+                     any subsidiary or affiliate of The Bank, other than those related to and usually
+                     provided in connection with a similar loan, discount, deposit, or trust service, or
+
+           $         that the customer not obtain some other credit, property or service from a
+                     competitor of The Bank, or from a competitor of any service corporation or
+                     affiliate of The Bank, other than a condition or requirement that The Bank
+                     reasonably imposes in connection with credit transactions to assure the soundness
+                     of credit.
+
+In addition, The Bank shall not extend credit or otherwise participate in any sale of real property
+that will be purchased with the assistance of a federally related mortgage (as defined in Section
+X below), if The Bank knows the seller of the property required the purchaser to buy title
+insurance from a particular title company.
+
+VII.       Recordkeeping and Reporting Requirements
+
+           A.        Records of Transactions With Affiliates26
+
+        The Bank shall establish a list of its affiliates, and management shall cause such list to be
+updated at least annually. The Bank must maintain records of all transactions with affiliates
+(including transactions with non-affiliates, the proceeds of which are transferred to or used for
+
+25
+     12 U.S.C. §1464(q) and §2608.
+
+26
+     12 C.F.R. §563.41(c)(3).
+
+                                                      14
+the benefit of an affiliate). Such records must identify the affiliate; whether the affiliate is
+engaged solely in eligible activities; the dollar amount of the transaction; whether at the time of
+the transaction such amount is within the limits on aggregate transactions with that affiliate and
+with all affiliates; whether a low-quality asset is involved; whether the collateral requirements
+for such transaction apply, and, if so, the type and amount of collateral. Such records must also
+demonstrate how the transaction qualifies as being on substantially the same terms and
+conditions, including credit standards, as would apply to a non-affiliated party in a comparable
+transaction (or in the absence of a comparable transaction, terms and conditions that The Bank
+would offer in good faith to such a party).
+
+           B.       Identification of Insiders and Related Interests27
+
+        At least annually, the President of The Bank (or such person as he may designate) shall
+prepare a record of all insiders of The Bank and the related interests of such persons. The
+insiders of The Bank shall review this record for completeness and accuracy.
+
+        Annually, The Bank shall require the insiders of The Bank to report their respective
+related interests. Each insider must report any changes to such reports annually, if such changes
+occur during the year.
+
+         The Bank shall identify insiders of its affiliated companies by (i) an annual survey of its
+affiliated companies and (ii) requiring that each borrower indicate whether he or it is an insider
+of an affiliated company of The Bank.
+
+           C.       Disclosures to the Public On Request28
+
+        Upon receipt of a written request from a member of the public, The Bank shall disclose to
+the requestor the name of each executive officer and principal shareholder (and related interests
+of either) to whom any correspondent bank of The Bank had outstanding at any time during the
+previous calendar year, extensions of credit that equal or exceed the lesser of 5% of The Bank’s
+unimpaired capital and surplus or $500,000 when aggregated with all outstanding credits to the
+same executive officer or principal shareholder and such person’s related interests; provided,
+however, no disclosure is required if the aggregate amount of all these extensions of credit does
+not exceed $25,000. The specific amounts of individual credits are not required to be disclosed.
+The Bank must maintain a copy of any such request and the disposition of it for two years from
+the date of the request.
+
+VIII. Usurpation of Corporate Opportunity29
+
+       Directors and officers of The Bank, and other persons with the power to direct The
+Bank’s management or policies, or who otherwise owe a fiduciary duty to The Bank, must not
+take advantage of corporate opportunities belonging to The Bank. A corporate opportunity
+belongs to The Bank if it is within the corporate authority of The Bank or a subsidiary of The
+27
+     12 C.F.R. §215.8.
+
+28
+     12 C.F.R §§215.11 and 215.23.
+
+29
+     12 C.F.R. §563.201.
+
+                                                     15
+Bank and is of present or potential practical advantage to The Bank. If a disinterested and
+independent majority of The Bank’s directors reject the opportunity as a matter of sound
+business judgment, after a full and fair presentation of the matter, the OTS will not deem a
+person to have taken advantage of a corporate opportunity of The Bank.
+
+IX.        Notice and Sanctions
+
+        This Policy shall be distributed to all directors and officers of The Bank and all directors
+and executive officers of any affiliated company, and to each new director upon election or
+appointment and each new officer upon his or her employment or promotion. Each director or
+officer receiving a copy of this Policy, or any amendments thereto shall sign and date the last
+page of this Policy and return it to the President or the President’s designee.
+
+        Violations of this Policy and the related federal laws and regulations referenced in
+Section XI could jeopardize the good standing and financial health of The Bank. The Board
+views any such violations with utmost concern and may take disciplinary action for such
+violations. Directors who are found to have willfully violated those laws or regulations may be
+required (i) to return to The Bank any benefits received, and (ii) to resign from the Board.
+Officers who are found to have willfully violated those laws or regulations (i) may be required to
+return to The Bank any benefits received, and (ii) shall be subject to dismissal.
+
+X.         Definitions
+
+           A.         Affiliate30
+
+           The term “affiliate” means the following:
+
+           $          any company that (i) controls The Bank, or (ii) is controlled by a company that
+                      controls The Bank;31
+
+           $          a bank or The Bank subsidiary of The Bank;
+
+           $          any company (i) that is controlled directly or indirectly, by a trust or otherwise; by
+                      or for the benefit of shareholders who beneficially or otherwise, directly or
+                      indirectly, by trust or otherwise, control The Bank or a company that controls The
+                      Bank, or (ii) in which a majority of its directors, general partners or trustees
+                      constitute a majority of the persons holding any such office with The Bank or a
+                      company that controls The Bank;
+
+           $          any company, including a real estate investment trust, that is sponsored and
+                      advised on a contractual basis by The Bank or any subsidiary or affiliate of The
+                      Bank; or any investment company with respect to which The Bank or any affiliate
+                      thereof serves an investment adviser as defined in §2(a)(2) of the Investment
+                      Company Act of 1940, 15 U.S.C. §§80a-2(a)(2);
+
+
+30
+   12 C.F.R. §§223.2 and 563.41(b)(1). In referring to the provisions of Regulation W, the term “financial subsidiary” does not
+apply, as provided in 12 C.F.R. §563.41(b)(2).
+
+31
+     See the definition of "control" for purposes of transactions with affiliates.
+
+                                                                   16
+           $        any partnership for which The Bank or an affiliate serves as a general partner or
+                    for which The Bank or affiliate causes any of its directors, officers or employees
+                    to serve as a general partner;
+
+           $        any company held under merchant banking or insurance company authority as
+                    described in more detail in 12 C.F.R. §223.2(a)(9);
+
+           $        any subsidiary of any of the above; and
+
+           $     any company (i) that the OTS or the Federal Reserve determines by regulation or
+                 order to have a relationship with The Bank or any subsidiary or affiliate of The
+                 Bank so as to be an affiliate, or (ii) that the OTS determines, by order or
+                 regulation, to present a risk to the safety or soundness of The Bank.
+         The following shall not be considered to be an affiliate: (i) any company engaged solely
+in holding the premises of The Bank; (ii) any company engaged solely in conducting a safe
+deposit business; (iii) any company engaged solely in holding obligations of the United States or
+its agencies or obligations fully guaranteed by the United States or its agencies as to principal
+and interest, and (iv) for a limited time, any company where control results from the exercise of
+rights arising out of a bona fide debt previously contracted. In addition, any company, other than
+a bank or The Bank, that is a subsidiary of The Bank shall not be considered an affiliate unless:
+(i) the subsidiary also is directly controlled by one or more affiliated companies; (ii) the
+subsidiary also is directly controlled by one or a group of controlling shareholders of The Bank;
+(iii) the subsidiary is an employee stock option plan, trust or similar organization that exists for
+the benefit of the shareholders, partners, members or employees of The Bank or any affiliated
+company, or (iv) the subsidiary is otherwise determined to be an affiliate by the OTS or the
+Federal Reserve.
+
+           B.       Affiliated Company32
+
+       The term “affiliated company” means any company of which The Bank is a subsidiary or
+any other subsidiary of that affiliated.
+
+           C.       Company33
+
+        The term “company” means a corporation, partnership, trust (business or otherwise),
+association, sole proprietorship, joint venture, unincorporated organization or other business
+entity. It generally includes financial institutions for purposes of transactions with affiliates
+(unless specifically excluded) and excludes financial institutions for purposes of loans to
+insiders.
+
+           D.       Control34
+
+           For purposes of transactions with affiliates, the term “control” means directly or
+
+32
+     12 C.F.R. §215.2(a).
+
+33
+     12 C.F.R. §215.2(b). See also 12 CFR §563.41 (b)(6).
+
+34
+     12 C.F.R. §215.2(c) and 563.41(b)(6).
+
+                                                            17
+indirectly, or acting through one or more other persons, the ownership, control or the power to
+vote 25% or more of any class of voting securities of The Bank or any other company. Control
+also includes being deemed or presumed (without an acceptable rebuttal) to be in control under
+12 C.F.R. Part 574, which is, generally, ownership, control or the power to vote 10% of any class
+of voting securities and requires the combination of the holdings of certain persons, including
+family members. Control does not include owning or controlling shares in a fiduciary capacity,
+unless the shares are held by a business trust or are held for the benefit of the controlling
+shareholders of The Bank or affiliated company.
+
+         For purposes of loans to insiders, the term “control” means ownership, control or the
+power to vote 25% or more of any class of voting securities of The Bank or any other company,
+the power to control the election of a majority of directors or the power to exercise a controlling
+influence over the management or policies of that entity, in each case acting directly or indirectly
+or in concert with others. A person is presumed, subject to rebuttal, to have control of an entity
+if he or she (i) is a director or an executive officer of such entity and directly or indirectly
+controls or has the power to vote more than 10% of any class of voting securities of the entity, or
+(ii) directly or indirectly controls or has the power to vote more than 10% of any class of voting
+securities of the entity and no other person controls or has the power to vote a greater percentage
+of that class of voting securities.
+
+           E.       Credit Transaction35
+
+       The term “credit transaction” with an affiliate means an extension of credit to an affiliate,
+a guarantee issuance or a cross-affiliate netting arrangement.
+
+           F.       Cross-Affiliate Netting Arrangement36
+
+       The term “cross-affiliate netting arrangement” means an arrangement among The Bank,
+one or more of its affiliates and any number of non-affiliates in which:
+
+           $        any non-affiliate is permitted to deduct any obligations of The Bank’s affiliates
+                    when settling obligations owed to The Bank, or
+
+           $        The Bank is permitted or required to add obligations of its affiliates to a non-
+                    affiliate when determining obligations owed to the non-affiliate.
+
+           G.       Eligible Affiliate Activities37
+
+       The term “eligible affiliate activities” means activities of an affiliate of The Bank that is
+engaged solely in those activities permissible for a bank holding company as described in 12
+U.S.C. §1467(c)(2)(F)(i) and 12 C.F.R. §584.2-2. These listed activities consist primarily of:
+
+           $        making, acquiring, brokering or servicing loans or other extensions of credit;
+
+35
+     12 C.F.R. §223.3(i).
+
+36
+     12 C.F.R. §223.3(j).
+
+
+
+
+                                                      18
+$   appraising real estate and personal property;
+
+$   arranging commercial real estate financing as intermediary if the company and its
+    affiliates do not have an interest in managing or developing the real estate and do
+    not promote or sponsor its development;
+
+$   providing check guaranty services;
+
+$   providing collection agency and credit bureau services;
+$   providing certain asset management, servicing and collection activities for third
+    parties (but not real property management or real estate brokerage);
+
+$   acquiring debt in default (within certain restrictions);
+
+$   providing real estate settlement services;
+
+$   leasing personal or real property as agent, broker or adviser if the lease is non-
+    operating and has an initial term of at least 90 days and in the case of real estate
+    meets certain other criteria;
+
+$   operating an industrial loan company or The Bank;
+
+$   performing trust company functions;
+
+$   acting as an investment advisor or providing securities brokerage services solely
+    as agent for customers, whether or not including investment advisory services (but
+    not including underwriting or dealing), and certain riskless principal, private
+    placement, future commission and other transactional services;
+
+$   underwriting and dealing in U.S. governmental securities;
+
+$   engaging in foreign exchange and certain futures and swaps transactions, and
+    buying and selling certain precious metals;
+
+$   providing management consulting advice to unaffiliated depository institutions
+    (subject to certain interlocks restrictions) and, to a limited extent, to others;
+
+$   providing employee benefits consulting services;
+
+$   providing career counseling services relating to financial organizations;
+
+$   providing courier services for certain documents exchanged among banks;
+
+$   providing printing and selling checks and certain related documents;
+
+$   underwriting and selling credit insurance on credit extended by The Bank and its
+    affiliates, limited to repayment of the balance due in the event of death, disability
+    or involuntary unemployment of the borrower;
+
+
+
+                                      19
+           $        acting as agent or broker for credit insurance on credits issued by a finance
+                    company affiliate limited to $10,000 (or $25,000 in the case of a manufactured
+                    home loan) payable in the event of loss or damage to collateral, and subject to
+                    certain other restrictions;
+
+           $        engaging in certain community development activities including development of
+                    housing, services or jobs in loan income areas;
+
+           $        issuing and selling money orders, savings bonds and traveler’s checks, and
+           $        providing data processing services for financial, banking and economic data, and,
+                    to a limited extent, other data processing services.
+           H.       Executive Officer38
+
+         The term “executive officer” means a person, other than a director, who participates or
+has the authority to participate in major policymaking functions, whether or not such person has
+an officer title or receives compensation. The Chairman of the Board, the Chief Executive
+Officer, the President, any Vice President, the Secretary and the Treasurer of The Bank or any
+affiliated company are deemed to be executive officers, unless by resolution of the Board or the
+bylaws of The Bank or the affiliated company, such person is excluded from participating in
+major policymaking and does not actually participate in any major policymaking functions.
+
+           I.       Extension of Credit39
+
+        For purposes of transactions with affiliates, the term “extension of credit” means, without
+limitation, the following:
+
+           $        making or renewing any loan;
+
+           $        granting a line of credit;
+
+           $        an advance by means of an overdraft, cash item, or otherwise;
+
+           $        a sale of Fed funds;
+
+           $        the acquisition by discount, purchase, exchange or otherwise of any note,
+                    commercial paper, debt security, or other obligation of an affiliate;
+
+           $        a lease that is the functional equivalent of an extension of credit;
+
+           $        any increase in the amount, extension of the maturity or adjustment of the interest
+                    rate or other material term of an outstanding extension of credit;
+
+           $        any other extending of credit in any matter whatsoever (including on an intraday
+                    basis), and
+
+
+
+38
+     12 C.F.R. §215.2(e).
+
+39
+     12 C.F.R. §§215.3 and 223.3(c).
+
+                                                      20
+       $       any other similar transaction as a result of which an affiliate becomes obligated to
+               pay cash or its equivalent.
+
+       For purposes of loans to insiders, the term “extension of credit” means the following:
+
+       $       making or renewing any loan;
+
+       $       granting a line of credit;
+       $       the purchase under a repurchase agreement of securities, assets or obligations;
+
+       $       an advance by means of an overdraft, cash item or otherwise;
+       $       the issuance of a standby letter of credit (or similar arrangement) or an ineligible
+               acceptance (as defined in 12 C.F.R. §208.24);
+
+       $       an acquisition by discount, purchase, exchange or otherwise of any note, draft, bill
+               of exchange or other evidence of indebtedness upon which an insider may be
+               liable as maker, drawer, endorser, guarantor or surety;
+
+       $       an increase of an existing indebtedness (excluding additional funds advanced by
+               the bank for its own protection for accrued interest, taxes, insurance or other
+               incidental expenses);
+
+       $       an advance of unearned salary or other unearned compensation for an excess of
+               30 days;
+
+       $       extending credit in any matter whatsoever, and
+
+       $       any other similar transaction as a result of which a person becomes obligated to
+               pay cash or its equivalent, directly or indirectly, in any manner whatsoever.
+
+Notwithstanding this definition, extension of credit to an insider specifically excludes:
+
+       $       any advances against accrued salary or other compensation or for business travel;
+
+       $       the receipt of a check deposited in or delivered in the usual course of business
+               (unless it results in carrying a cash item or an impermissible overdraft);
+
+       $       the acquisition of a note, draft, bill of exchange or other evidence of indebtedness
+               in a merger transaction with another depository institution or in a foreclosure on
+               collateral (with a three year limit or OTS approval of an extension);
+
+       $       an endorsement or guarantee for the protection of an asset acquired by The Bank
+               in good faith;
+
+       $       any indebtedness for the purpose of protecting The Bank against loss or providing
+               it financial assistance;
+
+       $       indebtedness of up to $15,000 in connection with credit plans or programs
+               described in 12 C.F.R. §225.3(b)(5);
+
+       $       overdrafts of up to $5,000 that are otherwise permissible under this Policy;
+
+                                                 21
+           $        any discount of promissory notes, bills of exchange, conditional sales interests or
+                    similar paper without recourse;
+
+           $        non-interest bearing deposits to the bank’s credit, and
+
+           $        credits upon uncollected items received in the ordinary course of business.
+
+        An extension of credit to an insider is deemed to be made when The Bank or affiliate
+enters into a binding commitment to extend credit. In addition, any extension of credit to a third
+party is deemed to be an extension of credit to an insider to the extent the proceeds are
+transferred to an insider or are used for the tangible economic benefit of the insider (unless the
+third party extension of credit is not on preferential terms and is used in a bona fide transaction to
+acquire property, goods or services from the insider. A participation sold by The Bank without
+recourse is not an extension of credit by The Bank.
+
+           J.       Federally Related Mortgage Loan
+
+        The term “federally related mortgage loan” means any loan secured by a lien on one-to-
+four-family residential property or any loan to repay such a loan (other than temporary financing
+such as a construction loan), which is made by an FDIC-insured or federally regulated lender or
+is otherwise made, insured, guaranteed or assisted in anyway by any officer, agency of the
+federal government or is intended to be sold to FNMA, FHLMC or GNMA.
+
+           K.       Guarantee Issuance40
+
+         The term “guarantee issuance” means any issuance of a guarantee, acceptance or letter of
+credit, including an endorsement or standby letter of credit, on behalf of an affiliate and any
+confirmation of a letter of credit issued by the affiliate.
+
+           L.       Immediate Family41
+
+        For purposes of the restrictions on loans to insiders, the term “immediate family” means
+the spouse of an individual, the individual’s minor children and any of the individual’s children
+of any age residing in the individual’s home.
+
+           M.       Insider
+
+        The term “insider” means any director, executive officer or principal shareholder and any
+related interest of such a person.
+
+
+
+
+40
+     12 C.F.R. §223.3(h)(5).
+
+41
+     12 C.F.R. §215.2(g).
+
+                                                     22
+           N.       Low-quality Asset42
+
+        The term “low-quality asset” means an asset classified as doubtful, substandard or loss,
+or treated as “special mention” or “other transfer risk problems” in The Bank’s or affiliate’s most
+recent report of examination or inspection or that is treated as “classified” or special mention in
+The Bank’s or affiliate’s internal classification system; an asset in non-accrual status; an asset as
+to which payments of principal or interest are more than 30 days past due; an asset whose terms
+have been renegotiated or compromised due to deteriorating financial condition of the obligor; or
+an asset acquired through foreclosure, repossession or otherwise in satisfaction of a debt
+previously contracted, which has not been reviewed in an examination or inspection.
+
+           O.       Permissible Security
+
+        The term “permissible security” means (i) a perfected security interest in obligations of
+the United States or fully guaranteed as to principal or interest by the United States or an agency
+of a corporation wholly owned by the United States; (ii) unconditional takeout commitments or
+guarantees of any department, agency, board or establishment of the United States or corporation
+owned by the United States; (iii) a perfected security interest in a segregated deposit amount in
+The Bank, or (iv) consumer installment paper acquired from the borrowing insider in accordance
+with 12 C.F.R. §215.4(d)(3)(i)(D).
+
+           P.       Principal Shareholder43
+
+        The term “principal shareholder” means an individual or company (other than an insured
+financial institution) that, directly or indirectly, or acting in concert with one or more others,
+including but not limited to members of an individual’s immediate family (as defined above),
+owns, controls or has the power to vote more than 10% of a class of the voting stock of The
+Bank or of a company that controls The Bank. However, a company of which The Bank is a
+subsidiary is not considered a principal shareholder of The Bank.
+
+           Q.       Related Interest44
+
+        The term “related interest” means with respect to a person or entity, (i) a company
+controlled by that person or entity, or (ii) a political or campaign committee that is controlled by
+that person or company or the funds or services of which will benefit that person or entity.
+
+           R.       Unimpaired Capital and Surplus45
+
+        The term “unimpaired capital and surplus” means the aggregate of The Bank’s Tier 1 and
+Tier 2 capital plus the balance of its allowance for loan and lease losses not included in Tier 2
+capital and the amount of outstanding loans, investments and advances to any subsidiaries not
+
+42
+     12 C.F.R. §223.3(v).
+
+43
+     12 C.F.R. §215.2(m).
+
+44
+     12 C.F.R. §215.2(n).
+
+45
+     12 C.F.R. §§563.41(b)(5) and 563.43(f).
+
+                                                  23
+included in calculating Tier 1 capital, based on the most recent Thrift Financial Report filed with
+the OTS.
+
+XI.    Referenced Laws, Regulations and Policies
+
+       The following laws and regulations are referred to in this Policy:
+
+       A.      Federal Laws
+
+               $       Section 22(g) of the Federal Reserve Act (Loans to Executive Officers),
+                       12 U.S.C., §375a
+
+               $       Section 22(h) of the Federal Reserve Act (Prohibition on Insider Loans),
+                       12 U.S.C. §375b
+
+               $       Section 23A of the Federal Reserve (Banking Affiliates), 12 U.S.C. §371c
+
+               $       Section 23B of the Federal Reserve Act (Restrictions on Transactions with
+                       Affiliates), 12 U.S.C. §371c-1
+
+               $       Section 5(q) of the Home Owners’ Loan Act (Tying Arrangements), 12
+                       U.S.C. §1464(q)
+
+               $       Section 10 of the Home Owners’ Loan Act (Regulation of Holding
+                       Companies), 12 U.S.C. §1467a
+
+               $       Section 11 of the Home Owners’ Loan Act (Transactions with Affiliates,
+                       Insider Loans), 12 U.S.C. §1468
+
+               $       Section 215 of the U.S. Criminal Code (Receipt of Commissions or Gifts
+                       for Procuring Loans), 18 U.S.C. §215
+
+               $       Section 2608 of the Real Estate Settlement Procedures Act (Title
+                       Companies; Liability of Seller), 12 U.S.C. §2608
+
+       B.      Federal Regulations
+
+               $       12 C.F.R. Part 215 (Regulation O – Insider Loans)
+
+               $       Regulation W (Transactions Between Member Banks and Their
+                       Affiliates), 12 C.F.R. Part 223
+
+               $       12 C.F.R. §563.41 (Transactions with Affiliates)
+
+               $       12 C.F.R. §563.43 (Loans by The Banks to Their Executive Officers,
+                       Directors and Principal Shareholders)
+
+               $       12 C.F.R. §563.200 (Conflicts of Interest)
+
+               $       12 C.F.R. §563.201 (Corporate Opportunity)
+
+
+                                                24
+       C.      Policies
+
+               $      Guidelines for Compliance with the Federal Bank Bribery Law, 52 Fed.
+                      Reg. 43941 (1987)
+
+XII.   Revisions
+
+         At least annually, the Board of Directors of The Bank shall review this Policy and revise
+it if appropriate to conform to current laws and regulations.
+
+
+
+
+                                                25
+                             Sound Community Bank
+
+                             Acknowledgment and Agreement
+
+        I hereby acknowledge receipt of the Sound Community Bank “Policy on Conflicts of
+Interest, Transactions with Affiliates and Loans to Insiders,” dated June 23, 2013 (the “Policy”).
+
+        I have read and understand the Policy and agree to be governed by such Policy so long as
+I serve as a director or officer of Sound Community Bank. I understand that failure to comply
+with the Policy may result in sanctions as noted in Section IX of the Policy.
+
+
+___________________________________________
+Signature
+
+
+
+___________________________________________
+Print Name
+
+
+
+___________________________________________
+Date
+
+
+
+___________________________________________
+Position at Sound Community Bank
+
+
+
+
+[Please sign and return to The Bank]
+
+---
+
+### Source: Basic_Conflict_of_Interests_Questionnaire_for_board_members_0.pdf
+
+SAMPLE
+                   Board Member Conflict of Interests Disclosure Form
+
+Date: ____________
+
+Name: ______________________________________________________
+
+A conflict of interest, or an appearance of a conflict, can arise whenever a transaction, or
+an action, of [Name of Nonprofit] conflicts with the personal interests, financial or
+otherwise, of that of a board member, or an immediate family member of a board
+member, or that the board member’s employer (collectively “your personal interests”).
+
+Please describe below any relationships, transactions, or positions you hold (volunteer
+or otherwise), or circumstances that you believe could create a conflict of interest , noe or
+in the future, between [Name of Nonprofit] and your personal interests, financial or
+otherwise:
+
+_____   I have no conflict of interests to report.
+
+I have the following conflict of interests, or potential conflicts of interests, to report:
+
+1.__________________________________________________________________
+
+2.__________________________________________________________________
+
+3.__________________________________________________________________
+
+I have reviewed [Name of Nonprofit’s] conflict of interests of policy and I understand
+that it is my obligation to disclose a conflict of interests, or appearance of a conflict, to
+the chair of the board when a conflict, or appearance of a conflict, arises, and that for
+transactions in which I have a conflict, I will abstain from any vote on the matter
+involving the conflict.
+
+Signature: _________________________________________ Date: __________________
+
+                          Copyright © 2010 National Council of Nonprofits
+This information is for educational and informational purposes only and
+should not be considered legal or other professional advice for specific matters. Prior to adapting
+this sample document for their own use, nonprofits should seek the advice of their own
+professional advisors
+                                           ___________________. – EIN _______________ - Page 1 of 3
+
+
+
+                             Conflicts of Interest Policy
+                            Adopted by Board on ______________
+
+(1)   The purpose of the conflict of interest policy is to protect this tax-exempt organization’s
+      interest when it is contemplating entering into a transaction or arrangement that might
+      benefit the private interest of an officer or director of the corporation or might result in a
+      possible excess benefit transaction. This policy is intended to supplement but not replace
+      any applicable state and federal laws governing conflict of interest applicable to nonprofit
+      and charitable organizations.
+
+(2)   Definitions:
+      (a)     Interested Persons - Any director, principal officer, or member of a committee
+              with governing board delegated powers, who has a direct or indirect financial
+              interest, as defined below, is an interested person.
+
+      (b)     Financial Interest - A person has a financial interest if the person has, directly
+              or indirectly, through business, investment, or family: (1) An ownership or
+              investment interest in any entity with which the Corporation has a transaction or
+              arrangement; (2) A compensation arrangement with the Corporation or with any
+              entity or individual with which the Corporation has a transaction or arrangement,
+              or (3) A potential ownership or investment interest in, or compensation
+              arrangement with, any entity or individual with which the Corporation is
+              negotiating a transaction or arrangement. Compensation includes direct and
+              indirect remuneration as well as gifts or favors that are not insubstantial. A
+              financial interest is not necessarily a conflict of interest. A person who has a
+              financial interest may have a conflict of interest only if the appropriate governing
+              board or committee decides that a conflict of interest exists.
+
+(3)   Procedures:
+      (a)   Duty to Disclose - In connection with any actual or possible conflict of interest,
+            an interested person must disclose the existence of the financial interest and be
+            given the opportunity to disclose all material facts to the directors and members
+            of committees with governing board delegated powers considering the proposed
+            transaction or arrangement;
+
+      (b)     Determining Whether a Conflict of Interest Exists - After disclosure of the
+              financial interest and all material facts, and after any discussion with the
+              interested person, he/she shall leave the governing board or committee meeting
+              while the determination of a conflict of interest is discussed and voted upon. The
+              remaining board or committee members shall decide if a conflict of interest
+              exists.
+
+      (c)     Procedures for Addressing the Conflict of Interest
+
+              1.       An interested person may make a presentation at the governing board or
+                       committee meeting, but after the presentation, he/she shall leave the
+                       meeting during the discussion of, and the vote on, the transaction or
+                       arrangement involving the possible conflict of interest;
+                                          ___________________. – EIN _______________ - Page 2 of 3
+
+
+              2.      The chairperson of the governing board or committee shall, if
+                      appropriate, appoint a disinterested person or committee to investigate
+                      alternatives to the proposed transaction or arrangement;
+              3.      After exercising due diligence, the governing board or committee shall
+                      determine whether the Corporation can obtain with reasonable efforts a
+                      more advantageous transaction or arrangement from a person or entity
+                      that would not give rise to a conflict of interest;
+              4.      If a more advantageous transaction or arrangement is not reasonably
+                      possible under circumstances not producing a conflict of interest, the
+                      governing board or committee shall determine by a majority vote of the
+                      disinterested directors whether the transaction or arrangement is in the
+                      Corporation’s best interest, for its own benefit, and whether it is fair and
+                      reasonable. In conformity with the above determination it shall make its
+                      decision as to whether to enter into the transaction or arrangement.
+
+      (d)     Violations of the Conflicts of Interest Policy:
+
+              1.      If the governing board or committee has reasonable cause to believe a
+                      member has failed to disclose actual or possible conflicts of interest, it
+                      shall inform the member of the basis for such belief and afford the
+                      member an opportunity to explain the alleged failure to disclose.
+              2.      If, after hearing the member’s response and after making further
+                      investigation as warranted by the circumstances, the governing board or
+                      committee determines the member has failed to disclose an actual or
+                      possible conflict of interest, it shall take appropriate disciplinary and
+                      corrective action.
+
+(4)   Records of Proceedings - The minutes of the governing board and all committees with
+      board delegated powers shall contain: (1) The names of the persons who disclosed or
+      otherwise were found to have a financial interest in connection with an actual or possible
+      conflict of interest, the nature of the financial interest, any action taken to determine
+      whether a conflict of interest was present, and the governing board’s or committee’s
+      decision as to whether a conflict of interest in fact existed; (2) The names of the persons
+      who were present for discussions and votes relating to the transaction or arrangement, the
+      content of the discussion, including any alternatives to the proposed transaction or
+      arrangement, and a record of any votes taken in connection with the proceedings.
+
+(5)   Compensation:
+
+      (a)     A voting member of the governing board who receives compensation, directly or
+              indirectly, from the Corporation for services is precluded from voting on matters
+              pertaining to that member’s compensation;
+      (b)     A voting member of any committee whose jurisdiction includes compensation
+              matters and who receives compensation, directly or indirectly, from the
+              Corporation for services is precluded from voting on matters pertaining to that
+              member’s compensation.
+      (c)     No voting member of the governing board or any committee whose jurisdiction
+              includes compensation matters and who receives compensation, directly or
+              indirectly, from the Corporation, either individually or collectively, is prohibited
+              from providing information to any committee regarding compensation.
+                                          ___________________. – EIN _______________ - Page 3 of 3
+
+
+(6)   Annual Statements - Each director, principal officer and member of a committee with
+      governing board delegated powers shall annually sign a statement which affirms such
+      person: (a) Has received a copy of the conflicts of interest policy; (b) Has read and
+      understands the policy; (c) Has agreed to comply with the policy; and (d) Understands the
+      Corporation is charitable and in order to maintain its federal tax exemption it must
+      engage primarily in activities which accomplish one or more of its tax-exempt purposes.
+
+(7)   Periodic Reviews - To ensure the Corporation operates in a manner consistent with
+      charitable purposes and does not engage in activities that could jeopardize its tax-exempt
+      status, periodic reviews shall be conducted. The periodic reviews shall, at a minimum,
+      include the following subjects:
+
+      (a)     Whether compensation arrangements and benefits are reasonable, based on
+              competent survey information, and the result of arm’s length bargaining.
+      (b)     Whether partnerships, joint ventures, and arrangements with management
+              organizations conform to the Corporation’s written policies, are properly
+              recorded, reflect reasonable investment or payments for goods and services,
+              further charitable purposes and do not result in inurement, impermissible private
+              benefit or in an excess benefit transaction.
+
+(8)   Use of Outside Experts - When conducting the periodic reviews as provided for in
+      section (7), the Corporation may, but need not, use outside advisors. If outside experts are
+      used, their use shall not relieve the governing board of its responsibility for ensuring
+      periodic reviews are conducted.
+                                     [name of organization]
+
+                             CONFLICT OF INTEREST POLICY
+
+SECTION 1. PURPOSE:
+
+        ____________ is a nonprofit, tax-exempt organization. Maintenance of its tax-exempt
+status is important both for its continued financial stability and for public support. Therefore, the
+IRS as well as state regulatory and tax officials view the operations of ____________ as a public
+trust, which is subject to scrutiny by and accountable to such governmental authorities as well as
+to members of the public.
+
+        Consequently, there exists between ____________ and its board, officers, and
+management employees and the public a fiduciary duty, which carries with it a broad and
+unbending duty of loyalty and fidelity. The board, officers, and management employees have
+the responsibility of administering the affairs of ____________ honestly and prudently, and of
+exercising their best care, skill, and judgment for the sole benefit of ____________. Those
+persons shall exercise the utmost good faith in all transactions involved in their duties, and they
+shall not use their positions with ____________ or knowledge gained therefrom for their
+personal benefit. The interests of the organization must be the first priority in all decisions and
+actions.
+
+SECTION 2. PERSONS CONCERNED:
+
+        This statement is directed not only to directors and officers, but to all employees who can
+influence the actions of ____________. For example, this would include all who make
+purchasing decisions, all persons who might be described as "management personnel," and
+anyone who has proprietary information concerning ____________.
+
+SECTION 3. AREAS IN WHICH CONFLICT MAY ARISE:
+
+      Conflicts of interest may arise in the relations of directors, officers, and management
+employees with any of the following third parties:
+
+       1.      Persons and firms supplying goods and services to ____________.
+       2.      Persons and firms from whom ____________ leases property and equipment.
+       3.      Persons and firms with whom ____________ is dealing or planning to deal in
+               connection with the gift, purchase or sale of real estate, securities, or other
+               property.
+       4.      Competing or affinity organizations.
+       5.      Donors and others supporting ____________.
+       6.      Agencies, organizations. and associations which affect the operations of
+               ____________.
+       7.      Family members, friends, and other employees.
+SECTION 4. NATURE OF CONFLICTING INTEREST:
+
+       A conflicting interest may be defined as an interest, direct or indirect, with any persons or
+firms mentioned in Section 3. Such an interest might arise through:
+
+       1.      Owning stock or holding debt or other proprietary interests in any third party
+               dealing with ____________.
+       2.      Holding office, serving on the board, participating in management, or being
+               otherwise employed (or formerly employed) with any third party dealing with
+               ____________.
+       3.      Receiving remuneration for services with respect to individual transactions
+               involving ____________.
+       4.      Using ____________’s time, personnel, equipment, supplies, or good will for
+               other than ____________-approved activities, programs, and purposes.
+       5.      Receiving personal gifts or loans from third parties dealing or competing with
+               ____________. Receipt of any gift is disapproved except gifts of a value less
+               than $50, which could not be refused without discourtesy. No personal gift of
+               money should ever be accepted.
+
+SECTION 5. INTERPRETATION OF THIS STATEMENT OF POLICY:
+
+       The areas of conflicting interest listed in Section 3, and the relations in those areas which
+may give rise to conflict, as listed in Section 4, are not exhaustive. Conflicts might arise in other
+areas or through other relations. It is assumed that the directors, officers, and management
+employees will recognize such areas and relation by analogy.
+
+       The fact that one of the interests described in Section 4 exists does not necessarily mean
+that a conflict exists, or that the conflict, if it exists, is material enough to be of practical
+importance, or if material, that upon full disclosure of all relevant facts and circumstances it is
+necessarily adverse to the interests of ____________.
+
+        However, it is the policy of the board that the existence of any of the interests described
+in Section 4 shall be disclosed before any transaction is consummated. It shall be the continuing
+responsibility of the board, officers, and management employees to scrutinize their transactions
+and outside business interests and relationships for potential conflicts and to immediately make
+such disclosures.
+
+SECTION 6. DISCLOSURE POLICY AND PROCEDURE:
+
+          Transactions with parties with whom a conflicting interest exists may be undertaken only
+if all of the following are observed:
+
+       1.      The conflicting interest is fully disclosed;
+       2.      The person with the conflict of interest is excluded from the discussion and
+               approval of such transaction;
+       3.      A competitive bid or comparable valuation exists; and
+       4.      The [board or a duly constituted committee thereof] has determined that the
+               transaction is in the best interest of the organization.
+
+        Disclosure in the organization should be made to the chief executive officer (or if she or
+he is the one with the conflict, then to the board chair), who shall bring the matter to the attention
+of the [board or a duly constituted committee thereof]. Disclosure involving directors should be
+made to the board chair, (or if she or he is the one with the conflict, then to the board vice-chair)
+who shall bring these matters to the [board or a duly constituted committee thereof].
+
+        The [board or a duly constituted committee thereof] shall determine whether a conflict
+exists and in the case of an existing conflict, whether the contemplated transaction may be
+authorized as just, fair, and reasonable to ____________. The decision of the [board or a duly
+constituted committee thereof] on these matters will rest in their sole discretion, and their
+concern must be the welfare of ____________ and the advancement of its purpose.
+                                    [name of organization]
+
+                CONFLICT OF INTEREST DISCLOSURE STATEMENT
+
+Preliminary note: In order to be more comprehensive, this statement of disclosure/questionnaire
+also requires you to provide information with respect to certain parties that are related to you.
+These persons are termed “affiliated persons” and include the following:
+
+       a.     your spouse, domestic partner, child, mother, father, brother or sister;
+       b.     any corporation or organization of which you are a board member, an officer, a
+              partner, participate in management or are employed by, or are, directly or
+              indirectly, a debt holder or the beneficial owner of any class of equity securities;
+              and
+       c.     any trust or other estate in which you have a substantial beneficial interest or as to
+              which you serve as a trustee or in a similar capacity.
+
+1.     NAME OF EMPLOYEE OR BOARD MEMBER: (Please print)
+
+       ________________________________________________________________
+
+2.     CAPACITY:             ______board of directors
+                             ______executive committee
+                             ______officer
+                             ______committee member
+                             ______staff (position): ____________
+
+3.     Have you or any of your affiliated persons provided services or property to
+       ____________ in the past year?
+
+              _____YES                       _____NO
+
+If yes, please describe the nature of the services or property and if an affiliated person is
+involved, the identity of the affiliated person and your relationship with that person:
+
+_______________________________________________________________________
+
+_______________________________________________________________________
+
+_______________________________________________________________________
+
+
+4.     Have you or any of your affiliated persons purchased services or property from
+       ____________ in the past year?
+               _____YES                       _____NO
+
+If yes, please describe the purchased services or property and if an affiliated person is involved,
+the identity of the affiliated person and your relationship with that person:
+
+___________________________________________________________________________
+
+___________________________________________________________________________
+
+___________________________________________________________________________
+
+5.     Please indicate whether you or any of your affiliated persons had any direct or indirect
+       interest in any business transaction(s) in the past year to which ____________ was or is a
+       party?
+
+               _____YES               _____NO
+
+If yes, describe the transaction(s) and if an affiliated person is involved, the identity of the
+affiliated person and your relationship with that person:
+
+___________________________________________________________________________
+
+___________________________________________________________________________
+
+___________________________________________________________________________
+
+6.     Were you or any of your affiliated persons indebted to pay money to ____________ at
+       any time in the past year (other than travel advances or the like)?
+
+               _____YES               _____NO
+
+If yes, please describe the indebtedness and if an affiliated person is involved, the identity of the
+affiliated person and your relationship with that person:
+
+___________________________________________________________________________
+
+___________________________________________________________________________
+
+___________________________________________________________________________
+7.     In the past year, did you or any of your affiliated persons receive, or become entitled to
+       receive, directly or indirectly, any personal benefits from ____________ or as a result of
+       your relationship with ____________, that in the aggregate could be valued in excess of
+       $1,000, that were not or will not be compensation directly related to your duties to
+       ____________?
+
+               _____YES                _____NO
+
+If yes, please describe the benefit(s) and if an affiliated person is involved, the identity of the
+affiliated person and your relationship with that person:
+
+____________________________________________________________________________
+
+__________________________________________________________________________
+
+__________________________________________________________________________
+
+8.     Are you or any of your affiliated persons a party to or have an interest in any pending
+       legal proceedings involving ____________?
+
+               _____YES                _____NO
+
+If yes, please describe the proceeding(s) and if an affiliated person is involved, the identity of the
+affiliated person and your relationship with that person:
+
+___________________________________________________________________________
+
+___________________________________________________________________________
+
+___________________________________________________________________________
+
+
+9.     Are you aware of any other events, transactions, arrangements or other situations that
+       have occurred or may occur in the future that you believe should be examined by
+       ____________’s [board or a duly constituted committee thereof] in accordance with the
+       terms and intent of ____________’s conflict of interest policy?
+
+               _____YES                _____NO
+
+If yes, please describe the situation(s) and if an affiliated person is involved, the identity of the
+affiliated person and your relationship with that person:
+
+____________________________________________________________________________
+
+____________________________________________________________________________
+____________________________________________________________________________
+
+I HERBY CONFIRM that I have read and understand ____________’s conflict of interest policy
+and that my responses to the above questions are complete and correct to the best of my
+information and belief. I agree that if I become aware of any information that might indicate that
+this disclosure is inaccurate or that I have not complied with this policy, I will notify [designated
+officer or director] immediately.
+
+
+___________________________________                   __________________
+Signature                                             Date
+                                      [name of organization]
+
+                            GIFT POLICY AND DISCLOSURE FORM
+
+        As part of its conflict of interest policy, ____________ requires that directors, officers
+and employees decline to accept certain gifts, consideration or remuneration from individuals or
+companies that seek to do business with ____________ or are a competitor of it. This policy and
+disclosure form is intended to implement that prohibition on gifts.
+
+       Section 1.      “Responsible Person” is any person serving as an officer, employee or a
+                       member of the board of directors of ____________.
+
+       Section 2.      “Family Member” is a spouse, domestic partner, parent, child or spouse of
+                       a child, or a brother, sister, or spouse of a brother or sister, of a
+                       Responsible Person.
+
+       Section 3.      “Contract or Transaction” is any agreement or relationship involving the
+                       sale or purchase of goods, services or rights of any kind, receipt of a loan
+                       or grant, or the establishment of any other pecuniary relationship. The
+                       making of a gift to ____________ is not a “contract” or “transaction.”
+
+       Section 4.      Prohibited gifts, gratuities and entertainment. Except as approved by the
+                       Chairman of the Board or his designee or for gifts of a value less than $50
+                       which could not be refused without discourtesy, no Responsible Person or
+                       Family Member shall accept gifts, entertainment or other favors from any
+                       person or entity which:
+
+                       1.      Does or seeks to do business with ____________ or,
+
+                       2.      Does or seeks to compete with ____________ or,
+
+                       3.      Has received, is receiving, or is seeking to receive a Contract or
+                               Transaction with ____________.
+
+                                       GIFT STATEMENT
+
+I certify that I have read the above policy concerning gifts, and I agree that I will not accept gifts,
+entertainment or other favors from any individual or entity, which would be prohibited by the
+above policy. Following my initial statement, I agree to provide a signed statement at the end of
+each calendar year certifying that I have not received any such gifts, entertainment or other
+favors during the preceding year.
+
+____________________________________                   ___________________
+Signature                                              Date
+AG: 514781,v. 01
+                                  CONFLICT OF INTEREST DISCLOSURE STATMENT
+Preliminary note: In order to be more comprehensive, this statement of disclosure/questionnaire also requires you to provide
+information with respect to certain parties that are related to you. There persons are termed “affiliated persons” and include the
+following:
+         a. your spouse, domestic partner, child, mother, father, brother, sister
+         b. any corporation or organization of which you are a board member, an officer, a partner, participate in management or are
+            employed by, or are, directly or indirectly, a debt holder or the beneficial owner of any class of equity securities; and
+         c. any trust or other estate in which you have a substantial beneficial interest or as to which you serve as a trustee or in a
+            similar capacity.
+
+1. NAME OF EMPLOYEE OR BOARD MEMBER: (please print)                        _____________________________________________
+
+2. CAPACITY:               ____board of directors
+                           ____executive committee
+                           ____officer
+                           ____committee member
+                           ____staff (position):__________________________
+
+3. Have you or any of your affiliated persons provided services or property to AATA in the past year? ___Yes ___No
+        If Yes, please describe the nature of the services or property and if an affiliated person is involved, the identity of the
+        affiliated person and your relationship with that person:
+        ___________________________________________________________________________________________________
+
+         ___________________________________________________________________________________________________
+
+4. Have you or any of your affiliated persons purchased services or property from AATA in the past year? ___Yes ___No
+        If Yes, please describe the purchased services or property and if an affiliated person is involved, the identity of the affiliated
+        person and your relationship with that person.
+
+         __________________________________________________________________________________________________
+
+         __________________________________________________________________________________________________
+
+5. Please indicate whether you or any of your affiliated persons had any direct or indirect interest in any business transaction(s) in the
+   past year to which AATA was or is a party?           ___Yes ___No
+         If Yes, describe the transaction(s) and if an affiliated person is involved, the identity of the affiliated person and your
+         relationship with that person:
+
+         __________________________________________________________________________________________________
+
+         __________________________________________________________________________________________________
+
+
+6. Were you or any of your affiliated persons indebted to pay money to AATA at any time in the past year (other than travel advances
+   or the like)?    ___Yes ___No
+
+         If yes, please describe the indebtness and if an affiliated person is involved, the identity of the affiliated person and your
+         relationship with that person:
+
+         ___________________________________________________________________________________________________
+
+         ___________________________________________________________________________________________________
+
+
+
+
+                                                                                                                     Continued on reverse
+Conflict of Interest, continued
+
+
+
+
+7. In the past year, did you or any of your affiliated persons receive, or become entitled to receive, directly or indirectly, any personal
+benefits from AATA or as a result of your relationship with AATA, that in the aggregate could be valued in excess of $1,000, that
+were not or will not be compensation directly related to your duties to AATA?       ___Yes ___No
+
+         If yes, please describe the benefit(s) and if an affiliated person is involved, the identity of the affiliated person and your
+         relationship with that person:
+
+         ___________________________________________________________________________________________________
+
+         ___________________________________________________________________________________________________
+
+8. Are you or any of your affiliated persons a party to or have an interest in any pending legal proceedings involving AATA?
+
+                  ___Yes ___No
+
+         If yes, please describe the proceedings(s) and if an affiliated person is involved, the identity of the affiliated person and your
+         relationship with that person:
+
+         ___________________________________________________________________________________________________
+
+         ___________________________________________________________________________________________________
+
+9. Are you aware of any other events, transactions, arrangements or other situations that have occurred or may occur in the future that
+you believe should be examined by AATA’s board (or a duly constituted committee thereof) in accordance with the terms and intent
+of AATA’s conflict of interest policy?                ___Yes ___No
+
+         If yes, please describe the situation(s) and if an affiliated person is involved, the identity of the affiliated person and your
+         relationship with that person:
+
+         ___________________________________________________________________________________________________
+
+         ___________________________________________________________________________________________________
+
+         ___________________________________________________________________________________________________
+
+
+
+I HEREBY CONFIRM that I have read and understand AATA’s conflict of interest policy and
+that my responses to the above questions are complete and correct to the best of my information
+and belief. I agree that if I become aware of any information that might indicate that this
+disclosure is inaccurate or that I have not complied with this policy, I will notify the President
+of AATA immediately.
+
+
+         ___________________________________________________, 2013
+         Georgia King                         Date
+
+---
+
+### Source: Conflict of Interest Disclosure Form - SAMPLE.doc.md
+
+**\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ (ORGANISATION NAME)**                                                              
+**CONFLICT OF INTEREST DISCLOSURE FORM**  
+**FOR TRUSTEES, OFFICERS, and STAFF**
+
+		  
+*Name (please print)*	
+
+			  
+*Date		Position*   
+It is the policy of \_\_\_\_\_\_\_\_\_\_\_\_\_\_(ORGANISATION NAME) to address how issues of actual, potential and perceived conflicts of interest involving trustees, officers, and employees of \_\_\_\_\_\_\_\_\_\_\_\_\_\_(ORGANISATION NAME) should be identified, disclosed and managed.  This form is designed to identify and disclose known conflicts in an effort to properly mange them.
+
+	**I have read \_\_\_\_\_\_\_\_\_\_\_\_\_\_(ORGANISATION NAME)’s Conflict of Interest policy approved by the Board of Trustees and understand that as an employee/Trustee/Officer of \_\_\_\_\_\_\_\_\_\_\_\_\_\_(ORGANISATION NAME) it is my obligation to act in a manner which promotes the best interests of \_\_\_\_\_\_\_\_\_\_\_\_\_\_(ORGANISATION NAME) and to avoid conflicts of interest when making decisions and taking actions on behalf of \_\_\_\_\_\_\_\_\_\_\_\_\_\_(ORGANISATION NAME).**
+
+	**My answers to this disclosure form are correctly stated to the best of my knowledge and belief.  Should a possible conflict of interest arise in my responsibilities to \_\_\_\_\_\_\_\_\_\_\_\_\_\_(ORGANISATION NAME), I recognise that I have the obligation to notify, based on my position, the appropriate designated individual (Chairman, Manager, Trustees), and to abstain from any participation in the matter until \_\_\_\_\_\_\_\_\_\_\_\_\_\_(ORGANISATION NAME) can determine whether a conflict exists and how that conflict shall be resolved.  If any relevant changes occur in my affiliations, duties, or financial circumstances, I recognise that I have a continuing obligation to file an amended “Conflict of Interest Disclosure Form” with the appropriate designated office.**
+
+	**I understand that the information on this form is solely for use by \_\_\_\_\_\_\_\_\_\_\_\_\_\_(ORGANISATION NAME) and is considered confidential information.  Release of this information within \_\_\_\_\_\_\_\_\_\_\_\_\_\_(ORGANISATION NAME) will be on a need-to-know basis only.  Release to external parties will be only when required by law.**
+
+**\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_		\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_**  
+**Signature 		 Date**
+
+**Please complete the following questions, and submit this form to the Manager of \_\_\_\_\_\_\_\_\_\_\_\_\_\_(ORGANISATION NAME).**
+
+1\. Are you or a member of your immediate family an officer, director, trustee, partner (general or limited), employee or regularly retained consultant of any company, firm or organisation that presently has business dealings with \_\_\_\_\_\_\_\_\_\_\_\_\_\_(ORGANISATION NAME) or which might reasonably be expected to have business dealings with \_\_\_\_\_\_\_\_\_\_\_\_\_\_(ORGANISATION NAME) in the coming year?   
+\_\_\_\_\_\_\_\_Yes      \_\_\_\_\_\_\_\_\_No  
+If yes, please list the name of the company, firm or organisation, the position held, and the nature of the business which is currently being conducted with \_\_\_\_\_\_\_\_\_\_\_\_\_\_(ORGANISATION NAME) or which may reasonably be expected to be conducted with \_\_\_\_\_\_\_\_\_\_\_\_\_\_(ORGANISATION NAME) in the coming year:
+
+2\. Do you or does any member of your immediate family have a financial interest, direct or indirect, in a company, firm or organisation which currently has business dealings with \_\_\_\_\_\_\_\_\_\_\_\_\_\_(ORGANISATION NAME) or which may reasonably be expected to have such business dealings with \_\_\_\_\_\_\_\_\_\_\_\_\_\_(ORGANISATION NAME) in the coming year?
+
+\_\_\_\_\_\_\_Yes      \_\_\_\_\_\_\_\_No
+
+If yes, please list the name of the company, firm or organisation, the nature of the interest and the name of the person holding the interest, and the nature of the business which is currently being conducted with the University or which may reasonably be expected to be conducted with \_\_\_\_\_\_\_\_\_\_\_\_\_\_(ORGANISATION NAME) in the coming year:
+
+3\.	Do you or does any member of your immediate family have a financial or personal interest in an entity in which \_\_\_\_\_\_\_\_\_\_\_\_\_\_(ORGANISATION NAME) has a financial or other vested interest. \_\_\_\_\_\_\_Yes \_\_\_\_\_\_No
+
+If yes, please provide details below:
+
+4\. Have you or an immediate family member accepted gifts, gratuities, lodging, dining, or entertainment that might reasonably appear to influence your judgment or actions concerning the business of \_\_\_\_\_\_\_\_\_\_\_\_\_\_(ORGANISATION NAME)? \_\_\_\_\_\_\_Yes \_\_\_\_\_\_No
+
+If yes, please provide details below:
+
+5\.	Do you have any other interest or role in a firm or organisation, where that interest or relationship might reasonably be expected to create an impression or suspicion among the public having knowledge of your acts that you engaged in conduct in violation of your trust as a trustee, officer, faculty or staff member? \_\_\_\_\_\_\_Yes \_\_\_\_\_\_No
+
+If yes, please provide details below:
+
+Please add additional pages as needed.
+
+If any material changes to the responses provided on this disclosure form occur, the trustee, officer or employee is required to update the information on this form in writing, and submit the update to the Manager of \_\_\_\_\_\_\_\_\_\_\_\_\_\_(ORGANISATION NAME)
+
+**Form reviewed by:**
+
+**Remedial Action(s) to be taken:**
+
+\_\_\_\_\_\_\_\_\_\_\_\_\_\_(ORGANISATION NAME) will follow-up on all recommended actions to ensure compliance.
+"""
+- AUTHORITY_HINTS: - **Federal Reserve Act §§ 22(g) and (h) / Regulation O** — 12 U.S.C. §§375a, 375b; 12 CFR Part 215; restrictions, prior-Board-approval thresholds, and aggregate limits on extensions of credit to insiders (directors, executive officers, principal shareholders, and their related interests).
+- **Federal Reserve Act §§ 23A and 23B / Regulation W** — 12 U.S.C. §§371c, 371c-1; 12 CFR Part 223; quantitative limits, collateral, and market-terms requirements on covered transactions with affiliates.
+- **Federal Bank Bribery Law** — 18 U.S.C. §215; Guidelines for Compliance With the Federal Bank Bribery Law, 52 Fed. Reg. 43941 (1987); prohibition on soliciting or receiving anything of value in connection with credit union business, with limited gift/entertainment exceptions.
+- **Conflicts of Interest and Corporate Opportunity** — 12 CFR §§563.200 and 563.201; duty to disclose interests, abstain from related decisions, and not usurp corporate opportunities.
+- **RESPA anti-tying / Home Owners' Loan Act tying** — 12 U.S.C. §§2608, 1464(q); prohibition on prohibited tie-in arrangements.
+- **California Corporations Code §§ 309 and 310** — director duty of care and the standard for interested-director transactions; **California Financial Code** duties for state-chartered institutions examined by DFPI.
+- DESIGN_NOTES: """# System Design Notes — Engineering Vocabulary
+
+> Generated from `vocabulary.json` — **Cassandra Banking Core API** v1.0.0
+> Parsed at 2026-03-13T21:51:37.890Z
+> Totals: 14 entities · 252 fields · 0 computed fields · 0 events · 85 endpoints · 0 state machines · 0 plugins
+
+This block is a verbatim dump of the current engineering vocabulary. Downstream regeneration decides what to reference in the Design Overlay v2 control blocks — do not pre-filter.
+
+## Entities and fields
+
+### `account`  (schema: `Account` · 15 fields · retention: 7y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique account identifier. |
+| `entity_id` | string | ✓ |  |  | Primary owning entity. Immutable after creation. This is the entity under which the account appears for 5300 reporting and BSA monitoring. |
+| `account_type` | string (enum: checking, savings, money_market) | ✓ |  |  | Ledger account type. Maps to 5300 account codes via the bookkeeping layer. - `checking` — Share draft account (5300 code 025B) - `savings`… |
+| `status` | string (enum: open, frozen, closed) | ✓ |  |  | Account lifecycle state. - `open` — Active and operational. - `frozen` — Temporarily suspended (no debits; credits may still post). Reversi… |
+| `lock_type` | string (enum: none, compliance, fraud, legal, admin) | ✓ |  |  | Orthogonal lock applied independently of entity status. When lock_type is not `none`, the entity is restricted from certain operations even… |
+| `dormancy_status` | string (enum: active, dormant, abandoned) | ✓ |  |  | Orthogonal dormancy classification, tracked independently of account status. Driven by state-specific inactivity periods (typically 12 mont… |
+| `currency` | string | ✓ |  |  | ISO 4217 currency code. Only USD supported. |
+| `balances` | object | ✓ |  |  | Balance fields sourced from the Blnk Deploy ledger. These are read-only computed values — all mutations happen through transaction endpoint… |
+| `balances.balance` | integer |  |  |  | Current available balance (cents). Credits minus debits, excluding inflight. |
+| `balances.credit_balance` | integer |  |  |  | Lifetime credit total (cents). |
+| `balances.debit_balance` | integer |  |  |  | Lifetime debit total (cents). |
+| `balances.inflight_balance` | integer |  |  |  | Net pending transaction amount (cents). Represents authorized but unsettled transactions (e.g., card authorizations). Managed by Blnk's QUE… |
+| `balances.inflight_credit_balance` | integer |  |  |  | Pending inbound credits (cents). |
+| `balances.inflight_debit_balance` | integer |  |  |  | Pending outbound debits (cents). |
+| `bookkeeping` | object | ✓ |  |  | Shadow bookkeeping layer fields for 5300 regulatory reporting and FBO segregation. These are managed by Cassandra, not sourced from Blnk. |
+| `bookkeeping.account_code_5300` | string |  |  |  | NCUA 5300 account code (e.g., 025B for share drafts, 010 for regular shares). Assigned automatically based on account type; overridable by… |
+| `bookkeeping.schedule_a_code` | string |  |  |  | 5300 Schedule A line item code for balance sheet classification. Used by the 5300 Reporter consumer for aggregated reporting. |
+| `bookkeeping.fbo_classification` | string (enum: customer_balance, commingled_cash, settlement) |  |  |  | FBO sub-account classification for the bookkeeping layer. - `customer_balance` — Holds attributed to a specific end-user entity. - `comming… |
+| `bookkeeping.locked_amount` | integer |  |  |  | Amount held by BSA/compliance controls (cents). Separate from Blnk inflight holds — this represents funds frozen by the control engine (e.g… |
+| `owners` | array<object> | ✓ |  |  | All entities with ownership or authority over this account. At minimum, includes the primary owner matching entity_id. Joint ownership is m… |
+| `blnk_ledger_id` | string |  |  |  | Corresponding ledger ID in Blnk Deploy. Opaque reference for reconciliation. |
+| `account_numbers` | array<object> |  |  |  | Summary of account numbers associated with this account. Use the Account Numbers endpoints for full details and management. |
+| `metadata` | object |  |  |  | Arbitrary key-value pairs for partner use. |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `account_number`  (schema: `AccountNumber` · 10 fields · retention: 7y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique account number resource identifier. |
+| `account_id` | string | ✓ |  |  | The ledger account this number is associated with. Immutable. |
+| `account_number` | string | ✓ | ✓ |  | 12-digit account number allocated by the aggregator. Format is PPP-SSSSSSSS-C where P is the 3-digit fintech prefix, S is the 8-digit seque… |
+| `routing_number` | string | ✓ |  |  | ABA routing number. All account numbers within a credit union share the same routing number (the credit union's Fed master account routing… |
+| `status` | string (enum: active, disabled, canceled) | ✓ |  |  | Account number lifecycle state. - `active` — Routable. Inbound payments accepted, outbound allowed. - `disabled` — Temporarily non-routable… |
+| `informational_entity_id` | string | ✓ |  |  | Entity ID for FBO attribution. Typically matches the account's primary owner but can differ in BaaS scenarios where the fintech partner is… |
+| `label` | string |  |  |  | Human-readable label for this account number (e.g., Primary Checking, Partner A Routing). For partner reference only, not used in payment f… |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `ach_transfer`  (schema: `AchTransfer` · 23 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique ACH transfer identifier. |
+| `account_id` | string | ✓ |  |  | The ledger account being debited or credited. |
+| `account_number_id` | string | ✓ |  |  | The specific account number used for this transfer. Determines the routing/account number pair that appears in the ACH file. |
+| `direction` | string (enum: credit, debit) | ✓ |  |  | Direction of the ACH transfer from the perspective of this account. - `credit` — Push money out (originate a payment to an external party).… |
+| `amount` | integer | ✓ |  |  | Transfer amount in cents. Must be positive. |
+| `currency` | string | ✓ |  |  |  |
+| `status` | string (enum: pending_approval, submitted, settled, returned, rejected, canceled) | ✓ |  |  | ACH transfer lifecycle state. - `pending_approval` — Created, awaiting control engine evaluation. - `submitted` — Controls passed, ACH file… |
+| `window` | string (enum: standard, same_day) | ✓ |  |  | ACH processing window. - `standard` — Next-day settlement (standard ACH). - `same_day` — Same-day ACH (additional fee may apply, cutoff tim… |
+| `counterparty` | object | ✓ |  |  |  |
+| `counterparty.routing_number` | string | ✓ |  |  | ABA routing number of the receiving institution. |
+| `counterparty.account_number` | string | ✓ | ✓ |  | Account number at the receiving institution. |
+| `counterparty.account_type` | string (enum: checking, savings) | ✓ |  |  | Account type at the receiving institution. |
+| `counterparty.name` | string | ✓ | ✓ |  | Receiver name as it will appear in the ACH file. Max 22 characters per NACHA format. |
+| `description` | string |  |  |  | Company entry description in the ACH batch header. Max 10 characters per NACHA format (e.g., "PAYROLL", "PAYMENT"). |
+| `company_name` | string |  |  |  | Originator company name in the ACH batch header. Max 16 characters per NACHA format. Defaults to partner's registered name. |
+| `effective_date` | string |  |  |  | The date the transfer will settle at the Fed. Set by the system based on the processing window and submission time. For same-day ACH, this… |
+| `expected_settlement` | string |  |  |  | Estimated settlement timestamp. More precise than effective_date — accounts for Fed processing windows, weekends, and holidays. |
+| `settled_at` | string |  |  |  | Actual settlement timestamp. Populated when status becomes `settled`. |
+| `returned_at` | string |  |  |  | Timestamp of the return. Populated when status becomes `returned`. |
+| `return_code` | string |  |  |  | NACHA return reason code (e.g., R01 Insufficient Funds, R02 Account Closed, R03 No Account, R04 Invalid Account Number). Only present when… |
+| `return_reason` | string |  |  |  | Human-readable return reason. Only present when status is `returned`. |
+| `rejection_reason` | string |  |  |  | Explanation of why the control engine rejected this transfer. Only present when status is `rejected`. |
+| `control_results` | array<object> |  |  |  | Results of all control engine evaluations for this transfer. Populated at creation time (when the control engine gates the transfer). |
+| `blnk_transaction_id` | string |  |  |  | Corresponding transaction ID in Blnk Deploy. |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `book_transfer`  (schema: `BookTransfer` · 13 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique book transfer identifier. |
+| `source_account_id` | string | ✓ |  |  | The account being debited. |
+| `destination_account_id` | string | ✓ |  |  | The account being credited. |
+| `amount` | integer | ✓ |  |  | Transfer amount in cents. |
+| `currency` | string | ✓ |  |  |  |
+| `status` | string (enum: pending, completed, rejected) | ✓ |  |  | Book transfer lifecycle state. - `pending` — Created, control engine evaluating. - `completed` — Funds moved instantly (both sides settled)… |
+| `description` | string |  |  |  | Free-text description of the transfer purpose. |
+| `rejection_reason` | string |  |  |  | Explanation of why the control engine rejected this transfer. Only present when status is `rejected`. |
+| `control_results` | array<object> |  |  |  | Results of control engine evaluations. |
+| `blnk_transaction_id` | string |  |  |  | Corresponding transaction ID in Blnk Deploy. |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `wire_transfer`  (schema: `WireTransfer` · 21 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique wire transfer identifier. |
+| `account_id` | string | ✓ |  |  | The ledger account being debited (outbound) or credited (inbound). |
+| `account_number_id` | string | ✓ |  |  | The account number used for this wire. |
+| `direction` | string (enum: outbound, inbound) | ✓ |  |  | Direction of the wire transfer. - `outbound` — Originated by this instance, sending funds via Fedwire. - `inbound` — Received from an exter… |
+| `amount` | integer | ✓ |  |  | Transfer amount in cents. |
+| `currency` | string | ✓ |  |  |  |
+| `status` | string (enum: pending_approval, submitted, completed, return_requested, returned, rejected, …(+1)) | ✓ |  |  | Wire transfer lifecycle state. - `pending_approval` — Created, awaiting control engine evaluation. - `submitted` — Controls passed, Fedwire… |
+| `beneficiary` | object |  |  |  | The receiving party and their bank details for an outbound wire. |
+| `beneficiary.name` | string | ✓ | ✓ |  | Beneficiary name as it will appear on the Fedwire message. |
+| `beneficiary.routing_number` | string | ✓ |  |  | ABA routing number of the beneficiary's bank. |
+| `beneficiary.account_number` | string | ✓ | ✓ |  | Account number at the beneficiary's bank. |
+| `beneficiary.bank_name` | string |  |  |  | Name of the beneficiary's bank. Optional — if omitted, resolved automatically from the routing number via the Fed directory. |
+| `beneficiary.address` | object |  |  |  |  |
+| `beneficiary.address.line1` | string | ✓ | ✓ |  | Street address line 1. |
+| `beneficiary.address.line2` | string |  |  |  | Street address line 2 (apt, suite, unit, etc.). |
+| `beneficiary.address.city` | string | ✓ | ✓ |  |  |
+| `beneficiary.address.state` | string | ✓ |  |  | Two-letter US state or territory code (ISO 3166-2:US). |
+| `beneficiary.address.postal_code` | string | ✓ | ✓ |  | US ZIP code (5-digit or ZIP+4). |
+| `beneficiary.address.country` | string | ✓ |  |  | ISO 3166-1 alpha-2 country code. |
+| `originator` | object |  |  |  | Originator information from an inbound Fedwire message. Read-only — populated by the aggregator when routing an inbound wire. |
+| `originator.name` | string |  | ✓ |  |  |
+| `originator.routing_number` | string |  |  |  |  |
+| `originator.account_number` | string |  | ✓ |  |  |
+| `originator.bank_name` | string |  |  |  |  |
+| `originator.reference` | string |  |  |  | Originator-to-beneficiary information (OBI) from the Fedwire message. |
+| `purpose` | string |  |  |  | Originator-to-beneficiary information (OBI). Free-text description of the wire purpose, included in the Fedwire message. |
+| `imad` | string |  |  |  | Input Message Accountability Data — the Fed's unique identifier for this Fedwire message. Populated after submission. Used for tracing and… |
+| `omad` | string |  |  |  | Output Message Accountability Data — assigned by the receiving Fed bank. Populated after the wire is acknowledged. |
+| `submitted_at` | string |  |  |  | Timestamp when the Fedwire message was submitted. |
+| `completed_at` | string |  |  |  | Timestamp when the wire completed. Wires are typically same-day. |
+| `return_request` | object |  |  |  | Details of the return request, if one has been filed. Only present when status is `return_requested` or `returned`. |
+| `rejection_reason` | string |  |  |  | Explanation of why the control engine rejected this wire. Only present when status is `rejected`. |
+| `control_results` | array<object> |  |  |  | Results of control engine evaluations. |
+| `blnk_transaction_id` | string |  |  |  | Corresponding transaction ID in Blnk Deploy. |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `verification`  (schema: `Verification` · 14 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique verification identifier. |
+| `entity_id` | string | ✓ |  |  | The entity being verified. |
+| `type` | string (enum: kyc, kyb) | ✓ |  |  | Whether this is identity verification for a person (KYC) or a business (KYB). Trusts use KYB. Joint entities are verified through their ind… |
+| `provider` | string (enum: alloy, persona, socure, middesk, partner_provided) | ✓ |  |  | The identity verification provider used for this check. - `alloy`, `persona`, `socure`, `middesk` — Cassandra-managed providers. The system… |
+| `trust_level` | string (enum: full, verify_watchlist_only) |  |  |  | Trust level for partner-provided verifications (from partner configuration). - `full` — Cassandra trusts the partner's identity verificatio… |
+| `status` | string (enum: pending, in_review, approved, denied, expired) | ✓ |  |  | Status of this individual verification attempt. - `pending` — Verification submitted to provider, awaiting result. - `in_review` — Provider… |
+| `ofac_result` | object | ✓ |  |  | Result of the mandatory OFAC screening. OFAC screening is a compliance floor control (BA-05) and runs on every verification regardless of p… |
+| `ofac_result.screened_at` | string |  |  |  |  |
+| `ofac_result.match_status` | string (enum: clear, potential_match, confirmed_match) |  |  |  | - `clear` — No matches found on SDN, consolidated sanctions, or PEP lists. - `potential_match` — Possible match requiring compliance office… |
+| `ofac_result.matched_lists` | array<string> |  |  |  | Names of lists that returned matches (e.g., "SDN", "Consolidated Sanctions", "PEP", "314a"). Empty array when match_status is `clear`. |
+| `ofac_result.match_score` | number |  |  |  | Confidence score of the strongest match (0-100). Only meaningful when match_status is `potential_match`. Used by compliance officers to pri… |
+| `provider_result` | object |  |  |  | Normalized verification result from the provider. Cassandra translates each provider's native response into this common structure. |
+| `provider_result.provider_reference` | string |  |  |  | The provider's native reference ID for this verification (e.g., Alloy evaluation_token, Persona inquiry_id). |
+| `provider_result.provider_status` | string |  |  |  | The provider's native status string, preserved for debugging. Cassandra normalizes this into the verification's top-level `status`. |
+| `provider_result.identity_verified` | boolean |  |  |  | Whether the provider confirmed the identity matches the provided data. |
+| `provider_result.document_verified` | boolean |  |  |  | Whether identity documents were verified (if required by risk tier). Null if document verification was not required. |
+| `provider_result.risk_score` | number |  |  |  | Provider's risk score, normalized to 0-100 range. Higher = riskier. Used by CDD controls for risk tiering. |
+| `provider_result.risk_signals` | array<string> |  |  |  | Risk signal tags from the provider (e.g., "address_mismatch", "ssn_issued_prior_to_dob", "high_risk_jurisdiction"). Used by the control eng… |
+| `provider_result.raw_response` | object |  |  |  | The complete provider response, stored verbatim for audit purposes. Only returned when the requesting token has compliance-scoped permissio… |
+| `denial_reasons` | array<string> |  |  |  | Machine-readable reasons for denial (e.g., "identity_not_verified", "document_mismatch", "high_risk_jurisdiction", "ofac_match"). Only pres… |
+| `expires_at` | string |  |  |  | When this verification result expires per CDD refresh policy. After expiry, the entity's kyc_status transitions to `expired` and a new veri… |
+| `triggered_by` | string (enum: initial, cdd_refresh, information_change, manual) |  |  |  | What triggered this verification. - `initial` — First-time verification on entity creation. - `cdd_refresh` — Periodic re-verification per… |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `card`  (schema: `Card` · 16 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique card identifier. |
+| `account_id` | string | ✓ |  |  | The ledger account this card draws from / credits to. |
+| `entity_id` | string | ✓ |  |  | The entity this card is issued to. Must be a person entity. Immutable after creation. |
+| `card_type` | string (enum: virtual, physical) | ✓ |  |  | - `virtual` — Instantly issued, PAN available immediately via secure details endpoint. - `physical` — Requires fulfillment (mailing). PAN a… |
+| `form_factor` | string (enum: debit, prepaid) | ✓ |  |  | Card form factor for network classification. - `debit` — Linked to a deposit account with overdraft rules. - `prepaid` — Balance-limited, n… |
+| `network` | string (enum: visa, mastercard) |  |  |  | Card network, determined by the BIN allocated to this instance. |
+| `status` | string (enum: inactive, active, frozen, closed) | ✓ |  |  | Card lifecycle state, driven by the adapter interface (createCard, activateCard, freezeCard, closeCard). - `inactive` — Card created but no… |
+| `last_four` | string | ✓ |  |  | Last four digits of the card number (PAN). |
+| `expiration_month` | integer | ✓ |  |  |  |
+| `expiration_year` | integer | ✓ |  |  | Four-digit expiration year. |
+| `shipping` | object |  |  |  | Shipping details for physical cards. Only present when `card_type` is `physical`. Null for virtual cards. |
+| `shipping.status` | string (enum: pending, shipped, delivered, returned) |  |  |  |  |
+| `shipping.tracking_number` | string |  |  |  |  |
+| `shipping.carrier` | string |  |  |  |  |
+| `shipping.shipped_at` | string |  |  |  |  |
+| `shipping.estimated_delivery` | string |  |  |  |  |
+| `spend_controls` | object |  |  |  | Optional per-card spending limits. These are enforced in addition to account-level controls and the control engine's velocity limits. |
+| `spend_controls.daily_limit` | integer |  |  |  | Maximum daily spend in cents. Null means no per-card daily limit. |
+| `spend_controls.monthly_limit` | integer |  |  |  | Maximum monthly spend in cents. |
+| `spend_controls.per_transaction_limit` | integer |  |  |  | Maximum single transaction amount in cents. |
+| `spend_controls.allowed_mcc_codes` | array<string> |  |  |  | Whitelist of allowed Merchant Category Codes. If populated, only transactions at merchants with these MCCs are approved. Empty array means… |
+| `spend_controls.blocked_mcc_codes` | array<string> |  |  |  | Blacklist of blocked MCCs. Transactions at merchants with these MCCs are declined. Evaluated after allowed_mcc_codes. |
+| `processor_reference` | string |  |  |  | Card reference ID at the processor (Marqeta card_token or Lithic card_id). Opaque — used internally for adapter operations. |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `card_authorization`  (schema: `CardAuthorization` · 14 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  |  |
+| `card_id` | string | ✓ |  |  |  |
+| `account_id` | string | ✓ |  |  |  |
+| `status` | string (enum: pending, approved, declined, reversed, expired) | ✓ |  |  | Authorization lifecycle. - `pending` — Authorization received, control engine evaluating (transient, sub-2-second). - `approved` — Authoriz… |
+| `amount` | integer | ✓ |  |  | Authorization amount in cents. |
+| `currency` | string | ✓ |  |  |  |
+| `merchant` | object | ✓ |  |  | Merchant details from the authorization request. |
+| `merchant.name` | string |  |  |  |  |
+| `merchant.mcc` | string |  |  |  | Merchant Category Code. |
+| `merchant.city` | string |  |  |  |  |
+| `merchant.state` | string |  |  |  |  |
+| `merchant.country` | string |  |  |  |  |
+| `merchant.acceptor_id` | string |  |  |  | Card acceptor ID from the processor. |
+| `decline_reason` | string (enum: insufficient_funds, card_frozen, card_closed, account_frozen, account_locked, spend_limit_exceeded, …(+5)) |  |  |  | Machine-readable reason for declining an authorization. |
+| `control_results` | array<object> |  |  |  | Control engine results for this authorization. Includes balance check, velocity, OFAC, fraud, and spend control evaluations. |
+| `blnk_transaction_id` | string |  |  |  | Blnk inflight transaction ID (for approved authorizations). Null for declined authorizations. |
+| `processor_reference` | string |  |  |  | Processor's native authorization reference. |
+| `settled_at` | string |  |  |  | Settlement timestamp. Populated when the inflight transaction commits in Blnk (processor sends settlement webhook). Null until settled. |
+| `settlement_amount` | integer |  |  |  | Final settlement amount in cents. May differ from the authorization amount (e.g., tip added, partial fulfillment). |
+| `created_at` | string | ✓ |  |  |  |
+
+### `bookkeeping_entry`  (schema: `BookkeepingEntry` · 17 fields · retention: 7y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique bookkeeping entry identifier. |
+| `account_id` | string | ✓ |  |  | The ledger account this entry pertains to. |
+| `account_number_id` | string |  |  |  | The specific account number involved (if applicable). Null for account-level entries (e.g., interest, fees). |
+| `entity_id` | string |  |  |  | The entity attributed for FBO segregation. Derived from the account's primary owner or the account number's informational_entity_id, depend… |
+| `entry_type` | string (enum: debit, credit, hold_placed, hold_released, hold_seized) | ✓ |  |  | Type of bookkeeping entry. - `debit` — Funds left the account (matches a Blnk debit transaction). - `credit` — Funds entered the account (m… |
+| `source` | string (enum: ach_transfer, wire_transfer, book_transfer, card_authorization, card_settlement, fee, …(+3)) | ✓ |  |  | The originating transaction type that produced this bookkeeping entry. Maps 1:1 to the domain event that triggered the Blnk webhook. |
+| `source_id` | string |  |  |  | ID of the originating resource (e.g., ach_5kRb3m for an ACH transfer, auth_2nRb7m for a card authorization). Allows joining bookkeeping ent… |
+| `amount` | integer | ✓ |  |  | Entry amount in cents. Always positive — direction is conveyed by entry_type. |
+| `currency` | string | ✓ |  |  |  |
+| `running_balance` | integer |  |  |  | Account balance after this entry was applied (cents). Provides a verifiable audit trail — each entry's running_balance should equal the pre… |
+| `account_code_5300` | string | ✓ |  |  | NCUA 5300 account code for this entry (e.g., 025B for share drafts, 010 for regular shares). Inherited from the account's bookkeeping tags… |
+| `schedule_a_code` | string |  |  |  | 5300 Schedule A line item code for balance sheet classification. Used by the 5300 Reporter for aggregated reporting. |
+| `fbo_classification` | string (enum: customer_balance, commingled_cash, settlement) | ✓ |  |  | FBO sub-account classification for the bookkeeping layer. - `customer_balance` — Holds attributed to a specific end-user entity. - `comming… |
+| `blnk_transaction_id` | string |  |  |  | Corresponding Blnk Deploy transaction ID. Null for compliance hold entries (which are Cassandra-native, not Blnk transactions). |
+| `description` | string |  |  |  | System-generated description of the entry (e.g., "ACH credit from John Doe via 271070801", "Compliance hold placed — BA-05 OFAC match"). |
+| `effective_date` | string |  |  |  | The business date this entry is effective for regulatory reporting. May differ from created_at for entries posted after business hours or f… |
+| `created_at` | string | ✓ |  |  |  |
+
+### `event`  (schema: `Event` · 11 fields · retention: 7y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique event identifier. |
+| `type` | string (enum: entity.created, entity.activated, entity.disabled, entity.archived, entity.updated, entity.locked, …(+51)) | ✓ |  |  | Domain event type. Events are emitted on every state transition and significant operation. Partners receive these via webhook delivery. |
+| `resource_id` | string | ✓ |  |  | ID of the resource that changed (e.g., ent_abc123, acct_xyz789). |
+| `resource_type` | string | ✓ |  |  | Type of the resource (e.g., entity, account, ach_transfer). |
+| `data` | object |  |  |  | Snapshot of the resource at the time of the event. Contains the full resource representation (same schema as the corresponding GET endpoint… |
+| `previous_data` | object |  |  |  | For update events, the resource state before the change. Only includes fields that changed. Null for creation events. |
+| `delivery_status` | string (enum: pending, delivered, failed, expired) |  |  |  | Delivery status for a specific webhook delivery attempt. - `pending` — Queued for delivery (or retrying). - `delivered` — Partner endpoint… |
+| `delivery_attempts` | integer |  |  |  | Number of webhook delivery attempts made so far (max 12). |
+| `last_delivery_attempt_at` | string |  |  |  | Timestamp of the most recent delivery attempt. |
+| `delivered_at` | string |  |  |  | Timestamp of successful delivery. Null if not yet delivered. |
+| `created_at` | string | ✓ |  |  |  |
+
+### `webhook_endpoint`  (schema: `WebhookEndpoint` · 9 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique webhook endpoint identifier. |
+| `url` | string | ✓ |  |  | The HTTPS URL that receives webhook POST requests. Must use HTTPS (HTTP rejected). Must return 2xx within 30 seconds to be considered a suc… |
+| `status` | string (enum: active, disabled) | ✓ |  |  | - `active` — Events are delivered to this endpoint. - `disabled` — Delivery is paused. Events accumulate and can be retrieved via the backf… |
+| `subscribed_events` | array<string> | ✓ |  |  | List of event type patterns this endpoint receives. Supports exact types (e.g., "ach_transfer.settled") and wildcard prefixes (e.g., "ach_t… |
+| `signing_secret` | string |  |  |  | HMAC-SHA256 signing secret for verifying webhook payloads. Only returned once at creation time. Use to verify the `X-Cassandra-Signature` h… |
+| `delivery_stats` | object |  |  |  | Rolling delivery statistics for this endpoint. |
+| `delivery_stats.total_delivered` | integer |  |  |  |  |
+| `delivery_stats.total_failed` | integer |  |  |  |  |
+| `delivery_stats.last_delivered_at` | string |  |  |  |  |
+| `delivery_stats.last_failed_at` | string |  |  |  |  |
+| `delivery_stats.current_failure_streak` | integer |  |  |  | Consecutive failed deliveries. When this reaches a threshold, the endpoint may be automatically disabled and the partner alerted. |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `fbo_position`  (schema: `FboPosition` · 6 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `instance_id` | string | ✓ |  |  |  |
+| `balance` | integer | ✓ |  |  | Current FBO balance for this instance (cents). Sum of all settled inbound minus all settled outbound for this instance's accounts. |
+| `held_amount` | integer | ✓ |  |  | Amount currently reserved for pending outbound payments (cents). Held via the reserve saga pattern (Decision 28, step 4). |
+| `available_balance` | integer | ✓ |  |  | Effective available balance (cents). Computed as `balance - held_amount`. This is the amount the Origination API checks against when approv… |
+| `last_event_sequence` | integer | ✓ |  |  | The sequence_id of the most recent event processed by the Payment Hub consumer for this instance. Used for staleness detection. |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `inbound_payment`  (schema: `InboundPayment` · 9 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  |  |
+| `payment_type` | string (enum: ach_credit, ach_debit, wire, rtp) | ✓ |  |  |  |
+| `account_number` | string | ✓ |  |  | The 12-digit account number this payment was routed to. |
+| `amount` | integer | ✓ |  |  |  |
+| `currency` | string |  |  |  |  |
+| `status` | string (enum: pending, delivered, acknowledged) | ✓ |  |  | - `pending` — Aggregator has the payment, not yet pushed to instance. - `delivered` — Pushed to instance via webhook. - `acknowledged` — In… |
+| `originator` | object |  |  |  |  |
+| `originator.name` | string |  |  |  |  |
+| `originator.routing_number` | string |  |  |  |  |
+| `originator.account_number` | string |  |  |  |  |
+| `reference` | string |  |  |  | Originator reference or trace number. |
+| `received_at` | string | ✓ |  |  | When the aggregator received this payment from the Fed. |
+
+### `bsa_alert`  (schema: `BsaAlert` · 9 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `alert_id` | string | ✓ |  |  |  |
+| `event_id` | string | ✓ |  |  | The event that triggered this alert. |
+| `alert_type` | string (enum: ctr_threshold, structuring_suspected, cross_fintech_activity, sar_candidate, velocity_anomaly, watchlist_hit) | ✓ |  |  | Type of BSA alert generated by the BSA Approver (real-time) or BSA Reporter (scheduled). |
+| `entity_hash` | string | ✓ |  |  | Hashed entity identifier (SSN/EIN hash). Used for per-entity lookups without exposing PII in the alert table. |
+| `instance_id` | string |  |  |  | The fintech instance where the triggering event originated. For cross-fintech alerts, this is the instance of the most recent triggering ev… |
+| `status` | string (enum: open, under_review, escalated, cleared, block) | ✓ |  |  | BSA alert lifecycle. - `open` — New alert, not yet reviewed. - `under_review` — Analyst is investigating. - `escalated` — Elevated to SAR c… |
+| `requires_lookback` | boolean |  |  |  | Whether the BSA Reporter should run a deep historical analysis on this alert. Set by the BSA Approver when it detects patterns that need 90… |
+| `details` | object |  |  |  | Alert-specific details. Structure varies by alert_type. Examples: transaction amounts, pattern description, matched entity information for… |
+| `created_at` | string | ✓ |  |  |  |
+
+## Events
+
+> ⚠️  **Vocabulary warning — no events defined.** The `events` array in vocabulary.json is empty. Any `(event.code)` reference the policy wants to use must be introduced by engineering and registered in the spec before the Design Overlay v2 blocks can cite it. The endpoints list below is provided as candidate signals from which engineering could derive event codes (e.g., `POST /accounts` → `account.created`).
+
+## Endpoints
+
+| Method | Path | Summary | Control refs | Audit events |
+|---|---|---|---|---|
+| `GET` | `/entities` | List entities |  |  |
+| `GET` | `/entities/{entity_id}` | Retrieve an entity |  |  |
+| `POST` | `/entities/person` | Create a person entity | CD-01, CD-04, BA-03, BA-05 |  |
+| `POST` | `/entities/business` | Create a business entity | CD-01, CD-04, CD-05, BA-03, BA-05 |  |
+| `POST` | `/entities/trust` | Create a trust entity | CD-01, CD-04, BA-03, BA-05 |  |
+| `POST` | `/entities/joint` | Create a joint entity | BA-05 |  |
+| `PATCH` | `/entities/person/{entity_id}` | Update a person entity | CD-09, BA-05 |  |
+| `PATCH` | `/entities/business/{entity_id}` | Update a business entity | CD-05, CD-09 |  |
+| `PATCH` | `/entities/trust/{entity_id}` | Update a trust entity | CD-09 |  |
+| `PATCH` | `/entities/joint/{entity_id}` | Update a joint entity |  |  |
+| `POST` | `/entities/{entity_id}/status` | Transition entity status | BA-05, CD-08 |  |
+| `PUT` | `/entities/{entity_id}/lock` | Update entity lock |  |  |
+| `GET` | `/accounts` | List accounts |  |  |
+| `POST` | `/accounts` | Create an account | CD-04, CD-03, CD-12, BA-05 |  |
+| `GET` | `/accounts/{account_id}` | Retrieve an account |  |  |
+| `PATCH` | `/accounts/{account_id}` | Update an account | CD-05 |  |
+| `POST` | `/accounts/{account_id}/status` | Transition account status | CD-12 |  |
+| `PUT` | `/accounts/{account_id}/lock` | Update account lock |  |  |
+| `GET` | `/accounts/{account_id}/account-numbers` | List account numbers for an account |  |  |
+| `POST` | `/accounts/{account_id}/account-numbers` | Create an additional account number | BA-05 |  |
+| `GET` | `/account-numbers/{account_number_id}` | Retrieve an account number |  |  |
+| `PATCH` | `/account-numbers/{account_number_id}` | Update an account number |  |  |
+| `POST` | `/account-numbers/{account_number_id}/status` | Transition account number status |  |  |
+| `GET` | `/transfers/ach` | List ACH transfers |  |  |
+| `POST` | `/transfers/ach` | Create an ACH transfer | BA-05, BA-06, BA-07, BA-08, BA-10, CD-06 |  |
+| `GET` | `/transfers/ach/{ach_transfer_id}` | Retrieve an ACH transfer |  |  |
+| `POST` | `/transfers/ach/{ach_transfer_id}/cancel` | Cancel an ACH transfer |  |  |
+| `POST` | `/transfers/ach/batch` | Create a batch of ACH transfers | BA-05, BA-06, BA-07, BA-08, BA-10, CD-06 |  |
+| `GET` | `/transfers/book` | List book transfers |  |  |
+| `POST` | `/transfers/book` | Create a book transfer | BA-05, BA-06, BA-07, BA-08 |  |
+| `GET` | `/transfers/book/{book_transfer_id}` | Retrieve a book transfer |  |  |
+| `GET` | `/transfers/wire` | List wire transfers |  |  |
+| `POST` | `/transfers/wire` | Create a wire transfer | BA-05, BA-06, BA-07, BA-08, BA-10 |  |
+| `GET` | `/transfers/wire/{wire_transfer_id}` | Retrieve a wire transfer |  |  |
+| `POST` | `/transfers/wire/{wire_transfer_id}/cancel` | Cancel a wire transfer |  |  |
+| `POST` | `/transfers/wire/{wire_transfer_id}/return-request` | Request a wire return |  |  |
+| `GET` | `/entities/{entity_id}/verifications` | List verifications for an entity |  |  |
+| `POST` | `/entities/{entity_id}/verifications` | Initiate a verification | CD-01, CD-04, BA-03, BA-05, BA-20 |  |
+| `POST` | `/entities/{entity_id}/verifications/attest` | Submit a partner-provided KYC/KYB attestation | CD-01, CD-10, BA-05, BA-20 |  |
+| `GET` | `/verifications/{verification_id}` | Retrieve a verification |  |  |
+| `GET` | `/cards` | List cards |  |  |
+| `POST` | `/cards` | Create a card | BA-05, CD-04 |  |
+| `GET` | `/cards/{card_id}` | Retrieve a card |  |  |
+| `PATCH` | `/cards/{card_id}` | Update a card |  |  |
+| `POST` | `/cards/{card_id}/status` | Transition card status |  |  |
+| `GET` | `/cards/{card_id}/sensitive` | Retrieve sensitive card details | PR-01 |  |
+| `GET` | `/cards/{card_id}/authorizations` | List authorizations for a card |  |  |
+| `GET` | `/authorizations/{authorization_id}` | Retrieve a card authorization |  |  |
+| `GET` | `/accounts/{account_id}/bookkeeping-entries` | List bookkeeping entries for an account |  |  |
+| `GET` | `/bookkeeping-entries/{entry_id}` | Retrieve a bookkeeping entry |  |  |
+| `GET` | `/bookkeeping/summary` | Get aggregated bookkeeping summary |  |  |
+| `GET` | `/bookkeeping/reconciliation` | Run reconciliation check |  |  |
+| `GET` | `/events` | List events |  |  |
+| `GET` | `/events/{event_id}` | Retrieve an event |  |  |
+| `POST` | `/events/{event_id}/retry` | Retry event delivery |  |  |
+| `GET` | `/webhooks` | List webhook endpoints |  |  |
+| `POST` | `/webhooks` | Create a webhook endpoint |  |  |
+| `GET` | `/webhooks/{webhook_endpoint_id}` | Retrieve a webhook endpoint |  |  |
+| `PATCH` | `/webhooks/{webhook_endpoint_id}` | Update a webhook endpoint |  |  |
+| `DELETE` | `/webhooks/{webhook_endpoint_id}` | Delete a webhook endpoint |  |  |
+| `POST` | `/webhooks/{webhook_endpoint_id}/rotate-secret` | Rotate webhook signing secret |  |  |
+| `POST` | `/webhooks/{webhook_endpoint_id}/test` | Send a test webhook |  |  |
+| `POST` | `/sandbox/simulate/kyc/approve` | Simulate: Approve KYC verification |  |  |
+| `POST` | `/sandbox/simulate/kyc/deny` | Simulate: Deny KYC verification |  |  |
+| `POST` | `/sandbox/simulate/ach/receive` | Simulate: Receive an inbound ACH credit |  |  |
+| `POST` | `/sandbox/simulate/ach/settle` | Simulate: Settle an outbound ACH transfer |  |  |
+| `POST` | `/sandbox/simulate/ach/return` | Simulate: Return a settled ACH transfer |  |  |
+| `POST` | `/sandbox/simulate/wire/receive` | Simulate: Receive an inbound wire |  |  |
+| `POST` | `/sandbox/simulate/wire/settle` | Simulate: Complete an outbound wire |  |  |
+| `POST` | `/sandbox/simulate/card/authorize` | Simulate: Card authorization |  |  |
+| `POST` | `/sandbox/simulate/card/settle` | Simulate: Card settlement |  |  |
+| `POST` | `/sandbox/simulate/time/advance` | Simulate: Advance sandbox clock |  |  |
+| `POST` | `/sandbox/reset` | Reset sandbox environment |  |  |
+| `POST` | `/auth/token` | Obtain an aggregator access token |  |  |
+| `GET` | `/fbo/{instance_id}/position` | Get FBO position for an instance |  |  |
+| `GET` | `/fbo/{instance_id}/available-balance` | Get available balance for an instance |  |  |
+| `POST` | `/payments/ach/originate` | Originate an ACH payment | BA-05, BA-06, BA-07, BA-08 |  |
+| `POST` | `/payments/wire/originate` | Originate a wire payment | BA-05, BA-06, BA-07, BA-08, BA-10 |  |
+| `POST` | `/payments/wire/prepare` | Prepare a wire payment (phase 1 of 2) | BA-05, BA-06, BA-07, BA-08, BA-10 |  |
+| `POST` | `/payments/wire/confirm` | Confirm a prepared wire payment (phase 2 of 2) |  |  |
+| `POST` | `/payments/rtp/originate` | Originate an RTP payment | BA-05, BA-06, BA-07, BA-08 |  |
+| `GET` | `/inbound/{instance_id}` | List inbound payments for an instance |  |  |
+| `GET` | `/bsa/alerts` | List BSA alerts |  |  |
+| `GET` | `/bsa/alerts/{alert_id}` | Retrieve a BSA alert |  |  |
+| `GET` | `/consumers/health` | Get aggregator consumer health |  |  |
+
+## State machines
+
+_No state machines defined in vocabulary.json._
+
+## Plugins
+
+_No plugins defined in vocabulary.json._
+"""
+
+
+LOCAL OVERRIDES (apply after all meta-prompt rules):
+{{Usually empty. Put anything here that should override the shared
+`meta-prompt.md` for THIS policy only — a different control-ID prefix,
+extra required sections, a specific citation style, etc. The regeneration
+task applies overrides AFTER the shared meta-prompt, so instructions here
+win.}}

@@ -1,261 +1,257 @@
-# Fair Lending
+---
+title: Fair Lending Policy (Table-First, Design-Overlay v2)
+owner: Patrick Wilson, Chief Compliance Officer
+version: v3.0
+effective: 2026-06-04
+next_review: 2027-06-04
+approvers:
+  - Patrick Wilson, Chief Compliance Officer
+tags: [Compliance, Fair Lending, ECOA, Reg B, HMDA, Fair Housing, Anti-Steering]
+---
 
-> **General Policy Statement**\
-> Pynthia FCU prohibits discrimination in all lending activities and ensures equal access to credit for all creditworthy applicants. This policy sets required controls, timing, and records to comply with ECOA/Reg B, FHA/NCUA, Reg Z, and related rules across marketing, origination, servicing, collections, and third parties.
+# Fair Lending Policy
 
-***
+## General Policy Statement
 
-### Multi-Rule Authority Table <a href="#authority" id="authority"></a>
+Pynthia Credit Union makes credit available to all creditworthy applicants without discrimination on any prohibited basis — race, color, religion, national origin, sex (including sexual orientation and gender identity), marital status, age (where the applicant can contract), receipt of public assistance, good-faith exercise of Consumer Credit Protection Act rights, handicap/disability, or familial status — and prohibits disparate treatment, unjustified disparate impact, and redlining at every stage of the credit lifecycle: marketing, inquiry, application, evaluation, pricing, appraisal, action-taken notices, monitoring-data collection, servicing, collections conduct, and record retention. The policy binds all staff and all third parties acting for the Credit Union (for whose conduct ECOA liability flows to the Credit Union), combines system enforcement with documented human review, and is overseen by the Chief Compliance Officer with at-least-quarterly Board reporting. Underwriting standards, collections operations, scoring-model governance, third-party program mechanics, privacy, and general retention schedules are governed by their own policies (Lending, Collections, Enterprise Risk Management / Model Risk Management, Third-Party Risk, Privacy, Record Retention).
 
-| Topic                              | Scope                                                            | Key Clauses / Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| ---------------------------------- | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **ECOA / Reg B**                   | All credit; inquiries; evaluation; action-taken notices; records | 12 CFR [**1002.5**](https://www.ecfr.gov/current/title-12/part-1002#p-1002.5) (inquiries), [**1002.6**](https://www.ecfr.gov/current/title-12/part-1002#p-1002.6) (evaluation), [**1002.9**](https://www.ecfr.gov/current/title-12/part-1002#p-1002.9) (action taken), [**1002.12**](https://www.ecfr.gov/current/title-12/part-1002#p-1002.12) (retention), [**1002.14**](https://www.ecfr.gov/current/title-12/part-1002#p-1002.14) (appraisals/ROV), [**1002.2**](https://www.ecfr.gov/current/title-12/part-1002#p-1002.2) (definitions) |
-| **FHA / HUD / NCUA**               | Real-estate-related transactions; signage/ads                    | [**42 USC §3605**](https://www.law.cornell.edu/uscode/text/42/3605); [**24 CFR Part 100**](https://www.ecfr.gov/current/title-24/part-100); [**12 CFR 701.31**](https://www.ecfr.gov/current/title-12/part-701/section-701.31)                                                                                                                                                                                                                                                                                                               |
-| **HMDA / Reg C** _(if applicable)_ | GMI; LAR; submission/disclosure                                  | 12 CFR [**1003.4**](https://www.ecfr.gov/current/title-12/part-1003#p-1003.4) and related sections                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| **TILA / Reg Z**                   | Advertising; **Loan Originator Compensation**; anti-steering     | 12 CFR [**1026.24**](https://www.ecfr.gov/current/title-12/part-1026#p-1026.24) (advertising), [**1026.36(d),(e)**](https://www.ecfr.gov/current/title-12/part-1026#p-1026.36) (LO comp/steering)                                                                                                                                                                                                                                                                                                                                            |
-| **ADA**                            | Access & reasonable accommodation                                | [**28 CFR Part 36**](https://www.ecfr.gov/current/title-28/part-36); [**29 CFR Part 1630**](https://www.ecfr.gov/current/title-29/part-1630)                                                                                                                                                                                                                                                                                                                                                                                                 |
-| **Related**                        | FCRA/Reg V; UDAAP; Appraisal Independence                        | [**15 USC §1681 et seq.**](https://www.law.cornell.edu/uscode/text/15/chapter-41/subchapter-III) (FCRA); interagency appraisal independence rules; CFPB UDAAP standards                                                                                                                                                                                                                                                                                                                                                                      |
+## Timing Matrix {#timing-matrix}
 
-***
+| Scenario | Trigger (human → event) | Deadline | Content Reference | Control |
+|---|---|---:|---|---|
+| Completed consumer application — approve, counter, or deny | Application complete (`application.completed`) | 30 days | Notice of action taken; AAN with specific reasons + ECOA notice + score block if a score was used | [FL-05](#fl-05-action-taken-notices) |
+| Incomplete application — adverse action or notice of incompleteness | Application aged incomplete (`application.incomplete_aged`) | 30 days | AAN, or notice of incompleteness naming missing items and a response window | [FL-05](#fl-05-action-taken-notices) |
+| Adverse action on an existing account | Adverse change decided (`account.adverse_action_decided`) | 30 days | AAN with specific reasons + ECOA notice | [FL-05](#fl-05-action-taken-notices) |
+| Counteroffer not expressly accepted or used | Counteroffer issued (`application.counteroffer_issued`) | 90 days | AAN (or combined counteroffer/AAN sent within the original 30 days) | [FL-05](#fl-05-action-taken-notices) |
+| Small-business credit ≤ $1MM revenue, decision by phone | Adverse decision communicated orally (`application.oral_adverse_decision`) | Reasonable time | Oral or written statement of action taken and right to reasons | [FL-05](#fl-05-action-taken-notices) |
+| Reconsideration of value (ROV) request | ROV requested (`valuation.rov_requested`) | 15 days (internal) | ROV review outcome, logged with rationale | [FL-04](#fl-04-appraisal-independence-and-rov) |
+| Copy of appraisal / written valuation | Valuation completed (`valuation.completed`) | Promptly upon completion | Free copy of each appraisal and written valuation, regardless of outcome | [FL-04](#fl-04-appraisal-independence-and-rov) |
+| Pricing-exception review | Month closes (`pricing.exception_period_closed`) | 10th of following month | Compliance exception-review memo | [FL-03](#fl-03-evaluation-and-pricing-rules) |
+| Vendor Fair-Lending MI pack | Month closes (`vendor.mi_period_closed`) | 5th business day | MI pack: applications, approvals, pricing, exceptions, complaints | [FL-09](#fl-09-third-party-fair-lending-oversight) |
+| Quarterly disparity analytics | Quarter closes (`analytics.quarter_closed`) | 30 days after quarter close | Disparity analysis: applications / approvals / price / terms / denials / exceptions | [FL-10](#fl-10-monitoring-and-reviews) |
+| Quarterly LAR QC | Quarter closes (`hmda.lar_qc_due`) | Quarter close + QC window | LAR accuracy QC report | [FL-06](#fl-06-government-monitoring-gmi-and-hmda) |
+| Annual HMDA LAR submission | Reg C calendar (`hmda.submission_window_open`) | March 1 (Reg C calendar) | Submitted LAR | [FL-06](#fl-06-government-monitoring-gmi-and-hmda) |
+| Annual redlining review | Year closes (`analytics.redlining_review_due`) | End of Q1 | Redlining review with Board report | [FL-10](#fl-10-monitoring-and-reviews) |
+| Role-based onboarding training | Role start (`training.role_assigned`) | 30 days of role start | Completion record | [FL-11](#fl-11-training) |
+| Annual fair-lending training | Annual cycle opens (`training.annual_cycle_opened`) | December 31 | Completion record (staff, contractors, third parties) | [FL-11](#fl-11-training) |
+| Record retention — consumer applications/decisions, existing-account adverse actions, self-tests | Action-taken notice sent (`notice.sent`) | 25 months | Application, evaluation materials, notice copy, reasons | [FL-12](#fl-12-record-retention) |
+| Record retention — business credit ≤ $1MM | Action-taken notice sent (`notice.sent`) | 12 months | Same record set | [FL-12](#fl-12-record-retention) |
+| Record retention — certain business credit > $1MM | Action-taken notice sent (`notice.sent`) | 60 days (12 months on request) | Same record set; extended if reasons or retention requested | [FL-12](#fl-12-record-retention) |
 
-### Action-Taken Timing Matrix (Reg B §1002.9) <a href="#timing-matrix" id="timing-matrix"></a>
+## FL-01 — Prohibition and Protected Bases
 
-| Scenario                                         | Trigger (human → event)                                                   |          Deadline | Content Reference                                                    | Control                                             |
-| ------------------------------------------------ | ------------------------------------------------------------------------- | ----------------: | -------------------------------------------------------------------- | --------------------------------------------------- |
-| **Completed application — approve/counter/deny** | Decision recorded (**decision.recorded**)                                 |       **30 days** | AAN content incl. score block if score used                          | [FL-05](fair-lending.md#fl-05-action-taken-notices) |
-| **Incomplete application**                       | App marked incomplete (**application.incomplete**) _or_ 30d since receipt |     **≤ 30 days** | Info needed + deadline; note no further consideration after deadline | [FL-05](fair-lending.md#fl-05-action-taken-notices) |
-| **Existing account adverse action**              | Adverse change posted (**account.adverse\_action**)                       |       **30 days** | AAN content                                                          | [FL-05](fair-lending.md#fl-05-action-taken-notices) |
-| **Counteroffer not accepted/used**               | Counteroffer expired (**counteroffer.expired**)                           |       **90 days** | AAN content                                                          | [FL-05](fair-lending.md#fl-05-action-taken-notices) |
-| **Small-business credit by phone (≤$1MM rev)**   | Decision given orally (**decision.given\_oral**)                          | “Reasonable time” | Oral allowed; log rights disclosure                                  | [FL-05](fair-lending.md#fl-05-action-taken-notices) |
+**WHY (Reg cite):** ECOA/Reg B [§1002.4](https://www.ecfr.gov/current/title-12/part-1002#p-1002.4) prohibits discrimination and discouragement on a prohibited basis as defined in [§1002.2](https://www.ecfr.gov/current/title-12/part-1002#p-1002.2); the Fair Housing Act [42 USC §3605](https://www.law.cornell.edu/uscode/text/42/3605) and NCUA [§701.31](https://www.ecfr.gov/current/title-12/part-701/section-701.31) extend the prohibition to real-estate-related transactions, including factors that act as proxies (dwelling age/location, neighborhood income, ZIP code).
 
-***
+**SYSTEM BEHAVIOR:** Decisioning, pricing, marketing-segmentation, and servicing systems exclude protected traits and Compliance-designated proxy fields (ZIP/neighborhood identifiers, property age/location, neighborhood income) from all rule sets, models, and audience filters; attempts to reference a blocked field are rejected at configuration time. Staff-facing workflows surface the prohibited-basis list at decision points. A documented business-necessity exception with a less-discriminatory-alternative analysis, approved by Compliance, is required before any guarded attribute may be used for a real-estate-related transaction. The protected-trait list and proxy guardrails are write-restricted to Compliance; the policy is reviewed annually and reported to the Board quarterly under [FL-10](#fl-10-monitoring-and-reviews).
 
-### Control Index <a href="#control-index" id="control-index"></a>
+**EVENTS:**
 
-| ID                                                                    | Control Name                     | Purpose                                                                        | Primary Rule(s)                                                                                                                                                                                                                      |
-| --------------------------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [**FL-01**](fair-lending.md#fl-01-prohibition-protected-bases)        | Prohibition & Protected Bases    | Ban disparate treatment/impact/redlining; list protected traits                | Reg B [**§1002.4**](https://www.ecfr.gov/current/title-12/part-1002#p-1002.4); [**NCUA 701.31**](https://www.ecfr.gov/current/title-12/part-701/section-701.31); [**42 USC §3605**](https://www.law.cornell.edu/uscode/text/42/3605) |
-| [**FL-02**](fair-lending.md#fl-02-permissible-inquiries)              | Permissible Inquiries            | What we may/may not ask (spouse, marital status, sex, dependents, immigration) | Reg B [**§1002.5**](https://www.ecfr.gov/current/title-12/part-1002#p-1002.5)                                                                                                                                                        |
-| [**FL-03**](fair-lending.md#fl-03-evaluation-pricing-rules)           | Evaluation & Pricing Rules       | Sound scoring; judgmental standards; sensitive info; pricing exceptions        | Reg B [**§1002.6**](https://www.ecfr.gov/current/title-12/part-1002#p-1002.6); appraisals [**§1002.14**](https://www.ecfr.gov/current/title-12/part-1002#p-1002.14)                                                                  |
-| [**FL-04**](fair-lending.md#fl-04-appraisal-independence-rov)         | Appraisal Independence & ROV     | Prohibit biased valuations; define ROV pathway                                 | Reg B [**§1002.14**](https://www.ecfr.gov/current/title-12/part-1002#p-1002.14); [**NCUA 701.31**](https://www.ecfr.gov/current/title-12/part-701/section-701.31)                                                                    |
-| [**FL-05**](fair-lending.md#fl-05-action-taken-notices)               | Action-Taken Notices             | Timing/content; score disclosure; joint/guarantor nuances                      | Reg B [**§1002.9**](https://www.ecfr.gov/current/title-12/part-1002#p-1002.9); FCRA [**§615**](https://www.law.cornell.edu/uscode/text/15/1681m)                                                                                     |
-| [**FL-06**](fair-lending.md#fl-06-government-monitoring-gmi-hmda)     | Government Monitoring (GMI/HMDA) | When/how to collect GMI; refusals; visual rules; LAR integrity                 | Reg B [**§1002.13**](https://www.ecfr.gov/current/title-12/part-1002#p-1002.13); Reg C [**Part 1003**](https://www.ecfr.gov/current/title-12/part-1003)                                                                              |
-| [**FL-07**](fair-lending.md#fl-07-advertising-fair-housing)           | Advertising & Fair Housing       | Trigger terms; APR prominence; FH legend; digital targeting                    | Reg Z [**§1026.24**](https://www.ecfr.gov/current/title-12/part-1026#p-1026.24); [**NCUA 701.31**](https://www.ecfr.gov/current/title-12/part-701/section-701.31); FHA [**§3605**](https://www.law.cornell.edu/uscode/text/42/3605)  |
-| [**FL-08**](fair-lending.md#fl-08-lo-compensation-anti-steering)      | LO Compensation & Anti-Steering  | No comp by terms/proxies; meaningful alternatives evidence                     | Reg Z [**§1026.36(d),(e)**](https://www.ecfr.gov/current/title-12/part-1026#p-1026.36)                                                                                                                                               |
-| [**FL-09**](fair-lending.md#fl-09-third-party-fair-lending-oversight) | Third-Party Oversight            | Due diligence; monthly MI pack; escalation                                     | ECOA creditor liability (Reg B [**Part 1002**](https://www.ecfr.gov/current/title-12/part-1002)); NCUA TPRM expectations                                                                                                             |
-| [**FL-10**](fair-lending.md#fl-10-monitoring-reviews)                 | Monitoring & Reviews             | Quarterly disparity analytics; redlining screens; Board reporting              | Program expectations under Reg B/FHA; HMDA analytics (Reg C [**Part 1003**](https://www.ecfr.gov/current/title-12/part-1003))                                                                                                        |
-| [**FL-11**](fair-lending.md#fl-11-training)                           | Training                         | Role-based onboarding + annual                                                 | NCUA supervisory expectations; ECOA program effectiveness                                                                                                                                                                            |
-| [**FL-12**](fair-lending.md#fl-12-record-retention)                   | Record Retention                 | Reg B/Reg C periods; business-credit special; litigation hold                  | Reg B [**§1002.12**](https://www.ecfr.gov/current/title-12/part-1002#p-1002.12); Reg C [**Part 1003**](https://www.ecfr.gov/current/title-12/part-1003)                                                                              |
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| New or changed decision/pricing/marketing rule submitted (`rule.change_submitted`) | Rule definition and referenced fields (`rule.fields_referenced[]`), guarded-attribute list (`compliance.guarded_attributes[]`) | Guardrail scan result; block on match (`rule.guardrail_check_completed`) | Before rule activation (—) |
+| Business-necessity exception requested (`rule.exception_requested`) | Justification, less-discriminatory-alternative analysis (`rule.exception_justification`), requesting owner (`rule.exception_owner`) | Compliance approval or denial, recorded with rationale (`rule.exception_decided`) | Before use (internal: 10 BD) |
+| Guarded-attribute list updated by Compliance (`compliance.guarded_attributes_updated`) | New list version (`compliance.guarded_attributes[]`), change rationale (`compliance.change_rationale`) | Versioned list republished to all decisioning systems (`compliance.guardrails_published`) | Same business day (—) |
 
-***
+**ALERTS/METRICS:** Count of guardrail-scan blocks per quarter (each reviewed by Compliance); zero production rules referencing guarded attributes without an approved exception; exception inventory aging (none older than 12 months without re-approval).
 
-## Control Overlays (Design Overlay v2)
+## FL-02 — Permissible Inquiries
 
-> **Note:** Lawyer-first, engineer-ready. Use human phrasing with event/field codes in parentheses.\
-> Intentionally excluded at v1: **Interfaces**, **Acceptance Tests**, **Data Model Notes** (Engineering adds later).
+**WHY (Reg cite):** Reg B [§1002.5](https://www.ecfr.gov/current/title-12/part-1002#p-1002.5) limits requests for information about spouses, marital status, sex, childbearing intentions, and other sensitive topics, and requires that monitoring-related and alimony/child-support disclosures be presented before such information is collected.
 
-### FL-01 — Prohibition & Protected Bases <a href="#fl-01-prohibition-protected-bases" id="fl-01-prohibition-protected-bases"></a>
+**SYSTEM BEHAVIOR:** Application forms and digital flows expose spouse, marital-status, sex, childbearing, and immigration questions only in the configurations Reg B permits (e.g., marital status only for joint/secured credit or community-property reliance, using only married/unmarried/separated; title designation only if disclosed as optional; immigration status permitted, race/religion/national origin never). Required disclosures — including that alimony, child support, or separate maintenance income need not be revealed unless relied upon — render before any sensitive field is collected, and the form engine blocks submission paths that would collect an impermissible field. Form-template changes are write-restricted to Compliance-approved releases. Target: 100% of applications collected with proper disclosures.
 
-**WHY (Reg cite):** Reg B §1002.4; FHA; NCUA 701.31\
-**SYSTEM BEHAVIOR:** System and staff must not use protected traits or proxies at any stage; avoid unjustified disparate impact and redlining.\
-**TRIGGERS (human → event):** Credit decision recorded (**decision.recorded**); marketing campaign launched (**campaign.launched**); collections action (**collection.action**)\
-**INPUTS (human → field):** Underwriting inputs (**uw\_inputs\[]**); pricing sheet (**pricing\_sheet\_id**); marketing criteria/geo (**marketing\_criteria**)\
-**OUTPUTS:** Compliance attestation on launches (**compliance.attestation**)\
-**TIMERS/SLAs:** Annual policy review; quarterly Board reporting.\
-**EDGE CASES:** Neighborhood/ZIP as proxy; property-age/location as proxy (real-estate).\
-**AUDIT LOGS:** `policy.attested`, `marketing.criteria_reviewed`, `uw.rule_change_reviewed`\
-**ACCESS CONTROL:** Compliance approves protected-trait list and proxy guardrails.\
-**ALERTS/METRICS:** Exception rate; proxy variable flags.
+**EVENTS:**
 
-***
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Application form rendered to an applicant (`application.form_rendered`) | Product type (`application.product_type`), credit structure joint/individual/secured (`application.credit_structure`), applicant state (`applicant.state`) | Permitted-question set + pre-collection disclosures rendered (`application.disclosures_presented`) | Before sensitive fields collected (—) |
+| Form template change proposed (`form.template_change_submitted`) | Template diff (`form.template_diff`), question inventory (`form.question_inventory[]`) | Compliance approval and versioned release (`form.template_approved`) | Before release (internal: 5 BD) |
+| Application submitted (`application.submitted`) | Captured field set (`application.fields_collected[]`), disclosure timestamps (`application.disclosure_timestamps[]`) | Inquiry-compliance check pass/fail record (`application.inquiry_check_completed`) | At submission (—) |
 
-### FL-02 — Permissible Inquiries <a href="#fl-02-permissible-inquiries" id="fl-02-permissible-inquiries"></a>
+**ALERTS/METRICS:** Disclosure-before-collection rate (target 100%); count of blocked impermissible-field collection attempts; zero released form templates without Compliance approval.
 
-**WHY:** Reg B §1002.5\
-**SYSTEM BEHAVIOR:** Limit questions on spouse, marital status, sex, childbearing, immigration to what’s permitted; present required disclosures (e.g., alimony/child support need not be disclosed unless relied upon).\
-**TRIGGERS:** Application created (**application.created**); HMDA-covered product selected (**product.hmda\_scope**)\
-**INPUTS:** Product type (**product\_type**); community-property flag (**community\_property\_state**); reliance on spouse/ACSM (**income\_reliance\_flags**)\
-**OUTPUTS:** Applicant disclosures presented/logged (**disclosure.presented**)\
-**TIMERS/SLAs:** Disclosures shown **before** sensitive fields are collected.\
-**EDGE CASES:** Joint vs individual apps; visual observation when GMI refused.\
-**AUDIT LOGS:** `disclosure.shown`, `sensitive_field.collected`\
-**ACCESS CONTROL:** Compliance owns disclosure text.\
-**ALERTS/METRICS:** % apps with proper disclosures (target 100%).
+## FL-03 — Evaluation and Pricing Rules
 
-***
+**WHY (Reg cite):** Reg B [§1002.6](https://www.ecfr.gov/current/title-12/part-1002#p-1002.6) requires that credit be evaluated under a demonstrably and statistically sound, empirically derived system or documented judgmental criteria, bars assigning a negative factor or value to the age of an elderly applicant, and requires public-assistance income to be considered on equal terms.
 
-### FL-03 — Evaluation & Pricing Rules <a href="#fl-03-evaluation-pricing-rules" id="fl-03-evaluation-pricing-rules"></a>
+**SYSTEM BEHAVIOR:** Decisioning runs only on Compliance-registered scoring models (validated as demonstrably and statistically sound under the Model Risk Management Program) or on documented judgmental criteria; age may be used only as permitted (e.g., capacity to contract; elderly age never as a negative factor — the system rejects scorecards that assign negative weight to age ≥ 62), and public-assistance income is mapped to the same income classes as other income. Any deviation from rate sheet or decision matrix requires a pricing-exception record with approver identity and rationale before the loan can proceed; undocumented exceptions block funding. Compliance reviews the full exception log monthly by the 10th. Exception-approval authority and the registered-model list are write-restricted to Compliance.
 
-**WHY:** Reg B §1002.6; §1002.14\
-**SYSTEM BEHAVIOR:** Use demonstrably/statistically sound scoring or documented judgmental criteria; never assign negative factors for elderly; treat public-assistance income equally; require pricing exception capture/approval.\
-**TRIGGERS:** Underwriting requested (**uw.requested**); price quoted (**pricing.quoted**); deviation detected (**pricing.deviation\_detected**)\
-**INPUTS:** Score(s) (**credit\_score\[]**); model version (**model\_version**); income sources (**income\_types\[]**); baseline price (**baseline\_rate**)\
-**OUTPUTS:** UW rationale (**uw.rationale**); pricing exception record (**pricing\_exception.record**)\
-**TIMERS/SLAs:** Monthly Compliance exception review by **the 10th**.\
-**EDGE CASES:** Term exceeds life expectancy; collateral adequacy; telephone listing not considered.\
-**AUDIT LOGS:** `uw.decision_saved`, `pricing.exception_created`\
-**ACCESS CONTROL:** Designated approvers only.\
-**ALERTS/METRICS:** Exception rate %; elderly negatives (target 0).\
-**CONFIG FLAGS (optional):** “Elderly non-negative” rule (default **on**).
+**EVENTS:**
 
-***
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Application decisioned (`application.decisioned`) | Registered model or judgmental criteria ID (`decision.model_id`), inputs used (`decision.inputs[]`), income classifications (`applicant.income_sources[]`) | Decision record with basis and factor weights (`decision.recorded`) | At decision (—) |
+| Pricing deviates from rate sheet (`pricing.exception_raised`) | Standard price (`pricing.sheet_price`), proposed price (`pricing.proposed_price`), rationale (`pricing.exception_rationale`), approver (`pricing.exception_approver`) | Approved/denied exception record; funding blocked until decided (`pricing.exception_decided`) | Before funding (—) |
+| Monthly exception period closes (`pricing.exception_period_closed`) | Full exception log for the month (`pricing.exceptions[]`), applicant-distribution summary (`pricing.exception_demographics_summary`) | Compliance exception-review memo with findings (`pricing.exception_review_completed`) | By the 10th of the following month (enforced by `pricing.exception_review_due_at`) |
 
-### FL-04 — Appraisal Independence & ROV <a href="#fl-04-appraisal-independence-rov" id="fl-04-appraisal-independence-rov"></a>
+**ALERTS/METRICS:** Exception rate by product, branch, and originator (outliers flagged); 100% of exceptions with rationale and approver before funding; monthly review on-time rate (target 100%); zero scorecards with negative elderly-age factors in production.
 
-**WHY:** Reg B §1002.14; FHA/NCUA 701.31\
-**SYSTEM BEHAVIOR:** Do not rely on biased appraisals; provide reconsideration-of-value (ROV) pathway and log outcomes.\
-**TRIGGERS:** Appraisal received (**appraisal.received**); ROV requested (**rov.requested**)\
-**INPUTS:** Appraisal metadata (**appraisal\_id, provider**); ROV evidence (**rov\_evidence\[]**)\
-**OUTPUTS:** ROV decision notice (**rov.decision\_notice**)\
-**TIMERS/SLAs:** ROV review within **15 days** of request.\
-**EDGE CASES:** Multiple valuations; AVMs.\
-**AUDIT LOGS:** `rov.request_logged`, `rov.decision_logged`\
-**ACCESS CONTROL:** Separate valuation staff (no production influence).\
-**ALERTS/METRICS:** # ROVs; % value changes.
+## FL-04 — Appraisal Independence and ROV
 
-***
+**WHY (Reg cite):** Reg B [§1002.14](https://www.ecfr.gov/current/title-12/part-1002#p-1002.14) requires the appraisal-rights disclosure and prompt free copies of appraisals and written valuations on first-lien dwelling applications; NCUA [§701.31](https://www.ecfr.gov/current/title-12/part-701/section-701.31) and FHA [42 USC §3605](https://www.law.cornell.edu/uscode/text/42/3605) prohibit reliance on valuations that consider prohibited bases, supplemented by the interagency appraisal-independence rules under TILA/Reg Z ([Part 1026](https://www.ecfr.gov/current/title-12/part-1026)).
 
-### FL-05 — Action-Taken Notices <a href="#fl-05-action-taken-notices" id="fl-05-action-taken-notices"></a>
+**SYSTEM BEHAVIOR:** Valuation ordering is routed through a panel-management function organizationally separated from production; production staff cannot select, communicate value targets to, or compensate appraisers, and the assignment queue is write-restricted to the valuation function. Incoming valuations are screened for prohibited-basis references (neighborhood demographic commentary, etc.); flagged valuations are quarantined from decisioning until Compliance disposition, and appraisers found to consider prohibited bases are removed from the panel. Applicants receive the §1002.14 rights disclosure at application and a free copy of every appraisal and written valuation promptly upon completion, regardless of outcome. Any applicant may request a reconsideration of value; ROV reviews complete within 15 days of request with the outcome and rationale logged.
 
-**WHY:** Reg B §1002.9; FCRA\
-**SYSTEM BEHAVIOR:** Generate and send notices per timing matrix; include score block when a score is used; handle joint/guarantor and business-credit nuances.\
-**TRIGGERS:** Application marked complete (**application.completed**); decision recorded (**decision.recorded**); counteroffer issued/expired (**counteroffer.issued / counteroffer.expired**); existing account adverse action (**account.adverse\_action**)\
-**INPUTS:** Completion date (**completed\_at**); decision type/date (**decision\_type, decision\_at**); applicant contact(s) (**applicant\_contacts\[]**); score used + details (**used\_credit\_score, score, score\_date, score\_min, score\_max**); denial reasons (**adverse\_reasons\[]**)\
-**OUTPUTS:** Decision notice (**notice.action\_taken**); proof of delivery (**notice.delivery\_log**); score disclosure (**notice.score\_disclosure**)\
-**TIMERS/SLAs:** As per [Timing Matrix](fair-lending.md#timing-matrix).\
-**EDGE CASES:** Separate score disclosures for co-applicants; oral permissible for certain small-business phone apps (log rights disclosure).\
-**AUDIT LOGS:** `notice.sent`, `deadline.breached`\
-**ACCESS CONTROL:** Lending Ops/System send; Compliance can view/void/resend with reason.\
-**ALERTS/METRICS:** On-time rate ≥ 99.5%; breach count 0.
+**EVENTS:**
 
-***
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| First-lien dwelling application taken (`application.first_lien_created`) | Applicant contact details (`applicant.contact`), product type (`application.product_type`) | Appraisal-rights disclosure delivered (`valuation.rights_disclosure_sent`) | Within 3 business days of application (—) |
+| Valuation order needed (`valuation.order_requested`) | Property details (`property.address`), panel roster (`valuation.panel_roster[]`) | Independent assignment, production-isolated (`valuation.order_assigned`) | At order (—) |
+| Valuation received (`valuation.completed`) | Valuation document (`valuation.report`), bias-screen ruleset (`valuation.bias_screen_rules`) | Bias-screen result; free copy sent to applicant (`valuation.copy_sent`) | Promptly upon completion (internal: 3 BD) |
+| ROV requested by applicant (`valuation.rov_requested`) | Original valuation (`valuation.report`), applicant-supplied evidence (`valuation.rov_evidence[]`) | ROV outcome with rationale, applicant notified (`valuation.rov_decided`) | 15 days of request (enforced by `valuation.rov_due_at`) |
 
-### FL-06 — Government Monitoring (GMI/HMDA) <a href="#fl-06-government-monitoring-gmi-hmda" id="fl-06-government-monitoring-gmi-hmda"></a>
+**ALERTS/METRICS:** ROV aging alert at day 10; valuation-copy delivery latency distribution (target: 100% within internal SLA); count of bias-screen quarantines and panel removals per quarter (each reported to Compliance).
 
-**WHY:** Reg B §1002.13; Reg C\
-**SYSTEM BEHAVIOR:** For covered transactions, **ask but do not require** GMI; if declined, record via visual/surname rule where required; maintain LAR accuracy.\
-**TRIGGERS:** HMDA coverage detected (**hmda.covered\_detected**)\
-**INPUTS:** GMI fields (**gmi\_fields**); refusal (**gmi\_refused**)\
-**OUTPUTS:** GMI record; HMDA LAR entries (**hmda.lar\_record**)\
-**TIMERS/SLAs:** Quarterly LAR QC; annual submission per Reg C calendar.\
-**EDGE CASES:** Mail/phone apps; multiple applicants.\
-**AUDIT LOGS:** `gmi.collected`, `hmda.lar_updated`\
-**ACCESS CONTROL:** Compliance owns HMDA mapping.\
-**ALERTS/METRICS:** LAR error rate below threshold.
+## FL-05 — Action-Taken Notices
 
-***
+**WHY (Reg cite):** Reg B [§1002.9](https://www.ecfr.gov/current/title-12/part-1002#p-1002.9) sets the 30-day / 90-day / reasonable-time notification regime and the specific-reasons requirement; FCRA [§615](https://www.law.cornell.edu/uscode/text/15/1681m) requires consumer-report and credit-score disclosures when adverse action rests on a consumer report or score.
 
-### FL-07 — Advertising & Fair Housing <a href="#fl-07-a-dvertising-fair-housing" id="fl-07-a-dvertising-fair-housing"></a>
+**SYSTEM BEHAVIOR:** The lending platform tracks every application against the deadlines in the [Timing Matrix](#timing-matrix) and generates the correct notice — approval, counteroffer, adverse action with specific principal reasons and the ECOA notice, or notice of incompleteness naming the missing items and a response window — from the decision record; a notice cannot be sent without populated reason codes when adverse, and a score block (score, range, key factors, score source and date) is appended automatically whenever a credit score was used. A counteroffer expressly accepted or used by the applicant within 90 days requires no further adverse-action notice; the Credit Union may instead send a combined counteroffer/AAN within the original 30 days. For small-business applicants (≤ $1MM gross revenue) decided by phone, the statement of action taken and right to reasons may be oral, and the system logs the oral-notice record. Notice templates are write-restricted to Compliance. Target: on-time rate ≥ 99.5% with zero deadline breaches.
 
-**WHY:** Reg Z §1026.24; FHA; NCUA 701.31\
-**SYSTEM BEHAVIOR:** Enforce trigger-term disclosures; apply Fair Housing legend for real-estate ads; prohibit exclusionary geo-targeting; require pre-flight checklist.\
-**TRIGGERS:** Campaign created (**campaign.created**)\
-**INPUTS:** Ad copy (**ad\_copy**); media plan/geo (**media\_geo**)\
-**OUTPUTS:** Pre-flight approval log (**ad.preflight\_approved**)\
-**TIMERS/SLAs:** Approval **before** launch.\
-**EDGE CASES:** Social/dynamic ads; co-marketing partners.\
-**AUDIT LOGS:** `ad.preflight_approved`, `ad.launched`\
-**ACCESS CONTROL:** Marketing drafts; Compliance approves.\
-**ALERTS/METRICS:** % ads with checklist (target 100%).
+**EVENTS:**
 
-***
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Completed application decisioned (`application.decisioned`) | Decision basis (`decision.recorded`), reason codes if adverse (`application.reason_codes[]`), score details if used (`decision.score_block`) | Approval / counteroffer / AAN with ECOA notice + score block (`notice.sent`) | 30 days of completed application (internal: 5 BD; enforced by `application.notice_due_at`) |
+| Application aged incomplete (`application.incomplete_aged`) | Missing-item list (`application.missing_items[]`), applicant contact (`applicant.contact`) | AAN, or notice of incompleteness with response window (`notice.incompleteness_sent`) | 30 days (enforced by `application.notice_due_at`) |
+| Adverse action on existing account decided (`account.adverse_action_decided`) | Account identity (`account.id`), action basis and reason codes (`application.reason_codes[]`) | AAN with specific reasons + ECOA notice (`notice.sent`) | 30 days (enforced by `account.aan_due_at`) |
+| Counteroffer not accepted or used (`application.counteroffer_expired`) | Counteroffer terms (`application.counteroffer_terms`), acceptance status (`application.counteroffer_status`) | AAN (`notice.sent`) | 90 days of counteroffer (enforced by `application.counteroffer_due_at`) |
+| Oral adverse decision to small-business phone applicant (`application.oral_adverse_decision`) | Revenue tier (`applicant.business_revenue_tier`), statement of action and right to reasons (`notice.oral_statement`) | Oral-notice log entry (`notice.oral_logged`) | Reasonable time (internal: 5 BD) |
 
-### FL-08 — LO Compensation & Anti-Steering <a href="#fl-08-lo-compensation-anti-steering" id="fl-08-lo-compensation-anti-steering"></a>
+**ALERTS/METRICS:** Notice-aging alerts at 60% and 90% of each deadline; on-time rate ≥ 99.5%; zero breaches (any breach triggers root-cause review); reason-code completeness 100% on adverse notices.
 
-**WHY:** Reg Z §1026.36(d),(e)\
-**SYSTEM BEHAVIOR:** Prohibit compensation based on loan terms/proxies; present/document meaningful alternatives (e.g., lowest rate, lowest fees, lowest total cost); block finalization without evidence.\
-**TRIGGERS:** Pricing requested (**pricing.requested**); options presented (**options.presented**); option selected (**option.selected**)\
-**INPUTS:** Eligibility & pricing snapshot (**eligibility\_flags, pricing\_snapshot\_id**); options shown (**options\_shown\[]**); chosen option + rationale (**chosen\_option\_id, selection\_rationale**)\
-**OUTPUTS:** Anti-steering evidence (**anti\_steering.record**); exception if <3 options (**anti\_steering.exception**)\
-**TIMERS/SLAs:** Evidence **before** disposition.\
-**EDGE CASES:** <3 eligible options → Compliance waiver required.\
-**AUDIT LOGS:** `anti_steering.recorded`, `waiver.decision`\
-**ACCESS CONTROL:** LOs present/select; Compliance reviews.\
-**ALERTS/METRICS:** Evidence rate 100%; exception trend.
+## FL-06 — Government Monitoring (GMI and HMDA)
 
-***
+**WHY (Reg cite):** Reg B [§1002.13](https://www.ecfr.gov/current/title-12/part-1002#p-1002.13) requires requesting (not requiring) monitoring information on covered dwelling-secured applications, with visual-observation/surname collection when the applicant declines in person; HMDA/Reg C [§1003.4](https://www.ecfr.gov/current/title-12/part-1003#p-1003.4) governs LAR data compilation, accuracy, and submission per the [Part 1003](https://www.ecfr.gov/current/title-12/part-1003) calendar.
 
-### FL-09 — Third-Party Fair-Lending Oversight <a href="#fl-09-third-party-fair-lending-oversight" id="fl-09-third-party-fair-lending-oversight"></a>
+**SYSTEM BEHAVIOR:** For covered transactions, the application flow requests GMI with the required federal-monitoring explanation, accepts an applicant's declination, and — for in-person applications where required — prompts the loan officer to record ethnicity, race, and sex by visual observation or surname, logging the collection method. GMI is firewalled from decisioning: underwriting and pricing systems cannot read GMI fields, which are write-once at collection and readable only by Compliance and HMDA reporting roles. LAR records are compiled continuously, pass quarterly QC against source records, and are submitted annually per the Reg C calendar.
 
-**WHY:** ECOA liability flows to creditor; NCUA TPRM\
-**SYSTEM BEHAVIOR:** Perform due diligence at onboarding; require monthly Fair-Lending MI pack (apps/approvals/pricing/exceptions/complaints) from vendors; escalate corrective actions.\
-**TRIGGERS:** Vendor onboarded (**vendor.onboarded**); monthly MI due (**mi.due.monthly**)\
-**INPUTS:** Vendor attestation (**vendor.attestation**); MI dataset (**mi.dataset**)\
-**OUTPUTS:** MI review log; corrective action plan (**cap.issued**)\
-**TIMERS/SLAs:** MI due by **5th business day** monthly.\
-**EDGE CASES:** Brokers/lead gens/appraisers/CRAs.\
-**AUDIT LOGS:** `mi.received`, `cap.issued`, `cap.closed`\
-**ACCESS CONTROL:** TPRM + Compliance.\
-**ALERTS/METRICS:** MI on-time rate; unresolved CAPs.
+**EVENTS:**
 
-***
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Covered application taken (`application.hmda_covered_created`) | Channel in-person/remote (`application.channel`), applicant GMI responses or declination (`applicant.gmi_responses`) | GMI record with collection method, incl. visual/surname where required (`hmda.gmi_recorded`) | At application (—) |
+| Covered action finalized (`application.final_action_recorded`) | Final action, dates, loan terms (`hmda.lar_fields[]`) | LAR row appended (`hmda.lar_row_recorded`) | Within calendar quarter of final action (—) |
+| Quarter closes (`hmda.lar_qc_due`) | Quarter's LAR rows (`hmda.lar_rows[]`), source records (`hmda.source_records[]`) | QC report with error rate and corrections (`hmda.lar_qc_completed`) | Quarterly (enforced by `hmda.lar_qc_due_at`) |
+| Submission window opens (`hmda.submission_window_open`) | Validated annual LAR (`hmda.lar_final`), reporter credentials (`hmda.reporter_id`) | Submitted LAR with confirmation (`hmda.lar_submitted`) | March 1 per Reg C calendar (enforced by `hmda.submission_due_at`) |
 
-### FL-10 — Monitoring & Reviews <a href="#fl-10-monitoring-reviews" id="fl-10-monitoring-reviews"></a>
+**ALERTS/METRICS:** GMI completion/declination rates by channel; LAR QC error rate (target below resubmission thresholds); zero decisioning-system reads of GMI fields; submission filed on time every cycle.
 
-**WHY:** Program effectiveness & Board oversight\
-**SYSTEM BEHAVIOR:** Quarterly disparity analytics (apps/approvals/price/terms/denials/exceptions); annual redlining review; Board reporting with corrective actions.\
-**TRIGGERS:** Quarter closed (**quarter.closed**); annual redlining cycle (**annual.redlining\_cycle**)\
-**INPUTS:** Lending dataset (**lending\_dataset**); geographies (**msa\_counties**)\
-**OUTPUTS:** Quarterly FL report; Board packet (**board.packet.fl**)\
-**TIMERS/SLAs:** Quarterly by **+30 days**; annual redlining by **Q1**.\
-**EDGE CASES:** Low-volume segments → qualitative review.\
-**AUDIT LOGS:** `report.published`, `board.briefed`\
-**ACCESS CONTROL:** Compliance leads; Lending/Analytics support.\
-**ALERTS/METRICS:** Disparity deltas beyond thresholds trigger CAP.
+## FL-07 — Advertising and Fair Housing
 
-***
+**WHY (Reg cite):** TILA/Reg Z [§1026.24](https://www.ecfr.gov/current/title-12/part-1026#p-1026.24) requires trigger-term disclosures and accurate, prominent APR presentation in credit advertising; the FHA ([42 USC §3605](https://www.law.cornell.edu/uscode/text/42/3605), [24 CFR Part 100](https://www.ecfr.gov/current/title-24/part-100)) and NCUA [§701.31](https://www.ecfr.gov/current/title-12/part-701/section-701.31) require nondiscriminatory advertising, the Equal Housing legend/logotype on real-estate-related ads, and lobby poster display.
 
-### FL-11 — Training <a href="#fl-11-training" id="fl-11-training"></a>
+**SYSTEM BEHAVIOR:** No advertisement launches without a completed pre-flight checklist approval covering trigger-term disclosure completeness, APR prominence, the Equal Housing Lender legend on real-estate-related ads, and audience targeting; the marketing platform blocks publication until the checklist record exists. Geo-targeting and audience filters that exclude majority-minority or other protected-correlated geographies are prohibited and screened against the [FL-01](#fl-01-prohibition-and-protected-bases) guarded-attribute list; inclusionary outreach to underserved areas is permitted. Each branch and real-estate lending office displays the Equal Housing Lender poster, verified annually. Checklist approval authority is write-restricted to Compliance-designated reviewers. Target: 100% of ads with a completed checklist before launch.
 
-**WHY:** Control effectiveness\
-**SYSTEM BEHAVIOR:** Role-based onboarding + annual; track completion; refresh on rule/product changes.\
-**TRIGGERS:** New hire (**hr.hire**); annual cycle (**training.annual**)\
-**INPUTS:** Role map (**role\_matrix**)\
-**OUTPUTS:** Completion records (**training.completed**)\
-**TIMERS/SLAs:** Within **30 days** of role start; annually by **Dec 31**.\
-**EDGE CASES:** Contractors/third parties included.\
-**AUDIT LOGS:** `training.assigned`, `training.completed`\
-**ACCESS CONTROL:** Compliance + HR.\
-**ALERTS/METRICS:** Completion ≥ 98%.
+**EVENTS:**
 
-***
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Ad creative submitted for launch (`ad.preflight_submitted`) | Creative and copy (`ad.creative`), trigger terms used (`ad.trigger_terms[]`), audience definition (`ad.audience_definition`) | Pre-flight checklist approval or rejection; launch blocked until approved (`ad.preflight_decided`) | Before launch (internal: 5 BD) |
+| Audience/geo-targeting defined or changed (`ad.targeting_changed`) | Geography and audience filters (`ad.geo_filters[]`), guarded-attribute list (`compliance.guarded_attributes[]`) | Exclusionary-targeting screen result (`ad.targeting_screen_completed`) | Before launch (—) |
+| Annual signage verification cycle opens (`facility.signage_review_due`) | Branch/office roster (`facility.locations[]`) | Poster-display verification record per location (`facility.signage_verified`) | Annually (enforced by `facility.signage_review_due_at`) |
 
-### FL-12 — Record Retention <a href="#fl-12-record-retention" id="fl-12-record-retention"></a>
+**ALERTS/METRICS:** Checklist completion rate 100% before launch (any launch without one is a reportable incident); count of exclusionary-targeting screen blocks; signage verification 100% of locations annually.
 
-**WHY:** Reg B §1002.12; Reg C\
-**SYSTEM BEHAVIOR:** Retain specified records; extend on litigation/investigation hold.\
-**TRIGGERS:** Action taken (**decision.recorded**); investigation notice (**legal.hold\_issued**)\
-**INPUTS:** Record type (**record\_type**); action date (**action\_date**)\
-**OUTPUTS:** Retention schedule applied (**retention.applied**)\
-**TIMERS/SLAs — Retention Grid:**
+## FL-08 — LO Compensation and Anti-Steering
 
-* Applications/decisions (consumer): **25 months**
-* Applications/decisions (business ≤ $1MM): **12 months** _(oral allowed in some cases; keep logs)_
-* Certain business credit (> $1MM or trade/factoring): **60 days**; if reasons requested or retain requested → **12 months**
-* Existing-account adverse actions: **25 months**
-* HMDA/GMI: per Reg C/Reg B calendars
-* LO-Comp records: per Reg Z
-* **Litigation/Investigation hold:** retain until final disposition\
-  **EDGE CASES:** Self-tests retained **25 months** from completion.\
-  **AUDIT LOGS:** `retention.clock_started`, `legal.hold_issued`, `legal.hold_released`\
-  **ACCESS CONTROL:** Compliance + Legal.
+**WHY (Reg cite):** TILA/Reg Z [§1026.36(d)](https://www.ecfr.gov/current/title-12/part-1026#p-1026.36(d)) prohibits loan-originator compensation based on transaction terms or their proxies, and [§1026.36(e)](https://www.ecfr.gov/current/title-12/part-1026#p-1026.36(e)) prohibits steering and provides the safe harbor of presenting loan options including the lowest rate, lowest points/fees, and lowest total cost.
 
-***
+**SYSTEM BEHAVIOR:** LO compensation plans are registered with Compliance and structurally exclude loan terms and proxies for terms; payroll cannot process a plan outside the registry. For covered originations, the platform requires a documented options-presentation record showing the applicant was shown meaningful alternatives — lowest rate, lowest points/fees, lowest total cost — for each loan type of interest, and blocks finalization until the evidence is attached. Where fewer than three eligible options exist for the applicant, finalization requires a documented Compliance waiver. Compensation-plan registry and waiver authority are write-restricted to Compliance.
 
-### Embedded Checklists & Templates <a href="#checklists" id="checklists"></a>
+**EVENTS:**
 
-* **Ad Notices Pack (FL-05):** AAN, Incomplete, Counteroffer, Business-credit oral script.
-* **Anti-Steering Evidence (FL-08):** 3-option snapshot + selection rationale.
-* **Vendor MI Pack (FL-09):** required metrics + file layout.
-* **Quarterly FL Report (FL-10):** disparity metrics, exceptions, complaints, redlining preview.
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Compensation plan proposed or amended (`lo_comp.plan_submitted`) | Plan terms (`lo_comp.plan_terms`), basis-of-pay analysis (`lo_comp.basis_analysis`) | Registered or rejected plan (`lo_comp.plan_decided`) | Before effect (internal: 10 BD) |
+| Covered origination reaches selection (`application.option_selection_started`) | Eligible options across creditors of interest (`application.eligible_options[]`), rate/fee/total-cost figures (`application.option_economics[]`) | Options-presentation record; finalization gated (`application.options_presented`) | Before finalization (—) |
+| Fewer than three eligible options exist (`application.option_shortfall_detected`) | Eligibility analysis (`application.eligible_options[]`), shortfall rationale (`application.option_shortfall_reason`) | Compliance waiver or denial (`application.option_waiver_decided`) | Before finalization (internal: 3 BD) |
 
-***
+**ALERTS/METRICS:** Zero finalizations without an options-presentation record or waiver; waiver rate by originator and product (outliers flagged); zero payroll runs against unregistered compensation plans.
 
-### Governance & Sign-Off <a href="#governance" id="governance"></a>
+## FL-09 — Third-Party Fair-Lending Oversight
 
-* **Owner:** \{{Fair Lending Officer, Title\}}
-* **Approvals:** \{{Board Chair\}}, \{{Chief Lending\}}, \{{Compliance Lead\}}
-* **Review Cadence:** Annual or upon regulatory/product change.
-* **Cross-References:** \{{Model Risk Policy\}}, \{{Marketing & Advertising SOP\}}, \{{Third-Party Risk Program\}}, \{{Collections Policy\}}.
+**WHY (Reg cite):** Reg B [§1002.2(l)](https://www.ecfr.gov/current/title-12/part-1002#p-1002.2(l)) and [§1002.4](https://www.ecfr.gov/current/title-12/part-1002#p-1002.4) make creditor obligations attach to those who participate in credit decisions and to arrangements where ECOA liability flows to the Credit Union for third-party conduct; FHA [42 USC §3605](https://www.law.cornell.edu/uscode/text/42/3605) reaches residential real-estate-related conduct by agents.
 
-> **Definition of Done (v1):** Authority table + timing matrix + control index present; each control has a Design Overlay v2 (no interfaces/tests/data model yet); SLAs/owners and audit events named; checklists stubbed or linked.
+**SYSTEM BEHAVIOR:** Lending-related vendors (brokers, dealers, fintech partners, marketing platforms, appraisal management companies) undergo fair-lending due diligence at onboarding — contract clauses requiring fair-lending compliance, review of their decisioning and complaint history — before activation; the vendor registry blocks lending referrals from vendors without a completed due-diligence record. Active vendors submit a monthly Fair-Lending MI pack (applications, approvals, pricing, exceptions, complaints) by the 5th business day; missed packs or adverse trends escalate to a corrective action plan (CAP), and uncured CAPs suspend the relationship. Program mechanics live in the Third-Party Risk Policy; this control governs the fair-lending content. Vendor activation and CAP decisions are write-restricted to Compliance and Third-Party Risk Management.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Lending vendor onboarding initiated (`vendor.onboarding_started`) | Contract fair-lending clauses (`vendor.contract_clauses[]`), decisioning/complaint history (`vendor.dd_materials[]`) | Fair-lending due-diligence record; activation gated (`vendor.fl_dd_completed`) | Before activation (—) |
+| Vendor MI period closes (`vendor.mi_period_closed`) | MI pack: applications, approvals, pricing, exceptions, complaints (`vendor.mi_pack`) | Reviewed MI record with trend findings (`vendor.mi_reviewed`) | 5th business day of following month (enforced by `vendor.mi_due_at`) |
+| MI missed or adverse trend detected (`vendor.mi_breach_detected`) | Trend analysis (`vendor.mi_trends`), prior CAP history (`vendor.cap_history[]`) | CAP issued, tracked to cure or suspension (`vendor.cap_issued`) | Within 10 BD of detection (—) |
+
+**ALERTS/METRICS:** MI on-time rate by vendor (alert on first miss); open-CAP count and aging; zero active lending vendors without completed fair-lending due diligence.
+
+## FL-10 — Monitoring and Reviews
+
+**WHY (Reg cite):** ECOA/Reg B [§1002.4](https://www.ecfr.gov/current/title-12/part-1002#p-1002.4) and [§1002.6](https://www.ecfr.gov/current/title-12/part-1002#p-1002.6) require nondiscriminatory outcomes that only statistical monitoring can evidence; the FHA ([42 USC §3605](https://www.law.cornell.edu/uscode/text/42/3605)) and the redlining theory applied under it require periodic geographic lending analysis; Reg B [§1002.15](https://www.ecfr.gov/current/title-12/part-1002#p-1002.15) privileges self-test results that this control may produce.
+
+**SYSTEM BEHAVIOR:** Analytics runs quarterly disparity analyses across applications, approvals, pricing, terms, denials, and exceptions, by prohibited-basis group where data lawfully exists (GMI for covered loans; estimation methods elsewhere as approved by Compliance) — due within 30 days of quarter close — and an annual redlining review (assessment-area lending distribution against demographics and peers) by the end of Q1. Disparity deltas beyond Compliance-set thresholds automatically open a corrective action plan with named owner and due date. Results, CAPs, and trends are reported to the Board at least quarterly. Threshold definitions and CAP closure are write-restricted to Compliance; self-test materials are segregated to preserve the §1002.15 privilege.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Quarter closes (`analytics.quarter_closed`) | Decision, pricing, exception, denial datasets (`analytics.lending_dataset`), group estimators (`analytics.group_estimators`) | Quarterly disparity report with deltas vs. thresholds (`analytics.disparity_report_completed`) | 30 days of quarter close (enforced by `analytics.disparity_due_at`) |
+| Disparity delta exceeds threshold (`analytics.threshold_breached`) | Breach detail (`analytics.breach_detail`), threshold definition (`compliance.disparity_thresholds`) | CAP opened with owner and due date (`analytics.cap_opened`) | Within 10 BD of report (—) |
+| Annual redlining review due (`analytics.redlining_review_due`) | Assessment-area geography (`analytics.assessment_area`), lending distribution and peer data (`analytics.geo_lending_dataset`) | Redlining review with findings (`analytics.redlining_review_completed`) | End of Q1 (enforced by `analytics.redlining_due_at`) |
+| Board reporting cycle opens (`governance.board_cycle_opened`) | Quarterly results, CAP status, trends (`analytics.board_pack_inputs`) | Board fair-lending report (`governance.board_report_delivered`) | Quarterly (—) |
+
+**ALERTS/METRICS:** Quarterly analysis on-time rate 100%; open-CAP aging (none past due date without Compliance extension); count of threshold breaches per quarter with trend direction; redlining review delivered by Q1 every year.
+
+## FL-11 — Training
+
+**WHY (Reg cite):** ECOA/Reg B [§1002.4](https://www.ecfr.gov/current/title-12/part-1002#p-1002.4) and NCUA [§701.31](https://www.ecfr.gov/current/title-12/part-701/section-701.31) impose nondiscrimination duties that staff and agents can meet only if trained; regulators evaluate training as a core element of a fair-lending compliance management system.
+
+**SYSTEM BEHAVIOR:** The learning platform assigns role-based fair-lending training automatically at role start (due within 30 days) and an annual cycle due by December 31, covering employees, contractors, and in-scope third-party personnel; lending-system access for new roles is provisional until onboarding training completes. Content refreshes when rules or products change, with affected populations re-assigned. Completion is tracked to ≥ 98%, with escalation to managers and HR for overdue assignments. Curriculum assignments and completion records are write-restricted to Compliance and HR training administration.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Role assigned or changed (`training.role_assigned`) | Role-to-curriculum map (`training.curriculum_map`), assignee identity (`training.assignee_id`) | Training assignment with due date (`training.assignment_created`) | At role start; completion within 30 days (enforced by `training.onboarding_due_at`) |
+| Annual cycle opens (`training.annual_cycle_opened`) | In-scope population incl. contractors and third parties (`training.population_roster[]`) | Annual assignments issued (`training.annual_assigned`) | Completion by December 31 (enforced by `training.annual_due_at`) |
+| Rule or product change adopted (`training.content_trigger_detected`) | Change description (`training.change_summary`), affected roles (`training.affected_roles[]`) | Refreshed content and re-assignments (`training.refresh_issued`) | Within 60 days of change (—) |
+| Assignment completed or lapses (`training.assignment_closed`) | Completion status (`training.completion_status`), score where tested (`training.assessment_score`) | Completion record; overdue escalation if lapsed (`training.completion_recorded`) | Per assignment due date (—) |
+
+**ALERTS/METRICS:** Completion rate ≥ 98% per cycle; overdue-assignment aging with manager/HR escalation at +14 days; 100% of role starts assigned within 5 days.
+
+## FL-12 — Record Retention
+
+**WHY (Reg cite):** Reg B [§1002.12](https://www.ecfr.gov/current/title-12/part-1002#p-1002.12) sets the retention grid — 25 months for consumer applications, evaluation materials, notices, and existing-account adverse actions; 12 months for business credit ≤ $1MM; 60 days for certain business credit > $1MM (extended to 12 months on request for reasons or retention); 25 months for self-test records under [§1002.15](https://www.ecfr.gov/current/title-12/part-1002#p-1002.15) — with HMDA records governed by Reg C [Part 1003](https://www.ecfr.gov/current/title-12/part-1003) and LO-compensation records by Reg Z [§1026.25](https://www.ecfr.gov/current/title-12/part-1026#p-1026.25).
+
+**SYSTEM BEHAVIOR:** The records platform classifies each fair-lending record at creation (consumer application/decision, existing-account adverse action, business-credit tier, GMI/HMDA, LO-comp, self-test) and applies the matching retention clock from the notice date or the applicable calendar; deletion is blocked until the clock expires, and a litigation/investigation hold suspends all destruction for affected records until release. A business-credit applicant's timely request for reasons or retention automatically extends the 60-day class to 12 months. Hold placement and release, and retention-class definitions, are write-restricted to Compliance and Legal.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Action-taken notice sent (`notice.sent`) | Record class consumer/business tier (`record.retention_class`), notice date (`notice.sent_at`) | Retention clock set: 25 months / 12 months / 60 days (`record.retention_clock_set`) | At notice (enforced by `record.retention_expires_at`) |
+| Business applicant requests reasons or retention (`record.extension_requested`) | Request timestamp (`record.extension_requested_at`), original class (`record.retention_class`) | Clock extended to 12 months (`record.retention_extended`) | At request (—) |
+| Litigation/investigation hold placed (`record.hold_placed`) | Hold scope (`record.hold_scope`), authorizing matter (`record.hold_matter_id`) | Destruction suspended for affected records (`record.hold_applied`) | Immediately (—) |
+| Retention clock expires with no hold (`record.retention_expired`) | Hold status (`record.hold_status`), disposal method (`record.disposal_method`) | Certified disposal record (`record.disposed`) | Per schedule after expiry (—) |
+
+**ALERTS/METRICS:** Zero premature destructions (destruction attempts before expiry or under hold are blocked and logged); hold-inventory review quarterly; disposal-backlog aging after expiry.
+
+## Governance & Sign-Off {#governance}
+
+- **Owner:** Patrick Wilson, Chief Compliance Officer — accountable for this policy, the guarded-attribute list, disparity thresholds, exception and waiver authority, and CAP closure.
+- **Approvers:** Patrick Wilson, Chief Compliance Officer. Board of Directors ratifies the policy and receives fair-lending reporting at least quarterly per [FL-10](#fl-10-monitoring-and-reviews).
+- **Required participants:** Lending Operations, Analytics, Third-Party Risk Management, Legal, HR, and Marketing, each responsible for executing the controls in their domain.
+- **Review cadence:** Full policy review at least annually (next review per front-matter) and upon material regulatory or product change.
+- **Cross-references:** Lending Policy (underwriting standards and credit policy), Collections Policy (collections operations), Enterprise Risk Management Policy / Model Risk Management Program (scoring-model governance), Third-Party Risk Policy (vendor program mechanics), Privacy Policy (notices and data handling), Record Retention Policy (general schedules).
+
+## Assumptions & Gaps {#assumptions}
+
+- **Engineering vocabulary is provisional.** The parsed `vocabulary.json` spec is banking-core only (Cassandra Banking Core API — entities, accounts, transfers, cards, BSA) and registers zero events and no lending-side resources. Every event, field, and timer code cited in the EVENTS tables of this document (`application.*`, `decision.*`, `notice.*`, `valuation.*`, `pricing.*`, `hmda.*`, `ad.*`, `lo_comp.*`, `vendor.*`, `analytics.*`, `training.*`, `record.*`, `rule.*`, `form.*`, `compliance.*`, `facility.*`, `governance.*`, `property.*`, `applicant.*`) is the target naming scheme and must be registered by engineering before the next review.
+- **HMDA reporter status assumed.** PATRICK_NOTES require LAR maintenance and annual submission; this policy assumes Pynthia Credit Union meets the Reg C institutional and transaction coverage thresholds. If it does not, [FL-06](#fl-06-government-monitoring-gmi-and-hmda) reduces to Reg B §1002.13 monitoring-information collection only.
+- **Federal charter assumed.** NCUA Part 701.31 citations assume a federal credit union charter (the reference policy was written for one). A state charter would substitute the parallel state nondiscrimination rule.
+- **Internal SLAs are policy choices, not regulatory deadlines.** The 5-BD notice SLA, 15-day ROV window, 10th-of-month exception review, 5th-business-day MI pack, 30-day quarterly-analytics window, and Q1 redlining deadline come from PATRICK_NOTES; the smaller parenthetical internal SLAs (e.g., 3-BD valuation-copy delivery, 10-BD CAP issuance, 60-day training refresh) are minimal-viable choices pending Compliance confirmation.
+- **Disparity thresholds and proxy-estimation method undefined.** PATRICK_NOTES require CAPs on "deltas beyond thresholds" but do not set the thresholds or the non-mortgage demographic-estimation method; Compliance must define both before the first quarterly run under [FL-10](#fl-10-monitoring-and-reviews).
+- **Vendor risk-tier definitions deferred.** The monthly MI-pack requirement applies to all active lending vendors; whether lower-risk tiers may report less frequently is a Third-Party Risk Policy decision not made here.
+- **ADA/accessibility controls not separately enumerated.** AUTHORITY_HINTS list the ADA (28 CFR Part 36); reasonable-accommodation and access obligations are treated as embedded in [FL-01](#fl-01-prohibition-and-protected-bases) staff conduct and [FL-11](#fl-11-training) rather than as a standalone control, pending Compliance direction.
+- **Small-business notice regime predates Section 1071 data collection.** This policy implements the Reg B §1002.9 small-business notice variants from PATRICK_NOTES; Section 1071 small-business data-collection obligations, if and when applicable to Pynthia, will need their own control.

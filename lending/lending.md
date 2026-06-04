@@ -1,558 +1,249 @@
-# Lending
-
-### GENERAL POLICY STATEMENT
-
-Pynthia Federal Credit Union (“Pynthia”) will extend credit only on a safe-and-sound, non-discriminatory basis across all channels and partner programs. All acceptance and denial decisions must be based on neutral creditworthiness factors, consistent with the Equal Credit Opportunity Act (ECOA/Reg B), Fair Housing Act, TILA/Reg Z (including ATR/QM), HMDA/Reg C, FCRA, NCUA rules, and this policy. Steering, discriminatory product placement, and insider loans to employees are prohibited. This policy is also a design spec for Pynthia’s lending systems and BaaS integrations.
-
-***
-
-### MULTI-RULE AUTHORITY TABLE <a href="#authority" id="authority"></a>
-
-| Topic                                    | Scope                                                  | Key Clauses / Notes                                                                                                                                                |
-| ---------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Prohibited basis discrimination          | All credit products/channels                           | ECOA/Reg B 12 CFR Part 1002 (esp. §§1002.4, 1002.5–6, 1002.9, 1002.12–14): `https://www.ecfr.gov/current/title-12/part-1002`                                       |
-| Real estate fair lending & redlining     | Dwelling-secured credit                                | Fair Housing Act 42 USC §3605: `https://www.law.cornell.edu/uscode/text/42/3605`; NCUA 701.31: `https://www.ecfr.gov/current/title-12/part-701/section-701.31`     |
-| Action-taken notices & AA timing         | All covered credit decisions                           | ECOA/Reg B §1002.9 (action taken): `https://www.ecfr.gov/current/title-12/part-1002#p-1002.9`; FCRA §615(a) AA: `https://www.law.cornell.edu/uscode/text/15/1681m` |
-| Appraisals & valuation delivery          | First-lien dwelling-secured credit                     | ECOA/Reg B §1002.14 (appraisals): `https://www.ecfr.gov/current/title-12/part-1002#p-1002.14`                                                                      |
-| Government Monitoring Information / HMDA | Certain dwelling-secured credit                        | Reg B §1002.13 (GMI); Reg C/HMDA 12 CFR Part 1003: `https://www.ecfr.gov/current/title-12/part-1003`                                                               |
-| ATR/QM                                   | Closed-end 1–4 family dwelling-secured consumer credit | TILA/Reg Z 12 CFR §1026.43 (ATR/QM): `https://www.ecfr.gov/current/title-12/part-1026#p-1026.43`                                                                   |
-| Advertising, HPML & LO steering          | Mortgage & open-end credit                             | Reg Z §§1026.24, 1026.35 (HPML), 1026.36(d),(e) (LO comp/steering): `https://www.ecfr.gov/current/title-12/part-1026`                                              |
-| Record retention                         | Apps, evaluations, AA, GMI                             | Reg B §1002.12; Reg C §1003.5; FCRA recordkeeping expectations                                                                                                     |
-| OFAC / sanctions                         | All members/obligors                                   | BSA/OFAC – 31 CFR Chapter V; FFIEC BSA/AML Manual (guidance)                                                                                                       |
-| NCUA safety & soundness                  | Lending & insider practices                            | NCUA Parts 701, 741, 748 (safety & soundness, reporting, security)                                                                                                 |
-
-***
-
-### TIMING MATRIX <a href="#timing-matrix" id="timing-matrix"></a>
-
-| Scenario                                  | Trigger (human → event)                                              |                                                           Deadline | Content Reference                     | Control                                                           |
-| ----------------------------------------- | -------------------------------------------------------------------- | -----------------------------------------------------------------: | ------------------------------------- | ----------------------------------------------------------------- |
-| Completed app decision                    | Application deemed complete → `application.completed`                |                                                     30 days (ECOA) | ECOA/Reg B §1002.9                    | [FL-07](lending.md#fl-07-adverse-action-notifications)            |
-| Incomplete app – AA                       | Lender decides to deny incomplete app → `decision.denied.incomplete` |                                                     30 days (ECOA) | ECOA/Reg B §1002.9(c)                 | [FL-07](lending.md#fl-07-adverse-action-notifications)            |
-| Incomplete app – notice of incompleteness | Lender requests missing info → `notice.incomplete.sent`              |                               “Reasonable” period stated in notice | ECOA/Reg B §1002.9(c)                 | [FL-07](lending.md#fl-07-adverse-action-notifications)            |
-| Existing account AA                       | Adverse action on existing account → `account.adverse_action`        |                                                     30 days (ECOA) | ECOA/Reg B §1002.9(a)(3)              | [FL-07](lending.md#fl-07-adverse-action-notifications)            |
-| Counteroffer not accepted                 | Counteroffer made → `decision.counteroffer.made`                     |                                 90 days to send AA if not accepted | ECOA/Reg B §1002.9(a)(1)(iv)          | [FL-07](lending.md#fl-07-adverse-action-notifications)            |
-| Appraisal/valuation copy                  | Appraisal/valuation completed → `valuation.completed`                | Promptly upon completion and before closing (or promptly after AA) | Reg B §1002.14(a)                     | [FL-06](lending.md#fl-06-appraisals-valuations-collateral)        |
-| AA notice mailing                         | AA decision finalized → `decision.denied.final`                      |                               Within applicable ECOA/FCRA deadline | ECOA §1002.9; FCRA §615(a)            | [FL-07](lending.md#fl-07-adverse-action-notifications)            |
-| Record retention                          | App or AA notice created → `record.created`                          |                                              ≥25 months (baseline) | Reg B §1002.12                        | [FL-09](lending.md#fl-09-documentation-recordkeeping-retention)   |
-| Non-accrual move                          | Loan hits 90+ DPD → `loan.delinquency.90_plus`                       |                          At or shortly after 90 DPD (configurable) | REF\_1 non-accrual rules              | [FL-01](lending.md#fl-01-governance-roles-program-scope)          |
-| Charge-off (unsecured)                    | Unsecured loan 90+ DPD → `loan.unsecured.90_plus`                    |                             Charge-off by month-end (configurable) | REF\_1 collections rules              | [FL-01](lending.md#fl-01-governance-roles-program-scope)          |
-| Rate sheet refresh                        | New APOR data published → `apor.weekly_update`                       |                                           Weekly (operational SLA) | REF\_3 pricing                        | [FL-10](lending.md#fl-10-pricing-rate-sheets-hpml)                |
-| Fair lending risk assessment              | FL assessment cycle start → `flra.cycle_start`                       |                  At least annually (Assumption—needs confirmation) | Patrick: Fair Lending risk assessment | [FL-13](lending.md#fl-13-fair-lending-risk-assessment-monitoring) |
-
-***
-
-### CONTROL INDEX <a href="#control-index" id="control-index"></a>
-
-| ID                                                                     | Control Name                                    | Purpose                                                                                     | Primary Rule(s)                          |
-| ---------------------------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------- | ---------------------------------------- |
-| [FL-01](lending.md#fl-01-governance-roles-program-scope)               | Governance, Roles & Program Scope               | Define ownership, roles, and oversight for lending & fair lending, including BaaS/partners. | ECOA/Reg B §1002.4; NCUA 701.31          |
-| [FL-02](lending.md#fl-02-product-eligibility-prohibited-practices)     | Product Eligibility & Prohibited Practices      | Define eligible products and ban high-risk / abusive or discriminatory products.            | Reg Z; FHA; NCUA safety & soundness      |
-| [FL-03](lending.md#fl-03-applications-acceptance-denial-standards)     | Applications, Acceptance & Denial Standards     | Standardize intake, acceptance/denial criteria, and neutral-factor underwriting bundle.     | Reg B §§1002.4–6; 1002.13                |
-| [FL-04](lending.md#fl-04-credit-scoring-adverse-credit-history)        | Credit Scoring & Adverse Credit History         | Govern use of scores, derogatory history, and alternative credit data.                      | ECOA/Reg B; FCRA; REF\_1/REF\_3 rules    |
-| [FL-05](lending.md#fl-05-atr-qm-mortgage-underwriting)                 | ATR/QM & Mortgage Underwriting                  | Implement ATR 8 factors, QM classification, and DTI/ratio rules.                            | Reg Z §1026.43                           |
-| [FL-06](lending.md#fl-06-appraisals-valuations-collateral)             | Appraisals, Valuations & Collateral             | Manage valuations, appraisal delivery, and LTV rules.                                       | Reg B §1002.14; Reg Z; FHA/NCUA 701.31   |
-| [FL-07](lending.md#fl-07-adverse-action-notifications)                 | Adverse Action & Notifications                  | Govern denials, AA notices, timelines, and secondary review.                                | Reg B §1002.9; FCRA §615(a)              |
-| [FL-08](lending.md#fl-08-exceptions-mitigants-overrides)               | Exceptions, Mitigating Factors & Overrides      | Define how exceptions are detected, approved, logged, and monitored.                        | ECOA/Reg B; internal risk mgmt           |
-| [FL-09](lending.md#fl-09-documentation-recordkeeping-retention)        | Documentation, Recordkeeping & Retention        | Standardize what must be in the file/system and how long it’s retained.                     | Reg B §1002.12; Reg C; FCRA              |
-| [FL-10](lending.md#fl-10-pricing-rate-sheets-hpml)                     | Pricing, Rate Sheets & HPML Controls            | Govern rate sheets, HPML tests, and pricing exceptions.                                     | Reg Z §§1026.35–36                       |
-| [FL-11](lending.md#fl-11-ofac-sanctions-gate)                          | OFAC & Sanctions Gate                           | Embed OFAC/sanctions screening into the lending flow.                                       | BSA/OFAC; FFIEC BSA/AML guidance         |
-| [FL-12](lending.md#fl-12-prequalification-marketing-steering-controls) | Prequalification, Marketing & Steering Controls | Prevent steering; control prequal and product placement.                                    | Reg B; Reg Z §1026.36(e); FHA            |
-| [FL-13](lending.md#fl-13-fair-lending-risk-assessment-monitoring)      | Fair Lending Risk Assessment & Monitoring       | Run ongoing fair lending risk assessments and analytics.                                    | ECOA/FHA; NCUA FL guidance               |
-| [FL-14](lending.md#fl-14-insider-lending-employee-conflicts)           | Insider Lending & Employee Conflicts            | Implement “no insider loans to employees” posture and conflicts controls.                   | NCUA safety & soundness; internal policy |
-
-***
-
-### CONTROL OVERLAYS (Design Overlay v2)
-
-#### FL-01 — Governance, Roles & Program Scope <a href="#fl-01-governance-roles-program-scope" id="fl-01-governance-roles-program-scope"></a>
-
-* WHY (Reg cite): ECOA/Reg B §1002.4 (general rule); NCUA 701.31 (nondiscrimination); safety & soundness expectations.
-* SYSTEM BEHAVIOR:
-  * Represent governance in the system: map each lending/fair-lending control to an owner (e.g., CLO, Compliance, Fair Lending Officer).
-  * Tag every product/program (including partner/BaaS programs) with scope flags for this policy.
-  * Enforce that only users with appropriate roles can change credit parameters, pricing matrices, or exception thresholds.
-* TRIGGERS (human → event):
-  * Policy approved/updated → `policy.lending_fl.updated`
-  * New product/program onboarded → `product.program.onboarded`
-  * Governance role change → `user.role.changed`
-* INPUTS (human → field):
-  * Program type (direct / fintech-partner / white-label) `(program.type)`
-  * Product attributes (secured/unsecured, dwelling-secured, ATR/QM-covered) `(product.attributes)`
-  * Control owner role `(control.owner_role)`
-* OUTPUTS:
-  * Registry of controls → products/programs mapping.
-  * Governance dashboard showing owners, next review dates, and open issues.
-* TIMERS/SLAs:
-  * Policy review at least annually. `(Assumption—needs confirmation)`
-  * Governance mapping updated within 30 days of new product/program approval.
-* EDGE CASES:
-  * BaaS partners with their own policies: system must store and link partner policies and note where Pynthia’s controls are stricter.
-* AUDIT LOGS:
-  * `policy.change.logged`
-  * `program.scope.tagged`
-  * `control.owner.assigned`
-* ACCESS CONTROL:
-  * Only Compliance/Fair Lending and Executive roles may edit control definitions.
-* ALERTS/METRICS:
-  * Alert when next\_review date is within 30 days and no update in progress.
-  * Metric: % of active products/programs mapped to all required FL controls.
-
-***
-
-#### FL-02 — Product Eligibility & Prohibited Practices <a href="#fl-02-product-eligibility-prohibited-practices" id="fl-02-product-eligibility-prohibited-practices"></a>
-
-* WHY (Reg cite): Reg Z (HPML, abusive products), ECOA/Reg B, FHA, NCUA safety & soundness; Patrick: steering procedures, risk posture.
-* SYSTEM BEHAVIOR:
-  * Maintain a machine-readable “credit box” per product, including allowed collateral, LTV, terms, and prohibited product flags.
-  * Block creation of applications for explicitly prohibited products (e.g., payday, vehicle-title, tax RALs, private education loans as defined in Reg Z, stated-income/no-doc).
-* TRIGGERS:
-  * Product configured/edited → `product.config.updated`
-  * Application started → `application.created`
-* INPUTS:
-  * Product type `(product.type)`
-  * Prohibited product flag `(product.prohibited_flag)`
-  * LTV/term/FICO ranges `(product.credit_box)`
-* OUTPUTS:
-  * Validation errors when app/product request is outside permitted product set.
-* TIMERS/SLAs:
-  * Credit-box review at least annually, and when regs change or risk appetite changes.
-* EDGE CASES:
-  * Legacy or legacy-partner products with borderline features: mark as `legacy` and require CLO/Compliance approval to keep active.
-* AUDIT LOGS:
-  * `product.eligibility.changed`
-  * `application.blocked.prohibited_product`
-* ACCESS CONTROL:
-  * Only CLO and Compliance can modify product-level eligibility rules.
-* ALERTS/METRICS:
-  * Metric: count of attempted originations of prohibited products (should be zero).
-
-***
-
-#### FL-03 — Applications, Acceptance & Denial Standards <a href="#fl-03-applications-acceptance-denial-standards" id="fl-03-applications-acceptance-denial-standards"></a>
-
-* WHY (Reg cite): Reg B §§1002.4–6, 1002.9, 1002.13 (apps, evaluation, GMI); Patrick: “ACCEPTANCE AND DENIAL OF LOAN APPLICATIONS”.
-* SYSTEM BEHAVIOR:
-  * Enforce a standardized underwriting bundle: application data, credit history, income/assets, debt analysis, DTI, collateral/LTV, OFAC, ATR/QM (where applicable) summarized into a CAR-equivalent object.
-  * Require that acceptance and denial decisions are based on neutral factors only; prohibited bases and location proxies are never used.
-* TRIGGERS:
-  * App initiated → `application.created`
-  * App deemed complete → `application.completed`
-  * Underwriting started → `underwriting.started`
-  * Decision recorded → `decision.approved` / `decision.denied` / `decision.counteroffer`
-* INPUTS:
-  * App type `(application.type)`
-  * Purpose `(application.purpose)`
-  * Neutral factors (income, DTI, LTV, credit history) `(application.neutral_factors)`
-  * GMI where required `(application.gmi)`
-* OUTPUTS:
-  * CAR-equivalent summary `(credit_package.car_id)`
-  * Decision outcome + timestamp `(decision.outcome, decision.date)`
-* TIMERS/SLAs:
-  * Decision for completed apps within 30 days (ECOA).
-  * Operational SLA: decision generally within 48 hours of complete underwriting package. `(candidate — from REF_3)`
-* EDGE CASES:
-  * Incomplete applications: system must support either AA denial or incompleteness notice with deadline.
-* AUDIT LOGS:
-  * `application.logged`
-  * `underwriting.bundle.completed`
-  * `decision.finalized`
-* ACCESS CONTROL:
-  * Only authorized underwriters/systems may set decision outcome.
-* ALERTS/METRICS:
-  * Metric: % of apps decided within regulatory/operational timelines.
-  * Fair-lending dashboards: compare acceptance/denial patterns by prohibited-basis proxies using only neutral-factor models.
-
-***
-
-#### FL-04 — Credit Scoring & Adverse Credit History <a href="#fl-04-credit-scoring-adverse-credit-history" id="fl-04-credit-scoring-adverse-credit-history"></a>
-
-* WHY (Reg cite): ECOA/Reg B (fair evaluation), FCRA (credit reports, adverse action), Patrick’s emphasis on fair lending risk.
-* SYSTEM BEHAVIOR:
-  * Use empirically derived credit scores as a second check, not sole decision driver.
-  * Implement configurable FICO bands (e.g., unsecured ≥725, secured ≥660 – candidate values) with exception routing for lower scores or severe derogatories.
-  * Capture derogatory-credit tolerances: BK seasoning (e.g., ≥4 years), small medical judgments ≤$1,000 with explanation, etc.
-* TRIGGERS:
-  * Credit pull → `credit.report.pulled`
-  * Credit report refreshed → `credit.report.refreshed`
-* INPUTS:
-  * FICO scores `(credit.fico_score)`
-  * Derogatories (BK, judgments, lates) `(credit.derogatories)`
-  * Report age `(credit.report_age_days)`
-* OUTPUTS:
-  * Score band classification `(credit.score_band)`
-  * Adverse-history flags `(credit.adverse_flags)`
-* TIMERS/SLAs:
-  * Report must be ≤ 6 months old at decision time. _(preferred from dossier)_
-* EDGE CASES:
-  * Thin/no-file borrowers: system must support alternative credit methods (e.g., landlord/utility references) instead of auto-denial.
-* AUDIT LOGS:
-  * `credit.report.pulled`
-  * `credit.policy.override`
-* ACCESS CONTROL:
-  * Only designated users/services may pull or view full reports.
-* ALERTS/METRICS:
-  * Metric: % of denials driven primarily by credit score; review for disparate impact.
-
-***
-
-#### FL-05 — ATR/QM & Mortgage Underwriting <a href="#fl-05-atr-qm-mortgage-underwriting" id="fl-05-atr-qm-mortgage-underwriting"></a>
-
-* WHY (Reg cite): Reg Z §1026.43 (ATR/QM).
-* SYSTEM BEHAVIOR:
-  * For covered closed-end 1–4 family dwelling-secured loans, require ATR 8-factor checklist completion and QM classification (QM, Small Creditor QM, Balloon QM, Non-QM, Exempt).
-  * Implement DTI guideline of 43% for consumer loans as default; maintain ability to configure stricter tiers (e.g., 35% mortgage DTI or lower product-specific DTIs). _(conflict between 35% and 43% — keep both as configurable; Assumption—needs confirmation)_
-* TRIGGERS:
-  * Loan identified as ATR-covered → `atr.scope.determined`
-  * Underwriting completed → `underwriting.completed`
-* INPUTS:
-  * Monthly income `(atr.monthly_income)`
-  * Monthly debts `(atr.monthly_debts)`
-  * Housing expenses `(atr.housing_expenses)`
-  * DTI `(atr.dti_ratio)`
-  * QM type `(atr.qm_type)`
-* OUTPUTS:
-  * ATR checklist record `(atr.checklist_id)`
-  * QM classification stored with loan `(atr.qm_classification)`
-* TIMERS/SLAs:
-  * ATR checklist must be completed before docs printed.
-* EDGE CASES:
-  * High-DTI approvals allowed only as exceptions with mitigants and senior approval.
-* AUDIT LOGS:
-  * `atr.checklist.completed`
-  * `qm.type.assigned`
-* ACCESS CONTROL:
-  * ATR/QM parameters modifiable only by CLO/Compliance.
-* ALERTS/METRICS:
-  * Metric: distribution of DTIs and QM types; monitor share of Non-QM / exception loans.
-
-***
-
-#### FL-06 — Appraisals, Valuations & Collateral <a href="#fl-06-appraisals-valuations-collateral" id="fl-06-appraisals-valuations-collateral"></a>
-
-* WHY (Reg cite): Reg B §1002.14 (appraisals), FHA, NCUA 701.31; safety & soundness; dossier appraisal rules.
-* SYSTEM BEHAVIOR:
-  * Enforce independence of appraisals/valuations and maintain an approved appraiser list.
-  * For first-lien dwellings: automatically generate appraisal-right disclosure and send free copy promptly on completion, retaining for ≥25 months.
-  * Implement product LTV matrices (e.g., autos ≤90% NADA, HELOC/term RE up to 85% LTV with exceptions to 89.9%, lot loans 75% LTV, etc. – all configurable; candidate values).
-* TRIGGERS:
-  * Valuation ordered → `valuation.ordered`
-  * Valuation completed → `valuation.completed`
-  * Appraisal copy sent → `valuation.copy.sent`
-* INPUTS:
-  * Collateral type `(collateral.type)`
-  * Appraised value `(collateral.value_appraised)`
-  * Exposure `(loan.amount)`
-  * LTV `(collateral.ltv)`
-* OUTPUTS:
-  * Appraisal/valuation record with delivery flag.
-  * LTV and collateral sufficiency flags.
-* TIMERS/SLAs:
-  * Appraisal copy sent promptly after completion and before closing (or promptly after AA).
-  * OREO appraisals (if applicable) within 30 days of transfer. _(legacy/candidate)_
-* EDGE CASES:
-  * Reuse of prior appraisals when <18 months and no material change; mark as exception and document rationale.
-* AUDIT LOGS:
-  * `valuation.completed`
-  * `valuation.copy.sent`
-  * `collateral.ltv.override`
-* ACCESS CONTROL:
-  * Only designated staff/roles may order/assign appraisals.
-* ALERTS/METRICS:
-  * Metric: % of loans with timely appraisal delivery; % of LTV-over-limit exceptions.
-
-***
-
-#### FL-07 — Adverse Action & Notifications <a href="#fl-07-adverse-action-notifications" id="fl-07-adverse-action-notifications"></a>
-
-* WHY (Reg cite): Reg B §1002.9; FCRA §615(a); Patrick: “ACCEPTANCE AND DENIAL OF LOAN APPLICATIONS”.
-* SYSTEM BEHAVIOR:
-  * For any denial or counteroffer, enforce ECOA/Reg B and FCRA AA notice content and timing.
-  * Require a second-level review of all denials to check for consistency, alternatives, and potential fair lending concerns.
-* TRIGGERS:
-  * Denial proposed → `decision.denied.proposed`
-  * Counteroffer made → `decision.counteroffer.made`
-  * AA notice generated → `adverse_action.notice_generated`
-  * AA notice sent → `adverse_action.notice_sent`
-* INPUTS:
-  * AA reasons `(aa.reasons_selected)`
-  * Credit bureau info `(aa.bureau_info)`
-  * Credit score and factors if used `(aa.score_disclosure)`
-* OUTPUTS:
-  * AA notice PDF/email.
-  * AA log with reasons, dates, and reviewer.
-* TIMERS/SLAs:
-  * 30 days from completed application decision.
-  * 30 days for existing-account AA.
-  * 90 days post-counteroffer if not accepted.
-* EDGE CASES:
-  * Incomplete apps: support ECOA-compliant incompleteness notice path.
-* AUDIT LOGS:
-  * `aa.secondary_review.completed`
-  * `adverse_action.notice_sent`
-* ACCESS CONTROL:
-  * Only underwriters/Loan Ops may finalize AA notices; Compliance has read access.
-* ALERTS/METRICS:
-  * Metric: timeliness of AA notices; distribution of AA reasons across segments.
-
-***
-
-#### FL-08 — Exceptions, Mitigating Factors & Overrides <a href="#fl-08-exceptions-mitigants-overrides" id="fl-08-exceptions-mitigants-overrides"></a>
-
-* WHY (Reg cite): ECOA/Reg B fairness; safety & soundness; dossier exception and mitigant catalog.
-* SYSTEM BEHAVIOR:
-  * Automatically detect breaches of numeric/qualitative policy rules (DTI, FICO, LTV, BK seasoning, product restrictions, etc.).
-  * Require exception records with standardized mitigating-factor selection, narrative, and approval routing.
-* TRIGGERS:
-  * Policy rule breached → `exception.detected`
-  * Exception submitted → `exception.submitted`
-  * Exception approved/denied → `exception.decision.made`
-* INPUTS:
-  * Breached rule ID `(exception.rule_id)`
-  * Metrics at breach `(exception.metrics)`
-  * Mitigants selected `(exception.mitigants)`
-  * Approver `(exception.approver_id)`
-* OUTPUTS:
-  * Exception record and portfolio-level exception analytics.
-* TIMERS/SLAs:
-  * Exception must be decided before closing.
-* EDGE CASES:
-  * Multi-rule exceptions (e.g., DTI + FICO + LTV) must capture all breaches in single record.
-* AUDIT LOGS:
-  * `exception.logged`
-  * `exception.approved`
-* ACCESS CONTROL:
-  * Only authorized approver roles may approve exceptions above their delegated limits.
-* ALERTS/METRICS:
-  * Metric: exception rate by product, channel, and partner; used in fair lending and credit risk review.
-
-***
-
-#### FL-09 — Documentation, Recordkeeping & Retention <a href="#fl-09-documentation-recordkeeping-retention" id="fl-09-documentation-recordkeeping-retention"></a>
-
-* WHY (Reg cite): Reg B §1002.12; Reg C; FCRA; dossier file checklist.
-* SYSTEM BEHAVIOR:
-  * Enforce a “credit package” schema for every loan and prequal, including all required documents and calculated fields.
-  * Apply retention rules: ≥25 months for apps, GMI, evaluation data, AA notices, prescreened solicitations (longer per CU standard).
-* TRIGGERS:
-  * File created → `credit_package.created`
-  * File closed/denied → `credit_package.closed`
-* INPUTS:
-  * Required doc checklist `(credit_package.required_docs)`
-  * Retention category `(record.retention_category)`
-* OUTPUTS:
-  * File completeness flag.
-  * Retention/expiration schedule.
-* TIMERS/SLAs:
-  * All required docs must be present before booking.
-  * Retention windows enforced in archival system.
-* EDGE CASES:
-  * Digitized legacy files: must be mapped into credit-package schema or labeled as “legacy”.
-* AUDIT LOGS:
-  * `credit_package.updated`
-  * `record.archived`
-* ACCESS CONTROL:
-  * Role-based access to sensitive docs (GMI, income docs, etc.).
-* ALERTS/METRICS:
-  * Metric: file completeness at booking; missing-doc exception rates.
-
-***
-
-#### FL-10 — Pricing, Rate Sheets & HPML Controls <a href="#fl-10-pricing-rate-sheets-hpml" id="fl-10-pricing-rate-sheets-hpml"></a>
-
-* WHY (Reg cite): Reg Z §§1026.35–36 (HPML, LO comp/steering); dossier pricing practices.
-* SYSTEM BEHAVIOR:
-  * Maintain weekly rate sheets tied to APOR and product credit boxes.
-  * Run HPML and points-and-fees tests on covered mortgages before docs.
-  * Enforce pricing-exception workflow with mitigants and approvals.
-* TRIGGERS:
-  * APOR import → `pricing.apor_imported`
-  * Rate sheet updated → `pricing.matrix_updated`
-  * Loan priced → `pricing.assigned`
-* INPUTS:
-  * APOR values `(pricing.apor_values)`
-  * Product margins `(pricing.product_margin)`
-  * Final rate and fees `(pricing.final_rate, pricing.fees)`
-* OUTPUTS:
-  * HPML flag `(pricing.hpml_flag)`
-  * Pricing exception record when applicable.
-* TIMERS/SLAs:
-  * Rate sheets refreshed at least weekly. _(candidate operational standard)_
-* EDGE CASES:
-  * BaaS/partner pricing engines: must feed results into Pynthia’s HPML/exception engine as well.
-* AUDIT LOGS:
-  * `pricing.hpml_test.run`
-  * `pricing.exception.approved`
-* ACCESS CONTROL:
-  * Only designated roles can edit rate sheets or margins.
-* ALERTS/METRICS:
-  * Metric: HPML incidence; pricing-exception rate by product/partner.
-
-***
-
-#### FL-11 — OFAC & Sanctions Gate <a href="#fl-11-ofac-sanctions-gate" id="fl-11-ofac-sanctions-gate"></a>
-
-* WHY (Reg cite): BSA/OFAC; FFIEC guidance.
-* SYSTEM BEHAVIOR:
-  * For all new borrowers, run OFAC/sanctions check before closing; for existing well-known members, follow risk-based standard (may skip duplicate checks).
-  * Capture override rationale when an apparent match is cleared.
-* TRIGGERS:
-  * New member/applicant added → `customer.created`
-  * Pre-closing QC → `loan.preclose.qc_started`
-* INPUTS:
-  * Name, DOB, address `(customer.identifiers)`
-  * OFAC match results `(ofac.match_result)`
-* OUTPUTS:
-  * OFAC screening record with result and timestamp.
-* TIMERS/SLAs:
-  * OFAC must be clear before funding.
-* EDGE CASES:
-  * Joint borrowers or guarantors: system must screen all obligors.
-* AUDIT LOGS:
-  * `ofac.check_run`
-  * `ofac.override.recorded`
-* ACCESS CONTROL:
-  * Only BSA/Compliance or designated systems can alter OFAC configuration.
-* ALERTS/METRICS:
-  * Metric: count of matches and overrides; ensure they’re reviewed.
-
-***
-
-#### FL-12 — Prequalification, Marketing & Steering Controls <a href="#fl-12-prequalification-marketing-steering-controls" id="fl-12-prequalification-marketing-steering-controls"></a>
-
-* WHY (Reg cite): Reg Z §1026.36(e) (LO steering), ECOA no-discouragement; Patrick: Steering Procedures.
-* SYSTEM BEHAVIOR:
-  * Implement prequalification based on neutral, documented criteria (e.g., score + DTI thresholds) with standard prequal letters.
-  * Prohibit steering: system may not channel applicants into less favorable products based on prohibited bases or proxies.
-  * Require that online and partner-facing product menus are designed not to discourage applications from any protected group.
-* TRIGGERS:
-  * Prequal request → `prequal.requested`
-  * Prequal decision → `prequal.decision.made`
-  * Product menu shown → `product.menu.rendered`
-* INPUTS:
-  * Prequal criteria `(prequal.criteria)`
-  * Channel and partner `(application.channel, application.partner_id)`
-* OUTPUTS:
-  * Prequal letters.
-  * Steering-control logs when system overrides or suggests alternative products.
-* TIMERS/SLAs:
-  * Prequal decisions issued within a short, defined SLA (e.g., minutes or hours).
-* EDGE CASES:
-  * When multiple products are suitable, system must show options without biasing toward more expensive ones solely for revenue.
-* AUDIT LOGS:
-  * `steering.control.check_run`
-  * `prequal.letter.generated`
-* ACCESS CONTROL:
-  * Only product managers and Compliance can modify product-ranking algorithms.
-* ALERTS/METRICS:
-  * Metric: distribution of product selections vs eligibility across groups; used in steering reviews.
-
-***
-
-#### FL-13 — Fair Lending Risk Assessment & Monitoring <a href="#fl-13-fair-lending-risk-assessment-monitoring" id="fl-13-fair-lending-risk-assessment-monitoring"></a>
-
-* WHY (Reg cite): ECOA, FHA, NCUA fair lending expectations; Patrick: “Fair Lending risk assessment”.
-* SYSTEM BEHAVIOR:
-  * Maintain data necessary for periodic quantitative and qualitative fair lending risk assessments (by product, channel, partner, geography).
-  * Support independent fair lending reviews (e.g., using NCUA Fair Lending Guide) with reproducible datasets and logs.
-* TRIGGERS:
-  * Assessment cycle start → `flra.cycle_start`
-  * Model or policy change → `flra.model_or_policy_changed`
-* INPUTS:
-  * App, approval, denial, pricing, and loss data with GMI where applicable `(flra.dataset)`
-  * Partner and channel tags `(flra.segment_tags)`
-* OUTPUTS:
-  * FL risk assessment reports and remediation plans.
-* TIMERS/SLAs:
-  * Full FL risk assessment at least annually; targeted reviews as risk changes.
-* EDGE CASES:
-  * Smaller portfolios with sparse data: rely more on qualitative controls and benchmarking.
-* AUDIT LOGS:
-  * `flra.report.issued`
-  * `flra.remediation.tracked`
-* ACCESS CONTROL:
-  * Access to sensitive FL analytics restricted to Compliance, Fair Lending, and senior management.
-* ALERTS/METRICS:
-  * Metric: number of identified FL risk issues open/closed; track remediation timeliness.
-
-***
-
-#### FL-14 — Insider Lending & Employee Conflicts <a href="#fl-14-insider-lending-employee-conflicts" id="fl-14-insider-lending-employee-conflicts"></a>
-
-* WHY (Reg cite): NCUA safety & soundness; conflicts of interest; Patrick: “No insider loans to employees”.
-* SYSTEM BEHAVIOR:
-  * Implement a strict posture that Pynthia will not offer insider-only or preferential loan programs to employees.
-  * (Assumption—needs confirmation: whether **all** loans to employees are prohibited, or only preferential/insider terms. This control is written to prohibit _preferential_ terms; if the intent is “no loans at all to employees,” the eligibility logic must be changed accordingly.)
-  * Tag applications where borrower or co-borrower is an employee, officer, director, or related party and enforce standard or stricter underwriting and pricing (never looser).
-* TRIGGERS:
-  * App submitted → `application.created`
-  * Applicant linked to employee record → `application.employee_match`
-* INPUTS:
-  * Employee/insider flags `(customer.employee_flag, customer.insider_flag)`
-  * Relationship to CU `(customer.relationship_type)`
-* OUTPUTS:
-  * Employee/insider lending reports for governance.
-* TIMERS/SLAs:
-  * Insider flags must be resolved before decision.
-* EDGE CASES:
-  * Employee acting as co-borrower/guarantor for a non-employee: treat as insider relationship for monitoring but do not provide preferential treatment.
-* AUDIT LOGS:
-  * `insider.loan.flagged`
-  * `insider.loan.reviewed`
-* ACCESS CONTROL:
-  * Insider lending reports accessible only to Board/Committee, CEO, CLO, and Compliance.
-* ALERTS/METRICS:
-  * Metric: count and volume of employee/insider loans; verify terms are not more favorable than comparable non-insider loans.
-
-***
-
-### EMBEDDED CHECKLISTS & TEMPLATES <a href="#checklists" id="checklists"></a>
-
-Packs the team will assemble (driven by the merged dossier):
-
-* Underwriting Bundle Checklist
-  * Fields/docs required for each loan type (credit report, income docs by type, assets, DTI/LTV, collateral valuation, ATR/QM checklist for covered loans).
-* ATR/QM Checklist
-  * 8 ATR factors, DTI calc, QM classification, points-and-fees and HPML test logs.
-* Adverse Action Checklist
-  * AA reason mapping to file evidence, secondary review sign-off, FCRA score-disclosure template, mailing method/date capture.
-* Appraisal & Valuation Checklist
-  * Appraisal ordering, independence review, appraisal rights disclosure, copy delivery evidence, and retention tags.
-* OFAC / Sanctions Checklist
-  * Entities to screen (borrowers, co-borrowers, guarantors), override rationale fields, linkage to BSA/AML systems.
-* Exceptions & Mitigants Template
-  * Breached rule, measured metrics, mitigating factors selected, narrative justification, approver ID, date/time.
-* Prequalification & Steering Checklist
-  * Prequal criteria, standardized letter templates, product menu and ranking logic review questions.
-* Fair Lending Risk Assessment Template
-  * Dataset schema, segmentation specs (product, channel, partner, geography, GMI), methods used, remediation-tracking layout.
-
-***
-
-### GOVERNANCE & SIGN-OFF <a href="#governance" id="governance"></a>
-
-* Owner: Chief Lending Officer (CLO) is the primary owner of this policy and responsible for operationalization in all lending systems and partner programs.
-* Fair Lending / Compliance: Chief Compliance Officer / Fair Lending Officer is responsible for:
-  * Ensuring alignment with ECOA/Reg B, FHA, TILA/Reg Z, HMDA/Reg C, FCRA, NCUA rules.
-  * Coordinating annual Fair Lending Risk Assessments and independent reviews.
-* Board / Committee Oversight:
-  * Board (or designated Lending/Fair Lending Committee) approves this policy and any material changes.
-  * Receives regular reports on:
-    * Exceptions and mitigants (from [FL-08](lending.md#fl-08-exceptions-mitigants-overrides)),
-    * Fair lending analytics and risk assessments (from [FL-13](lending.md#fl-13-fair-lending-risk-assessment-monitoring)),
-    * Insider/employee lending activity (from [FL-14](lending.md#fl-14-insider-lending-employee-conflicts)).
-* Review Cadence:
-  * Policy reviewed at least annually and upon major regulatory or product changes.
-* Partner / BaaS Alignment:
-  * All fintech and BaaS partners must agree by contract to adhere to this policy or stricter equivalent standards.
-  * Pynthia retains ultimate responsibility for fair lending and loan decisioning across all programs.
-
-***
-
-### ASSUMPTIONS & GAPS
-
-* DTI Standards: Dossier includes both 35% and 43% DTI guidelines; this policy treats 43% as the primary consumer DTI guideline with capacity for stricter overlays (e.g., 35% mortgage or product-specific DTIs). _(Assumption—needs confirmation: which DTI tier(s) Pynthia will adopt as default vs exception.)_
-* Product LTV / Term Tables: Specific LTV/term limits (autos, HELOCs, lots, physician loans, etc.) are treated as configurable parameters seeded from the dossier. They must be calibrated to Pynthia’s actual risk appetite and product set. _(Needs parameterization.)_
-* Non-Accrual & Charge-Off Timers: 90/120-day triggers and OREO appraisal timelines are imported as candidate rules from a community-bank context; Pynthia must confirm alignment with its accounting and collection standards.
-* Insider Loans to Employees: Patrick’s requirement is “No insider loans to employees.” This draft implements a no preferential insider loan posture; if the intent is to prohibit all loans to employees, eligibility logic and HR/member linking must be tightened and documented.
-* Frequency of Fair Lending Risk Assessments: Policy assumes at least annual FL risk assessment; Pynthia may choose a more frequent cadence based on risk.
+---
+title: Lending Policy (Table-First, Design-Overlay v2)
+owner: Patrick Wilson, Chief Compliance Officer
+version: v3.0
+effective: 2026-06-04
+next_review: 2027-06-04
+approvers:
+  - Patrick Wilson, Chief Compliance Officer
+tags: [Compliance, Lending, Fair Lending, Underwriting, Adverse Action, ATR/QM, Pricing, OFAC, Insider Lending]
+---
+
+# Lending Policy
+
+## General Policy Statement
+
+Pynthia Credit Union extends credit on a safe-and-sound, non-discriminatory basis: every acceptance and denial decision rests solely on neutral, documented creditworthiness factors, never on a prohibited basis under [ECOA/Reg B](https://www.ecfr.gov/current/title-12/part-1002) or the [Fair Housing Act](https://www.law.cornell.edu/uscode/text/42/3605). This policy covers all credit products and channels — direct, fintech-partner, and white-label/BaaS programs — and doubles as the design specification for Pynthia's lending systems and partner integrations. Steering, discriminatory product placement, and preferential insider loans are prohibited. Collections workflow, BSA/AML program governance beyond the lending OFAC gate, fair-lending analytics methodology, member onboarding/CIP, Truth-in-Savings disclosures, general record-retention schedules, and partner vendor due diligence are governed by their respective policies.
+
+## Timing Matrix  {#timing-matrix}
+
+| Scenario | Trigger (human → event) | Deadline | Content Reference | Control |
+|---|---|---:|---|---|
+| Decision on a completed application | Application reaches completed status (`loan_application.completed`) | 30 days | Reg B [§1002.9(a)(1)(i)](https://www.ecfr.gov/current/title-12/part-1002#p-1002.9(a)(1)(i)) | [LN-03](#ln-03-applications-acceptance--denial-standards) |
+| Adverse-action notice — completed application | Adverse decision recorded (`loan_application.adverse_action_decided`) | 30 days | Reg B [§1002.9(a)(1)(i)](https://www.ecfr.gov/current/title-12/part-1002#p-1002.9(a)(1)(i)); FCRA [§1681m](https://www.law.cornell.edu/uscode/text/15/1681m) | [LN-07](#ln-07-adverse-action--notifications) |
+| Adverse action on an existing account | Account action taken (`loan_account.adverse_action_decided`) | 30 days | Reg B [§1002.9(a)(1)(ii)](https://www.ecfr.gov/current/title-12/part-1002#p-1002.9(a)(1)(ii)) | [LN-07](#ln-07-adverse-action--notifications) |
+| Counteroffer not accepted | Counteroffer issued, no acceptance (`loan_application.counteroffer_expired`) | 90 days from notification | Reg B [§1002.9(a)(1)(iv)](https://www.ecfr.gov/current/title-12/part-1002#p-1002.9(a)(1)(iv)) | [LN-07](#ln-07-adverse-action--notifications) |
+| Appraisal copy delivery — first-lien dwelling | Appraisal/valuation completed (`appraisal.completed`) | Promptly; ≤ 3 business days before consummation | Reg B [§1002.14(a)(1)](https://www.ecfr.gov/current/title-12/part-1002#p-1002.14(a)(1)) | [LN-06](#ln-06-appraisals-valuations--collateral) |
+| ATR checklist + QM classification | Mortgage file ready for docs (`loan_application.docs_requested`) | Before closing documents print | Reg Z [§1026.43(c)](https://www.ecfr.gov/current/title-12/part-1026#p-1026.43(c)) | [LN-05](#ln-05-atrqm--mortgage-underwriting) |
+| HPML and points-and-fees tests | Mortgage pricing locked (`loan_pricing.locked`) | Before closing documents print | Reg Z [§1026.35](https://www.ecfr.gov/current/title-12/part-1026#p-1026.35), [§1026.43(e)(3)](https://www.ecfr.gov/current/title-12/part-1026#p-1026.43(e)(3)) | [LN-10](#ln-10-pricing-rate-sheets--hpml-controls) |
+| OFAC clearance | Borrower/co-borrower/guarantor added (`loan_party.added`) | Before closing; clearance before funding | [31 CFR Ch. V](https://www.ecfr.gov/current/title-31/chapter-V) | [LN-11](#ln-11-ofac--sanctions-gate) |
+| Exception decision | Rule breach detected (`loan_exception.detected`) | Before closing | Internal standard | [LN-08](#ln-08-exceptions-mitigating-factors--overrides) |
+| Records retention — applications, GMI, evaluation data, AA notices | Final action taken (`loan_application.final_action`) | Retain ≥ 25 months | Reg B [§1002.12(b)](https://www.ecfr.gov/current/title-12/part-1002#p-1002.12(b)) | [LN-09](#ln-09-documentation-recordkeeping--retention) |
+| Rate-sheet refresh | Weekly APOR publication (`rate_sheet.apor_published`) | Weekly | Reg Z [§1026.35(a)(2)](https://www.ecfr.gov/current/title-12/part-1026#p-1026.35(a)(2)) | [LN-10](#ln-10-pricing-rate-sheets--hpml-controls) |
+| Governance mapping after new product/program | Product or program activated (`lending_program.activated`) | 30 days | Internal standard | [LN-01](#ln-01-governance-roles--program-scope) |
+| Fair-lending risk assessment | Annual cycle start (`fair_lending.assessment_due`) | Annually | NCUA [§701.31](https://www.ecfr.gov/current/title-12/part-701/section-701.31); Reg C [Part 1003](https://www.ecfr.gov/current/title-12/part-1003) | [LN-13](#ln-13-fair-lending-risk-assessment--monitoring) |
+| Credit box review | Annual cycle start (`credit_box.review_due`) | Annually | Internal standard | [LN-02](#ln-02-product-eligibility--prohibited-practices) |
+
+## LN-01 — Governance, Roles & Program Scope  {#ln-01-governance-roles--program-scope}
+
+- **WHY (Reg cite):** NCUA safety-and-soundness and nondiscrimination expectations ([12 CFR §701.31](https://www.ecfr.gov/current/title-12/part-701/section-701.31); [12 CFR Part 741](https://www.ecfr.gov/current/title-12/part-741)) require lending programs to operate under documented governance with accountable owners; Reg B ([12 CFR §1002.4](https://www.ecfr.gov/current/title-12/part-1002#p-1002.4)) makes the credit union responsible for nondiscrimination across every channel it controls, including partner programs.
+- **SYSTEM BEHAVIOR:** Every lending and fair-lending control in this policy is mapped to a named owner in a governance registry. Every product and program — including each BaaS/white-label partner program — carries scope flags identifying which controls, regulations, and reporting obligations apply. When a new product or program is activated, the governance mapping is updated within 30 days. The policy itself is reviewed at least annually. Credit-parameter and pricing-configuration changes (credit box, FICO bands, DTI tiers, LTV matrices, rate sheets) are write-restricted to authorized Compliance and Lending administrator roles; all other roles are read-only.
+- **EVENTS:**
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | New product or partner program activated (`lending_program.activated`) | Program identity (`lending_program.id`), product set (`lending_program.products[]`), channel (`lending_program.channel`), partner reference (`lending_program.partner_id`) | Updated governance map with control owners and scope flags (`lending_program.governance_mapped`) | 30 days (enforced by `lending_program.governance_due_at`) |
+  | Credit parameter or pricing configuration changed (`credit_config.change_requested`) | Requestor role (`user.role`), parameter diff (`credit_config.diff`), approval record (`credit_config.approval_id`) | Versioned configuration with approver identity (`credit_config.changed`) | Before the change takes effect |
+  | Annual policy review cycle opens (`policy.review_due`) | Current policy version (`policy.version`), prior-year exam and audit findings (`policy.findings[]`) | Reviewed and approved policy version (`policy.review_completed`) | 12 months from last approval (enforced by `policy.next_review_at`) |
+
+- **ALERTS/METRICS:** Alert when a program passes 30 days post-activation without governance mapping (target zero); count of unauthorized credit-config change attempts blocked (target zero); days since last policy review trended against the 12-month ceiling.
+
+## LN-02 — Product Eligibility & Prohibited Practices  {#ln-02-product-eligibility--prohibited-practices}
+
+- **WHY (Reg cite):** Safe-and-sound lending under [NCUA Part 741](https://www.ecfr.gov/current/title-12/part-741) requires written product standards; restricting credit to defined products with documented terms also limits fair-lending exposure under Reg B ([§1002.4](https://www.ecfr.gov/current/title-12/part-1002#p-1002.4)).
+- **SYSTEM BEHAVIOR:** Each approved product carries a machine-readable "credit box" defining permitted collateral types, maximum LTV, term ranges, amount ranges, and rate parameters. The application intake layer rejects, at submission, any application for a prohibited product: payday loans, vehicle-title loans, tax refund anticipation loans, defined private education loans, and stated-income/no-doc loans. The credit box is reviewed at least annually. Credit-box definitions are write-restricted to authorized Compliance and Lending administrator roles per [LN-01](#ln-01-governance-roles--program-scope).
+- **EVENTS:**
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Application submitted for any product (`loan_application.created`) | Product code (`loan_application.product_code`), requested terms (`loan_application.requested_terms`), credit-box definition (`credit_box.definition`) | Eligibility result; prohibited products blocked at intake (`loan_application.product_screened`) | At submission, real time |
+  | Credit box annual review opens (`credit_box.review_due`) | Current credit-box versions (`credit_box.version`), portfolio performance data (`portfolio.performance_metrics`) | Re-approved or revised credit box (`credit_box.review_completed`) | 12 months from last review (enforced by `credit_box.next_review_at`) |
+
+- **ALERTS/METRICS:** Count of prohibited-product applications blocked, trended for channel/partner anomalies; alert when any credit box exceeds 12 months without review (target zero); count of applications booked outside credit-box parameters without an exception record (target zero).
+
+## LN-03 — Applications, Acceptance & Denial Standards  {#ln-03-applications-acceptance--denial-standards}
+
+- **WHY (Reg cite):** Reg B requires creditors to evaluate applications without regard to a prohibited basis ([§1002.6](https://www.ecfr.gov/current/title-12/part-1002#p-1002.6)), to handle inquiries and applications consistently ([§1002.5](https://www.ecfr.gov/current/title-12/part-1002#p-1002.5)), and to notify applicants of action taken within 30 days of a completed application ([§1002.9(a)(1)](https://www.ecfr.gov/current/title-12/part-1002#p-1002.9(a)(1))).
+- **SYSTEM BEHAVIOR:** Every application is decisioned from a standardized underwriting bundle — application data, credit report, income/asset verification, DTI computation, collateral/LTV where applicable, OFAC screen, and ATR/QM analysis where applicable — summarized into a Credit Approval Record (CAR-equivalent) object. Decisions use only the neutral creditworthiness factors defined in the credit box and underwriting standards; prohibited-basis fields and proxies are excluded from decision logic. Completed applications are decided within 30 days. An application missing required bundle elements is flagged incomplete and routed for a notice of incompleteness rather than silently aged. The CAR object is immutable after final action; corrections create a new version with the original preserved.
+- **EVENTS:**
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Application reaches completed status (`loan_application.completed`) | Underwriting bundle: application data (`loan_application.data`), credit report (`credit_report.id`), income/assets (`loan_application.income_assets`), DTI (`loan_application.dti`), collateral/LTV (`collateral.ltv`), OFAC result (`loan_party.ofac_status`), ATR/QM result (`loan_application.atr_qm_result`) | CAR object and decision (`loan_application.decisioned`) | 30 days (internal: 10 BD; enforced by `loan_application.decision_due_at`) |
+  | Bundle element missing at underwriting (`loan_application.incomplete_detected`) | List of missing items (`loan_application.missing_items[]`) | Notice of incompleteness issued (`loan_application.incompleteness_notice_sent`) | 30 days from application |
+  | Decision finalized (`loan_application.decisioned`) | CAR object (`car.id`), decision basis factors (`car.decision_basis[]`) | Immutable CAR version sealed (`car.sealed`) | At decision, real time |
+
+- **ALERTS/METRICS:** Aging alert on applications approaching the 30-day decision deadline (warn at 20 days, escalate at 25); decision-latency distribution by product, channel, and partner; count of decisions sealed without a complete bundle (target zero).
+
+## LN-04 — Credit Scoring & Adverse Credit History  {#ln-04-credit-scoring--adverse-credit-history}
+
+- **WHY (Reg cite):** Reg B permits empirically derived, demonstrably and statistically sound credit scoring systems and constrains how factors such as age may be treated ([§1002.6(b)](https://www.ecfr.gov/current/title-12/part-1002#p-1002.6(b))); FCRA governs use of consumer reports and scores in credit decisions ([15 USC §1681m](https://www.law.cornell.edu/uscode/text/15/1681m)).
+- **SYSTEM BEHAVIOR:** Credit scores act as a secondary check, never the sole driver of acceptance or denial. The decision engine applies configurable FICO bands and derogatory-credit tolerances — e.g., bankruptcy seasoning periods and disregard thresholds for small medical judgments — with breaches routed through the exception workflow in [LN-08](#ln-08-exceptions-mitigating-factors--overrides). Credit reports older than 6 months at decision time are rejected and a refresh is required. Thin-file borrowers may be evaluated with alternative credit data (rent, utility, deposit history) under the same neutral standards. Band and tolerance configurations are write-restricted to authorized Compliance and Lending administrator roles per [LN-01](#ln-01-governance-roles--program-scope).
+- **EVENTS:**
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Credit report pulled for an application (`credit_report.received`) | Report date (`credit_report.report_date`), score (`credit_report.score`), derogatories (`credit_report.derogatories[]`) | Report freshness validated; stale reports rejected (`credit_report.freshness_checked`) | At receipt; report must be ≤ 6 months old at decision (enforced by `credit_report.stale_at`) |
+  | Score or derogatory tolerance breached (`credit_score.tolerance_breached`) | FICO band config (`credit_config.fico_bands`), seasoning rules (`credit_config.seasoning_rules`), applicant profile (`loan_application.data`) | Exception case opened and routed (`loan_exception.detected`) | Before decision |
+  | Thin-file applicant identified (`loan_application.thin_file_flagged`) | Alternative data sources (`credit_report.alternative_data[]`) | Alternative-data evaluation recorded in CAR (`car.alternative_data_used`) | Before decision |
+
+- **ALERTS/METRICS:** Count of decisions made on stale (>6-month) reports (target zero); share of denials where the score was the sole recorded basis (target zero); thin-file approval rates by channel and partner monitored for disparities.
+
+## LN-05 — ATR/QM & Mortgage Underwriting  {#ln-05-atrqm--mortgage-underwriting}
+
+- **WHY (Reg cite):** Reg Z requires a reasonable, good-faith ability-to-repay determination using the eight statutory factors for covered closed-end dwelling-secured loans ([12 CFR §1026.43(c)](https://www.ecfr.gov/current/title-12/part-1026#p-1026.43(c))) and defines qualified-mortgage classifications ([§1026.43(e)](https://www.ecfr.gov/current/title-12/part-1026#p-1026.43(e))).
+- **SYSTEM BEHAVIOR:** For covered closed-end 1–4 family dwelling-secured loans, the system requires a completed ATR 8-factor checklist and a QM classification before closing documents print; the doc-prep step is hard-blocked until both exist. A 43% consumer DTI default applies, with capacity for stricter configurable tiers by product (e.g., 35% for first mortgages); DTI breaches route to [LN-08](#ln-08-exceptions-mitigating-factors--overrides). DTI-tier configuration is write-restricted to authorized Compliance and Lending administrator roles per [LN-01](#ln-01-governance-roles--program-scope).
+- **EVENTS:**
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Covered mortgage file ready for docs (`loan_application.docs_requested`) | ATR 8-factor inputs: income/assets (`loan_application.income_assets`), employment (`loan_application.employment`), payment obligations (`loan_application.obligations[]`), DTI (`loan_application.dti`), credit history (`credit_report.id`) | Completed ATR checklist + QM classification; doc print unblocked (`loan_application.atr_qm_completed`) | Before docs print (enforced by `loan_application.doc_block_state`) |
+  | DTI exceeds applicable tier (`loan_application.dti_breached`) | Tier config (`credit_config.dti_tiers`), computed DTI (`loan_application.dti`) | Exception case opened (`loan_exception.detected`) | Before closing |
+
+- **ALERTS/METRICS:** Count of covered loans where docs printed without a sealed ATR/QM record (target zero); QM vs. non-QM mix by product and partner; DTI-exception rate trended by channel.
+
+## LN-06 — Appraisals, Valuations & Collateral  {#ln-06-appraisals-valuations--collateral}
+
+- **WHY (Reg cite):** Reg B requires creditors to provide applicants copies of appraisals and written valuations on first-lien dwelling-secured applications promptly upon completion and to retain related records ([12 CFR §1002.14](https://www.ecfr.gov/current/title-12/part-1002#p-1002.14)); appraisal-independence requirements arise under Reg Z ([§1026.42](https://www.ecfr.gov/current/title-12/part-1026#p-1026.42)).
+- **SYSTEM BEHAVIOR:** Appraisals are ordered only from an approved-appraiser list through a channel insulated from loan production staff — no one with an interest in the transaction may select, pressure, or compensate the appraiser. For first-lien dwelling-secured applications, the system auto-generates the free appraisal copy and delivers it promptly upon completion (and no later than 3 business days before consummation), retaining the appraisal and delivery evidence for at least 25 months. Configurable product LTV matrices are enforced at underwriting; LTV breaches route to [LN-08](#ln-08-exceptions-mitigating-factors--overrides). The approved-appraiser list and LTV matrices are write-restricted to authorized Compliance and Lending administrator roles per [LN-01](#ln-01-governance-roles--program-scope).
+- **EVENTS:**
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Appraisal ordered for collateralized loan (`appraisal.ordered`) | Approved-appraiser list (`appraiser_list.approved[]`), property details (`collateral.property`) | Order placed via independent channel (`appraisal.order_logged`) | At order, real time |
+  | Appraisal or valuation completed — first-lien dwelling (`appraisal.completed`) | Appraisal document (`appraisal.document`), applicant delivery address (`loan_party.contact`) | Free copy auto-delivered with delivery evidence (`appraisal.copy_delivered`) | Promptly; ≤ 3 business days before consummation (enforced by `appraisal.delivery_due_at`) |
+  | Collateral valued at underwriting (`collateral.valued`) | Product LTV matrix (`credit_config.ltv_matrix`), valuation (`appraisal.value`), loan amount (`loan_application.amount`) | LTV computed and validated; breaches open an exception (`collateral.ltv_checked`) | Before decision |
+
+- **ALERTS/METRICS:** Count of first-lien dwelling files missing delivery evidence at consummation (target zero); appraisal-copy delivery latency distribution; count of orders placed outside the approved list (target zero); LTV-exception rate by product.
+
+## LN-07 — Adverse Action & Notifications  {#ln-07-adverse-action--notifications}
+
+- **WHY (Reg cite):** Reg B requires action-taken notices with specific reasons (or disclosure of the right to them) within 30 days of a completed application or existing-account action, and 90 days after an unaccepted counteroffer ([12 CFR §1002.9](https://www.ecfr.gov/current/title-12/part-1002#p-1002.9)); FCRA requires adverse-action content when a consumer report or score is used ([15 USC §1681m](https://www.law.cornell.edu/uscode/text/15/1681m)).
+- **SYSTEM BEHAVIOR:** Every adverse decision — application denial, less-favorable counteroffer, or adverse action on an existing account — generates a combined ECOA/FCRA-compliant notice with specific principal reasons, credit-score disclosures where a score was used, and the ECOA anti-discrimination statement. All denials pass a second-level review for decisioning consistency and fair-lending concerns before the notice issues. A counteroffer accepted within 90 days requires no adverse-action notice; if it expires unaccepted, the notice issues by day 90 from original notification. Notice templates are write-restricted to Compliance.
+- **EVENTS:**
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Adverse decision on completed application (`loan_application.adverse_action_decided`) | CAR decision basis (`car.decision_basis[]`), reason codes (`loan_application.reason_codes[]`), score disclosure data (`credit_report.score_disclosure`) | AAN with specific reasons + ECOA/FCRA content (`aan.issued`) | 30 days (internal: 5 BD; enforced by `loan_application.aan_due_at`) |
+  | Adverse action on existing account (`loan_account.adverse_action_decided`) | Account action basis (`loan_account.action_basis`), reason codes (`loan_account.reason_codes[]`) | Existing-account AAN (`aan.issued`) | 30 days (enforced by `loan_account.aan_due_at`) |
+  | Counteroffer expires unaccepted (`loan_application.counteroffer_expired`) | Counteroffer terms (`loan_application.counteroffer_terms`), original notification date (`loan_application.notified_at`) | Counteroffer AAN (`aan.issued`) | 90 days from original notification (enforced by `loan_application.counteroffer_aan_due_at`) |
+  | Denial queued for issuance (`aan.queued`) | Denial file (`loan_application.id`), reviewer identity (`user.id`) | Second-level review disposition (`aan.second_review_completed`) | Before notice issues |
+
+- **ALERTS/METRICS:** Aging alerts on AAN queues at 20 and 25 days (application and existing-account) and 80 days (counteroffer); count of notices issued past deadline (target zero); second-level review override rate and fair-lending concern flags trended monthly.
+
+## LN-08 — Exceptions, Mitigating Factors & Overrides  {#ln-08-exceptions-mitigating-factors--overrides}
+
+- **WHY (Reg cite):** Consistent, documented exception handling is a core fair-lending safeguard under Reg B ([§1002.6](https://www.ecfr.gov/current/title-12/part-1002#p-1002.6)) and an NCUA safety-and-soundness expectation ([Part 741](https://www.ecfr.gov/current/title-12/part-741)) — undocumented discretion is the primary vector for disparate treatment.
+- **SYSTEM BEHAVIOR:** The decision engine automatically detects breaches of numeric and qualitative rules — DTI, FICO bands, LTV, bankruptcy seasoning, product restrictions — and opens an exception case. Approving an exception requires selection of standardized mitigating factors from a controlled list and routing to the approval-authority tier matching breach severity; free-text-only justifications are rejected. Exceptions must be decided before closing; an open exception blocks doc print and funding. Portfolio-level exception analytics (volume, approval rate, mitigant mix by product, channel, partner, and decision-maker) feed [LN-13](#ln-13-fair-lending-risk-assessment--monitoring). The mitigant list and approval-tier matrix are write-restricted to Compliance.
+- **EVENTS:**
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Rule breach detected (`loan_exception.detected`) | Breached rule and observed values (`loan_exception.rule`, `loan_exception.observed_value`), applicant file (`loan_application.id`) | Exception case opened with severity tier (`loan_exception.case_opened`) | Real time at breach |
+  | Exception submitted for approval (`loan_exception.submitted`) | Standardized mitigants (`loan_exception.mitigants[]`), approver tier (`loan_exception.approval_tier`) | Approved or denied exception with approver identity (`loan_exception.decided`) | Before closing (enforced by `loan_exception.closing_block_state`) |
+  | Reporting period closes (`loan_exception.analytics_due`) | All exception cases in period (`loan_exception.case_opened` records) | Portfolio exception analytics report (`loan_exception.analytics_published`) | Quarterly (internal SLA) |
+
+- **ALERTS/METRICS:** Count of loans closed with undecided exceptions (target zero); exception approval rates by decision-maker, product, channel, and partner with outlier flagging; mitigant-usage distribution monitored for rubber-stamp patterns.
+
+## LN-09 — Documentation, Recordkeeping & Retention  {#ln-09-documentation-recordkeeping--retention}
+
+- **WHY (Reg cite):** Reg B requires retention of applications, evaluation information, and notices for 25 months ([12 CFR §1002.12(b)](https://www.ecfr.gov/current/title-12/part-1002#p-1002.12(b))); HMDA/Reg C imposes recordkeeping for covered dwelling-secured credit ([12 CFR §1003.5](https://www.ecfr.gov/current/title-12/part-1003#p-1003.5)).
+- **SYSTEM BEHAVIOR:** Every loan and prequalification carries an enforced credit-package schema; booking is blocked until all schema-required documents are present and validated. Applications, Government Monitoring Information, evaluation data, and adverse-action notices are retained at least 25 months — longer where the credit union's retention standard requires (the Record Retention Policy governs the general schedule). Retention holds prevent deletion during examinations or litigation. Credit-package records are write-restricted post-booking; corrections version rather than overwrite.
+- **EVENTS:**
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Loan ready to book (`loan.booking_requested`) | Credit-package schema (`credit_package.schema`), document inventory (`credit_package.documents[]`) | Schema validation; booking blocked if incomplete (`credit_package.validated`) | Before booking (enforced by `loan.booking_block_state`) |
+  | Final action taken on application (`loan_application.final_action`) | Application, GMI, evaluation data, notices (`credit_package.documents[]`, `loan_application.gmi`, `aan.issued` records) | Retention clock started on the package (`credit_package.retention_started`) | Retain ≥ 25 months (enforced by `credit_package.retention_expires_at`) |
+
+- **ALERTS/METRICS:** Count of loans booked with incomplete packages (target zero); count of records purged before retention expiry (target zero); package-completeness rate at first booking attempt trended by channel and partner.
+
+## LN-10 — Pricing, Rate Sheets & HPML Controls  {#ln-10-pricing-rate-sheets--hpml-controls}
+
+- **WHY (Reg cite):** Reg Z defines higher-priced mortgage loans by APR spread over APOR and imposes escrow/appraisal obligations ([12 CFR §1026.35](https://www.ecfr.gov/current/title-12/part-1026#p-1026.35)), caps QM points and fees ([§1026.43(e)(3)](https://www.ecfr.gov/current/title-12/part-1026#p-1026.43(e)(3))), and prohibits compensation-based steering ([§1026.36(d),(e)](https://www.ecfr.gov/current/title-12/part-1026#p-1026.36(d))); consistent pricing is also a Reg B nondiscrimination requirement ([§1002.6](https://www.ecfr.gov/current/title-12/part-1002#p-1002.6)).
+- **SYSTEM BEHAVIOR:** Rate sheets are refreshed weekly, tied to the published APOR, and pushed simultaneously to direct and partner pricing engines so all channels price from the same source of truth. Before docs print on any covered mortgage, the system runs the HPML spread test and the points-and-fees test; an HPML result triggers the associated escrow and appraisal obligations, and a points-and-fees failure blocks docs. Pricing outside the rate sheet requires the pricing-exception workflow — standardized mitigants and tiered approval consistent with [LN-08](#ln-08-exceptions-mitigating-factors--overrides) — across both direct and partner engines. Rate-sheet publication is write-restricted to the authorized pricing administrator role per [LN-01](#ln-01-governance-roles--program-scope).
+- **EVENTS:**
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Weekly APOR published (`rate_sheet.apor_published`) | Current APOR values (`rate_sheet.apor_values`), product margin config (`credit_config.margins`) | New rate sheet versioned and distributed to all engines (`rate_sheet.published`) | Weekly (enforced by `rate_sheet.refresh_due_at`) |
+  | Mortgage pricing locked (`loan_pricing.locked`) | APR (`loan_pricing.apr`), comparable APOR (`rate_sheet.apor_values`), points and fees (`loan_pricing.points_fees`) | HPML and points-and-fees test results; docs blocked on failure (`loan_pricing.hpml_tested`) | Before docs print (enforced by `loan_application.doc_block_state`) |
+  | Off-sheet pricing requested (`loan_pricing.exception_requested`) | Requested rate vs. sheet (`loan_pricing.deviation`), mitigants (`loan_exception.mitigants[]`) | Approved or denied pricing exception with approver (`loan_pricing.exception_decided`) | Before closing |
+
+- **ALERTS/METRICS:** Alert when a rate sheet exceeds 7 days without refresh (target zero); count of covered mortgages docked without HPML/points-and-fees results (target zero); pricing-exception rate and rate-deviation distribution by channel, partner, and originator monitored for disparities.
+
+## LN-11 — OFAC & Sanctions Gate  {#ln-11-ofac--sanctions-gate}
+
+- **WHY (Reg cite):** OFAC sanctions programs ([31 CFR Chapter V](https://www.ecfr.gov/current/title-31/chapter-V)) prohibit extending credit to sanctioned parties; the FFIEC BSA/AML Manual and [NCUA Part 748](https://www.ecfr.gov/current/title-12/part-748) set screening and program expectations.
+- **SYSTEM BEHAVIOR:** All new borrowers, co-borrowers, and guarantors are screened against OFAC lists before closing, and funding is hard-blocked until every party shows a clear (or cleared) status. An apparent match routes to the BSA/Compliance queue; clearing it requires a documented override rationale and reviewer identity. A confirmed match stops the transaction and escalates under the BSA Policy, which governs the broader sanctions program. Match clearance is write-restricted to BSA/Compliance officers.
+- **EVENTS:**
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Borrower, co-borrower, or guarantor added to a loan (`loan_party.added`) | Party identity (`loan_party.identity`), screening lists and results (`ofac_result.matched_lists[]`, `ofac_result.match_status`) | Screening result recorded (`loan_party.ofac_screened`) | Before closing (enforced by `loan.funding_block_state`) |
+  | Apparent match returned (`loan_party.ofac_potential_match`) | Match details and score (`ofac_result.match_status`, `ofac_result.match_score`), reviewer identity (`user.id`) | Cleared-with-rationale or confirmed-match escalation (`loan_party.ofac_cleared` / `loan_party.ofac_escalated`) | Before funding |
+
+- **ALERTS/METRICS:** Count of loans funded with unscreened or unresolved parties (target zero); potential-match clearance latency distribution; count of clearances missing override rationale (target zero).
+
+## LN-12 — Prequalification, Marketing & Steering Controls  {#ln-12-prequalification-marketing--steering-controls}
+
+- **WHY (Reg cite):** Reg B prohibits discouraging applicants on a prohibited basis ([12 CFR §1002.4(b)](https://www.ecfr.gov/current/title-12/part-1002#p-1002.4(b))); Reg Z prohibits steering consumers to loans based on originator compensation ([§1026.36(e)](https://www.ecfr.gov/current/title-12/part-1026#p-1026.36(e))) and governs credit advertising ([§1026.24](https://www.ecfr.gov/current/title-12/part-1026#p-1026.24)); the Fair Housing Act bars discrimination in residential lending ([42 USC §3605](https://www.law.cornell.edu/uscode/text/42/3605)).
+- **SYSTEM BEHAVIOR:** Prequalification decisions run on neutral, documented criteria identical in kind to underwriting standards — no prohibited-basis fields or proxies. Product-recommendation and menu logic, in both Pynthia-direct and partner online channels, is reviewed to confirm it cannot steer applicants into less favorable products by prohibited basis or proxy variables (e.g., geography, language preference, or device signals used as proxies). Online and partner product menus present the full set of products an applicant qualifies for, ordered by neutral rules. Prequal criteria and menu-logic configurations are write-restricted to authorized roles per [LN-01](#ln-01-governance-roles--program-scope), and changes require Compliance review before deployment.
+- **EVENTS:**
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Prequalification requested (`prequal.requested`) | Neutral criteria set (`prequal.criteria_version`), applicant inputs (`prequal.inputs`) | Prequal result with criteria version recorded (`prequal.decided`) | Real time |
+  | Product menu or recommendation logic changed (`product_menu.change_requested`) | Logic diff (`product_menu.diff`), steering-review checklist (`product_menu.steering_review`) | Compliance-approved menu version deployed (`product_menu.deployed`) | Before deployment |
+  | Quarterly steering review opens (`steering_review.due`) | Menu outcomes by segment (`product_menu.outcome_metrics`), prequal-to-product mapping (`prequal.product_mapping`) | Steering review report (`steering_review.completed`) | Quarterly (internal SLA) |
+
+- **ALERTS/METRICS:** Count of menu deployments lacking Compliance approval (target zero); product-placement distribution by demographic proxy segment reviewed quarterly; prequal denial-rate disparities by geography flagged for [LN-13](#ln-13-fair-lending-risk-assessment--monitoring).
+
+## LN-13 — Fair Lending Risk Assessment & Monitoring  {#ln-13-fair-lending-risk-assessment--monitoring}
+
+- **WHY (Reg cite):** Reg B requires collection of Government Monitoring Information for covered dwelling-secured applications ([12 CFR §1002.13](https://www.ecfr.gov/current/title-12/part-1002#p-1002.13)); HMDA/Reg C requires data collection and reporting for covered institutions ([12 CFR Part 1003](https://www.ecfr.gov/current/title-12/part-1003)); NCUA's nondiscrimination rule ([§701.31](https://www.ecfr.gov/current/title-12/part-701/section-701.31)) prohibits redlining and discriminatory real-estate lending practices.
+- **SYSTEM BEHAVIOR:** The lending data warehouse maintains reproducible application, approval, denial, pricing, and loss datasets with GMI, segmentable by product, channel, partner, and geography. A full fair-lending risk assessment runs at least annually — covering underwriting, pricing, steering, redlining, and exception disparities — with findings tracked to remediation closure. Interim monitoring feeds from [LN-08](#ln-08-exceptions-mitigating-factors--overrides) and [LN-12](#ln-12-prequalification-marketing--steering-controls) analytics. Methodology details are governed by the Fair Lending Policy; this control guarantees the lending-side data supply and the annual cadence. GMI fields are write-restricted at collection and masked from underwriting decision views.
+- **EVENTS:**
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Lending decision finalized (`loan_application.decisioned`) | Decision, pricing, GMI, geography, partner attribution (`car.id`, `loan_pricing.apr`, `loan_application.gmi`, `loan_application.geography`, `lending_program.partner_id`) | Record appended to fair-lending dataset (`fair_lending.record_appended`) | 1 business day of decision (internal SLA) |
+  | Annual assessment cycle opens (`fair_lending.assessment_due`) | Full-period datasets (`fair_lending.dataset_version`), prior findings (`fair_lending.findings[]`) | Completed risk assessment with findings and remediation plan (`fair_lending.assessment_completed`) | Annually (enforced by `fair_lending.next_assessment_at`) |
+  | Remediation item created (`fair_lending.remediation_opened`) | Finding reference (`fair_lending.finding_id`), owner (`user.id`), due date (`fair_lending.remediation_due_at`) | Tracked remediation with closure evidence (`fair_lending.remediation_closed`) | Per remediation plan (enforced by `fair_lending.remediation_due_at`) |
+
+- **ALERTS/METRICS:** Dataset completeness rate, with decisions missing GMI or geography attribution flagged; alert when the assessment exceeds 12 months since last completion (target zero); open remediation items past due (target zero); denial-rate and pricing-disparity ratios by protected-class proxy trended quarterly.
+
+## LN-14 — Insider Lending & Employee Conflicts  {#ln-14-insider-lending--employee-conflicts}
+
+- **WHY (Reg cite):** NCUA lending rules prohibit preferential treatment of officials and employees ([12 CFR §701.21](https://www.ecfr.gov/current/title-12/part-701/section-701.21), within [Part 701](https://www.ecfr.gov/current/title-12/part-701)); consistent treatment of insiders is also a Reg B evenhandedness expectation ([§1002.6](https://www.ecfr.gov/current/title-12/part-1002#p-1002.6)).
+- **SYSTEM BEHAVIOR:** Pynthia maintains a no-preferential-terms posture: employees, officers, directors, and their related parties receive the same underwriting standards, pricing, and exception scrutiny as any other member — never looser. Applications are matched against the insider registry at intake; an insider flag must be resolved (conflict-of-interest attestation, recusal of conflicted decision-makers, independent approval routing) before any decision is made. Insider and employee lending activity is reported to the Board or its Lending/Fair Lending Committee on a recurring basis. The insider registry is maintained by and write-restricted to Compliance; conflicted individuals are systematically excluded from approval chains on their own or related-party applications.
+- **EVENTS:**
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Application matched against insider registry (`loan_application.created`) | Insider registry (`insider_registry.entries[]`), applicant and related-party identities (`loan_party.identity`) | Insider flag set or cleared (`loan_application.insider_screened`) | At intake, real time |
+  | Insider flag raised (`loan_application.insider_flagged`) | Conflict attestation (`insider_case.attestation`), independent approver assignment (`insider_case.approver_id`) | Resolved insider case; decision unblocked (`insider_case.resolved`) | Before decision (enforced by `loan_application.decision_block_state`) |
+  | Governance reporting period closes (`insider_report.due`) | Period insider/employee loan activity (`insider_case.resolved` records, loan terms (`loan_pricing.apr`)) | Board/committee insider-lending report (`insider_report.published`) | Quarterly (internal SLA) |
+
+- **ALERTS/METRICS:** Count of insider-flagged loans decided before case resolution (target zero); rate and pricing comparison of insider vs. comparable member loans with deviation alerts; count of conflicted approvers appearing in their own approval chains (target zero).
+
+## Governance & Sign-Off  {#governance}
+
+- **Owner:** Patrick Wilson, Chief Compliance Officer (serving as Fair Lending Officer). The CCO owns this policy, the governance registry in [LN-01](#ln-01-governance-roles--program-scope), and the annual fair-lending assessment in [LN-13](#ln-13-fair-lending-risk-assessment--monitoring).
+- **Required participants:** Chief Lending Officer (credit box, underwriting standards, pricing), Loan Operations (documentation, booking, retention), Underwriting (CAR integrity, exceptions), BSA/Compliance (OFAC gate, insider registry), and the Board or its Lending/Fair Lending Committee (approval, insider-lending reports, assessment results).
+- **Approvals:** Patrick Wilson, Chief Compliance Officer. Material changes to controls, the credit box, the prohibited-product list, DTI/LTV/FICO configurations, or notice templates require CCO approval before deployment.
+- **Review cadence:** Full policy review at least annually (next review per front-matter); governance mapping updated within 30 days of any new product or program per [LN-01](#ln-01-governance-roles--program-scope); credit box reviewed annually per [LN-02](#ln-02-product-eligibility--prohibited-practices).
+- **Cross-references:** Collections Policy (non-accrual, charge-off, delinquency workflow), BSA Policy (AML program beyond the lending OFAC gate), Fair Lending Policy (program governance and analytics methodology), Member and BSA Policies (eligibility, onboarding, CIP), Truth-in-Savings Policy (deposit disclosures), Record Retention Policy (general schedules), Third-Party Risk Policy (partner onboarding and vendor due diligence).
+
+## Assumptions & Gaps  {#assumptions}
+
+- **Engineering vocabulary is provisional.** The parsed `vocabulary.json` (Cassandra Banking Core API v1.0.0) is banking-core only — it defines no lending entities, no loan events, and an empty events array. Every lending-side resource, field, event, and timer code cited in the EVENTS tables (e.g., `loan_application.*`, `car.*`, `aan.issued`, `loan_exception.*`, `appraisal.*`, `loan_pricing.*`, `rate_sheet.*`, `credit_box.*`, `loan_party.*`, `insider_case.*`, `insider_registry.*`, `fair_lending.*`, `prequal.*`, `product_menu.*`, `credit_config.*`, `lending_program.*`, `credit_package.*`) is the target naming scheme and must be registered by engineering before implementation. The OFAC gate may reuse the existing `verification.ofac_result` structure (`ofac_result.match_status`, `ofac_result.matched_lists`, `ofac_result.match_score`) where loan parties are existing verified entities.
+- **HMDA reporter status assumed.** The policy assumes Pynthia is (or will become) a HMDA/Reg C covered institution for dwelling-secured products; if loan volume falls below reporting thresholds, [LN-13](#ln-13-fair-lending-risk-assessment--monitoring) data collection still proceeds for fair-lending monitoring, but Reg C filing obligations would not apply. Needs confirmation from Compliance.
+- **Charter type and NCUA applicability assumed.** Pynthia is treated as a federally insured credit union subject to NCUA Parts 701, 741, and 748; if Pynthia is state-chartered, parallel state nondiscrimination and insider rules may apply and should be mapped into [LN-01](#ln-01-governance-roles--program-scope).
+- **Internal SLAs are proposed defaults.** The 10-business-day internal decision SLA ([LN-03](#ln-03-applications-acceptance--denial-standards)), 5-business-day AAN SLA ([LN-07](#ln-07-adverse-action--notifications)), quarterly cadences for exception analytics, steering reviews, and insider reports, and the aging-alert thresholds are proposed values needing CCO/CLO confirmation.
+- **Approval-tier matrix undefined.** PATRICK_NOTES require tiered exception approval routing ([LN-08](#ln-08-exceptions-mitigating-factors--overrides)) but do not define the tiers (e.g., which breaches need underwriter-manager vs. CLO vs. committee approval). A severity-to-authority matrix must be approved before implementation.
+- **Configurable thresholds need initial values.** FICO bands, derogatory-credit tolerances (bankruptcy seasoning periods, small-medical-judgment thresholds), stricter DTI tiers beyond the 43% default and the 35% mortgage example, and product LTV matrices are described as configurable; initial production values require CLO proposal and CCO approval.
+- **"Defined private education loans" scope unconfirmed.** The prohibited-products list in [LN-02](#ln-02-product-eligibility--prohibited-practices) blocks "defined private education loans"; the precise definition (all private student loans vs. a subset) needs confirmation.
+- **Alternative credit data sources unspecified.** [LN-04](#ln-04-credit-scoring--adverse-credit-history) supports alternative data for thin-file borrowers; approved data sources and their validation standards are not yet selected.
+- **Insider registry source unconfirmed.** [LN-14](#ln-14-insider-lending--employee-conflicts) assumes a Compliance-maintained registry of employees, officials, and related parties; the system of record (HRIS feed, board roster, related-party attestations) and refresh cadence need definition.
+- **Existing-account adverse-action scope.** [LN-07](#ln-07-adverse-action--notifications) covers existing-account adverse actions (e.g., line reductions); the set of open-end products subject to this path is assumed but not enumerated in PATRICK_NOTES.

@@ -1,0 +1,1221 @@
+SYSTEM / ROLE
+You are a tough, respectful interrogator and simplifier whose job is to produce a fully compliant policy that ALSO acts as a design spec for engineers. Default to deletion and clarity. Be precise, cite rules, and output clean Markdown suitable for GitBook. Use in-page fragment links only for internal cross-refs. Use authoritative external links (eCFR/LII) only for statutes/regs.
+
+INPUTS (the caller provides)
+- ORGANIZATION: {{Name and charter type}}
+- POLICY_NAME: {{e.g., Fair Lending Policy}}
+- SCOPE: {{products/channels/partners covered}}
+- OWNER & APPROVERS: {{owner, approvers}}
+- PATRICK_NOTES: """{{raw bullets from Patrick}}"""
+- REFERENCE_POLICY (optional): """{{paste if available}}"""
+- AUTHORITY_HINTS (optional): {{list of likely regs/sections or "auto"}}
+- DESIGN_NOTES (optional): {{events/fields already named, e.g., application.created}}
+
+OUTPUT GOAL
+Produce a single Markdown document that:
+1) Starts with YAML front-matter (title/owner/version/effective/next_review/approvers/tags).
+2) Presents a **Timing Matrix** (if applicable) with a **Control** column that links to in-page fragments (e.g., [FL-05](#fl-05-action-taken-notices)).
+3) For each control, outputs a **Design Overlay v3** block with exactly four labeled fields, in this order: **WHY** (Reg cite, with eCFR/LII external links), **SYSTEM BEHAVIOR** (operational description; absorbs access-control notes and any edge-case carve-outs as inline sentences), **EVENTS** (a 4-column table — *When* / *What's needed* / *Produced (and logged)* / *Within*), **ALERTS/METRICS**. No separate TRIGGERS / INPUTS / OUTPUTS / TIMERS / EDGE CASES / AUDIT LOGS / ACCESS CONTROL fields — those are absorbed into SYSTEM BEHAVIOR or EVENTS as specified.
+4) Closes with a **Governance & Sign-Off** section and a single consolidated **Assumptions & Gaps** section.
+5) Uses **fragment-only** internal links (e.g., `(#fl-05-action-taken-notices)`). Do NOT generate external links for internal sections.
+
+DELETED (do NOT produce these sections — they duplicate per-control data)
+- **Multi-Rule Authority Table** — citations already appear inline in every WHY field, no separate table needed.
+- **Control Index** — the control overlay sections below are the index. Their `## XX-NN — Title` headings, with stable fragments, do this job already.
+- **Embedded Checklists & Templates** — was just an inventory of artifacts maintained elsewhere; if a checklist or template matters to a control, link it inline from that control's overlay.
+
+ANCHORS & LINKING RULES
+- Every control section must be headed with `## <ID> — <Title>` so GitBook auto-generates predictable fragments, e.g.:
+  - `## FL-05 — Action-Taken Notices` → `#fl-05-action-taken-notices`
+- Use those fragments in the **Timing Matrix** Control column.
+- For statutes/regs, link to eCFR/LII (e.g., `https://www.ecfr.gov/current/title-12/part-1002#p-1002.9`).
+
+CONTENT STRATEGY
+- If REFERENCE_POLICY exists: extract only what is necessary, normalize to our structure, and delete boilerplate that duplicates controls.
+- If no REFERENCE_POLICY: synthesize from PATRICK_NOTES + AUTHORITY_HINTS; keep scope minimal and clearly mark assumptions in the consolidated list.
+- Question every requirement:
+  - Who said it? Why needed? Risk if omitted? Evidence/citation? Minimum viable version?
+- Avoid repeating content across sections: each fact lives in exactly one place. The Timing Matrix is the one allowed cross-cut because it gives examiners a single deadline view.
+
+CONTROL IDs
+- Use a short, scoped prefix (2–3 letters) + two-digit number (e.g., **FL-01** … **FL-12** for Fair Lending).
+- If the caller doesn't provide an ID map, create one and keep it stable within the doc.
+
+REGULATION LINKING (examples the model may reuse)
+- ECOA/Reg B (12 CFR Part 1002): e.g., §1002.5 (inquiries), §1002.6 (evaluation), §1002.9 (action taken), §1002.12 (retention), §1002.14 (appraisals/ROV)
+  - Base: https://www.ecfr.gov/current/title-12/part-1002
+- HMDA/Reg C (12 CFR Part 1003): https://www.ecfr.gov/current/title-12/part-1003
+- TILA/Reg Z (12 CFR Part 1026): e.g., §1026.24 (ads), §1026.36(d),(e) (LO comp/steering)
+  - Base: https://www.ecfr.gov/current/title-12/part-1026
+- FHA (42 USC §3605): https://www.law.cornell.edu/uscode/text/42/3605
+- NCUA 701.31: https://www.ecfr.gov/current/title-12/part-701/section-701.31
+- ADA (28 CFR Part 36): https://www.ecfr.gov/current/title-28/part-36
+
+MANDATORY SECTIONS & SHAPE (fill with the given POLICY_NAME)
+1) YAML FRONT-MATTER
+---
+title: {{POLICY_NAME}} (Table-First, Design-Overlay v2)
+owner: {{Owner, Title}}
+version: {{v}}
+effective: {{YYYY-MM-DD}}
+next_review: {{+12 months}}
+approvers:
+  - {{Approver 1, Title}}
+  - {{Approver 2, Title}}
+tags: [Compliance, {{POLICY_NAME keywords}}]
+---
+
+2) GENERAL POLICY STATEMENT
+One concise paragraph stating the commitment, scope, and posture.
+
+3) TIMING MATRIX (if applicable)  {#timing-matrix}
+| Scenario | Trigger (human → event) | Deadline | Content Reference | Control |
+|---|---|---:|---|---|
+| … | … | … | … | [XX-nn](#xx-nn-slug) |
+
+4) CONTROL OVERLAYS (Design Overlay v3)
+For each `## XX-nn — Title  {#xx-nn-slug}` output **exactly four** labeled fields, in this order:
+
+- **WHY (Reg cite):** One or two sentences. Regulatory grounding with eCFR/LII external links to the specific clauses that anchor this control.
+- **SYSTEM BEHAVIOR:** One short paragraph describing how the control operates. Include access-control notes ("X is write-restricted to Compliance") as a closing sentence. Include any edge-case carve-outs ("counter-offer accepted within 90 days requires no AAN") as inline sentences — do NOT create a separate EDGE CASES field.
+- **EVENTS:** A Markdown table with these exact columns, one row per event the control consumes or produces. The table is the forcing function for completeness — every row must have all four cells filled, every operational event in the control must appear as a row:
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | <human description of the trigger> (`event.code`) | <data / fields needed to act> | <business artifact + emitted `event.code` for the audit log> | <regulatory deadline + internal SLA in parens, or "—" if no deadline> |
+
+  Notes on the EVENTS table — **every column references vocabulary codes where the engineering spec registers them**. The codes are the contract surface between the policy and the systems that implement it; the table is where they live.
+
+  - The *When* column captures both the human-language trigger AND the trigger event code from vocabulary, e.g., `Application complete and decisioned adversely (\`application.adverse_action_decided\`)`. Required for every event the control consumes.
+  - The *What's needed* column captures plain-language input description AND the field codes from vocabulary, in backticks, e.g., `Applicant identity (\`applicant.identity\`), decision basis (\`application.decision_basis\`), reason codes (\`application.reason_codes[]\`)`. Every operationally significant field referenced by this row must appear by its code. Do not paraphrase fields without also citing the code.
+  - The *Produced (and logged)* column captures BOTH the business artifact AND the emitted event code from vocabulary, e.g., `AAN with specific reasons + ECOA notice (\`aan.issued\`)`. There is no separate AUDIT LOGS field — the audit code lives here with what it logs.
+  - The *Within* column captures the regulatory deadline AND any internal SLA AND — when vocabulary registers a corresponding timer, scheduler event, or state-machine transition — that reference too, e.g., `30 days (internal: 5 BD; enforced by \`application.aan_due_at\`)`. If vocabulary has no corresponding timer, write the time only.
+
+  Vocabulary policy: if vocabulary.json does not yet register an event, field, or timer the control needs, use the target naming scheme verbatim in the cell — the consolidated Assumptions & Gaps "Engineering vocabulary is provisional" bullet covers all of them. Never omit a code from the table because vocabulary hasn't caught up; the code's presence in the table IS how engineering knows what to register.
+
+- **ALERTS/METRICS:** One or two sentences listing the operational signals that confirm this control is working in production (e.g., aging-alert thresholds, target zero counts, latency distributions). This is the bridge between the policy and the monitoring runbook.
+
+**Fields that no longer appear as separate labeled blocks** (deleted from the v2 spec): TRIGGERS (now the *When* column of EVENTS), INPUTS (now *What's needed*), OUTPUTS (now *Produced*), TIMERS/SLAs (now *Within*), EDGE CASES (now inline in SYSTEM BEHAVIOR), AUDIT LOGS (now embedded in *Produced and logged*), ACCESS CONTROL (now a closing sentence in SYSTEM BEHAVIOR). These removals are intentional — the v2 format duplicated each event from multiple angles. Do not reintroduce them.
+
+5) GOVERNANCE & SIGN-OFF  {#governance}
+Owner, approvals, review cadence, cross-refs.
+
+6) ASSUMPTIONS & GAPS  {#assumptions}
+A single consolidated list at the end of the document. Each bullet is one assumption or gap, in business terms. Do NOT scatter `(Assumption—needs confirmation: …)` tags inline through TRIGGERS, INPUTS, AUDIT LOGS, or any other field — collect them all here so the reader gets one place to scan.
+
+Typical entries:
+- **Engineering vocabulary is provisional.** The lending-side resources, fields, and events referenced in TRIGGERS / INPUTS / AUDIT LOGS throughout this document are not yet registered in `vocabulary.json` (parsed spec is banking-core only). Names used in those fields are the target naming scheme and will be confirmed by engineering before the next review.
+- Any policy-specific judgments where PATRICK_NOTES were silent — state the assumption made and what would need to be confirmed (e.g., partner risk-tier definitions, HMDA reporter status, charter type and applicability of NCUA Part 701.31).
+
+When a TRIGGER, INPUT, OUTPUT, or AUDIT LOG references an event or field code that is not in DESIGN_NOTES, the code still appears verbatim in the relevant control overlay — **without** an inline assumption tag. The "Engineering vocabulary is provisional" bullet in this section covers all of them collectively. If DESIGN_NOTES is non-empty, only flag the specific codes still missing.
+
+QUALITY BAR / ACCEPTANCE CRITERIA
+- All internal Control links are **fragment-only** and resolve to headings present in the document.
+- Every regulatory reference has a working external link.
+- Each control has **exactly four labeled fields** in this order: WHY, SYSTEM BEHAVIOR, EVENTS, ALERTS/METRICS. No others.
+- The EVENTS table has all four columns filled in every row — no blank cells, no "N/A" cells. If a control truly has no events (rare), omit the EVENTS field entirely and explain why in SYSTEM BEHAVIOR.
+- Every EVENTS table row cites vocabulary codes in all applicable columns: `event.code` in *When*, `field.code` (or `field.code[]`) for every operationally significant input in *What's needed*, emitted `event.code` in *Produced (and logged)*, and a timer / scheduler `event.code` in *Within* where vocabulary registers one.
+- Codes appear in backticks. Where vocabulary does not yet register a code, use the target naming scheme verbatim (rather than omitting it).
+- No inline `(Assumption—needs confirmation)` tags anywhere — assumptions live in the consolidated Assumptions & Gaps section.
+- No duplicated prose across sections; the Timing Matrix is the only cross-cut and it references controls by fragment.
+- All assumptions appear in one consolidated Assumptions & Gaps section at the end, not scattered inline.
+- No deleted sections appear: no Multi-Rule Authority Table, no Control Index, no Embedded Checklists & Templates.
+- No legacy v2 control-overlay fields appear: no separate TRIGGERS, INPUTS, OUTPUTS, TIMERS/SLAs, EDGE CASES, AUDIT LOGS, or ACCESS CONTROL block — their content is absorbed per the field map above.
+
+MISSING INFO HANDLING
+- If PATRICK_NOTES lack specifics, infer the **minimal viable** control and add the assumption as a bullet to the consolidated Assumptions & Gaps list — do NOT use the inline `(Assumption—needs confirmation: …)` pattern anywhere in the body.
+- If AUTHORITY_HINTS is "auto", identify the core authorities commonly implicated by the POLICY_NAME and link them in each relevant control's WHY field.
+- If DESIGN_NOTES is empty or lacks specific event/field codes, use the target naming scheme verbatim in the control overlays. Rely on the consolidated Assumptions & Gaps bullet about engineering vocabulary to cover all of them collectively.
+
+STYLE
+- Plain-spoken, regulator-ready, engineer-actionable.
+- Prefer tables, bullets, and short sentences over long paragraphs.
+- Keep the doc self-contained; no "see separate doc" unless absolutely necessary.
+
+PLANNING (internal — do this before writing; do NOT include in the output)
+The deleted Multi-Rule Authority Table and Control Index were planning artifacts disguised as output. The output is gone; the planning discipline they enforced is still essential. Before writing the document, do this work silently as your own scratch work:
+
+1. **Authority map.** From POLICY_NAME, AUTHORITY_HINTS (or "auto"), REFERENCE_POLICY, and PATRICK_NOTES, enumerate every applicable statute/regulation with the specific clauses (e.g., "ECOA/Reg B §1002.4, §1002.5, §1002.6, §1002.9, §1002.13, §1002.14; FHA 42 USC §3605; HMDA Reg C Part 1003; Reg Z §1026.36(d)(e); NCUA 701.31"). This is your private inventory of authorities.
+
+2. **Control inventory.** List every control by stable ID (XX-NN) and plain-language name, in the order they will appear. Decide the full set now. Do not add, drop, or renumber controls mid-document — the inventory is locked once you start writing.
+
+3. **Anchor map.** For each control in the inventory, decide which clauses from the authority map populate its WHY field. Each WHY should cite the most specific anchoring clause(s), not the whole part.
+
+4. **Sanity-check.** Every authority in the authority map is anchored to at least one control (or there is a coherent reason it is not — note it for the Assumptions & Gaps section). Every control in the inventory has at least one authority cited in its WHY. Control IDs are stable across writing.
+
+5. **Then write the document.** The published artifact contains only: front-matter, General Policy Statement, Timing Matrix, Control Overlays (in inventory order, with WHY populated from the anchor map), Governance & Sign-Off, Assumptions & Gaps. The authority map and control inventory remain scratch work — never include them in the output.
+
+NOW DO THIS
+1) Parse PATRICK_NOTES and (if provided) REFERENCE_POLICY.
+2) Do the PLANNING section above (silently): build the authority map, the control inventory, the per-control anchor map, and run the sanity-check. These are scratch artifacts — they do NOT appear in the output.
+3) Generate the full Markdown document in this exact order: YAML front-matter → General Policy Statement → Timing Matrix → Control Overlays (in inventory order, each with exactly four fields: WHY / SYSTEM BEHAVIOR / EVENTS / ALERTS/METRICS, with WHY populated from the anchor map) → Governance & Sign-Off → Assumptions & Gaps.
+4) Validate all internal fragments point to existing headings (use the GitBook slug rules: lowercase, hyphens, punctuation removed).
+5) Confirm every Control Overlay has exactly four labeled fields in the right order, and every EVENTS table has all four columns filled in every row.
+6) Confirm no legacy v2 fields appear (no separate TRIGGERS / INPUTS / OUTPUTS / TIMERS/SLAs / EDGE CASES / AUDIT LOGS / ACCESS CONTROL block).
+7) Confirm no inline `(Assumption—needs confirmation)` tags appear anywhere in the body — all assumptions are in the consolidated list.
+8) Confirm no Multi-Rule Authority Table, no Control Index, no Embedded Checklists & Templates section was produced — those are the deleted output sections; the corresponding planning artifacts are kept internally per the PLANNING section, never written.
+9) Confirm the final control set matches the control inventory from step 2 — no controls added, dropped, or renumbered between planning and writing.
+10) Output ONLY the final Markdown.
+
+INPUTS (provided by the caller):
+- ORGANIZATION: Pynthia Credit Union
+- POLICY_NAME: Electronic Payment Systems Policy
+- SCOPE: This policy governs Pynthia Credit Union's electronic banking services, with primary emphasis on electronic payment systems that facilitate electronic fund transfers and other financial transactions. It segregates electronic banking into three categories — information-only systems (the public website), electronic information transfer systems (online/business banking, file transfer, ATM, email, eStatements, mobile banking), and electronic payment systems — and applies the most stringent risk management to payment systems. In-scope payment channels include ACH origination, wire transfer entry/approval and settlement (Fedwire, SWIFT), debit/ATM cards, retail and business online banking, bill payment, mobile and remote deposit capture, Zelle, and lockbox. The policy's critical elements are assessing risk, assigning accountability, active board management, ongoing testing and monitoring, training and education, internal controls, and planning for future developments.
+- OWNER & APPROVERS: Owner: Patrick Wilson, Chief Compliance Officer
+Approvers:
+  - Patrick Wilson, Chief Compliance Officer
+- PATRICK_NOTES: """Of the three electronic banking categories, the level of risk is most significant in electronic payment systems; ACH processing, wire transfer, bill payment, mobile deposit capture, and remote deposit capture are the largest risk areas. Risk is predominantly operational (transaction) risk arising from fraud, error, or inability to deliver services, and depends heavily on third-party vendors (Fiserv, Jack Henry, etc.). Controls must be commensurate with that risk and detailed in the Electronic Banking Risk Assessment.
+
+The policy must establish the following controls:
+
+**(a) Planning and Feasibility Analysis.** Analyze each proposal for a new electronic banking service in three stages — study (needs/objectives/alternatives), design and development (best solution installed, policies/procedures/documentation), and operation (proper operation and maintenance) — and prepare a Product Risk Analysis form for Enterprise Risk Management Committee review.
+
+**(b) Incident Planning and Preparedness.** Maintain a business continuity plan, procedures, and an incident response plan covering electronic banking risks, including regular testing of key electronic banking services.
+
+**(c) Internal Routines and Controls.** Maintain comprehensive system reviews and tests validating the controls protecting hardware, software, proprietary data, and electronic transmissions, and train users to adhere to control standards.
+
+**(d) Management Supervision and Oversight.** Keep management and the Board actively involved, supported by the Electronic Banking Risk Assessment, a quarterly IT Committee, an IT Risk Assessment, an annually prepared IT Strategic Plan, an annual IT Audit, IT and Deposit Operations dashboards, and an Electronic Banking Summary, with periodic reports to the Board.
+
+**(e) Authentication Controls.** Require user authentication on all client-facing electronic banking services, applying degrees of authentication in accordance with perceived risk (documented in Exhibit A and the Electronic Banking Authentication and Risk Assessment). Examples include user ID/password/token for system access, tokens and dual control for higher-risk functions, IP and day/time restrictions, mobile device registration, and challenge questions.
+
+**(f) Dual Control for High-Risk Processes.** Apply dual controls or enhanced system access to higher-risk electronic processes (documented in Exhibit B). For ACH origination, recommend dual control for clients originating over $50,000 and assign client/user exposure limits and template restrictions; for wire transfers, require dual control or offline callback approval with PIN, plus daily/periodic limits and predefined templates; for internal Fedwire/SWIFT and item processing, require ID/passcode/token, an additional PIN to release outgoing wires, registered-IP and day/time restrictions, and two employees to originate a wire.
+
+**(g) Electronic Fraud Protection Systems.** Offer and monitor fraud tools including Check Positive Pay, Premium Positive Pay (with ACH monitoring), and card controls (debit-card on/off, limits, and transaction-type settings that do not override institution-defined limits or bypass card-monitoring), and continually monitor fraud trends.
+
+**(h) Vendor Due Diligence.** Perform due diligence on the third-party vendors that design, implement, and service payment technologies (per the Information Technology Cyber Security Policy), including annual review of hosting provider SOC 1 reports and encryption requirements; the Board and senior management remain responsible for vendor performance.
+
+**(i) Expertise and Training.** Provide employee training (technical coursework, conferences, working groups) and ensure adequate backup for critical staff; provide client training and resource guides at onboarding, annual education and self-certification where applicable, and periodic communications on phishing and online fraud.
+
+**(j) Testing.** Validate that equipment and systems function properly and interoperate with existing technology before deployment, including vendors in the testing process.
+
+Governance of these controls is centralized with the Chief Compliance Officer, with the Assistant Vice President of Deposit Operations designated as ultimately responsible for assessing risks and implementing procedures, the IT Committee and Enterprise Risk Management Committee as required participants, and audit personnel verifying the internal control structure.
+
+Out of scope:
+- Consumer-facing online/mobile banking channel governance (enrollment, member experience, business rules) — see E-Commerce Policy.
+- Cybersecurity, encryption, intrusion, and IT general controls — see Information Security Policy.
+- Vendor onboarding and ongoing third-party oversight program — see Third-Party Risk Policy.
+- Enterprise risk appetite, taxonomy, and scoring methodology — see Enterprise Risk Management Policy.
+- Business continuity and disaster recovery program detail — see Business Continuity Plan Policy."""
+- REFERENCE_POLICY: """### Source: Electronic Banking Services Policy - 10-2021.docx - Google Docs.pdf
+
+I​ NSTITUTION​
+                                     ​Electronic Banking Services Policy​
+
+​ he​ ​board​ ​of​ ​directors​ ​and​ ​management​ ​of​ ​INSTITUTION​ ​recognize​ ​that​ ​the​ ​impact​ ​of​
+T
+​electronic​ ​commerce​ ​on​ ​the​ ​banking​ ​industry​ ​has​ ​grown​ ​at​ ​a​ ​rapid​ ​pace.​ ​The​ ​bank​ ​offers​
+ ​innovative​ ​electronic​ ​products​ ​and​​services​​designed​​to​​meet​​the​​needs​​of​​its​​client​​base.​​There​
+  ​are​ ​significant​ ​and​ ​unique​ ​risks​ ​involved​ ​in​ ​electronic​ ​banking​ ​services​​that​​the​​bank​​manages​
+   ​daily.​
+
+​ herefore,​​the​​board​​adopts​​the​​following​​electronic​​banking​​policy.​​The​​critical​​elements​​of​​this​
+T
+​policy​ ​include​ ​assessing​ ​risk,​ ​assigning​ ​accountability,​ ​active​ ​board​ ​management,​ ​ongoing​
+ ​testing​​and​​monitoring,​​continuing​​training​​and​​education,​​development​​of​​internal​​controls,​​and​
+  ​planning for future developments.​
+
+​ELECTRONIC BANKING SERVICES​
+
+​ enerally,​ ​electronic​ ​banking​ ​services​ ​can​ ​be​ ​segregated​ ​into​ ​three​ ​categories​ ​by​ ​degree​ ​of​
+G
+​functionality.​​First,​​systems​​simply​​provide​​information​​(information-only​​systems),​​second,​​they​
+ ​allow​ ​users​ ​to​ ​share​ ​information​ ​(including​ ​personally​ ​identifiable​ ​information)​ ​and​
+  ​communicate​ ​with​​the​​INSTITUTION​​(electronic​​information​​transfer​​systems),​​and​​third,​​they​
+   ​facilitate electronic fund transfers and other financial transactions (electronic payment systems).​
+
+​Information-Only Systems​
+
+I​ nformation-only​ ​systems​ ​are​ ​those​ ​that​ ​allow​ ​access​ ​only​ ​to​ ​general​ ​purpose,​ ​marketing,​ ​or​
+ ​other​ ​publicly​ ​available​ ​information.​​The​​INSTITUTION​​determines​​what​​information​​is​​made​
+  ​available, and reviews and updates the content on a regular basis.​
+
+​ resently,​ ​the​ ​INSTITUTION’s​ ​only​ ​information-only​ ​system​ ​is​ ​its​ ​website:​
+P                                                                                                                    ​MY​
+​INSTITUTION.com.​
+
+​Electronic Information Transfer Systems​
+
+​ lectronic​ ​information​ ​transfer​ ​systems​ ​are​ ​those​ ​that​ ​provide​​the​​ability​​to​​transmit​​messages,​
+E
+​documents,​ ​or​ ​files​ ​among​ ​a​ ​group​ ​of​ ​users.​ ​It​ ​includes​ ​systems​ ​in​​which​​data​​or​​files​​may​​be​
+ ​uploaded​ ​and​ ​downloaded​ ​between​ ​users​ ​and​ ​proprietary​ ​databases​ ​or​ ​networks.​ ​Privacy,​ ​data​
+  ​integrity,​ ​and​ ​user​ ​legitimacy​ ​are​ ​essential​ ​to​ ​reducing​ ​risk​ ​in​ ​the​ ​operation​ ​of​ ​information​
+   ​transfer systems.​
+    ​The INSTITUTION presently offers the following electronic information transfer systems:​
+        ​●​ ​Online​​banking​​services,​​Retail​​Online​​Banking​​and​​Business​​Online​​Banking,​​accessible​
+                  ​via the INSTITUTION’s website​
+         ​●​ ​Sharefile​
+          ​●​ ​Fiserv Move-It​
+           ​●​ ​Automatic teller machines (ATM)​
+            ​●​ ​Email​
+             ​●​ ​eStatements​
+                                                               ​1​
+​ :/Bank Policies/Electronic Banking Policy​
+Y
+​September 2022​
+    ​ ​ ​Mobiliti Mobile Banking (IOS and Android applications)​
+    ●
+    ​●​ ​Multibank Reporting BAI2​
+​Electronic Payment Systems​
+
+​ lectronic​ ​payment​ ​systems​ ​facilitate​ ​electronic​ ​fund​ ​transfers​ ​and​ ​other​ ​financial​ ​transactions​
+E
+​the​​general​​elements​​of​​the​​payment​​system​​are​​still​​present​​(i.e.,​​payment​​entry,​​settlement,​​and​
+ ​distribution).​ ​Electronic​ ​payment​ ​systems​ ​can​ ​be​ ​broadly​ ​categorized​ ​according​ ​to​ ​system​
+  ​components,​​process​​methodology,​​and​​system​​structure.​​Risk​​will​​vary​​significantly​​depending​
+   ​upon the system implementation, administration, and controls used.​
+
+​The present structure of the INSTITUTION’s electronic payment systems is as follows:​
+    ​●​ ​Automated​ ​Clearing​ ​House​ ​(ACH)​ ​processing​ ​via​ ​Business​ ​Online​ ​Banking​ ​ACH​
+                  ​Manager module​
+     ​●​ ​Wire​ ​transfer​ ​payment​ ​entry​ ​and​ ​approval​ ​via​ ​Business​ ​Online​ ​Banking​ ​Wire​ ​Manager​
+                   ​module​
+      ​●​ ​Wire​ ​transfer​ ​settlement​ ​and​ ​distribution​ ​(Payments​ ​Exchange:​ ​Fedwire,​ ​previously​
+                    ​known as WireXchange)​
+       ​●​ ​Debit cards/ATM cards (Fiserv EFT)​
+        ​●​ ​Online banking (Retail Online Banking & Business Online Banking)​
+         ​●​ ​CheckFree​ ​Bill​ ​payment​ ​(via​ ​Retail​ ​Online​ ​Banking,​ ​Business​ ​Online​ ​Banking​ ​and​
+                     ​Mobiliti apps)​
+          ​●​ ​Business​ ​Mobiliti,​ ​Retail​ ​Mobiliti,​ ​and​​Retail​​Mobiliti​​Tablet​​Mobile​​Banking​​(IOS​​and​
+                      ​Android applications) and Mobile deposit capture​
+           ​●​ ​Jack Henry Remote Deposit Capture​
+            ​●​ ​Zelle Payments via Retail Online Banking and Retail Mobiliti Application​
+             ​●​ ​TMR Lock Box services​
+
+​ f​ ​the​ ​three​ ​system​ ​categories​​the​​level​​of​​risk​​to​​the​​INSTITUTION​​is​​most​​significant​​in​​the​
+O
+​area​ ​of​ ​electronic​ ​payment​ ​systems.​ ​We​ ​have​ ​identified​ ​ACH​ ​processing,​ ​wire​ ​transfer,​ ​bill​
+ ​payment,​ ​mobile​ ​deposit​ ​capture,​ ​and​ ​remote​ ​deposit​ ​capture​ ​as​ ​the​ ​largest​ ​risk​ ​areas​ ​for​ ​our​
+  ​INSTITUTION.​ ​We​​have​​built​​in​​controls​​to​​manage​​the​​risk​​of​​processing​​all​​of​​these​​payment​
+   ​systems​ ​that​ ​are​ ​commensurate​ ​with​ ​the​ ​risk​​involved.​ ​Complete​​details​​of​​these​​risks​​and​​the​
+    ​associated​ ​controls​ ​can​ ​be​ ​referenced​ ​in​ ​the​ ​INSTITUTIONs​ ​Electronic​ ​Banking​ ​Risk​
+     ​Assessment.​ ​To​​process​​electronic​​banking​​payments,​​the​​INSTITUTION​​is​​dependent​​on​​third​
+      ​party vendors that are closely scrutinized via the INSTITUTION’s vendor management program.​
+
+​Electronic Fraud Protection Systems​
+
+​ he​ ​INSTITUTION​ ​continually​ ​monitors​ ​fraud​ ​trends​ ​to​ ​ensure​ ​we​ ​are​ ​offering​ ​our​ ​clients​
+T
+​solutions to assist in protecting their accounts.​
+
+    ​●​ ​Check​ ​Positive​ ​Pay-​ ​Clients​ ​have​ ​the​ ​ability​ ​to​ ​upload​​their​​check​​issue​​files​​and​​make​
+         ​their​ ​positive​​pay​​exception​​decisions​​within​​their​​Business​​Online​​Banking​​or​​Business​
+        ​Mobiliti app.​
+
+
+                                                            ​2​
+​ :/Bank Policies/Electronic Banking Policy​
+Y
+​September 2022​
+    ​●​ ​Premium​​Positive​​Pay-​​Clients​​have​​the​​ability​​to​​upload​​their​​check​​issue​​files,​​monitor​
+         ​ACH​ ​activity,​ ​and​ ​make​ ​their​ ​positive​ ​pay​ ​exception​ ​decisions​ ​within​ ​their​ ​Business​
+        ​Online Banking.​
+
+    ​●​ ​ACBT​​Card​​Control-​​Clients​​have​​the​​ability​​to​​register​​their​​debit​​cards​​via​​the​​mobility​
+         ​app.​ ​Once​​the​​card​​is​​registered​​the​​client​​could​​turn​​the​​card​​on/off,​​set​​specific​​limits,​
+          ​or​ ​set​ ​specific​ ​transaction​ ​types.​ ​The​ ​client​ ​settings​ ​in​ ​Card​ ​Control​ ​do​ ​not​ ​override​
+           ​INSTITUTION​ ​defined​ ​card​ ​limits​ ​and​ ​it​ ​does​ ​not​ ​bypass​ ​the​ ​EnFact​ ​card​ ​monitoring​
+        ​process.​
+
+​ASSESSMENT OF RISK TO THE INSTITUTION​
+
+​ utsourced​ ​electronic​ ​banking​ ​services​ ​can​ ​contribute​ ​to​ ​operational​ ​risks​ ​(also​ ​referred​ ​to​ ​as​
+O
+​transaction​ ​risks).​ ​Operational​ ​risk​ ​may​ ​arise​ ​from​ ​fraud,​ ​error,​ ​or​ ​the​ ​inability​ ​to​ ​deliver​
+ ​products​ ​or​ ​services,​ ​maintain​ ​a​ ​competitive​ ​position,​ ​or​ ​manage​ ​information.​ ​It​​exists​​in​​each​
+  ​process​ ​involved​ ​in​ ​the​ ​delivery​ ​of​ ​the​ ​INSTITUTION’s​ ​products​​or​​services.​​Operational​​risk​
+   ​not​ ​only​ ​includes​ ​operations​ ​and​ ​transaction​ ​processing,​ ​but​ ​also​ ​areas​ ​such​ ​as​ ​client​ ​service,​
+    ​systems​ ​development​ ​and​ ​support,​ ​internal​ ​control​ ​processes,​ ​and​ ​capacity​ ​and​ ​contingency​
+     ​planning.​​Operational​​risk​​also​​may​​affect​​other​​risks​​such​​as​​interest​​rate,​​compliance,​​liquidity,​
+      ​price, strategic, or reputation risk.​
+
+​ lthough​​new​​technology​​has​​provided​​important​​benefits​​to​​the​​INSTITUTION​​and​​its​​clients,​
+A
+​it​ ​also​ ​exposes​ ​the​ ​INSTITUTION​ ​to​ ​new​​and​​different​​risks.​​As​​the​​INSTITUTION​​increases​
+ ​its​ ​dependency​ ​on​ ​technology​ ​to​ ​deliver​ ​services​ ​and​ ​process​ ​information,​ ​the​ ​risk​ ​of​ ​adverse​
+  ​consequences​ ​from​ ​operational​ ​failure​ ​increases.​ ​These​ ​risks​ ​ultimately​​threaten​​the​​safety​​and​
+   ​soundness of the institution.​
+
+​ he​ ​INSTITUTION​ ​has​ ​identified​ ​and​ ​documented​ ​a​ ​comprehensive​ ​electronic​ ​banking​ ​risk​
+T
+​assessment​ ​and​ ​information​ ​technology​ ​cyber​ ​security​ ​policy.​ ​Since​ ​technology​ ​growth​ ​is​ ​not​
+ ​static,​​new​​risks​​are​​regularly​​created.​​The​​board​​directs​​executive​​management​​to​​identify​​risks​
+  ​to​ ​the​ ​INSTITUTION​ ​by​ ​using​ ​a​ ​process​ ​of​ ​monitoring,​ ​measuring,​ ​and​ ​identifying​ ​risks​ ​for​
+   ​which the INSTITUTION must be prepared.​
+
+​ he​​board​​appoints​​the​​assistant​​vice​​president​​of​​deposit​​operations​​as​​the​​individual​​ultimately​
+T
+​responsible​ ​for​ ​assessing​ ​risks​ ​and​ ​implementing​ ​procedures​ ​to​ ​minimize​ ​those​ ​risks​ ​to​ ​the​
+ ​INSTITUTION.​ ​It​ ​also​ ​directs​ ​audit​ ​personnel​ ​to​ ​conduct​ ​reviews​ ​of​ ​all​ ​areas​ ​of​ ​electronic​
+  ​banking​​to​​assess​​the​​internal​​control​​structure​​put​​in​​place​​by​​INSTITUTION​​management​​and​
+   ​to verify that all INSTITUTION departments adhere to the general requirements of this policy.​
+
+​MITIGATION OF RISK AND RISK MANAGEMENT​
+
+​ he​ ​INSTITUTION​ ​includes​ ​the​​following​​elements​​in​​its​​electronic​​banking​​risk​​management​
+T
+​plan.​ ​For​ ​specific​ ​details​ ​on​ ​management’s​ ​assessment​ ​and​ ​mitigation​ ​of​ ​IT​ ​and​ ​electronic​
+ ​banking​ ​risks,​ ​reference​ ​the​ ​Electronic​ ​Banking​ ​Authentication​ ​and​ ​Risk​ ​Assessment​ ​and​
+  ​Information Technology Cyber Security Policy.​
+
+                                                             ​3​
+​ :/Bank Policies/Electronic Banking Policy​
+Y
+​September 2022​
+​Planning and Feasibility Analysis​
+
+​Ensure that each proposal for new electronic banking services will be analyzed in three stages:​
+
+    ​▪​ ​Study: Needs and objectives will be analyzed and alternatives developed.​
+
+    ​▪​ ​Design​ ​and​ ​development:​ ​The​ ​best​ ​solution​ ​is​ ​identified​ ​and​ ​installed;​ ​policies​ ​and​
+        ​procedures are developed; and documentation is completed.​
+    ​▪​ ​Operation: The system is properly operated and maintained.​
+
+​ he​ ​Product​ ​Risk​ ​Analysis​ ​form​ ​will​ ​be​ ​prepared​ ​and​ ​presented​ ​to​ ​our​ ​Enterprise​ ​Risk​
+T
+​Management Committee to thoroughly review all new electronic banking services.​
+
+
+​Incident Planning and Preparedness​
+
+​ he​ ​INSTITUTION​ ​maintains​ ​a​​business​​continuity​​plan,​​procedures,​​and​​an​​incident​​response​
+T
+​plan​​to​​prepare​​the​​INSTITUTION​​for​​risks​​that​​may​​occur​​and​​outline​​action​​plans​​to​​respond​​to​
+ ​disasters​ ​and​ ​incidents.​ ​The​ ​business​ ​continuity​​plan​​includes​​regular​​testing​​of​​key​​electronic​
+  ​banking services.​
+
+​Internal Routines and Controls​
+
+​ ank​​management​​has​​developed​​a​​range​​of​​comprehensive​​system​​reviews​​and​​tests​​to​​validate​
+B
+​the​ ​controls​ ​incorporated​ ​into​ ​each​​INSTITUTION​​area​​for​​the​​purpose​​of​​protecting​​hardware​
+ ​and​ ​software,​ ​proprietary​ ​data,​ ​and​ ​electronic​ ​transmissions.​ ​Furthermore,​ ​management​ ​is​
+  ​instructed to train and maintain users on the need to adhere to control standards.​
+
+​Management Supervision and Internal Controls​
+
+​ anagement​​and​​the​​board​​of​​directors​​are​​actively​​involved​​in​​the​​decision-making​​processes​​to​
+M
+​effectively​​mitigate​​risks.​​The​​INSTITUTION​​has​​established​​controls​​and​​processes​​to​​mitigate​
+ ​electronic banking risks. In addition, the following oversight is in place:​
+
+    1​ .​ ​Electronic Banking Risk Assessment​
+     ​2.​ ​IT Committee – Quarterly meetings​
+      ​3.​ ​IT Risk Assessment​
+       ​4.​ ​IT Strategic Plan prepared annually​
+        ​5.​ ​IT Audit – Annual review and testing of controls & supervision​
+         ​6.​ ​IT dashboard​
+          ​7.​ ​Deposit Operations Dashboard​
+           ​8.​ ​Electronic Banking Summary​
+
+
+
+                                                        ​4​
+​ :/Bank Policies/Electronic Banking Policy​
+Y
+​September 2022​
+​ eports​ ​are​ ​provided​ ​to​ ​the​ ​board​ ​periodically​​to​​detail​​the​​actions​​taken​​to​​assess​​and​​manage​
+R
+​electronic banking risks.​
+
+​Authentication Controls​
+
+​ he​ ​INSTITUTION​ ​will​ ​require​ ​user​ ​authentication​ ​controls​​on​​all​​electronic​​banking​​services​
+T
+​used​ ​by​ ​clients.​ ​Different​ ​degrees​ ​of​ ​authentication​​requirements​​will​​be​​applied​​in​​accordance​
+ ​with​ ​the​ ​perceived​ ​risk.​ ​Attached​ ​to​ ​this​ ​policy​ ​as​ ​Exhibit​ ​A​ ​are​ ​the​ ​current​ ​authentication​
+  ​controls utilized.​
+
+​ lient​​Enrollment​​Authentication​​Controls​​are​​covered​​in​​the​​Electronic​​Banking​​Authentication​
+C
+​and Risk Assessment.​
+
+
+​Operations and procedures requiring Dual Control​
+
+​ he​​INSTITUTION​​will​​develop​​internal​​processing​​procedures​​designed​​to​​mitigate​​the​​risks​​of​
+T
+​providing​ ​electronic​ ​banking​ ​services. Electronic​ ​processes​​which​​are​​higher​​risk​​in​​nature​​will​
+ ​require​ ​dual​ ​controls​ ​or​ ​enhanced​ ​system​ ​access​ ​by​ ​employees. These​ ​processes​ ​have​ ​been​
+  ​identified and attached to this policy as Exhibit B.​
+   ​Vendor Due Diligence​
+
+​ ue​ ​to​ ​the​ ​specialized​ ​expertise​ ​needed​ ​to​ ​design,​ ​implement,​ ​and​ ​service​ ​new​ ​technologies,​
+D
+​vendors​​are​​needed​​to​​provide​​resources​​that​​the​​INSTITUTION​​is​​unable​​to​​provide​​on​​its​​own.​
+ ​However,​​the​​board​​and​​senior​​management​​remain​​responsible​​for​​the​​performance​​and​​actions​
+  ​of​ ​these​ ​vendors​ ​while​ ​they​ ​are​ ​performing​ ​work​ ​for​ ​the​ ​INSTITUTION.​ ​Management​ ​will​
+   ​perform​ ​due​ ​diligence​ ​on​ ​these​ ​vendors​ ​as​ ​outlined​ ​in​ ​detail​ ​in​ ​the​ ​Information​ ​Technology​
+    ​Cyber Security Policy.​
+
+​ he​​electronic​​banking​​channels​​are​​hosted​​at​​Fiserv​​Johns​​Creek.​ ​Part​​of​​the​​annual​​vendor​​due​
+T
+​diligence​​completed​​on​​Fiserv​​is​​a​​review​​of​​their​​SOC1​​and​​their​​requirements​​for​​encryption​​of​
+ ​data communications.​
+
+​Expertise and Training​
+
+​Employee Education:​
+
+I​ t​​is​​critical​​to​​the​​success​​of​​a​​risk​​management​​program​​that​​key​​employees​​and​​vendors​​have​
+ ​the​ ​expertise​ ​and​ ​skills​ ​necessary​ ​to​ ​perform​ ​critical​ ​functions,​ ​and​ ​that​ ​they​ ​are​ ​and​ ​remain​
+  ​properly​ ​trained.​ ​Management​ ​will​​allocate​​sufficient​​resources​​to​​hire​​and​​maintain​​employee​
+   ​training​ ​and​ ​to​​ensure​​that​​adequate​​backup​​exists​​if​​critical​​people​​leave.​​Training​​will​​include​
+    ​technical​ ​course​ ​work,​ ​attendance​ ​at​ ​industry​ ​conferences,​ ​participation​ ​in​ ​industry​ ​working​
+     ​groups,​​as​​well​​as​​time​​allotments​​for​​appropriate​​staff​​to​​keep​​abreast​​of​​important​​technological​
+      ​and market developments.​
+
+​Client Education:​
+                                                             ​5​
+​ :/Bank Policies/Electronic Banking Policy​
+Y
+​September 2022​
+​ raining​ ​and​ ​resource​ ​guides​ ​are​ ​given​ ​to​ ​clients​ ​upon​ ​onboarding.​ ​Annually,​ ​additional​
+T
+​education and Self Certification, in areas where applicable is completed.​
+ ​Periodically​ ​the​ ​INSTITUTION​ ​will​ ​send​ ​out​ ​a​ ​communication​ ​piece​ ​regarding​ ​phishing​ ​and​
+  ​other online fraud schemes.​
+
+​Testing​
+
+​ esting​ ​of​ ​systems​ ​is​ ​necessary​ ​to​ ​validate​ ​that​ ​equipment​ ​and​ ​systems​ ​function​ ​properly​ ​and​
+T
+​produce​ ​the​ ​desired​ ​results.​ ​Management​ ​will​ ​verify​ ​whether​ ​new​ ​systems​ ​operate​ ​effectively​
+ ​with the INSTITUTION’s existing technology and will include vendors in the testing process.​
+
+
+
+
+                                                  ​ xhibit A​
+                                                  E
+                  ​Authentication Controls on Electronic Banking Services Access for Clients​
+                        ​Application Access​                                              ​Client Control​
+         ​Business Online Banking​                   ​●​ ​User ID and Password/Token, required​
+          ​(including CheckFree Business Bill​                   ​for System Access;. (Tokens required​
+           ​Pay, Business Mobiliti and​                           ​for some access levels)​
+            ​Business Mobile Deposit Capture,​ ​●​ ​Client user administration may be​
+             ​Positive Pay, and Positive Pay​                      ​controlled by ACBT if​
+              ​Premium) – General Controls​                         ​Self-Administration agreement is not​
+                                                                     ​on file. (i.e., only INSTITUTION​
+                                                                      ​employees have the ability to create a​
+                                                                       ​new User or change User rights)​
+                                                      ​●​ ​Client user administration with a​
+                                                                        ​Self-Administration agreement on file​
+                                                                         ​(i.e., only assigned clients may create​
+                                                                          ​or change user rights)​
+                                                       ​●​ ​Recommended security features:​
+                                                                                  ​●​ ​IP restrictions​
+                                                                                   ​●​ ​Day/time restrictions​
+                                                        ​Business Mobiliti is a user level setting.​
+                                                         ​Client requests the access be enabled.​
+               ​Business Online Banking –​                ​●​ ​User ID, Password/ Token required for​
+                ​ACH Origination​                                          ​System Access​
+                                                           ​●​ ​Clients that originate > $50k it is​
+                                                                            ​recommended they have dual control.​
+                                                            ​●​ ​Client exposure limits assigned by​
+                                                                             ​INSTITUTION for clients that are not​
+                                                                              ​operating under a Pre-Fund model.​
+
+
+                                                             ​6​
+​ :/Bank Policies/Electronic Banking Policy​
+Y
+​September 2022​
+                                               ​●​ ​Users may be assigned limits < the​
+                                                                 ​Client limit​
+                                                ​●​ ​File creation may be limited to​
+                                                                  ​pre-defined templates​
+         ​ usiness Online Banking - Wire​
+         B                                       ​●​ ​User ID, Password/Token required for​
+         ​Transfer​                                                ​System Access​
+                                                  ​●​ ​Dual control or “offline” approval via​
+                                                                    ​callback with PIN required​
+                                                   ​●​ ​Daily or periodic limits may be​
+                                                                     ​assigned for each Client​
+                                                    ​●​ ​Users may be assigned limits < the​
+                                                                      ​Client limit​
+                                                     ​●​ ​File creation is limited to pre-defined​
+                                                                       ​templates​
+         ​ etail Online Banking (including​
+         R                                            ​●​ ​User ID and Password​
+         ​Mobiliti mobile banking, Mobiliti​           ​●​ ​Challenge questions​
+          ​mobile deposit capture, Positive​            ​●​ ​Mobile device registration​
+           ​Pay, Mobiliti Tablet, and​                   ​●​ ​CheckFree is not activated until new​
+            ​CheckFree Bill Pay/Zelle)​                                 ​enrollment is verified​
+             ​Remote Deposit Capture​                     ​●​ ​User ID & Password for System​
+                                                                         ​Access with Jack Henry (Profit Stars)​
+                                                           ​●​ ​Client user administration is controlled​
+                                                                          ​by ACBT (i.e., only INSTITUTION​
+                                                                           ​employees have the ability to create a​
+                                                                            ​new User or change User rights)​
+                                                            ​●​ ​Client user administration with a​
+                                                                             ​Self-Administration agreement on file​
+                                                                              ​(i.e., only assigned clients may create​
+                                                                               ​or change user rights)​
+
+
+
+
+                                                  ​7​
+​ :/Bank Policies/Electronic Banking Policy​
+Y
+​September 2022​
+                                       ​ xhibit B​
+                                       E
+​Internal Electronic Processes Which Require Enhanced System Access or Dual Processing​
+                                        ​Control​
+
+                       ​ rocess​
+                       P                                                                       ​ ontrol​
+                                                                                               C
+         ​Payments Exchange: Fedwire wire​       ​●​ ​User ID, Passcode, & Token required​
+          ​processing​                                             ​for System Access​
+                                                  ​●​ ​Additional PIN required to release​
+                                                                    ​outgoing wires​
+                                                   ​●​ ​Access limited to registered IP​
+                                                                     ​addresses​
+                                                    ​●​ ​Day/time restrictions​
+                                                     ​●​ ​Dual control – two employees required​
+                                                                      ​to originate a wire​
+         ​ IRE PROCESSING TSP​
+         W                                            ​●​ ​User ID, Passcode, & Token required​
+         ​processing, foreign dollar and​                              ​for System Access​
+          ​wires not able to be processed via​         ​●​ ​Additional PIN required to release​
+           ​Payments Exchange due to lack of​                           ​outgoing wires​
+            ​correspondent INSTITUTION​                 ​●​ ​Dual control – two employees required​
+             ​information.​                                              ​to originate a wire​
+              ​SWIFT Alliance Lite2​                     ​●​ ​SWIFT code used to receive foreign​
+                                                                          ​wires​
+                                                          ​●​ ​Alliance Lite2 software used to send​
+                                                                           ​messages to other SWIFT participants​
+                                                           ​●​ ​Actual movement of funds happens​
+                                                                            ​through Payments Exchange: Fedwire​
+                                                                             ​platform​
+         I​ tem Processing – Inbound &​                     ​●​ ​User ID, Password & Token Required​
+          ​Outbound Cash Letter Processing,​                                  ​for System Access​
+           ​adjustments, and ACH Returns​                    ​●​ ​Federal Reserve Bank security​
+                                                                               ​certificate required​
+         ​ iserv EFT (Debit Card​
+         F                                                    ​●​ ​User ID, PIN and Token Required for​
+         ​Maintenance and ENFACT)​                                              ​System Access​
+
+
+
+
+                                                    ​8​
+​ :/Bank Policies/Electronic Banking Policy​
+Y
+​September 2022​
+
+---
+
+### Source: Electronic Banking Services Policy - 10-2021.docx.md
+
+**INSTITUTION**  
+**Electronic Banking Services Policy**
+
+The board of directors and management of INSTITUTION recognize that the impact of electronic commerce on the banking industry has grown at a rapid pace.  The bank offers innovative electronic products and services designed to meet the needs of its client base. There are significant and unique risks involved in electronic banking services that the bank manages daily. 
+
+Therefore, the board adopts the following electronic banking policy. The critical elements of this policy include assessing risk, assigning accountability, active board management, ongoing testing and monitoring, continuing training and education, development of internal controls, and planning for future developments.
+
+**ELECTRONIC BANKING SERVICES**
+
+Generally, electronic banking services can be segregated into three categories by degree of functionality. First, systems simply provide information (information-only systems), second, they allow users to share information (including personally identifiable information) and communicate with the INSTITUTION (electronic information transfer systems), and third, they facilitate electronic fund transfers and other financial transactions (electronic payment systems).
+
+**Information-Only Systems**
+
+Information-only systems are those that allow access only to general purpose, marketing, or other publicly available information. The INSTITUTION determines what information is made available, and reviews and updates the content on a regular basis.
+
+Presently, the INSTITUTION’s only information-only system is its website:  MY INSTITUTION.com.
+
+**Electronic Information Transfer Systems**
+
+Electronic information transfer systems are those that provide the ability to transmit messages, documents, or files among a group of users. It includes systems in which data or files may be uploaded and downloaded between users and proprietary databases or networks. Privacy, data integrity, and user legitimacy are essential to reducing risk in the operation of information transfer systems.  
+The INSTITUTION presently offers the following electronic information transfer systems:
+
+* Online banking services, Retail Online Banking and Business Online Banking, accessible via the INSTITUTION’s website  
+* Sharefile  
+* Fiserv Move-It  
+* Automatic teller machines (ATM)  
+* Email  
+* eStatements  
+* Mobiliti Mobile Banking (IOS and Android applications)   
+* Multibank Reporting BAI2
+
+**Electronic Payment Systems**
+
+Electronic payment systems facilitate electronic fund transfers and other financial transactions the general elements of the payment system are still present (i.e., payment entry, settlement, and distribution). Electronic payment systems can be broadly categorized according to system components, process methodology, and system structure. Risk will vary significantly depending upon the system implementation, administration, and controls used.
+
+The present structure of the INSTITUTION’s electronic payment systems is as follows:
+
+* Automated Clearing House (ACH) processing via Business Online Banking ACH Manager module  
+* Wire transfer payment entry and approval via Business Online Banking Wire Manager module  
+* Wire transfer settlement and distribution (Payments Exchange: Fedwire, previously known as WireXchange)  
+* Debit cards/ATM cards (Fiserv EFT)  
+* Online banking (Retail Online Banking & Business Online Banking)   
+* CheckFree Bill payment (via Retail Online Banking, Business Online Banking and Mobiliti apps)  
+* Business Mobiliti, Retail Mobiliti, and Retail Mobiliti Tablet Mobile Banking (IOS and Android applications) and Mobile deposit capture  
+* Jack Henry Remote Deposit Capture   
+* Zelle Payments via Retail Online Banking and Retail Mobiliti Application  
+* TMR Lock Box services
+
+
+Of the three system categories the level of risk to the INSTITUTION is most significant in the area of electronic payment systems. We have identified ACH processing, wire transfer, bill payment, mobile deposit capture, and remote deposit capture as the largest risk areas for our INSTITUTION.  We have built in controls to manage the risk of processing all of these payment systems that are commensurate with the risk involved.  Complete details of these risks and the associated controls can be referenced in the INSTITUTIONs Electronic Banking Risk Assessment.  To process electronic banking payments, the INSTITUTION is dependent on third party vendors that are closely scrutinized via the INSTITUTION’s vendor management program.
+
+**Electronic Fraud Protection Systems**
+
+The INSTITUTION continually monitors fraud trends to ensure we are offering our clients solutions to assist in protecting their accounts.
+
+* Check Positive Pay- Clients have the ability to upload their check issue files and make their positive pay exception decisions within their Business Online Banking or Business Mobiliti app.  
+* Premium Positive Pay- Clients have the ability to upload their check issue files, monitor ACH activity, and make their positive pay exception decisions within their Business Online Banking.
+
+* ACBT Card Control- Clients have the ability to register their debit cards via the mobility app.  Once the card is registered the client could turn the card on/off, set specific limits, or set specific transaction types.  The client settings in Card Control do not override INSTITUTION defined card limits and it does not bypass the EnFact card monitoring process.
+
+**ASSESSMENT OF RISK TO THE INSTITUTION**
+
+Outsourced electronic banking services can contribute to operational risks (also referred to as transaction risks). Operational risk may arise from fraud, error, or the inability to deliver products or services, maintain a competitive position, or manage information. It exists in each process involved in the delivery of the INSTITUTION’s products or services. Operational risk not only includes operations and transaction processing, but also areas such as client service, systems development and support, internal control processes, and capacity and contingency planning. Operational risk also may affect other risks such as interest rate, compliance, liquidity, price, strategic, or reputation risk.
+
+Although new technology has provided important benefits to the INSTITUTION and its clients, it also exposes the INSTITUTION to new and different risks. As the INSTITUTION increases its dependency on technology to deliver services and process information, the risk of adverse consequences from operational failure increases. These risks ultimately threaten the safety and soundness of the institution.
+
+The INSTITUTION has identified and documented a comprehensive electronic banking risk assessment and information technology cyber security policy. Since technology growth is not static, new risks are regularly created. The board directs executive management to identify risks to the INSTITUTION by using a process of monitoring, measuring, and identifying risks for which the INSTITUTION must be prepared.
+
+The board appoints the assistant vice president of deposit operations as the individual ultimately responsible for assessing risks and implementing procedures to minimize those risks to the INSTITUTION. It also directs audit personnel to conduct reviews of all areas of electronic banking to assess the internal control structure put in place by INSTITUTION management and to verify that all INSTITUTION departments adhere to the general requirements of this policy.
+
+**MITIGATION OF RISK AND RISK MANAGEMENT**
+
+The INSTITUTION includes the following elements in its electronic banking risk management plan. For specific details on management’s assessment and mitigation of IT and electronic banking risks, reference the Electronic Banking Authentication and Risk Assessment and Information Technology Cyber Security Policy.
+
+**Planning and Feasibility Analysis**
+
+Ensure that each proposal for new electronic banking services will be analyzed in three stages:
+
+* Study: Needs and objectives will be analyzed and alternatives developed.  
+* Design and development: The best solution is identified and installed; policies and procedures are developed; and documentation is completed.  
+* Operation: The system is properly operated and maintained.
+
+The Product Risk Analysis form will be prepared and presented to our Enterprise Risk Management Committee to thoroughly review all new electronic banking services.
+
+**Incident Planning and Preparedness**
+
+The INSTITUTION maintains a business continuity plan, procedures, and an incident response plan to prepare the INSTITUTION for risks that may occur and outline action plans to respond to disasters and incidents.  The business continuity plan includes regular testing of key electronic banking services.
+
+**Internal Routines and Controls**
+
+Bank management has developed a range of comprehensive system reviews and tests to validate the controls incorporated into each INSTITUTION area for the purpose of protecting hardware and software, proprietary data, and electronic transmissions. Furthermore, management is instructed to train and maintain users on the need to adhere to control standards. 
+
+**Management Supervision and Internal Controls**
+
+Management and the board of directors are actively involved in the decision-making processes to effectively mitigate risks. The INSTITUTION has established controls and processes to mitigate electronic banking risks.  In addition, the following oversight is in place:
+
+1. Electronic Banking Risk Assessment  
+2. IT Committee – Quarterly meetings  
+3. IT Risk Assessment   
+4. IT Strategic Plan prepared annually  
+5. IT Audit – Annual review and testing of controls & supervision  
+6. IT dashboard  
+7. Deposit Operations Dashboard  
+8. Electronic Banking Summary 
+
+Reports are provided to the board periodically to detail the actions taken to assess and manage electronic banking risks. 
+
+**Authentication Controls**
+
+The INSTITUTION will require user authentication controls on all electronic banking services used by clients. Different degrees of authentication requirements will be applied in accordance with the perceived risk. Attached to this policy as Exhibit A are the current authentication controls utilized.
+
+Client Enrollment Authentication Controls are covered in the Electronic Banking Authentication and Risk Assessment. 
+
+**Operations and procedures requiring Dual Control**
+
+The INSTITUTION will develop internal processing procedures designed to mitigate the risks of providing electronic banking services. Electronic processes which are higher risk in nature will require dual controls or enhanced system access by employees. These processes have been identified and attached to this policy as Exhibit B.  
+**Vendor Due Diligence**
+
+Due to the specialized expertise needed to design, implement, and service new technologies, vendors are needed to provide resources that the INSTITUTION is unable to provide on its own. However, the board and senior management remain responsible for the performance and actions of these vendors while they are performing work for the INSTITUTION. Management will perform due diligence on these vendors as outlined in detail in the Information Technology Cyber Security Policy.
+
+The electronic banking channels are hosted at Fiserv Johns Creek.  Part of the annual vendor due diligence completed on Fiserv is a review of their SOC1 and their requirements for encryption of data communications.
+
+**Expertise and Training**
+
+Employee Education:
+
+It is critical to the success of a risk management program that key employees and vendors have the expertise and skills necessary to perform critical functions, and that they are and remain properly trained.  Management will allocate sufficient resources to hire and maintain employee training and to ensure that adequate backup exists if critical people leave. Training will include technical course work, attendance at industry conferences, participation in industry working groups, as well as time allotments for appropriate staff to keep abreast of important technological and market developments.
+
+Client Education:
+
+Training and resource guides are given to clients upon onboarding. Annually, additional education and Self Certification, in areas where applicable is completed.  
+Periodically the INSTITUTION will send out a communication piece regarding phishing and other online fraud schemes.  
+   
+**Testing**
+
+Testing of systems is necessary to validate that equipment and systems function properly and produce the desired results. Management will verify whether new systems operate effectively with the INSTITUTION’s existing technology and will include vendors in the testing process. 
+
+**Exhibit A**  
+**Authentication Controls on Electronic Banking Services Access for Clients**
+
+| Application Access | Client Control |
+| ----- | ----- |
+| Business Online Banking (including CheckFree Business Bill Pay, Business Mobiliti and Business Mobile Deposit Capture, Positive Pay, and Positive Pay Premium) – General Controls | User ID and Password/Token, required for System Access;.  (Tokens required for some access levels) Client user administration may be controlled by ACBT if Self-Administration agreement is not on file. (i.e., only INSTITUTION employees have the ability to create a new User or change User rights)  Client user administration with a Self-Administration agreement on file (i.e., only assigned clients may create or change user rights) Recommended security features: IP restrictions Day/time restrictions Business Mobiliti is a user level setting.  Client requests the access be enabled. |
+| Business Online Banking – ACH Origination  | User ID, Password/ Token required for System Access  Clients that originate \> $50k  it is recommended they have dual control.  Client exposure limits assigned by INSTITUTION for clients that are not operating under a Pre-Fund model. Users may be assigned limits \< the Client limit File creation may be limited to pre-defined templates |
+| Business Online Banking \- Wire Transfer | User ID, Password/Token required for System Access Dual control or “offline” approval via callback with PIN required Daily or periodic limits may be assigned for each Client Users may be assigned limits \< the Client limit  File creation is limited to pre-defined templates |
+| Retail Online Banking (including Mobiliti mobile banking, Mobiliti mobile deposit capture, Positive Pay, Mobiliti Tablet, and CheckFree Bill Pay/Zelle) | User ID and Password Challenge questions Mobile device registration CheckFree is not activated until new enrollment is verified |
+| Remote Deposit Capture | User ID & Password for System Access with Jack Henry (Profit Stars) Client user administration is controlled by ACBT (i.e., only INSTITUTION employees have the ability to create a new User or change User rights) Client user administration with a Self-Administration agreement on file (i.e., only assigned clients may create or change user rights) |
+
+**Exhibit B**  
+**Internal Electronic Processes Which Require Enhanced System Access or Dual Processing Control**
+
+| Process | Control |
+| ----- | ----- |
+| Payments Exchange: Fedwire wire processing | User ID, Passcode, & Token required for System Access Additional PIN required to release outgoing wires Access limited to registered IP addresses Day/time restrictions Dual control – two employees required to originate a wire |
+| WIRE PROCESSING TSP processing, foreign dollar and wires not able to be processed via Payments Exchange due to lack of correspondent INSTITUTION information.  | User ID, Passcode, & Token required for System Access Additional PIN required to release outgoing wires Dual control – two employees required to originate a wire |
+| SWIFT Alliance Lite2 | SWIFT code used to receive foreign wires Alliance Lite2 software used to send messages to other SWIFT participants Actual movement of funds happens through Payments Exchange: Fedwire platform |
+| Item Processing – Inbound & Outbound Cash Letter Processing, adjustments, and ACH Returns | User ID, Password & Token Required for System Access Federal Reserve Bank security certificate required |
+| Fiserv EFT (Debit Card Maintenance and ENFACT) | User ID, PIN and Token Required for System Access |
+"""
+- AUTHORITY_HINTS: - **NCUA 12 CFR Part 748 and Appendix A (Safeguarding Member Information)** — requires controls to protect member information and operational systems supporting electronic banking.
+- **FFIEC IT Examination Handbook (E-Banking / Retail Payment Systems booklets) and FFIEC Authentication Guidance** — set expectations for layered authentication and risk management of electronic payment channels commensurate with risk.
+- **NACHA Operating Rules** — govern ACH origination, exposure limits, and warranties for originated entries.
+- **Regulation E (12 CFR Part 1005)** — governs electronic fund transfers, including consumer rights and error resolution for affected payment channels.
+- **Regulation CC (12 CFR Part 229)** — governs funds availability and remote/mobile deposit capture of checks.
+- **Federal Reserve / Fedwire and SWIFT operating rules** — govern wire transfer settlement and distribution.
+- DESIGN_NOTES: """# System Design Notes — Engineering Vocabulary
+
+> Generated from `vocabulary.json` — **Cassandra Banking Core API** v1.0.0
+> Parsed at 2026-03-13T21:51:37.890Z
+> Totals: 14 entities · 252 fields · 0 computed fields · 0 events · 85 endpoints · 0 state machines · 0 plugins
+
+This block is a verbatim dump of the current engineering vocabulary. Downstream regeneration decides what to reference in the Design Overlay v2 control blocks — do not pre-filter.
+
+## Entities and fields
+
+### `account`  (schema: `Account` · 15 fields · retention: 7y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique account identifier. |
+| `entity_id` | string | ✓ |  |  | Primary owning entity. Immutable after creation. This is the entity under which the account appears for 5300 reporting and BSA monitoring. |
+| `account_type` | string (enum: checking, savings, money_market) | ✓ |  |  | Ledger account type. Maps to 5300 account codes via the bookkeeping layer. - `checking` — Share draft account (5300 code 025B) - `savings`… |
+| `status` | string (enum: open, frozen, closed) | ✓ |  |  | Account lifecycle state. - `open` — Active and operational. - `frozen` — Temporarily suspended (no debits; credits may still post). Reversi… |
+| `lock_type` | string (enum: none, compliance, fraud, legal, admin) | ✓ |  |  | Orthogonal lock applied independently of entity status. When lock_type is not `none`, the entity is restricted from certain operations even… |
+| `dormancy_status` | string (enum: active, dormant, abandoned) | ✓ |  |  | Orthogonal dormancy classification, tracked independently of account status. Driven by state-specific inactivity periods (typically 12 mont… |
+| `currency` | string | ✓ |  |  | ISO 4217 currency code. Only USD supported. |
+| `balances` | object | ✓ |  |  | Balance fields sourced from the Blnk Deploy ledger. These are read-only computed values — all mutations happen through transaction endpoint… |
+| `balances.balance` | integer |  |  |  | Current available balance (cents). Credits minus debits, excluding inflight. |
+| `balances.credit_balance` | integer |  |  |  | Lifetime credit total (cents). |
+| `balances.debit_balance` | integer |  |  |  | Lifetime debit total (cents). |
+| `balances.inflight_balance` | integer |  |  |  | Net pending transaction amount (cents). Represents authorized but unsettled transactions (e.g., card authorizations). Managed by Blnk's QUE… |
+| `balances.inflight_credit_balance` | integer |  |  |  | Pending inbound credits (cents). |
+| `balances.inflight_debit_balance` | integer |  |  |  | Pending outbound debits (cents). |
+| `bookkeeping` | object | ✓ |  |  | Shadow bookkeeping layer fields for 5300 regulatory reporting and FBO segregation. These are managed by Cassandra, not sourced from Blnk. |
+| `bookkeeping.account_code_5300` | string |  |  |  | NCUA 5300 account code (e.g., 025B for share drafts, 010 for regular shares). Assigned automatically based on account type; overridable by… |
+| `bookkeeping.schedule_a_code` | string |  |  |  | 5300 Schedule A line item code for balance sheet classification. Used by the 5300 Reporter consumer for aggregated reporting. |
+| `bookkeeping.fbo_classification` | string (enum: customer_balance, commingled_cash, settlement) |  |  |  | FBO sub-account classification for the bookkeeping layer. - `customer_balance` — Holds attributed to a specific end-user entity. - `comming… |
+| `bookkeeping.locked_amount` | integer |  |  |  | Amount held by BSA/compliance controls (cents). Separate from Blnk inflight holds — this represents funds frozen by the control engine (e.g… |
+| `owners` | array<object> | ✓ |  |  | All entities with ownership or authority over this account. At minimum, includes the primary owner matching entity_id. Joint ownership is m… |
+| `blnk_ledger_id` | string |  |  |  | Corresponding ledger ID in Blnk Deploy. Opaque reference for reconciliation. |
+| `account_numbers` | array<object> |  |  |  | Summary of account numbers associated with this account. Use the Account Numbers endpoints for full details and management. |
+| `metadata` | object |  |  |  | Arbitrary key-value pairs for partner use. |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `account_number`  (schema: `AccountNumber` · 10 fields · retention: 7y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique account number resource identifier. |
+| `account_id` | string | ✓ |  |  | The ledger account this number is associated with. Immutable. |
+| `account_number` | string | ✓ | ✓ |  | 12-digit account number allocated by the aggregator. Format is PPP-SSSSSSSS-C where P is the 3-digit fintech prefix, S is the 8-digit seque… |
+| `routing_number` | string | ✓ |  |  | ABA routing number. All account numbers within a credit union share the same routing number (the credit union's Fed master account routing… |
+| `status` | string (enum: active, disabled, canceled) | ✓ |  |  | Account number lifecycle state. - `active` — Routable. Inbound payments accepted, outbound allowed. - `disabled` — Temporarily non-routable… |
+| `informational_entity_id` | string | ✓ |  |  | Entity ID for FBO attribution. Typically matches the account's primary owner but can differ in BaaS scenarios where the fintech partner is… |
+| `label` | string |  |  |  | Human-readable label for this account number (e.g., Primary Checking, Partner A Routing). For partner reference only, not used in payment f… |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `ach_transfer`  (schema: `AchTransfer` · 23 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique ACH transfer identifier. |
+| `account_id` | string | ✓ |  |  | The ledger account being debited or credited. |
+| `account_number_id` | string | ✓ |  |  | The specific account number used for this transfer. Determines the routing/account number pair that appears in the ACH file. |
+| `direction` | string (enum: credit, debit) | ✓ |  |  | Direction of the ACH transfer from the perspective of this account. - `credit` — Push money out (originate a payment to an external party).… |
+| `amount` | integer | ✓ |  |  | Transfer amount in cents. Must be positive. |
+| `currency` | string | ✓ |  |  |  |
+| `status` | string (enum: pending_approval, submitted, settled, returned, rejected, canceled) | ✓ |  |  | ACH transfer lifecycle state. - `pending_approval` — Created, awaiting control engine evaluation. - `submitted` — Controls passed, ACH file… |
+| `window` | string (enum: standard, same_day) | ✓ |  |  | ACH processing window. - `standard` — Next-day settlement (standard ACH). - `same_day` — Same-day ACH (additional fee may apply, cutoff tim… |
+| `counterparty` | object | ✓ |  |  |  |
+| `counterparty.routing_number` | string | ✓ |  |  | ABA routing number of the receiving institution. |
+| `counterparty.account_number` | string | ✓ | ✓ |  | Account number at the receiving institution. |
+| `counterparty.account_type` | string (enum: checking, savings) | ✓ |  |  | Account type at the receiving institution. |
+| `counterparty.name` | string | ✓ | ✓ |  | Receiver name as it will appear in the ACH file. Max 22 characters per NACHA format. |
+| `description` | string |  |  |  | Company entry description in the ACH batch header. Max 10 characters per NACHA format (e.g., "PAYROLL", "PAYMENT"). |
+| `company_name` | string |  |  |  | Originator company name in the ACH batch header. Max 16 characters per NACHA format. Defaults to partner's registered name. |
+| `effective_date` | string |  |  |  | The date the transfer will settle at the Fed. Set by the system based on the processing window and submission time. For same-day ACH, this… |
+| `expected_settlement` | string |  |  |  | Estimated settlement timestamp. More precise than effective_date — accounts for Fed processing windows, weekends, and holidays. |
+| `settled_at` | string |  |  |  | Actual settlement timestamp. Populated when status becomes `settled`. |
+| `returned_at` | string |  |  |  | Timestamp of the return. Populated when status becomes `returned`. |
+| `return_code` | string |  |  |  | NACHA return reason code (e.g., R01 Insufficient Funds, R02 Account Closed, R03 No Account, R04 Invalid Account Number). Only present when… |
+| `return_reason` | string |  |  |  | Human-readable return reason. Only present when status is `returned`. |
+| `rejection_reason` | string |  |  |  | Explanation of why the control engine rejected this transfer. Only present when status is `rejected`. |
+| `control_results` | array<object> |  |  |  | Results of all control engine evaluations for this transfer. Populated at creation time (when the control engine gates the transfer). |
+| `blnk_transaction_id` | string |  |  |  | Corresponding transaction ID in Blnk Deploy. |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `book_transfer`  (schema: `BookTransfer` · 13 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique book transfer identifier. |
+| `source_account_id` | string | ✓ |  |  | The account being debited. |
+| `destination_account_id` | string | ✓ |  |  | The account being credited. |
+| `amount` | integer | ✓ |  |  | Transfer amount in cents. |
+| `currency` | string | ✓ |  |  |  |
+| `status` | string (enum: pending, completed, rejected) | ✓ |  |  | Book transfer lifecycle state. - `pending` — Created, control engine evaluating. - `completed` — Funds moved instantly (both sides settled)… |
+| `description` | string |  |  |  | Free-text description of the transfer purpose. |
+| `rejection_reason` | string |  |  |  | Explanation of why the control engine rejected this transfer. Only present when status is `rejected`. |
+| `control_results` | array<object> |  |  |  | Results of control engine evaluations. |
+| `blnk_transaction_id` | string |  |  |  | Corresponding transaction ID in Blnk Deploy. |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `wire_transfer`  (schema: `WireTransfer` · 21 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique wire transfer identifier. |
+| `account_id` | string | ✓ |  |  | The ledger account being debited (outbound) or credited (inbound). |
+| `account_number_id` | string | ✓ |  |  | The account number used for this wire. |
+| `direction` | string (enum: outbound, inbound) | ✓ |  |  | Direction of the wire transfer. - `outbound` — Originated by this instance, sending funds via Fedwire. - `inbound` — Received from an exter… |
+| `amount` | integer | ✓ |  |  | Transfer amount in cents. |
+| `currency` | string | ✓ |  |  |  |
+| `status` | string (enum: pending_approval, submitted, completed, return_requested, returned, rejected, …(+1)) | ✓ |  |  | Wire transfer lifecycle state. - `pending_approval` — Created, awaiting control engine evaluation. - `submitted` — Controls passed, Fedwire… |
+| `beneficiary` | object |  |  |  | The receiving party and their bank details for an outbound wire. |
+| `beneficiary.name` | string | ✓ | ✓ |  | Beneficiary name as it will appear on the Fedwire message. |
+| `beneficiary.routing_number` | string | ✓ |  |  | ABA routing number of the beneficiary's bank. |
+| `beneficiary.account_number` | string | ✓ | ✓ |  | Account number at the beneficiary's bank. |
+| `beneficiary.bank_name` | string |  |  |  | Name of the beneficiary's bank. Optional — if omitted, resolved automatically from the routing number via the Fed directory. |
+| `beneficiary.address` | object |  |  |  |  |
+| `beneficiary.address.line1` | string | ✓ | ✓ |  | Street address line 1. |
+| `beneficiary.address.line2` | string |  |  |  | Street address line 2 (apt, suite, unit, etc.). |
+| `beneficiary.address.city` | string | ✓ | ✓ |  |  |
+| `beneficiary.address.state` | string | ✓ |  |  | Two-letter US state or territory code (ISO 3166-2:US). |
+| `beneficiary.address.postal_code` | string | ✓ | ✓ |  | US ZIP code (5-digit or ZIP+4). |
+| `beneficiary.address.country` | string | ✓ |  |  | ISO 3166-1 alpha-2 country code. |
+| `originator` | object |  |  |  | Originator information from an inbound Fedwire message. Read-only — populated by the aggregator when routing an inbound wire. |
+| `originator.name` | string |  | ✓ |  |  |
+| `originator.routing_number` | string |  |  |  |  |
+| `originator.account_number` | string |  | ✓ |  |  |
+| `originator.bank_name` | string |  |  |  |  |
+| `originator.reference` | string |  |  |  | Originator-to-beneficiary information (OBI) from the Fedwire message. |
+| `purpose` | string |  |  |  | Originator-to-beneficiary information (OBI). Free-text description of the wire purpose, included in the Fedwire message. |
+| `imad` | string |  |  |  | Input Message Accountability Data — the Fed's unique identifier for this Fedwire message. Populated after submission. Used for tracing and… |
+| `omad` | string |  |  |  | Output Message Accountability Data — assigned by the receiving Fed bank. Populated after the wire is acknowledged. |
+| `submitted_at` | string |  |  |  | Timestamp when the Fedwire message was submitted. |
+| `completed_at` | string |  |  |  | Timestamp when the wire completed. Wires are typically same-day. |
+| `return_request` | object |  |  |  | Details of the return request, if one has been filed. Only present when status is `return_requested` or `returned`. |
+| `rejection_reason` | string |  |  |  | Explanation of why the control engine rejected this wire. Only present when status is `rejected`. |
+| `control_results` | array<object> |  |  |  | Results of control engine evaluations. |
+| `blnk_transaction_id` | string |  |  |  | Corresponding transaction ID in Blnk Deploy. |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `verification`  (schema: `Verification` · 14 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique verification identifier. |
+| `entity_id` | string | ✓ |  |  | The entity being verified. |
+| `type` | string (enum: kyc, kyb) | ✓ |  |  | Whether this is identity verification for a person (KYC) or a business (KYB). Trusts use KYB. Joint entities are verified through their ind… |
+| `provider` | string (enum: alloy, persona, socure, middesk, partner_provided) | ✓ |  |  | The identity verification provider used for this check. - `alloy`, `persona`, `socure`, `middesk` — Cassandra-managed providers. The system… |
+| `trust_level` | string (enum: full, verify_watchlist_only) |  |  |  | Trust level for partner-provided verifications (from partner configuration). - `full` — Cassandra trusts the partner's identity verificatio… |
+| `status` | string (enum: pending, in_review, approved, denied, expired) | ✓ |  |  | Status of this individual verification attempt. - `pending` — Verification submitted to provider, awaiting result. - `in_review` — Provider… |
+| `ofac_result` | object | ✓ |  |  | Result of the mandatory OFAC screening. OFAC screening is a compliance floor control (BA-05) and runs on every verification regardless of p… |
+| `ofac_result.screened_at` | string |  |  |  |  |
+| `ofac_result.match_status` | string (enum: clear, potential_match, confirmed_match) |  |  |  | - `clear` — No matches found on SDN, consolidated sanctions, or PEP lists. - `potential_match` — Possible match requiring compliance office… |
+| `ofac_result.matched_lists` | array<string> |  |  |  | Names of lists that returned matches (e.g., "SDN", "Consolidated Sanctions", "PEP", "314a"). Empty array when match_status is `clear`. |
+| `ofac_result.match_score` | number |  |  |  | Confidence score of the strongest match (0-100). Only meaningful when match_status is `potential_match`. Used by compliance officers to pri… |
+| `provider_result` | object |  |  |  | Normalized verification result from the provider. Cassandra translates each provider's native response into this common structure. |
+| `provider_result.provider_reference` | string |  |  |  | The provider's native reference ID for this verification (e.g., Alloy evaluation_token, Persona inquiry_id). |
+| `provider_result.provider_status` | string |  |  |  | The provider's native status string, preserved for debugging. Cassandra normalizes this into the verification's top-level `status`. |
+| `provider_result.identity_verified` | boolean |  |  |  | Whether the provider confirmed the identity matches the provided data. |
+| `provider_result.document_verified` | boolean |  |  |  | Whether identity documents were verified (if required by risk tier). Null if document verification was not required. |
+| `provider_result.risk_score` | number |  |  |  | Provider's risk score, normalized to 0-100 range. Higher = riskier. Used by CDD controls for risk tiering. |
+| `provider_result.risk_signals` | array<string> |  |  |  | Risk signal tags from the provider (e.g., "address_mismatch", "ssn_issued_prior_to_dob", "high_risk_jurisdiction"). Used by the control eng… |
+| `provider_result.raw_response` | object |  |  |  | The complete provider response, stored verbatim for audit purposes. Only returned when the requesting token has compliance-scoped permissio… |
+| `denial_reasons` | array<string> |  |  |  | Machine-readable reasons for denial (e.g., "identity_not_verified", "document_mismatch", "high_risk_jurisdiction", "ofac_match"). Only pres… |
+| `expires_at` | string |  |  |  | When this verification result expires per CDD refresh policy. After expiry, the entity's kyc_status transitions to `expired` and a new veri… |
+| `triggered_by` | string (enum: initial, cdd_refresh, information_change, manual) |  |  |  | What triggered this verification. - `initial` — First-time verification on entity creation. - `cdd_refresh` — Periodic re-verification per… |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `card`  (schema: `Card` · 16 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique card identifier. |
+| `account_id` | string | ✓ |  |  | The ledger account this card draws from / credits to. |
+| `entity_id` | string | ✓ |  |  | The entity this card is issued to. Must be a person entity. Immutable after creation. |
+| `card_type` | string (enum: virtual, physical) | ✓ |  |  | - `virtual` — Instantly issued, PAN available immediately via secure details endpoint. - `physical` — Requires fulfillment (mailing). PAN a… |
+| `form_factor` | string (enum: debit, prepaid) | ✓ |  |  | Card form factor for network classification. - `debit` — Linked to a deposit account with overdraft rules. - `prepaid` — Balance-limited, n… |
+| `network` | string (enum: visa, mastercard) |  |  |  | Card network, determined by the BIN allocated to this instance. |
+| `status` | string (enum: inactive, active, frozen, closed) | ✓ |  |  | Card lifecycle state, driven by the adapter interface (createCard, activateCard, freezeCard, closeCard). - `inactive` — Card created but no… |
+| `last_four` | string | ✓ |  |  | Last four digits of the card number (PAN). |
+| `expiration_month` | integer | ✓ |  |  |  |
+| `expiration_year` | integer | ✓ |  |  | Four-digit expiration year. |
+| `shipping` | object |  |  |  | Shipping details for physical cards. Only present when `card_type` is `physical`. Null for virtual cards. |
+| `shipping.status` | string (enum: pending, shipped, delivered, returned) |  |  |  |  |
+| `shipping.tracking_number` | string |  |  |  |  |
+| `shipping.carrier` | string |  |  |  |  |
+| `shipping.shipped_at` | string |  |  |  |  |
+| `shipping.estimated_delivery` | string |  |  |  |  |
+| `spend_controls` | object |  |  |  | Optional per-card spending limits. These are enforced in addition to account-level controls and the control engine's velocity limits. |
+| `spend_controls.daily_limit` | integer |  |  |  | Maximum daily spend in cents. Null means no per-card daily limit. |
+| `spend_controls.monthly_limit` | integer |  |  |  | Maximum monthly spend in cents. |
+| `spend_controls.per_transaction_limit` | integer |  |  |  | Maximum single transaction amount in cents. |
+| `spend_controls.allowed_mcc_codes` | array<string> |  |  |  | Whitelist of allowed Merchant Category Codes. If populated, only transactions at merchants with these MCCs are approved. Empty array means… |
+| `spend_controls.blocked_mcc_codes` | array<string> |  |  |  | Blacklist of blocked MCCs. Transactions at merchants with these MCCs are declined. Evaluated after allowed_mcc_codes. |
+| `processor_reference` | string |  |  |  | Card reference ID at the processor (Marqeta card_token or Lithic card_id). Opaque — used internally for adapter operations. |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `card_authorization`  (schema: `CardAuthorization` · 14 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  |  |
+| `card_id` | string | ✓ |  |  |  |
+| `account_id` | string | ✓ |  |  |  |
+| `status` | string (enum: pending, approved, declined, reversed, expired) | ✓ |  |  | Authorization lifecycle. - `pending` — Authorization received, control engine evaluating (transient, sub-2-second). - `approved` — Authoriz… |
+| `amount` | integer | ✓ |  |  | Authorization amount in cents. |
+| `currency` | string | ✓ |  |  |  |
+| `merchant` | object | ✓ |  |  | Merchant details from the authorization request. |
+| `merchant.name` | string |  |  |  |  |
+| `merchant.mcc` | string |  |  |  | Merchant Category Code. |
+| `merchant.city` | string |  |  |  |  |
+| `merchant.state` | string |  |  |  |  |
+| `merchant.country` | string |  |  |  |  |
+| `merchant.acceptor_id` | string |  |  |  | Card acceptor ID from the processor. |
+| `decline_reason` | string (enum: insufficient_funds, card_frozen, card_closed, account_frozen, account_locked, spend_limit_exceeded, …(+5)) |  |  |  | Machine-readable reason for declining an authorization. |
+| `control_results` | array<object> |  |  |  | Control engine results for this authorization. Includes balance check, velocity, OFAC, fraud, and spend control evaluations. |
+| `blnk_transaction_id` | string |  |  |  | Blnk inflight transaction ID (for approved authorizations). Null for declined authorizations. |
+| `processor_reference` | string |  |  |  | Processor's native authorization reference. |
+| `settled_at` | string |  |  |  | Settlement timestamp. Populated when the inflight transaction commits in Blnk (processor sends settlement webhook). Null until settled. |
+| `settlement_amount` | integer |  |  |  | Final settlement amount in cents. May differ from the authorization amount (e.g., tip added, partial fulfillment). |
+| `created_at` | string | ✓ |  |  |  |
+
+### `bookkeeping_entry`  (schema: `BookkeepingEntry` · 17 fields · retention: 7y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique bookkeeping entry identifier. |
+| `account_id` | string | ✓ |  |  | The ledger account this entry pertains to. |
+| `account_number_id` | string |  |  |  | The specific account number involved (if applicable). Null for account-level entries (e.g., interest, fees). |
+| `entity_id` | string |  |  |  | The entity attributed for FBO segregation. Derived from the account's primary owner or the account number's informational_entity_id, depend… |
+| `entry_type` | string (enum: debit, credit, hold_placed, hold_released, hold_seized) | ✓ |  |  | Type of bookkeeping entry. - `debit` — Funds left the account (matches a Blnk debit transaction). - `credit` — Funds entered the account (m… |
+| `source` | string (enum: ach_transfer, wire_transfer, book_transfer, card_authorization, card_settlement, fee, …(+3)) | ✓ |  |  | The originating transaction type that produced this bookkeeping entry. Maps 1:1 to the domain event that triggered the Blnk webhook. |
+| `source_id` | string |  |  |  | ID of the originating resource (e.g., ach_5kRb3m for an ACH transfer, auth_2nRb7m for a card authorization). Allows joining bookkeeping ent… |
+| `amount` | integer | ✓ |  |  | Entry amount in cents. Always positive — direction is conveyed by entry_type. |
+| `currency` | string | ✓ |  |  |  |
+| `running_balance` | integer |  |  |  | Account balance after this entry was applied (cents). Provides a verifiable audit trail — each entry's running_balance should equal the pre… |
+| `account_code_5300` | string | ✓ |  |  | NCUA 5300 account code for this entry (e.g., 025B for share drafts, 010 for regular shares). Inherited from the account's bookkeeping tags… |
+| `schedule_a_code` | string |  |  |  | 5300 Schedule A line item code for balance sheet classification. Used by the 5300 Reporter for aggregated reporting. |
+| `fbo_classification` | string (enum: customer_balance, commingled_cash, settlement) | ✓ |  |  | FBO sub-account classification for the bookkeeping layer. - `customer_balance` — Holds attributed to a specific end-user entity. - `comming… |
+| `blnk_transaction_id` | string |  |  |  | Corresponding Blnk Deploy transaction ID. Null for compliance hold entries (which are Cassandra-native, not Blnk transactions). |
+| `description` | string |  |  |  | System-generated description of the entry (e.g., "ACH credit from John Doe via 271070801", "Compliance hold placed — BA-05 OFAC match"). |
+| `effective_date` | string |  |  |  | The business date this entry is effective for regulatory reporting. May differ from created_at for entries posted after business hours or f… |
+| `created_at` | string | ✓ |  |  |  |
+
+### `event`  (schema: `Event` · 11 fields · retention: 7y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique event identifier. |
+| `type` | string (enum: entity.created, entity.activated, entity.disabled, entity.archived, entity.updated, entity.locked, …(+51)) | ✓ |  |  | Domain event type. Events are emitted on every state transition and significant operation. Partners receive these via webhook delivery. |
+| `resource_id` | string | ✓ |  |  | ID of the resource that changed (e.g., ent_abc123, acct_xyz789). |
+| `resource_type` | string | ✓ |  |  | Type of the resource (e.g., entity, account, ach_transfer). |
+| `data` | object |  |  |  | Snapshot of the resource at the time of the event. Contains the full resource representation (same schema as the corresponding GET endpoint… |
+| `previous_data` | object |  |  |  | For update events, the resource state before the change. Only includes fields that changed. Null for creation events. |
+| `delivery_status` | string (enum: pending, delivered, failed, expired) |  |  |  | Delivery status for a specific webhook delivery attempt. - `pending` — Queued for delivery (or retrying). - `delivered` — Partner endpoint… |
+| `delivery_attempts` | integer |  |  |  | Number of webhook delivery attempts made so far (max 12). |
+| `last_delivery_attempt_at` | string |  |  |  | Timestamp of the most recent delivery attempt. |
+| `delivered_at` | string |  |  |  | Timestamp of successful delivery. Null if not yet delivered. |
+| `created_at` | string | ✓ |  |  |  |
+
+### `webhook_endpoint`  (schema: `WebhookEndpoint` · 9 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  | Unique webhook endpoint identifier. |
+| `url` | string | ✓ |  |  | The HTTPS URL that receives webhook POST requests. Must use HTTPS (HTTP rejected). Must return 2xx within 30 seconds to be considered a suc… |
+| `status` | string (enum: active, disabled) | ✓ |  |  | - `active` — Events are delivered to this endpoint. - `disabled` — Delivery is paused. Events accumulate and can be retrieved via the backf… |
+| `subscribed_events` | array<string> | ✓ |  |  | List of event type patterns this endpoint receives. Supports exact types (e.g., "ach_transfer.settled") and wildcard prefixes (e.g., "ach_t… |
+| `signing_secret` | string |  |  |  | HMAC-SHA256 signing secret for verifying webhook payloads. Only returned once at creation time. Use to verify the `X-Cassandra-Signature` h… |
+| `delivery_stats` | object |  |  |  | Rolling delivery statistics for this endpoint. |
+| `delivery_stats.total_delivered` | integer |  |  |  |  |
+| `delivery_stats.total_failed` | integer |  |  |  |  |
+| `delivery_stats.last_delivered_at` | string |  |  |  |  |
+| `delivery_stats.last_failed_at` | string |  |  |  |  |
+| `delivery_stats.current_failure_streak` | integer |  |  |  | Consecutive failed deliveries. When this reaches a threshold, the endpoint may be automatically disabled and the partner alerted. |
+| `metadata` | object |  |  |  |  |
+| `created_at` | string | ✓ |  |  |  |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `fbo_position`  (schema: `FboPosition` · 6 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `instance_id` | string | ✓ |  |  |  |
+| `balance` | integer | ✓ |  |  | Current FBO balance for this instance (cents). Sum of all settled inbound minus all settled outbound for this instance's accounts. |
+| `held_amount` | integer | ✓ |  |  | Amount currently reserved for pending outbound payments (cents). Held via the reserve saga pattern (Decision 28, step 4). |
+| `available_balance` | integer | ✓ |  |  | Effective available balance (cents). Computed as `balance - held_amount`. This is the amount the Origination API checks against when approv… |
+| `last_event_sequence` | integer | ✓ |  |  | The sequence_id of the most recent event processed by the Payment Hub consumer for this instance. Used for staleness detection. |
+| `updated_at` | string | ✓ |  |  |  |
+
+### `inbound_payment`  (schema: `InboundPayment` · 9 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string | ✓ |  |  |  |
+| `payment_type` | string (enum: ach_credit, ach_debit, wire, rtp) | ✓ |  |  |  |
+| `account_number` | string | ✓ |  |  | The 12-digit account number this payment was routed to. |
+| `amount` | integer | ✓ |  |  |  |
+| `currency` | string |  |  |  |  |
+| `status` | string (enum: pending, delivered, acknowledged) | ✓ |  |  | - `pending` — Aggregator has the payment, not yet pushed to instance. - `delivered` — Pushed to instance via webhook. - `acknowledged` — In… |
+| `originator` | object |  |  |  |  |
+| `originator.name` | string |  |  |  |  |
+| `originator.routing_number` | string |  |  |  |  |
+| `originator.account_number` | string |  |  |  |  |
+| `reference` | string |  |  |  | Originator reference or trace number. |
+| `received_at` | string | ✓ |  |  | When the aggregator received this payment from the Fed. |
+
+### `bsa_alert`  (schema: `BsaAlert` · 9 fields · retention: 5y)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `alert_id` | string | ✓ |  |  |  |
+| `event_id` | string | ✓ |  |  | The event that triggered this alert. |
+| `alert_type` | string (enum: ctr_threshold, structuring_suspected, cross_fintech_activity, sar_candidate, velocity_anomaly, watchlist_hit) | ✓ |  |  | Type of BSA alert generated by the BSA Approver (real-time) or BSA Reporter (scheduled). |
+| `entity_hash` | string | ✓ |  |  | Hashed entity identifier (SSN/EIN hash). Used for per-entity lookups without exposing PII in the alert table. |
+| `instance_id` | string |  |  |  | The fintech instance where the triggering event originated. For cross-fintech alerts, this is the instance of the most recent triggering ev… |
+| `status` | string (enum: open, under_review, escalated, cleared, block) | ✓ |  |  | BSA alert lifecycle. - `open` — New alert, not yet reviewed. - `under_review` — Analyst is investigating. - `escalated` — Elevated to SAR c… |
+| `requires_lookback` | boolean |  |  |  | Whether the BSA Reporter should run a deep historical analysis on this alert. Set by the BSA Approver when it detects patterns that need 90… |
+| `details` | object |  |  |  | Alert-specific details. Structure varies by alert_type. Examples: transaction amounts, pattern description, matched entity information for… |
+| `created_at` | string | ✓ |  |  |  |
+
+## Events
+
+> ⚠️  **Vocabulary warning — no events defined.** The `events` array in vocabulary.json is empty. Any `(event.code)` reference the policy wants to use must be introduced by engineering and registered in the spec before the Design Overlay v2 blocks can cite it. The endpoints list below is provided as candidate signals from which engineering could derive event codes (e.g., `POST /accounts` → `account.created`).
+
+## Endpoints
+
+| Method | Path | Summary | Control refs | Audit events |
+|---|---|---|---|---|
+| `GET` | `/entities` | List entities |  |  |
+| `GET` | `/entities/{entity_id}` | Retrieve an entity |  |  |
+| `POST` | `/entities/person` | Create a person entity | CD-01, CD-04, BA-03, BA-05 |  |
+| `POST` | `/entities/business` | Create a business entity | CD-01, CD-04, CD-05, BA-03, BA-05 |  |
+| `POST` | `/entities/trust` | Create a trust entity | CD-01, CD-04, BA-03, BA-05 |  |
+| `POST` | `/entities/joint` | Create a joint entity | BA-05 |  |
+| `PATCH` | `/entities/person/{entity_id}` | Update a person entity | CD-09, BA-05 |  |
+| `PATCH` | `/entities/business/{entity_id}` | Update a business entity | CD-05, CD-09 |  |
+| `PATCH` | `/entities/trust/{entity_id}` | Update a trust entity | CD-09 |  |
+| `PATCH` | `/entities/joint/{entity_id}` | Update a joint entity |  |  |
+| `POST` | `/entities/{entity_id}/status` | Transition entity status | BA-05, CD-08 |  |
+| `PUT` | `/entities/{entity_id}/lock` | Update entity lock |  |  |
+| `GET` | `/accounts` | List accounts |  |  |
+| `POST` | `/accounts` | Create an account | CD-04, CD-03, CD-12, BA-05 |  |
+| `GET` | `/accounts/{account_id}` | Retrieve an account |  |  |
+| `PATCH` | `/accounts/{account_id}` | Update an account | CD-05 |  |
+| `POST` | `/accounts/{account_id}/status` | Transition account status | CD-12 |  |
+| `PUT` | `/accounts/{account_id}/lock` | Update account lock |  |  |
+| `GET` | `/accounts/{account_id}/account-numbers` | List account numbers for an account |  |  |
+| `POST` | `/accounts/{account_id}/account-numbers` | Create an additional account number | BA-05 |  |
+| `GET` | `/account-numbers/{account_number_id}` | Retrieve an account number |  |  |
+| `PATCH` | `/account-numbers/{account_number_id}` | Update an account number |  |  |
+| `POST` | `/account-numbers/{account_number_id}/status` | Transition account number status |  |  |
+| `GET` | `/transfers/ach` | List ACH transfers |  |  |
+| `POST` | `/transfers/ach` | Create an ACH transfer | BA-05, BA-06, BA-07, BA-08, BA-10, CD-06 |  |
+| `GET` | `/transfers/ach/{ach_transfer_id}` | Retrieve an ACH transfer |  |  |
+| `POST` | `/transfers/ach/{ach_transfer_id}/cancel` | Cancel an ACH transfer |  |  |
+| `POST` | `/transfers/ach/batch` | Create a batch of ACH transfers | BA-05, BA-06, BA-07, BA-08, BA-10, CD-06 |  |
+| `GET` | `/transfers/book` | List book transfers |  |  |
+| `POST` | `/transfers/book` | Create a book transfer | BA-05, BA-06, BA-07, BA-08 |  |
+| `GET` | `/transfers/book/{book_transfer_id}` | Retrieve a book transfer |  |  |
+| `GET` | `/transfers/wire` | List wire transfers |  |  |
+| `POST` | `/transfers/wire` | Create a wire transfer | BA-05, BA-06, BA-07, BA-08, BA-10 |  |
+| `GET` | `/transfers/wire/{wire_transfer_id}` | Retrieve a wire transfer |  |  |
+| `POST` | `/transfers/wire/{wire_transfer_id}/cancel` | Cancel a wire transfer |  |  |
+| `POST` | `/transfers/wire/{wire_transfer_id}/return-request` | Request a wire return |  |  |
+| `GET` | `/entities/{entity_id}/verifications` | List verifications for an entity |  |  |
+| `POST` | `/entities/{entity_id}/verifications` | Initiate a verification | CD-01, CD-04, BA-03, BA-05, BA-20 |  |
+| `POST` | `/entities/{entity_id}/verifications/attest` | Submit a partner-provided KYC/KYB attestation | CD-01, CD-10, BA-05, BA-20 |  |
+| `GET` | `/verifications/{verification_id}` | Retrieve a verification |  |  |
+| `GET` | `/cards` | List cards |  |  |
+| `POST` | `/cards` | Create a card | BA-05, CD-04 |  |
+| `GET` | `/cards/{card_id}` | Retrieve a card |  |  |
+| `PATCH` | `/cards/{card_id}` | Update a card |  |  |
+| `POST` | `/cards/{card_id}/status` | Transition card status |  |  |
+| `GET` | `/cards/{card_id}/sensitive` | Retrieve sensitive card details | PR-01 |  |
+| `GET` | `/cards/{card_id}/authorizations` | List authorizations for a card |  |  |
+| `GET` | `/authorizations/{authorization_id}` | Retrieve a card authorization |  |  |
+| `GET` | `/accounts/{account_id}/bookkeeping-entries` | List bookkeeping entries for an account |  |  |
+| `GET` | `/bookkeeping-entries/{entry_id}` | Retrieve a bookkeeping entry |  |  |
+| `GET` | `/bookkeeping/summary` | Get aggregated bookkeeping summary |  |  |
+| `GET` | `/bookkeeping/reconciliation` | Run reconciliation check |  |  |
+| `GET` | `/events` | List events |  |  |
+| `GET` | `/events/{event_id}` | Retrieve an event |  |  |
+| `POST` | `/events/{event_id}/retry` | Retry event delivery |  |  |
+| `GET` | `/webhooks` | List webhook endpoints |  |  |
+| `POST` | `/webhooks` | Create a webhook endpoint |  |  |
+| `GET` | `/webhooks/{webhook_endpoint_id}` | Retrieve a webhook endpoint |  |  |
+| `PATCH` | `/webhooks/{webhook_endpoint_id}` | Update a webhook endpoint |  |  |
+| `DELETE` | `/webhooks/{webhook_endpoint_id}` | Delete a webhook endpoint |  |  |
+| `POST` | `/webhooks/{webhook_endpoint_id}/rotate-secret` | Rotate webhook signing secret |  |  |
+| `POST` | `/webhooks/{webhook_endpoint_id}/test` | Send a test webhook |  |  |
+| `POST` | `/sandbox/simulate/kyc/approve` | Simulate: Approve KYC verification |  |  |
+| `POST` | `/sandbox/simulate/kyc/deny` | Simulate: Deny KYC verification |  |  |
+| `POST` | `/sandbox/simulate/ach/receive` | Simulate: Receive an inbound ACH credit |  |  |
+| `POST` | `/sandbox/simulate/ach/settle` | Simulate: Settle an outbound ACH transfer |  |  |
+| `POST` | `/sandbox/simulate/ach/return` | Simulate: Return a settled ACH transfer |  |  |
+| `POST` | `/sandbox/simulate/wire/receive` | Simulate: Receive an inbound wire |  |  |
+| `POST` | `/sandbox/simulate/wire/settle` | Simulate: Complete an outbound wire |  |  |
+| `POST` | `/sandbox/simulate/card/authorize` | Simulate: Card authorization |  |  |
+| `POST` | `/sandbox/simulate/card/settle` | Simulate: Card settlement |  |  |
+| `POST` | `/sandbox/simulate/time/advance` | Simulate: Advance sandbox clock |  |  |
+| `POST` | `/sandbox/reset` | Reset sandbox environment |  |  |
+| `POST` | `/auth/token` | Obtain an aggregator access token |  |  |
+| `GET` | `/fbo/{instance_id}/position` | Get FBO position for an instance |  |  |
+| `GET` | `/fbo/{instance_id}/available-balance` | Get available balance for an instance |  |  |
+| `POST` | `/payments/ach/originate` | Originate an ACH payment | BA-05, BA-06, BA-07, BA-08 |  |
+| `POST` | `/payments/wire/originate` | Originate a wire payment | BA-05, BA-06, BA-07, BA-08, BA-10 |  |
+| `POST` | `/payments/wire/prepare` | Prepare a wire payment (phase 1 of 2) | BA-05, BA-06, BA-07, BA-08, BA-10 |  |
+| `POST` | `/payments/wire/confirm` | Confirm a prepared wire payment (phase 2 of 2) |  |  |
+| `POST` | `/payments/rtp/originate` | Originate an RTP payment | BA-05, BA-06, BA-07, BA-08 |  |
+| `GET` | `/inbound/{instance_id}` | List inbound payments for an instance |  |  |
+| `GET` | `/bsa/alerts` | List BSA alerts |  |  |
+| `GET` | `/bsa/alerts/{alert_id}` | Retrieve a BSA alert |  |  |
+| `GET` | `/consumers/health` | Get aggregator consumer health |  |  |
+
+## State machines
+
+_No state machines defined in vocabulary.json._
+
+## Plugins
+
+_No plugins defined in vocabulary.json._
+"""
+
+
+LOCAL OVERRIDES (apply after all meta-prompt rules):
+{{Usually empty. Put anything here that should override the shared
+`meta-prompt.md` for THIS policy only — a different control-ID prefix,
+extra required sections, a specific citation style, etc. The regeneration
+task applies overrides AFTER the shared meta-prompt, so instructions here
+win.}}
