@@ -96,8 +96,11 @@ def build(spec, migration_doc):
             pspec = pspec or {}
             rec = field_record(rname, pname, pspec.get("type", "string"),
                                pspec.get("format"))
+            # Policies cite snake_case paths (account.id), so register the
+            # path that way; entity stays CamelCase for renderer grouping.
+            rec["path"] = f"{snake(rname)}.{pname}"
             fields.append(rec)
-            registered_paths.add(f"{snake(rname)}.{pname}")
+            registered_paths.add(rec["path"])
     for token, ftype in sorted(flat_fields.items()):
         prefix, _, rest = token.partition(".")
         rec = field_record(prefix, rest, ftype or "string")
@@ -187,7 +190,12 @@ def build(spec, migration_doc):
         ttype = entry.get("type", "")
         if ttype not in set(task_types):
             warnings.append(f"task token {token!r} uses unregistered task_type {ttype!r}")
-        tasks.append({"name": token, "subject": entry.get("subject", ""), "type": ttype})
+        rec = {"name": token, "subject": entry.get("subject", ""), "type": ttype}
+        timer_of = entry.get("timer_of") or entry.get("timer")
+        if timer_of:
+            rec["timer_of"] = timer_of if timer_of != "due_at" else None
+            rec["is_timer"] = True
+        tasks.append(rec)
     for tname, entry in sorted(task_map.items()):
         tasks.append({"name": tname, "subject": entry.get("subject", ""),
                       "type": entry.get("type", ""), "source": "task_map"})

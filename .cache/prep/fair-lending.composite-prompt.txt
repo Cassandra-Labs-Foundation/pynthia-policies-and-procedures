@@ -188,6 +188,24 @@ The policy must establish the following controls:
 
 **(j) Monitoring & Reviews.** Run quarterly disparity analytics (applications/approvals/price/terms/denials/exceptions) due within 30 days of quarter close and an annual redlining review by Q1, with Board reporting and corrective actions; disparity deltas beyond thresholds trigger a CAP.
 
+**(m) Complaint Monitoring.** Maintain a dedicated fair-lending complaint monitoring program as a standalone control (FL-13). This program must:
+
+- **Intake and logging.** Capture complaints from all channels (member-direct, CFPB portal, NCUA, state regulators, third-party partners, internal staff referrals) in a centralized complaint log within one business day of receipt. Each complaint record must include: date received, channel, member/applicant identifier, product type, complaint description, and the receiving staff member.
+
+- **Prohibited-basis triage.** Screen every complaint within three business days for potential fair-lending relevance. Assign a prohibited-basis flag (ECOA/Reg B protected classes: race, color, religion, national origin, sex, marital status, age, familial status, disability, income from public assistance, exercise of CCPA rights; FHA protected classes where real-estate credit is involved). Complaints flagged as potentially fair-lending related must be escalated immediately to Compliance.
+
+- **Compliance review and escalation.** Compliance must complete an initial fair-lending assessment of each escalated complaint within ten business days. If the complaint alleges or suggests disparate treatment, discriminatory pricing, inquiry-stage discouragement, redlining, or steering, it must be logged in the Fair-Lending Issue Register and assigned a severity rating (Low / Medium / High / Potential Pattern). High-severity or pattern-potential complaints must be escalated to the Chief Compliance Officer within two business days of classification and reported to the Board at the next quarterly cycle.
+
+- **Pattern analysis.** Compliance must review the complaint log quarterly, segmented by prohibited basis, product type, loan officer, branch, and third-party partner, to identify emerging patterns. Any cluster of three or more complaints of the same type within a 12-month rolling window triggers a root-cause investigation and corrective action plan (CAP) within 30 days of identification. The quarterly Monitoring & Reviews report (subsection (j)) must include a complaint pattern summary.
+
+- **Remediation tracking.** When a confirmed violation or pattern of violations is identified, Compliance must document and track: (1) re-underwriting or reconsideration of the affected application(s); (2) credit offers or fee refunds where the member suffered a quantifiable harm; (3) corrective action for the responsible staff member, loan officer, or third party; and (4) process or system changes to prevent recurrence. Remediation status must be tracked to closure in the Fair-Lending Issue Register, with target remediation timelines set at intake and monitored by Compliance monthly.
+
+- **Regulator self-referral.** If Compliance determines that a pattern of violations may constitute a systemic or willful violation of ECOA, FHA, or related statutes, the Chief Compliance Officer must assess self-referral obligations to the NCUA (and, where applicable, the CFPB or DOJ) in consultation with Legal. The self-referral assessment must be documented and retained regardless of the outcome.
+
+- **Reporting.** The complaint monitoring program must produce: (a) a monthly complaint log summary to Compliance management; (b) a fair-lending complaint section in the quarterly Board compliance report; and (c) an annual fair-lending complaint trend report, including year-over-year volume, prohibited-basis distribution, resolution times, remediation outcomes, and any self-referral activity.
+
+This control addresses FFIEC risk factors U9 (underwriting), P5 (pricing), S7 (steering), and M7 (marketing), all of which ask whether management monitors discrimination complaints, and satisfies the FFIEC Compliance Management Analysis Checklist items requiring documented complaint intake, analysis, and response processes (Appendix §A–B).
+
 **(k) Training.** Provide role-based onboarding within 30 days of role start plus annual training by December 31 (including contractors and third parties), tracking completion to ≥ 98% and refreshing on rule/product changes.
 
 **(l) Record Retention.** Retain records per the grid — consumer applications/decisions and existing-account adverse actions 25 months, business credit ≤$1MM 12 months, certain business credit >$1MM 60 days (extended to 12 months if reasons or retention requested), HMDA/GMI and LO-comp per their calendars, and self-tests 25 months — extending all on litigation/investigation hold.
@@ -4059,8 +4077,8 @@ Regulation B, Equal Credit Opportunity Act, 12 CFR 1002
 - DESIGN_NOTES: """# System Design Notes — Engineering Vocabulary
 
 > Generated from `vocabulary.json` — **Cassandra Banking Core API (Minimal)** v2.2.0
-> Parsed at 2026-06-05T16:57:26.077313Z
-> Totals: 265 entities · 1683 fields · 0 computed fields · 1215 events · 35 endpoints · 12 state machines · 0 plugins
+> Parsed at 2026-06-05T17:44:28.142014Z
+> Totals: 265 entities · 1683 fields · 0 computed fields · 1221 events · 35 endpoints · 12 state machines · 0 plugins
 
 This block is a verbatim dump of the current engineering vocabulary. Downstream regeneration decides what to reference in the Design Overlay v2 control blocks — do not pre-filter.
 
@@ -7094,6 +7112,8 @@ This block is a verbatim dump of the current engineering vocabulary. Downstream 
 | `access_review.completed` | access_review | canonical event_type: `completed` |
 | `access_right.changed` | access_right | canonical event_type: `changed` |
 | `access_right.recorded` | access_right | canonical event_type: `recorded` |
+| `accessibility.accommodation_provided` | accessibility | canonical event_type: `granted` |
+| `accessibility.accommodation_requested` | accessibility | canonical event_type: `requested` |
 | `account.adverse_action_decided` | account | canonical event_type: `decided` |
 | `account.closed` | account | canonical event_type: `closed` |
 | `account.closure_approved` | account | canonical event_type: `approved` |
@@ -7110,6 +7130,7 @@ This block is a verbatim dump of the current engineering vocabulary. Downstream 
 | `account_freeze.precedence_resolved` | account_freeze | canonical event_type: `resolved` |
 | `account_freeze.release_approved` | account_freeze | canonical event_type: `approved` |
 | `ach_transfer.created` | ach_transfer | canonical event_type: `created` |
+| `ad.accessibility_check` | ad | canonical event_type: `checked` |
 | `ad.preflight_decided` | ad | canonical event_type: `decided` |
 | `ad.preflight_submitted` | ad | canonical event_type: `submitted` |
 | `ad.targeting_changed` | ad | canonical event_type: `changed` |
@@ -7117,6 +7138,7 @@ This block is a verbatim dump of the current engineering vocabulary. Downstream 
 | `address.ncoa_mismatch_detected` | address | canonical event_type: `detected` |
 | `advertising.publication_logged` | advertising | canonical event_type: `logged` |
 | `advertising.published` | advertising | canonical event_type: `published` |
+| `advertising.reach_review_completed` | advertising | canonical event_type: `completed` |
 | `advertising.review_completed` | advertising | canonical event_type: `completed` |
 | `advertising.review_requested` | advertising | canonical event_type: `requested` |
 | `affiliate.asset_purchase_proposed` | affiliate | canonical event_type: `proposed` |
@@ -7631,6 +7653,7 @@ This block is a verbatim dump of the current engineering vocabulary. Downstream 
 | `facility.visitor_arrived` | facility | canonical event_type: `arrived` |
 | `facility.visitor_logged` | facility | canonical event_type: `logged` |
 | `fair_lending.assessment_completed` | fair_lending | canonical event_type: `completed` |
+| `fair_lending.discouragement_reported` | fair_lending | canonical event_type: `reported` |
 | `fair_lending.record_appended` | fair_lending | canonical event_type: `recorded` |
 | `fair_lending.remediation_closed` | fair_lending | canonical event_type: `closed` |
 | `fair_lending.remediation_opened` | fair_lending | canonical event_type: `opened` |
@@ -7823,6 +7846,7 @@ This block is a verbatim dump of the current engineering vocabulary. Downstream 
 | `loan_application.incompleteness_notice_sent` | loan_application | canonical event_type: `sent` |
 | `loan_application.insider_flagged` | loan_application | canonical event_type: `flagged` |
 | `loan_application.insider_screened` | loan_application | canonical event_type: `screened` |
+| `loan_application.oral_adverse_decision` | loan_application | canonical event_type: `decided` |
 | `loan_application.product_screened` | loan_application | canonical event_type: `screened` |
 | `loan_application.thin_file_flagged` | loan_application | canonical event_type: `flagged` |
 | `loan_exception.analytics_published` | loan_exception | canonical event_type: `published` |
@@ -8334,6 +8358,768 @@ This block is a verbatim dump of the current engineering vocabulary. Downstream 
 | `GET` | `/tasks/{id}` | get_task |  |  |
 | `POST` | `/tasks/{id}/complete` | complete_task |  |  |
 
+## Tasks & timers
+
+Registered task types (generic `Task` resource: `type` · `subject_ref` · `due_at` · `status`): `acknowledgement`, `analysis`, `approval`, `assessment`, `attestation`, `consolidation`, `decision`, `deprovision`, `disposal`, `escalation`, `exercise`, `expiry`, `filing`, `issuance`, `notice`, `onboarding`, `plan`, `purge`, `reconciliation`, `refresh`, `remediation`, `renewal`, `report`, `review`, `test`, `triage`, `update`, `verification`
+
+Domain task/timer codes below are registered — each maps to a `Task` instance. Timer codes (`*_due_at`, `*_expires_at`) are the `due_at` of the named task; cite them in the *Within* column as registered timers.
+
+| Code | Task type | Subject | Timer of |
+|---|---|---|---|
+| `access.deprovision_due_at` | `deprovision` | access | `access_deprovision` |
+| `access.review_due` | `review` | access | `access_review` |
+| `access.revocation_due_at` | `review` | access | `access_revocation` |
+| `access_review.due` | `review` | access_review | `access_review_due` |
+| `account.aan_due_at` | `issuance` | aan | `aan_issuance` |
+| `account.closure_payout_due_at` | `review` | account_closure | `account_closure_payout` |
+| `account.maturity_notice_due_at` | `notice` | account_maturity | `account_maturity_notice` |
+| `account_freeze.application_due_at` | `review` | account_freeze | `account_freeze_application` |
+| `advertising.reach_review_due` | `review` | advertising | `advertising_reach_review` |
+| `ai.register_update_due_at` | `update` | ai_register | `ai_register_update` |
+| `alm.irr_simulation_due` | `review` | alm_irr | `alm_irr_simulation` |
+| `alm.irr_simulation_due_at` | `review` | alm_irr | `alm_irr_simulation` |
+| `analytics.disparity_due_at` | `analysis` | disparity | `disparity_analysis` |
+| `analytics.method_review_due` | `review` | analytics_method | `analytics_method_review` |
+| `analytics.method_review_due_at` | `review` | analytics_method | `analytics_method_review` |
+| `analytics.redlining_due_at` | `review` | redlining | `redlining_review` |
+| `analytics.redlining_review_due` | `review` | redlining | `redlining_review` |
+| `antivirus.log_review_due` | `review` | antivirus_log | `antivirus_log_review` |
+| `application.counteroffer_due_at` | `expiry` | counteroffer | `counteroffer_expiry` |
+| `application.notice_due_at` | `notice` | incompleteness | `incompleteness_notice` |
+| `appraisal.delivery_due_at` | `review` | appraisal | `appraisal_delivery` |
+| `asset.cmdb_update_due_at` | `update` | cmdb | `cmdb_update` |
+| `audit.assessment_annual_due_at` | `review` | audit_assessment | `audit_assessment_annual` |
+| `audit.compliance_audit_due` | `review` | compliance | `audit_compliance_audit` |
+| `audit.compliance_audit_due_at` | `review` | compliance | `audit_compliance_audit` |
+| `audit.cycle_timer` | `test` | independent | `independent_test` |
+| `audit.engagement_due` | `test` | independent | `independent_test` |
+| `audit.integrity_check_due` | `review` | audit_integrity | `audit_integrity_check` |
+| `audit.monthly_schedule_due` | `review` | audit_monthly | `audit_monthly_schedule` |
+| `audit.remediation_due` | `remediation` | finding | `finding_remediation` |
+| `audit.remediation_timer` | `remediation` | finding | `finding_remediation` |
+| `audit.retention_expires_at` | `review` | audit | `audit_retention` |
+| `backup.restore_test_due` | `test` | backup_restore | `backup_restore_test` |
+| `backup.verify_due` | `verification` | backup | `backup_verify` |
+| `backup.verify_due_at` | `verification` | backup | `backup_verify` |
+| `bcp.annual_review_due` | `review` | bcp_annual | `bcp_annual_review` |
+| `bia.annual_update_due` | `update` | bia_annual | `bia_annual_update` |
+| `bia.certification_due` | `review` | bia | `bia_certification` |
+| `bia.review_due` | `review` | bia | `bia_review` |
+| `board.notification_due_at` | `review` | board | `board_notification` |
+| `bsa_alert.triage_timer` | `triage` | alert | `alert_triage` |
+| `capital.contingency_due_at` | `review` | capital | `capital_contingency` |
+| `capital.contingency_memo_due_at` | `review` | capital_contingency | `capital_contingency_memo` |
+| `capital.icaap_due_at` | `review` | capital | `capital_icaap` |
+| `capital.payout_restriction_due_at` | `review` | capital_payout | `capital_payout_restriction` |
+| `capital.plan_due_at` | `plan` | capital | `capital_plan` |
+| `capital.quarterly_report_due_at` | `report` | capital_quarterly | `capital_quarterly_report` |
+| `capital.ratio_calc_due_at` | `review` | capital_ratio | `capital_ratio_calc` |
+| `capital.ratio_computation_due_at` | `review` | capital_ratio | `capital_ratio_computation` |
+| `capital.remediation_plan_due_at` | `plan` | capital_remediation | `capital_remediation_plan` |
+| `capital.stress_report_due_at` | `report` | capital_stress | `capital_stress_report` |
+| `case.sar_decision_timer` | `decision` | sar | `sar_decision` |
+| `cash.coverage.attestation_due` | `review` | cash | `cash_coverage.attestation` |
+| `cash.coverage.attestation_due_at` | `review` | cash | `cash_coverage.attestation` |
+| `cash.custody.rotation_due` | `review` | cash | `cash_custody.rotation` |
+| `cash.custody.rotation_due_at` | `review` | cash | `cash_custody.rotation` |
+| `cash.enterprise_limit.remediation_due_at` | `review` | cash_enterprise | `cash_enterprise_limit.remediation` |
+| `cash.kri.publish_due_at` | `review` | cash | `cash_kri.publish` |
+| `cash.overshort.investigation_due_at` | `review` | cash | `cash_overshort.investigation` |
+| `cash.shipment.verification_due_at` | `review` | cash | `cash_shipment.verification` |
+| `cash.surprise_count.due` | `review` | cash_surprise | `cash_surprise_count.due` |
+| `catalogue.sync_due` | `review` | catalogue | `catalogue_sync` |
+| `catalogue.sync_due_at` | `review` | catalogue | `catalogue_sync` |
+| `cda.audit_due_at` | `review` | cda | `cda_audit` |
+| `cda.board_packet_due_at` | `review` | cda_board | `cda_board_packet` |
+| `cda.cap_cure_due_at` | `review` | cda_cap | `cda_cap_cure` |
+| `cda.cap_test_due_at` | `test` | cda_cap | `cda_cap_test` |
+| `cda.conflict_escalation_due_at` | `escalation` | cda_conflict | `cda_conflict_escalation` |
+| `cda.distribution_due_at` | `review` | cda | `cda_distribution` |
+| `cda.policy_review_due` | `review` | cda_policy | `cda_policy_review` |
+| `cda.posttrade_due_at` | `review` | cda | `cda_posttrade` |
+| `cda.reconciliation_due_at` | `reconciliation` | cda | `cda_reconciliation` |
+| `cda.remediation_due_at` | `remediation` | cda | `cda_remediation` |
+| `cda.termination_report_due_at` | `report` | cda_termination | `cda_termination_report` |
+| `cda.vendor_review_due` | `review` | cda_vendor | `cda_vendor_review` |
+| `cda.vendor_review_due_at` | `review` | cda_vendor | `cda_vendor_review` |
+| `cdd.refresh_due` | `refresh` | cdd | `cdd_refresh` |
+| `cdd.refresh_timer` | `refresh` | cdd | `cdd_refresh` |
+| `cfp.execution_plan_due_at` | `plan` | cfp_execution | `cfp_execution_plan` |
+| `cfp.investment_test_due` | `test` | cfp_investment | `cfp_investment_test` |
+| `cfp.investment_test_due_at` | `test` | cfp_investment | `cfp_investment_test` |
+| `cfp.transition_due_at` | `review` | cfp | `cfp_transition` |
+| `change.cab_review_due_at` | `review` | cab | `cab_review` |
+| `change.post_review_due_at` | `review` | change_post | `change_post_review` |
+| `claim.carrier_notice_due_at` | `notice` | claim_carrier | `claim_carrier_notice` |
+| `cmir.filing_timer` | `filing` | cmir | `cmir_filing` |
+| `coi.certification_due` | `review` | coi | `coi_certification` |
+| `coi.questionnaire_due_at` | `review` | coi | `coi_questionnaire` |
+| `collateral.compute_due_at` | `review` | collateral | `collateral_compute` |
+| `collections.annual_review_due` | `review` | collections_annual | `collections_annual_review` |
+| `collections.annual_review_due_at` | `review` | collections_annual | `collections_annual_review` |
+| `collections.attorney_flag_due_at` | `review` | collections_attorney | `collections_attorney_flag` |
+| `collections.board_report_due` | `report` | collections_board | `collections_board_report` |
+| `collections.board_report_due_at` | `report` | collections_board | `collections_board_report` |
+| `collections.breach_log_due_at` | `review` | collections_breach | `collections_breach_log` |
+| `collections.cease_flag_due_at` | `review` | collections_cease | `collections_cease_flag` |
+| `comms.same_day_due_at` | `review` | comms_same | `comms_same_day` |
+| `complaint.ack_due_at` | `acknowledgement` | complaint | `complaint_ack` |
+| `complaint.final_response_due_at` | `review` | complaint_final | `complaint_final_response` |
+| `complaint.initial_response_due_at` | `review` | complaint_initial | `complaint_initial_response` |
+| `complaint.resolution_due_at` | `review` | complaint | `complaint_resolution` |
+| `complaint.trend_review_due` | `review` | complaint_trend | `complaint_trend_review` |
+| `compliance.board_report_due` | `report` | compliance_board | `compliance_board_report` |
+| `compliance.board_report_due_at` | `report` | compliance_board | `compliance_board_report` |
+| `compliance.risk_assessment_due` | `assessment` | compliance_risk | `compliance_risk_assessment` |
+| `compliance.risk_assessment_due_at` | `assessment` | compliance_risk | `compliance_risk_assessment` |
+| `concentration.compute_due_at` | `review` | concentration | `concentration_compute` |
+| `concentration.waiver_due_at` | `review` | concentration | `concentration_waiver` |
+| `control.framework_review_due` | `review` | control_framework | `control_framework_review` |
+| `control.framework_review_due_at` | `review` | control_framework | `control_framework_review` |
+| `core_archive.confirmation_due` | `review` | core_archive | `core_archive_confirmation` |
+| `correction.propagation_due_at` | `review` | correction | `correction_propagation` |
+| `credit_box.next_review_at` | `review` | credit_box | `credit_box_review` |
+| `credit_box.review_due` | `review` | credit_box | `credit_box_review` |
+| `credit_file.reanalysis_due` | `review` | credit_file | `credit_file_reanalysis` |
+| `credit_file.reanalysis_due_at` | `review` | credit_file | `credit_file_reanalysis` |
+| `credit_package.retention_expires_at` | `purge` | retention | `retention_purge` |
+| `credit_report.stale_at` | `refresh` | credit_report | `credit_report_refresh` |
+| `crisis.convene_due_at` | `review` | crisis | `crisis_convene` |
+| `ctr.exemption_review_due` | `review` | ctr_exemption | `ctr_exemption_review` |
+| `ctr.exemption_review_timer` | `review` | ctr_exemption | `ctr_exemption_review` |
+| `ctr.filing_timer` | `filing` | ctr | `ctr_filing` |
+| `disclosure.account_opening_due_at` | `review` | disclosure_account | `disclosure_account_opening` |
+| `disclosure.change_in_terms_due_at` | `review` | disclosure_change_in | `disclosure_change_in_terms` |
+| `disclosure.error_escalation_due_at` | `escalation` | disclosure_error | `disclosure_error_escalation` |
+| `disclosure.pillar3_due_at` | `review` | disclosure | `disclosure_pillar3` |
+| `dispute.investigation_due_at` | `review` | dispute | `dispute_investigation` |
+| `dispute.provisional_credit_due` | `review` | dispute_provisional | `dispute_provisional_credit` |
+| `dispute.provisional_credit_due_at` | `review` | dispute_provisional | `dispute_provisional_credit` |
+| `dispute.regulator_due_at` | `review` | dispute | `dispute_regulator` |
+| `dispute.response_due_at` | `review` | dispute | `dispute_response` |
+| `document.attachment_due_at` | `review` | document | `document_attachment` |
+| `dq.tieout_due_at` | `review` | dq | `dq_tieout` |
+| `dr.exercise_due` | `exercise` | dr | `dr_exercise` |
+| `dr.exercise_due_at` | `exercise` | dr | `dr_exercise` |
+| `drill.aar_due_at` | `exercise` | drill | `drill_aar` |
+| `drill.remediation_due` | `remediation` | drill | `drill_remediation` |
+| `drill.remediation_due_at` | `remediation` | drill | `drill_remediation` |
+| `ecommerce.risk_assessment_due` | `assessment` | ecommerce_risk | `ecommerce_risk_assessment` |
+| `edd.refresh_due` | `refresh` | edd | `edd_refresh` |
+| `edd.refresh_timer` | `refresh` | edd | `edd_refresh` |
+| `email_archive.test_due` | `test` | email_archive | `email_archive_test` |
+| `eps.board_report.due` | `review` | eps_board | `eps_board_report.due` |
+| `eps.deficiency.remediation_due_at` | `review` | eps | `eps_deficiency.remediation` |
+| `eps.incident.ncua_due_at` | `review` | eps | `eps_incident.ncua` |
+| `eps.pospay.decision_due_at` | `review` | eps | `eps_pospay.decision` |
+| `eps.test.retro_due_at` | `review` | eps | `eps_test.retro` |
+| `eps.training.self_cert_due_at` | `review` | eps_training.self | `eps_training.self_cert` |
+| `eps.vendor.dd_due_at` | `review` | eps | `eps_vendor.dd` |
+| `eps.vendor.soc1_due_at` | `review` | eps | `eps_vendor.soc1` |
+| `escalation.ack_timer` | `acknowledgement` | escalation | `escalation_ack` |
+| `escalation.plan_timer` | `plan` | escalation | `escalation_plan` |
+| `estate.payout_due_at` | `review` | estate | `estate_payout` |
+| `ewi.daily_sweep_due` | `review` | ewi_daily | `ewi_daily_sweep` |
+| `ewi.evaluation_due` | `review` | ewi | `ewi_evaluation` |
+| `ewi.summary_due_at` | `review` | ewi | `ewi_summary` |
+| `ewi.sweep_due_at` | `review` | ewi | `ewi_sweep` |
+| `ewi.weekly_summary_due` | `review` | ewi_weekly | `ewi_weekly_summary` |
+| `exercise.board_report_due` | `report` | exercise_board | `exercise_board_report` |
+| `expense.preapproval_due_at` | `review` | expense | `expense_preapproval` |
+| `expense.review_due_at` | `review` | expense | `expense_review` |
+| `facility.annual_test_due` | `test` | facility_annual | `facility_annual_test` |
+| `facility.badge_deactivation_due_at` | `review` | badge | `badge_deactivation` |
+| `facility.renewal_due` | `renewal` | facility | `facility_renewal` |
+| `facility.signage_review_due` | `review` | signage | `signage_review` |
+| `facility.signage_review_due_at` | `review` | signage | `signage_review` |
+| `facility.test_due_at` | `test` | facility | `facility_test` |
+| `fair_lending.assessment_due` | `assessment` | fair_lending | `fair_lending_assessment` |
+| `fair_lending.next_assessment_at` | `assessment` | fair_lending | `fair_lending_assessment` |
+| `fair_lending.remediation_due_at` | `remediation` | remediation | `remediation` |
+| `fbar.filing_due` | `filing` | fbar | `fbar_filing` |
+| `fbar.filing_timer` | `filing` | fbar | `fbar_filing` |
+| `finding.escalation_due_at` | `escalation` | finding | `finding_escalation` |
+| `finding.monthly_review_due` | `review` | finding_monthly | `finding_monthly_review` |
+| `finding.quarterly_report_due` | `report` | finding_quarterly | `finding_quarterly_report` |
+| `finding.response_due_at` | `review` | finding | `finding_response` |
+| `firewall.independent_review_due` | `review` | firewall_independent | `firewall_independent_review` |
+| `firewall.review_due` | `review` | firewall | `firewall_review` |
+| `funding.first_line_due_at` | `review` | funding_first | `funding_first_line` |
+| `furnishing.cycle_due` | `review` | furnishing | `furnishing_cycle` |
+| `furnishing.cycle_due_at` | `review` | furnishing | `furnishing_cycle` |
+| `furnishing.dispute_due_at` | `review` | furnishing | `furnishing_dispute` |
+| `governance.policy_review_due` | `review` | policy | `policy_review` |
+| `governance.review_timer` | `review` | policy | `policy_review` |
+| `handover.access_expires_at` | `review` | handover | `handover_access` |
+| `handover.access_expiry_due` | `expiry` | handover_access | `handover_access_expiry` |
+| `handover.full_due_at` | `review` | handover | `handover_full` |
+| `handover.initial_due_at` | `review` | handover | `handover_initial` |
+| `hmda.lar_qc_due` | `review` | hmda_lar | `hmda_lar_qc` |
+| `hmda.lar_qc_due_at` | `review` | hmda_lar | `hmda_lar_qc` |
+| `hmda.submission_due_at` | `review` | hmda | `hmda_submission` |
+| `imt.roster_review_due` | `review` | imt_roster | `imt_roster_review` |
+| `incident.ncua_notice_due_at` | `notice` | incident_ncua | `incident_ncua_notice` |
+| `incident.notification_due_at` | `review` | incident | `incident_notification` |
+| `incident.regulator_notification_due` | `review` | incident_regulator | `incident_regulator_notification` |
+| `incident.triage_due_at` | `triage` | incident | `incident_triage` |
+| `incident_trend.review_due` | `review` | incident_trend | `incident_trend_review` |
+| `indemnification.advance_due_at` | `review` | indemnification | `indemnification_advance` |
+| `indemnification.determination_due_at` | `review` | indemnification | `indemnification_determination` |
+| `indemnification.payment_due_at` | `review` | indemnification | `indemnification_payment` |
+| `insider.loc_approval_expires_at` | `approval` | insider_loc | `insider_loc_approval` |
+| `insider.public_request_retention_expires_at` | `review` | insider_public_request | `insider_public_request_retention` |
+| `insider_report.due` | `report` | insider | `insider_report` |
+| `institution_freeze.activation_due_at` | `review` | institution_freeze | `institution_freeze_activation` |
+| `institution_freeze.notice_due_at` | `notice` | institution_freeze | `institution_freeze_notice` |
+| `instrument_list.review_due` | `review` | instrument_list | `instrument_list_review` |
+| `instrument_list.review_due_at` | `review` | instrument_list | `instrument_list_review` |
+| `insurance.review_due_at` | `review` | insurance | `insurance_review` |
+| `interest.crediting_due` | `review` | interest | `interest_crediting` |
+| `interest.crediting_due_at` | `review` | interest | `interest_crediting` |
+| `intermediary.review_due` | `review` | intermediary | `intermediary_review` |
+| `intermediary.review_due_at` | `review` | intermediary | `intermediary_review` |
+| `lar.compute_due_at` | `review` | lar | `lar_compute` |
+| `lending_program.governance_due_at` | `review` | program_governance | `program_governance_review` |
+| `limit_set.review_due` | `review` | limit_set | `limit_set_review` |
+| `limit_set.review_due_at` | `review` | limit_set | `limit_set_review` |
+| `liquidity.cfp_activation_due_at` | `review` | liquidity_cfp | `liquidity_cfp_activation` |
+| `liquidity.report_due` | `report` | liquidity | `liquidity_report` |
+| `liquidity.report_due_at` | `report` | liquidity | `liquidity_report` |
+| `loan.bankruptcy_chargeoff_due_at` | `review` | loan_bankruptcy | `loan_bankruptcy_chargeoff` |
+| `loan.classification_due_at` | `review` | loan | `loan_classification` |
+| `loan.courtesy_notice_due_at` | `notice` | loan_courtesy | `loan_courtesy_notice` |
+| `loan.days_past_due` | `review` | loan_days | `loan_days_past` |
+| `loan.fraud_chargeoff_due_at` | `review` | loan_fraud | `loan_fraud_chargeoff` |
+| `loan.next_payment_due` | `review` | loan_next | `loan_next_payment` |
+| `loan.nonaccrual_due_at` | `review` | loan | `loan_nonaccrual` |
+| `loan.rating_review_due` | `review` | loan_rating | `loan_rating_review` |
+| `loan.rating_review_due_at` | `review` | loan_rating | `loan_rating_review` |
+| `loan.re_valuation_due` | `review` | loan_re | `loan_re_valuation` |
+| `loan.right_to_cure_due_at` | `review` | loan_right_to | `loan_right_to_cure` |
+| `loan.second_reminder_due_at` | `review` | loan_second | `loan_second_reminder` |
+| `loan.status_memo_due_at` | `review` | loan_status | `loan_status_memo` |
+| `loan_account.aan_due_at` | `issuance` | aan | `aan_issuance` |
+| `loan_application.aan_due_at` | `issuance` | aan | `aan_issuance` |
+| `loan_application.counteroffer_aan_due_at` | `issuance` | aan | `aan_issuance` |
+| `loan_application.decision_due_at` | `decision` | application | `application_decision` |
+| `loan_exception.analytics_due` | `analysis` | exception | `exception_analytics` |
+| `member.address_hold_expires_at` | `review` | member_address | `member_address_hold` |
+| `member_credential.expiry_due` | `expiry` | member_credential | `member_credential_expiry` |
+| `member_portal.readonly_due_at` | `review` | member_portal | `member_portal_readonly` |
+| `mi.consolidation_due` | `consolidation` | mi | `mi_consolidation` |
+| `mi.consolidation_timer` | `consolidation` | mi | `mi_consolidation` |
+| `mismatch.compute_due_at` | `review` | mismatch | `mismatch_compute` |
+| `model.review_due` | `review` | model | `model_review` |
+| `model.review_due_at` | `review` | model | `model_review` |
+| `monitoring.coverage_review_due` | `review` | monitoring_coverage | `monitoring_coverage_review` |
+| `monitoring.review_due` | `review` | monitoring | `monitoring_review` |
+| `monitoring.review_due_at` | `review` | monitoring | `monitoring_review` |
+| `ncua.notification_due_at` | `review` | ncua | `ncua_notification` |
+| `ofac.annual_report_due` | `report` | ofac | `ofac_reporting` |
+| `ofac.report_timer` | `report` | ofac | `ofac_reporting` |
+| `overdraft.review_due_at` | `review` | overdraft | `overdraft_review` |
+| `override.analytics_due` | `analysis` | override | `override_analytics` |
+| `pentest.engagement_due` | `review` | pentest | `pentest_engagement` |
+| `performance.attribution_due` | `review` | performance | `performance_attribution` |
+| `performance.attribution_due_at` | `review` | performance | `performance_attribution` |
+| `policy.acknowledgment_due_at` | `review` | policy | `policy_acknowledgment` |
+| `policy.board_approval_due_at` | `approval` | policy_board | `policy_board_approval` |
+| `policy.next_review_at` | `review` | policy | `policy_review` |
+| `policy.review.due` | `review` | policy | `policy_review.due` |
+| `policy.review_due` | `review` | policy | `policy_review` |
+| `policy.review_due_at` | `review` | policy | `policy_review` |
+| `portfolio.board_report_due` | `report` | portfolio_board | `portfolio_board_report` |
+| `portfolio.board_report_due_at` | `report` | portfolio_board | `portfolio_board_report` |
+| `portfolio.report_due` | `report` | portfolio | `portfolio_report` |
+| `portfolio.report_due_at` | `report` | portfolio | `portfolio_report` |
+| `portfolio.stress_test_due` | `test` | portfolio_stress | `portfolio_stress_test` |
+| `portfolio.stress_test_due_at` | `test` | portfolio_stress | `portfolio_stress_test` |
+| `position.analytics_update_due` | `update` | position_analytics | `position_analytics_update` |
+| `position.liquidity_classification_due` | `review` | position_liquidity | `position_liquidity_classification` |
+| `pricing.exception_review_due_at` | `review` | pricing_exception | `pricing_exception_review` |
+| `privacy.access_review_due` | `review` | privacy_access | `privacy_access_review` |
+| `privacy.access_review_due_at` | `review` | privacy_access | `privacy_access_review` |
+| `privacy.annual_notice_due` | `notice` | privacy_annual | `privacy_annual_notice` |
+| `privacy.annual_notice_due_at` | `notice` | privacy_annual | `privacy_annual_notice` |
+| `privacy.board_report_due` | `report` | privacy_board | `privacy_board_report` |
+| `privacy.board_report_due_at` | `report` | privacy_board | `privacy_board_report` |
+| `privacy.notice_copy_due_at` | `notice` | privacy_notice | `privacy_notice_copy` |
+| `privacy.optout_propagation_due_at` | `review` | privacy_optout | `privacy_optout_propagation` |
+| `privacy.state_request_due_at` | `review` | privacy_state | `privacy_state_request` |
+| `rate_sheet.refresh_due_at` | `refresh` | rate_sheet | `rate_sheet_refresh` |
+| `recon.daily_due` | `reconciliation` | recon | `recon_daily` |
+| `recon.monthly_due` | `reconciliation` | recon | `recon_monthly` |
+| `record.destruction_cycle_due_at` | `disposal` | record | `record_destruction` |
+| `record.destruction_due` | `disposal` | record | `record_destruction` |
+| `record.destruction_due_at` | `disposal` | record | `record_destruction` |
+| `record.disposal_due_at` | `disposal` | record | `record_disposal` |
+| `record.index_due_at` | `review` | record | `record_index` |
+| `record.integrity_test_due` | `test` | record_integrity | `record_integrity_test` |
+| `record.retention_expires_at` | `purge` | retention | `retention_purge` |
+| `records.annual_review_due` | `review` | records_annual | `records_annual_review` |
+| `records.annual_review_due_at` | `review` | records_annual | `records_annual_review` |
+| `records.board_report_due` | `report` | records_board | `records_board_report` |
+| `records.board_report_due_at` | `report` | records_board | `records_board_report` |
+| `records_package.complete_due_at` | `review` | records_package | `records_package_complete` |
+| `records_package.snapshot_due` | `review` | records_package | `records_package_snapshot` |
+| `records_package.start_due_at` | `review` | records_package | `records_package_start` |
+| `redflag.review_due_at` | `review` | redflag | `redflag_review` |
+| `regulation.inventory_review_due` | `review` | regulation_inventory | `regulation_inventory_review` |
+| `regulation.inventory_review_due_at` | `review` | regulation_inventory | `regulation_inventory_review` |
+| `regulator.contact_verification_due` | `review` | regulator_contact | `regulator_contact_verification` |
+| `regulator.response_due_at` | `review` | regulator | `regulator_response` |
+| `regulator.verification_due_at` | `review` | regulator | `regulator_verification` |
+| `regulatory.analysis_due_at` | `analysis` | regulatory | `regulatory_analysis` |
+| `repo.collateral_revaluation_due` | `review` | repo_collateral | `repo_collateral_revaluation` |
+| `repo.collateral_revaluation_due_at` | `review` | repo_collateral | `repo_collateral_revaluation` |
+| `report.board_deck_due` | `report` | report_board | `report_board_deck` |
+| `report.board_due_at` | `report` | report | `report_board` |
+| `report.daily_due_at` | `report` | report | `report_daily` |
+| `report.daily_pack_due` | `report` | report_daily | `report_daily_pack` |
+| `report.weekly_digest_due` | `report` | report_weekly | `report_weekly_digest` |
+| `report.weekly_due_at` | `report` | report | `report_weekly` |
+| `reporting.board_pack_due` | `review` | board | `board_pack` |
+| `reporting.quarterly_due` | `report` | reporting | `reporting_quarterly` |
+| `resolution_policy.update_due_at` | `update` | resolution_policy | `resolution_policy_update` |
+| `resolution_review.due` | `review` | resolution_review | `resolution_review_due` |
+| `resolution_test.remediation_due_at` | `remediation` | resolution_test | `resolution_test_remediation` |
+| `resolution_test.report_due_at` | `report` | resolution_test | `resolution_test_report` |
+| `retention.purge_due` | `purge` | retention | `retention_purge` |
+| `risk.assessment_due` | `assessment` | risk | `risk_assessment` |
+| `risk.assessment_due_at` | `assessment` | risk | `risk_assessment` |
+| `risk.assessment_timer` | `refresh` | risk_assessment | `risk_assessment_refresh` |
+| `risk.product_assessment_due_at` | `assessment` | product_risk | `product_risk_assessment` |
+| `risk.reassessment_due` | `review` | risk | `risk_reassessment` |
+| `risk.reassessment_due_at` | `review` | risk | `risk_reassessment` |
+| `risk_acceptance.decision_due_at` | `decision` | risk_acceptance | `risk_acceptance_decision` |
+| `risk_appetite.rereview_due_at` | `review` | risk_appetite | `risk_appetite_rereview` |
+| `risk_appetite.review_due` | `review` | risk_appetite | `risk_appetite_review` |
+| `risk_appetite.review_due_at` | `review` | risk_appetite | `risk_appetite_review` |
+| `risk_breach.committee_due_at` | `review` | risk_breach | `risk_breach_committee` |
+| `risk_breach.committee_presentation_due` | `review` | risk_breach_committee | `risk_breach_committee_presentation` |
+| `risk_breach.review_due` | `review` | risk_breach | `risk_breach_review` |
+| `risk_breach.review_due_at` | `review` | risk_breach | `risk_breach_review` |
+| `risk_breach.triage_due_at` | `triage` | risk_breach | `risk_breach_triage` |
+| `risk_report.board_due` | `report` | risk_report | `risk_report_board` |
+| `risk_report.board_due_at` | `report` | risk_report | `risk_report_board` |
+| `risk_report.management_due` | `report` | risk_report | `risk_report_management` |
+| `risk_report.management_due_at` | `report` | risk_report | `risk_report_management` |
+| `risk_scale.review_due` | `review` | risk_scale | `risk_scale_review` |
+| `risk_scale.review_due_at` | `review` | risk_scale | `risk_scale_review` |
+| `safe_mode.activation_due_at` | `review` | safe_mode | `safe_mode_activation` |
+| `safe_mode.propagation_due_at` | `review` | safe_mode | `safe_mode_propagation` |
+| `safekeeping.reconciliation_due_at` | `reconciliation` | safekeeping | `safekeeping_reconciliation` |
+| `sar.continuing_review_due` | `review` | continuing_sar | `continuing_sar_review` |
+| `sar.continuing_timer` | `review` | continuing_sar | `continuing_sar_review` |
+| `sar.filing_timer` | `filing` | sar | `sar_filing` |
+| `scope_registry.attestation_due` | `attestation` | scope_registry | `scope_registry_attestation` |
+| `scope_registry.publish_due_at` | `review` | scope_registry | `scope_registry_publish` |
+| `scope_registry.update_due_at` | `update` | scope_registry | `scope_registry_update` |
+| `security.board_report_due_at` | `report` | board | `board_report` |
+| `security.downgrade_review_due_at` | `review` | security_downgrade | `security_downgrade_review` |
+| `security.fair_value_update_due` | `update` | security_fair_value | `security_fair_value_update` |
+| `security.fair_value_update_due_at` | `update` | security_fair_value | `security_fair_value_update` |
+| `security.policy_review_due_at` | `review` | policy | `policy_review` |
+| `service.first_response_due_at` | `review` | service_first | `service_first_response` |
+| `service.resolution_due_at` | `review` | service | `service_resolution` |
+| `siem.alert_review_due_at` | `review` | siem_alert | `siem_alert_review` |
+| `site.capacity_test_due` | `test` | site_capacity | `site_capacity_test` |
+| `socialmedia.takedown_due_at` | `review` | takedown | `takedown` |
+| `staffing.readiness_review_due` | `review` | staffing_readiness | `staffing_readiness_review` |
+| `steering_review.due` | `review` | steering | `steering_review` |
+| `stress.quarterly_due_at` | `review` | stress | `stress_quarterly` |
+| `stress.rerun_due_at` | `review` | stress | `stress_rerun` |
+| `survival.quarterly_due_at` | `review` | survival | `survival_quarterly` |
+| `taxonomy.review_due` | `review` | taxonomy | `taxonomy_review` |
+| `taxonomy.review_due_at` | `review` | taxonomy | `taxonomy_review` |
+| `tdr.quarterly_review_due` | `review` | tdr_quarterly | `tdr_quarterly_review` |
+| `tdr.review_due_at` | `review` | tdr | `tdr_review` |
+| `threat_register.refresh_due` | `refresh` | threat_register | `threat_register_refresh` |
+| `tls.assessment_due` | `assessment` | tls | `tls_assessment` |
+| `tls.certificate_expires_at` | `review` | tls | `tls_certificate` |
+| `tls.certificate_expiry_due` | `expiry` | tls_certificate | `tls_certificate_expiry` |
+| `trade.reconciliation_due_at` | `reconciliation` | trade | `trade_reconciliation` |
+| `training.annual_due` | `review` | training | `training_annual` |
+| `training.annual_due_at` | `review` | training | `training_annual` |
+| `training.annual_timer` | `review` | training | `training_annual` |
+| `training.assessment_due` | `assessment` | training | `training_assessment` |
+| `training.completion_due_at` | `review` | training | `training_completion` |
+| `training.due` | `review` | training | `training_due` |
+| `training.new_hire_timer` | `onboarding` | training | `training_newhire` |
+| `training.newhire_due_at` | `onboarding` | training | `training_newhire` |
+| `training.onboarding_due_at` | `onboarding` | training | `training_newhire` |
+| `training.privacy_due` | `review` | training | `training_privacy` |
+| `training.refresher.due` | `review` | training | `training_refresher.due` |
+| `training.refresher_due` | `review` | training | `training_refresher` |
+| `training.retention_due_at` | `review` | training | `training_retention` |
+| `valuation.rov_due_at` | `decision` | rov | `rov_decision` |
+| `vendor.annual_review_due` | `review` | vendor_annual | `vendor_annual_review` |
+| `vendor.annual_review_due_at` | `review` | vendor_annual | `vendor_annual_review` |
+| `vendor.bcp_evidence_due` | `review` | vendor_bcp | `vendor_bcp_evidence` |
+| `vendor.board_report_due` | `report` | vendor_board | `vendor_board_report` |
+| `vendor.clause_library_review_due` | `review` | vendor_clause_library | `vendor_clause_library_review` |
+| `vendor.concentration_review_due` | `review` | vendor_concentration | `vendor_concentration_review` |
+| `vendor.core_review_due` | `review` | vendor_core | `vendor_core_review` |
+| `vendor.dr_attestation_due` | `attestation` | vendor_dr | `vendor_dr_attestation` |
+| `vendor.edd_refresh_due` | `refresh` | vendor_edd | `vendor_edd_refresh` |
+| `vendor.exit_plan_due` | `plan` | vendor_exit | `vendor_exit_plan` |
+| `vendor.exit_test_due` | `test` | vendor_exit | `vendor_exit_test` |
+| `vendor.governance_review_due` | `review` | vendor_governance | `vendor_governance_review` |
+| `vendor.incident_triage_due` | `triage` | vendor_incident | `vendor_incident_triage` |
+| `vendor.inventory_reconciliation_due` | `reconciliation` | vendor_inventory | `vendor_inventory_reconciliation` |
+| `vendor.mi_due_at` | `review` | vendor_mi | `vendor_mi_review` |
+| `vendor.monitoring_review_due` | `review` | vendor_monitoring | `vendor_monitoring_review` |
+| `vendor.program_audit_due` | `review` | vendor_program | `vendor_program_audit` |
+| `vendor.provisional_review_due` | `review` | vendor_provisional | `vendor_provisional_review` |
+| `vendor.raci_review_due` | `review` | vendor_raci | `vendor_raci_review` |
+| `vendor.remediation_due` | `remediation` | vendor | `vendor_remediation` |
+| `vendor.review_due` | `review` | vendor | `vendor_review` |
+| `vendor.review_due_at` | `review` | vendor | `vendor_review` |
+| `vendor.review_timer` | `review` | vendor | `vendor_review` |
+| `verification.biometric_purge_due` | `purge` | verification_biometric | `verification_biometric_purge` |
+| `verification.biometric_purge_due_at` | `purge` | verification_biometric | `verification_biometric_purge` |
+| `vuln.remediation_due_at` | `remediation` | vuln | `vuln_remediation` |
+| `vuln.triage_due_at` | `triage` | vuln | `vuln_triage` |
+| `wholesale.compute_due_at` | `review` | wholesale | `wholesale_compute` |
+| `wholesale.monthly_review_due` | `review` | wholesale_monthly | `wholesale_monthly_review` |
+| `wholesale.review_due_at` | `review` | wholesale | `wholesale_review` |
+| `aan_issuance` | `issuance` | aan |  |
+| `access_deprovision` | `deprovision` | access |  |
+| `access_review` | `review` | access |  |
+| `access_review_due` | `review` | access_review |  |
+| `access_revocation` | `review` | access |  |
+| `account_closure_payout` | `review` | account_closure |  |
+| `account_freeze_application` | `review` | account_freeze |  |
+| `account_maturity_notice` | `notice` | account_maturity |  |
+| `advertising_reach_review` | `review` | advertising |  |
+| `ai_register_update` | `update` | ai_register |  |
+| `alert_triage` | `triage` | alert |  |
+| `alm_irr_simulation` | `review` | alm_irr |  |
+| `analytics_method_review` | `review` | analytics_method |  |
+| `antivirus_log_review` | `review` | antivirus_log |  |
+| `application_decision` | `decision` | application |  |
+| `appraisal_delivery` | `review` | appraisal |  |
+| `audit_assessment_annual` | `review` | audit_assessment |  |
+| `audit_compliance_audit` | `review` | compliance |  |
+| `audit_integrity_check` | `review` | audit_integrity |  |
+| `audit_monthly_schedule` | `review` | audit_monthly |  |
+| `audit_retention` | `review` | audit |  |
+| `backup_restore_test` | `test` | backup_restore |  |
+| `backup_verify` | `verification` | backup |  |
+| `badge_deactivation` | `review` | badge |  |
+| `bcp_annual_review` | `review` | bcp_annual |  |
+| `bia_annual_update` | `update` | bia_annual |  |
+| `bia_certification` | `review` | bia |  |
+| `bia_review` | `review` | bia |  |
+| `board_notification` | `review` | board |  |
+| `board_pack` | `review` | board |  |
+| `board_report` | `report` | board |  |
+| `cab_review` | `review` | cab |  |
+| `capital_contingency` | `review` | capital |  |
+| `capital_contingency_memo` | `review` | capital_contingency |  |
+| `capital_icaap` | `review` | capital |  |
+| `capital_payout_restriction` | `review` | capital_payout |  |
+| `capital_plan` | `plan` | capital |  |
+| `capital_quarterly_report` | `report` | capital_quarterly |  |
+| `capital_ratio_calc` | `review` | capital_ratio |  |
+| `capital_ratio_computation` | `review` | capital_ratio |  |
+| `capital_remediation_plan` | `plan` | capital_remediation |  |
+| `capital_stress_report` | `report` | capital_stress |  |
+| `cash_coverage.attestation` | `review` | cash |  |
+| `cash_custody.rotation` | `review` | cash |  |
+| `cash_enterprise_limit.remediation` | `review` | cash_enterprise |  |
+| `cash_kri.publish` | `review` | cash |  |
+| `cash_overshort.investigation` | `review` | cash |  |
+| `cash_shipment.verification` | `review` | cash |  |
+| `cash_surprise_count.due` | `review` | cash_surprise |  |
+| `catalogue_sync` | `review` | catalogue |  |
+| `cda_audit` | `review` | cda |  |
+| `cda_board_packet` | `review` | cda_board |  |
+| `cda_cap_cure` | `review` | cda_cap |  |
+| `cda_cap_test` | `test` | cda_cap |  |
+| `cda_conflict_escalation` | `escalation` | cda_conflict |  |
+| `cda_distribution` | `review` | cda |  |
+| `cda_policy_review` | `review` | cda_policy |  |
+| `cda_posttrade` | `review` | cda |  |
+| `cda_reconciliation` | `reconciliation` | cda |  |
+| `cda_remediation` | `remediation` | cda |  |
+| `cda_termination_report` | `report` | cda_termination |  |
+| `cda_vendor_review` | `review` | cda_vendor |  |
+| `cdd_refresh` | `refresh` | cdd |  |
+| `cfp_execution_plan` | `plan` | cfp_execution |  |
+| `cfp_investment_test` | `test` | cfp_investment |  |
+| `cfp_transition` | `review` | cfp |  |
+| `change_post_review` | `review` | change_post |  |
+| `claim_carrier_notice` | `notice` | claim_carrier |  |
+| `cmdb_update` | `update` | cmdb |  |
+| `cmir_filing` | `filing` | cmir |  |
+| `coi_certification` | `review` | coi |  |
+| `coi_questionnaire` | `review` | coi |  |
+| `collateral_compute` | `review` | collateral |  |
+| `collections_annual_review` | `review` | collections_annual |  |
+| `collections_attorney_flag` | `review` | collections_attorney |  |
+| `collections_board_report` | `report` | collections_board |  |
+| `collections_breach_log` | `review` | collections_breach |  |
+| `collections_cease_flag` | `review` | collections_cease |  |
+| `comms_same_day` | `review` | comms_same |  |
+| `complaint_ack` | `acknowledgement` | complaint |  |
+| `complaint_final_response` | `review` | complaint_final |  |
+| `complaint_initial_response` | `review` | complaint_initial |  |
+| `complaint_resolution` | `review` | complaint |  |
+| `complaint_trend_review` | `review` | complaint_trend |  |
+| `compliance_board_report` | `report` | compliance_board |  |
+| `compliance_risk_assessment` | `assessment` | compliance_risk |  |
+| `concentration_compute` | `review` | concentration |  |
+| `concentration_waiver` | `review` | concentration |  |
+| `continuing_sar_review` | `review` | continuing_sar |  |
+| `control_framework_review` | `review` | control_framework |  |
+| `core_archive_confirmation` | `review` | core_archive |  |
+| `correction_propagation` | `review` | correction |  |
+| `counteroffer_expiry` | `expiry` | counteroffer |  |
+| `credit_box_review` | `review` | credit_box |  |
+| `credit_file_reanalysis` | `review` | credit_file |  |
+| `credit_report_refresh` | `refresh` | credit_report |  |
+| `crisis_convene` | `review` | crisis |  |
+| `ctr_exemption_review` | `review` | ctr_exemption |  |
+| `ctr_filing` | `filing` | ctr |  |
+| `disclosure_account_opening` | `review` | disclosure_account |  |
+| `disclosure_change_in_terms` | `review` | disclosure_change_in |  |
+| `disclosure_error_escalation` | `escalation` | disclosure_error |  |
+| `disclosure_pillar3` | `review` | disclosure |  |
+| `disparity_analysis` | `analysis` | disparity |  |
+| `dispute_investigation` | `review` | dispute |  |
+| `dispute_provisional_credit` | `review` | dispute_provisional |  |
+| `dispute_regulator` | `review` | dispute |  |
+| `dispute_response` | `review` | dispute |  |
+| `document_attachment` | `review` | document |  |
+| `dq_tieout` | `review` | dq |  |
+| `dr_exercise` | `exercise` | dr |  |
+| `drill_aar` | `exercise` | drill |  |
+| `drill_remediation` | `remediation` | drill |  |
+| `ecommerce_risk_assessment` | `assessment` | ecommerce_risk |  |
+| `edd_refresh` | `refresh` | edd |  |
+| `email_archive_test` | `test` | email_archive |  |
+| `eps_board_report.due` | `review` | eps_board |  |
+| `eps_deficiency.remediation` | `review` | eps |  |
+| `eps_incident.ncua` | `review` | eps |  |
+| `eps_pospay.decision` | `review` | eps |  |
+| `eps_test.retro` | `review` | eps |  |
+| `eps_training.self_cert` | `review` | eps_training.self |  |
+| `eps_vendor.dd` | `review` | eps |  |
+| `eps_vendor.soc1` | `review` | eps |  |
+| `escalation_ack` | `acknowledgement` | escalation |  |
+| `escalation_plan` | `plan` | escalation |  |
+| `estate_payout` | `review` | estate |  |
+| `ewi_daily_sweep` | `review` | ewi_daily |  |
+| `ewi_evaluation` | `review` | ewi |  |
+| `ewi_summary` | `review` | ewi |  |
+| `ewi_sweep` | `review` | ewi |  |
+| `ewi_weekly_summary` | `review` | ewi_weekly |  |
+| `exception_analytics` | `analysis` | exception |  |
+| `exercise_board_report` | `report` | exercise_board |  |
+| `expense_preapproval` | `review` | expense |  |
+| `expense_review` | `review` | expense |  |
+| `facility_annual_test` | `test` | facility_annual |  |
+| `facility_renewal` | `renewal` | facility |  |
+| `facility_test` | `test` | facility |  |
+| `fair_lending_assessment` | `assessment` | fair_lending |  |
+| `fbar_filing` | `filing` | fbar |  |
+| `finding_escalation` | `escalation` | finding |  |
+| `finding_monthly_review` | `review` | finding_monthly |  |
+| `finding_quarterly_report` | `report` | finding_quarterly |  |
+| `finding_remediation` | `remediation` | finding |  |
+| `finding_response` | `review` | finding |  |
+| `firewall_independent_review` | `review` | firewall_independent |  |
+| `firewall_review` | `review` | firewall |  |
+| `funding_first_line` | `review` | funding_first |  |
+| `furnishing_cycle` | `review` | furnishing |  |
+| `furnishing_dispute` | `review` | furnishing |  |
+| `handover_access` | `review` | handover |  |
+| `handover_access_expiry` | `expiry` | handover_access |  |
+| `handover_full` | `review` | handover |  |
+| `handover_initial` | `review` | handover |  |
+| `hmda_lar_qc` | `review` | hmda_lar |  |
+| `hmda_submission` | `review` | hmda |  |
+| `imt_roster_review` | `review` | imt_roster |  |
+| `incident_ncua_notice` | `notice` | incident_ncua |  |
+| `incident_notification` | `review` | incident |  |
+| `incident_regulator_notification` | `review` | incident_regulator |  |
+| `incident_trend_review` | `review` | incident_trend |  |
+| `incident_triage` | `triage` | incident |  |
+| `incompleteness_notice` | `notice` | incompleteness |  |
+| `indemnification_advance` | `review` | indemnification |  |
+| `indemnification_determination` | `review` | indemnification |  |
+| `indemnification_payment` | `review` | indemnification |  |
+| `independent_test` | `test` | independent |  |
+| `insider_loc_approval` | `approval` | insider_loc |  |
+| `insider_public_request_retention` | `review` | insider_public_request |  |
+| `insider_report` | `report` | insider |  |
+| `institution_freeze_activation` | `review` | institution_freeze |  |
+| `institution_freeze_notice` | `notice` | institution_freeze |  |
+| `instrument_list_review` | `review` | instrument_list |  |
+| `insurance_review` | `review` | insurance |  |
+| `interest_crediting` | `review` | interest |  |
+| `intermediary_review` | `review` | intermediary |  |
+| `lar_compute` | `review` | lar |  |
+| `limit_set_review` | `review` | limit_set |  |
+| `liquidity_cfp_activation` | `review` | liquidity_cfp |  |
+| `liquidity_report` | `report` | liquidity |  |
+| `loan_bankruptcy_chargeoff` | `review` | loan_bankruptcy |  |
+| `loan_classification` | `review` | loan |  |
+| `loan_courtesy_notice` | `notice` | loan_courtesy |  |
+| `loan_days_past` | `review` | loan_days |  |
+| `loan_fraud_chargeoff` | `review` | loan_fraud |  |
+| `loan_next_payment` | `review` | loan_next |  |
+| `loan_nonaccrual` | `review` | loan |  |
+| `loan_rating_review` | `review` | loan_rating |  |
+| `loan_re_valuation` | `review` | loan_re |  |
+| `loan_right_to_cure` | `review` | loan_right_to |  |
+| `loan_second_reminder` | `review` | loan_second |  |
+| `loan_status_memo` | `review` | loan_status |  |
+| `member_address_hold` | `review` | member_address |  |
+| `member_credential_expiry` | `expiry` | member_credential |  |
+| `member_portal_readonly` | `review` | member_portal |  |
+| `mi_consolidation` | `consolidation` | mi |  |
+| `mismatch_compute` | `review` | mismatch |  |
+| `model_review` | `review` | model |  |
+| `monitoring_coverage_review` | `review` | monitoring_coverage |  |
+| `monitoring_review` | `review` | monitoring |  |
+| `ncua_notification` | `review` | ncua |  |
+| `ofac_reporting` | `report` | ofac |  |
+| `overdraft_review` | `review` | overdraft |  |
+| `override_analytics` | `analysis` | override |  |
+| `pentest_engagement` | `review` | pentest |  |
+| `performance_attribution` | `review` | performance |  |
+| `policy_acknowledgment` | `review` | policy |  |
+| `policy_board_approval` | `approval` | policy_board |  |
+| `policy_review` | `review` | policy |  |
+| `policy_review.due` | `review` | policy |  |
+| `portfolio_board_report` | `report` | portfolio_board |  |
+| `portfolio_report` | `report` | portfolio |  |
+| `portfolio_stress_test` | `test` | portfolio_stress |  |
+| `position_analytics_update` | `update` | position_analytics |  |
+| `position_liquidity_classification` | `review` | position_liquidity |  |
+| `pricing_exception_review` | `review` | pricing_exception |  |
+| `privacy_access_review` | `review` | privacy_access |  |
+| `privacy_annual_notice` | `notice` | privacy_annual |  |
+| `privacy_board_report` | `report` | privacy_board |  |
+| `privacy_notice_copy` | `notice` | privacy_notice |  |
+| `privacy_optout_propagation` | `review` | privacy_optout |  |
+| `privacy_state_request` | `review` | privacy_state |  |
+| `product_risk_assessment` | `assessment` | product_risk |  |
+| `program_governance_review` | `review` | program_governance |  |
+| `rate_sheet_refresh` | `refresh` | rate_sheet |  |
+| `recon_daily` | `reconciliation` | recon |  |
+| `recon_monthly` | `reconciliation` | recon |  |
+| `record_destruction` | `disposal` | record |  |
+| `record_disposal` | `disposal` | record |  |
+| `record_index` | `review` | record |  |
+| `record_integrity_test` | `test` | record_integrity |  |
+| `records_annual_review` | `review` | records_annual |  |
+| `records_board_report` | `report` | records_board |  |
+| `records_package_complete` | `review` | records_package |  |
+| `records_package_snapshot` | `review` | records_package |  |
+| `records_package_start` | `review` | records_package |  |
+| `redflag_review` | `review` | redflag |  |
+| `redlining_review` | `review` | redlining |  |
+| `regulation_inventory_review` | `review` | regulation_inventory |  |
+| `regulator_contact_verification` | `review` | regulator_contact |  |
+| `regulator_response` | `review` | regulator |  |
+| `regulator_verification` | `review` | regulator |  |
+| `regulatory_analysis` | `analysis` | regulatory |  |
+| `remediation` | `remediation` | remediation |  |
+| `repo_collateral_revaluation` | `review` | repo_collateral |  |
+| `report_board` | `report` | report |  |
+| `report_board_deck` | `report` | report_board |  |
+| `report_daily` | `report` | report |  |
+| `report_daily_pack` | `report` | report_daily |  |
+| `report_weekly` | `report` | report |  |
+| `report_weekly_digest` | `report` | report_weekly |  |
+| `reporting_quarterly` | `report` | reporting |  |
+| `resolution_policy_update` | `update` | resolution_policy |  |
+| `resolution_review_due` | `review` | resolution_review |  |
+| `resolution_test_remediation` | `remediation` | resolution_test |  |
+| `resolution_test_report` | `report` | resolution_test |  |
+| `retention_purge` | `purge` | retention |  |
+| `risk_acceptance_decision` | `decision` | risk_acceptance |  |
+| `risk_appetite_rereview` | `review` | risk_appetite |  |
+| `risk_appetite_review` | `review` | risk_appetite |  |
+| `risk_assessment` | `assessment` | risk |  |
+| `risk_assessment_refresh` | `refresh` | risk_assessment |  |
+| `risk_breach_committee` | `review` | risk_breach |  |
+| `risk_breach_committee_presentation` | `review` | risk_breach_committee |  |
+| `risk_breach_review` | `review` | risk_breach |  |
+| `risk_breach_triage` | `triage` | risk_breach |  |
+| `risk_reassessment` | `review` | risk |  |
+| `risk_report_board` | `report` | risk_report |  |
+| `risk_report_management` | `report` | risk_report |  |
+| `risk_scale_review` | `review` | risk_scale |  |
+| `rov_decision` | `decision` | rov |  |
+| `safe_mode_activation` | `review` | safe_mode |  |
+| `safe_mode_propagation` | `review` | safe_mode |  |
+| `safekeeping_reconciliation` | `reconciliation` | safekeeping |  |
+| `sar_decision` | `decision` | sar |  |
+| `sar_filing` | `filing` | sar |  |
+| `scope_registry_attestation` | `attestation` | scope_registry |  |
+| `scope_registry_publish` | `review` | scope_registry |  |
+| `scope_registry_update` | `update` | scope_registry |  |
+| `security_downgrade_review` | `review` | security_downgrade |  |
+| `security_fair_value_update` | `update` | security_fair_value |  |
+| `service_first_response` | `review` | service_first |  |
+| `service_resolution` | `review` | service |  |
+| `siem_alert_review` | `review` | siem_alert |  |
+| `signage_review` | `review` | signage |  |
+| `site_capacity_test` | `test` | site_capacity |  |
+| `staffing_readiness_review` | `review` | staffing_readiness |  |
+| `steering_review` | `review` | steering |  |
+| `stress_quarterly` | `review` | stress |  |
+| `stress_rerun` | `review` | stress |  |
+| `survival_quarterly` | `review` | survival |  |
+| `takedown` | `review` | takedown |  |
+| `taxonomy_review` | `review` | taxonomy |  |
+| `tdr_quarterly_review` | `review` | tdr_quarterly |  |
+| `tdr_review` | `review` | tdr |  |
+| `threat_register_refresh` | `refresh` | threat_register |  |
+| `tls_assessment` | `assessment` | tls |  |
+| `tls_certificate` | `review` | tls |  |
+| `tls_certificate_expiry` | `expiry` | tls_certificate |  |
+| `trade_reconciliation` | `reconciliation` | trade |  |
+| `training_annual` | `review` | training |  |
+| `training_assessment` | `assessment` | training |  |
+| `training_completion` | `review` | training |  |
+| `training_due` | `review` | training |  |
+| `training_newhire` | `onboarding` | training |  |
+| `training_privacy` | `review` | training |  |
+| `training_refresher` | `review` | training |  |
+| `training_refresher.due` | `review` | training |  |
+| `training_retention` | `review` | training |  |
+| `vendor_annual_review` | `review` | vendor_annual |  |
+| `vendor_bcp_evidence` | `review` | vendor_bcp |  |
+| `vendor_board_report` | `report` | vendor_board |  |
+| `vendor_clause_library_review` | `review` | vendor_clause_library |  |
+| `vendor_concentration_review` | `review` | vendor_concentration |  |
+| `vendor_core_review` | `review` | vendor_core |  |
+| `vendor_dr_attestation` | `attestation` | vendor_dr |  |
+| `vendor_edd_refresh` | `refresh` | vendor_edd |  |
+| `vendor_exit_plan` | `plan` | vendor_exit |  |
+| `vendor_exit_test` | `test` | vendor_exit |  |
+| `vendor_governance_review` | `review` | vendor_governance |  |
+| `vendor_incident_triage` | `triage` | vendor_incident |  |
+| `vendor_inventory_reconciliation` | `reconciliation` | vendor_inventory |  |
+| `vendor_mi_review` | `review` | vendor_mi |  |
+| `vendor_monitoring_review` | `review` | vendor_monitoring |  |
+| `vendor_program_audit` | `review` | vendor_program |  |
+| `vendor_provisional_review` | `review` | vendor_provisional |  |
+| `vendor_raci_review` | `review` | vendor_raci |  |
+| `vendor_remediation` | `remediation` | vendor |  |
+| `vendor_review` | `review` | vendor |  |
+| `verification_biometric_purge` | `purge` | verification_biometric |  |
+| `vuln_remediation` | `remediation` | vuln |  |
+| `vuln_triage` | `triage` | vuln |  |
+| `wholesale_compute` | `review` | wholesale |  |
+| `wholesale_monthly_review` | `review` | wholesale_monthly |  |
+| `wholesale_review` | `review` | wholesale |  |
+
 ## State machines
 
 - **Account** (`status`): open, frozen, closed
@@ -8360,7 +9146,7 @@ The following overrides apply to this policy only and take precedence over the s
 
 1. **FFIEC exam procedures as a primary reference.** The regenerated policy must be reviewed against the FFIEC Interagency Fair Lending Examination Procedures located at `references/FFIEC Fair Lending Exam Procedures.pdf`. For each control (FL-01 through FL-12, and any new controls added), the regenerator should confirm the control addresses the corresponding FFIEC risk factors and Compliance Management Analysis Checklist items (Appendix §A–B). Where a control satisfies a specific FFIEC criterion, the policy may note this in the WHY block or a brief examiner-readiness note. Where a gap exists between the policy and the FFIEC checklist, the regenerator must either close it in the policy text or insert a `[CONTROL NEEDED: description]` placeholder.
 
-2. **Complaint monitoring control required.** Add a new control (FL-13 or incorporate into FL-10) for consumer complaint intake, logging, prohibited-basis analysis, Compliance escalation, and remediation tracking. This addresses FFIEC risk factors U9, P5, S7, and M7, which all ask whether management monitors discrimination complaints. The control should also describe the applicant remediation process (e.g., re-underwriting, credit offers, fee refunds) when a pattern of violations is confirmed, and reference when self-referral to regulators is required.
+2. **Complaint monitoring control required (FL-13).** Generate FL-13 as a standalone control — do not fold it into FL-10. The full specification is in Section 3(m) above. The generated FL-13 block must include all six sub-elements: intake and logging, prohibited-basis triage, Compliance review and escalation, pattern analysis, remediation tracking, and regulator self-referral. The WHY block must cite FFIEC risk factors U9, P5, S7, and M7 and the FFIEC Compliance Management Analysis Checklist (Appendix §A–B). The TIMING block must reflect the specific deadlines: one business day for logging, three business days for prohibited-basis triage, ten business days for initial Compliance assessment, two business days for CCO escalation of High/Pattern complaints, and 30 days for CAP initiation on identified patterns. The EVIDENCE block must list the Fair-Lending Issue Register, monthly complaint log summaries, quarterly Board complaint section, and annual trend report as required artifacts. Do not collapse or summarize the remediation and self-referral requirements — they must appear in full in the policy.
 
 3. **Redlining methodology must be described.** FL-10 must describe the methodology for the annual redlining review with sufficient specificity for examiners to evaluate it: at minimum, the review must cover the institution's CRA assessment area, census-tract-level lending distribution by minority-concentration quartile, peer comparison data, and the six-step comparative analysis framework from FFIEC Part III.G. A procedure document reference is acceptable if one exists; otherwise the methodology must be summarized in the policy.
 

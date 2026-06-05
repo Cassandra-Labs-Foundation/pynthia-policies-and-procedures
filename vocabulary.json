@@ -3,7 +3,7 @@
     "spec_title": "Cassandra Banking Core API (Minimal)",
     "spec_version": "2.2.0",
     "parser_version": "0.2.0",
-    "parsed_at": "2026-06-05T16:57:26.077313Z",
+    "parsed_at": "2026-06-05T17:44:28.142014Z",
     "note": "Specific domain codes (e.g. sar.filed, vendor_review) live as `subject` values in vocab-migration.json, not as distinct vocabulary elements.",
     "sources": [
       "core-api.yaml",
@@ -14,12 +14,12 @@
     "entities": 265,
     "fields": 1683,
     "computed_fields": 0,
-    "events": 1215,
+    "events": 1221,
     "endpoints": 35,
     "state_machines": 12,
     "plugins": 0,
     "task_types": 28,
-    "tasks": 751,
+    "tasks": 753,
     "provisional_fields": 269
   },
   "entities": [
@@ -2941,7 +2941,7 @@
   ],
   "fields": [
     {
-      "path": "Account.account_type",
+      "path": "account.account_type",
       "field": "account_type",
       "entity": "Account",
       "type": "string",
@@ -2958,7 +2958,7 @@
       "bound_controls": []
     },
     {
-      "path": "Account.balance",
+      "path": "account.balance",
       "field": "balance",
       "entity": "Account",
       "type": "number",
@@ -2975,7 +2975,7 @@
       "bound_controls": []
     },
     {
-      "path": "Account.blnk_ledger_id",
+      "path": "account.blnk_ledger_id",
       "field": "blnk_ledger_id",
       "entity": "Account",
       "type": "string",
@@ -2992,7 +2992,7 @@
       "bound_controls": []
     },
     {
-      "path": "Account.created_at",
+      "path": "account.created_at",
       "field": "created_at",
       "entity": "Account",
       "type": "string (date-time)",
@@ -3009,7 +3009,7 @@
       "bound_controls": []
     },
     {
-      "path": "Account.id",
+      "path": "account.id",
       "field": "id",
       "entity": "Account",
       "type": "string",
@@ -3026,7 +3026,7 @@
       "bound_controls": []
     },
     {
-      "path": "Account.lock_type",
+      "path": "account.lock_type",
       "field": "lock_type",
       "entity": "Account",
       "type": "string",
@@ -3043,7 +3043,7 @@
       "bound_controls": []
     },
     {
-      "path": "Account.maturity_date",
+      "path": "account.maturity_date",
       "field": "maturity_date",
       "entity": "Account",
       "type": "string (date-time)",
@@ -3060,7 +3060,7 @@
       "bound_controls": []
     },
     {
-      "path": "Account.maturity_disposition",
+      "path": "account.maturity_disposition",
       "field": "maturity_disposition",
       "entity": "Account",
       "type": "string",
@@ -3077,7 +3077,7 @@
       "bound_controls": []
     },
     {
-      "path": "Account.opening_channel",
+      "path": "account.opening_channel",
       "field": "opening_channel",
       "entity": "Account",
       "type": "string",
@@ -3094,7 +3094,7 @@
       "bound_controls": []
     },
     {
-      "path": "Account.status",
+      "path": "account.status",
       "field": "status",
       "entity": "Account",
       "type": "string",
@@ -3111,7 +3111,7 @@
       "bound_controls": []
     },
     {
-      "path": "AchTransfer.amount",
+      "path": "ach_transfer.amount",
       "field": "amount",
       "entity": "AchTransfer",
       "type": "number",
@@ -3128,7 +3128,7 @@
       "bound_controls": []
     },
     {
-      "path": "AchTransfer.control_results",
+      "path": "ach_transfer.control_results",
       "field": "control_results",
       "entity": "AchTransfer",
       "type": "object",
@@ -3145,7 +3145,7 @@
       "bound_controls": []
     },
     {
-      "path": "AchTransfer.counterparty",
+      "path": "ach_transfer.counterparty",
       "field": "counterparty",
       "entity": "AchTransfer",
       "type": "string",
@@ -3162,7 +3162,7 @@
       "bound_controls": []
     },
     {
-      "path": "AchTransfer.status",
+      "path": "ach_transfer.status",
       "field": "status",
       "entity": "AchTransfer",
       "type": "string",
@@ -3179,7 +3179,7 @@
       "bound_controls": []
     },
     {
-      "path": "AchTransfer.window",
+      "path": "ach_transfer.window",
       "field": "window",
       "entity": "AchTransfer",
       "type": "string",
@@ -3196,7 +3196,7 @@
       "bound_controls": []
     },
     {
-      "path": "Address.city",
+      "path": "address.city",
       "field": "city",
       "entity": "Address",
       "type": "string",
@@ -3213,7 +3213,7 @@
       "bound_controls": []
     },
     {
-      "path": "Address.country",
+      "path": "address.country",
       "field": "country",
       "entity": "Address",
       "type": "string",
@@ -3230,7 +3230,7 @@
       "bound_controls": []
     },
     {
-      "path": "Address.line1",
+      "path": "address.line1",
       "field": "line1",
       "entity": "Address",
       "type": "string",
@@ -3247,7 +3247,7 @@
       "bound_controls": []
     },
     {
-      "path": "Address.line2",
+      "path": "address.line2",
       "field": "line2",
       "entity": "Address",
       "type": "string",
@@ -3264,7 +3264,7 @@
       "bound_controls": []
     },
     {
-      "path": "Address.ncoa_candidate",
+      "path": "address.ncoa_candidate",
       "field": "ncoa_candidate",
       "entity": "Address",
       "type": "string",
@@ -3281,7 +3281,7 @@
       "bound_controls": []
     },
     {
-      "path": "Address.postal_code",
+      "path": "address.postal_code",
       "field": "postal_code",
       "entity": "Address",
       "type": "string",
@@ -3298,7 +3298,7 @@
       "bound_controls": []
     },
     {
-      "path": "Address.region",
+      "path": "address.region",
       "field": "region",
       "entity": "Address",
       "type": "string",
@@ -3315,7 +3315,7 @@
       "bound_controls": []
     },
     {
-      "path": "Applicant.business_revenue_tier",
+      "path": "applicant.business_revenue_tier",
       "field": "business_revenue_tier",
       "entity": "Applicant",
       "type": "string",
@@ -3332,7 +3332,7 @@
       "bound_controls": []
     },
     {
-      "path": "Applicant.contact",
+      "path": "applicant.contact",
       "field": "contact",
       "entity": "Applicant",
       "type": "object",
@@ -3349,7 +3349,7 @@
       "bound_controls": []
     },
     {
-      "path": "Applicant.gmi_responses",
+      "path": "applicant.gmi_responses",
       "field": "gmi_responses",
       "entity": "Applicant",
       "type": "object",
@@ -3366,7 +3366,7 @@
       "bound_controls": []
     },
     {
-      "path": "Applicant.state",
+      "path": "applicant.state",
       "field": "state",
       "entity": "Applicant",
       "type": "string",
@@ -3383,7 +3383,7 @@
       "bound_controls": []
     },
     {
-      "path": "AuditDetail.corrective_action",
+      "path": "audit_detail.corrective_action",
       "field": "corrective_action",
       "entity": "AuditDetail",
       "type": "string",
@@ -3400,7 +3400,7 @@
       "bound_controls": []
     },
     {
-      "path": "AuditDetail.finding_owner",
+      "path": "audit_detail.finding_owner",
       "field": "finding_owner",
       "entity": "AuditDetail",
       "type": "string",
@@ -3417,7 +3417,7 @@
       "bound_controls": []
     },
     {
-      "path": "Beneficiary.account_number",
+      "path": "beneficiary.account_number",
       "field": "account_number",
       "entity": "Beneficiary",
       "type": "string",
@@ -3434,7 +3434,7 @@
       "bound_controls": []
     },
     {
-      "path": "Beneficiary.bank_name",
+      "path": "beneficiary.bank_name",
       "field": "bank_name",
       "entity": "Beneficiary",
       "type": "string",
@@ -3451,7 +3451,7 @@
       "bound_controls": []
     },
     {
-      "path": "Beneficiary.name",
+      "path": "beneficiary.name",
       "field": "name",
       "entity": "Beneficiary",
       "type": "string",
@@ -3468,7 +3468,7 @@
       "bound_controls": []
     },
     {
-      "path": "Beneficiary.routing_number",
+      "path": "beneficiary.routing_number",
       "field": "routing_number",
       "entity": "Beneficiary",
       "type": "string",
@@ -3485,7 +3485,7 @@
       "bound_controls": []
     },
     {
-      "path": "BoardPack.bsa_metrics",
+      "path": "board_pack.bsa_metrics",
       "field": "bsa_metrics",
       "entity": "BoardPack",
       "type": "object",
@@ -3502,7 +3502,7 @@
       "bound_controls": []
     },
     {
-      "path": "BoardPack.ofac_metrics",
+      "path": "board_pack.ofac_metrics",
       "field": "ofac_metrics",
       "entity": "BoardPack",
       "type": "object",
@@ -3519,7 +3519,7 @@
       "bound_controls": []
     },
     {
-      "path": "BoardPack.sar_count",
+      "path": "board_pack.sar_count",
       "field": "sar_count",
       "entity": "BoardPack",
       "type": "integer",
@@ -3536,7 +3536,7 @@
       "bound_controls": []
     },
     {
-      "path": "BoardPack.training_metrics",
+      "path": "board_pack.training_metrics",
       "field": "training_metrics",
       "entity": "BoardPack",
       "type": "object",
@@ -3553,7 +3553,7 @@
       "bound_controls": []
     },
     {
-      "path": "BookkeepingEntry.account_code_5300",
+      "path": "bookkeeping_entry.account_code_5300",
       "field": "account_code_5300",
       "entity": "BookkeepingEntry",
       "type": "string",
@@ -3570,7 +3570,7 @@
       "bound_controls": []
     },
     {
-      "path": "BookkeepingEntry.amount",
+      "path": "bookkeeping_entry.amount",
       "field": "amount",
       "entity": "BookkeepingEntry",
       "type": "number",
@@ -3587,7 +3587,7 @@
       "bound_controls": []
     },
     {
-      "path": "BookkeepingEntry.id",
+      "path": "bookkeeping_entry.id",
       "field": "id",
       "entity": "BookkeepingEntry",
       "type": "string",
@@ -3604,7 +3604,7 @@
       "bound_controls": []
     },
     {
-      "path": "BookkeepingEntry.locked_amount",
+      "path": "bookkeeping_entry.locked_amount",
       "field": "locked_amount",
       "entity": "BookkeepingEntry",
       "type": "number",
@@ -3621,7 +3621,7 @@
       "bound_controls": []
     },
     {
-      "path": "BookkeepingEntry.running_balance",
+      "path": "bookkeeping_entry.running_balance",
       "field": "running_balance",
       "entity": "BookkeepingEntry",
       "type": "string",
@@ -3638,7 +3638,7 @@
       "bound_controls": []
     },
     {
-      "path": "BookkeepingEntry.schedule_a_code",
+      "path": "bookkeeping_entry.schedule_a_code",
       "field": "schedule_a_code",
       "entity": "BookkeepingEntry",
       "type": "string",
@@ -3655,7 +3655,7 @@
       "bound_controls": []
     },
     {
-      "path": "BsaAlert.alert_type",
+      "path": "bsa_alert.alert_type",
       "field": "alert_type",
       "entity": "BsaAlert",
       "type": "string",
@@ -3672,7 +3672,7 @@
       "bound_controls": []
     },
     {
-      "path": "BsaAlert.details",
+      "path": "bsa_alert.details",
       "field": "details",
       "entity": "BsaAlert",
       "type": "string",
@@ -3689,7 +3689,7 @@
       "bound_controls": []
     },
     {
-      "path": "BsaAlert.entity_hash",
+      "path": "bsa_alert.entity_hash",
       "field": "entity_hash",
       "entity": "BsaAlert",
       "type": "string",
@@ -3706,7 +3706,7 @@
       "bound_controls": []
     },
     {
-      "path": "BsaAlert.event_id",
+      "path": "bsa_alert.event_id",
       "field": "event_id",
       "entity": "BsaAlert",
       "type": "string",
@@ -3723,7 +3723,7 @@
       "bound_controls": []
     },
     {
-      "path": "BsaAlert.id",
+      "path": "bsa_alert.id",
       "field": "id",
       "entity": "BsaAlert",
       "type": "string",
@@ -3740,7 +3740,7 @@
       "bound_controls": []
     },
     {
-      "path": "BsaAlert.requires_lookback",
+      "path": "bsa_alert.requires_lookback",
       "field": "requires_lookback",
       "entity": "BsaAlert",
       "type": "string",
@@ -3757,7 +3757,7 @@
       "bound_controls": []
     },
     {
-      "path": "BsaAlert.status",
+      "path": "bsa_alert.status",
       "field": "status",
       "entity": "BsaAlert",
       "type": "string",
@@ -3774,7 +3774,7 @@
       "bound_controls": []
     },
     {
-      "path": "BsaAlert.triage_timer",
+      "path": "bsa_alert.triage_timer",
       "field": "triage_timer",
       "entity": "BsaAlert",
       "type": "string",
@@ -3791,7 +3791,7 @@
       "bound_controls": []
     },
     {
-      "path": "Card.id",
+      "path": "card.id",
       "field": "id",
       "entity": "Card",
       "type": "string",
@@ -3808,7 +3808,7 @@
       "bound_controls": []
     },
     {
-      "path": "Card.reissue_request",
+      "path": "card.reissue_request",
       "field": "reissue_request",
       "entity": "Card",
       "type": "string",
@@ -3825,7 +3825,7 @@
       "bound_controls": []
     },
     {
-      "path": "Card.request_during_address_hold",
+      "path": "card.request_during_address_hold",
       "field": "request_during_address_hold",
       "entity": "Card",
       "type": "string",
@@ -3842,7 +3842,7 @@
       "bound_controls": []
     },
     {
-      "path": "Card.spend_controls",
+      "path": "card.spend_controls",
       "field": "spend_controls",
       "entity": "Card",
       "type": "string",
@@ -3859,7 +3859,7 @@
       "bound_controls": []
     },
     {
-      "path": "Card.status",
+      "path": "card.status",
       "field": "status",
       "entity": "Card",
       "type": "string",
@@ -3876,7 +3876,7 @@
       "bound_controls": []
     },
     {
-      "path": "CardAuthorization.amount",
+      "path": "card_authorization.amount",
       "field": "amount",
       "entity": "CardAuthorization",
       "type": "number",
@@ -3893,7 +3893,7 @@
       "bound_controls": []
     },
     {
-      "path": "CardAuthorization.control_results",
+      "path": "card_authorization.control_results",
       "field": "control_results",
       "entity": "CardAuthorization",
       "type": "object",
@@ -3910,7 +3910,7 @@
       "bound_controls": []
     },
     {
-      "path": "CardAuthorization.decline_reason",
+      "path": "card_authorization.decline_reason",
       "field": "decline_reason",
       "entity": "CardAuthorization",
       "type": "string",
@@ -3927,7 +3927,7 @@
       "bound_controls": []
     },
     {
-      "path": "CardAuthorization.id",
+      "path": "card_authorization.id",
       "field": "id",
       "entity": "CardAuthorization",
       "type": "string",
@@ -3944,7 +3944,7 @@
       "bound_controls": []
     },
     {
-      "path": "CardAuthorization.merchant",
+      "path": "card_authorization.merchant",
       "field": "merchant",
       "entity": "CardAuthorization",
       "type": "string",
@@ -3961,7 +3961,7 @@
       "bound_controls": []
     },
     {
-      "path": "CardAuthorization.status",
+      "path": "card_authorization.status",
       "field": "status",
       "entity": "CardAuthorization",
       "type": "string",
@@ -3978,7 +3978,7 @@
       "bound_controls": []
     },
     {
-      "path": "Case.audit",
+      "path": "case.audit",
       "field": "audit",
       "entity": "Case",
       "type": "string",
@@ -3995,7 +3995,7 @@
       "bound_controls": []
     },
     {
-      "path": "Case.disclosure",
+      "path": "case.disclosure",
       "field": "disclosure",
       "entity": "Case",
       "type": "string",
@@ -4012,7 +4012,7 @@
       "bound_controls": []
     },
     {
-      "path": "Case.escalation",
+      "path": "case.escalation",
       "field": "escalation",
       "entity": "Case",
       "type": "string",
@@ -4029,7 +4029,7 @@
       "bound_controls": []
     },
     {
-      "path": "Case.evidence",
+      "path": "case.evidence",
       "field": "evidence",
       "entity": "Case",
       "type": "array",
@@ -4046,7 +4046,7 @@
       "bound_controls": []
     },
     {
-      "path": "Case.id",
+      "path": "case.id",
       "field": "id",
       "entity": "Case",
       "type": "string",
@@ -4063,7 +4063,7 @@
       "bound_controls": []
     },
     {
-      "path": "Case.owner_id",
+      "path": "case.owner_id",
       "field": "owner_id",
       "entity": "Case",
       "type": "string",
@@ -4080,7 +4080,7 @@
       "bound_controls": []
     },
     {
-      "path": "Case.status",
+      "path": "case.status",
       "field": "status",
       "entity": "Case",
       "type": "string",
@@ -4097,7 +4097,7 @@
       "bound_controls": []
     },
     {
-      "path": "Case.summary",
+      "path": "case.summary",
       "field": "summary",
       "entity": "Case",
       "type": "string",
@@ -4114,7 +4114,7 @@
       "bound_controls": []
     },
     {
-      "path": "Case.tasks",
+      "path": "case.tasks",
       "field": "tasks",
       "entity": "Case",
       "type": "array",
@@ -4131,7 +4131,7 @@
       "bound_controls": []
     },
     {
-      "path": "Case.type",
+      "path": "case.type",
       "field": "type",
       "entity": "Case",
       "type": "string",
@@ -4148,7 +4148,7 @@
       "bound_controls": []
     },
     {
-      "path": "CddProfile.control_person",
+      "path": "cdd_profile.control_person",
       "field": "control_person",
       "entity": "CddProfile",
       "type": "string",
@@ -4165,7 +4165,7 @@
       "bound_controls": []
     },
     {
-      "path": "CddProfile.expected_activity",
+      "path": "cdd_profile.expected_activity",
       "field": "expected_activity",
       "entity": "CddProfile",
       "type": "string",
@@ -4182,7 +4182,7 @@
       "bound_controls": []
     },
     {
-      "path": "CddProfile.industry_code",
+      "path": "cdd_profile.industry_code",
       "field": "industry_code",
       "entity": "CddProfile",
       "type": "string",
@@ -4199,7 +4199,7 @@
       "bound_controls": []
     },
     {
-      "path": "CddProfile.risk_tier",
+      "path": "cdd_profile.risk_tier",
       "field": "risk_tier",
       "entity": "CddProfile",
       "type": "string",
@@ -4216,7 +4216,7 @@
       "bound_controls": []
     },
     {
-      "path": "CddProfile.source_of_funds",
+      "path": "cdd_profile.source_of_funds",
       "field": "source_of_funds",
       "entity": "CddProfile",
       "type": "string",
@@ -4233,7 +4233,7 @@
       "bound_controls": []
     },
     {
-      "path": "CmirData.amount",
+      "path": "cmir_data.amount",
       "field": "amount",
       "entity": "CmirData",
       "type": "integer",
@@ -4250,7 +4250,7 @@
       "bound_controls": []
     },
     {
-      "path": "CmirData.counterparty",
+      "path": "cmir_data.counterparty",
       "field": "counterparty",
       "entity": "CmirData",
       "type": "string",
@@ -4267,7 +4267,7 @@
       "bound_controls": []
     },
     {
-      "path": "CmirData.direction",
+      "path": "cmir_data.direction",
       "field": "direction",
       "entity": "CmirData",
       "type": "string",
@@ -4284,7 +4284,7 @@
       "bound_controls": []
     },
     {
-      "path": "CmirData.shipment_manifest",
+      "path": "cmir_data.shipment_manifest",
       "field": "shipment_manifest",
       "entity": "CmirData",
       "type": "string",
@@ -4301,7 +4301,7 @@
       "bound_controls": []
     },
     {
-      "path": "ControlResult.control_id",
+      "path": "control_result.control_id",
       "field": "control_id",
       "entity": "ControlResult",
       "type": "string",
@@ -4318,7 +4318,7 @@
       "bound_controls": []
     },
     {
-      "path": "ControlResult.decision",
+      "path": "control_result.decision",
       "field": "decision",
       "entity": "ControlResult",
       "type": "string",
@@ -4335,7 +4335,7 @@
       "bound_controls": []
     },
     {
-      "path": "ControlResult.event",
+      "path": "control_result.event",
       "field": "event",
       "entity": "ControlResult",
       "type": "string",
@@ -4352,7 +4352,7 @@
       "bound_controls": []
     },
     {
-      "path": "ControlResult.id",
+      "path": "control_result.id",
       "field": "id",
       "entity": "ControlResult",
       "type": "string",
@@ -4369,7 +4369,7 @@
       "bound_controls": []
     },
     {
-      "path": "ControlResult.matched_lists",
+      "path": "control_result.matched_lists",
       "field": "matched_lists",
       "entity": "ControlResult",
       "type": "array",
@@ -4386,7 +4386,7 @@
       "bound_controls": []
     },
     {
-      "path": "ControlResult.ofac",
+      "path": "control_result.ofac",
       "field": "ofac",
       "entity": "ControlResult",
       "type": "string",
@@ -4403,7 +4403,7 @@
       "bound_controls": []
     },
     {
-      "path": "ControlResult.score",
+      "path": "control_result.score",
       "field": "score",
       "entity": "ControlResult",
       "type": "number",
@@ -4420,7 +4420,7 @@
       "bound_controls": []
     },
     {
-      "path": "ControlResult.subject_ref",
+      "path": "control_result.subject_ref",
       "field": "subject_ref",
       "entity": "ControlResult",
       "type": "string",
@@ -4437,7 +4437,7 @@
       "bound_controls": []
     },
     {
-      "path": "Counterparty.name",
+      "path": "counterparty.name",
       "field": "name",
       "entity": "Counterparty",
       "type": "string",
@@ -4454,7 +4454,7 @@
       "bound_controls": []
     },
     {
-      "path": "Counterparty.routing_number",
+      "path": "counterparty.routing_number",
       "field": "routing_number",
       "entity": "Counterparty",
       "type": "string",
@@ -4471,7 +4471,7 @@
       "bound_controls": []
     },
     {
-      "path": "CtrData.cash_in_total",
+      "path": "ctr_data.cash_in_total",
       "field": "cash_in_total",
       "entity": "CtrData",
       "type": "integer",
@@ -4488,7 +4488,7 @@
       "bound_controls": []
     },
     {
-      "path": "CtrData.cash_out_total",
+      "path": "ctr_data.cash_out_total",
       "field": "cash_out_total",
       "entity": "CtrData",
       "type": "integer",
@@ -4505,7 +4505,7 @@
       "bound_controls": []
     },
     {
-      "path": "CtrData.exemption_basis",
+      "path": "ctr_data.exemption_basis",
       "field": "exemption_basis",
       "entity": "CtrData",
       "type": "string",
@@ -4522,7 +4522,7 @@
       "bound_controls": []
     },
     {
-      "path": "Curriculum.board_curriculum",
+      "path": "curriculum.board_curriculum",
       "field": "board_curriculum",
       "entity": "Curriculum",
       "type": "string",
@@ -4539,7 +4539,7 @@
       "bound_controls": []
     },
     {
-      "path": "Curriculum.curriculum_version",
+      "path": "curriculum.curriculum_version",
       "field": "curriculum_version",
       "entity": "Curriculum",
       "type": "string",
@@ -4556,7 +4556,7 @@
       "bound_controls": []
     },
     {
-      "path": "Curriculum.role_curriculum",
+      "path": "curriculum.role_curriculum",
       "field": "role_curriculum",
       "entity": "Curriculum",
       "type": "string",
@@ -4573,7 +4573,7 @@
       "bound_controls": []
     },
     {
-      "path": "Decision.model_id",
+      "path": "decision.model_id",
       "field": "model_id",
       "entity": "Decision",
       "type": "string",
@@ -4590,7 +4590,7 @@
       "bound_controls": []
     },
     {
-      "path": "Decision.score_block",
+      "path": "decision.score_block",
       "field": "score_block",
       "entity": "Decision",
       "type": "object",
@@ -4607,7 +4607,7 @@
       "bound_controls": []
     },
     {
-      "path": "DisclosureDetail.request_doc",
+      "path": "disclosure_detail.request_doc",
       "field": "request_doc",
       "entity": "DisclosureDetail",
       "type": "string",
@@ -4624,7 +4624,7 @@
       "bound_controls": []
     },
     {
-      "path": "DisclosureDetail.requester",
+      "path": "disclosure_detail.requester",
       "field": "requester",
       "entity": "DisclosureDetail",
       "type": "string",
@@ -4641,7 +4641,7 @@
       "bound_controls": []
     },
     {
-      "path": "Document.attached",
+      "path": "document.attached",
       "field": "attached",
       "entity": "Document",
       "type": "string",
@@ -4658,7 +4658,7 @@
       "bound_controls": []
     },
     {
-      "path": "Document.curriculum",
+      "path": "document.curriculum",
       "field": "curriculum",
       "entity": "Document",
       "type": "string",
@@ -4675,7 +4675,7 @@
       "bound_controls": []
     },
     {
-      "path": "Document.edd",
+      "path": "document.edd",
       "field": "edd",
       "entity": "Document",
       "type": "string",
@@ -4692,7 +4692,7 @@
       "bound_controls": []
     },
     {
-      "path": "Document.id",
+      "path": "document.id",
       "field": "id",
       "entity": "Document",
       "type": "string",
@@ -4709,7 +4709,7 @@
       "bound_controls": []
     },
     {
-      "path": "Document.legal_hold_flag",
+      "path": "document.legal_hold_flag",
       "field": "legal_hold_flag",
       "entity": "Document",
       "type": "boolean",
@@ -4726,7 +4726,7 @@
       "bound_controls": []
     },
     {
-      "path": "Document.mi",
+      "path": "document.mi",
       "field": "mi",
       "entity": "Document",
       "type": "string",
@@ -4743,7 +4743,7 @@
       "bound_controls": []
     },
     {
-      "path": "Document.policy",
+      "path": "document.policy",
       "field": "policy",
       "entity": "Document",
       "type": "string",
@@ -4760,7 +4760,7 @@
       "bound_controls": []
     },
     {
-      "path": "Document.report",
+      "path": "document.report",
       "field": "report",
       "entity": "Document",
       "type": "string",
@@ -4777,7 +4777,7 @@
       "bound_controls": []
     },
     {
-      "path": "Document.retention_anchor",
+      "path": "document.retention_anchor",
       "field": "retention_anchor",
       "entity": "Document",
       "type": "string (date)",
@@ -4794,7 +4794,7 @@
       "bound_controls": []
     },
     {
-      "path": "Document.retention_schedule",
+      "path": "document.retention_schedule",
       "field": "retention_schedule",
       "entity": "Document",
       "type": "string",
@@ -4811,7 +4811,7 @@
       "bound_controls": []
     },
     {
-      "path": "Document.risk",
+      "path": "document.risk",
       "field": "risk",
       "entity": "Document",
       "type": "string",
@@ -4828,7 +4828,7 @@
       "bound_controls": []
     },
     {
-      "path": "Document.subject_ref",
+      "path": "document.subject_ref",
       "field": "subject_ref",
       "entity": "Document",
       "type": "string",
@@ -4845,7 +4845,7 @@
       "bound_controls": []
     },
     {
-      "path": "Document.type",
+      "path": "document.type",
       "field": "type",
       "entity": "Document",
       "type": "string",
@@ -4862,7 +4862,7 @@
       "bound_controls": []
     },
     {
-      "path": "Document.vendor",
+      "path": "document.vendor",
       "field": "vendor",
       "entity": "Document",
       "type": "string",
@@ -4879,7 +4879,7 @@
       "bound_controls": []
     },
     {
-      "path": "Document.vendor_alert",
+      "path": "document.vendor_alert",
       "field": "vendor_alert",
       "entity": "Document",
       "type": "string",
@@ -4896,7 +4896,7 @@
       "bound_controls": []
     },
     {
-      "path": "EddFile.approver_id",
+      "path": "edd_file.approver_id",
       "field": "approver_id",
       "entity": "EddFile",
       "type": "string",
@@ -4913,7 +4913,7 @@
       "bound_controls": []
     },
     {
-      "path": "EddFile.category_checklist",
+      "path": "edd_file.category_checklist",
       "field": "category_checklist",
       "entity": "EddFile",
       "type": "string",
@@ -4930,7 +4930,7 @@
       "bound_controls": []
     },
     {
-      "path": "EddFile.msb_registration_number",
+      "path": "edd_file.msb_registration_number",
       "field": "msb_registration_number",
       "entity": "EddFile",
       "type": "string",
@@ -4947,7 +4947,7 @@
       "bound_controls": []
     },
     {
-      "path": "EddFile.site_visit_report",
+      "path": "edd_file.site_visit_report",
       "field": "site_visit_report",
       "entity": "EddFile",
       "type": "string",
@@ -4964,7 +4964,7 @@
       "bound_controls": []
     },
     {
-      "path": "EddFile.source_of_wealth",
+      "path": "edd_file.source_of_wealth",
       "field": "source_of_wealth",
       "entity": "EddFile",
       "type": "string",
@@ -4981,7 +4981,7 @@
       "bound_controls": []
     },
     {
-      "path": "Entity.address",
+      "path": "entity.address",
       "field": "address",
       "entity": "Entity",
       "type": "string",
@@ -4998,7 +4998,7 @@
       "bound_controls": []
     },
     {
-      "path": "Entity.address_change",
+      "path": "entity.address_change",
       "field": "address_change",
       "entity": "Entity",
       "type": "string",
@@ -5015,7 +5015,7 @@
       "bound_controls": []
     },
     {
-      "path": "Entity.address_new",
+      "path": "entity.address_new",
       "field": "address_new",
       "entity": "Entity",
       "type": "string",
@@ -5032,7 +5032,7 @@
       "bound_controls": []
     },
     {
-      "path": "Entity.address_previous",
+      "path": "entity.address_previous",
       "field": "address_previous",
       "entity": "Entity",
       "type": "string",
@@ -5049,7 +5049,7 @@
       "bound_controls": []
     },
     {
-      "path": "Entity.contact",
+      "path": "entity.contact",
       "field": "contact",
       "entity": "Entity",
       "type": "string",
@@ -5066,7 +5066,7 @@
       "bound_controls": []
     },
     {
-      "path": "Entity.contact_preference",
+      "path": "entity.contact_preference",
       "field": "contact_preference",
       "entity": "Entity",
       "type": "string",
@@ -5083,7 +5083,7 @@
       "bound_controls": []
     },
     {
-      "path": "Entity.date_of_birth",
+      "path": "entity.date_of_birth",
       "field": "date_of_birth",
       "entity": "Entity",
       "type": "string",
@@ -5100,7 +5100,7 @@
       "bound_controls": []
     },
     {
-      "path": "Entity.disabled",
+      "path": "entity.disabled",
       "field": "disabled",
       "entity": "Entity",
       "type": "string",
@@ -5117,7 +5117,7 @@
       "bound_controls": []
     },
     {
-      "path": "Entity.email",
+      "path": "entity.email",
       "field": "email",
       "entity": "Entity",
       "type": "string",
@@ -5134,7 +5134,7 @@
       "bound_controls": []
     },
     {
-      "path": "Entity.esign_consent",
+      "path": "entity.esign_consent",
       "field": "esign_consent",
       "entity": "Entity",
       "type": "string",
@@ -5151,7 +5151,7 @@
       "bound_controls": []
     },
     {
-      "path": "Entity.id",
+      "path": "entity.id",
       "field": "id",
       "entity": "Entity",
       "type": "string",
@@ -5168,7 +5168,7 @@
       "bound_controls": []
     },
     {
-      "path": "Entity.jurisdiction",
+      "path": "entity.jurisdiction",
       "field": "jurisdiction",
       "entity": "Entity",
       "type": "string",
@@ -5185,7 +5185,7 @@
       "bound_controls": []
     },
     {
-      "path": "Entity.name",
+      "path": "entity.name",
       "field": "name",
       "entity": "Entity",
       "type": "string",
@@ -5202,7 +5202,7 @@
       "bound_controls": []
     },
     {
-      "path": "Entity.reg_e_opt_in",
+      "path": "entity.reg_e_opt_in",
       "field": "reg_e_opt_in",
       "entity": "Entity",
       "type": "string",
@@ -5219,7 +5219,7 @@
       "bound_controls": []
     },
     {
-      "path": "Entity.status",
+      "path": "entity.status",
       "field": "status",
       "entity": "Entity",
       "type": "string",
@@ -5236,7 +5236,7 @@
       "bound_controls": []
     },
     {
-      "path": "Entity.tin",
+      "path": "entity.tin",
       "field": "tin",
       "entity": "Entity",
       "type": "string",
@@ -5253,7 +5253,7 @@
       "bound_controls": []
     },
     {
-      "path": "Entity.type",
+      "path": "entity.type",
       "field": "type",
       "entity": "Entity",
       "type": "string",
@@ -5270,7 +5270,7 @@
       "bound_controls": []
     },
     {
-      "path": "EscalationDetail.description",
+      "path": "escalation_detail.description",
       "field": "description",
       "entity": "EscalationDetail",
       "type": "string",
@@ -5287,7 +5287,7 @@
       "bound_controls": []
     },
     {
-      "path": "EscalationDetail.facts",
+      "path": "escalation_detail.facts",
       "field": "facts",
       "entity": "EscalationDetail",
       "type": "string",
@@ -5304,7 +5304,7 @@
       "bound_controls": []
     },
     {
-      "path": "EscalationDetail.regulatory_assessment",
+      "path": "escalation_detail.regulatory_assessment",
       "field": "regulatory_assessment",
       "entity": "EscalationDetail",
       "type": "string",
@@ -5321,7 +5321,7 @@
       "bound_controls": []
     },
     {
-      "path": "EscalationDetail.reporter_id",
+      "path": "escalation_detail.reporter_id",
       "field": "reporter_id",
       "entity": "EscalationDetail",
       "type": "string",
@@ -5338,7 +5338,7 @@
       "bound_controls": []
     },
     {
-      "path": "EscalationDetail.severity",
+      "path": "escalation_detail.severity",
       "field": "severity",
       "entity": "EscalationDetail",
       "type": "string",
@@ -5355,7 +5355,7 @@
       "bound_controls": []
     },
     {
-      "path": "Event.code",
+      "path": "event.code",
       "field": "code",
       "entity": "Event",
       "type": "string",
@@ -5372,7 +5372,7 @@
       "bound_controls": []
     },
     {
-      "path": "Event.created_at",
+      "path": "event.created_at",
       "field": "created_at",
       "entity": "Event",
       "type": "string (date-time)",
@@ -5389,7 +5389,7 @@
       "bound_controls": []
     },
     {
-      "path": "Event.data",
+      "path": "event.data",
       "field": "data",
       "entity": "Event",
       "type": "string",
@@ -5406,7 +5406,7 @@
       "bound_controls": []
     },
     {
-      "path": "Event.entity_hash",
+      "path": "event.entity_hash",
       "field": "entity_hash",
       "entity": "Event",
       "type": "string",
@@ -5423,7 +5423,7 @@
       "bound_controls": []
     },
     {
-      "path": "Event.id",
+      "path": "event.id",
       "field": "id",
       "entity": "Event",
       "type": "string",
@@ -5440,7 +5440,7 @@
       "bound_controls": []
     },
     {
-      "path": "Event.payload",
+      "path": "event.payload",
       "field": "payload",
       "entity": "Event",
       "type": "object",
@@ -5457,7 +5457,7 @@
       "bound_controls": []
     },
     {
-      "path": "Event.previous_data",
+      "path": "event.previous_data",
       "field": "previous_data",
       "entity": "Event",
       "type": "object",
@@ -5474,7 +5474,7 @@
       "bound_controls": []
     },
     {
-      "path": "Event.resource_id",
+      "path": "event.resource_id",
       "field": "resource_id",
       "entity": "Event",
       "type": "string",
@@ -5491,7 +5491,7 @@
       "bound_controls": []
     },
     {
-      "path": "Event.type",
+      "path": "event.type",
       "field": "type",
       "entity": "Event",
       "type": "string",
@@ -5508,7 +5508,7 @@
       "bound_controls": []
     },
     {
-      "path": "FbarData.account_record",
+      "path": "fbar_data.account_record",
       "field": "account_record",
       "entity": "FbarData",
       "type": "object",
@@ -5525,7 +5525,7 @@
       "bound_controls": []
     },
     {
-      "path": "FbarData.authority_type",
+      "path": "fbar_data.authority_type",
       "field": "authority_type",
       "entity": "FbarData",
       "type": "string",
@@ -5542,7 +5542,7 @@
       "bound_controls": []
     },
     {
-      "path": "FboPosition.balance",
+      "path": "fbo_position.balance",
       "field": "balance",
       "entity": "FboPosition",
       "type": "number",
@@ -5559,7 +5559,7 @@
       "bound_controls": []
     },
     {
-      "path": "Filing.cmir",
+      "path": "filing.cmir",
       "field": "cmir",
       "entity": "Filing",
       "type": "string",
@@ -5576,7 +5576,7 @@
       "bound_controls": []
     },
     {
-      "path": "Filing.control_id",
+      "path": "filing.control_id",
       "field": "control_id",
       "entity": "Filing",
       "type": "string",
@@ -5593,7 +5593,7 @@
       "bound_controls": []
     },
     {
-      "path": "Filing.ctr",
+      "path": "filing.ctr",
       "field": "ctr",
       "entity": "Filing",
       "type": "string",
@@ -5610,7 +5610,7 @@
       "bound_controls": []
     },
     {
-      "path": "Filing.fbar",
+      "path": "filing.fbar",
       "field": "fbar",
       "entity": "Filing",
       "type": "string",
@@ -5627,7 +5627,7 @@
       "bound_controls": []
     },
     {
-      "path": "Filing.filed_at",
+      "path": "filing.filed_at",
       "field": "filed_at",
       "entity": "Filing",
       "type": "string (date-time)",
@@ -5644,7 +5644,7 @@
       "bound_controls": []
     },
     {
-      "path": "Filing.filing_id",
+      "path": "filing.filing_id",
       "field": "filing_id",
       "entity": "Filing",
       "type": "string",
@@ -5661,7 +5661,7 @@
       "bound_controls": []
     },
     {
-      "path": "Filing.fincen_314a",
+      "path": "filing.fincen_314a",
       "field": "fincen_314a",
       "entity": "Filing",
       "type": "string",
@@ -5678,7 +5678,7 @@
       "bound_controls": []
     },
     {
-      "path": "Filing.id",
+      "path": "filing.id",
       "field": "id",
       "entity": "Filing",
       "type": "string",
@@ -5695,7 +5695,7 @@
       "bound_controls": []
     },
     {
-      "path": "Filing.ofac",
+      "path": "filing.ofac",
       "field": "ofac",
       "entity": "Filing",
       "type": "string",
@@ -5712,7 +5712,7 @@
       "bound_controls": []
     },
     {
-      "path": "Filing.sar",
+      "path": "filing.sar",
       "field": "sar",
       "entity": "Filing",
       "type": "string",
@@ -5729,7 +5729,7 @@
       "bound_controls": []
     },
     {
-      "path": "Filing.status",
+      "path": "filing.status",
       "field": "status",
       "entity": "Filing",
       "type": "string",
@@ -5746,7 +5746,7 @@
       "bound_controls": []
     },
     {
-      "path": "Filing.type",
+      "path": "filing.type",
       "field": "type",
       "entity": "Filing",
       "type": "string",
@@ -5763,7 +5763,7 @@
       "bound_controls": []
     },
     {
-      "path": "Fincen314aData.counterpart_registration",
+      "path": "fincen314a_data.counterpart_registration",
       "field": "counterpart_registration",
       "entity": "Fincen314aData",
       "type": "string",
@@ -5780,7 +5780,7 @@
       "bound_controls": []
     },
     {
-      "path": "Fincen314aData.request_scope",
+      "path": "fincen314a_data.request_scope",
       "field": "request_scope",
       "entity": "Fincen314aData",
       "type": "string",
@@ -5797,7 +5797,7 @@
       "bound_controls": []
     },
     {
-      "path": "InboundPayment.amount",
+      "path": "inbound_payment.amount",
       "field": "amount",
       "entity": "InboundPayment",
       "type": "number",
@@ -5814,7 +5814,7 @@
       "bound_controls": []
     },
     {
-      "path": "InboundPayment.id",
+      "path": "inbound_payment.id",
       "field": "id",
       "entity": "InboundPayment",
       "type": "string",
@@ -5831,7 +5831,7 @@
       "bound_controls": []
     },
     {
-      "path": "InboundPayment.originator",
+      "path": "inbound_payment.originator",
       "field": "originator",
       "entity": "InboundPayment",
       "type": "string",
@@ -5848,7 +5848,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.bsa_referral_id",
+      "path": "incident.bsa_referral_id",
       "field": "bsa_referral_id",
       "entity": "Incident",
       "type": "string",
@@ -5865,7 +5865,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.cco_signoff",
+      "path": "incident.cco_signoff",
       "field": "cco_signoff",
       "entity": "Incident",
       "type": "string",
@@ -5882,7 +5882,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.checklist_first_hour",
+      "path": "incident.checklist_first_hour",
       "field": "checklist_first_hour",
       "entity": "Incident",
       "type": "string",
@@ -5899,7 +5899,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.comms_plan",
+      "path": "incident.comms_plan",
       "field": "comms_plan",
       "entity": "Incident",
       "type": "object",
@@ -5916,7 +5916,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.contained",
+      "path": "incident.contained",
       "field": "contained",
       "entity": "Incident",
       "type": "string",
@@ -5933,7 +5933,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.containment_timer",
+      "path": "incident.containment_timer",
       "field": "containment_timer",
       "entity": "Incident",
       "type": "string",
@@ -5950,7 +5950,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.criminal_suspected",
+      "path": "incident.criminal_suspected",
       "field": "criminal_suspected",
       "entity": "Incident",
       "type": "string",
@@ -5967,7 +5967,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.data_scope",
+      "path": "incident.data_scope",
       "field": "data_scope",
       "entity": "Incident",
       "type": "string",
@@ -5984,7 +5984,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.description",
+      "path": "incident.description",
       "field": "description",
       "entity": "Incident",
       "type": "string",
@@ -6001,7 +6001,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.detail",
+      "path": "incident.detail",
       "field": "detail",
       "entity": "Incident",
       "type": "object",
@@ -6018,7 +6018,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.detection_source",
+      "path": "incident.detection_source",
       "field": "detection_source",
       "entity": "Incident",
       "type": "string",
@@ -6035,7 +6035,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.discovery_notes",
+      "path": "incident.discovery_notes",
       "field": "discovery_notes",
       "entity": "Incident",
       "type": "string",
@@ -6052,7 +6052,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.facts",
+      "path": "incident.facts",
       "field": "facts",
       "entity": "Incident",
       "type": "string",
@@ -6069,7 +6069,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.ic_assignment_timer",
+      "path": "incident.ic_assignment_timer",
       "field": "ic_assignment_timer",
       "entity": "Incident",
       "type": "string",
@@ -6086,7 +6086,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.id",
+      "path": "incident.id",
       "field": "id",
       "entity": "Incident",
       "type": "string",
@@ -6103,7 +6103,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.impact_summary",
+      "path": "incident.impact_summary",
       "field": "impact_summary",
       "entity": "Incident",
       "type": "object",
@@ -6120,7 +6120,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.legal_review",
+      "path": "incident.legal_review",
       "field": "legal_review",
       "entity": "Incident",
       "type": "string",
@@ -6137,7 +6137,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.member_notice_required",
+      "path": "incident.member_notice_required",
       "field": "member_notice_required",
       "entity": "Incident",
       "type": "boolean",
@@ -6154,7 +6154,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.member_notice_template",
+      "path": "incident.member_notice_template",
       "field": "member_notice_template",
       "entity": "Incident",
       "type": "string",
@@ -6171,7 +6171,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.misuse_determined",
+      "path": "incident.misuse_determined",
       "field": "misuse_determined",
       "entity": "Incident",
       "type": "string",
@@ -6188,7 +6188,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.misuse_likelihood",
+      "path": "incident.misuse_likelihood",
       "field": "misuse_likelihood",
       "entity": "Incident",
       "type": "string",
@@ -6205,7 +6205,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.notice_content",
+      "path": "incident.notice_content",
       "field": "notice_content",
       "entity": "Incident",
       "type": "string",
@@ -6222,7 +6222,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.notice_template_id",
+      "path": "incident.notice_template_id",
       "field": "notice_template_id",
       "entity": "Incident",
       "type": "string",
@@ -6239,7 +6239,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.notification_determined",
+      "path": "incident.notification_determined",
       "field": "notification_determined",
       "entity": "Incident",
       "type": "string",
@@ -6256,7 +6256,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.quarterly_summary",
+      "path": "incident.quarterly_summary",
       "field": "quarterly_summary",
       "entity": "Incident",
       "type": "object",
@@ -6273,7 +6273,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.recovered",
+      "path": "incident.recovered",
       "field": "recovered",
       "entity": "Incident",
       "type": "string",
@@ -6290,7 +6290,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.reportability_assessment",
+      "path": "incident.reportability_assessment",
       "field": "reportability_assessment",
       "entity": "Incident",
       "type": "string",
@@ -6307,7 +6307,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.reportability_determination",
+      "path": "incident.reportability_determination",
       "field": "reportability_determination",
       "entity": "Incident",
       "type": "string",
@@ -6324,7 +6324,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.reportability_rationale",
+      "path": "incident.reportability_rationale",
       "field": "reportability_rationale",
       "entity": "Incident",
       "type": "string",
@@ -6341,7 +6341,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.reportable_determined",
+      "path": "incident.reportable_determined",
       "field": "reportable_determined",
       "entity": "Incident",
       "type": "string",
@@ -6358,7 +6358,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.root_cause",
+      "path": "incident.root_cause",
       "field": "root_cause",
       "entity": "Incident",
       "type": "string",
@@ -6375,7 +6375,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.sar_referred",
+      "path": "incident.sar_referred",
       "field": "sar_referred",
       "entity": "Incident",
       "type": "string",
@@ -6392,7 +6392,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.scope",
+      "path": "incident.scope",
       "field": "scope",
       "entity": "Incident",
       "type": "string",
@@ -6409,7 +6409,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.scope_initial",
+      "path": "incident.scope_initial",
       "field": "scope_initial",
       "entity": "Incident",
       "type": "string",
@@ -6426,7 +6426,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.severity",
+      "path": "incident.severity",
       "field": "severity",
       "entity": "Incident",
       "type": "string",
@@ -6443,7 +6443,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.status",
+      "path": "incident.status",
       "field": "status",
       "entity": "Incident",
       "type": "string",
@@ -6460,7 +6460,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.summary_id",
+      "path": "incident.summary_id",
       "field": "summary_id",
       "entity": "Incident",
       "type": "string",
@@ -6477,7 +6477,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.timeline",
+      "path": "incident.timeline",
       "field": "timeline",
       "entity": "Incident",
       "type": "string",
@@ -6494,7 +6494,7 @@
       "bound_controls": []
     },
     {
-      "path": "Incident.triaged",
+      "path": "incident.triaged",
       "field": "triaged",
       "entity": "Incident",
       "type": "string",
@@ -6511,7 +6511,7 @@
       "bound_controls": []
     },
     {
-      "path": "LegalHold.hold_scope",
+      "path": "legal_hold.hold_scope",
       "field": "hold_scope",
       "entity": "LegalHold",
       "type": "string",
@@ -6528,7 +6528,7 @@
       "bound_controls": []
     },
     {
-      "path": "LegalHold.id",
+      "path": "legal_hold.id",
       "field": "id",
       "entity": "LegalHold",
       "type": "string",
@@ -6545,7 +6545,7 @@
       "bound_controls": []
     },
     {
-      "path": "LegalHold.matter_id",
+      "path": "legal_hold.matter_id",
       "field": "matter_id",
       "entity": "LegalHold",
       "type": "string",
@@ -6562,7 +6562,7 @@
       "bound_controls": []
     },
     {
-      "path": "LegalHold.matter_ref",
+      "path": "legal_hold.matter_ref",
       "field": "matter_ref",
       "entity": "LegalHold",
       "type": "object",
@@ -6579,7 +6579,7 @@
       "bound_controls": []
     },
     {
-      "path": "LegalHold.placed_at",
+      "path": "legal_hold.placed_at",
       "field": "placed_at",
       "entity": "LegalHold",
       "type": "string (date-time)",
@@ -6596,7 +6596,7 @@
       "bound_controls": []
     },
     {
-      "path": "LegalHold.release_approved_by",
+      "path": "legal_hold.release_approved_by",
       "field": "release_approved_by",
       "entity": "LegalHold",
       "type": "string",
@@ -6613,7 +6613,7 @@
       "bound_controls": []
     },
     {
-      "path": "LegalHold.released",
+      "path": "legal_hold.released",
       "field": "released",
       "entity": "LegalHold",
       "type": "string",
@@ -6630,7 +6630,7 @@
       "bound_controls": []
     },
     {
-      "path": "LegalHold.released_at",
+      "path": "legal_hold.released_at",
       "field": "released_at",
       "entity": "LegalHold",
       "type": "string (date-time)",
@@ -6647,7 +6647,7 @@
       "bound_controls": []
     },
     {
-      "path": "LegalHold.schedule_resumed",
+      "path": "legal_hold.schedule_resumed",
       "field": "schedule_resumed",
       "entity": "LegalHold",
       "type": "string",
@@ -6664,7 +6664,7 @@
       "bound_controls": []
     },
     {
-      "path": "LegalHold.status",
+      "path": "legal_hold.status",
       "field": "status",
       "entity": "LegalHold",
       "type": "string",
@@ -6681,7 +6681,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.accrued_interest",
+      "path": "loan.accrued_interest",
       "field": "accrued_interest",
       "entity": "Loan",
       "type": "string",
@@ -6698,7 +6698,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.action_basis",
+      "path": "loan.action_basis",
       "field": "action_basis",
       "entity": "Loan",
       "type": "object",
@@ -6715,7 +6715,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.balance",
+      "path": "loan.balance",
       "field": "balance",
       "entity": "Loan",
       "type": "number",
@@ -6732,7 +6732,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.bankruptcy_case_id",
+      "path": "loan.bankruptcy_case_id",
       "field": "bankruptcy_case_id",
       "entity": "Loan",
       "type": "string",
@@ -6749,7 +6749,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.booking_block_state",
+      "path": "loan.booking_block_state",
       "field": "booking_block_state",
       "entity": "Loan",
       "type": "string",
@@ -6766,7 +6766,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.charged_off",
+      "path": "loan.charged_off",
       "field": "charged_off",
       "entity": "Loan",
       "type": "string",
@@ -6783,7 +6783,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.chargeoff_due_closed_end",
+      "path": "loan.chargeoff_due_closed_end",
       "field": "chargeoff_due_closed_end",
       "entity": "Loan",
       "type": "string",
@@ -6800,7 +6800,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.chargeoff_due_open_end",
+      "path": "loan.chargeoff_due_open_end",
       "field": "chargeoff_due_open_end",
       "entity": "Loan",
       "type": "string",
@@ -6817,7 +6817,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.chargeoff_month_end_at",
+      "path": "loan.chargeoff_month_end_at",
       "field": "chargeoff_month_end_at",
       "entity": "Loan",
       "type": "string (date-time)",
@@ -6834,7 +6834,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.classified_substandard",
+      "path": "loan.classified_substandard",
       "field": "classified_substandard",
       "entity": "Loan",
       "type": "string",
@@ -6851,7 +6851,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.collateral_value",
+      "path": "loan.collateral_value",
       "field": "collateral_value",
       "entity": "Loan",
       "type": "string",
@@ -6868,7 +6868,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.collectibility_assessment",
+      "path": "loan.collectibility_assessment",
       "field": "collectibility_assessment",
       "entity": "Loan",
       "type": "string",
@@ -6885,7 +6885,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.death_loss_estimable",
+      "path": "loan.death_loss_estimable",
       "field": "death_loss_estimable",
       "entity": "Loan",
       "type": "string",
@@ -6902,7 +6902,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.delinquency_day_10",
+      "path": "loan.delinquency_day_10",
       "field": "delinquency_day_10",
       "entity": "Loan",
       "type": "string",
@@ -6919,7 +6919,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.delinquency_day_20",
+      "path": "loan.delinquency_day_20",
       "field": "delinquency_day_20",
       "entity": "Loan",
       "type": "string",
@@ -6936,7 +6936,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.delinquency_day_30",
+      "path": "loan.delinquency_day_30",
       "field": "delinquency_day_30",
       "entity": "Loan",
       "type": "string",
@@ -6953,7 +6953,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.delinquency_day_60",
+      "path": "loan.delinquency_day_60",
       "field": "delinquency_day_60",
       "entity": "Loan",
       "type": "string",
@@ -6970,7 +6970,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.delinquency_day_90",
+      "path": "loan.delinquency_day_90",
       "field": "delinquency_day_90",
       "entity": "Loan",
       "type": "string",
@@ -6987,7 +6987,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.delinquency_engine_run",
+      "path": "loan.delinquency_engine_run",
       "field": "delinquency_engine_run",
       "entity": "Loan",
       "type": "string",
@@ -7004,7 +7004,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.delinquency_engine_schedule",
+      "path": "loan.delinquency_engine_schedule",
       "field": "delinquency_engine_schedule",
       "entity": "Loan",
       "type": "string",
@@ -7021,7 +7021,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.dpd",
+      "path": "loan.dpd",
       "field": "dpd",
       "entity": "Loan",
       "type": "string",
@@ -7038,7 +7038,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.dpd_reset",
+      "path": "loan.dpd_reset",
       "field": "dpd_reset",
       "entity": "Loan",
       "type": "string",
@@ -7055,7 +7055,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.dpd_reset_eligibility_check",
+      "path": "loan.dpd_reset_eligibility_check",
       "field": "dpd_reset_eligibility_check",
       "entity": "Loan",
       "type": "string",
@@ -7072,7 +7072,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.estate_claim_status",
+      "path": "loan.estate_claim_status",
       "field": "estate_claim_status",
       "entity": "Loan",
       "type": "string",
@@ -7089,7 +7089,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.estimated_recovery",
+      "path": "loan.estimated_recovery",
       "field": "estimated_recovery",
       "entity": "Loan",
       "type": "string",
@@ -7106,7 +7106,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.foreclosure_impact_eval",
+      "path": "loan.foreclosure_impact_eval",
       "field": "foreclosure_impact_eval",
       "entity": "Loan",
       "type": "string",
@@ -7123,7 +7123,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.funding_block_state",
+      "path": "loan.funding_block_state",
       "field": "funding_block_state",
       "entity": "Loan",
       "type": "string",
@@ -7140,7 +7140,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.grace_period_days",
+      "path": "loan.grace_period_days",
       "field": "grace_period_days",
       "entity": "Loan",
       "type": "string",
@@ -7157,7 +7157,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.id",
+      "path": "loan.id",
       "field": "id",
       "entity": "Loan",
       "type": "string",
@@ -7174,7 +7174,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.io_term_months",
+      "path": "loan.io_term_months",
       "field": "io_term_months",
       "entity": "Loan",
       "type": "string",
@@ -7191,7 +7191,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.last_payment_date",
+      "path": "loan.last_payment_date",
       "field": "last_payment_date",
       "entity": "Loan",
       "type": "string (date-time)",
@@ -7208,7 +7208,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.ltv",
+      "path": "loan.ltv",
       "field": "ltv",
       "entity": "Loan",
       "type": "number",
@@ -7225,7 +7225,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.modified_schedule",
+      "path": "loan.modified_schedule",
       "field": "modified_schedule",
       "entity": "Loan",
       "type": "string",
@@ -7242,7 +7242,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.nonaccrual_placed",
+      "path": "loan.nonaccrual_placed",
       "field": "nonaccrual_placed",
       "entity": "Loan",
       "type": "string",
@@ -7259,7 +7259,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.past_due_amount",
+      "path": "loan.past_due_amount",
       "field": "past_due_amount",
       "entity": "Loan",
       "type": "number",
@@ -7276,7 +7276,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.product_type",
+      "path": "loan.product_type",
       "field": "product_type",
       "entity": "Loan",
       "type": "string",
@@ -7293,7 +7293,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.proposed_modification",
+      "path": "loan.proposed_modification",
       "field": "proposed_modification",
       "entity": "Loan",
       "type": "string",
@@ -7310,7 +7310,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.repayment_evidence",
+      "path": "loan.repayment_evidence",
       "field": "repayment_evidence",
       "entity": "Loan",
       "type": "object",
@@ -7327,7 +7327,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.risk_rating",
+      "path": "loan.risk_rating",
       "field": "risk_rating",
       "entity": "Loan",
       "type": "string",
@@ -7344,7 +7344,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.well_secured_documented",
+      "path": "loan.well_secured_documented",
       "field": "well_secured_documented",
       "entity": "Loan",
       "type": "string",
@@ -7361,7 +7361,7 @@
       "bound_controls": []
     },
     {
-      "path": "Loan.workout_alternatives",
+      "path": "loan.workout_alternatives",
       "field": "workout_alternatives",
       "entity": "Loan",
       "type": "string",
@@ -7378,7 +7378,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.action_basis",
+      "path": "loan_application.action_basis",
       "field": "action_basis",
       "entity": "LoanApplication",
       "type": "object",
@@ -7395,7 +7395,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.amount",
+      "path": "loan_application.amount",
       "field": "amount",
       "entity": "LoanApplication",
       "type": "integer",
@@ -7412,7 +7412,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.applicant",
+      "path": "loan_application.applicant",
       "field": "applicant",
       "entity": "LoanApplication",
       "type": "string",
@@ -7429,7 +7429,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.atr_qm_result",
+      "path": "loan_application.atr_qm_result",
       "field": "atr_qm_result",
       "entity": "LoanApplication",
       "type": "string",
@@ -7446,7 +7446,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.channel",
+      "path": "loan_application.channel",
       "field": "channel",
       "entity": "LoanApplication",
       "type": "string",
@@ -7463,7 +7463,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.counteroffer_status",
+      "path": "loan_application.counteroffer_status",
       "field": "counteroffer_status",
       "entity": "LoanApplication",
       "type": "string",
@@ -7480,7 +7480,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.counteroffer_terms",
+      "path": "loan_application.counteroffer_terms",
       "field": "counteroffer_terms",
       "entity": "LoanApplication",
       "type": "object",
@@ -7497,7 +7497,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.credit_structure",
+      "path": "loan_application.credit_structure",
       "field": "credit_structure",
       "entity": "LoanApplication",
       "type": "object",
@@ -7514,7 +7514,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.data",
+      "path": "loan_application.data",
       "field": "data",
       "entity": "LoanApplication",
       "type": "object",
@@ -7531,7 +7531,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.decision",
+      "path": "loan_application.decision",
       "field": "decision",
       "entity": "LoanApplication",
       "type": "string",
@@ -7548,7 +7548,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.decision_block_state",
+      "path": "loan_application.decision_block_state",
       "field": "decision_block_state",
       "entity": "LoanApplication",
       "type": "string",
@@ -7565,7 +7565,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.doc_block_state",
+      "path": "loan_application.doc_block_state",
       "field": "doc_block_state",
       "entity": "LoanApplication",
       "type": "string",
@@ -7582,7 +7582,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.dti",
+      "path": "loan_application.dti",
       "field": "dti",
       "entity": "LoanApplication",
       "type": "number",
@@ -7599,7 +7599,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.employment",
+      "path": "loan_application.employment",
       "field": "employment",
       "entity": "LoanApplication",
       "type": "object",
@@ -7616,7 +7616,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.final_action",
+      "path": "loan_application.final_action",
       "field": "final_action",
       "entity": "LoanApplication",
       "type": "string",
@@ -7633,7 +7633,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.geography",
+      "path": "loan_application.geography",
       "field": "geography",
       "entity": "LoanApplication",
       "type": "string",
@@ -7650,7 +7650,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.gmi",
+      "path": "loan_application.gmi",
       "field": "gmi",
       "entity": "LoanApplication",
       "type": "object",
@@ -7667,7 +7667,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.id",
+      "path": "loan_application.id",
       "field": "id",
       "entity": "LoanApplication",
       "type": "string",
@@ -7684,7 +7684,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.income_assets",
+      "path": "loan_application.income_assets",
       "field": "income_assets",
       "entity": "LoanApplication",
       "type": "object",
@@ -7701,7 +7701,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.incomplete_aged",
+      "path": "loan_application.incomplete_aged",
       "field": "incomplete_aged",
       "entity": "LoanApplication",
       "type": "boolean",
@@ -7718,7 +7718,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.notified_at",
+      "path": "loan_application.notified_at",
       "field": "notified_at",
       "entity": "LoanApplication",
       "type": "string (date-time)",
@@ -7735,7 +7735,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.option_shortfall_reason",
+      "path": "loan_application.option_shortfall_reason",
       "field": "option_shortfall_reason",
       "entity": "LoanApplication",
       "type": "string",
@@ -7752,7 +7752,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.oral_adverse_decision",
+      "path": "loan_application.oral_adverse_decision",
       "field": "oral_adverse_decision",
       "entity": "LoanApplication",
       "type": "boolean",
@@ -7769,7 +7769,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.oral_statement",
+      "path": "loan_application.oral_statement",
       "field": "oral_statement",
       "entity": "LoanApplication",
       "type": "string",
@@ -7786,7 +7786,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.parties",
+      "path": "loan_application.parties",
       "field": "parties",
       "entity": "LoanApplication",
       "type": "array",
@@ -7803,7 +7803,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.prequal",
+      "path": "loan_application.prequal",
       "field": "prequal",
       "entity": "LoanApplication",
       "type": "string",
@@ -7820,7 +7820,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.product_code",
+      "path": "loan_application.product_code",
       "field": "product_code",
       "entity": "LoanApplication",
       "type": "string",
@@ -7837,7 +7837,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.product_type",
+      "path": "loan_application.product_type",
       "field": "product_type",
       "entity": "LoanApplication",
       "type": "string",
@@ -7854,7 +7854,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanApplication.requested_terms",
+      "path": "loan_application.requested_terms",
       "field": "requested_terms",
       "entity": "LoanApplication",
       "type": "object",
@@ -7871,7 +7871,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanParty.contact",
+      "path": "loan_party.contact",
       "field": "contact",
       "entity": "LoanParty",
       "type": "object",
@@ -7888,7 +7888,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanParty.identity",
+      "path": "loan_party.identity",
       "field": "identity",
       "entity": "LoanParty",
       "type": "object",
@@ -7905,7 +7905,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanParty.ofac_potential_match",
+      "path": "loan_party.ofac_potential_match",
       "field": "ofac_potential_match",
       "entity": "LoanParty",
       "type": "boolean",
@@ -7922,7 +7922,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanParty.ofac_result",
+      "path": "loan_party.ofac_result",
       "field": "ofac_result",
       "entity": "LoanParty",
       "type": "string",
@@ -7939,7 +7939,7 @@
       "bound_controls": []
     },
     {
-      "path": "LoanParty.ofac_status",
+      "path": "loan_party.ofac_status",
       "field": "ofac_status",
       "entity": "LoanParty",
       "type": "string",
@@ -7956,7 +7956,7 @@
       "bound_controls": []
     },
     {
-      "path": "MiCentralLog.amount",
+      "path": "mi_central_log.amount",
       "field": "amount",
       "entity": "MiCentralLog",
       "type": "integer",
@@ -7973,7 +7973,7 @@
       "bound_controls": []
     },
     {
-      "path": "MiCentralLog.instrument_type",
+      "path": "mi_central_log.instrument_type",
       "field": "instrument_type",
       "entity": "MiCentralLog",
       "type": "string",
@@ -7990,7 +7990,7 @@
       "bound_controls": []
     },
     {
-      "path": "MiCentralLog.purchaser_id_number",
+      "path": "mi_central_log.purchaser_id_number",
       "field": "purchaser_id_number",
       "entity": "MiCentralLog",
       "type": "string",
@@ -8007,7 +8007,7 @@
       "bound_controls": []
     },
     {
-      "path": "OfacControlContext.hotline_record",
+      "path": "ofac_control_context.hotline_record",
       "field": "hotline_record",
       "entity": "OfacControlContext",
       "type": "string",
@@ -8024,7 +8024,7 @@
       "bound_controls": []
     },
     {
-      "path": "OfacControlContext.list_version",
+      "path": "ofac_control_context.list_version",
       "field": "list_version",
       "entity": "OfacControlContext",
       "type": "string",
@@ -8041,7 +8041,7 @@
       "bound_controls": []
     },
     {
-      "path": "OfacReportData.blocked_property",
+      "path": "ofac_report_data.blocked_property",
       "field": "blocked_property",
       "entity": "OfacReportData",
       "type": "object",
@@ -8058,7 +8058,7 @@
       "bound_controls": []
     },
     {
-      "path": "OfacReportData.payment_instructions",
+      "path": "ofac_report_data.payment_instructions",
       "field": "payment_instructions",
       "entity": "OfacReportData",
       "type": "string",
@@ -8075,7 +8075,7 @@
       "bound_controls": []
     },
     {
-      "path": "OfacResult.match_score",
+      "path": "ofac_result.match_score",
       "field": "match_score",
       "entity": "OfacResult",
       "type": "number",
@@ -8092,7 +8092,7 @@
       "bound_controls": []
     },
     {
-      "path": "OfacResult.match_status",
+      "path": "ofac_result.match_status",
       "field": "match_status",
       "entity": "OfacResult",
       "type": "string",
@@ -8109,7 +8109,7 @@
       "bound_controls": []
     },
     {
-      "path": "OfacResult.matched_lists",
+      "path": "ofac_result.matched_lists",
       "field": "matched_lists",
       "entity": "OfacResult",
       "type": "string",
@@ -8126,7 +8126,7 @@
       "bound_controls": []
     },
     {
-      "path": "Originator.name",
+      "path": "originator.name",
       "field": "name",
       "entity": "Originator",
       "type": "string",
@@ -8143,7 +8143,7 @@
       "bound_controls": []
     },
     {
-      "path": "Originator.reference",
+      "path": "originator.reference",
       "field": "reference",
       "entity": "Originator",
       "type": "string",
@@ -8160,7 +8160,7 @@
       "bound_controls": []
     },
     {
-      "path": "Originator.routing_number",
+      "path": "originator.routing_number",
       "field": "routing_number",
       "entity": "Originator",
       "type": "string",
@@ -8177,7 +8177,7 @@
       "bound_controls": []
     },
     {
-      "path": "Party.account_number",
+      "path": "party.account_number",
       "field": "account_number",
       "entity": "Party",
       "type": "string",
@@ -8194,7 +8194,7 @@
       "bound_controls": []
     },
     {
-      "path": "Party.bank_name",
+      "path": "party.bank_name",
       "field": "bank_name",
       "entity": "Party",
       "type": "string",
@@ -8211,7 +8211,7 @@
       "bound_controls": []
     },
     {
-      "path": "Party.name",
+      "path": "party.name",
       "field": "name",
       "entity": "Party",
       "type": "string",
@@ -8228,7 +8228,7 @@
       "bound_controls": []
     },
     {
-      "path": "Party.reference",
+      "path": "party.reference",
       "field": "reference",
       "entity": "Party",
       "type": "string",
@@ -8245,7 +8245,7 @@
       "bound_controls": []
     },
     {
-      "path": "Party.routing_number",
+      "path": "party.routing_number",
       "field": "routing_number",
       "entity": "Party",
       "type": "string",
@@ -8262,7 +8262,7 @@
       "bound_controls": []
     },
     {
-      "path": "PepStatus.status",
+      "path": "pep_status.status",
       "field": "status",
       "entity": "PepStatus",
       "type": "string",
@@ -8279,7 +8279,7 @@
       "bound_controls": []
     },
     {
-      "path": "PepStatus.subject_role",
+      "path": "pep_status.subject_role",
       "field": "subject_role",
       "entity": "PepStatus",
       "type": "string",
@@ -8296,7 +8296,7 @@
       "bound_controls": []
     },
     {
-      "path": "PolicyDoc.authority_statement",
+      "path": "policy_doc.authority_statement",
       "field": "authority_statement",
       "entity": "PolicyDoc",
       "type": "string",
@@ -8313,7 +8313,7 @@
       "bound_controls": []
     },
     {
-      "path": "PolicyDoc.bsa_officer_id",
+      "path": "policy_doc.bsa_officer_id",
       "field": "bsa_officer_id",
       "entity": "PolicyDoc",
       "type": "string",
@@ -8330,7 +8330,7 @@
       "bound_controls": []
     },
     {
-      "path": "PolicyDoc.change_summary",
+      "path": "policy_doc.change_summary",
       "field": "change_summary",
       "entity": "PolicyDoc",
       "type": "string",
@@ -8347,7 +8347,7 @@
       "bound_controls": []
     },
     {
-      "path": "PolicyDoc.raci_registry",
+      "path": "policy_doc.raci_registry",
       "field": "raci_registry",
       "entity": "PolicyDoc",
       "type": "object",
@@ -8364,7 +8364,7 @@
       "bound_controls": []
     },
     {
-      "path": "PolicyDoc.version",
+      "path": "policy_doc.version",
       "field": "version",
       "entity": "PolicyDoc",
       "type": "string",
@@ -8381,7 +8381,7 @@
       "bound_controls": []
     },
     {
-      "path": "Prequal.criteria_version",
+      "path": "prequal.criteria_version",
       "field": "criteria_version",
       "entity": "Prequal",
       "type": "string",
@@ -8398,7 +8398,7 @@
       "bound_controls": []
     },
     {
-      "path": "Prequal.inputs",
+      "path": "prequal.inputs",
       "field": "inputs",
       "entity": "Prequal",
       "type": "object",
@@ -8415,7 +8415,7 @@
       "bound_controls": []
     },
     {
-      "path": "Prequal.product_mapping",
+      "path": "prequal.product_mapping",
       "field": "product_mapping",
       "entity": "Prequal",
       "type": "object",
@@ -8432,7 +8432,7 @@
       "bound_controls": []
     },
     {
-      "path": "ProviderResult.document_verified",
+      "path": "provider_result.document_verified",
       "field": "document_verified",
       "entity": "ProviderResult",
       "type": "boolean",
@@ -8449,7 +8449,7 @@
       "bound_controls": []
     },
     {
-      "path": "ProviderResult.identity_verified",
+      "path": "provider_result.identity_verified",
       "field": "identity_verified",
       "entity": "ProviderResult",
       "type": "boolean",
@@ -8466,7 +8466,7 @@
       "bound_controls": []
     },
     {
-      "path": "RetentionSpec.anchor_date",
+      "path": "retention_spec.anchor_date",
       "field": "anchor_date",
       "entity": "RetentionSpec",
       "type": "string (date)",
@@ -8483,7 +8483,7 @@
       "bound_controls": []
     },
     {
-      "path": "RetentionSpec.record_type",
+      "path": "retention_spec.record_type",
       "field": "record_type",
       "entity": "RetentionSpec",
       "type": "string",
@@ -8500,7 +8500,7 @@
       "bound_controls": []
     },
     {
-      "path": "RetentionSpec.schedule",
+      "path": "retention_spec.schedule",
       "field": "schedule",
       "entity": "RetentionSpec",
       "type": "string",
@@ -8517,7 +8517,7 @@
       "bound_controls": []
     },
     {
-      "path": "RiskCatalogEntry.candidate_profile",
+      "path": "risk_catalog_entry.candidate_profile",
       "field": "candidate_profile",
       "entity": "RiskCatalogEntry",
       "type": "string",
@@ -8534,7 +8534,7 @@
       "bound_controls": []
     },
     {
-      "path": "RiskCatalogEntry.geography_factors",
+      "path": "risk_catalog_entry.geography_factors",
       "field": "geography_factors",
       "entity": "RiskCatalogEntry",
       "type": "string",
@@ -8551,7 +8551,7 @@
       "bound_controls": []
     },
     {
-      "path": "RiskCatalogEntry.inherent_score",
+      "path": "risk_catalog_entry.inherent_score",
       "field": "inherent_score",
       "entity": "RiskCatalogEntry",
       "type": "number",
@@ -8568,7 +8568,7 @@
       "bound_controls": []
     },
     {
-      "path": "RiskCatalogEntry.partner_dependency",
+      "path": "risk_catalog_entry.partner_dependency",
       "field": "partner_dependency",
       "entity": "RiskCatalogEntry",
       "type": "string",
@@ -8585,7 +8585,7 @@
       "bound_controls": []
     },
     {
-      "path": "SarData.narrative",
+      "path": "sar_data.narrative",
       "field": "narrative",
       "entity": "SarData",
       "type": "string",
@@ -8602,7 +8602,7 @@
       "bound_controls": []
     },
     {
-      "path": "SarData.prior_filing_id",
+      "path": "sar_data.prior_filing_id",
       "field": "prior_filing_id",
       "entity": "SarData",
       "type": "string",
@@ -8619,7 +8619,7 @@
       "bound_controls": []
     },
     {
-      "path": "Task.due_at",
+      "path": "task.due_at",
       "field": "due_at",
       "entity": "Task",
       "type": "string (date-time)",
@@ -8636,7 +8636,7 @@
       "bound_controls": []
     },
     {
-      "path": "Task.id",
+      "path": "task.id",
       "field": "id",
       "entity": "Task",
       "type": "string",
@@ -8653,7 +8653,7 @@
       "bound_controls": []
     },
     {
-      "path": "Task.retention",
+      "path": "task.retention",
       "field": "retention",
       "entity": "Task",
       "type": "string",
@@ -8670,7 +8670,7 @@
       "bound_controls": []
     },
     {
-      "path": "Task.status",
+      "path": "task.status",
       "field": "status",
       "entity": "Task",
       "type": "string",
@@ -8687,7 +8687,7 @@
       "bound_controls": []
     },
     {
-      "path": "Task.subject_ref",
+      "path": "task.subject_ref",
       "field": "subject_ref",
       "entity": "Task",
       "type": "string",
@@ -8704,7 +8704,7 @@
       "bound_controls": []
     },
     {
-      "path": "Task.training",
+      "path": "task.training",
       "field": "training",
       "entity": "Task",
       "type": "string",
@@ -8721,7 +8721,7 @@
       "bound_controls": []
     },
     {
-      "path": "Task.type",
+      "path": "task.type",
       "field": "type",
       "entity": "Task",
       "type": "string",
@@ -8738,7 +8738,7 @@
       "bound_controls": []
     },
     {
-      "path": "TrainingDetail.hire_date",
+      "path": "training_detail.hire_date",
       "field": "hire_date",
       "entity": "TrainingDetail",
       "type": "string (date)",
@@ -8755,7 +8755,7 @@
       "bound_controls": []
     },
     {
-      "path": "Transfer.amount",
+      "path": "transfer.amount",
       "field": "amount",
       "entity": "Transfer",
       "type": "integer",
@@ -8772,7 +8772,7 @@
       "bound_controls": []
     },
     {
-      "path": "Transfer.beneficiary",
+      "path": "transfer.beneficiary",
       "field": "beneficiary",
       "entity": "Transfer",
       "type": "string",
@@ -8789,7 +8789,7 @@
       "bound_controls": []
     },
     {
-      "path": "Transfer.counterparty",
+      "path": "transfer.counterparty",
       "field": "counterparty",
       "entity": "Transfer",
       "type": "string",
@@ -8806,7 +8806,7 @@
       "bound_controls": []
     },
     {
-      "path": "Transfer.id",
+      "path": "transfer.id",
       "field": "id",
       "entity": "Transfer",
       "type": "string",
@@ -8823,7 +8823,7 @@
       "bound_controls": []
     },
     {
-      "path": "Transfer.originator",
+      "path": "transfer.originator",
       "field": "originator",
       "entity": "Transfer",
       "type": "string",
@@ -8840,7 +8840,7 @@
       "bound_controls": []
     },
     {
-      "path": "Transfer.rail",
+      "path": "transfer.rail",
       "field": "rail",
       "entity": "Transfer",
       "type": "string",
@@ -8857,7 +8857,7 @@
       "bound_controls": []
     },
     {
-      "path": "Transfer.status",
+      "path": "transfer.status",
       "field": "status",
       "entity": "Transfer",
       "type": "string",
@@ -8874,7 +8874,7 @@
       "bound_controls": []
     },
     {
-      "path": "Transfer.wire",
+      "path": "transfer.wire",
       "field": "wire",
       "entity": "Transfer",
       "type": "string",
@@ -8891,7 +8891,7 @@
       "bound_controls": []
     },
     {
-      "path": "User.employment_status",
+      "path": "user.employment_status",
       "field": "employment_status",
       "entity": "User",
       "type": "string",
@@ -8908,7 +8908,7 @@
       "bound_controls": []
     },
     {
-      "path": "User.id",
+      "path": "user.id",
       "field": "id",
       "entity": "User",
       "type": "string",
@@ -8925,7 +8925,7 @@
       "bound_controls": []
     },
     {
-      "path": "User.role",
+      "path": "user.role",
       "field": "role",
       "entity": "User",
       "type": "string",
@@ -8942,7 +8942,7 @@
       "bound_controls": []
     },
     {
-      "path": "VendorAlert.alert_details",
+      "path": "vendor_alert.alert_details",
       "field": "alert_details",
       "entity": "VendorAlert",
       "type": "object",
@@ -8959,7 +8959,7 @@
       "bound_controls": []
     },
     {
-      "path": "VendorAlert.impact_scope",
+      "path": "vendor_alert.impact_scope",
       "field": "impact_scope",
       "entity": "VendorAlert",
       "type": "string",
@@ -8976,7 +8976,7 @@
       "bound_controls": []
     },
     {
-      "path": "VendorReview.contract_terms",
+      "path": "vendor_review.contract_terms",
       "field": "contract_terms",
       "entity": "VendorReview",
       "type": "string",
@@ -8993,7 +8993,7 @@
       "bound_controls": []
     },
     {
-      "path": "VendorReview.dd_package",
+      "path": "vendor_review.dd_package",
       "field": "dd_package",
       "entity": "VendorReview",
       "type": "string",
@@ -9010,7 +9010,7 @@
       "bound_controls": []
     },
     {
-      "path": "VendorReview.efficacy_results",
+      "path": "vendor_review.efficacy_results",
       "field": "efficacy_results",
       "entity": "VendorReview",
       "type": "object",
@@ -9027,7 +9027,7 @@
       "bound_controls": []
     },
     {
-      "path": "Verification.alt_path_available",
+      "path": "verification.alt_path_available",
       "field": "alt_path_available",
       "entity": "Verification",
       "type": "string",
@@ -9044,7 +9044,7 @@
       "bound_controls": []
     },
     {
-      "path": "Verification.biometric_consent_id",
+      "path": "verification.biometric_consent_id",
       "field": "biometric_consent_id",
       "entity": "Verification",
       "type": "string",
@@ -9061,7 +9061,7 @@
       "bound_controls": []
     },
     {
-      "path": "Verification.biometric_declined",
+      "path": "verification.biometric_declined",
       "field": "biometric_declined",
       "entity": "Verification",
       "type": "string",
@@ -9078,7 +9078,7 @@
       "bound_controls": []
     },
     {
-      "path": "Verification.biometric_purged",
+      "path": "verification.biometric_purged",
       "field": "biometric_purged",
       "entity": "Verification",
       "type": "string",
@@ -9095,7 +9095,7 @@
       "bound_controls": []
     },
     {
-      "path": "Verification.cdd",
+      "path": "verification.cdd",
       "field": "cdd",
       "entity": "Verification",
       "type": "string",
@@ -9112,7 +9112,7 @@
       "bound_controls": []
     },
     {
-      "path": "Verification.expires_at",
+      "path": "verification.expires_at",
       "field": "expires_at",
       "entity": "Verification",
       "type": "string (date-time)",
@@ -9129,7 +9129,7 @@
       "bound_controls": []
     },
     {
-      "path": "Verification.id",
+      "path": "verification.id",
       "field": "id",
       "entity": "Verification",
       "type": "string",
@@ -9146,7 +9146,7 @@
       "bound_controls": []
     },
     {
-      "path": "Verification.match_status",
+      "path": "verification.match_status",
       "field": "match_status",
       "entity": "Verification",
       "type": "string",
@@ -9163,7 +9163,7 @@
       "bound_controls": []
     },
     {
-      "path": "Verification.ofac_result",
+      "path": "verification.ofac_result",
       "field": "ofac_result",
       "entity": "Verification",
       "type": "string",
@@ -9180,7 +9180,7 @@
       "bound_controls": []
     },
     {
-      "path": "Verification.pep",
+      "path": "verification.pep",
       "field": "pep",
       "entity": "Verification",
       "type": "string",
@@ -9197,7 +9197,7 @@
       "bound_controls": []
     },
     {
-      "path": "Verification.provider",
+      "path": "verification.provider",
       "field": "provider",
       "entity": "Verification",
       "type": "string",
@@ -9214,7 +9214,7 @@
       "bound_controls": []
     },
     {
-      "path": "Verification.provider_result",
+      "path": "verification.provider_result",
       "field": "provider_result",
       "entity": "Verification",
       "type": "string",
@@ -9231,7 +9231,7 @@
       "bound_controls": []
     },
     {
-      "path": "Verification.status",
+      "path": "verification.status",
       "field": "status",
       "entity": "Verification",
       "type": "string",
@@ -9248,7 +9248,7 @@
       "bound_controls": []
     },
     {
-      "path": "Verification.trust_level",
+      "path": "verification.trust_level",
       "field": "trust_level",
       "entity": "Verification",
       "type": "string",
@@ -9265,7 +9265,7 @@
       "bound_controls": []
     },
     {
-      "path": "Verification.type",
+      "path": "verification.type",
       "field": "type",
       "entity": "Verification",
       "type": "string",
@@ -9282,7 +9282,7 @@
       "bound_controls": []
     },
     {
-      "path": "WireDetails.imad",
+      "path": "wire_details.imad",
       "field": "imad",
       "entity": "WireDetails",
       "type": "string",
@@ -9299,7 +9299,7 @@
       "bound_controls": []
     },
     {
-      "path": "WireDetails.purpose",
+      "path": "wire_details.purpose",
       "field": "purpose",
       "entity": "WireDetails",
       "type": "string",
@@ -9316,7 +9316,7 @@
       "bound_controls": []
     },
     {
-      "path": "WireTransfer.amount",
+      "path": "wire_transfer.amount",
       "field": "amount",
       "entity": "WireTransfer",
       "type": "number",
@@ -9333,7 +9333,7 @@
       "bound_controls": []
     },
     {
-      "path": "WireTransfer.beneficiary",
+      "path": "wire_transfer.beneficiary",
       "field": "beneficiary",
       "entity": "WireTransfer",
       "type": "string",
@@ -9350,7 +9350,7 @@
       "bound_controls": []
     },
     {
-      "path": "WireTransfer.control_results",
+      "path": "wire_transfer.control_results",
       "field": "control_results",
       "entity": "WireTransfer",
       "type": "object",
@@ -9367,7 +9367,7 @@
       "bound_controls": []
     },
     {
-      "path": "WireTransfer.imad",
+      "path": "wire_transfer.imad",
       "field": "imad",
       "entity": "WireTransfer",
       "type": "string",
@@ -9384,7 +9384,7 @@
       "bound_controls": []
     },
     {
-      "path": "WireTransfer.purpose",
+      "path": "wire_transfer.purpose",
       "field": "purpose",
       "entity": "WireTransfer",
       "type": "string",
@@ -9401,7 +9401,7 @@
       "bound_controls": []
     },
     {
-      "path": "WireTransfer.record_retained",
+      "path": "wire_transfer.record_retained",
       "field": "record_retained",
       "entity": "WireTransfer",
       "type": "string",
@@ -9418,7 +9418,7 @@
       "bound_controls": []
     },
     {
-      "path": "WireTransfer.status",
+      "path": "wire_transfer.status",
       "field": "status",
       "entity": "WireTransfer",
       "type": "string",
@@ -31650,6 +31650,18 @@
       "description": "canonical event_type: `recorded`"
     },
     {
+      "name": "accessibility.accommodation_provided",
+      "code": "accessibility.accommodation_provided",
+      "entity": "accessibility",
+      "description": "canonical event_type: `granted`"
+    },
+    {
+      "name": "accessibility.accommodation_requested",
+      "code": "accessibility.accommodation_requested",
+      "entity": "accessibility",
+      "description": "canonical event_type: `requested`"
+    },
+    {
       "name": "account.adverse_action_decided",
       "code": "account.adverse_action_decided",
       "entity": "account",
@@ -31746,6 +31758,12 @@
       "description": "canonical event_type: `created`"
     },
     {
+      "name": "ad.accessibility_check",
+      "code": "ad.accessibility_check",
+      "entity": "ad",
+      "description": "canonical event_type: `checked`"
+    },
+    {
       "name": "ad.preflight_decided",
       "code": "ad.preflight_decided",
       "entity": "ad",
@@ -31786,6 +31804,12 @@
       "code": "advertising.published",
       "entity": "advertising",
       "description": "canonical event_type: `published`"
+    },
+    {
+      "name": "advertising.reach_review_completed",
+      "code": "advertising.reach_review_completed",
+      "entity": "advertising",
+      "description": "canonical event_type: `completed`"
     },
     {
       "name": "advertising.review_completed",
@@ -34872,6 +34896,12 @@
       "description": "canonical event_type: `completed`"
     },
     {
+      "name": "fair_lending.discouragement_reported",
+      "code": "fair_lending.discouragement_reported",
+      "entity": "fair_lending",
+      "description": "canonical event_type: `reported`"
+    },
+    {
       "name": "fair_lending.record_appended",
       "code": "fair_lending.record_appended",
       "entity": "fair_lending",
@@ -36022,6 +36052,12 @@
       "code": "loan_application.insider_screened",
       "entity": "loan_application",
       "description": "canonical event_type: `screened`"
+    },
+    {
+      "name": "loan_application.oral_adverse_decision",
+      "code": "loan_application.oral_adverse_decision",
+      "entity": "loan_application",
+      "description": "canonical event_type: `decided`"
     },
     {
       "name": "loan_application.product_screened",
@@ -39321,2082 +39357,2921 @@
     {
       "name": "access.deprovision_due_at",
       "subject": "access",
-      "type": "deprovision"
+      "type": "deprovision",
+      "timer_of": "access_deprovision",
+      "is_timer": true
     },
     {
       "name": "access.review_due",
       "subject": "access",
-      "type": "review"
+      "type": "review",
+      "timer_of": "access_review",
+      "is_timer": true
     },
     {
       "name": "access.revocation_due_at",
       "subject": "access",
-      "type": "review"
+      "type": "review",
+      "timer_of": "access_revocation",
+      "is_timer": true
     },
     {
       "name": "access_review.due",
       "subject": "access_review",
-      "type": "review"
+      "type": "review",
+      "timer_of": "access_review_due",
+      "is_timer": true
     },
     {
       "name": "account.aan_due_at",
       "subject": "aan",
-      "type": "issuance"
+      "type": "issuance",
+      "timer_of": "aan_issuance",
+      "is_timer": true
     },
     {
       "name": "account.closure_payout_due_at",
       "subject": "account_closure",
-      "type": "review"
+      "type": "review",
+      "timer_of": "account_closure_payout",
+      "is_timer": true
     },
     {
       "name": "account.maturity_notice_due_at",
       "subject": "account_maturity",
-      "type": "notice"
+      "type": "notice",
+      "timer_of": "account_maturity_notice",
+      "is_timer": true
     },
     {
       "name": "account_freeze.application_due_at",
       "subject": "account_freeze",
-      "type": "review"
+      "type": "review",
+      "timer_of": "account_freeze_application",
+      "is_timer": true
+    },
+    {
+      "name": "advertising.reach_review_due",
+      "subject": "advertising",
+      "type": "review",
+      "timer_of": "advertising_reach_review",
+      "is_timer": true
     },
     {
       "name": "ai.register_update_due_at",
       "subject": "ai_register",
-      "type": "update"
+      "type": "update",
+      "timer_of": "ai_register_update",
+      "is_timer": true
     },
     {
       "name": "alm.irr_simulation_due",
       "subject": "alm_irr",
-      "type": "review"
+      "type": "review",
+      "timer_of": "alm_irr_simulation",
+      "is_timer": true
     },
     {
       "name": "alm.irr_simulation_due_at",
       "subject": "alm_irr",
-      "type": "review"
+      "type": "review",
+      "timer_of": "alm_irr_simulation",
+      "is_timer": true
     },
     {
       "name": "analytics.disparity_due_at",
       "subject": "disparity",
-      "type": "analysis"
+      "type": "analysis",
+      "timer_of": "disparity_analysis",
+      "is_timer": true
     },
     {
       "name": "analytics.method_review_due",
       "subject": "analytics_method",
-      "type": "review"
+      "type": "review",
+      "timer_of": "analytics_method_review",
+      "is_timer": true
     },
     {
       "name": "analytics.method_review_due_at",
       "subject": "analytics_method",
-      "type": "review"
+      "type": "review",
+      "timer_of": "analytics_method_review",
+      "is_timer": true
     },
     {
       "name": "analytics.redlining_due_at",
       "subject": "redlining",
-      "type": "review"
+      "type": "review",
+      "timer_of": "redlining_review",
+      "is_timer": true
     },
     {
       "name": "analytics.redlining_review_due",
       "subject": "redlining",
-      "type": "review"
+      "type": "review",
+      "timer_of": "redlining_review",
+      "is_timer": true
     },
     {
       "name": "antivirus.log_review_due",
       "subject": "antivirus_log",
-      "type": "review"
+      "type": "review",
+      "timer_of": "antivirus_log_review",
+      "is_timer": true
     },
     {
       "name": "application.counteroffer_due_at",
       "subject": "counteroffer",
-      "type": "expiry"
+      "type": "expiry",
+      "timer_of": "counteroffer_expiry",
+      "is_timer": true
     },
     {
       "name": "application.notice_due_at",
       "subject": "incompleteness",
-      "type": "notice"
+      "type": "notice",
+      "timer_of": "incompleteness_notice",
+      "is_timer": true
     },
     {
       "name": "appraisal.delivery_due_at",
       "subject": "appraisal",
-      "type": "review"
+      "type": "review",
+      "timer_of": "appraisal_delivery",
+      "is_timer": true
     },
     {
       "name": "asset.cmdb_update_due_at",
       "subject": "cmdb",
-      "type": "update"
+      "type": "update",
+      "timer_of": "cmdb_update",
+      "is_timer": true
     },
     {
       "name": "audit.assessment_annual_due_at",
       "subject": "audit_assessment",
-      "type": "review"
+      "type": "review",
+      "timer_of": "audit_assessment_annual",
+      "is_timer": true
     },
     {
       "name": "audit.compliance_audit_due",
       "subject": "compliance",
-      "type": "review"
+      "type": "review",
+      "timer_of": "audit_compliance_audit",
+      "is_timer": true
     },
     {
       "name": "audit.compliance_audit_due_at",
       "subject": "compliance",
-      "type": "review"
+      "type": "review",
+      "timer_of": "audit_compliance_audit",
+      "is_timer": true
     },
     {
       "name": "audit.cycle_timer",
       "subject": "independent",
-      "type": "test"
+      "type": "test",
+      "timer_of": "independent_test",
+      "is_timer": true
     },
     {
       "name": "audit.engagement_due",
       "subject": "independent",
-      "type": "test"
+      "type": "test",
+      "timer_of": "independent_test",
+      "is_timer": true
     },
     {
       "name": "audit.integrity_check_due",
       "subject": "audit_integrity",
-      "type": "review"
+      "type": "review",
+      "timer_of": "audit_integrity_check",
+      "is_timer": true
     },
     {
       "name": "audit.monthly_schedule_due",
       "subject": "audit_monthly",
-      "type": "review"
+      "type": "review",
+      "timer_of": "audit_monthly_schedule",
+      "is_timer": true
     },
     {
       "name": "audit.remediation_due",
       "subject": "finding",
-      "type": "remediation"
+      "type": "remediation",
+      "timer_of": "finding_remediation",
+      "is_timer": true
     },
     {
       "name": "audit.remediation_timer",
       "subject": "finding",
-      "type": "remediation"
+      "type": "remediation",
+      "timer_of": "finding_remediation",
+      "is_timer": true
     },
     {
       "name": "audit.retention_expires_at",
       "subject": "audit",
-      "type": "review"
+      "type": "review",
+      "timer_of": "audit_retention",
+      "is_timer": true
     },
     {
       "name": "backup.restore_test_due",
       "subject": "backup_restore",
-      "type": "test"
+      "type": "test",
+      "timer_of": "backup_restore_test",
+      "is_timer": true
     },
     {
       "name": "backup.verify_due",
       "subject": "backup",
-      "type": "verification"
+      "type": "verification",
+      "timer_of": "backup_verify",
+      "is_timer": true
     },
     {
       "name": "backup.verify_due_at",
       "subject": "backup",
-      "type": "verification"
+      "type": "verification",
+      "timer_of": "backup_verify",
+      "is_timer": true
     },
     {
       "name": "bcp.annual_review_due",
       "subject": "bcp_annual",
-      "type": "review"
+      "type": "review",
+      "timer_of": "bcp_annual_review",
+      "is_timer": true
     },
     {
       "name": "bia.annual_update_due",
       "subject": "bia_annual",
-      "type": "update"
+      "type": "update",
+      "timer_of": "bia_annual_update",
+      "is_timer": true
     },
     {
       "name": "bia.certification_due",
       "subject": "bia",
-      "type": "review"
+      "type": "review",
+      "timer_of": "bia_certification",
+      "is_timer": true
     },
     {
       "name": "bia.review_due",
       "subject": "bia",
-      "type": "review"
+      "type": "review",
+      "timer_of": "bia_review",
+      "is_timer": true
     },
     {
       "name": "board.notification_due_at",
       "subject": "board",
-      "type": "review"
+      "type": "review",
+      "timer_of": "board_notification",
+      "is_timer": true
     },
     {
       "name": "bsa_alert.triage_timer",
       "subject": "alert",
-      "type": "triage"
+      "type": "triage",
+      "timer_of": "alert_triage",
+      "is_timer": true
     },
     {
       "name": "capital.contingency_due_at",
       "subject": "capital",
-      "type": "review"
+      "type": "review",
+      "timer_of": "capital_contingency",
+      "is_timer": true
     },
     {
       "name": "capital.contingency_memo_due_at",
       "subject": "capital_contingency",
-      "type": "review"
+      "type": "review",
+      "timer_of": "capital_contingency_memo",
+      "is_timer": true
     },
     {
       "name": "capital.icaap_due_at",
       "subject": "capital",
-      "type": "review"
+      "type": "review",
+      "timer_of": "capital_icaap",
+      "is_timer": true
     },
     {
       "name": "capital.payout_restriction_due_at",
       "subject": "capital_payout",
-      "type": "review"
+      "type": "review",
+      "timer_of": "capital_payout_restriction",
+      "is_timer": true
     },
     {
       "name": "capital.plan_due_at",
       "subject": "capital",
-      "type": "plan"
+      "type": "plan",
+      "timer_of": "capital_plan",
+      "is_timer": true
     },
     {
       "name": "capital.quarterly_report_due_at",
       "subject": "capital_quarterly",
-      "type": "report"
+      "type": "report",
+      "timer_of": "capital_quarterly_report",
+      "is_timer": true
     },
     {
       "name": "capital.ratio_calc_due_at",
       "subject": "capital_ratio",
-      "type": "review"
+      "type": "review",
+      "timer_of": "capital_ratio_calc",
+      "is_timer": true
     },
     {
       "name": "capital.ratio_computation_due_at",
       "subject": "capital_ratio",
-      "type": "review"
+      "type": "review",
+      "timer_of": "capital_ratio_computation",
+      "is_timer": true
     },
     {
       "name": "capital.remediation_plan_due_at",
       "subject": "capital_remediation",
-      "type": "plan"
+      "type": "plan",
+      "timer_of": "capital_remediation_plan",
+      "is_timer": true
     },
     {
       "name": "capital.stress_report_due_at",
       "subject": "capital_stress",
-      "type": "report"
+      "type": "report",
+      "timer_of": "capital_stress_report",
+      "is_timer": true
     },
     {
       "name": "case.sar_decision_timer",
       "subject": "sar",
-      "type": "decision"
+      "type": "decision",
+      "timer_of": "sar_decision",
+      "is_timer": true
     },
     {
       "name": "cash.coverage.attestation_due",
       "subject": "cash",
-      "type": "review"
+      "type": "review",
+      "timer_of": "cash_coverage.attestation",
+      "is_timer": true
     },
     {
       "name": "cash.coverage.attestation_due_at",
       "subject": "cash",
-      "type": "review"
+      "type": "review",
+      "timer_of": "cash_coverage.attestation",
+      "is_timer": true
     },
     {
       "name": "cash.custody.rotation_due",
       "subject": "cash",
-      "type": "review"
+      "type": "review",
+      "timer_of": "cash_custody.rotation",
+      "is_timer": true
     },
     {
       "name": "cash.custody.rotation_due_at",
       "subject": "cash",
-      "type": "review"
+      "type": "review",
+      "timer_of": "cash_custody.rotation",
+      "is_timer": true
     },
     {
       "name": "cash.enterprise_limit.remediation_due_at",
       "subject": "cash_enterprise",
-      "type": "review"
+      "type": "review",
+      "timer_of": "cash_enterprise_limit.remediation",
+      "is_timer": true
     },
     {
       "name": "cash.kri.publish_due_at",
       "subject": "cash",
-      "type": "review"
+      "type": "review",
+      "timer_of": "cash_kri.publish",
+      "is_timer": true
     },
     {
       "name": "cash.overshort.investigation_due_at",
       "subject": "cash",
-      "type": "review"
+      "type": "review",
+      "timer_of": "cash_overshort.investigation",
+      "is_timer": true
     },
     {
       "name": "cash.shipment.verification_due_at",
       "subject": "cash",
-      "type": "review"
+      "type": "review",
+      "timer_of": "cash_shipment.verification",
+      "is_timer": true
     },
     {
       "name": "cash.surprise_count.due",
       "subject": "cash_surprise",
-      "type": "review"
+      "type": "review",
+      "timer_of": "cash_surprise_count.due",
+      "is_timer": true
     },
     {
       "name": "catalogue.sync_due",
       "subject": "catalogue",
-      "type": "review"
+      "type": "review",
+      "timer_of": "catalogue_sync",
+      "is_timer": true
     },
     {
       "name": "catalogue.sync_due_at",
       "subject": "catalogue",
-      "type": "review"
+      "type": "review",
+      "timer_of": "catalogue_sync",
+      "is_timer": true
     },
     {
       "name": "cda.audit_due_at",
       "subject": "cda",
-      "type": "review"
+      "type": "review",
+      "timer_of": "cda_audit",
+      "is_timer": true
     },
     {
       "name": "cda.board_packet_due_at",
       "subject": "cda_board",
-      "type": "review"
+      "type": "review",
+      "timer_of": "cda_board_packet",
+      "is_timer": true
     },
     {
       "name": "cda.cap_cure_due_at",
       "subject": "cda_cap",
-      "type": "review"
+      "type": "review",
+      "timer_of": "cda_cap_cure",
+      "is_timer": true
     },
     {
       "name": "cda.cap_test_due_at",
       "subject": "cda_cap",
-      "type": "test"
+      "type": "test",
+      "timer_of": "cda_cap_test",
+      "is_timer": true
     },
     {
       "name": "cda.conflict_escalation_due_at",
       "subject": "cda_conflict",
-      "type": "escalation"
+      "type": "escalation",
+      "timer_of": "cda_conflict_escalation",
+      "is_timer": true
     },
     {
       "name": "cda.distribution_due_at",
       "subject": "cda",
-      "type": "review"
+      "type": "review",
+      "timer_of": "cda_distribution",
+      "is_timer": true
     },
     {
       "name": "cda.policy_review_due",
       "subject": "cda_policy",
-      "type": "review"
+      "type": "review",
+      "timer_of": "cda_policy_review",
+      "is_timer": true
     },
     {
       "name": "cda.posttrade_due_at",
       "subject": "cda",
-      "type": "review"
+      "type": "review",
+      "timer_of": "cda_posttrade",
+      "is_timer": true
     },
     {
       "name": "cda.reconciliation_due_at",
       "subject": "cda",
-      "type": "reconciliation"
+      "type": "reconciliation",
+      "timer_of": "cda_reconciliation",
+      "is_timer": true
     },
     {
       "name": "cda.remediation_due_at",
       "subject": "cda",
-      "type": "remediation"
+      "type": "remediation",
+      "timer_of": "cda_remediation",
+      "is_timer": true
     },
     {
       "name": "cda.termination_report_due_at",
       "subject": "cda_termination",
-      "type": "report"
+      "type": "report",
+      "timer_of": "cda_termination_report",
+      "is_timer": true
     },
     {
       "name": "cda.vendor_review_due",
       "subject": "cda_vendor",
-      "type": "review"
+      "type": "review",
+      "timer_of": "cda_vendor_review",
+      "is_timer": true
     },
     {
       "name": "cda.vendor_review_due_at",
       "subject": "cda_vendor",
-      "type": "review"
+      "type": "review",
+      "timer_of": "cda_vendor_review",
+      "is_timer": true
     },
     {
       "name": "cdd.refresh_due",
       "subject": "cdd",
-      "type": "refresh"
+      "type": "refresh",
+      "timer_of": "cdd_refresh",
+      "is_timer": true
     },
     {
       "name": "cdd.refresh_timer",
       "subject": "cdd",
-      "type": "refresh"
+      "type": "refresh",
+      "timer_of": "cdd_refresh",
+      "is_timer": true
     },
     {
       "name": "cfp.execution_plan_due_at",
       "subject": "cfp_execution",
-      "type": "plan"
+      "type": "plan",
+      "timer_of": "cfp_execution_plan",
+      "is_timer": true
     },
     {
       "name": "cfp.investment_test_due",
       "subject": "cfp_investment",
-      "type": "test"
+      "type": "test",
+      "timer_of": "cfp_investment_test",
+      "is_timer": true
     },
     {
       "name": "cfp.investment_test_due_at",
       "subject": "cfp_investment",
-      "type": "test"
+      "type": "test",
+      "timer_of": "cfp_investment_test",
+      "is_timer": true
     },
     {
       "name": "cfp.transition_due_at",
       "subject": "cfp",
-      "type": "review"
+      "type": "review",
+      "timer_of": "cfp_transition",
+      "is_timer": true
     },
     {
       "name": "change.cab_review_due_at",
       "subject": "cab",
-      "type": "review"
+      "type": "review",
+      "timer_of": "cab_review",
+      "is_timer": true
     },
     {
       "name": "change.post_review_due_at",
       "subject": "change_post",
-      "type": "review"
+      "type": "review",
+      "timer_of": "change_post_review",
+      "is_timer": true
     },
     {
       "name": "claim.carrier_notice_due_at",
       "subject": "claim_carrier",
-      "type": "notice"
+      "type": "notice",
+      "timer_of": "claim_carrier_notice",
+      "is_timer": true
     },
     {
       "name": "cmir.filing_timer",
       "subject": "cmir",
-      "type": "filing"
+      "type": "filing",
+      "timer_of": "cmir_filing",
+      "is_timer": true
     },
     {
       "name": "coi.certification_due",
       "subject": "coi",
-      "type": "review"
+      "type": "review",
+      "timer_of": "coi_certification",
+      "is_timer": true
     },
     {
       "name": "coi.questionnaire_due_at",
       "subject": "coi",
-      "type": "review"
+      "type": "review",
+      "timer_of": "coi_questionnaire",
+      "is_timer": true
     },
     {
       "name": "collateral.compute_due_at",
       "subject": "collateral",
-      "type": "review"
+      "type": "review",
+      "timer_of": "collateral_compute",
+      "is_timer": true
     },
     {
       "name": "collections.annual_review_due",
       "subject": "collections_annual",
-      "type": "review"
+      "type": "review",
+      "timer_of": "collections_annual_review",
+      "is_timer": true
     },
     {
       "name": "collections.annual_review_due_at",
       "subject": "collections_annual",
-      "type": "review"
+      "type": "review",
+      "timer_of": "collections_annual_review",
+      "is_timer": true
     },
     {
       "name": "collections.attorney_flag_due_at",
       "subject": "collections_attorney",
-      "type": "review"
+      "type": "review",
+      "timer_of": "collections_attorney_flag",
+      "is_timer": true
     },
     {
       "name": "collections.board_report_due",
       "subject": "collections_board",
-      "type": "report"
+      "type": "report",
+      "timer_of": "collections_board_report",
+      "is_timer": true
     },
     {
       "name": "collections.board_report_due_at",
       "subject": "collections_board",
-      "type": "report"
+      "type": "report",
+      "timer_of": "collections_board_report",
+      "is_timer": true
     },
     {
       "name": "collections.breach_log_due_at",
       "subject": "collections_breach",
-      "type": "review"
+      "type": "review",
+      "timer_of": "collections_breach_log",
+      "is_timer": true
     },
     {
       "name": "collections.cease_flag_due_at",
       "subject": "collections_cease",
-      "type": "review"
+      "type": "review",
+      "timer_of": "collections_cease_flag",
+      "is_timer": true
     },
     {
       "name": "comms.same_day_due_at",
       "subject": "comms_same",
-      "type": "review"
+      "type": "review",
+      "timer_of": "comms_same_day",
+      "is_timer": true
     },
     {
       "name": "complaint.ack_due_at",
       "subject": "complaint",
-      "type": "acknowledgement"
+      "type": "acknowledgement",
+      "timer_of": "complaint_ack",
+      "is_timer": true
     },
     {
       "name": "complaint.final_response_due_at",
       "subject": "complaint_final",
-      "type": "review"
+      "type": "review",
+      "timer_of": "complaint_final_response",
+      "is_timer": true
     },
     {
       "name": "complaint.initial_response_due_at",
       "subject": "complaint_initial",
-      "type": "review"
+      "type": "review",
+      "timer_of": "complaint_initial_response",
+      "is_timer": true
     },
     {
       "name": "complaint.resolution_due_at",
       "subject": "complaint",
-      "type": "review"
+      "type": "review",
+      "timer_of": "complaint_resolution",
+      "is_timer": true
     },
     {
       "name": "complaint.trend_review_due",
       "subject": "complaint_trend",
-      "type": "review"
+      "type": "review",
+      "timer_of": "complaint_trend_review",
+      "is_timer": true
     },
     {
       "name": "compliance.board_report_due",
       "subject": "compliance_board",
-      "type": "report"
+      "type": "report",
+      "timer_of": "compliance_board_report",
+      "is_timer": true
     },
     {
       "name": "compliance.board_report_due_at",
       "subject": "compliance_board",
-      "type": "report"
+      "type": "report",
+      "timer_of": "compliance_board_report",
+      "is_timer": true
     },
     {
       "name": "compliance.risk_assessment_due",
       "subject": "compliance_risk",
-      "type": "assessment"
+      "type": "assessment",
+      "timer_of": "compliance_risk_assessment",
+      "is_timer": true
     },
     {
       "name": "compliance.risk_assessment_due_at",
       "subject": "compliance_risk",
-      "type": "assessment"
+      "type": "assessment",
+      "timer_of": "compliance_risk_assessment",
+      "is_timer": true
     },
     {
       "name": "concentration.compute_due_at",
       "subject": "concentration",
-      "type": "review"
+      "type": "review",
+      "timer_of": "concentration_compute",
+      "is_timer": true
     },
     {
       "name": "concentration.waiver_due_at",
       "subject": "concentration",
-      "type": "review"
+      "type": "review",
+      "timer_of": "concentration_waiver",
+      "is_timer": true
     },
     {
       "name": "control.framework_review_due",
       "subject": "control_framework",
-      "type": "review"
+      "type": "review",
+      "timer_of": "control_framework_review",
+      "is_timer": true
     },
     {
       "name": "control.framework_review_due_at",
       "subject": "control_framework",
-      "type": "review"
+      "type": "review",
+      "timer_of": "control_framework_review",
+      "is_timer": true
     },
     {
       "name": "core_archive.confirmation_due",
       "subject": "core_archive",
-      "type": "review"
+      "type": "review",
+      "timer_of": "core_archive_confirmation",
+      "is_timer": true
     },
     {
       "name": "correction.propagation_due_at",
       "subject": "correction",
-      "type": "review"
+      "type": "review",
+      "timer_of": "correction_propagation",
+      "is_timer": true
     },
     {
       "name": "credit_box.next_review_at",
       "subject": "credit_box",
-      "type": "review"
+      "type": "review",
+      "timer_of": "credit_box_review",
+      "is_timer": true
     },
     {
       "name": "credit_box.review_due",
       "subject": "credit_box",
-      "type": "review"
+      "type": "review",
+      "timer_of": "credit_box_review",
+      "is_timer": true
     },
     {
       "name": "credit_file.reanalysis_due",
       "subject": "credit_file",
-      "type": "review"
+      "type": "review",
+      "timer_of": "credit_file_reanalysis",
+      "is_timer": true
     },
     {
       "name": "credit_file.reanalysis_due_at",
       "subject": "credit_file",
-      "type": "review"
+      "type": "review",
+      "timer_of": "credit_file_reanalysis",
+      "is_timer": true
     },
     {
       "name": "credit_package.retention_expires_at",
       "subject": "retention",
-      "type": "purge"
+      "type": "purge",
+      "timer_of": "retention_purge",
+      "is_timer": true
     },
     {
       "name": "credit_report.stale_at",
       "subject": "credit_report",
-      "type": "refresh"
+      "type": "refresh",
+      "timer_of": "credit_report_refresh",
+      "is_timer": true
     },
     {
       "name": "crisis.convene_due_at",
       "subject": "crisis",
-      "type": "review"
+      "type": "review",
+      "timer_of": "crisis_convene",
+      "is_timer": true
     },
     {
       "name": "ctr.exemption_review_due",
       "subject": "ctr_exemption",
-      "type": "review"
+      "type": "review",
+      "timer_of": "ctr_exemption_review",
+      "is_timer": true
     },
     {
       "name": "ctr.exemption_review_timer",
       "subject": "ctr_exemption",
-      "type": "review"
+      "type": "review",
+      "timer_of": "ctr_exemption_review",
+      "is_timer": true
     },
     {
       "name": "ctr.filing_timer",
       "subject": "ctr",
-      "type": "filing"
+      "type": "filing",
+      "timer_of": "ctr_filing",
+      "is_timer": true
     },
     {
       "name": "disclosure.account_opening_due_at",
       "subject": "disclosure_account",
-      "type": "review"
+      "type": "review",
+      "timer_of": "disclosure_account_opening",
+      "is_timer": true
     },
     {
       "name": "disclosure.change_in_terms_due_at",
       "subject": "disclosure_change_in",
-      "type": "review"
+      "type": "review",
+      "timer_of": "disclosure_change_in_terms",
+      "is_timer": true
     },
     {
       "name": "disclosure.error_escalation_due_at",
       "subject": "disclosure_error",
-      "type": "escalation"
+      "type": "escalation",
+      "timer_of": "disclosure_error_escalation",
+      "is_timer": true
     },
     {
       "name": "disclosure.pillar3_due_at",
       "subject": "disclosure",
-      "type": "review"
+      "type": "review",
+      "timer_of": "disclosure_pillar3",
+      "is_timer": true
     },
     {
       "name": "dispute.investigation_due_at",
       "subject": "dispute",
-      "type": "review"
+      "type": "review",
+      "timer_of": "dispute_investigation",
+      "is_timer": true
     },
     {
       "name": "dispute.provisional_credit_due",
       "subject": "dispute_provisional",
-      "type": "review"
+      "type": "review",
+      "timer_of": "dispute_provisional_credit",
+      "is_timer": true
     },
     {
       "name": "dispute.provisional_credit_due_at",
       "subject": "dispute_provisional",
-      "type": "review"
+      "type": "review",
+      "timer_of": "dispute_provisional_credit",
+      "is_timer": true
     },
     {
       "name": "dispute.regulator_due_at",
       "subject": "dispute",
-      "type": "review"
+      "type": "review",
+      "timer_of": "dispute_regulator",
+      "is_timer": true
     },
     {
       "name": "dispute.response_due_at",
       "subject": "dispute",
-      "type": "review"
+      "type": "review",
+      "timer_of": "dispute_response",
+      "is_timer": true
     },
     {
       "name": "document.attachment_due_at",
       "subject": "document",
-      "type": "review"
+      "type": "review",
+      "timer_of": "document_attachment",
+      "is_timer": true
     },
     {
       "name": "dq.tieout_due_at",
       "subject": "dq",
-      "type": "review"
+      "type": "review",
+      "timer_of": "dq_tieout",
+      "is_timer": true
     },
     {
       "name": "dr.exercise_due",
       "subject": "dr",
-      "type": "exercise"
+      "type": "exercise",
+      "timer_of": "dr_exercise",
+      "is_timer": true
     },
     {
       "name": "dr.exercise_due_at",
       "subject": "dr",
-      "type": "exercise"
+      "type": "exercise",
+      "timer_of": "dr_exercise",
+      "is_timer": true
     },
     {
       "name": "drill.aar_due_at",
       "subject": "drill",
-      "type": "exercise"
+      "type": "exercise",
+      "timer_of": "drill_aar",
+      "is_timer": true
     },
     {
       "name": "drill.remediation_due",
       "subject": "drill",
-      "type": "remediation"
+      "type": "remediation",
+      "timer_of": "drill_remediation",
+      "is_timer": true
     },
     {
       "name": "drill.remediation_due_at",
       "subject": "drill",
-      "type": "remediation"
+      "type": "remediation",
+      "timer_of": "drill_remediation",
+      "is_timer": true
     },
     {
       "name": "ecommerce.risk_assessment_due",
       "subject": "ecommerce_risk",
-      "type": "assessment"
+      "type": "assessment",
+      "timer_of": "ecommerce_risk_assessment",
+      "is_timer": true
     },
     {
       "name": "edd.refresh_due",
       "subject": "edd",
-      "type": "refresh"
+      "type": "refresh",
+      "timer_of": "edd_refresh",
+      "is_timer": true
     },
     {
       "name": "edd.refresh_timer",
       "subject": "edd",
-      "type": "refresh"
+      "type": "refresh",
+      "timer_of": "edd_refresh",
+      "is_timer": true
     },
     {
       "name": "email_archive.test_due",
       "subject": "email_archive",
-      "type": "test"
+      "type": "test",
+      "timer_of": "email_archive_test",
+      "is_timer": true
     },
     {
       "name": "eps.board_report.due",
       "subject": "eps_board",
-      "type": "review"
+      "type": "review",
+      "timer_of": "eps_board_report.due",
+      "is_timer": true
     },
     {
       "name": "eps.deficiency.remediation_due_at",
       "subject": "eps",
-      "type": "review"
+      "type": "review",
+      "timer_of": "eps_deficiency.remediation",
+      "is_timer": true
     },
     {
       "name": "eps.incident.ncua_due_at",
       "subject": "eps",
-      "type": "review"
+      "type": "review",
+      "timer_of": "eps_incident.ncua",
+      "is_timer": true
     },
     {
       "name": "eps.pospay.decision_due_at",
       "subject": "eps",
-      "type": "review"
+      "type": "review",
+      "timer_of": "eps_pospay.decision",
+      "is_timer": true
     },
     {
       "name": "eps.test.retro_due_at",
       "subject": "eps",
-      "type": "review"
+      "type": "review",
+      "timer_of": "eps_test.retro",
+      "is_timer": true
     },
     {
       "name": "eps.training.self_cert_due_at",
       "subject": "eps_training.self",
-      "type": "review"
+      "type": "review",
+      "timer_of": "eps_training.self_cert",
+      "is_timer": true
     },
     {
       "name": "eps.vendor.dd_due_at",
       "subject": "eps",
-      "type": "review"
+      "type": "review",
+      "timer_of": "eps_vendor.dd",
+      "is_timer": true
     },
     {
       "name": "eps.vendor.soc1_due_at",
       "subject": "eps",
-      "type": "review"
+      "type": "review",
+      "timer_of": "eps_vendor.soc1",
+      "is_timer": true
     },
     {
       "name": "escalation.ack_timer",
       "subject": "escalation",
-      "type": "acknowledgement"
+      "type": "acknowledgement",
+      "timer_of": "escalation_ack",
+      "is_timer": true
     },
     {
       "name": "escalation.plan_timer",
       "subject": "escalation",
-      "type": "plan"
+      "type": "plan",
+      "timer_of": "escalation_plan",
+      "is_timer": true
     },
     {
       "name": "estate.payout_due_at",
       "subject": "estate",
-      "type": "review"
+      "type": "review",
+      "timer_of": "estate_payout",
+      "is_timer": true
     },
     {
       "name": "ewi.daily_sweep_due",
       "subject": "ewi_daily",
-      "type": "review"
+      "type": "review",
+      "timer_of": "ewi_daily_sweep",
+      "is_timer": true
     },
     {
       "name": "ewi.evaluation_due",
       "subject": "ewi",
-      "type": "review"
+      "type": "review",
+      "timer_of": "ewi_evaluation",
+      "is_timer": true
     },
     {
       "name": "ewi.summary_due_at",
       "subject": "ewi",
-      "type": "review"
+      "type": "review",
+      "timer_of": "ewi_summary",
+      "is_timer": true
     },
     {
       "name": "ewi.sweep_due_at",
       "subject": "ewi",
-      "type": "review"
+      "type": "review",
+      "timer_of": "ewi_sweep",
+      "is_timer": true
     },
     {
       "name": "ewi.weekly_summary_due",
       "subject": "ewi_weekly",
-      "type": "review"
+      "type": "review",
+      "timer_of": "ewi_weekly_summary",
+      "is_timer": true
     },
     {
       "name": "exercise.board_report_due",
       "subject": "exercise_board",
-      "type": "report"
+      "type": "report",
+      "timer_of": "exercise_board_report",
+      "is_timer": true
     },
     {
       "name": "expense.preapproval_due_at",
       "subject": "expense",
-      "type": "review"
+      "type": "review",
+      "timer_of": "expense_preapproval",
+      "is_timer": true
     },
     {
       "name": "expense.review_due_at",
       "subject": "expense",
-      "type": "review"
+      "type": "review",
+      "timer_of": "expense_review",
+      "is_timer": true
     },
     {
       "name": "facility.annual_test_due",
       "subject": "facility_annual",
-      "type": "test"
+      "type": "test",
+      "timer_of": "facility_annual_test",
+      "is_timer": true
     },
     {
       "name": "facility.badge_deactivation_due_at",
       "subject": "badge",
-      "type": "review"
+      "type": "review",
+      "timer_of": "badge_deactivation",
+      "is_timer": true
     },
     {
       "name": "facility.renewal_due",
       "subject": "facility",
-      "type": "renewal"
+      "type": "renewal",
+      "timer_of": "facility_renewal",
+      "is_timer": true
     },
     {
       "name": "facility.signage_review_due",
       "subject": "signage",
-      "type": "review"
+      "type": "review",
+      "timer_of": "signage_review",
+      "is_timer": true
     },
     {
       "name": "facility.signage_review_due_at",
       "subject": "signage",
-      "type": "review"
+      "type": "review",
+      "timer_of": "signage_review",
+      "is_timer": true
     },
     {
       "name": "facility.test_due_at",
       "subject": "facility",
-      "type": "test"
+      "type": "test",
+      "timer_of": "facility_test",
+      "is_timer": true
     },
     {
       "name": "fair_lending.assessment_due",
       "subject": "fair_lending",
-      "type": "assessment"
+      "type": "assessment",
+      "timer_of": "fair_lending_assessment",
+      "is_timer": true
     },
     {
       "name": "fair_lending.next_assessment_at",
       "subject": "fair_lending",
-      "type": "assessment"
+      "type": "assessment",
+      "timer_of": "fair_lending_assessment",
+      "is_timer": true
     },
     {
       "name": "fair_lending.remediation_due_at",
       "subject": "remediation",
-      "type": "remediation"
+      "type": "remediation",
+      "timer_of": "remediation",
+      "is_timer": true
     },
     {
       "name": "fbar.filing_due",
       "subject": "fbar",
-      "type": "filing"
+      "type": "filing",
+      "timer_of": "fbar_filing",
+      "is_timer": true
     },
     {
       "name": "fbar.filing_timer",
       "subject": "fbar",
-      "type": "filing"
+      "type": "filing",
+      "timer_of": "fbar_filing",
+      "is_timer": true
     },
     {
       "name": "finding.escalation_due_at",
       "subject": "finding",
-      "type": "escalation"
+      "type": "escalation",
+      "timer_of": "finding_escalation",
+      "is_timer": true
     },
     {
       "name": "finding.monthly_review_due",
       "subject": "finding_monthly",
-      "type": "review"
+      "type": "review",
+      "timer_of": "finding_monthly_review",
+      "is_timer": true
     },
     {
       "name": "finding.quarterly_report_due",
       "subject": "finding_quarterly",
-      "type": "report"
+      "type": "report",
+      "timer_of": "finding_quarterly_report",
+      "is_timer": true
     },
     {
       "name": "finding.response_due_at",
       "subject": "finding",
-      "type": "review"
+      "type": "review",
+      "timer_of": "finding_response",
+      "is_timer": true
     },
     {
       "name": "firewall.independent_review_due",
       "subject": "firewall_independent",
-      "type": "review"
+      "type": "review",
+      "timer_of": "firewall_independent_review",
+      "is_timer": true
     },
     {
       "name": "firewall.review_due",
       "subject": "firewall",
-      "type": "review"
+      "type": "review",
+      "timer_of": "firewall_review",
+      "is_timer": true
     },
     {
       "name": "funding.first_line_due_at",
       "subject": "funding_first",
-      "type": "review"
+      "type": "review",
+      "timer_of": "funding_first_line",
+      "is_timer": true
     },
     {
       "name": "furnishing.cycle_due",
       "subject": "furnishing",
-      "type": "review"
+      "type": "review",
+      "timer_of": "furnishing_cycle",
+      "is_timer": true
     },
     {
       "name": "furnishing.cycle_due_at",
       "subject": "furnishing",
-      "type": "review"
+      "type": "review",
+      "timer_of": "furnishing_cycle",
+      "is_timer": true
     },
     {
       "name": "furnishing.dispute_due_at",
       "subject": "furnishing",
-      "type": "review"
+      "type": "review",
+      "timer_of": "furnishing_dispute",
+      "is_timer": true
     },
     {
       "name": "governance.policy_review_due",
       "subject": "policy",
-      "type": "review"
+      "type": "review",
+      "timer_of": "policy_review",
+      "is_timer": true
     },
     {
       "name": "governance.review_timer",
       "subject": "policy",
-      "type": "review"
+      "type": "review",
+      "timer_of": "policy_review",
+      "is_timer": true
     },
     {
       "name": "handover.access_expires_at",
       "subject": "handover",
-      "type": "review"
+      "type": "review",
+      "timer_of": "handover_access",
+      "is_timer": true
     },
     {
       "name": "handover.access_expiry_due",
       "subject": "handover_access",
-      "type": "expiry"
+      "type": "expiry",
+      "timer_of": "handover_access_expiry",
+      "is_timer": true
     },
     {
       "name": "handover.full_due_at",
       "subject": "handover",
-      "type": "review"
+      "type": "review",
+      "timer_of": "handover_full",
+      "is_timer": true
     },
     {
       "name": "handover.initial_due_at",
       "subject": "handover",
-      "type": "review"
+      "type": "review",
+      "timer_of": "handover_initial",
+      "is_timer": true
     },
     {
       "name": "hmda.lar_qc_due",
       "subject": "hmda_lar",
-      "type": "review"
+      "type": "review",
+      "timer_of": "hmda_lar_qc",
+      "is_timer": true
     },
     {
       "name": "hmda.lar_qc_due_at",
       "subject": "hmda_lar",
-      "type": "review"
+      "type": "review",
+      "timer_of": "hmda_lar_qc",
+      "is_timer": true
     },
     {
       "name": "hmda.submission_due_at",
       "subject": "hmda",
-      "type": "review"
+      "type": "review",
+      "timer_of": "hmda_submission",
+      "is_timer": true
     },
     {
       "name": "imt.roster_review_due",
       "subject": "imt_roster",
-      "type": "review"
+      "type": "review",
+      "timer_of": "imt_roster_review",
+      "is_timer": true
     },
     {
       "name": "incident.ncua_notice_due_at",
       "subject": "incident_ncua",
-      "type": "notice"
+      "type": "notice",
+      "timer_of": "incident_ncua_notice",
+      "is_timer": true
     },
     {
       "name": "incident.notification_due_at",
       "subject": "incident",
-      "type": "review"
+      "type": "review",
+      "timer_of": "incident_notification",
+      "is_timer": true
     },
     {
       "name": "incident.regulator_notification_due",
       "subject": "incident_regulator",
-      "type": "review"
+      "type": "review",
+      "timer_of": "incident_regulator_notification",
+      "is_timer": true
     },
     {
       "name": "incident.triage_due_at",
       "subject": "incident",
-      "type": "triage"
+      "type": "triage",
+      "timer_of": "incident_triage",
+      "is_timer": true
     },
     {
       "name": "incident_trend.review_due",
       "subject": "incident_trend",
-      "type": "review"
+      "type": "review",
+      "timer_of": "incident_trend_review",
+      "is_timer": true
     },
     {
       "name": "indemnification.advance_due_at",
       "subject": "indemnification",
-      "type": "review"
+      "type": "review",
+      "timer_of": "indemnification_advance",
+      "is_timer": true
     },
     {
       "name": "indemnification.determination_due_at",
       "subject": "indemnification",
-      "type": "review"
+      "type": "review",
+      "timer_of": "indemnification_determination",
+      "is_timer": true
     },
     {
       "name": "indemnification.payment_due_at",
       "subject": "indemnification",
-      "type": "review"
+      "type": "review",
+      "timer_of": "indemnification_payment",
+      "is_timer": true
     },
     {
       "name": "insider.loc_approval_expires_at",
       "subject": "insider_loc",
-      "type": "approval"
+      "type": "approval",
+      "timer_of": "insider_loc_approval",
+      "is_timer": true
     },
     {
       "name": "insider.public_request_retention_expires_at",
       "subject": "insider_public_request",
-      "type": "review"
+      "type": "review",
+      "timer_of": "insider_public_request_retention",
+      "is_timer": true
     },
     {
       "name": "insider_report.due",
       "subject": "insider",
-      "type": "report"
+      "type": "report",
+      "timer_of": "insider_report",
+      "is_timer": true
     },
     {
       "name": "institution_freeze.activation_due_at",
       "subject": "institution_freeze",
-      "type": "review"
+      "type": "review",
+      "timer_of": "institution_freeze_activation",
+      "is_timer": true
     },
     {
       "name": "institution_freeze.notice_due_at",
       "subject": "institution_freeze",
-      "type": "notice"
+      "type": "notice",
+      "timer_of": "institution_freeze_notice",
+      "is_timer": true
     },
     {
       "name": "instrument_list.review_due",
       "subject": "instrument_list",
-      "type": "review"
+      "type": "review",
+      "timer_of": "instrument_list_review",
+      "is_timer": true
     },
     {
       "name": "instrument_list.review_due_at",
       "subject": "instrument_list",
-      "type": "review"
+      "type": "review",
+      "timer_of": "instrument_list_review",
+      "is_timer": true
     },
     {
       "name": "insurance.review_due_at",
       "subject": "insurance",
-      "type": "review"
+      "type": "review",
+      "timer_of": "insurance_review",
+      "is_timer": true
     },
     {
       "name": "interest.crediting_due",
       "subject": "interest",
-      "type": "review"
+      "type": "review",
+      "timer_of": "interest_crediting",
+      "is_timer": true
     },
     {
       "name": "interest.crediting_due_at",
       "subject": "interest",
-      "type": "review"
+      "type": "review",
+      "timer_of": "interest_crediting",
+      "is_timer": true
     },
     {
       "name": "intermediary.review_due",
       "subject": "intermediary",
-      "type": "review"
+      "type": "review",
+      "timer_of": "intermediary_review",
+      "is_timer": true
     },
     {
       "name": "intermediary.review_due_at",
       "subject": "intermediary",
-      "type": "review"
+      "type": "review",
+      "timer_of": "intermediary_review",
+      "is_timer": true
     },
     {
       "name": "lar.compute_due_at",
       "subject": "lar",
-      "type": "review"
+      "type": "review",
+      "timer_of": "lar_compute",
+      "is_timer": true
     },
     {
       "name": "lending_program.governance_due_at",
       "subject": "program_governance",
-      "type": "review"
+      "type": "review",
+      "timer_of": "program_governance_review",
+      "is_timer": true
     },
     {
       "name": "limit_set.review_due",
       "subject": "limit_set",
-      "type": "review"
+      "type": "review",
+      "timer_of": "limit_set_review",
+      "is_timer": true
     },
     {
       "name": "limit_set.review_due_at",
       "subject": "limit_set",
-      "type": "review"
+      "type": "review",
+      "timer_of": "limit_set_review",
+      "is_timer": true
     },
     {
       "name": "liquidity.cfp_activation_due_at",
       "subject": "liquidity_cfp",
-      "type": "review"
+      "type": "review",
+      "timer_of": "liquidity_cfp_activation",
+      "is_timer": true
     },
     {
       "name": "liquidity.report_due",
       "subject": "liquidity",
-      "type": "report"
+      "type": "report",
+      "timer_of": "liquidity_report",
+      "is_timer": true
     },
     {
       "name": "liquidity.report_due_at",
       "subject": "liquidity",
-      "type": "report"
+      "type": "report",
+      "timer_of": "liquidity_report",
+      "is_timer": true
     },
     {
       "name": "loan.bankruptcy_chargeoff_due_at",
       "subject": "loan_bankruptcy",
-      "type": "review"
+      "type": "review",
+      "timer_of": "loan_bankruptcy_chargeoff",
+      "is_timer": true
     },
     {
       "name": "loan.classification_due_at",
       "subject": "loan",
-      "type": "review"
+      "type": "review",
+      "timer_of": "loan_classification",
+      "is_timer": true
     },
     {
       "name": "loan.courtesy_notice_due_at",
       "subject": "loan_courtesy",
-      "type": "notice"
+      "type": "notice",
+      "timer_of": "loan_courtesy_notice",
+      "is_timer": true
     },
     {
       "name": "loan.days_past_due",
       "subject": "loan_days",
-      "type": "review"
+      "type": "review",
+      "timer_of": "loan_days_past",
+      "is_timer": true
     },
     {
       "name": "loan.fraud_chargeoff_due_at",
       "subject": "loan_fraud",
-      "type": "review"
+      "type": "review",
+      "timer_of": "loan_fraud_chargeoff",
+      "is_timer": true
     },
     {
       "name": "loan.next_payment_due",
       "subject": "loan_next",
-      "type": "review"
+      "type": "review",
+      "timer_of": "loan_next_payment",
+      "is_timer": true
     },
     {
       "name": "loan.nonaccrual_due_at",
       "subject": "loan",
-      "type": "review"
+      "type": "review",
+      "timer_of": "loan_nonaccrual",
+      "is_timer": true
     },
     {
       "name": "loan.rating_review_due",
       "subject": "loan_rating",
-      "type": "review"
+      "type": "review",
+      "timer_of": "loan_rating_review",
+      "is_timer": true
     },
     {
       "name": "loan.rating_review_due_at",
       "subject": "loan_rating",
-      "type": "review"
+      "type": "review",
+      "timer_of": "loan_rating_review",
+      "is_timer": true
     },
     {
       "name": "loan.re_valuation_due",
       "subject": "loan_re",
-      "type": "review"
+      "type": "review",
+      "timer_of": "loan_re_valuation",
+      "is_timer": true
     },
     {
       "name": "loan.right_to_cure_due_at",
       "subject": "loan_right_to",
-      "type": "review"
+      "type": "review",
+      "timer_of": "loan_right_to_cure",
+      "is_timer": true
     },
     {
       "name": "loan.second_reminder_due_at",
       "subject": "loan_second",
-      "type": "review"
+      "type": "review",
+      "timer_of": "loan_second_reminder",
+      "is_timer": true
     },
     {
       "name": "loan.status_memo_due_at",
       "subject": "loan_status",
-      "type": "review"
+      "type": "review",
+      "timer_of": "loan_status_memo",
+      "is_timer": true
     },
     {
       "name": "loan_account.aan_due_at",
       "subject": "aan",
-      "type": "issuance"
+      "type": "issuance",
+      "timer_of": "aan_issuance",
+      "is_timer": true
     },
     {
       "name": "loan_application.aan_due_at",
       "subject": "aan",
-      "type": "issuance"
+      "type": "issuance",
+      "timer_of": "aan_issuance",
+      "is_timer": true
     },
     {
       "name": "loan_application.counteroffer_aan_due_at",
       "subject": "aan",
-      "type": "issuance"
+      "type": "issuance",
+      "timer_of": "aan_issuance",
+      "is_timer": true
     },
     {
       "name": "loan_application.decision_due_at",
       "subject": "application",
-      "type": "decision"
+      "type": "decision",
+      "timer_of": "application_decision",
+      "is_timer": true
     },
     {
       "name": "loan_exception.analytics_due",
       "subject": "exception",
-      "type": "analysis"
+      "type": "analysis",
+      "timer_of": "exception_analytics",
+      "is_timer": true
     },
     {
       "name": "member.address_hold_expires_at",
       "subject": "member_address",
-      "type": "review"
+      "type": "review",
+      "timer_of": "member_address_hold",
+      "is_timer": true
     },
     {
       "name": "member_credential.expiry_due",
       "subject": "member_credential",
-      "type": "expiry"
+      "type": "expiry",
+      "timer_of": "member_credential_expiry",
+      "is_timer": true
     },
     {
       "name": "member_portal.readonly_due_at",
       "subject": "member_portal",
-      "type": "review"
+      "type": "review",
+      "timer_of": "member_portal_readonly",
+      "is_timer": true
     },
     {
       "name": "mi.consolidation_due",
       "subject": "mi",
-      "type": "consolidation"
+      "type": "consolidation",
+      "timer_of": "mi_consolidation",
+      "is_timer": true
     },
     {
       "name": "mi.consolidation_timer",
       "subject": "mi",
-      "type": "consolidation"
+      "type": "consolidation",
+      "timer_of": "mi_consolidation",
+      "is_timer": true
     },
     {
       "name": "mismatch.compute_due_at",
       "subject": "mismatch",
-      "type": "review"
+      "type": "review",
+      "timer_of": "mismatch_compute",
+      "is_timer": true
     },
     {
       "name": "model.review_due",
       "subject": "model",
-      "type": "review"
+      "type": "review",
+      "timer_of": "model_review",
+      "is_timer": true
     },
     {
       "name": "model.review_due_at",
       "subject": "model",
-      "type": "review"
+      "type": "review",
+      "timer_of": "model_review",
+      "is_timer": true
     },
     {
       "name": "monitoring.coverage_review_due",
       "subject": "monitoring_coverage",
-      "type": "review"
+      "type": "review",
+      "timer_of": "monitoring_coverage_review",
+      "is_timer": true
     },
     {
       "name": "monitoring.review_due",
       "subject": "monitoring",
-      "type": "review"
+      "type": "review",
+      "timer_of": "monitoring_review",
+      "is_timer": true
     },
     {
       "name": "monitoring.review_due_at",
       "subject": "monitoring",
-      "type": "review"
+      "type": "review",
+      "timer_of": "monitoring_review",
+      "is_timer": true
     },
     {
       "name": "ncua.notification_due_at",
       "subject": "ncua",
-      "type": "review"
+      "type": "review",
+      "timer_of": "ncua_notification",
+      "is_timer": true
     },
     {
       "name": "ofac.annual_report_due",
       "subject": "ofac",
-      "type": "report"
+      "type": "report",
+      "timer_of": "ofac_reporting",
+      "is_timer": true
     },
     {
       "name": "ofac.report_timer",
       "subject": "ofac",
-      "type": "report"
+      "type": "report",
+      "timer_of": "ofac_reporting",
+      "is_timer": true
     },
     {
       "name": "overdraft.review_due_at",
       "subject": "overdraft",
-      "type": "review"
+      "type": "review",
+      "timer_of": "overdraft_review",
+      "is_timer": true
     },
     {
       "name": "override.analytics_due",
       "subject": "override",
-      "type": "analysis"
+      "type": "analysis",
+      "timer_of": "override_analytics",
+      "is_timer": true
     },
     {
       "name": "pentest.engagement_due",
       "subject": "pentest",
-      "type": "review"
+      "type": "review",
+      "timer_of": "pentest_engagement",
+      "is_timer": true
     },
     {
       "name": "performance.attribution_due",
       "subject": "performance",
-      "type": "review"
+      "type": "review",
+      "timer_of": "performance_attribution",
+      "is_timer": true
     },
     {
       "name": "performance.attribution_due_at",
       "subject": "performance",
-      "type": "review"
+      "type": "review",
+      "timer_of": "performance_attribution",
+      "is_timer": true
     },
     {
       "name": "policy.acknowledgment_due_at",
       "subject": "policy",
-      "type": "review"
+      "type": "review",
+      "timer_of": "policy_acknowledgment",
+      "is_timer": true
     },
     {
       "name": "policy.board_approval_due_at",
       "subject": "policy_board",
-      "type": "approval"
+      "type": "approval",
+      "timer_of": "policy_board_approval",
+      "is_timer": true
     },
     {
       "name": "policy.next_review_at",
       "subject": "policy",
-      "type": "review"
+      "type": "review",
+      "timer_of": "policy_review",
+      "is_timer": true
     },
     {
       "name": "policy.review.due",
       "subject": "policy",
-      "type": "review"
+      "type": "review",
+      "timer_of": "policy_review.due",
+      "is_timer": true
     },
     {
       "name": "policy.review_due",
       "subject": "policy",
-      "type": "review"
+      "type": "review",
+      "timer_of": "policy_review",
+      "is_timer": true
     },
     {
       "name": "policy.review_due_at",
       "subject": "policy",
-      "type": "review"
+      "type": "review",
+      "timer_of": "policy_review",
+      "is_timer": true
     },
     {
       "name": "portfolio.board_report_due",
       "subject": "portfolio_board",
-      "type": "report"
+      "type": "report",
+      "timer_of": "portfolio_board_report",
+      "is_timer": true
     },
     {
       "name": "portfolio.board_report_due_at",
       "subject": "portfolio_board",
-      "type": "report"
+      "type": "report",
+      "timer_of": "portfolio_board_report",
+      "is_timer": true
     },
     {
       "name": "portfolio.report_due",
       "subject": "portfolio",
-      "type": "report"
+      "type": "report",
+      "timer_of": "portfolio_report",
+      "is_timer": true
     },
     {
       "name": "portfolio.report_due_at",
       "subject": "portfolio",
-      "type": "report"
+      "type": "report",
+      "timer_of": "portfolio_report",
+      "is_timer": true
     },
     {
       "name": "portfolio.stress_test_due",
       "subject": "portfolio_stress",
-      "type": "test"
+      "type": "test",
+      "timer_of": "portfolio_stress_test",
+      "is_timer": true
     },
     {
       "name": "portfolio.stress_test_due_at",
       "subject": "portfolio_stress",
-      "type": "test"
+      "type": "test",
+      "timer_of": "portfolio_stress_test",
+      "is_timer": true
     },
     {
       "name": "position.analytics_update_due",
       "subject": "position_analytics",
-      "type": "update"
+      "type": "update",
+      "timer_of": "position_analytics_update",
+      "is_timer": true
     },
     {
       "name": "position.liquidity_classification_due",
       "subject": "position_liquidity",
-      "type": "review"
+      "type": "review",
+      "timer_of": "position_liquidity_classification",
+      "is_timer": true
     },
     {
       "name": "pricing.exception_review_due_at",
       "subject": "pricing_exception",
-      "type": "review"
+      "type": "review",
+      "timer_of": "pricing_exception_review",
+      "is_timer": true
     },
     {
       "name": "privacy.access_review_due",
       "subject": "privacy_access",
-      "type": "review"
+      "type": "review",
+      "timer_of": "privacy_access_review",
+      "is_timer": true
     },
     {
       "name": "privacy.access_review_due_at",
       "subject": "privacy_access",
-      "type": "review"
+      "type": "review",
+      "timer_of": "privacy_access_review",
+      "is_timer": true
     },
     {
       "name": "privacy.annual_notice_due",
       "subject": "privacy_annual",
-      "type": "notice"
+      "type": "notice",
+      "timer_of": "privacy_annual_notice",
+      "is_timer": true
     },
     {
       "name": "privacy.annual_notice_due_at",
       "subject": "privacy_annual",
-      "type": "notice"
+      "type": "notice",
+      "timer_of": "privacy_annual_notice",
+      "is_timer": true
     },
     {
       "name": "privacy.board_report_due",
       "subject": "privacy_board",
-      "type": "report"
+      "type": "report",
+      "timer_of": "privacy_board_report",
+      "is_timer": true
     },
     {
       "name": "privacy.board_report_due_at",
       "subject": "privacy_board",
-      "type": "report"
+      "type": "report",
+      "timer_of": "privacy_board_report",
+      "is_timer": true
     },
     {
       "name": "privacy.notice_copy_due_at",
       "subject": "privacy_notice",
-      "type": "notice"
+      "type": "notice",
+      "timer_of": "privacy_notice_copy",
+      "is_timer": true
     },
     {
       "name": "privacy.optout_propagation_due_at",
       "subject": "privacy_optout",
-      "type": "review"
+      "type": "review",
+      "timer_of": "privacy_optout_propagation",
+      "is_timer": true
     },
     {
       "name": "privacy.state_request_due_at",
       "subject": "privacy_state",
-      "type": "review"
+      "type": "review",
+      "timer_of": "privacy_state_request",
+      "is_timer": true
     },
     {
       "name": "rate_sheet.refresh_due_at",
       "subject": "rate_sheet",
-      "type": "refresh"
+      "type": "refresh",
+      "timer_of": "rate_sheet_refresh",
+      "is_timer": true
     },
     {
       "name": "recon.daily_due",
       "subject": "recon",
-      "type": "reconciliation"
+      "type": "reconciliation",
+      "timer_of": "recon_daily",
+      "is_timer": true
     },
     {
       "name": "recon.monthly_due",
       "subject": "recon",
-      "type": "reconciliation"
+      "type": "reconciliation",
+      "timer_of": "recon_monthly",
+      "is_timer": true
     },
     {
       "name": "record.destruction_cycle_due_at",
       "subject": "record",
-      "type": "disposal"
+      "type": "disposal",
+      "timer_of": "record_destruction",
+      "is_timer": true
     },
     {
       "name": "record.destruction_due",
       "subject": "record",
-      "type": "disposal"
+      "type": "disposal",
+      "timer_of": "record_destruction",
+      "is_timer": true
     },
     {
       "name": "record.destruction_due_at",
       "subject": "record",
-      "type": "disposal"
+      "type": "disposal",
+      "timer_of": "record_destruction",
+      "is_timer": true
     },
     {
       "name": "record.disposal_due_at",
       "subject": "record",
-      "type": "disposal"
+      "type": "disposal",
+      "timer_of": "record_disposal",
+      "is_timer": true
     },
     {
       "name": "record.index_due_at",
       "subject": "record",
-      "type": "review"
+      "type": "review",
+      "timer_of": "record_index",
+      "is_timer": true
     },
     {
       "name": "record.integrity_test_due",
       "subject": "record_integrity",
-      "type": "test"
+      "type": "test",
+      "timer_of": "record_integrity_test",
+      "is_timer": true
     },
     {
       "name": "record.retention_expires_at",
       "subject": "retention",
-      "type": "purge"
+      "type": "purge",
+      "timer_of": "retention_purge",
+      "is_timer": true
     },
     {
       "name": "records.annual_review_due",
       "subject": "records_annual",
-      "type": "review"
+      "type": "review",
+      "timer_of": "records_annual_review",
+      "is_timer": true
     },
     {
       "name": "records.annual_review_due_at",
       "subject": "records_annual",
-      "type": "review"
+      "type": "review",
+      "timer_of": "records_annual_review",
+      "is_timer": true
     },
     {
       "name": "records.board_report_due",
       "subject": "records_board",
-      "type": "report"
+      "type": "report",
+      "timer_of": "records_board_report",
+      "is_timer": true
     },
     {
       "name": "records.board_report_due_at",
       "subject": "records_board",
-      "type": "report"
+      "type": "report",
+      "timer_of": "records_board_report",
+      "is_timer": true
     },
     {
       "name": "records_package.complete_due_at",
       "subject": "records_package",
-      "type": "review"
+      "type": "review",
+      "timer_of": "records_package_complete",
+      "is_timer": true
     },
     {
       "name": "records_package.snapshot_due",
       "subject": "records_package",
-      "type": "review"
+      "type": "review",
+      "timer_of": "records_package_snapshot",
+      "is_timer": true
     },
     {
       "name": "records_package.start_due_at",
       "subject": "records_package",
-      "type": "review"
+      "type": "review",
+      "timer_of": "records_package_start",
+      "is_timer": true
     },
     {
       "name": "redflag.review_due_at",
       "subject": "redflag",
-      "type": "review"
+      "type": "review",
+      "timer_of": "redflag_review",
+      "is_timer": true
     },
     {
       "name": "regulation.inventory_review_due",
       "subject": "regulation_inventory",
-      "type": "review"
+      "type": "review",
+      "timer_of": "regulation_inventory_review",
+      "is_timer": true
     },
     {
       "name": "regulation.inventory_review_due_at",
       "subject": "regulation_inventory",
-      "type": "review"
+      "type": "review",
+      "timer_of": "regulation_inventory_review",
+      "is_timer": true
     },
     {
       "name": "regulator.contact_verification_due",
       "subject": "regulator_contact",
-      "type": "review"
+      "type": "review",
+      "timer_of": "regulator_contact_verification",
+      "is_timer": true
     },
     {
       "name": "regulator.response_due_at",
       "subject": "regulator",
-      "type": "review"
+      "type": "review",
+      "timer_of": "regulator_response",
+      "is_timer": true
     },
     {
       "name": "regulator.verification_due_at",
       "subject": "regulator",
-      "type": "review"
+      "type": "review",
+      "timer_of": "regulator_verification",
+      "is_timer": true
     },
     {
       "name": "regulatory.analysis_due_at",
       "subject": "regulatory",
-      "type": "analysis"
+      "type": "analysis",
+      "timer_of": "regulatory_analysis",
+      "is_timer": true
     },
     {
       "name": "repo.collateral_revaluation_due",
       "subject": "repo_collateral",
-      "type": "review"
+      "type": "review",
+      "timer_of": "repo_collateral_revaluation",
+      "is_timer": true
     },
     {
       "name": "repo.collateral_revaluation_due_at",
       "subject": "repo_collateral",
-      "type": "review"
+      "type": "review",
+      "timer_of": "repo_collateral_revaluation",
+      "is_timer": true
     },
     {
       "name": "report.board_deck_due",
       "subject": "report_board",
-      "type": "report"
+      "type": "report",
+      "timer_of": "report_board_deck",
+      "is_timer": true
     },
     {
       "name": "report.board_due_at",
       "subject": "report",
-      "type": "report"
+      "type": "report",
+      "timer_of": "report_board",
+      "is_timer": true
     },
     {
       "name": "report.daily_due_at",
       "subject": "report",
-      "type": "report"
+      "type": "report",
+      "timer_of": "report_daily",
+      "is_timer": true
     },
     {
       "name": "report.daily_pack_due",
       "subject": "report_daily",
-      "type": "report"
+      "type": "report",
+      "timer_of": "report_daily_pack",
+      "is_timer": true
     },
     {
       "name": "report.weekly_digest_due",
       "subject": "report_weekly",
-      "type": "report"
+      "type": "report",
+      "timer_of": "report_weekly_digest",
+      "is_timer": true
     },
     {
       "name": "report.weekly_due_at",
       "subject": "report",
-      "type": "report"
+      "type": "report",
+      "timer_of": "report_weekly",
+      "is_timer": true
     },
     {
       "name": "reporting.board_pack_due",
       "subject": "board",
-      "type": "review"
+      "type": "review",
+      "timer_of": "board_pack",
+      "is_timer": true
     },
     {
       "name": "reporting.quarterly_due",
       "subject": "reporting",
-      "type": "report"
+      "type": "report",
+      "timer_of": "reporting_quarterly",
+      "is_timer": true
     },
     {
       "name": "resolution_policy.update_due_at",
       "subject": "resolution_policy",
-      "type": "update"
+      "type": "update",
+      "timer_of": "resolution_policy_update",
+      "is_timer": true
     },
     {
       "name": "resolution_review.due",
       "subject": "resolution_review",
-      "type": "review"
+      "type": "review",
+      "timer_of": "resolution_review_due",
+      "is_timer": true
     },
     {
       "name": "resolution_test.remediation_due_at",
       "subject": "resolution_test",
-      "type": "remediation"
+      "type": "remediation",
+      "timer_of": "resolution_test_remediation",
+      "is_timer": true
     },
     {
       "name": "resolution_test.report_due_at",
       "subject": "resolution_test",
-      "type": "report"
+      "type": "report",
+      "timer_of": "resolution_test_report",
+      "is_timer": true
     },
     {
       "name": "retention.purge_due",
       "subject": "retention",
-      "type": "purge"
+      "type": "purge",
+      "timer_of": "retention_purge",
+      "is_timer": true
     },
     {
       "name": "risk.assessment_due",
       "subject": "risk",
-      "type": "assessment"
+      "type": "assessment",
+      "timer_of": "risk_assessment",
+      "is_timer": true
     },
     {
       "name": "risk.assessment_due_at",
       "subject": "risk",
-      "type": "assessment"
+      "type": "assessment",
+      "timer_of": "risk_assessment",
+      "is_timer": true
     },
     {
       "name": "risk.assessment_timer",
       "subject": "risk_assessment",
-      "type": "refresh"
+      "type": "refresh",
+      "timer_of": "risk_assessment_refresh",
+      "is_timer": true
     },
     {
       "name": "risk.product_assessment_due_at",
       "subject": "product_risk",
-      "type": "assessment"
+      "type": "assessment",
+      "timer_of": "product_risk_assessment",
+      "is_timer": true
     },
     {
       "name": "risk.reassessment_due",
       "subject": "risk",
-      "type": "review"
+      "type": "review",
+      "timer_of": "risk_reassessment",
+      "is_timer": true
     },
     {
       "name": "risk.reassessment_due_at",
       "subject": "risk",
-      "type": "review"
+      "type": "review",
+      "timer_of": "risk_reassessment",
+      "is_timer": true
     },
     {
       "name": "risk_acceptance.decision_due_at",
       "subject": "risk_acceptance",
-      "type": "decision"
+      "type": "decision",
+      "timer_of": "risk_acceptance_decision",
+      "is_timer": true
     },
     {
       "name": "risk_appetite.rereview_due_at",
       "subject": "risk_appetite",
-      "type": "review"
+      "type": "review",
+      "timer_of": "risk_appetite_rereview",
+      "is_timer": true
     },
     {
       "name": "risk_appetite.review_due",
       "subject": "risk_appetite",
-      "type": "review"
+      "type": "review",
+      "timer_of": "risk_appetite_review",
+      "is_timer": true
     },
     {
       "name": "risk_appetite.review_due_at",
       "subject": "risk_appetite",
-      "type": "review"
+      "type": "review",
+      "timer_of": "risk_appetite_review",
+      "is_timer": true
     },
     {
       "name": "risk_breach.committee_due_at",
       "subject": "risk_breach",
-      "type": "review"
+      "type": "review",
+      "timer_of": "risk_breach_committee",
+      "is_timer": true
     },
     {
       "name": "risk_breach.committee_presentation_due",
       "subject": "risk_breach_committee",
-      "type": "review"
+      "type": "review",
+      "timer_of": "risk_breach_committee_presentation",
+      "is_timer": true
     },
     {
       "name": "risk_breach.review_due",
       "subject": "risk_breach",
-      "type": "review"
+      "type": "review",
+      "timer_of": "risk_breach_review",
+      "is_timer": true
     },
     {
       "name": "risk_breach.review_due_at",
       "subject": "risk_breach",
-      "type": "review"
+      "type": "review",
+      "timer_of": "risk_breach_review",
+      "is_timer": true
     },
     {
       "name": "risk_breach.triage_due_at",
       "subject": "risk_breach",
-      "type": "triage"
+      "type": "triage",
+      "timer_of": "risk_breach_triage",
+      "is_timer": true
     },
     {
       "name": "risk_report.board_due",
       "subject": "risk_report",
-      "type": "report"
+      "type": "report",
+      "timer_of": "risk_report_board",
+      "is_timer": true
     },
     {
       "name": "risk_report.board_due_at",
       "subject": "risk_report",
-      "type": "report"
+      "type": "report",
+      "timer_of": "risk_report_board",
+      "is_timer": true
     },
     {
       "name": "risk_report.management_due",
       "subject": "risk_report",
-      "type": "report"
+      "type": "report",
+      "timer_of": "risk_report_management",
+      "is_timer": true
     },
     {
       "name": "risk_report.management_due_at",
       "subject": "risk_report",
-      "type": "report"
+      "type": "report",
+      "timer_of": "risk_report_management",
+      "is_timer": true
     },
     {
       "name": "risk_scale.review_due",
       "subject": "risk_scale",
-      "type": "review"
+      "type": "review",
+      "timer_of": "risk_scale_review",
+      "is_timer": true
     },
     {
       "name": "risk_scale.review_due_at",
       "subject": "risk_scale",
-      "type": "review"
+      "type": "review",
+      "timer_of": "risk_scale_review",
+      "is_timer": true
     },
     {
       "name": "safe_mode.activation_due_at",
       "subject": "safe_mode",
-      "type": "review"
+      "type": "review",
+      "timer_of": "safe_mode_activation",
+      "is_timer": true
     },
     {
       "name": "safe_mode.propagation_due_at",
       "subject": "safe_mode",
-      "type": "review"
+      "type": "review",
+      "timer_of": "safe_mode_propagation",
+      "is_timer": true
     },
     {
       "name": "safekeeping.reconciliation_due_at",
       "subject": "safekeeping",
-      "type": "reconciliation"
+      "type": "reconciliation",
+      "timer_of": "safekeeping_reconciliation",
+      "is_timer": true
     },
     {
       "name": "sar.continuing_review_due",
       "subject": "continuing_sar",
-      "type": "review"
+      "type": "review",
+      "timer_of": "continuing_sar_review",
+      "is_timer": true
     },
     {
       "name": "sar.continuing_timer",
       "subject": "continuing_sar",
-      "type": "review"
+      "type": "review",
+      "timer_of": "continuing_sar_review",
+      "is_timer": true
     },
     {
       "name": "sar.filing_timer",
       "subject": "sar",
-      "type": "filing"
+      "type": "filing",
+      "timer_of": "sar_filing",
+      "is_timer": true
     },
     {
       "name": "scope_registry.attestation_due",
       "subject": "scope_registry",
-      "type": "attestation"
+      "type": "attestation",
+      "timer_of": "scope_registry_attestation",
+      "is_timer": true
     },
     {
       "name": "scope_registry.publish_due_at",
       "subject": "scope_registry",
-      "type": "review"
+      "type": "review",
+      "timer_of": "scope_registry_publish",
+      "is_timer": true
     },
     {
       "name": "scope_registry.update_due_at",
       "subject": "scope_registry",
-      "type": "update"
+      "type": "update",
+      "timer_of": "scope_registry_update",
+      "is_timer": true
     },
     {
       "name": "security.board_report_due_at",
       "subject": "board",
-      "type": "report"
+      "type": "report",
+      "timer_of": "board_report",
+      "is_timer": true
     },
     {
       "name": "security.downgrade_review_due_at",
       "subject": "security_downgrade",
-      "type": "review"
+      "type": "review",
+      "timer_of": "security_downgrade_review",
+      "is_timer": true
     },
     {
       "name": "security.fair_value_update_due",
       "subject": "security_fair_value",
-      "type": "update"
+      "type": "update",
+      "timer_of": "security_fair_value_update",
+      "is_timer": true
     },
     {
       "name": "security.fair_value_update_due_at",
       "subject": "security_fair_value",
-      "type": "update"
+      "type": "update",
+      "timer_of": "security_fair_value_update",
+      "is_timer": true
     },
     {
       "name": "security.policy_review_due_at",
       "subject": "policy",
-      "type": "review"
+      "type": "review",
+      "timer_of": "policy_review",
+      "is_timer": true
     },
     {
       "name": "service.first_response_due_at",
       "subject": "service_first",
-      "type": "review"
+      "type": "review",
+      "timer_of": "service_first_response",
+      "is_timer": true
     },
     {
       "name": "service.resolution_due_at",
       "subject": "service",
-      "type": "review"
+      "type": "review",
+      "timer_of": "service_resolution",
+      "is_timer": true
     },
     {
       "name": "siem.alert_review_due_at",
       "subject": "siem_alert",
-      "type": "review"
+      "type": "review",
+      "timer_of": "siem_alert_review",
+      "is_timer": true
     },
     {
       "name": "site.capacity_test_due",
       "subject": "site_capacity",
-      "type": "test"
+      "type": "test",
+      "timer_of": "site_capacity_test",
+      "is_timer": true
     },
     {
       "name": "socialmedia.takedown_due_at",
       "subject": "takedown",
-      "type": "review"
+      "type": "review",
+      "timer_of": "takedown",
+      "is_timer": true
     },
     {
       "name": "staffing.readiness_review_due",
       "subject": "staffing_readiness",
-      "type": "review"
+      "type": "review",
+      "timer_of": "staffing_readiness_review",
+      "is_timer": true
     },
     {
       "name": "steering_review.due",
       "subject": "steering",
-      "type": "review"
+      "type": "review",
+      "timer_of": "steering_review",
+      "is_timer": true
     },
     {
       "name": "stress.quarterly_due_at",
       "subject": "stress",
-      "type": "review"
+      "type": "review",
+      "timer_of": "stress_quarterly",
+      "is_timer": true
     },
     {
       "name": "stress.rerun_due_at",
       "subject": "stress",
-      "type": "review"
+      "type": "review",
+      "timer_of": "stress_rerun",
+      "is_timer": true
     },
     {
       "name": "survival.quarterly_due_at",
       "subject": "survival",
-      "type": "review"
+      "type": "review",
+      "timer_of": "survival_quarterly",
+      "is_timer": true
     },
     {
       "name": "taxonomy.review_due",
       "subject": "taxonomy",
-      "type": "review"
+      "type": "review",
+      "timer_of": "taxonomy_review",
+      "is_timer": true
     },
     {
       "name": "taxonomy.review_due_at",
       "subject": "taxonomy",
-      "type": "review"
+      "type": "review",
+      "timer_of": "taxonomy_review",
+      "is_timer": true
     },
     {
       "name": "tdr.quarterly_review_due",
       "subject": "tdr_quarterly",
-      "type": "review"
+      "type": "review",
+      "timer_of": "tdr_quarterly_review",
+      "is_timer": true
     },
     {
       "name": "tdr.review_due_at",
       "subject": "tdr",
-      "type": "review"
+      "type": "review",
+      "timer_of": "tdr_review",
+      "is_timer": true
     },
     {
       "name": "threat_register.refresh_due",
       "subject": "threat_register",
-      "type": "refresh"
+      "type": "refresh",
+      "timer_of": "threat_register_refresh",
+      "is_timer": true
     },
     {
       "name": "tls.assessment_due",
       "subject": "tls",
-      "type": "assessment"
+      "type": "assessment",
+      "timer_of": "tls_assessment",
+      "is_timer": true
     },
     {
       "name": "tls.certificate_expires_at",
       "subject": "tls",
-      "type": "review"
+      "type": "review",
+      "timer_of": "tls_certificate",
+      "is_timer": true
     },
     {
       "name": "tls.certificate_expiry_due",
       "subject": "tls_certificate",
-      "type": "expiry"
+      "type": "expiry",
+      "timer_of": "tls_certificate_expiry",
+      "is_timer": true
     },
     {
       "name": "trade.reconciliation_due_at",
       "subject": "trade",
-      "type": "reconciliation"
+      "type": "reconciliation",
+      "timer_of": "trade_reconciliation",
+      "is_timer": true
     },
     {
       "name": "training.annual_due",
       "subject": "training",
-      "type": "review"
+      "type": "review",
+      "timer_of": "training_annual",
+      "is_timer": true
     },
     {
       "name": "training.annual_due_at",
       "subject": "training",
-      "type": "review"
+      "type": "review",
+      "timer_of": "training_annual",
+      "is_timer": true
     },
     {
       "name": "training.annual_timer",
       "subject": "training",
-      "type": "review"
+      "type": "review",
+      "timer_of": "training_annual",
+      "is_timer": true
     },
     {
       "name": "training.assessment_due",
       "subject": "training",
-      "type": "assessment"
+      "type": "assessment",
+      "timer_of": "training_assessment",
+      "is_timer": true
     },
     {
       "name": "training.completion_due_at",
       "subject": "training",
-      "type": "review"
+      "type": "review",
+      "timer_of": "training_completion",
+      "is_timer": true
     },
     {
       "name": "training.due",
       "subject": "training",
-      "type": "review"
+      "type": "review",
+      "timer_of": "training_due",
+      "is_timer": true
     },
     {
       "name": "training.new_hire_timer",
       "subject": "training",
-      "type": "onboarding"
+      "type": "onboarding",
+      "timer_of": "training_newhire",
+      "is_timer": true
     },
     {
       "name": "training.newhire_due_at",
       "subject": "training",
-      "type": "onboarding"
+      "type": "onboarding",
+      "timer_of": "training_newhire",
+      "is_timer": true
     },
     {
       "name": "training.onboarding_due_at",
       "subject": "training",
-      "type": "onboarding"
+      "type": "onboarding",
+      "timer_of": "training_newhire",
+      "is_timer": true
     },
     {
       "name": "training.privacy_due",
       "subject": "training",
-      "type": "review"
+      "type": "review",
+      "timer_of": "training_privacy",
+      "is_timer": true
     },
     {
       "name": "training.refresher.due",
       "subject": "training",
-      "type": "review"
+      "type": "review",
+      "timer_of": "training_refresher.due",
+      "is_timer": true
     },
     {
       "name": "training.refresher_due",
       "subject": "training",
-      "type": "review"
+      "type": "review",
+      "timer_of": "training_refresher",
+      "is_timer": true
     },
     {
       "name": "training.retention_due_at",
       "subject": "training",
-      "type": "review"
+      "type": "review",
+      "timer_of": "training_retention",
+      "is_timer": true
     },
     {
       "name": "valuation.rov_due_at",
       "subject": "rov",
-      "type": "decision"
+      "type": "decision",
+      "timer_of": "rov_decision",
+      "is_timer": true
     },
     {
       "name": "vendor.annual_review_due",
       "subject": "vendor_annual",
-      "type": "review"
+      "type": "review",
+      "timer_of": "vendor_annual_review",
+      "is_timer": true
     },
     {
       "name": "vendor.annual_review_due_at",
       "subject": "vendor_annual",
-      "type": "review"
+      "type": "review",
+      "timer_of": "vendor_annual_review",
+      "is_timer": true
     },
     {
       "name": "vendor.bcp_evidence_due",
       "subject": "vendor_bcp",
-      "type": "review"
+      "type": "review",
+      "timer_of": "vendor_bcp_evidence",
+      "is_timer": true
     },
     {
       "name": "vendor.board_report_due",
       "subject": "vendor_board",
-      "type": "report"
+      "type": "report",
+      "timer_of": "vendor_board_report",
+      "is_timer": true
     },
     {
       "name": "vendor.clause_library_review_due",
       "subject": "vendor_clause_library",
-      "type": "review"
+      "type": "review",
+      "timer_of": "vendor_clause_library_review",
+      "is_timer": true
     },
     {
       "name": "vendor.concentration_review_due",
       "subject": "vendor_concentration",
-      "type": "review"
+      "type": "review",
+      "timer_of": "vendor_concentration_review",
+      "is_timer": true
     },
     {
       "name": "vendor.core_review_due",
       "subject": "vendor_core",
-      "type": "review"
+      "type": "review",
+      "timer_of": "vendor_core_review",
+      "is_timer": true
     },
     {
       "name": "vendor.dr_attestation_due",
       "subject": "vendor_dr",
-      "type": "attestation"
+      "type": "attestation",
+      "timer_of": "vendor_dr_attestation",
+      "is_timer": true
     },
     {
       "name": "vendor.edd_refresh_due",
       "subject": "vendor_edd",
-      "type": "refresh"
+      "type": "refresh",
+      "timer_of": "vendor_edd_refresh",
+      "is_timer": true
     },
     {
       "name": "vendor.exit_plan_due",
       "subject": "vendor_exit",
-      "type": "plan"
+      "type": "plan",
+      "timer_of": "vendor_exit_plan",
+      "is_timer": true
     },
     {
       "name": "vendor.exit_test_due",
       "subject": "vendor_exit",
-      "type": "test"
+      "type": "test",
+      "timer_of": "vendor_exit_test",
+      "is_timer": true
     },
     {
       "name": "vendor.governance_review_due",
       "subject": "vendor_governance",
-      "type": "review"
+      "type": "review",
+      "timer_of": "vendor_governance_review",
+      "is_timer": true
     },
     {
       "name": "vendor.incident_triage_due",
       "subject": "vendor_incident",
-      "type": "triage"
+      "type": "triage",
+      "timer_of": "vendor_incident_triage",
+      "is_timer": true
     },
     {
       "name": "vendor.inventory_reconciliation_due",
       "subject": "vendor_inventory",
-      "type": "reconciliation"
+      "type": "reconciliation",
+      "timer_of": "vendor_inventory_reconciliation",
+      "is_timer": true
     },
     {
       "name": "vendor.mi_due_at",
       "subject": "vendor_mi",
-      "type": "review"
+      "type": "review",
+      "timer_of": "vendor_mi_review",
+      "is_timer": true
     },
     {
       "name": "vendor.monitoring_review_due",
       "subject": "vendor_monitoring",
-      "type": "review"
+      "type": "review",
+      "timer_of": "vendor_monitoring_review",
+      "is_timer": true
     },
     {
       "name": "vendor.program_audit_due",
       "subject": "vendor_program",
-      "type": "review"
+      "type": "review",
+      "timer_of": "vendor_program_audit",
+      "is_timer": true
     },
     {
       "name": "vendor.provisional_review_due",
       "subject": "vendor_provisional",
-      "type": "review"
+      "type": "review",
+      "timer_of": "vendor_provisional_review",
+      "is_timer": true
     },
     {
       "name": "vendor.raci_review_due",
       "subject": "vendor_raci",
-      "type": "review"
+      "type": "review",
+      "timer_of": "vendor_raci_review",
+      "is_timer": true
     },
     {
       "name": "vendor.remediation_due",
       "subject": "vendor",
-      "type": "remediation"
+      "type": "remediation",
+      "timer_of": "vendor_remediation",
+      "is_timer": true
     },
     {
       "name": "vendor.review_due",
       "subject": "vendor",
-      "type": "review"
+      "type": "review",
+      "timer_of": "vendor_review",
+      "is_timer": true
     },
     {
       "name": "vendor.review_due_at",
       "subject": "vendor",
-      "type": "review"
+      "type": "review",
+      "timer_of": "vendor_review",
+      "is_timer": true
     },
     {
       "name": "vendor.review_timer",
       "subject": "vendor",
-      "type": "review"
+      "type": "review",
+      "timer_of": "vendor_review",
+      "is_timer": true
     },
     {
       "name": "verification.biometric_purge_due",
       "subject": "verification_biometric",
-      "type": "purge"
+      "type": "purge",
+      "timer_of": "verification_biometric_purge",
+      "is_timer": true
     },
     {
       "name": "verification.biometric_purge_due_at",
       "subject": "verification_biometric",
-      "type": "purge"
+      "type": "purge",
+      "timer_of": "verification_biometric_purge",
+      "is_timer": true
     },
     {
       "name": "vuln.remediation_due_at",
       "subject": "vuln",
-      "type": "remediation"
+      "type": "remediation",
+      "timer_of": "vuln_remediation",
+      "is_timer": true
     },
     {
       "name": "vuln.triage_due_at",
       "subject": "vuln",
-      "type": "triage"
+      "type": "triage",
+      "timer_of": "vuln_triage",
+      "is_timer": true
     },
     {
       "name": "wholesale.compute_due_at",
       "subject": "wholesale",
-      "type": "review"
+      "type": "review",
+      "timer_of": "wholesale_compute",
+      "is_timer": true
     },
     {
       "name": "wholesale.monthly_review_due",
       "subject": "wholesale_monthly",
-      "type": "review"
+      "type": "review",
+      "timer_of": "wholesale_monthly_review",
+      "is_timer": true
     },
     {
       "name": "wholesale.review_due_at",
       "subject": "wholesale",
-      "type": "review"
+      "type": "review",
+      "timer_of": "wholesale_review",
+      "is_timer": true
     },
     {
       "name": "aan_issuance",
@@ -41444,6 +42319,12 @@
       "name": "account_maturity_notice",
       "subject": "account_maturity",
       "type": "notice",
+      "source": "task_map"
+    },
+    {
+      "name": "advertising_reach_review",
+      "subject": "advertising",
+      "type": "review",
       "source": "task_map"
     },
     {

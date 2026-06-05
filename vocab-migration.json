@@ -1,6 +1,6 @@
 {
  "meta": {
-  "tokens": 3412,
+  "tokens": 3419,
   "orphans": 0
  },
  "task_map": {
@@ -35,6 +35,10 @@
   "account_maturity_notice": {
    "type": "notice",
    "subject": "account_maturity"
+  },
+  "advertising_reach_review": {
+   "type": "review",
+   "subject": "advertising"
   },
   "ai_register_update": {
    "type": "update",
@@ -1558,6 +1562,16 @@
    "type": "recorded",
    "subject": "access_right"
   },
+  "accessibility.accommodation_provided": {
+   "as": "event",
+   "type": "granted",
+   "subject": "accessibility"
+  },
+  "accessibility.accommodation_requested": {
+   "as": "event",
+   "type": "requested",
+   "subject": "accessibility"
+  },
   "account.aan_due_at": {
    "as": "task",
    "type": "issuance",
@@ -1738,6 +1752,11 @@
    "as": "field",
    "ref": "ach_transfer.window"
   },
+  "ad.accessibility_check": {
+   "as": "event",
+   "type": "checked",
+   "subject": "ad"
+  },
   "ad.audience_definition": {
    "as": "field",
    "ref": "ad.audience_definition"
@@ -1796,6 +1815,17 @@
    "as": "event",
    "type": "published",
    "subject": "advertising"
+  },
+  "advertising.reach_review_completed": {
+   "as": "event",
+   "type": "completed",
+   "subject": "advertising"
+  },
+  "advertising.reach_review_due": {
+   "as": "task",
+   "type": "review",
+   "subject": "advertising",
+   "timer_of": "advertising_reach_review"
   },
   "advertising.review_completed": {
    "as": "event",
@@ -8413,6 +8443,11 @@
    "as": "field",
    "ref": "fair_lending.dataset_version"
   },
+  "fair_lending.discouragement_reported": {
+   "as": "event",
+   "type": "reported",
+   "subject": "fair_lending"
+  },
   "fair_lending.finding_id": {
    "as": "field",
    "ref": "fair_lending.finding_id"
@@ -10972,6 +11007,11 @@
   "loan_application.notified_at": {
    "as": "field",
    "ref": "loan_application.notified_at"
+  },
+  "loan_application.oral_adverse_decision": {
+   "as": "event",
+   "type": "decided",
+   "subject": "loan_application"
   },
   "loan_application.product_code": {
    "as": "field",

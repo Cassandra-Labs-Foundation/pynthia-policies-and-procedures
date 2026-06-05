@@ -253,11 +253,65 @@ def render_state_machines_and_plugins(data):
     return lines
 
 
+def render_tasks_and_timers(data):
+    """Render task/timer vocabulary registered via the migration map.
+
+    The lean spec models deadlines and scheduled work as instances of the
+    generic Task resource (type + subject_ref + due_at), not as distinct
+    per-domain fields. This section tells the policy generator which
+    domain task/timer codes are already registered under that pattern —
+    codes listed here must NOT be flagged as missing vocabulary.
+    """
+    lines = ["## Tasks & timers", ""]
+    tasks = data.get("tasks", [])
+    task_types = data.get("task_types", [])
+    if not tasks and not task_types:
+        lines.append("_No tasks defined in vocabulary.json._")
+        lines.append("")
+        return lines
+
+    if task_types:
+        lines.append(
+            "Registered task types (generic `Task` resource: `type` · "
+            "`subject_ref` · `due_at` · `status`): "
+            + ", ".join(f"`{t}`" for t in task_types)
+        )
+        lines.append("")
+
+    if tasks:
+        lines.append(
+            "Domain task/timer codes below are registered — each maps to a "
+            "`Task` instance. Timer codes (`*_due_at`, `*_expires_at`) are "
+            "the `due_at` of the named task; cite them in the *Within* "
+            "column as registered timers."
+        )
+        lines.append("")
+        lines.append("| Code | Task type | Subject | Timer of |")
+        lines.append("|---|---|---|---|")
+        for t in tasks:
+            timer_of = t.get("timer_of") or ("(self)" if t.get("is_timer") else "")
+            lines.append(
+                "| "
+                + " | ".join(
+                    [
+                        f"`{escape_cell(t.get('name', '?'))}`",
+                        f"`{escape_cell(t.get('type', ''))}`",
+                        escape_cell(t.get("subject", "")),
+                        f"`{escape_cell(timer_of)}`" if timer_of else "",
+                    ]
+                )
+                + " |"
+            )
+        lines.append("")
+    return lines
+
+
 def render(data, max_desc=140):
     lines = []
     lines.extend(render_meta(data))
     lines.extend(render_entities(data, max_desc))
     lines.extend(render_events_and_endpoints(data))
+    lines.extend(render_tasks_and_timers(data))
     lines.extend(render_state_machines_and_plugins(data))
     return "\n".join(lines).rstrip() + "\n"
 
