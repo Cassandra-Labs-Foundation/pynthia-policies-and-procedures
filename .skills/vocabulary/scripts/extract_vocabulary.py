@@ -306,12 +306,106 @@ def render_tasks_and_timers(data):
     return lines
 
 
+def render_composition_grammar(data):
+    """Render the closed-world rules for coining any NEW code.
+
+    The lean spec deliberately registers generic verbs and task types and
+    composes domain codes as subject + verb (events) or subject + task
+    type (tasks). A policy must never invent codes outside this grammar.
+    """
+    verbs = data.get("event_types", [])
+    task_types = data.get("task_types", [])
+    subjects = data.get("subjects", [])
+    if not (verbs or subjects):
+        return []
+
+    lines = ["## Composition grammar (rules for any NEW code)", ""]
+    lines.append(
+        "The engineering vocabulary is **closed-world and compositional**. "
+        "Before citing any code not listed elsewhere in this document, apply "
+        "these rules in order:"
+    )
+    lines.append("")
+    lines.append(
+        "1. **Reuse first.** Search the field tables above for an existing "
+        "field with the same meaning — including the same field name under a "
+        "different entity (e.g. prefer `incident.description` over coining "
+        "`complaint.description` if the complaint is modeled as an incident). "
+        "Do the same for events and tasks/timers."
+    )
+    lines.append(
+        "2. **Compose, don't invent.** A new *event* code must be "
+        "`<registered subject>.<phrase ending in a registered verb>`. A new "
+        "*task or timer* code must use a registered task type. Deadlines are "
+        "`Task` instances (`type` + `subject_ref` + `due_at`) — never a new "
+        "per-domain `*_due_at` field."
+    )
+    lines.append(
+        "3. **Stay inside the subject registry.** Do not mint a new subject "
+        "(code prefix). If no registered subject fits, that is a gap to flag "
+        "in Assumptions & Gaps, not a license to create one."
+    )
+    lines.append("")
+    if verbs:
+        lines.append(
+            f"**Registered event verbs ({len(verbs)}):** "
+            + ", ".join(f"`{v}`" for v in verbs)
+        )
+        lines.append("")
+    if task_types:
+        lines.append(
+            f"**Registered task types ({len(task_types)}):** "
+            + ", ".join(f"`{t}`" for t in task_types)
+        )
+        lines.append("")
+    if subjects:
+        lines.append(
+            f"**Registered subjects ({len(subjects)}):** "
+            + ", ".join(f"`{s}`" for s in subjects)
+        )
+        lines.append("")
+    return lines
+
+
+def render_provisional(data):
+    """Render migration-known codes not yet registered in the spec.
+
+    These already have an agreed target spelling. A policy that needs one
+    of these concepts must reuse the spelling below verbatim — never coin
+    a variant — and may cite it as provisional in Assumptions & Gaps.
+    """
+    prov = data.get("provisional_fields", [])
+    lines = ["## Provisional codes (agreed target naming — reuse, don't re-coin)", ""]
+    if not prov:
+        lines.append("_No provisional codes tracked in vocabulary.json._")
+        lines.append("")
+        return lines
+    lines.append(
+        f"The {len(prov)} codes below are known to the migration map but not "
+        "yet registered in the spec. Their spelling is already agreed with "
+        "engineering: if the policy needs one of these concepts, use the "
+        "exact code below (and list it in the Assumptions & Gaps provisional-"
+        "vocabulary bullet). Do not invent a near-duplicate."
+    )
+    lines.append("")
+    by_prefix = {}
+    for c in prov:
+        by_prefix.setdefault(c.partition(".")[0], []).append(c)
+    for prefix in sorted(by_prefix):
+        codes = ", ".join(f"`{c}`" for c in sorted(by_prefix[prefix]))
+        lines.append(f"- **{prefix}**: {codes}")
+    lines.append("")
+    return lines
+
+
 def render(data, max_desc=140):
     lines = []
     lines.extend(render_meta(data))
+    lines.extend(render_composition_grammar(data))
     lines.extend(render_entities(data, max_desc))
     lines.extend(render_events_and_endpoints(data))
     lines.extend(render_tasks_and_timers(data))
+    lines.extend(render_provisional(data))
     lines.extend(render_state_machines_and_plugins(data))
     return "\n".join(lines).rstrip() + "\n"
 

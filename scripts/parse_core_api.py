@@ -200,6 +200,12 @@ def build(spec, migration_doc):
         tasks.append({"name": tname, "subject": entry.get("subject", ""),
                       "type": entry.get("type", ""), "source": "task_map"})
 
+    # --- subject registry --------------------------------------------------
+    subjects = sorted(
+        {e.get("subject") for e in migration.values() if e.get("subject")}
+        | {e.get("subject") for e in task_map.values() if e.get("subject")}
+    )
+
     # --- provisional fields (extra, not rendered) --------------------------
     provisional = sorted({
         entry.get("ref") or token
@@ -237,6 +243,8 @@ def build(spec, migration_doc):
         "state_machines": sms,
         "plugins": [],
         "task_types": list(task_types),
+        "event_types": list(spec.get("event_types") or []),
+        "subjects": subjects,
         "tasks": tasks,
         "provisional_fields": provisional,
     }

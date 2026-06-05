@@ -91,7 +91,11 @@ For each `## XX-nn — Title  {#xx-nn-slug}` output **exactly four** labeled fie
   - The *Produced (and logged)* column captures BOTH the business artifact AND the emitted event code from vocabulary, e.g., `AAN with specific reasons + ECOA notice (\`aan.issued\`)`. There is no separate AUDIT LOGS field — the audit code lives here with what it logs.
   - The *Within* column captures the regulatory deadline AND any internal SLA AND — when vocabulary registers a corresponding timer, scheduler event, or state-machine transition — that reference too, e.g., `30 days (internal: 5 BD; enforced by \`application.aan_due_at\`)`. If vocabulary has no corresponding timer, write the time only.
 
-  Vocabulary policy: if vocabulary.json does not yet register an event, field, or timer the control needs, use the target naming scheme verbatim in the cell — the consolidated Assumptions & Gaps "Engineering vocabulary is provisional" bullet covers all of them. Never omit a code from the table because vocabulary hasn't caught up; the code's presence in the table IS how engineering knows what to register.
+  Vocabulary policy: **default to the registered core-API vocabulary; never invent a code when a registered one fits.** Apply in order:
+  1. **Reuse.** Search DESIGN_NOTES for an existing field, event, or task/timer with the required meaning — including the same field name under a different entity (e.g. prefer `incident.description` over coining `complaint.description` when the complaint is modeled as an incident). Deadlines use the registered timer/task codes under the generic `Task` pattern — never a new per-domain due-date field.
+  2. **Reuse provisional spelling.** If DESIGN_NOTES lists the concept under "Provisional codes", use that exact spelling — never a variant.
+  3. **Compose.** Only if no registered or provisional code fits, coin a new code following the Composition grammar in DESIGN_NOTES: a registered subject prefix plus a registered verb (events) or registered task type (tasks/timers). Do not mint new subjects, verbs, or task types.
+  4. **Flag.** Codes coined under rule 3 — and concepts no grammar-conforming code can express — are collectively covered by the consolidated Assumptions & Gaps "Engineering vocabulary is provisional" bullet. Never omit a needed code from the table; its presence IS how engineering knows what to register.
 
 - **ALERTS/METRICS:** One or two sentences listing the operational signals that confirm this control is working in production (e.g., aging-alert thresholds, target zero counts, latency distributions). This is the bridge between the policy and the monitoring runbook.
 
@@ -115,7 +119,7 @@ QUALITY BAR / ACCEPTANCE CRITERIA
 - Each control has **exactly four labeled fields** in this order: WHY, SYSTEM BEHAVIOR, EVENTS, ALERTS/METRICS. No others.
 - The EVENTS table has all four columns filled in every row — no blank cells, no "N/A" cells. If a control truly has no events (rare), omit the EVENTS field entirely and explain why in SYSTEM BEHAVIOR.
 - Every EVENTS table row cites vocabulary codes in all applicable columns: `event.code` in *When*, `field.code` (or `field.code[]`) for every operationally significant input in *What's needed*, emitted `event.code` in *Produced (and logged)*, and a timer / scheduler `event.code` in *Within* where vocabulary registers one.
-- Codes appear in backticks. Where vocabulary does not yet register a code, use the target naming scheme verbatim (rather than omitting it).
+- Codes appear in backticks. Where vocabulary does not yet register a code, follow the Vocabulary policy order (reuse registered → reuse provisional spelling → compose per grammar) rather than omitting or freely inventing it.
 - No inline `(Assumption—needs confirmation)` tags anywhere — assumptions live in the consolidated Assumptions & Gaps section.
 - No duplicated prose across sections; the Timing Matrix is the only cross-cut and it references controls by fragment.
 - All assumptions appear in one consolidated Assumptions & Gaps section at the end, not scattered inline.
@@ -125,7 +129,7 @@ QUALITY BAR / ACCEPTANCE CRITERIA
 MISSING INFO HANDLING
 - If PATRICK_NOTES lack specifics, infer the **minimal viable** control and add the assumption as a bullet to the consolidated Assumptions & Gaps list — do NOT use the inline `(Assumption—needs confirmation: …)` pattern anywhere in the body.
 - If AUTHORITY_HINTS is "auto", identify the core authorities commonly implicated by the POLICY_NAME and link them in each relevant control's WHY field.
-- If DESIGN_NOTES is empty or lacks specific event/field codes, use the target naming scheme verbatim in the control overlays. Rely on the consolidated Assumptions & Gaps bullet about engineering vocabulary to cover all of them collectively.
+- If DESIGN_NOTES is empty or lacks specific event/field codes, use the target naming scheme verbatim in the control overlays (the Composition grammar and registered-code preference only bind when DESIGN_NOTES provides them). Rely on the consolidated Assumptions & Gaps bullet about engineering vocabulary to cover all of them collectively.
 
 STYLE
 - Plain-spoken, regulator-ready, engineer-actionable.

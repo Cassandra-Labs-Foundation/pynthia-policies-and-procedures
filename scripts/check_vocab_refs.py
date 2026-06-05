@@ -71,6 +71,72 @@ def classify(codes, vocab):
     return out
 
 
+def match_verb(tail, verbs):
+    return next((v for v in sorted(verbs, key=len, reverse=True)
+                 if tail == v or tail.endswith("_" + v)), None)
+
+
+def match_task_type(tail, ttypes):
+    return next((t for t in sorted(ttypes, key=len, reverse=True)
+                 if t in tail.split("_") or tail == t), None)
+
+
+def analyze_missing(missing, vocab):
+    """Conformance + near-miss analysis for unregistered codes.
+
+    Returns per-code diagnostics:
+      near_misses    same field tail registered under another entity —
+                     the policy should almost certainly REUSE one of these
+      conforming     composes as registered subject + registered verb /
+                     task type — ready-to-paste migration entry suggested
+      nonconforming  violates the composition grammar (unregistered verb,
+                     new subject, or plain data field) — must be renamed,
+                     mapped, or flagged as a gap
+    """
+    verbs = set(vocab.get("event_types", []))
+    ttypes = set(vocab.get("task_types", []))
+    subjects = set(vocab.get("subjects", []))
+    by_tail = {}
+    for f in vocab.get("fields", []):
+        path = f["path"]
+        if "." in path:
+            by_tail.setdefault(path.split(".", 1)[1], []).append(path)
+    prov_by_tail = {}
+    for p in vocab.get("provisional_fields", []):
+        if "." in p:
+            prov_by_tail.setdefault(p.split(".", 1)[1], []).append(p)
+
+    near_misses, conforming, nonconforming = {}, {}, {}
+    for code in missing:
+        base = norm(code)
+        prefix, _, tail = base.partition(".")
+        alts = by_tail.get(tail, []) + [f"{p} (provisional)" for p in prov_by_tail.get(tail, [])]
+        if alts:
+            near_misses[code] = sorted(alts)[:5]
+            continue
+        verb = match_verb(tail, verbs)
+        ttype = match_task_type(tail, ttypes)
+        subj_ok = prefix in subjects
+        if verb and subj_ok:
+            conforming[code] = {
+                "as": "event", "type": verb, "subject": prefix,
+                "migration_entry": {base: {"as": "event", "type": verb, "subject": prefix}},
+            }
+        elif ttype and subj_ok:
+            conforming[code] = {
+                "as": "task", "type": ttype, "subject": prefix,
+                "migration_entry": {base: {"as": "task", "type": ttype, "subject": prefix}},
+            }
+        else:
+            reasons = []
+            if not subj_ok:
+                reasons.append(f"unregistered subject {prefix!r}")
+            if not verb and not ttype:
+                reasons.append("no registered verb or task type in tail")
+            nonconforming[code] = "; ".join(reasons) or "plain data field — needs spec mapping or gap flag"
+    return near_misses, conforming, nonconforming
+
+
 def extract_bullet_codes(text):
     """Codes listed in the 'Engineering vocabulary is provisional' bullet."""
     m = re.search(
@@ -105,12 +171,19 @@ def main():
     false_alarms = sorted(bullet_norm - truly_unregistered)
     omissions = sorted(truly_unregistered - bullet_norm)
 
+    near_misses, conforming, nonconforming = analyze_missing(result["missing"], vocab)
+
     report = {
         "policy": args.policy,
         "total_codes": len(codes),
         "registered": {k: len(result[k]) for k in ("field", "event", "task")},
         "provisional": result["provisional"],
         "missing": result["missing"],
+        "missing_analysis": {
+            "near_misses": near_misses,
+            "conforming": conforming,
+            "nonconforming": nonconforming,
+        },
         "bullet": {
             "codes_listed": len(bullet),
             "false_alarms": false_alarms,
@@ -129,8 +202,18 @@ def main():
         for c in result["provisional"]:
             print(f"    - {c}")
         print(f"  missing (unknown everywhere): {len(result['missing'])}")
-        for c in result["missing"]:
-            print(f"    - {c}")
+        if near_misses:
+            print(f"    NEAR-MISSES (reuse the registered code instead): {len(near_misses)}")
+            for c, alts in near_misses.items():
+                print(f"      - {c}  →  {', '.join(alts)}")
+        if conforming:
+            print(f"    CONFORMING (grammar-valid; paste into vocab-migration.json): {len(conforming)}")
+            for c, info in conforming.items():
+                print(f"      - {c}  →  {json.dumps(info['migration_entry'])}")
+        if nonconforming:
+            print(f"    NONCONFORMING (rename, map, or flag as gap): {len(nonconforming)}")
+            for c, why in nonconforming.items():
+                print(f"      - {c}  ({why})")
         if false_alarms:
             print(f"  bullet FALSE ALARMS (listed as missing but registered): {len(false_alarms)}")
             for c in false_alarms:

@@ -1,0 +1,10 @@
+{"event": "run_start", "ts": 1780682824.7623465, "ts_iso": "2026-06-05T18:07:04Z", "wall_elapsed_s": 0.0}
+{"event": "deps_checked", "ts": 1780682824.7983966, "wall_elapsed_s": 0.036}
+{"event": "manifest_read", "ts": 1780682824.8198247, "wall_elapsed_s": 0.057}
+{"event": "policy_started", "ts": 1780682824.8430107, "wall_elapsed_s": 0.081, "phase": "fair-lending", "detail": {"slug": "fair-lending"}}
+{"event": "prep_done", "ts": 1780682824.9714086, "wall_elapsed_s": 0.209, "phase": "fair-lending"}
+{"event": "policy_generated", "ts": 1780683187.092694, "wall_elapsed_s": 362.33, "phase": "fair-lending", "detail": {"output_chars": "58050"}}
+{"event": "policy_validated", "ts": 1780683187.1121807, "wall_elapsed_s": 362.35, "phase": "fair-lending", "detail": {"corrective_pass": "true"}}
+{"event": "policy_written", "ts": 1780683187.131313, "wall_elapsed_s": 362.369, "phase": "fair-lending"}
+{"event": "status_md_written", "ts": 1780683206.672538, "wall_elapsed_s": 381.91}
+{"event": "run_end", "ts": 1780683206.6900327, "wall_elapsed_s": 381.928}
