@@ -14,67 +14,67 @@
 policies:
   - folder: audit
     slug: audit
-    enabled: true
+    enabled: false
     notes: "Internal/external audit program."
 
   - folder: basel-ii-standardized-approach-framework
     slug: basel-ii-standardized-approach-framework
-    enabled: true
+    enabled: false
     notes: "Basel II standardized approach capital framework."
 
   - folder: bsa
     slug: bsa
-    enabled: true
+    enabled: false
     notes: "BSA/AML/CFT program — CIP, CDD/EDD, OFAC sanctions, SAR/CTR."
 
   - folder: business-continuity-plan
     slug: business-continuity-plan
-    enabled: true
+    enabled: false
     notes: "Business continuity / disaster recovery."
 
   - folder: capitalization
     slug: capitalization
-    enabled: true
+    enabled: false
     notes: "Capital adequacy, net worth, PCA."
 
   - folder: cash
     slug: cash
-    enabled: true
+    enabled: false
     notes: "Cash control, handling, vault/teller, cash management."
 
   - folder: charitable-donation-accounts
     slug: charitable-donation-accounts
-    enabled: true
+    enabled: false
     notes: "NCUA charitable donation accounts."
 
   - folder: collections
     slug: collections
-    enabled: true
+    enabled: false
     notes: "First-party + third-party agency collections oversight."
 
   - folder: compliance
     slug: compliance
-    enabled: true
+    enabled: false
     notes: "Compliance management system."
 
   - folder: director-fiduciary-duties
     slug: director-fiduciary-duties
-    enabled: true
+    enabled: false
     notes: "Board/director fiduciary duties & conflicts of interest (Reg O/W, bank bribery)."
 
   - folder: e-commerce
     slug: e-commerce
-    enabled: true
+    enabled: false
     notes: "Online/mobile banking, website, electronic delivery."
 
   - folder: electronic-payment-systems
     slug: electronic-payment-systems
-    enabled: true
+    enabled: false
     notes: "ACH / wires / cards / electronic payments."
 
   - folder: enterprise-risk-management
     slug: enterprise-risk-management
-    enabled: true
+    enabled: false
     notes: "Enterprise risk management framework."
 
   - folder: fair-lending
@@ -84,60 +84,60 @@ policies:
 
   - folder: information-security
     slug: information-security
-    enabled: true
+    enabled: false
     notes: "Information security / cybersecurity program."
 
   - folder: internal-controls
     slug: internal-controls
-    enabled: true
+    enabled: false
     notes: "Internal control framework (segregation of duties, reconciliations)."
 
   - folder: investment
     slug: investment
-    enabled: true
+    enabled: false
     notes: "Investment portfolio policy."
 
   - folder: lending
     slug: lending
-    enabled: true
+    enabled: false
     notes: "General lending program."
 
   - folder: liquidity
     slug: liquidity
-    enabled: true
+    enabled: false
     notes: "Liquidity risk management + contingency funding."
 
   - folder: member
     slug: member
-    enabled: true
+    enabled: false
     notes: "Membership eligibility, field of membership, account opening."
 
   - folder: privacy
     slug: privacy
-    enabled: true
+    enabled: false
     notes: "Member privacy (GLBA / Reg P)."
 
   - folder: record-retention
     slug: record-retention
-    enabled: true
+    enabled: false
     notes: "Records retention schedule."
 
   - folder: reimbursement-insurance-indemnification
     slug: reimbursement-insurance-indemnification
-    enabled: true
+    enabled: false
     notes: "Official reimbursement, fidelity bond/insurance, indemnification."
 
   - folder: resolution
     slug: resolution
-    enabled: true
+    enabled: false
     notes: "Resolution / recovery planning."
 
   - folder: third-party-risk
     slug: third-party-risk
-    enabled: true
+    enabled: false
     notes: "Third-party / vendor risk management."
 
   - folder: truth-in-savings
     slug: truth-in-savings
-    enabled: true
+    enabled: false
     notes: "Truth in Savings (TISA / Reg DD)."

@@ -1,0 +1,3067 @@
+meta:
+  spec_title: Cassandra Banking Core API (Minimal)
+  spec_version: 2.2.0
+  elements:
+    resources: 57
+    event_types: 104
+    task_types: 28
+    fields: 1301
+    endpoints: 27
+  note: Specific domain codes (e.g. sar.filed, vendor_review) live as `subject` values in vocab-migration.json, not as distinct
+    vocabulary elements.
+
+# ===== resources (unchanged from lean) =====
+resources:
+  Account:
+    kind: banking-core
+    states:
+    - open
+    - frozen
+    - closed
+    properties:
+      account_type:
+        type: string
+      balance:
+        type: number
+      blnk_ledger_id:
+        type: string
+      created_at:
+        type: string
+        format: date-time
+      id:
+        type: string
+      lock_type:
+        type: string
+      maturity_date:
+        type: string
+        format: date-time
+      maturity_disposition:
+        type: string
+      opening_channel:
+        type: string
+      status:
+        type: string
+  AchTransfer:
+    kind: banking-core
+    states:
+    - pending_approval
+    - submitted
+    - settled
+    - returned
+    - rejected
+    - canceled
+    properties:
+      amount:
+        type: number
+      control_results:
+        type: object
+      counterparty:
+        type: string
+      status:
+        type: string
+      window:
+        type: string
+  Address:
+    kind: banking-core
+    properties:
+      city:
+        type: string
+      country:
+        type: string
+      line1:
+        type: string
+      line2:
+        type: string
+      ncoa_candidate:
+        type: string
+      postal_code:
+        type: string
+      region:
+        type: string
+  Beneficiary:
+    kind: banking-core
+    properties:
+      account_number:
+        type: string
+      bank_name:
+        type: string
+      name:
+        type: string
+      routing_number:
+        type: string
+  BookkeepingEntry:
+    kind: banking-core
+    properties:
+      account_code_5300:
+        type: string
+      amount:
+        type: number
+      id:
+        type: string
+      locked_amount:
+        type: number
+      running_balance:
+        type: string
+      schedule_a_code:
+        type: string
+  BsaAlert:
+    kind: banking-core
+    properties:
+      alert_type:
+        type: string
+      details:
+        type: string
+      entity_hash:
+        type: string
+      event_id:
+        type: string
+      id:
+        type: string
+      requires_lookback:
+        type: string
+      status:
+        type: string
+      triage_timer:
+        type: string
+  Card:
+    kind: banking-core
+    properties:
+      id:
+        type: string
+      reissue_request:
+        type: string
+      request_during_address_hold:
+        type: string
+      spend_controls:
+        type: string
+      status:
+        type: string
+  CardAuthorization:
+    kind: banking-core
+    properties:
+      amount:
+        type: number
+      control_results:
+        type: object
+      decline_reason:
+        type: string
+      id:
+        type: string
+      merchant:
+        type: string
+      status:
+        type: string
+  CddProfile:
+    kind: banking-core
+    properties:
+      control_person:
+        type: string
+      expected_activity:
+        type: string
+      industry_code:
+        type: string
+      risk_tier:
+        type: string
+        enum:
+        - low
+        - moderate
+        - high
+      source_of_funds:
+        type: string
+  Counterparty:
+    kind: banking-core
+    properties:
+      name:
+        type: string
+      routing_number:
+        type: string
+  Entity:
+    kind: banking-core
+    states:
+    - pending
+    - active
+    - disabled
+    - archived
+    properties:
+      address:
+        type: string
+      address_change:
+        type: string
+      address_new:
+        type: string
+      address_previous:
+        type: string
+      contact:
+        type: string
+      contact_preference:
+        type: string
+      date_of_birth:
+        type: string
+      disabled:
+        type: string
+      email:
+        type: string
+      esign_consent:
+        type: string
+      id:
+        type: string
+      jurisdiction:
+        type: string
+      name:
+        type: string
+      reg_e_opt_in:
+        type: string
+      status:
+        type: string
+        enum:
+        - pending
+        - active
+        - disabled
+        - archived
+      tin:
+        type: string
+      type:
+        type: string
+  Event:
+    kind: banking-core
+    properties:
+      code:
+        type: string
+      created_at:
+        type: string
+        format: date-time
+      data:
+        type: string
+      entity_hash:
+        type: string
+      id:
+        type: string
+      payload:
+        type: object
+      previous_data:
+        type: object
+      resource_id:
+        type: string
+      type:
+        type: string
+  FboPosition:
+    kind: banking-core
+    properties:
+      balance:
+        type: number
+  InboundPayment:
+    kind: banking-core
+    properties:
+      amount:
+        type: number
+      id:
+        type: string
+      originator:
+        type: string
+  OfacResult:
+    kind: banking-core
+    properties:
+      match_score:
+        type: number
+      match_status:
+        type: string
+      matched_lists:
+        type: string
+  Originator:
+    kind: banking-core
+    properties:
+      name:
+        type: string
+      reference:
+        type: string
+      routing_number:
+        type: string
+  Party:
+    kind: banking-core
+    properties:
+      account_number:
+        type: string
+      bank_name:
+        type: string
+      name:
+        type: string
+      reference:
+        type: string
+      routing_number:
+        type: string
+  PepStatus:
+    kind: banking-core
+    properties:
+      status:
+        type: string
+        enum:
+        - none
+        - pep
+        - family_or_associate
+      subject_role:
+        type: string
+        enum:
+        - applicant
+        - beneficial_owner
+        - signer
+  ProviderResult:
+    kind: banking-core
+    properties:
+      document_verified:
+        type: boolean
+      identity_verified:
+        type: boolean
+  Transfer:
+    kind: banking-core
+    properties:
+      amount:
+        type: integer
+      beneficiary:
+        $ref: '#/schemas/Party'
+      counterparty:
+        $ref: '#/schemas/Party'
+      id:
+        type: string
+      originator:
+        $ref: '#/schemas/Party'
+      rail:
+        type: string
+        enum:
+        - ach
+        - wire
+        - book
+        - card
+        - rtp
+      status:
+        type: string
+        enum:
+        - pending_approval
+        - submitted
+        - settled
+        - returned
+        - rejected
+        - canceled
+      wire:
+        $ref: '#/schemas/WireDetails'
+  User:
+    kind: banking-core
+    properties:
+      employment_status:
+        type: string
+      id:
+        type: string
+      role:
+        type: string
+  Verification:
+    kind: banking-core
+    states:
+    - pending
+    - approved
+    - denied
+    properties:
+      alt_path_available:
+        type: string
+      biometric_consent_id:
+        type: string
+      biometric_declined:
+        type: string
+      biometric_purged:
+        type: string
+      cdd:
+        $ref: '#/schemas/CddProfile'
+      expires_at:
+        type: string
+        format: date-time
+      id:
+        type: string
+      match_status:
+        type: string
+      ofac_result:
+        type: string
+      pep:
+        $ref: '#/schemas/PepStatus'
+      provider:
+        type: string
+      provider_result:
+        type: string
+      status:
+        type: string
+      trust_level:
+        type: string
+      type:
+        type: string
+  WireDetails:
+    kind: banking-core
+    properties:
+      imad:
+        type: string
+      purpose:
+        type: string
+  WireTransfer:
+    kind: banking-core
+    states:
+    - pending_approval
+    - submitted
+    - completed
+    - return_requested
+    - returned
+    - rejected
+    - canceled
+    properties:
+      amount:
+        type: number
+      beneficiary:
+        type: string
+      control_results:
+        type: object
+      imad:
+        type: string
+      purpose:
+        type: string
+      record_retained:
+        type: string
+      status:
+        type: string
+  Case:
+    kind: primitive
+    states:
+    - opened
+    - in_review
+    - closed
+    properties:
+      audit:
+        $ref: '#/schemas/AuditDetail'
+      disclosure:
+        $ref: '#/schemas/DisclosureDetail'
+      escalation:
+        $ref: '#/schemas/EscalationDetail'
+      evidence:
+        type: array
+        items:
+          $ref: '#/schemas/Document'
+      id:
+        type: string
+      owner_id:
+        type: string
+      status:
+        type: string
+        enum:
+        - opened
+        - in_review
+        - closed
+      summary:
+        type: string
+      tasks:
+        type: array
+        items:
+          type: string
+      type:
+        type: string
+        enum:
+        - investigation
+        - sar_decision
+        - escalation
+        - audit_engagement
+        - sar_disclosure_request
+  ControlResult:
+    kind: primitive
+    properties:
+      control_id:
+        type: string
+      decision:
+        type: string
+        enum:
+        - pass
+        - hold
+        - block
+        - reject
+        - clear
+      event:
+        type: string
+      id:
+        type: string
+      matched_lists:
+        type: array
+        items:
+          type: string
+      ofac:
+        $ref: '#/schemas/OfacControlContext'
+      score:
+        type: number
+      subject_ref:
+        type: string
+  Document:
+    kind: primitive
+    properties:
+      attached:
+        type: string
+      curriculum:
+        $ref: '#/schemas/Curriculum'
+      edd:
+        $ref: '#/schemas/EddFile'
+      id:
+        type: string
+      legal_hold_flag:
+        type: boolean
+      mi:
+        $ref: '#/schemas/MiCentralLog'
+      policy:
+        $ref: '#/schemas/PolicyDoc'
+      report:
+        $ref: '#/schemas/BoardPack'
+      retention_anchor:
+        type: string
+        format: date
+      retention_schedule:
+        type: string
+      risk:
+        $ref: '#/schemas/RiskCatalogEntry'
+      subject_ref:
+        type: string
+      type:
+        type: string
+        enum:
+        - bo_certification
+        - risk_profile
+        - edd_file
+        - risk_catalog
+        - policy_version
+        - mi_central_log
+        - curriculum
+        - audit_workpapers
+        - board_pack
+        - vendor_review
+        - vendor_alert
+      vendor:
+        $ref: '#/schemas/VendorReview'
+      vendor_alert:
+        $ref: '#/schemas/VendorAlert'
+  Filing:
+    kind: primitive
+    states:
+    - prepared
+    - submitted
+    - acknowledged
+    - continuing
+    - amended
+    - nil_determined
+    properties:
+      cmir:
+        $ref: '#/schemas/CmirData'
+      control_id:
+        type: string
+      ctr:
+        $ref: '#/schemas/CtrData'
+      fbar:
+        $ref: '#/schemas/FbarData'
+      filed_at:
+        type: string
+        format: date-time
+      filing_id:
+        type: string
+      fincen_314a:
+        $ref: '#/schemas/Fincen314aData'
+      id:
+        type: string
+      ofac:
+        $ref: '#/schemas/OfacReportData'
+      sar:
+        $ref: '#/schemas/SarData'
+      status:
+        type: string
+        enum:
+        - prepared
+        - submitted
+        - acknowledged
+        - continuing
+        - amended
+        - nil_determined
+      type:
+        type: string
+        enum:
+        - ctr
+        - doep
+        - sar
+        - sar_continuing
+        - cmir
+        - fbar
+        - ofac_blocking
+        - ofac_annual
+        - fincen_314a
+  LegalHold:
+    kind: primitive
+    properties:
+      hold_scope:
+        type: string
+      id:
+        type: string
+      matter_id:
+        type: string
+      matter_ref:
+        type: object
+      placed_at:
+        type: string
+        format: date-time
+      release_approved_by:
+        type: string
+      released:
+        type: string
+      released_at:
+        type: string
+        format: date-time
+      schedule_resumed:
+        type: string
+      status:
+        type: string
+  Task:
+    kind: primitive
+    states:
+    - pending
+    - due
+    - completed
+    - overdue
+    properties:
+      due_at:
+        type: string
+        format: date-time
+      id:
+        type: string
+      retention:
+        $ref: '#/schemas/RetentionSpec'
+      status:
+        type: string
+        enum:
+        - pending
+        - due
+        - completed
+        - overdue
+      subject_ref:
+        type: string
+      training:
+        $ref: '#/schemas/TrainingDetail'
+      type:
+        type: string
+        enum:
+        - aan_issuance
+        - access_deprovision
+        - access_review
+        - access_review_due
+        - access_revocation
+        - account_closure_payout
+        - account_freeze_application
+        - account_maturity_notice
+        - ai_register_update
+        - alert_triage
+        - alm_irr_simulation
+        - analytics_method_review
+        - antivirus_log_review
+        - application_decision
+        - appraisal_delivery
+        - audit_assessment_annual
+        - audit_compliance_audit
+        - audit_integrity_check
+        - audit_monthly_schedule
+        - audit_retention
+        - backup_restore_test
+        - backup_verify
+        - badge_deactivation
+        - bcp_annual_review
+        - bia_annual_update
+        - bia_certification
+        - bia_review
+        - board_notification
+        - board_pack
+        - board_report
+        - cab_review
+        - capital_contingency
+        - capital_contingency_memo
+        - capital_icaap
+        - capital_payout_restriction
+        - capital_plan
+        - capital_quarterly_report
+        - capital_ratio_calc
+        - capital_ratio_computation
+        - capital_remediation_plan
+        - capital_stress_report
+        - cash_coverage.attestation
+        - cash_custody.rotation
+        - cash_enterprise_limit.remediation
+        - cash_kri.publish
+        - cash_overshort.investigation
+        - cash_shipment.verification
+        - cash_surprise_count.due
+        - catalogue_sync
+        - cda_audit
+        - cda_board_packet
+        - cda_cap_cure
+        - cda_cap_test
+        - cda_conflict_escalation
+        - cda_distribution
+        - cda_policy_review
+        - cda_posttrade
+        - cda_reconciliation
+        - cda_remediation
+        - cda_termination_report
+        - cda_vendor_review
+        - cdd_refresh
+        - cfp_execution_plan
+        - cfp_investment_test
+        - cfp_transition
+        - change_post_review
+        - claim_carrier_notice
+        - cmdb_update
+        - cmir_filing
+        - coi_certification
+        - coi_questionnaire
+        - collateral_compute
+        - collections_annual_review
+        - collections_attorney_flag
+        - collections_board_report
+        - collections_breach_log
+        - collections_cease_flag
+        - comms_same_day
+        - complaint_ack
+        - complaint_final_response
+        - complaint_initial_response
+        - complaint_resolution
+        - complaint_trend_review
+        - compliance_board_report
+        - compliance_risk_assessment
+        - concentration_compute
+        - concentration_waiver
+        - continuing_sar_review
+        - control_framework_review
+        - core_archive_confirmation
+        - correction_propagation
+        - counteroffer_expiry
+        - credit_box_review
+        - credit_file_reanalysis
+        - credit_report_refresh
+        - crisis_convene
+        - ctr_exemption_review
+        - ctr_filing
+        - disclosure_account_opening
+        - disclosure_change_in_terms
+        - disclosure_error_escalation
+        - disclosure_pillar3
+        - disparity_analysis
+        - dispute_investigation
+        - dispute_provisional_credit
+        - dispute_regulator
+        - dispute_response
+        - document_attachment
+        - dq_tieout
+        - dr_exercise
+        - drill_aar
+        - drill_remediation
+        - ecommerce_risk_assessment
+        - edd_refresh
+        - email_archive_test
+        - eps_board_report.due
+        - eps_deficiency.remediation
+        - eps_incident.ncua
+        - eps_pospay.decision
+        - eps_test.retro
+        - eps_training.self_cert
+        - eps_vendor.dd
+        - eps_vendor.soc1
+        - escalation_ack
+        - escalation_plan
+        - estate_payout
+        - ewi_daily_sweep
+        - ewi_evaluation
+        - ewi_summary
+        - ewi_sweep
+        - ewi_weekly_summary
+        - exception_analytics
+        - exercise_board_report
+        - expense_preapproval
+        - expense_review
+        - facility_annual_test
+        - facility_renewal
+        - facility_test
+        - fair_lending_assessment
+        - fbar_filing
+        - finding_escalation
+        - finding_monthly_review
+        - finding_quarterly_report
+        - finding_remediation
+        - finding_response
+        - firewall_independent_review
+        - firewall_review
+        - funding_first_line
+        - furnishing_cycle
+        - furnishing_dispute
+        - handover_access
+        - handover_access_expiry
+        - handover_full
+        - handover_initial
+        - hmda_lar_qc
+        - hmda_submission
+        - imt_roster_review
+        - incident_ncua_notice
+        - incident_notification
+        - incident_regulator_notification
+        - incident_trend_review
+        - incident_triage
+        - incompleteness_notice
+        - indemnification_advance
+        - indemnification_determination
+        - indemnification_payment
+        - independent_test
+        - insider_loc_approval
+        - insider_public_request_retention
+        - insider_report
+        - institution_freeze_activation
+        - institution_freeze_notice
+        - instrument_list_review
+        - insurance_review
+        - interest_crediting
+        - intermediary_review
+        - lar_compute
+        - limit_set_review
+        - liquidity_cfp_activation
+        - liquidity_report
+        - loan_bankruptcy_chargeoff
+        - loan_classification
+        - loan_courtesy_notice
+        - loan_days_past
+        - loan_fraud_chargeoff
+        - loan_next_payment
+        - loan_nonaccrual
+        - loan_rating_review
+        - loan_re_valuation
+        - loan_right_to_cure
+        - loan_second_reminder
+        - loan_status_memo
+        - member_address_hold
+        - member_credential_expiry
+        - member_portal_readonly
+        - mi_consolidation
+        - mismatch_compute
+        - model_review
+        - monitoring_coverage_review
+        - monitoring_review
+        - ncua_notification
+        - ofac_reporting
+        - overdraft_review
+        - override_analytics
+        - pentest_engagement
+        - performance_attribution
+        - policy_acknowledgment
+        - policy_board_approval
+        - policy_next_review
+        - policy_review
+        - policy_review.due
+        - portfolio_board_report
+        - portfolio_report
+        - portfolio_stress_test
+        - position_analytics_update
+        - position_liquidity_classification
+        - pricing_exception_review
+        - privacy_access_review
+        - privacy_annual_notice
+        - privacy_board_report
+        - privacy_notice_copy
+        - privacy_optout_propagation
+        - privacy_state_request
+        - product_risk_assessment
+        - program_governance_review
+        - rate_sheet_refresh
+        - recon_daily
+        - recon_monthly
+        - record_destruction
+        - record_disposal
+        - record_index
+        - record_integrity_test
+        - records_annual_review
+        - records_board_report
+        - records_package_complete
+        - records_package_snapshot
+        - records_package_start
+        - redflag_review
+        - redlining_review
+        - regulation_inventory_review
+        - regulator_contact_verification
+        - regulator_response
+        - regulator_verification
+        - regulatory_analysis
+        - remediation
+        - repo_collateral_revaluation
+        - report_board
+        - report_board_deck
+        - report_daily
+        - report_daily_pack
+        - report_weekly
+        - report_weekly_digest
+        - reporting_quarterly
+        - resolution_policy_update
+        - resolution_review_due
+        - resolution_test_remediation
+        - resolution_test_report
+        - retention_purge
+        - risk_acceptance_decision
+        - risk_appetite_rereview
+        - risk_appetite_review
+        - risk_assessment
+        - risk_assessment_refresh
+        - risk_breach_committee
+        - risk_breach_committee_presentation
+        - risk_breach_review
+        - risk_breach_triage
+        - risk_reassessment
+        - risk_report_board
+        - risk_report_management
+        - risk_scale_review
+        - rov_decision
+        - safe_mode_activation
+        - safe_mode_propagation
+        - safekeeping_reconciliation
+        - sar_decision
+        - sar_filing
+        - scope_registry_attestation
+        - scope_registry_publish
+        - scope_registry_update
+        - security_downgrade_review
+        - security_fair_value_update
+        - service_first_response
+        - service_resolution
+        - siem_alert_review
+        - signage_review
+        - site_capacity_test
+        - staffing_readiness_review
+        - steering_review
+        - stress_quarterly
+        - stress_rerun
+        - survival_quarterly
+        - takedown
+        - taxonomy_review
+        - tdr_quarterly_review
+        - tdr_review
+        - threat_register_refresh
+        - tls_assessment
+        - tls_certificate
+        - tls_certificate_expiry
+        - trade_reconciliation
+        - training_annual
+        - training_assessment
+        - training_completion
+        - training_due
+        - training_newhire
+        - training_onboarding
+        - training_privacy
+        - training_refresher
+        - training_refresher.due
+        - training_retention
+        - vendor_annual_review
+        - vendor_bcp_evidence
+        - vendor_board_report
+        - vendor_clause_library_review
+        - vendor_concentration_review
+        - vendor_core_review
+        - vendor_dr_attestation
+        - vendor_edd_refresh
+        - vendor_exit_plan
+        - vendor_exit_test
+        - vendor_governance_review
+        - vendor_incident_triage
+        - vendor_inventory_reconciliation
+        - vendor_mi_review
+        - vendor_monitoring_review
+        - vendor_program_audit
+        - vendor_provisional_review
+        - vendor_raci_review
+        - vendor_remediation
+        - vendor_review
+        - verification_biometric_purge
+        - vuln_remediation
+        - vuln_triage
+        - wholesale_compute
+        - wholesale_monthly_review
+        - wholesale_review
+  Incident:
+    kind: domain
+    states:
+    - declared
+    - responding
+    - contained
+    - postmortem
+    - closed
+    properties:
+      bsa_referral_id:
+        type: string
+      cco_signoff:
+        type: string
+      checklist_first_hour:
+        type: string
+      comms_plan:
+        type: object
+      contained:
+        type: string
+      containment_timer:
+        type: string
+      criminal_suspected:
+        type: string
+      data_scope:
+        type: string
+      description:
+        type: string
+      detail:
+        type: object
+      detection_source:
+        type: string
+      discovery_notes:
+        type: string
+      facts:
+        type: string
+      ic_assignment_timer:
+        type: string
+      id:
+        type: string
+      impact_summary:
+        type: object
+      legal_review:
+        type: string
+      member_notice_required:
+        type: boolean
+      member_notice_template:
+        type: string
+      misuse_determined:
+        type: string
+      misuse_likelihood:
+        type: string
+      notice_content:
+        type: string
+      notice_template_id:
+        type: string
+      notification_determined:
+        type: string
+      quarterly_summary:
+        type: object
+      recovered:
+        type: string
+      reportability_assessment:
+        type: string
+      reportability_determination:
+        type: string
+      reportability_rationale:
+        type: string
+      reportable_determined:
+        type: string
+      root_cause:
+        type: string
+      sar_referred:
+        type: string
+      scope:
+        type: string
+      scope_initial:
+        type: string
+      severity:
+        type: string
+      status:
+        type: string
+      summary_id:
+        type: string
+      timeline:
+        type: string
+      triaged:
+        type: string
+  Loan:
+    kind: domain
+    states:
+    - booking_requested
+    - booked
+    - funded
+    properties:
+      accrued_interest:
+        type: string
+      action_basis:
+        type: object
+      balance:
+        type: number
+      bankruptcy_case_id:
+        type: string
+      booking_block_state:
+        type: string
+        enum:
+        - open
+        - cleared
+        - blocked
+      charged_off:
+        type: string
+      chargeoff_due_closed_end:
+        type: string
+      chargeoff_due_open_end:
+        type: string
+      chargeoff_month_end_at:
+        type: string
+        format: date-time
+      classified_substandard:
+        type: string
+      collateral_value:
+        type: string
+      collectibility_assessment:
+        type: string
+      death_loss_estimable:
+        type: string
+      delinquency_day_10:
+        type: string
+      delinquency_day_20:
+        type: string
+      delinquency_day_30:
+        type: string
+      delinquency_day_60:
+        type: string
+      delinquency_day_90:
+        type: string
+      delinquency_engine_run:
+        type: string
+      delinquency_engine_schedule:
+        type: string
+      dpd:
+        type: string
+      dpd_reset:
+        type: string
+      dpd_reset_eligibility_check:
+        type: string
+      estate_claim_status:
+        type: string
+      estimated_recovery:
+        type: string
+      foreclosure_impact_eval:
+        type: string
+      funding_block_state:
+        type: string
+        enum:
+        - open
+        - cleared
+        - blocked
+      grace_period_days:
+        type: string
+      id:
+        type: string
+      io_term_months:
+        type: string
+      last_payment_date:
+        type: string
+        format: date-time
+      ltv:
+        type: number
+      modified_schedule:
+        type: string
+      nonaccrual_placed:
+        type: string
+      past_due_amount:
+        type: number
+      product_type:
+        type: string
+      proposed_modification:
+        type: string
+      repayment_evidence:
+        type: object
+      risk_rating:
+        type: string
+      well_secured_documented:
+        type: string
+      workout_alternatives:
+        type: string
+  LoanApplication:
+    kind: domain
+    states:
+    - created
+    - decisioned
+    - counteroffer
+    - final_action
+    properties:
+      action_basis:
+        type: object
+      amount:
+        type: integer
+      applicant:
+        $ref: '#/schemas/Applicant'
+      atr_qm_result:
+        type: string
+      channel:
+        type: string
+      counteroffer_status:
+        type: string
+        enum:
+        - none
+        - issued
+        - accepted
+        - expired
+      counteroffer_terms:
+        type: object
+      credit_structure:
+        type: object
+      data:
+        type: object
+      decision:
+        $ref: '#/schemas/Decision'
+      decision_block_state:
+        type: string
+        enum:
+        - open
+        - cleared
+        - blocked
+      doc_block_state:
+        type: string
+        enum:
+        - open
+        - cleared
+        - blocked
+      dti:
+        type: number
+      employment:
+        type: object
+      final_action:
+        type: string
+      geography:
+        type: string
+      gmi:
+        type: object
+      id:
+        type: string
+      income_assets:
+        type: object
+      incomplete_aged:
+        type: boolean
+      notified_at:
+        type: string
+        format: date-time
+      option_shortfall_reason:
+        type: string
+      oral_adverse_decision:
+        type: boolean
+      oral_statement:
+        type: string
+      parties:
+        type: array
+        items:
+          $ref: '#/schemas/LoanParty'
+      prequal:
+        $ref: '#/schemas/Prequal'
+      product_code:
+        type: string
+      product_type:
+        type: string
+      requested_terms:
+        type: object
+  Applicant:
+    kind: domain
+    properties:
+      business_revenue_tier:
+        type: string
+      contact:
+        type: object
+      gmi_responses:
+        type: object
+      state:
+        type: string
+  AuditDetail:
+    kind: domain
+    properties:
+      corrective_action:
+        type: string
+      finding_owner:
+        type: string
+  BoardPack:
+    kind: domain
+    properties:
+      bsa_metrics:
+        type: object
+      ofac_metrics:
+        type: object
+      sar_count:
+        type: integer
+      training_metrics:
+        type: object
+  CmirData:
+    kind: domain
+    properties:
+      amount:
+        type: integer
+      counterparty:
+        type: string
+      direction:
+        type: string
+        enum:
+        - inbound
+        - outbound
+      shipment_manifest:
+        type: string
+  CtrData:
+    kind: domain
+    properties:
+      cash_in_total:
+        type: integer
+      cash_out_total:
+        type: integer
+      exemption_basis:
+        type: string
+  Curriculum:
+    kind: domain
+    properties:
+      board_curriculum:
+        type: string
+      curriculum_version:
+        type: string
+      role_curriculum:
+        type: string
+  Decision:
+    kind: domain
+    properties:
+      model_id:
+        type: string
+      score_block:
+        type: object
+  DisclosureDetail:
+    kind: domain
+    properties:
+      request_doc:
+        type: string
+      requester:
+        type: string
+  EddFile:
+    kind: domain
+    properties:
+      approver_id:
+        type: string
+      category_checklist:
+        type: string
+      msb_registration_number:
+        type: string
+      site_visit_report:
+        type: string
+      source_of_wealth:
+        type: string
+  EscalationDetail:
+    kind: domain
+    properties:
+      description:
+        type: string
+      facts:
+        type: string
+      regulatory_assessment:
+        type: string
+      reporter_id:
+        type: string
+      severity:
+        type: string
+        enum:
+        - low
+        - medium
+        - high
+        - critical
+  FbarData:
+    kind: domain
+    properties:
+      account_record:
+        type: object
+      authority_type:
+        type: string
+        enum:
+        - financial_interest
+        - signature_authority
+  Fincen314aData:
+    kind: domain
+    properties:
+      counterpart_registration:
+        type: string
+      request_scope:
+        type: string
+  LoanParty:
+    kind: domain
+    properties:
+      contact:
+        type: object
+      identity:
+        type: object
+      ofac_potential_match:
+        type: boolean
+      ofac_result:
+        $ref: '#/schemas/OfacResult'
+      ofac_status:
+        type: string
+        enum:
+        - pending
+        - screened
+        - cleared
+        - potential_match
+        - escalated
+  MiCentralLog:
+    kind: domain
+    properties:
+      amount:
+        type: integer
+      instrument_type:
+        type: string
+        enum:
+        - cashiers_check
+        - money_order
+        - draft
+      purchaser_id_number:
+        type: string
+  OfacControlContext:
+    kind: domain
+    properties:
+      hotline_record:
+        type: string
+      list_version:
+        type: string
+  OfacReportData:
+    kind: domain
+    properties:
+      blocked_property:
+        type: object
+      payment_instructions:
+        type: string
+  PolicyDoc:
+    kind: domain
+    properties:
+      authority_statement:
+        type: string
+      bsa_officer_id:
+        type: string
+      change_summary:
+        type: string
+      raci_registry:
+        type: object
+      version:
+        type: string
+  Prequal:
+    kind: domain
+    properties:
+      criteria_version:
+        type: string
+      inputs:
+        type: object
+      product_mapping:
+        type: object
+  RetentionSpec:
+    kind: domain
+    properties:
+      anchor_date:
+        type: string
+        format: date
+      record_type:
+        type: string
+      schedule:
+        type: string
+        enum:
+        - 5y_bsa
+        - 10y_ofac
+  RiskCatalogEntry:
+    kind: domain
+    properties:
+      candidate_profile:
+        type: string
+      geography_factors:
+        type: string
+      inherent_score:
+        type: number
+      partner_dependency:
+        type: string
+  SarData:
+    kind: domain
+    properties:
+      narrative:
+        type: string
+      prior_filing_id:
+        type: string
+  TrainingDetail:
+    kind: domain
+    properties:
+      hire_date:
+        type: string
+        format: date
+  VendorAlert:
+    kind: domain
+    properties:
+      alert_details:
+        type: object
+      impact_scope:
+        type: string
+  VendorReview:
+    kind: domain
+    properties:
+      contract_terms:
+        type: string
+      dd_package:
+        type: string
+      efficacy_results:
+        type: object
+
+# ===== fields (flat payload vocabulary) =====
+fields:
+  access.agent_identity: string
+  access.authenticated: string
+  access.breakglass_id: string
+  access.breakglass_justification: string
+  access.breakglass_reviewed: string
+  access.breakglass_used: string
+  access.capacity_targets: string
+  access.justification: string
+  access.last_reviewed_at: string
+  access.manager_approval: string
+  access.poa_artifact_id: string
+  access.poa_validated: string
+  access.refused: string
+  access.remote_config: object
+  access.requested: string
+  access.review_attestation: string
+  access.review_timer: string
+  access.reviewer_roster: object
+  access.revoked: string
+  access.role_denied: string
+  access.role_entitlements: string
+  access.role_id: string
+  access.roster: string
+  access.suspended: string
+  access.user_roster: object
+  access_right.approved_by: string
+  account_freeze.legal_process_reference: string
+  account_freeze.order_reference: string
+  account_freeze.release_reference: string
+  ad.audience_definition: string
+  ad.creative: string
+  advertising.approval_id: string
+  advertising.asset_id: string
+  advertising.medium: string
+  affiliate.asset_quality_classification: string
+  affiliate.collateral_type: string
+  affiliate.independent_evaluation: string
+  affiliate.limit_utilization: string
+  affiliate.list: string
+  affiliate.list_entry: string
+  affiliate.market_terms_basis: string
+  affiliate.required_coverage_ratio: number
+  affiliate.transaction_amount: number
+  affiliate.transaction_file_archived: string
+  affiliate.transaction_type: string
+  ai.approval_record: object
+  ai.disclosure_channel: string
+  ai.disclosure_text: string
+  ai.dpia_ref: object
+  ai.use_case: string
+  alco.meeting_convened: string
+  alert.concentration_breach: string
+  alert.dq_variance: string
+  alert.facility_readiness_aging: string
+  alert.headroom_low: string
+  alert.lar_band_change: string
+  alert.mismatch_breach: string
+  alert.ncua_notification_aging: string
+  alert.policy_review_aging: string
+  alert.regulator_request_aging: string
+  alert.survival_low: string
+  alert.wholesale_pricing_violation: string
+  aml.case.referred: string
+  analytics.assessment_area: string
+  analytics.board_pack_inputs: object
+  analytics.breach_detail: object
+  analytics.cohort_threshold: string
+  analytics.deid_method_id: string
+  analytics.geo_lending_dataset: string
+  analytics.group_estimators: string
+  analytics.lending_dataset: string
+  analytics.reid_risk_assessment: string
+  analytics.source_scope: string
+  antivirus.definitions_version: string
+  antivirus.detection: string
+  antivirus.signature: string
+  appraisal.document: string
+  appraisal.value: number
+  asset.attributes: string
+  asset.classification: string
+  asset.cmdb_snapshot: object
+  asset.media_type: string
+  asset.owner: string
+  asset.owner_roster: object
+  audit.access_request_detail: object
+  audit.annual_plan_id: string
+  audit.annual_results_summary: object
+  audit.assessment_type: string
+  audit.budget_status: string
+  audit.cae_personnel_action: string
+  audit.critical_exposure_identified: string
+  audit.distribution_list: string
+  audit.engagement_cost: string
+  audit.engagement_scope: string
+  audit.findings_routed_to_board: string
+  audit.frequency_increased: string
+  audit.independence_escalation_raised: string
+  audit.integrity_timer: string
+  audit.legal_hold_status: string
+  audit.manual_updates: string
+  audit.overall_rating: string
+  audit.record_written: string
+  audit.report_distributed: string
+  audit.report_finalized: string
+  audit.report_id: string
+  audit.resource_assessment: string
+  audit.results_delivered_to_board: string
+  audit.retention_extended: string
+  audit.schedule_finalized: string
+  audit.scope_change_documented: string
+  audit.scope_change_identified: string
+  audit.scope_change_rationale: string
+  audit.tentative_schedule: string
+  auditor.access_denial_detail: object
+  auditor.access_denied: string
+  auditor.access_grant: string
+  auditor.independence_attestation: string
+  aup.revision_summary: object
+  authority.change_rationale: string
+  authority.finance_concurrence: string
+  authority.matrix_entry: string
+  authority_matrix.role_limits: string
+  backup.catalog: string
+  backup.job_detail: object
+  backup.rpo_monitor: string
+  backup.tier_config: object
+  balance.disclosed: string
+  balances.inflight_balance: string
+  bcp.plan_version: string
+  bia.criticality: string
+  bia.member_impact: string
+  bia.reg_dependency: string
+  board.agenda_id: string
+  board.agenda_item_flagged_conflicted: string
+  board.disinterested_quorum: string
+  board.meeting_date: string
+  board.meeting_held: string
+  board.package_distributed: string
+  board.resolution_id: string
+  breach.owner: string
+  bureau.discrepancy_artifact_id: string
+  byod.encryption_status: string
+  byod.mdm_status: string
+  cap.approval_timer: string
+  cap.retest_plan: object
+  capital.action_amount: number
+  capital.action_analysis_id: string
+  capital.action_analyzed: string
+  capital.action_type: string
+  capital.afs_unrealized_gl: string
+  capital.allowance_balance: string
+  capital.board_resolution_id: string
+  capital.breached_trigger: string
+  capital.budget_assumptions: string
+  capital.buffer_assessed: string
+  capital.buffer_eroded: string
+  capital.buffer_requirement: string
+  capital.buffer_shortfall: string
+  capital.ccyb_level: string
+  capital.cet1_ratio: number
+  capital.concentration_exposures: string
+  capital.contingency_action_id: string
+  capital.contingency_referred: string
+  capital.credit_growth_threshold_crossed: string
+  capital.dividend_limit: string
+  capital.dividend_schedule: string
+  capital.dta_balance: string
+  capital.eligible_retained_income: string
+  capital.expected_capital_impact: string
+  capital.failing_scenario: string
+  capital.general_reserves: string
+  capital.goodwill: string
+  capital.icaap_cco_signoff: string
+  capital.icaap_report_id: string
+  capital.instrument_terms: object
+  capital.intangibles_balance: string
+  capital.irr_measures: string
+  capital.max_payout_ratio: number
+  capital.payout_restricted: string
+  capital.payout_restriction_schedule: string
+  capital.pca_category: string
+  capital.pca_mandatory_actions: string
+  capital.perpetual_preferred: string
+  capital.plan_id: string
+  capital.prior_plan_id: string
+  capital.prior_ratios: string
+  capital.proforma_ratios: string
+  capital.projected_shortfall: string
+  capital.projection_below_target: string
+  capital.projection_below_well_capitalized: string
+  capital.proposed_ccyb_level: string
+  capital.proposed_distribution_amount: number
+  capital.proposed_tier: string
+  capital.quarterly_report_id: string
+  capital.ratio_below_target: string
+  capital.ratio_record_id: string
+  capital.ratio_tier1_leverage: string
+  capital.ratio_tier1_rwa: string
+  capital.ratio_total_rbc: string
+  capital.ratios_calculated: string
+  capital.ratios_computed: string
+  capital.recovery_plan_draft: string
+  capital.regulatory_minima: string
+  capital.regulatory_preapproval_id: string
+  capital.regulatory_preapproval_status: string
+  capital.retained_earnings: string
+  capital.revaluation_reserves: string
+  capital.rwa_total: number
+  capital.stress_assumptions: string
+  capital.stress_report_id: string
+  capital.subordinated_debt: string
+  capital.target_tier1_leverage: string
+  capital.target_tier1_rwa: string
+  capital.target_total_rbc: string
+  capital.tier1_total: number
+  capital.tier2_total: number
+  capital.trigger_schedule: string
+  capital.undivided_earnings: string
+  cash.asset.count: number
+  cash.asset.descriptor: string
+  cash.asset.limit: string
+  cash.counter.user_id: string
+  cash.coverage.registry: string
+  cash.custodian.user_id: string
+  cash.custody.revoked: string
+  cash.custody.rotated: string
+  cash.deviation.period: string
+  cash.deviation.reason: string
+  cash.deviation.requested: string
+  cash.deviation.sunset_at: string
+  cash.device.serviced: string
+  cash.duty.restricted: string
+  cash.enterprise_limit.pct: string
+  cash.enterprise_limit.warning: string
+  cash.enterprise_position.computed: string
+  cash.enterprise_position.excess: string
+  cash.enterprise_position.headroom: string
+  cash.evidence.retained: string
+  cash.exception_register: string
+  cash.keybox.reason: string
+  cash.kri.trend: string
+  cash.limit_block.alerted: string
+  cash.limits_schedule: string
+  cash.limits_schedule.effective: string
+  cash.limits_whitelist.entry: string
+  cash.limits_whitelist.sunset: string
+  cash.load.overage: string
+  cash.load.requested: string
+  cash.location_limit.exceeded: string
+  cash.nightdrop.retrieved: string
+  cash.overshort.cumulative: string
+  cash.overshort.monthly_summary: object
+  cash.overshort.pattern: string
+  cash.overshort.research_notes: string
+  cash.overshort.threshold_crossed: string
+  cash.overshort.thresholds: string
+  cash.overshort.unresolved: string
+  cash.recon.research_notes: string
+  cash.recon.variance: string
+  cash.recon.variance_found: string
+  cash.remediation.plan: string
+  cash.seal.expected: string
+  cash.seal.found: string
+  cash.seal.mismatch: string
+  cash.shipment.dispatched: string
+  cash.surprise_count.variance: string
+  catalogue.failure_reason: string
+  catalogue.formula: string
+  catalogue.lineage: string
+  catalogue.metrics_flagged_provisional: string
+  cda.account_789h_mapping: string
+  cda.account_label: string
+  cda.actions_blocked: string
+  cda.aggregate_book_value: string
+  cda.agreement_distribution_clause: string
+  cda.agreement_gaap_clause: string
+  cda.agreement_redline: string
+  cda.agreement_strategy_clause: string
+  cda.agreement_validated: string
+  cda.asset_details: string
+  cda.audit_finding: string
+  cda.cap_breach_cured: string
+  cda.cap_buffer_pct: string
+  cda.cap_excess_amount: number
+  cda.communication_archived: string
+  cda.communication_draft: string
+  cda.conflict_details: string
+  cda.contract_termination_clause: string
+  cda.contract_transfer_steps: string
+  cda.cure_plan: object
+  cda.custodian_statement: string
+  cda.distribution_amount: number
+  cda.distribution_shortfall: string
+  cda.distribution_window_alert: string
+  cda.distributions_cumulative: string
+  cda.donee_ein: string
+  cda.donee_irs_status: string
+  cda.donee_validated: string
+  cda.fee_amount: number
+  cda.fee_payee: string
+  cda.final_accounting: string
+  cda.funding_amount: number
+  cda.funding_gate_evaluated: string
+  cda.gl_balances: string
+  cda.glossary_citation: string
+  cda.glossary_term: string
+  cda.glossary_version: string
+  cda.independent_pricing: string
+  cda.inkind_transfer_evaluated: string
+  cda.net_worth: string
+  cda.overlay_limits: string
+  cda.permissibility_determination: string
+  cda.policy_expiry_at: string
+  cda.policy_readopted: string
+  cda.policy_version: string
+  cda.portfolio_composition: string
+  cda.portfolio_performance: string
+  cda.preparer_id: string
+  cda.proposal_packet: string
+  cda.remediation_owner: string
+  cda.risk_assessment: string
+  cda.strategy_limits: string
+  cda.structure_selected: string
+  cda.structure_type: string
+  cda.total_return_cumulative: string
+  cda.trade_details: string
+  cda.vendor_aum: string
+  cda.vendor_bcp_dr: string
+  cda.vendor_contract_validated: string
+  cda.vendor_dd_file: string
+  cda.vendor_fee_disclosures: string
+  cda.vendor_financials: string
+  cda.vendor_issue_details: string
+  cda.vendor_qualified: string
+  cda.vendor_registration_evidence: object
+  cda.vendor_registration_lapsed: string
+  cda.vendor_registration_status: string
+  cda.vendor_regulator: string
+  cda.vendor_revalidated: string
+  cda.vendor_soc_iso: string
+  cda.wcag_checklist: string
+  cda.window_close_at: string
+  cda.window_coverage_pct: string
+  cfp.execution_plan_documented: string
+  cfp.liquidation_hierarchy: string
+  change.backout_plan: object
+  change.deployment_record: object
+  change.emergency_approval_timer: string
+  change.emergency_justification: string
+  change.requested: string
+  change.rollback_plan: object
+  change.test_evidence: object
+  claim.record_scope: string
+  claim.resolution_record: object
+  coi.adhoc_form: string
+  coi.attestation_date: string
+  coi.attestation_signature: string
+  coi.conflict_identified: string
+  coi.conflicted_matter_voted: string
+  coi.determination_made: string
+  coi.independent_review: string
+  coi.interest_description: string
+  coi.matter_reference: string
+  coi.questionnaire_responses: string
+  coi.questionnaire_version: string
+  coi.recusal_noticed: string
+  coi.recusal_record: object
+  coi.register_entry_id: string
+  coi.related_party: string
+  collateral.cost_to_sell: string
+  collateral.counterparty_id: string
+  collateral.eligibility_rules: object
+  collateral.fair_value: string
+  collateral.headroom_computed: string
+  collateral.headroom_rechecked: string
+  collateral.inventory: string
+  collateral.move_detail: object
+  collateral.pledge_schedule: string
+  collateral.position_id: string
+  collateral.property: string
+  collateral.unencumbered_balance: string
+  collections.attorney_identified: string
+  collections.collector_id: string
+  collections.contact_attempted: string
+  collections.contact_channel: string
+  collections.contact_frequency_7d: string
+  collections.contact_gate_check: string
+  collections.contact_gated: string
+  collections.contact_outcome: string
+  collections.member_notes: string
+  collections.past_due_note_retained: string
+  collections.policy_bound: string
+  collections.policy_breach_identified: string
+  comms.ceo_approval: string
+  comms.compliance_review: string
+  comms.contact_tree: string
+  comms.draft_script: string
+  comms.holding_statement: string
+  comms.initial_timer: string
+  comms.inquiry_detail: object
+  comms.stakeholder_matrix: object
+  comms.statuspage_playbook: string
+  complaint.category: string
+  complaint.final_response_pending: string
+  complaint.investigation_notes: string
+  complaint.member_id: string
+  complaint.portal_due_date: string
+  complaint.root_cause_tag: string
+  complaint.trend_summary: object
+  complaint.udaap_flag: boolean
+  compliance.board_report_id: string
+  compliance.change_rationale: string
+  compliance.disparity_thresholds: string
+  compliance.officer_vacancy: string
+  concentration.computed: string
+  concentration.excess_amount: number
+  concentration.limit_exceeded: string
+  concentration.position_id: string
+  concentration.reviewer_id: string
+  concentration.top10: string
+  concentration.waiver_request: string
+  concentration.waiver_terms: object
+  config.baseline_id: string
+  config.drift_detail: object
+  confirmation.terms: string
+  connection.access_log_id: string
+  connection.party_id: string
+  connection.suspended: string
+  connection.token_revoked: string
+  control.owner_vacancy_timer: string
+  control.owner_vacated: string
+  control.register: string
+  control.vacancy_reason: string
+  core_archive.retention_config: object
+  corp_opportunity.authority_assessment: string
+  corp_opportunity.board_voted: string
+  corp_opportunity.identified: string
+  corp_opportunity.presented: string
+  correction.evidence_artifact_id: string
+  correction.propagated: string
+  covered_person.designated: string
+  covered_person.effective_date: string
+  credit_box.definition: string
+  credit_config.approval_id: string
+  credit_config.diff: string
+  credit_config.dti_tiers: string
+  credit_config.fico_bands: string
+  credit_config.ltv_matrix: object
+  credit_config.margins: string
+  credit_config.seasoning_rules: object
+  credit_file.internal_rating: string
+  credit_file.issuer_analysis: string
+  credit_package.schema: string
+  credit_report.report_date: string
+  credit_report.score_disclosure: string
+  crisis.authority_basis: string
+  crisis.board_quorum: string
+  crisis.decider_id: string
+  crisis.decision_detail: object
+  crisis.measure_detail: object
+  crisis.roster: string
+  crisis.succession_matrix: object
+  crisis.team_convened: string
+  crypto.config: string
+  csa.cycle_timer: string
+  csa.prior_results: object
+  cu.unimpaired_capital_surplus: string
+  deficiency.aging_report: string
+  deficiency.plan_timer: string
+  deficiency.reopened: string
+  deficiency.retest_result: string
+  deficiency.source: string
+  destruction_log.entry_id: string
+  disclosure.artifact_id: string
+  disclosure.basis_blocked: string
+  disclosure.change_description: string
+  disclosure.change_effective_date: string
+  disclosure.change_in_terms.classified_nonadverse: string
+  disclosure.classification_basis: string
+  disclosure.delivered_at: string
+  disclosure.error_description: string
+  disclosure.error_root_cause: string
+  disclosure.legal_basis: string
+  disclosure.rate_available_date: string
+  disclosure.requested: string
+  disclosure.retirement_reason: string
+  disclosure.template_archived: string
+  disclosure.template_id: string
+  disclosure.template_retired: string
+  disclosure.vendor_basis_check: string
+  disclosure.vt_optin_check: string
+  disclosure.vt_optin_enforced: string
+  disposal.batch_manifest_id: string
+  disposal.clock_resumed: string
+  disposal.held: string
+  disposal.method: string
+  dispute.basis: string
+  dispute.category: string
+  dispute.correction_amount: number
+  dispute.findings: string
+  dispute.idtheft_report: string
+  dispute.regulator_case_id: string
+  dispute.regulator_routed: string
+  dlp.violation_detail: object
+  dq.variance_amount: number
+  dr.plan: string
+  dr.rto_rpo_matrix: object
+  drill.affected_capability: string
+  drill.failure_detail: object
+  drill.objectives: string
+  drill.remediation_item: string
+  drill.remediation_owner: string
+  drill.roster: string
+  ecommerce.login_attempted: string
+  ecommerce.session_authenticated: string
+  elc.approval_packet: string
+  employee.onboarded: string
+  employee.terminated: string
+  enrollment.applicant_identity: string
+  enrollment.identity_evidence: object
+  enrollment.member_number_match: boolean
+  eps.auth.challenged: string
+  eps.auth.credentials: string
+  eps.auth.device_registered: string
+  eps.auth.failure_count: number
+  eps.auth.failure_threshold_reached: string
+  eps.bcp_test.scenario: string
+  eps.card.fraud_score: number
+  eps.card.institution_limits: string
+  eps.change.exception_approval: string
+  eps.change.rollback_plan: object
+  eps.client.ach_exposure_limit: string
+  eps.client.ach_template_only: string
+  eps.client.contacts: string
+  eps.client.education_applicable: string
+  eps.client.onboarded: string
+  eps.client.self_admin_agreement: string
+  eps.client.wire_daily_limit: string
+  eps.control_review.checklist: string
+  eps.control_review.deficiency_found: string
+  eps.control_review.prior_findings: string
+  eps.dashboard.deposit_ops: string
+  eps.dashboard.it: string
+  eps.deficiency.open_list: string
+  eps.deficiency.rating: string
+  eps.deployment.emergency_exception: string
+  eps.erm_review.convened: string
+  eps.fraud.industry_alerts: string
+  eps.fraud.loss_data: object
+  eps.incident.impact: string
+  eps.incident.vendor_linked: string
+  eps.it_audit.prior_findings: string
+  eps.it_committee.convened: string
+  eps.limit_change.justification: string
+  eps.pospay.issue_file: string
+  eps.pospay.presented_item: string
+  eps.product_risk_analysis.drafted: string
+  eps.proposal.design_docs: string
+  eps.proposal.sponsor: string
+  eps.proposal.study_doc: string
+  eps.risk_assessment.delta: string
+  eps.staffing.backup_map: string
+  eps.staffing.critical_roles: string
+  eps.summary.ebanking: string
+  eps.test.defects: string
+  eps.test.interop_scope: string
+  eps.test.plan: string
+  eps.test.results: string
+  eps.test.risk_acceptance: string
+  eps.test.signed_off: string
+  eps.training.employee_plan: object
+  eps.training.guide_version: string
+  eps.training.self_cert_form: string
+  eps.vendor.cuec_list: string
+  eps.vendor.dd_summary: object
+  eps.vendor.encryption_reqs: string
+  eps.vendor.issue_description: string
+  eps.vendor.issue_identified: string
+  eps.vendor.issue_severity: string
+  eps.vendor.performance_metrics: object
+  eps.vendor.soc1_report: string
+  eps.vendor.test_participation: string
+  eps.wire.originator_id: string
+  eps.wire.release_pin: string
+  eps.wire.second_approval: string
+  estate.authority_document_ref: object
+  estate.benefit_received_postmortem: string
+  estate.claim_documented: string
+  estate.claim_form_ref: object
+  estate.claimant_verification_id: string
+  estate.date_of_death: string
+  estate.death_certificate_ref: object
+  ewi.evaluated: string
+  ewi.evaluation_schedule: string
+  ewi.history: string
+  ewi.indicator_id: string
+  ewi.prior_breach_state: string
+  ewi.threshold_recovered: string
+  ewi.trend: string
+  ewi.value: number
+  exam.export.requested: string
+  exam.report_id: string
+  exception.expiring: string
+  exception.expiry_timer: string
+  exception.rationale: string
+  exception.registered: string
+  exception.reverted: string
+  exception.risk_acceptance: string
+  expense.category: string
+  expense.estimated_amount: number
+  expense.preapproval_id: string
+  expense.report_id: string
+  exposure.by_counterparty: string
+  exposure.by_issuer: string
+  exposure.by_sector: string
+  expulsion.decided_by: string
+  expulsion.grounds: string
+  expulsion.hearing_requested_at: string
+  expulsion.meeting_date: string
+  expulsion.reconsideration_requested_at: string
+  facility.access_approval: string
+  facility.badge_id: string
+  facility.cctv_ref: object
+  facility.collateral_schedule: string
+  facility.contacts: string
+  facility.test_script: string
+  facility.visit_purpose: string
+  facility.visitor_identity: string
+  facility.zone: string
+  fair_lending.dataset_version: string
+  fair_lending.finding_id: string
+  fee.overdraft.pending: string
+  fee.overdraft.suppressed: string
+  fee.ytd_total: number
+  finding.closure_evidence: object
+  finding.communicated: string
+  finding.department: string
+  finding.identified: string
+  finding.implementation_date: string
+  finding.management_response: string
+  finding.open_report: string
+  finding.owner: string
+  finding.remediation_evidence: object
+  finding.remediation_status: string
+  finding.responsible_party: string
+  finding.risk_acceptance_package: string
+  finding.risk_acceptance_rationale: string
+  finding.tracked: string
+  form.template_diff: string
+  fraud.investigation_id: string
+  funding.draw_amount: number
+  funding.draw_order_deviated: string
+  funding.next_source: string
+  funding.shortfall_estimate: string
+  funding.source_unavailable: string
+  funding.unavailability_reason: string
+  furnishing.correction_identified: string
+  furnishing.disputed_account: string
+  furnishing.file_transmitted: string
+  gift.board_report_compiled: string
+  gift.disposition: string
+  gift.estimated_value: string
+  gift.record_entry_id: string
+  gift.source_party: string
+  gift.threshold_comparison: string
+  gl.balance_sheet_snapshot: object
+  gl.balances: string
+  gl.cash_in_transit.entry: string
+  gl.cash_suspense.aged: string
+  gl.cash_suspense.aging_timer: string
+  gl.cash_suspense.item: string
+  gl.coa_map: string
+  gl.correction.txn_id: string
+  gl.loan_growth_yoy: string
+  gl.total_assets: string
+  gl.total_loans: string
+  gl.total_shares: string
+  gl.trial_balance: string
+  handover.access_scope: string
+  handover.appointment_reference: string
+  handover.appointment_status: string
+  handover.personnel_roster: object
+  handover.trustee_access_grant_id: string
+  handover.trustee_access_provisioned: string
+  handover.trustee_action: string
+  handover.trustee_contact: string
+  handover.trustee_credential_id: string
+  handover.trustee_identity: string
+  hazard.feed_detail: object
+  hazard.watch_raised: string
+  hmda.submission_window_open: string
+  hr.user.hired_covered_role: string
+  icaap.capital_projections: string
+  icaap.irr_measures: string
+  icaap.material_risk_identified: string
+  icaap.new_risk_assessment: string
+  indemnification.advance.disbursed: string
+  indemnification.advance.requested: string
+  indemnification.advance_balance: string
+  indemnification.claim.notified: string
+  indemnification.conduct_record: object
+  indemnification.counsel_opinion: string
+  indemnification.decision_body: string
+  indemnification.decision_body.selected: string
+  indemnification.defense_budget: string
+  indemnification.defense_invoice: string
+  indemnification.disposition_record: object
+  indemnification.enforcement_status: string
+  indemnification.expense_statement: string
+  indemnification.federal_screen_result: string
+  indemnification.liability_terms: object
+  indemnification.matter.resolved_favorably: string
+  indemnification.payment.blocked: string
+  indemnification.payment.disbursed: string
+  indemnification.recusal_record: object
+  indemnification.repayment.demanded: string
+  indemnification.request: string
+  indemnification.request.routed: string
+  indemnification.standard_determination.made: string
+  indemnification.undertaking: string
+  insider.aggregate_credit_amount: number
+  insider.collateral_marketability: string
+  insider.comparable_terms: object
+  insider.correspondent_credit_data: object
+  insider.credit_extended: string
+  insider.credit_threshold_exceeded: string
+  insider.funded_terms: object
+  insider.limits_recomputed: string
+  insider.officer_financial_statement: string
+  insider.proposed_terms: object
+  insider.public_request: string
+  insider.record_circulated: string
+  insider.record_compiled: string
+  insider.record_entry: string
+  insider.record_prior: string
+  insider_case.attestation: string
+  institution.risk_profile: string
+  institution_freeze.activation_evidence: object
+  institution_freeze.notice_record: object
+  institution_freeze.order_reference: string
+  instrument_list.part703_category: string
+  insurance.bond.adjustment: string
+  insurance.coverage_schedule: string
+  insurance.dfpi_minimum: string
+  insurance.fidelity_bond.deficient: string
+  insurance.fidelity_bond_terms: object
+  insurance.policy.bound: string
+  insurance.policy_terms: object
+  interest.accrued: string
+  interest.accrued_balance: string
+  interest.credited: string
+  intermediary.approved_list: string
+  intermediary.due_diligence_file: string
+  it.blast_radius_isolated: string
+  it.outage_runbook: string
+  kri.data_source: string
+  kri.data_stale: string
+  kri.defined: string
+  kri.observed_at: string
+  kri.refresh_interval: string
+  kri.staleness_check_at: string
+  kri.status_evaluated: string
+  kri.thresholds: string
+  kri.value: number
+  lar.band_recovered: string
+  lar.computed: string
+  lar.current_band: string
+  lar.prior_band: string
+  lar.value: number
+  legal.consult_timer: string
+  legal.consulted: string
+  legal.cure_parameters: string
+  legal.foreclosure_checklist: string
+  legal.hold_release_id: string
+  legal.process_artifact_id: string
+  legal.rfpa_applicable: string
+  lending_program.partner_id: string
+  limit_set.parameters: string
+  liquidity.asf_total: number
+  liquidity.behavioral_assumptions: string
+  liquidity.clf_capacity: string
+  liquidity.haircut_table: string
+  liquidity.hqla_balance: string
+  liquidity.liquid_assets: string
+  liquidity.net_outflows_30d: string
+  liquidity.ratio_to_shares: string
+  liquidity.rsf_total: number
+  liquidity.system_balances: string
+  liquidity.total_assets: string
+  lo_comp.basis_analysis: string
+  lo_comp.plan_terms: object
+  loan_exception.approval_tier: string
+  loan_exception.closing_block_state: string
+  loan_exception.observed_value: string
+  loan_exception.rule: string
+  loan_pricing.apr: number
+  loan_pricing.deviation: string
+  loan_pricing.points_fees: string
+  market.collateral_prices: string
+  market.depth_indicator: string
+  market.yield_curve: string
+  member.address_change_disputed: string
+  member.amounts_owed: string
+  member.attorney_contact: string
+  member.cease_request: string
+  member.channel_reverted: string
+  member.contact_preferences: string
+  member.delivery_channel: string
+  member.delivery_failure_reason: string
+  member.edelivery_enabled: string
+  member.eligibility_basis: string
+  member.eligibility_denied: string
+  member.eligibility_determined: string
+  member.esign_consent_captured: string
+  member.esign_consent_evidence: object
+  member.expelled: string
+  member.expulsion_hearing_held: string
+  member.hardship_evidence: object
+  member.identity_check_method: string
+  member.preferences_effective: string
+  member.repayment_capacity: string
+  member.timezone: string
+  member_credential.failed_attempts: string
+  member_credential.is_temporary: boolean
+  member_credential.login_id: string
+  member_credential.new_password: string
+  member_credential.password_hash: string
+  member_credential.password_set_at: string
+  member_credential.security_questions: string
+  member_credential.temp_password: string
+  member_portal.claims_template_id: string
+  member_portal.core_unavailable: string
+  member_portal.readonly_accessed: string
+  member_portal.snapshot_served: string
+  mismatch.breach_magnitude: string
+  mismatch.breached_bucket: string
+  mismatch.current_gaps: string
+  mismatch.gap_computed: string
+  mismatch.intraday_recomputed: string
+  model.builder_roster: object
+  model.reviewer_id: string
+  monitor.source: string
+  monitoring.sample_drawn: string
+  monitoring.sample_spec: string
+  ncua.ack_detail: object
+  ncua.memo: string
+  ncua.metrics_snapshot: object
+  ncua.notification_required: boolean
+  ncua.trigger_condition: string
+  network.connection: string
+  notice.sent_at: string
+  officer.lending_authority: string
+  official.expense_preapproval.requested: string
+  official.payment_account: string
+  official.reimbursement.disbursed: string
+  official.reimbursement.paid: string
+  oncall.ic_rotation: string
+  ops.critical_resumed: string
+  ops.resumption_timer: string
+  org.material_change: string
+  overdraft.daily_report_generated: string
+  overdraft.days_outstanding: string
+  overdraft.fee_assessed: string
+  overdraft.fee_schedule: string
+  overdraft.occurrence_count: number
+  overdraft.payroll_coverage_flag: boolean
+  overdraft.waiver_reason: string
+  override.escalation_required: boolean
+  override.escalation_timer: string
+  override.rationale: string
+  override.senior_approver_id: string
+  pentest.independence: string
+  performance.targets: string
+  phishing.failure_history: string
+  phishing.repeat_failure: string
+  phishing.scenario: string
+  pir.draft_timer: string
+  pir.drafted: string
+  playbook.spec: string
+  policy.acknowledgment_record: object
+  policy.board_approved_at: string
+  policy.change_description: string
+  policy.change_rationale: string
+  policy.document_id: string
+  policy.document_version: string
+  policy.draft_id: string
+  policy.draft_redline: string
+  policy.effective_date: string
+  policy.exception_threshold: string
+  policy.investigation_file: string
+  policy.limit_registry: object
+  policy.materiality_threshold: string
+  policy.minutes_reference: string
+  policy.next_review_date: string
+  policy.owner_ref: object
+  policy.proposed_limit: string
+  policy.review_due_soon: string
+  policy.review_lapsed: string
+  policy.review_warning_at: string
+  policy.training_completion_record: object
+  policy.violation_description: string
+  portfolio.gain_loss_summary: object
+  portfolio.performance_metrics: object
+  position.amortized_cost: string
+  position.book_value: string
+  position.convexity: string
+  position.coupon: string
+  position.cusip: string
+  position.days_to_liquidate: string
+  position.effective_duration: string
+  position.fair_value: string
+  position.liquidity_bucket: string
+  position.policy_tagged: string
+  position.stress_haircut: string
+  pricing.as_of_date: string
+  pricing.exception_approver: string
+  pricing.exception_demographics_summary: object
+  pricing.exception_raised: string
+  pricing.exception_rationale: string
+  pricing.override_rationale: string
+  pricing.proposed_price: string
+  pricing.sheet_price: string
+  pricing.source: string
+  privacy.ada_validation_id: string
+  privacy.age_gate_blocked: string
+  privacy.age_gate_ruleset_id: string
+  privacy.annual_exemption_status: string
+  privacy.collection_vector: string
+  privacy.data_classification: string
+  privacy.esign_access_confirmation: string
+  privacy.metrics_package_id: string
+  privacy.minor_data_deleted: string
+  privacy.nv_optout_enforced: string
+  privacy.optout_channel: string
+  privacy.optout_enforced: string
+  privacy.optout_propagated: string
+  privacy.optout_revoked: string
+  privacy.optout_scope: string
+  privacy.revocation_artifact_id: string
+  privacy.sharing_blocked: string
+  privacy.sharing_change_basis: string
+  privacy.state_request_fulfilled: string
+  privacy.state_request_type: string
+  privacy.vt_optin_status: string
+  product.apy: string
+  product.balance_method: string
+  product.contract_version: string
+  product.data_flows: string
+  product.interest_rate: string
+  product.launched: string
+  product.volume_stats: string
+  product_menu.diff: string
+  product_menu.outcome_metrics: object
+  product_menu.steering_review: string
+  rate_sheet.apor_values: string
+  recon.daily_timer: string
+  recon.item: string
+  recon.item_age_days: string
+  recon.item_aged: string
+  recon.item_aging_timer: string
+  recon.item_owner: string
+  recon.monthly_timer: string
+  record.access_purpose: string
+  record.actor_id: string
+  record.actor_role: string
+  record.age: string
+  record.artifact: string
+  record.audit_entry_written: string
+  record.blob: string
+  record.class: string
+  record.destruction_cycle: string
+  record.destruction_date: string
+  record.disposal_eligible: boolean
+  record.disposal_method: string
+  record.dispositioned: string
+  record.export_approved_by: string
+  record.export_justification: string
+  record.extension_requested_at: string
+  record.finalized: string
+  record.hold_authorizer: string
+  record.hold_matter: string
+  record.hold_matter_id: string
+  record.hold_registry: object
+  record.hold_release_auth: string
+  record.hold_status: string
+  record.indexed: string
+  record.legal_hold_placed: string
+  record.media_converted: string
+  record.media_type: string
+  record.metadata: string
+  record.reproduction_result: string
+  record.retained: string
+  record.retention_class: string
+  record.retention_inventory: object
+  record.retention_timer: string
+  record.sensitive_access: string
+  record.storage_medium: string
+  record_class.unmatched: string
+  records.contact_name: string
+  records.contact_vacated: string
+  records.exception_count: number
+  records.retention.class: string
+  records.retention_expiry_at: string
+  records_package.artifact_id: string
+  records_package.checksum_chain: string
+  records_package.failure_reason: string
+  records_package.manifest_id: string
+  records_package.rebuilt: string
+  records_package.requested: string
+  records_package.snapshot_as_of: string
+  records_package.snapshot_id: string
+  records_package.snapshot_schedule: string
+  redflag.address_reissue_match: boolean
+  redflag.case_stats: string
+  redflag.pattern_updates: string
+  redflag.stepup_required: boolean
+  regulation.citation: string
+  regulator.contacts: string
+  regulator.notice_criteria_met: string
+  regulator.notified: string
+  regulator.report_timer: string
+  regulator.request_detail: object
+  regulator.request_routed: string
+  regulatory.change_identified: string
+  regulatory.change_implemented: string
+  regulatory.change_required: boolean
+  regulatory.source_doc: string
+  repo.blocked_rule_violation: string
+  repo.collateral_cusip: string
+  repo.collateral_marked: string
+  repo.counterparty_id: string
+  repo.entered: string
+  repo.haircut: string
+  repo.margin_shortfall_amount: number
+  repo.maturity_mismatch_days: string
+  repo.required_margin: string
+  report.weekly_deltas: string
+  reporting.quarterly_timer: string
+  resolution_exception.requested: string
+  resolution_policy.change_description: string
+  resolution_policy.change_identified: string
+  resolution_posture.current: string
+  resolution_test.finding_id: string
+  resolution_test.finding_severity: string
+  resolution_test.plan_id: string
+  resolution_test.remediation_owner: string
+  resolution_test.sandbox_baseline: string
+  restore.point_validated: string
+  restore.rto_timer: string
+  restore.test_env: string
+  restriction.approved_by: string
+  restriction.grounds: string
+  risk.assessment_results: object
+  risk.assessment_scored: string
+  risk.impact_score: number
+  risk.inherent_rating: string
+  risk.last_assessed_at: string
+  risk.likelihood_score: number
+  risk.poam_cycle: string
+  risk.poam_status: string
+  risk.reassessed: string
+  risk.register_snapshot: object
+  risk.registered: string
+  risk.remediation_evidence: object
+  risk.residual_rating: string
+  risk.review_overdue: string
+  risk.threat_catalog: object
+  risk_acceptance.expiry_alert_at: string
+  risk_acceptance.expiry_alerted: string
+  risk_acceptance.expiry_date: string
+  risk_acceptance.expiry_warning: string
+  risk_acceptance.rationale: string
+  risk_acceptance.requested: string
+  risk_appetite.document: string
+  risk_appetite.effective_date: string
+  risk_appetite.next_review_date: string
+  risk_breach.current_excursion: string
+  risk_breach.excursion_size: string
+  risk_breach.remediation_plan: object
+  risk_breach.remediation_status: string
+  risk_report.reconciliation_record: object
+  risk_scale.alternative_method: string
+  risk_scale.definition: string
+  risk_scale.exemption_id: string
+  risk_scale.exemption_rationale: string
+  risk_scale.usage_stats: string
+  role.definition: string
+  role.effective_date: string
+  rule.exception_justification: string
+  rule.exception_owner: string
+  rwa.ccf_map: string
+  rwa.change_authority: string
+  rwa.collateral_type: string
+  rwa.credit_calculated: string
+  rwa.exposure_category: string
+  rwa.market_calculated: string
+  rwa.operational_calculated: string
+  rwa.proposed_change: string
+  rwa.risk_weight_map: string
+  rwa.schedule_version: string
+  rwa.trading_threshold_crossed: string
+  safe_mode.cap_profile_id: string
+  safe_mode.daily_outflow_total: number
+  safe_mode.transaction_evaluated: string
+  safe_mode.trigger_basis: string
+  safekeeping.statement: string
+  schedule_a.analog_entry_id: string
+  schedule_a.entry_amended: string
+  schedule_a.entry_inherited: string
+  schedule_a.retention_period: string
+  scope_registry.change_description: string
+  scope_registry.item.rpo: string
+  scope_registry.item.rto: string
+  scope_registry.version_id: string
+  security.impairment_indicator_raised: string
+  security.kpi_snapshot: object
+  security.policy_change_log: object
+  security.program_charter: string
+  security.rating_change: string
+  security_finding.owner: string
+  service.assigned_to: string
+  service.category: string
+  service.inquiry_id: string
+  service.launched: string
+  service.reclassified_as_dispute: string
+  siem.alert_confirmed_malicious: string
+  siem.alert_critical: string
+  siem.alert_detail: object
+  siem.last_seen_at: string
+  siem.source_inventory: object
+  site.capacity_validated: string
+  site.readiness_timer: string
+  sitrep.cadence_timer: string
+  sitrep.v1_timer: string
+  socialmedia.approver: string
+  socialmedia.impersonation_detail: object
+  socialmedia.post_content: string
+  sod.check_result: string
+  sod.compensating_control: string
+  sod.grant_blocked: string
+  sod.matrix_version: string
+  sod.review_timer: string
+  sod.risk_rationale: string
+  sod.violation_attempted: string
+  spend_controls.daily_limit: string
+  spend_controls.per_transaction_limit: string
+  staffing.activation_timer: string
+  staffing.review_timer: string
+  staffing.split_team_plan: object
+  statement.days_in_period: string
+  storage_box.destruction_date: string
+  storage_box.from_date: string
+  storage_box.number: string
+  storage_box.to_date: string
+  stress.assumption_value: string
+  stress.assumption_versioned: string
+  stress.baas_shock_params: string
+  stress.behavioral_assumptions: string
+  stress.change_rationale: string
+  stress.intraday_profile: string
+  stress.quarter_open: string
+  stress_test.assumptions: string
+  stress_test.breach_detail: object
+  survival.adhoc_computed: string
+  survival.below_threshold: string
+  survival.computed: string
+  survival.days_combined: string
+  survival.driver_scenario: string
+  taxonomy.active_version: string
+  taxonomy.category_code: string
+  taxonomy.change_request: string
+  taxonomy.subcategory_code: string
+  template.body: string
+  template.product_scope: string
+  threat.impact: string
+  threat.likelihood: string
+  threat_register.interim_update: string
+  tiein.condition_description: string
+  tiein.transaction_terms: object
+  tls.cipher_suite: string
+  tls.test_rating: string
+  trade.blocked_prohibited: string
+  trade.checklist_exception_raised: string
+  trade.confirmation_matched: string
+  trade.entered: string
+  trade.exception_raised: string
+  trade.intermediary_blocked: string
+  trade.intermediary_id: string
+  trade.intermediary_validated: string
+  trade.limit_blocked: string
+  trade.pretrade_checklist: string
+  trade.settlement_amount: number
+  trade.settlement_date: string
+  trade.sod_blocked: string
+  trade.step_attempted: string
+  trade.ticket: string
+  trade.valuation_support: string
+  training.assessment_score: number
+  training.assignee_id: string
+  training.completion_status: string
+  training.content_version: string
+  training.coverage_pct: string
+  training.curriculum_id: string
+  training.curriculum_map: string
+  training.cycle_close_at: string
+  training.lapsed: string
+  training.module_id: string
+  training.proficiency.failed: string
+  training.refresher_curriculum: string
+  training.required_curriculum: string
+  training.role_matrix: object
+  training.skills_inventory: object
+  transaction.approval_required: boolean
+  transaction.approval_timer: string
+  transaction.dual_control_required: boolean
+  transaction.initiated_by: string
+  treasury.invest_excess.notified: string
+  valuation.bias_screen_rules: object
+  vendor.affected_scope: string
+  vendor.attestation_request: string
+  vendor.breach_detail: object
+  vendor.bsa_function_scope: string
+  vendor.bsa_responsibility_split: string
+  vendor.bsa_role_flag: boolean
+  vendor.business_case: string
+  vendor.clause_id: string
+  vendor.clause_library_version: string
+  vendor.compensation_flag: boolean
+  vendor.concentration_assessed: string
+  vendor.contract_blocked_raci: string
+  vendor.contract_draft: string
+  vendor.contract_id: string
+  vendor.core_function_flag: boolean
+  vendor.core_function_scope: string
+  vendor.critical_onboarded: string
+  vendor.criticality_tier: string
+  vendor.data_deletion_attestation: string
+  vendor.data_map_id: string
+  vendor.dependency_map: string
+  vendor.destruction_certificate: string
+  vendor.dr_plan: object
+  vendor.dr_test_results: object
+  vendor.due_diligence_artifact_id: string
+  vendor.edd_refreshed: string
+  vendor.evidence_refreshed: string
+  vendor.exception_rationale: string
+  vendor.exit_plan_id: string
+  vendor.exit_plan_refreshed: string
+  vendor.exit_test_scenario: string
+  vendor.failover_criteria: string
+  vendor.financial_review: string
+  vendor.glba_addendum_id: string
+  vendor.governance_map: string
+  vendor.identified: string
+  vendor.incident_containment_status: string
+  vendor.incident_history: string
+  vendor.incident_member_count: number
+  vendor.incident_scope: string
+  vendor.incident_tracks_dispatched: string
+  vendor.incident_triaged: string
+  vendor.inherent_risk: string
+  vendor.inventory_id: string
+  vendor.issue_detail: object
+  vendor.issue_rated_high: string
+  vendor.issue_severity: string
+  vendor.legal_name: string
+  vendor.materiality_flag: boolean
+  vendor.mi_pack: object
+  vendor.mi_trends: string
+  vendor.migration_evidence: object
+  vendor.monitoring_alert: string
+  vendor.network_access_flag: boolean
+  vendor.npi_access_flag: boolean
+  vendor.onboarded: string
+  vendor.privacy_blocked: string
+  vendor.provisional_justification: string
+  vendor.remediation_plan_accepted: string
+  vendor.rto_rpo: string
+  vendor.security_questionnaire: string
+  vendor.service_description: string
+  vendor.soc_report: string
+  vendor.subprocessor_attestation: string
+  vuln.remediation_plan: object
+  web.consent_state: string
+  web.gpc_signal: string
+  web.tag_data_scope: string
+  web.tag_vendor_id: string
+  web.tags_gated: string
+  web.visitor_id: string
+  web.visitor_jurisdiction: string
+  wholesale.exposure_computed: string
+  wholesale.exposure_history: string
+  wholesale.listing_decisioned: string
+  wholesale.maturity_calendar: string
+  wholesale.pricing_authority_id: string
+  wholesale.rate: string
+  wholesale.service_id: string
+  wholesale.tenor: string
+  wholesale.tenor_ladder: string
+  workforce.absenteeism_threshold: string
+  workforce.availability: string
+
+# ===== event_types (generic verbs; domain -> subject, data -> payload fields) =====
+event_types:
+- acknowledged
+- activated
+- added
+- alert
+- applied
+- approved
+- arrived
+- assigned
+- attested
+- authorized
+- blocked
+- booked
+- breached
+- certified
+- changed
+- checked
+- classified
+- cleared
+- closed
+- completed
+- confirmed
+- created
+- decided
+- declared
+- declined
+- delivered
+- denied
+- deployed
+- deprovisioned
+- designated
+- destroyed
+- detected
+- determined
+- disabled
+- disposed
+- dispositioned
+- downgraded
+- drafted
+- enrolled
+- escalated
+- executed
+- expired
+- extended
+- failed
+- filed
+- flagged
+- funded
+- granted
+- hired
+- identified
+- initiated
+- invoked
+- issued
+- launched
+- lifted
+- locked
+- logged
+- mapped
+- notified
+- opened
+- ordered
+- passed
+- placed
+- posted
+- presented
+- proposed
+- provisioned
+- published
+- purchased
+- reached
+- received
+- reconciled
+- recorded
+- refreshed
+- rejected
+- released
+- remediated
+- rendered
+- renewed
+- reported
+- requested
+- resolved
+- restored
+- retained
+- returned
+- reviewed
+- revised
+- routed
+- scheduled
+- screened
+- sealed
+- sent
+- separated
+- settled
+- signed
+- started
+- submitted
+- tested
+- triggered
+- updated
+- used
+- validated
+- valued
+- verified
+
+# ===== task_types (generic; domain -> subject) =====
+task_types:
+- acknowledgement
+- analysis
+- approval
+- assessment
+- attestation
+- consolidation
+- decision
+- deprovision
+- disposal
+- escalation
+- exercise
+- expiry
+- filing
+- issuance
+- notice
+- onboarding
+- plan
+- purge
+- reconciliation
+- refresh
+- remediation
+- renewal
+- report
+- review
+- test
+- triage
+- update
+- verification
+
+# ===== state machines =====
+state_machines:
+  Entity:
+  - pending
+  - active
+  - disabled
+  - archived
+  Account:
+  - open
+  - frozen
+  - closed
+  AccountNumber:
+  - active
+  - disabled
+  - canceled
+  Verification:
+  - pending
+  - approved
+  - denied
+  AchTransfer:
+  - pending_approval
+  - submitted
+  - settled
+  - returned
+  - rejected
+  - canceled
+  WireTransfer:
+  - pending_approval
+  - submitted
+  - completed
+  - return_requested
+  - returned
+  - rejected
+  - canceled
+  Case:
+  - opened
+  - in_review
+  - closed
+  Filing:
+  - prepared
+  - submitted
+  - acknowledged
+  - continuing
+  - amended
+  - nil_determined
+  Task:
+  - pending
+  - due
+  - completed
+  - overdue
+  Incident:
+  - declared
+  - responding
+  - contained
+  - postmortem
+  - closed
+  LoanApplication:
+  - created
+  - decisioned
+  - counteroffer
+  - final_action
+  Loan:
+  - booking_requested
+  - booked
+  - funded
+
+# ===== endpoints =====
+endpoints:
+  /cases:
+    get: list_cases
+    post: open_case
+  /cases/{id}:
+    get: get_case
+  /cases/{id}/transition:
+    post: transition_case
+  /control-results:
+    get: list_control_results
+  /control-results/{id}:
+    get: get_control_result
+  /documents:
+    get: list_documents
+    post: create_document
+  /documents/{id}:
+    get: get_document
+  /events:
+    get: list_events
+  /filings:
+    get: list_filings
+    post: prepare_filing
+  /filings/{id}:
+    get: get_filing
+  /filings/{id}/acknowledge:
+    post: acknowledge_filing
+  /filings/{id}/submit:
+    post: submit_filing
+  /incidents:
+    get: list
+    post: declare
+  /incidents/{id}:
+    get: get
+    patch: update
+  /incidents/{id}/transition:
+    post: transition
+  /legal-holds:
+    get: list_legal_holds
+    post: place_legal_hold
+  /legal-holds/{id}/release:
+    post: release_legal_hold
+  /loan-applications:
+    get: list
+    post: create
+  /loan-applications/{id}:
+    get: get
+    patch: update
+  /loan-applications/{id}/counteroffer:
+    post: issue_counteroffer
+  /loan-applications/{id}/decision:
+    post: record_decision
+  /loans:
+    get: list
+  /loans/{id}:
+    get: get
+  /loans/{id}/book:
+    post: request_booking
+  /tasks:
+    get: list_tasks
+  /tasks/{id}:
+    get: get_task
+  /tasks/{id}/complete:
+    post: complete_task
+
