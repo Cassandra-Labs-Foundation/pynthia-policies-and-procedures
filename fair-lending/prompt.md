@@ -32,6 +32,7 @@ This policy prohibits discrimination in all lending activities and ensures equal
 - **TILA / Reg Z (12 CFR §1026.24; §1026.36(d),(e))** — govern advertising, Loan Originator compensation, and anti-steering.
 - **ADA (28 CFR Part 36; 29 CFR Part 1630)** — access and reasonable accommodation.
 - **FCRA / Reg V (15 USC §1681 et seq.; §615), interagency appraisal-independence rules, and CFPB UDAAP standards** — related requirements affecting adverse-action content and fair treatment.
+- **FFIEC Interagency Fair Lending Examination Procedures** — the examination framework used by NCUA and other agencies to scope, assess, and conclude fair lending examinations; controls in this policy must satisfy the Compliance Management Analysis Checklist (Appendix §A–B) and address the overt, underwriting, pricing, steering, redlining, and marketing risk factors (O1–O5, U1–U9, P1–P7, S1–S8, R1–R12, M1–M7) identified in Part I of those procedures.
 
 ## 3. What This Policy Must Cover
 
@@ -39,7 +40,7 @@ Fair-lending risk is concentrated wherever discretion, proxies, or data quality 
 
 The policy must establish the following controls:
 
-**(a) Prohibition & Protected Bases.** System and staff must not use protected traits or proxies (e.g., ZIP/neighborhood, property age/location) at any stage and must avoid unjustified disparate impact and redlining; Compliance approves the protected-trait list and proxy guardrails, with annual policy review and quarterly Board reporting.
+**(a) Prohibition & Protected Bases.** System and staff must not use protected traits or proxies (e.g., ZIP/neighborhood, property age/location) at any stage and must avoid unjustified disparate impact and redlining; Compliance approves the protected-trait list and proxy guardrails, with annual policy review and quarterly Board reporting. The policy must explicitly prohibit inquiry-stage discouragement: staff may not, on a prohibited basis, discourage inquiries or applications through oral statements, delays, differential referrals, selective disclosure of products or requirements, or any other means (FFIEC risk factors O4–O5; FFIEC Checklist §A.1c). A procedure for reporting and escalating suspected inquiry-stage discouragement must be included.
 
 **(b) Permissible Inquiries.** Limit questions on spouse, marital status, sex, childbearing, and immigration to what is permitted and present required disclosures before sensitive fields are collected, targeting 100% of applications with proper disclosures.
 
@@ -51,7 +52,7 @@ The policy must establish the following controls:
 
 **(f) Government Monitoring (GMI/HMDA).** For covered transactions, ask but do not require GMI, record via visual/surname rule where required if declined, and maintain LAR accuracy with quarterly LAR QC and annual submission per the Reg C calendar.
 
-**(g) Advertising & Fair Housing.** Enforce trigger-term disclosures and APR prominence, apply the Fair Housing legend to real-estate ads, prohibit exclusionary geo-targeting, and require a pre-flight checklist approval before launch, targeting 100% of ads with a completed checklist.
+**(g) Advertising & Fair Housing.** Enforce trigger-term disclosures and APR prominence, apply the Fair Housing legend to real-estate ads, prohibit exclusionary geo-targeting, and require a pre-flight checklist approval before launch, targeting 100% of ads with a completed checklist. Although Pynthia does not anticipate significant consumer advertising, documented controls must exist for when advertising does occur: (1) ADA/accessibility — digital marketing and application flows must make reasonable accommodations for applicants with disabilities (28 CFR Part 36); and (2) marketing demographic reach — any advertising program must be assessed periodically to confirm it is not systematically excluding prohibited-basis group members from the institution's market (FFIEC risk factors M1–M7), including review of media selection, geo-targeting, and intermediary relationships. These controls apply at low volume as well as high volume; the policy should note Pynthia's limited advertising profile but must not omit the controls.
 
 **(h) LO Compensation & Anti-Steering.** Prohibit compensation based on loan terms or proxies and present/document meaningful alternatives (lowest rate, lowest fees, lowest total cost), blocking finalization without evidence; where fewer than three eligible options exist, require a Compliance waiver.
 
@@ -106,8 +107,14 @@ is `Cassandra Banking Core API v1.0.0`, which is banking-core
 
 ## 6. Local Overrides to the Shared Meta-Prompt
 
-{{Usually empty. Put anything here that should override the shared
-`meta-prompt.md` for THIS policy only — a different control-ID prefix,
-extra required sections, a specific citation style, etc. The regeneration
-task applies overrides AFTER the shared meta-prompt, so instructions here
-win.}}
+The following overrides apply to this policy only and take precedence over the shared meta-prompt:
+
+1. **FFIEC exam procedures as a primary reference.** The regenerated policy must be reviewed against the FFIEC Interagency Fair Lending Examination Procedures located at `references/FFIEC Fair Lending Exam Procedures.pdf`. For each control (FL-01 through FL-12, and any new controls added), the regenerator should confirm the control addresses the corresponding FFIEC risk factors and Compliance Management Analysis Checklist items (Appendix §A–B). Where a control satisfies a specific FFIEC criterion, the policy may note this in the WHY block or a brief examiner-readiness note. Where a gap exists between the policy and the FFIEC checklist, the regenerator must either close it in the policy text or insert a `[CONTROL NEEDED: description]` placeholder.
+
+2. **Complaint monitoring control required.** Add a new control (FL-13 or incorporate into FL-10) for consumer complaint intake, logging, prohibited-basis analysis, Compliance escalation, and remediation tracking. This addresses FFIEC risk factors U9, P5, S7, and M7, which all ask whether management monitors discrimination complaints. The control should also describe the applicant remediation process (e.g., re-underwriting, credit offers, fee refunds) when a pattern of violations is confirmed, and reference when self-referral to regulators is required.
+
+3. **Redlining methodology must be described.** FL-10 must describe the methodology for the annual redlining review with sufficient specificity for examiners to evaluate it: at minimum, the review must cover the institution's CRA assessment area, census-tract-level lending distribution by minority-concentration quartile, peer comparison data, and the six-step comparative analysis framework from FFIEC Part III.G. A procedure document reference is acceptable if one exists; otherwise the methodology must be summarized in the policy.
+
+4. **Disparity thresholds placeholder.** If Compliance has not yet defined the disparity thresholds for CAP triggers, the policy must include a `[THRESHOLD NEEDED]` placeholder in FL-10 and flag it prominently as a pre-exam priority. Do not invent thresholds.
+
+5. **Advertising controls — low-volume context.** When drafting FL-07, note that Pynthia does not currently anticipate significant consumer advertising. However, the controls for ADA/accessibility in digital marketing and for periodic demographic marketing-reach review must be fully documented regardless of volume. Frame the controls as always-on requirements that scale with advertising activity rather than as obligations that only activate above a certain volume.
