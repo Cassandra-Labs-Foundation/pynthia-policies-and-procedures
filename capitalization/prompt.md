@@ -26,11 +26,9 @@ This policy establishes Pynthia Credit Union's commitment to maintaining adequat
 
 ## 2. Key Regulatory Authorities
 
-- **Prompt Corrective Action framework (12 USC § 1831o, FDICIA)** — capital category thresholds for well-capitalized (10% total / 8% Tier 1 / 6.5% CET1 / 5% leverage), adequately capitalized, undercapitalized, and below.
-- **NCUA Capital Adequacy / Prompt Corrective Action (12 CFR Part 702)** — net worth ratio, risk-based capital, and PCA classifications for federally insured credit unions.
-- **Basel III standardized approach** — minimum CET1, Tier 1, total capital, leverage ratios, and the 2.5% capital conservation buffer; risk-weighting methodology applied through the Basel II Standardized Approach Framework Policy.
+- **NCUA Capital Adequacy / Prompt Corrective Action (12 CFR Part 702)** — net worth ratio and PCA classifications for federally insured credit unions; well-capitalized threshold is a net worth ratio ≥ 7%.
+- **Basel III standardized approach** — the 2.5% capital conservation buffer adopted as an internal standard; risk-weighting methodology applied through the Basel II Standardized Approach Framework Policy.
 - **California Financial Code / DFPI minimum capital expectations** — state-chartered minimum capital requirements, which may exceed federal minimums.
-- **Source of Strength doctrine (12 USC § 1831o-1)** — capital support obligations where a holding company is involved.
 
 ## 3. What This Policy Must Cover
 
@@ -38,11 +36,11 @@ Capital risk concentrates in ensuring loss-absorbing capacity stays above regula
 
 The policy must establish the following controls:
 
-**(a) Capital Adequacy Targets.** Meet or exceed all standards to be classified well-capitalized, and maintain internal targets above the regulatory minima — at minimum a Tier 1 Leverage Ratio target of 9% (regulatory minimum 5%), a Tier 1 Capital Ratio of at least 6% of risk-weighted assets, and a Total Risk-Based Ratio target of 12% (regulatory minimum 10%).
+**(a) Capital Adequacy Targets.** Meet or exceed all standards to be classified well-capitalized under NCUA PCA, and maintain an internal net worth ratio target at or above 7% (the NCUA well-capitalized threshold under 12 CFR Part 702). The net worth ratio is net worth divided by total assets as defined in Part 702.
 
-**(b) Capital Components and Measurement.** Define Tier 1 capital (equity/retained earnings, excluding unrealized gains/losses on available-for-sale securities) and Total Capital (Tier 1 plus the permissible portion of the allowance for loan losses); compute average assets net of goodwill and intangibles and risk-weighted assets including qualifying off-balance-sheet items.
+**(b) Capital Components and Measurement.** Define net worth consistent with 12 CFR § 702.2 (retained earnings and undivided earnings, plus any other amounts includible under Part 702); compute total assets as the average of total assets as reported on the most recent call report.
 
-**(c) PCA Thresholds and Internal Triggers.** Set internal trigger levels above the regulatory PCA thresholds across the well-capitalized, adequately capitalized, undercapitalized, significantly undercapitalized, and critically undercapitalized categories so that corrective action begins before regulatory minimums are breached.
+**(c) PCA Thresholds and Internal Triggers.** Set internal trigger levels above the regulatory PCA thresholds across the five NCUA PCA categories — well-capitalized (≥ 7%), adequately capitalized (≥ 6%), undercapitalized (< 6%), significantly undercapitalized (< 4%), and critically undercapitalized (< 2%) — so that corrective action begins before regulatory minimums are breached.
 
 **(d) Capital Conservation Buffer.** Maintain a 2.5% capital conservation buffer on top of minimum ratios consistent with the Basel III standardized approach, restricting distributions when the buffer is eroded.
 
@@ -52,9 +50,9 @@ The policy must establish the following controls:
 
 **(g) Quarterly Monitoring and Reporting.** The CFO reviews capital ratios at least quarterly and reports them to the ALM Committee; if ratios approach the established guidelines, management develops a plan to maintain ratios above acceptable levels.
 
-**(h) Contingency Actions and Escalation.** If projections indicate the Tier 1 Leverage or Total Risk-Based Ratio may fall below internal targets, management considers slowing loan growth, selling loans or securities, reducing operating expenses, and soliciting additional capital; if ratios may fall below well-capitalized regulatory guidelines, management additionally considers selling other assets, public/private stock offerings, mergers/acquisitions, and debt issuance, structuring real estate loans for secondary-market sale to provide liquidity or reduce assets.
+**(h) Contingency Actions and Escalation.** If projections indicate the net worth ratio may fall below the internal target, management considers slowing loan growth, selling loans or securities, reducing operating expenses, and soliciting additional capital; if the net worth ratio may fall below the well-capitalized threshold, management additionally considers selling other assets, mergers/acquisitions, and subordinated debt issuance, and structures real estate loans for secondary-market sale to provide liquidity or reduce assets.
 
-**(i) Capital Actions Governance.** Govern dividend declarations, capital raises (common stock issuance, subordinated debt as Tier 2 capital), redemptions, and any holding-company capital injections, including earnings-based dividend limits and regulatory pre-approval where required.
+**(i) Capital Actions Governance.** Govern dividend declarations, capital raises (subordinated debt qualifying under NCUA's subordinated debt rule, 12 CFR Part 702 Subpart D), and redemptions, including earnings-based dividend limits and regulatory pre-approval where required.
 
 **(j) Internal Capital Adequacy Assessment (ICAAP).** Perform a risk-based assessment of capital needs beyond regulatory minimums covering concentration, interest rate, and other material risks.
 
