@@ -41,7 +41,7 @@ The policy must establish the following controls:
 
 **(b) Risk Assessment (Hazards by Region).** Maintain a threat register scoring hazards by likelihood and impact by geography (wildfire/smoke, earthquake, tornado, flood, grid outage, cyber, pandemic), refreshed annually or after major change.
 
-**(c) Business Impact Analysis (BIA).** Catalog services, rank by member impact and regulatory dependency, identify vital records, and set RTO/RPO and recovery sequence; update annually and certify quarterly for changes.
+**(c) Business Impact Analysis (BIA).** Catalog services, rank by member impact and regulatory dependency, identify vital records, and set RTO/RPO and recovery sequence; update annually and certify quarterly for changes. Electronic payment channels (ACH origination, wire transfer, debit/ATM card, mobile/remote deposit capture, Zelle) must be treated as highest-priority critical services given their direct member impact and regulatory dependency (see Electronic Payment Systems Policy).
 
 **(d) Training, Testing & Exercises.** Run at least one enterprise exercise per year (orientation, tabletop, functional), track completion, feed gaps to a corrective action plan, and report results to the Board within 30 days.
 
@@ -74,6 +74,7 @@ Governance of these controls is centralized with the Chief Compliance Officer, w
 - Member breach-notification privacy obligations in detail — see Privacy Policy.
 - Vital records retention schedules outside continuity — see Record Retention Policy.
 - Enterprise risk taxonomy and aggregation — see Enterprise Risk Management Policy.
+- Electronic payment channel-specific controls, ACH/wire dual-control requirements, and payment channel authentication — see Electronic Payment Systems Policy.
 
 ## 5. System Design Notes
 

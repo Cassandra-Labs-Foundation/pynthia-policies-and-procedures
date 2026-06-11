@@ -41,7 +41,7 @@ The policy must establish the following controls:
 
 **(a) Planning and Feasibility Analysis.** Analyze each proposal for a new electronic banking service in three stages — study (needs/objectives/alternatives), design and development (best solution installed, policies/procedures/documentation), and operation (proper operation and maintenance) — and prepare a Product Risk Analysis form for Enterprise Risk Management Committee review.
 
-**(b) Incident Planning and Preparedness.** Maintain a business continuity plan, procedures, and an incident response plan covering electronic banking risks, including regular testing of key electronic banking services.
+**(b) Incident Planning and Preparedness.** Maintain a business continuity plan, procedures, and an incident response plan covering electronic banking risks, including regular testing of key electronic banking services (see Business Continuity Plan Policy).
 
 **(c) Internal Routines and Controls.** Maintain comprehensive system reviews and tests validating the controls protecting hardware, software, proprietary data, and electronic transmissions, and train users to adhere to control standards.
 
@@ -53,7 +53,7 @@ The policy must establish the following controls:
 
 **(g) Electronic Fraud Protection Systems.** Offer and monitor fraud tools including Check Positive Pay, Premium Positive Pay (with ACH monitoring), and card controls (debit-card on/off, limits, and transaction-type settings that do not override institution-defined limits or bypass card-monitoring), and continually monitor fraud trends.
 
-**(h) Vendor Due Diligence.** Perform due diligence on the third-party vendors that design, implement, and service payment technologies (per the Information Technology Cyber Security Policy), including annual review of hosting provider SOC 1 reports and encryption requirements; the Board and senior management remain responsible for vendor performance.
+**(h) Vendor Due Diligence.** Perform due diligence on the third-party vendors that design, implement, and service payment technologies (per the Information Technology Cyber Security Policy), including annual review of hosting provider SOC 1 Type II and SOC 2 Type II reports and encryption requirements; the Board and senior management remain responsible for vendor performance.
 
 **(i) Expertise and Training.** Provide employee training (technical coursework, conferences, working groups) and ensure adequate backup for critical staff; provide client training and resource guides at onboarding, annual education and self-certification where applicable, and periodic communications on phishing and online fraud.
 
