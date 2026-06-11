@@ -28,7 +28,7 @@ This policy governs the establishment and operation of Charitable Donation Accou
 
 - **FCU Incidental Powers — Charitable Donation Accounts** — 12 CFR §721.3(b)(2)(i)–(vii); sets the CDA conditions: the ≤5% net-worth cap and cure period, segregation/labeling, trustee/manager qualification, required agreement clauses (A)–(D), the ≥51%-of-Total-Return distribution at least every 5 years and at termination, liquidation including distribution-in-kind, and definitions including Qualified Charity and Affiliate.
 - **Investments (context)** — 12 CFR Part 703; the FCU investment limits that otherwise apply but do **not** apply to a CDA when §721.3(b)(2) is met.
-- **Qualified Charity (tax status)** — 26 U.S.C. §501(c)(3) and §501(c)(19) (war veterans' organizations); defines donee eligibility.
+- **Qualified Charity (tax status)** — 26 U.S.C. §501(c)(3); defines donee eligibility.
 - **ADA (accessibility of public communications)** — 28 CFR Part 36; accessibility of CDA-related web pages and public announcements.
 
 ## 3. What This Policy Must Cover
