@@ -82,7 +82,7 @@ Governance of these controls is centralized with the Chief Compliance Officer, w
 
 ## 4. Out of Scope
 
-- Investment portfolio credit, valuation, and concentration controls — see Investment Policy.
+- Investment portfolio credit, valuation, and concentration controls — see Investment Policy. Liquidity-relevant characteristics of the investment portfolio (AFS marketability, haircut schedules, pledging restrictions) are governed jointly; see Investment Policy and Collateral & Encumbrance Management (§3(l) above).
 - Capital adequacy and reserve frameworks — see Capitalization and Basel-II Standardized Approach Framework Policies.
 - Physical cash and vault operations — see Cash Policy.
 - Enterprise-wide risk appetite governance beyond liquidity — see Enterprise Risk Management Policy.
