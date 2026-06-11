@@ -57,7 +57,7 @@ The policy must establish the following controls:
 
 **(f) Transaction Monitoring & Case Management.** Generate alerts from rules/models, triage within 2 business days, manage cases, and decide SAR/no-SAR within 30 days of detection where warranted.
 
-**(g) CTR Filing.** Auto-aggregate cash in/out per person per business day, manage Phase I/II exemptions (DEP list), e-file CTRs within 15 days, and conduct annual exemption reviews.
+**(g) CTR Filing.** Auto-aggregate cash in/out per person per business day, manage Phase I/II exemptions (DEP list), e-file CTRs within 15 days, conduct annual exemption reviews, and file FinCEN Form 110 (Designation of Exempt Person) for each exempted entity with annual renewal.
 
 **(h) SAR Filing & Confidentiality.** Manage the SAR decision workflow, file within 30 days (suspect known) / 60 days (no suspect) with 90-day continuing-SAR cadence, retain SARs and supporting documents 5 years, restrict SAR visibility, provide monthly Board summaries, and decline subpoenas for SARs (notifying FinCEN/NCUA).
 
@@ -85,6 +85,8 @@ The policy must establish the following controls:
 
 **(t) PEP Screening & EDD.** Screen applicants, beneficial owners, and signers against PEP datasets at onboarding and refresh; route hits to EDD with elevated approval and adjusted monitoring; complete EDD before activation for high-risk PEPs.
 
+**(u) FinCEN Special Measures & GTOs (Geographic Targeting Orders).** Maintain a documented process to receive, assess, and operationalize FinCEN special measures (USA PATRIOT Act § 311) and any Geographic Targeting Orders directed at the credit union or its sector; assign intake ownership to the BSA Officer, circulate to affected business lines within 1 business day of receipt, implement required recordkeeping or reporting within the GTO-specified deadline, and retain GTO compliance records for 5 years.
+
 Governance of these controls is centralized with the Chief Compliance Officer (BSA Officer), with Compliance, BSA Operations, Vendor Management, Payments Operations, HR, and Internal Audit as required participants.
 
 ## 4. Out of Scope
@@ -94,6 +96,7 @@ Governance of these controls is centralized with the Chief Compliance Officer (B
 - Member privacy and data-handling obligations — see Privacy Policy.
 - General records management schedules outside BSA records — see Record Retention Policy.
 - Detection of suspicious activity within payment rails operationally — see Electronic Payment Systems Policy.
+- IRS/FinCEN Form 8300 (cash payments >$10,000 in a trade or business) — not applicable to Pynthia as a financial institution; CTR obligations under 31 CFR § 1010.311 govern equivalent cash reporting for the credit union.
 
 ## 5. System Design Notes
 
