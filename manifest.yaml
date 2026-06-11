@@ -24,7 +24,7 @@ policies:
 
   - folder: bsa
     slug: bsa
-    enabled: false
+    enabled: true
     notes: "BSA/AML/CFT program — CIP, CDD/EDD, OFAC sanctions, SAR/CTR."
 
   - folder: business-continuity-plan
@@ -79,7 +79,7 @@ policies:
 
   - folder: fair-lending
     slug: fair-lending
-    enabled: true
+    enabled: false
     notes: "Fair lending across consumer loan products."
 
   - folder: information-security
