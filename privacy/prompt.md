@@ -40,6 +40,8 @@ Pynthia Credit Union operates a risk-based privacy program governing how nonpubl
 
 Privacy risk at Pynthia concentrates wherever NPPI is created, shared with third parties, accessed by members or staff, or disposed of, and at the boundary where non-GLBA marketing/telemetry data triggers stricter state-law obligations. The policy must operationalize the full GLBA notice lifecycle, enforce member choices, restrict and document permissible disclosures, and integrate privacy into incident response.
 
+**Strictest-Standard Default.** Where two or more applicable laws govern the same data or processing activity, apply the stricter requirement to all members regardless of state of residence. For non-GLBA data this means CPRA-equivalent standards serve as the floor: collect only what is necessary for the stated purpose (data minimization), use data only for that purpose (purpose limitation), disclose retention periods and delete when no longer needed, honor the right to limit use of sensitive personal information, and extend access/deletion/correction rights to all members.
+
 The policy must establish the following controls:
 
 **(a) Privacy Notice Lifecycle.** Deliver initial notices at or before the relationship starts, annual notices every 12 months unless exempt, and revised notices prior to any material change in sharing, recording delivery channel, timestamp, and template id; block non-exception sharing until the notice is delivered (Reg P §1016.4, §1016.5, §1016.8, §1016.9).
@@ -64,7 +66,7 @@ The policy must establish the following controls:
 
 **(k) Website Posting & E-SIGN Delivery.** Host the current notice in an ADA-accessible format, capture and retain e-consent artifacts, and fulfill notice copy requests within 10 days (Reg P §1016.9; 15 USC §7001).
 
-**(l) State Variants (CA/CPRA, Vermont, Nevada).** Tag jurisdiction, separate GLBA NPPI from non-GLBA telemetry, and honor CA "Do Not Sell/Share," GPC signals, and Vermont/Nevada marketing limits for non-GLBA data only.
+**(l) State Variants (CA/CPRA, Vermont, Nevada) — applied as universal floor.** Separate GLBA NPPI from non-GLBA telemetry. Apply CPRA-equivalent rights (access, delete, correct, limit sensitive PI use, data minimization, purpose limitation) to all members regardless of state. Honor "Do Not Sell/Share," GPC signals, and Vermont/Nevada marketing limits for non-GLBA data.
 
 **(m) Anonymization & Aggregation.** Permit analytics/R&D only on documented, non-identifiable data with re-identification prohibited, small-cohort thresholds applied, and methods reviewed annually.
 
