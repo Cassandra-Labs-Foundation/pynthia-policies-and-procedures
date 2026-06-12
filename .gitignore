@@ -1,3 +1,4 @@
 .claude/
 .cache/
 .fuse_hidden*
+.env.local
