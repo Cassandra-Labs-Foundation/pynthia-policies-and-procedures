@@ -7,7 +7,7 @@ Scans each policy folder for its generated output (`<slug>/<slug>.md` and
 ignored — only generated artifacts count.
 
 Output (extracted-vocab.json) is structured for later comparison against
-vocabulary.json (the parsed OpenAPI spec):
+core-vocabulary.json (the parsed OpenAPI spec):
 
 {
   "meta":     { parsed_at, repo, parser_version },

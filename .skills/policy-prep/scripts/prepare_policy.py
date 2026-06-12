@@ -204,7 +204,7 @@ def resolve_directive(
     memo: dict[str, str],
 ) -> tuple[str, str]:
     """Return (stdout, source_label). Updates `memo` keyed by cache key."""
-    # Cache key: sha256(command || script_bytes || vocabulary.json bytes)
+    # Cache key: sha256(command || script_bytes || core-vocabulary.json bytes)
     h = hashlib.sha256()
     h.update(command.encode())
     # If command references a script under .skills, include the script's bytes.
@@ -213,7 +213,7 @@ def resolve_directive(
         script_path = project_root / script_m.group(1)
         if script_path.exists():
             h.update(script_path.read_bytes())
-    vocab_path = project_root / "vocabulary.json"
+    vocab_path = project_root / "core-vocabulary.json"
     if vocab_path.exists():
         h.update(vocab_path.read_bytes())
     key = h.hexdigest()

@@ -78,7 +78,7 @@ regenerator must invoke the project-scoped `vocabulary` skill (see
 `.skills/vocabulary/SKILL.md` at the project root) and inline its
 entire stdout as the `DESIGN_NOTES` input to the shared meta-prompt.
 Do not hand-curate event or field names here — the skill is the source
-of truth and `vocabulary.json` evolves.
+of truth and `core-vocabulary.json` evolves.
 
 **Directive to the regenerator.** Before assembling the INPUTS block,
 run the skill's extraction script from the project root:
@@ -91,7 +91,7 @@ plus events, endpoints, state machines, and plugins). Do not trim,
 summarize, or reorder its output — the meta-prompt decides what is
 relevant for the policy.
 
-**Failure handling.** If the script exits non-zero, `vocabulary.json`
+**Failure handling.** If the script exits non-zero, `core-vocabulary.json`
 is missing, or the skill reports a parse error, record the failure in
 the run summary and proceed with `DESIGN_NOTES` empty. Never invent
 event codes or field names; the Design Overlay v2 blocks must only

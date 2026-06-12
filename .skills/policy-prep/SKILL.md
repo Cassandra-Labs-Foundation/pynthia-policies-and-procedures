@@ -11,7 +11,7 @@ For a single policy slug, runs every deterministic step that previously had the 
 
 1. Reads `meta-prompt.md` from the project root.
 2. Reads `{slug}/prompt.md` and parses its six expected sections into structured inputs.
-3. Detects whether Section 5 is a directive; resolves it (with disk cache lookup by sha256 of command + script + vocabulary.json bytes).
+3. Detects whether Section 5 is a directive; resolves it (with disk cache lookup by sha256 of command + script + core-vocabulary.json bytes).
 4. Lists `{slug}/references/`, dispatches by extension, converts each source document to markdown in parallel via `ThreadPoolExecutor`, and concatenates the markdown into `REFERENCE_POLICY`. **Conversions are durable:** the markdown for a source `foo.pdf` is written beside it as `foo.pdf.md` (committed to the repo) with a header recording the source's sha256. On later runs the persisted `.md` is reused as-is and the source is only re-converted when its content hash changes. This means a reference is converted **once**, not on every regeneration.
 5. Assembles the composite prompt (meta-prompt + INPUTS block + LOCAL_OVERRIDES if any).
 6. Writes the composite prompt to `.cache/prep/{slug}.composite-prompt.txt`.

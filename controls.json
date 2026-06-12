@@ -1,7 +1,7 @@
 {
   "meta": {
     "generator": "scripts/extract_controls.py",
-    "generated_at": "2026-06-12T16:15:38+00:00",
+    "generated_at": "2026-06-12T16:41:09+00:00",
     "repo_root": "pynthia-policies-and-procedures",
     "api_model": {
       "spec_title": "Cassandra Banking Core API (Minimal)",
@@ -15,10 +15,10 @@
     "policies": 26,
     "controls": 317,
     "event_rows": 959,
-    "unique_api_codes": 3616,
-    "registered_event_codes": 1187,
+    "unique_api_codes": 3617,
+    "registered_event_codes": 1185,
     "registered_field_codes": 1490,
-    "unregistered_codes": 939
+    "unregistered_codes": 942
   },
   "controls": [
     {
@@ -7002,7 +7002,7 @@
         }
       ],
       "why_text": "[12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749) requires a vital records preservation program identifying records needed to resume operations ([§749.1](https://www.ecfr.gov/current/title-12/part-749/section-749.1), [Appendix A](https://www.ecfr.gov/current/title-12/part-749/appendix-Appendix%20A%20to%20Part%20749)); [12 CFR Part 748, Appendix A](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748) requires assessing the sensitivity and criticality of member information systems.",
-      "system_behavior": "The BCM maintains a Business Impact Analysis cataloging every service, ranked by member impact and regulatory dependency, identifying vital records for each, and assigning an RTO, RPO, and recovery-sequence tier that drives failover order in [BC-09](#bc-09-major-it-failure-response) and restore priority in [BC-07](#bc-07-data-backup-restore). The BIA is fully updated annually and certified quarterly by service owners for changes; a service added or materially changed mid-cycle gets a provisional tier within 10 business days rather than waiting for the annual update. The BIA record is write-restricted to the BCM; tier assignments require Compliance concurrence.",
+      "system_behavior": "The BCM maintains a Business Impact Analysis cataloging every service, ranked by member impact and regulatory dependency, identifying vital records for each, and assigning an RTO, RPO, and recovery-sequence tier that drives failover order in [BC-09](#bc-09-major-it-failure-response) and restore priority in [BC-07](#bc-07-data-backup-restore). Electronic payment channels — ACH origination, wire transfer, debit/ATM card, mobile and remote deposit capture, and Zelle — must be treated as highest-priority critical services given their direct member impact and regulatory dependency (see Electronic Payment Systems Policy for channel-specific controls). The BIA is fully updated annually and certified quarterly by service owners for changes; a service added or materially changed mid-cycle gets a provisional tier within 10 business days rather than waiting for the annual update. The BIA record is write-restricted to the BCM; tier assignments require Compliance concurrence.",
       "alerts_metrics": "Percentage of services with current RTO/RPO assignments (target 100%); quarterly certification completion rate; count of services running without a tier (target zero).",
       "events": [
         {
@@ -24039,20 +24039,21 @@
         }
       ],
       "why_text": "NCUA Part 748 [Appendix A §III.D](https://www.ecfr.gov/current/title-12/appendix-Appendix%20A%20to%20Part%20748) requires exercising due diligence in selecting service providers, contractually requiring safeguards, and monitoring them; the FFIEC [Outsourcing Technology Services booklet](https://ithandbook.ffiec.gov/it-booklets/outsourcing-technology-services/) sets supervisory expectations for ongoing third-party monitoring of payment technology providers.\n-",
-      "system_behavior": "The credit union performs due diligence on the third-party vendors that design, implement, and service its payment technologies (Fiserv, Jack Henry, and similar), per the Information Technology Cyber Security Policy. Annual due diligence on the hosting provider includes review of its SOC 1 report and its requirements for encryption of data communications. The Board and senior management remain responsible for vendor performance and actions at all times — outsourcing the function does not outsource the accountability. The full vendor onboarding and ongoing oversight program is governed by the Third-Party Risk Policy; this control covers the payment-system-specific review obligations. Vendor due-diligence files are write-restricted to the vendor management function and Compliance.\n-",
-      "alerts_metrics": "Critical payment vendors with overdue annual due diligence (target zero); SOC 1 exceptions open beyond 90 days; vendor-attributed incident count per quarter.",
+      "system_behavior": "The credit union performs due diligence on the third-party vendors that design, implement, and service its payment technologies (Fiserv, Jack Henry, and similar), per the Information Technology Cyber Security Policy. Annual due diligence on the hosting provider includes review of its SOC 1 Type II report (controls over financial reporting) and SOC 2 Type II report (security, availability, and processing integrity), as well as its requirements for encryption of data communications. The Board and senior management remain responsible for vendor performance and actions at all times — outsourcing the function does not outsource the accountability. The full vendor onboarding and ongoing oversight program is governed by the Third-Party Risk Policy; this control covers the payment-system-specific review obligations. Vendor due-diligence files are write-restricted to the vendor management function and Compliance.\n-",
+      "alerts_metrics": "Critical payment vendors with overdue annual due diligence (target zero); SOC 1 Type II or SOC 2 Type II exceptions open beyond 90 days; vendor-attributed incident count per quarter.",
       "events": [
         {
           "trigger": {
-            "label": "Hosting provider SOC 1 report received",
-            "code": "eps.vendor.soc1_received",
+            "label": "Hosting provider SOC 1 Type II and SOC 2 Type II reports received",
+            "code": "eps.vendor.soc_received",
             "status": null
           },
           "inputs": [
             {
-              "label": "SOC 1 report, complementary user entity controls list, encryption requirements",
+              "label": "SOC 1 Type II report, SOC 2 Type II report, complementary user entity controls list, encryption requirements",
               "codes": [
                 "eps.vendor.soc1_report",
+                "eps.vendor.soc2_report",
                 "eps.vendor.cuec_list",
                 "eps.vendor.encryption_reqs"
               ]
@@ -24062,22 +24063,23 @@
             {
               "label": "Review memo with exceptions and CUEC mapping",
               "codes": [
-                "eps.vendor.soc1_reviewed"
+                "eps.vendor.soc_reviewed"
               ],
               "status": null
             }
           ],
           "within": "Annually (internal: review within 30 days of receipt; tracked by)",
           "within_timer_codes": [
-            "eps.vendor.soc1_due_at"
+            "eps.vendor.soc_due_at"
           ],
           "all_codes": [
             "eps.vendor.cuec_list",
             "eps.vendor.encryption_reqs",
-            "eps.vendor.soc1_due_at",
-            "eps.vendor.soc1_received",
             "eps.vendor.soc1_report",
-            "eps.vendor.soc1_reviewed"
+            "eps.vendor.soc2_report",
+            "eps.vendor.soc_due_at",
+            "eps.vendor.soc_received",
+            "eps.vendor.soc_reviewed"
           ]
         },
         {
@@ -24158,9 +24160,7 @@
         "events": [
           "eps.vendor.dd_completed",
           "eps.vendor.dd_cycle_opened",
-          "eps.vendor.issue_escalated",
-          "eps.vendor.soc1_received",
-          "eps.vendor.soc1_reviewed"
+          "eps.vendor.issue_escalated"
         ],
         "fields": [
           "eps.incident.vendor_linked",
@@ -24176,7 +24176,10 @@
           "eps.service.id",
           "eps.vendor.dd_due_at",
           "eps.vendor.id",
-          "eps.vendor.soc1_due_at"
+          "eps.vendor.soc2_report",
+          "eps.vendor.soc_due_at",
+          "eps.vendor.soc_received",
+          "eps.vendor.soc_reviewed"
         ],
         "all": [
           "eps.incident.vendor_linked",
@@ -24192,10 +24195,11 @@
           "eps.vendor.issue_identified",
           "eps.vendor.issue_severity",
           "eps.vendor.performance_metrics",
-          "eps.vendor.soc1_due_at",
-          "eps.vendor.soc1_received",
           "eps.vendor.soc1_report",
-          "eps.vendor.soc1_reviewed"
+          "eps.vendor.soc2_report",
+          "eps.vendor.soc_due_at",
+          "eps.vendor.soc_received",
+          "eps.vendor.soc_reviewed"
         ],
         "statuses": []
       }

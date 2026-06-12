@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Parse core-api.yaml (+ vocab-migration.json) into vocabulary.json.
+"""Parse core-api.yaml (+ vocab-migration.json) into core-vocabulary.json.
 
 Converts the minimal Cassandra Banking Core API spec into the
-vocabulary.json shape consumed by .skills/vocabulary/scripts/
+core-vocabulary.json shape consumed by .skills/vocabulary/scripts/
 extract_vocabulary.py (and compared against by extract_vocab.py).
 
 Sources
@@ -33,7 +33,7 @@ refs not registered in the spec).
 
 Usage:
     python3 scripts/parse_core_api.py [-s core-api.yaml]
-        [-m vocab-migration.json] [-o vocabulary.json]
+        [-m vocab-migration.json] [-o core-vocabulary.json]
 """
 
 import argparse
@@ -256,7 +256,7 @@ def main():
     root = Path(__file__).resolve().parent.parent
     ap.add_argument("-s", "--spec", default=str(root / "core-api.yaml"))
     ap.add_argument("-m", "--migration", default=str(root / "vocab-migration.json"))
-    ap.add_argument("-o", "--output", default=str(root / "vocabulary.json"))
+    ap.add_argument("-o", "--output", default=str(root / "core-vocabulary.json"))
     args = ap.parse_args()
 
     try:

@@ -1,13 +1,13 @@
 ---
 name: vocabulary
-description: Extract the current engineering vocabulary (entities, fields, events, endpoints) from vocabulary.json and emit it as structured Markdown grouped by entity, suitable for pasting into Section 5 ("System Design Notes") of a policy prompt.md. Use this skill whenever the user wants to refresh Section 5, dump the current vocabulary, pull the latest event/field codes, or check what's registered in the engineering spec — even if they don't name the skill explicitly. This skill is project-scoped to the "policies and procedures" folder.
+description: Extract the current engineering vocabulary (entities, fields, events, endpoints) from core-vocabulary.json and emit it as structured Markdown grouped by entity, suitable for pasting into Section 5 ("System Design Notes") of a policy prompt.md. Use this skill whenever the user wants to refresh Section 5, dump the current vocabulary, pull the latest event/field codes, or check what's registered in the engineering spec — even if they don't name the skill explicitly. This skill is project-scoped to the "policies and procedures" folder.
 ---
 
 # Vocabulary skill
 
 ## What this skill does
 
-This skill reads the canonical `vocabulary.json` at the root of the
+This skill reads the canonical `core-vocabulary.json` at the root of the
 "policies and procedures" project (a parsed dump of the engineering API
 spec) and produces a single Markdown block listing:
 
@@ -43,7 +43,7 @@ is the caller's job.
 ## How to invoke
 
 The skill ships with one script. Run it from anywhere; it auto-locates
-`vocabulary.json` at the project root.
+`core-vocabulary.json` at the project root.
 
 ```
 python3 "/sessions/nice-serene-clarke/mnt/policies and procedures/.skills/vocabulary/scripts/extract_vocabulary.py"
@@ -51,7 +51,7 @@ python3 "/sessions/nice-serene-clarke/mnt/policies and procedures/.skills/vocabu
 
 Useful flags:
 
-- `-i PATH` — use a different vocabulary.json (e.g., a branch copy).
+- `-i PATH` — use a different core-vocabulary.json (e.g., a branch copy).
 - `-o PATH.md` — write to a file instead of stdout.
 - `--max-desc N` — cap the per-field one-line description at N chars
   (default 140). Lower this if the output feels too wide for GitBook.
@@ -68,14 +68,14 @@ Typical flow when asked "refresh Section 5":
 
 ## Expected input
 
-The skill assumes `vocabulary.json` at the project root has the shape
+The skill assumes `core-vocabulary.json` at the project root has the shape
 produced by the spec parser. Required top-level keys: `meta`, `stats`,
 `entities`, `fields`. Optional keys used when present: `events`,
 `endpoints`, `state_machines`, `plugins`. Missing optional keys degrade
-gracefully — the skill emits an "_No X defined in vocabulary.json._"
+gracefully — the skill emits an "_No X defined in core-vocabulary.json._"
 line and continues.
 
-If `vocabulary.json` is absent or malformed the script exits non-zero
+If `core-vocabulary.json` is absent or malformed the script exits non-zero
 with a message on stderr. Report the failure to the user rather than
 papering over it with stale data.
 
@@ -104,10 +104,10 @@ Notes` heading of a `prompt.md`, or included verbatim as part of the
   relevance gets decided.
 - **Descriptions are truncated to one line** (default 140 chars) so the
   table stays scannable. The full description remains in
-  `vocabulary.json` if the caller needs it.
+  `core-vocabulary.json` if the caller needs it.
 - **Empty events is a known edge case** in the current spec (0 events
   at time of writing). The warning is deliberately visible so the
   policy author doesn't quietly reference event codes that don't
   exist.
 - The script is idempotent and safe to re-run — it never modifies
-  `vocabulary.json` or any other file unless `-o` is passed.
+  `core-vocabulary.json` or any other file unless `-o` is passed.

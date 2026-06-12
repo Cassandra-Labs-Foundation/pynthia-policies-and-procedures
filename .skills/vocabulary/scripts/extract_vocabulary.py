@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Extract the engineering vocabulary as structured Markdown.
 
-Reads vocabulary.json (the parsed spec of engineering's API) and emits a
+Reads core-vocabulary.json (the parsed spec of engineering's API) and emits a
 regulator-readable Markdown block suitable for Section 5 ("System Design
 Notes") of a policy prompt.md.
 
@@ -15,8 +15,8 @@ By design this script does NOT filter the vocabulary to a particular
 policy's concerns — the downstream meta-prompt decides what is relevant.
 
 Usage:
-  python3 extract_vocabulary.py                 # default: read ../../../vocabulary.json, write to stdout
-  python3 extract_vocabulary.py -i /path/to/vocabulary.json
+  python3 extract_vocabulary.py                 # default: read ../../../core-vocabulary.json, write to stdout
+  python3 extract_vocabulary.py -i /path/to/core-vocabulary.json
   python3 extract_vocabulary.py -o out.md       # write to file
   python3 extract_vocabulary.py --max-desc 140  # cap one-line descriptions
 """
@@ -29,7 +29,7 @@ from pathlib import Path
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-DEFAULT_INPUT = SCRIPT_DIR.parent.parent.parent / "vocabulary.json"
+DEFAULT_INPUT = SCRIPT_DIR.parent.parent.parent / "core-vocabulary.json"
 
 
 def one_line(text, max_chars=120):
@@ -68,7 +68,7 @@ def render_meta(data):
     stats = data.get("stats", {})
     lines = ["# System Design Notes — Engineering Vocabulary", ""]
     lines.append(
-        f"> Generated from `vocabulary.json` — "
+        f"> Generated from `core-vocabulary.json` — "
         f"**{meta.get('spec_title', 'Unknown spec')}** "
         f"v{meta.get('spec_version', '?')}"
     )
@@ -101,7 +101,7 @@ def render_entities(data, max_desc):
         fields_by_entity.setdefault(f.get("entity"), []).append(f)
 
     if not entities:
-        lines.append("_No entities defined in vocabulary.json._")
+        lines.append("_No entities defined in core-vocabulary.json._")
         lines.append("")
         return lines
 
@@ -183,7 +183,7 @@ def render_events_and_endpoints(data):
     else:
         lines.append(
             "> ⚠️  **Vocabulary warning — no events defined.** "
-            "The `events` array in vocabulary.json is empty. Any `(event.code)` "
+            "The `events` array in core-vocabulary.json is empty. Any `(event.code)` "
             "reference the policy wants to use must be introduced by engineering "
             "and registered in the spec before the Design Overlay v2 blocks can "
             "cite it. The endpoints list below is provided as candidate signals "
@@ -195,7 +195,7 @@ def render_events_and_endpoints(data):
     lines.append("## Endpoints")
     lines.append("")
     if not endpoints:
-        lines.append("_No endpoints defined in vocabulary.json._")
+        lines.append("_No endpoints defined in core-vocabulary.json._")
         lines.append("")
         return lines
 
@@ -237,7 +237,7 @@ def render_state_machines_and_plugins(data):
             lines.append(f"- **{name}** (`{field}`): {states}")
         lines.append("")
     else:
-        lines.append("_No state machines defined in vocabulary.json._")
+        lines.append("_No state machines defined in core-vocabulary.json._")
         lines.append("")
 
     plugins = data.get("plugins", [])
@@ -248,7 +248,7 @@ def render_state_machines_and_plugins(data):
             lines.append(f"- **{p.get('name', '?')}** — {one_line(p.get('description'))}")
         lines.append("")
     else:
-        lines.append("_No plugins defined in vocabulary.json._")
+        lines.append("_No plugins defined in core-vocabulary.json._")
         lines.append("")
     return lines
 
@@ -266,7 +266,7 @@ def render_tasks_and_timers(data):
     tasks = data.get("tasks", [])
     task_types = data.get("task_types", [])
     if not tasks and not task_types:
-        lines.append("_No tasks defined in vocabulary.json._")
+        lines.append("_No tasks defined in core-vocabulary.json._")
         lines.append("")
         return lines
 
@@ -377,7 +377,7 @@ def render_provisional(data):
     prov = data.get("provisional_fields", [])
     lines = ["## Provisional codes (agreed target naming — reuse, don't re-coin)", ""]
     if not prov:
-        lines.append("_No provisional codes tracked in vocabulary.json._")
+        lines.append("_No provisional codes tracked in core-vocabulary.json._")
         lines.append("")
         return lines
     lines.append(
@@ -416,7 +416,7 @@ def main():
         "-i",
         "--input",
         default=str(DEFAULT_INPUT),
-        help=f"Path to vocabulary.json (default: {DEFAULT_INPUT})",
+        help=f"Path to core-vocabulary.json (default: {DEFAULT_INPUT})",
     )
     parser.add_argument(
         "-o",
@@ -434,7 +434,7 @@ def main():
 
     input_path = Path(args.input)
     if not input_path.exists():
-        print(f"ERROR: vocabulary.json not found at {input_path}", file=sys.stderr)
+        print(f"ERROR: core-vocabulary.json not found at {input_path}", file=sys.stderr)
         return 2
 
     try:

@@ -2,7 +2,7 @@
 """Mechanically validate vocabulary references in a generated policy.
 
 Extracts every backticked dotted code (e.g. `application.reason_codes[]`)
-from a policy Markdown file and classifies each against vocabulary.json:
+from a policy Markdown file and classifies each against core-vocabulary.json:
 
   field        registered in `fields` (by path)
   event        registered in `events` (by name)
@@ -21,7 +21,7 @@ vocabulary bullet from the `missing` + `provisional` lists, instead of
 eyeballing a 4,000-line DESIGN_NOTES dump.
 
 Usage:
-    python3 scripts/check_vocab_refs.py <policy.md> [-v vocabulary.json]
+    python3 scripts/check_vocab_refs.py <policy.md> [-v core-vocabulary.json]
         [--json] [--strict]
 """
 
@@ -153,7 +153,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     root = Path(__file__).resolve().parent.parent
     ap.add_argument("policy", help="Path to generated policy .md")
-    ap.add_argument("-v", "--vocab", default=str(root / "vocabulary.json"))
+    ap.add_argument("-v", "--vocab", default=str(root / "core-vocabulary.json"))
     ap.add_argument("--json", action="store_true", help="JSON output only")
     ap.add_argument("--strict", action="store_true",
                     help="exit 1 if the provisional bullet disagrees with reality")

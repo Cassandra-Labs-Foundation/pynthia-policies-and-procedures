@@ -14,7 +14,7 @@ captures:
                     trigger / inputs / outputs / deadline plus the raw codes
   - alerts        : the ALERTS/METRICS prose
   - api_references: every backticked dotted code used by the control, classified
-                    against vocabulary.json (the Cassandra Banking Core API model)
+                    against core-vocabulary.json (the Cassandra Banking Core API model)
                     as a registered event, a registered field, or an
                     unregistered "target" code not yet in the API spec.
 
@@ -279,7 +279,7 @@ def clean_inline(section: str) -> str:
 # --------------------------------------------------------------------------- #
 
 def load_api_index(vocab_path: str):
-    """Return (event_codes:set, field_paths:set, field_meta:dict) from vocabulary.json."""
+    """Return (event_codes:set, field_paths:set, field_meta:dict) from core-vocabulary.json."""
     if not os.path.exists(vocab_path):
         return set(), set(), {}, None
     with open(vocab_path, encoding="utf-8") as fh:
@@ -327,7 +327,7 @@ def classify_codes(dotted: list[str], event_codes: set, field_paths: set) -> dic
 # --------------------------------------------------------------------------- #
 
 def build(root: str) -> dict:
-    vocab_path = os.path.join(root, "vocabulary.json")
+    vocab_path = os.path.join(root, "core-vocabulary.json")
     event_codes, field_paths, api_meta, _ = load_api_index(vocab_path)
 
     policy_files = find_policy_files(root)
