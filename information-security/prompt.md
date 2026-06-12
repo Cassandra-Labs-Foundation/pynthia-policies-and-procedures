@@ -44,7 +44,7 @@ The policy must establish the following controls:
 
 **(a) Governance & Oversight.** Maintain a single authoritative Security Program record with owners, charter, KPIs, and review cadence; obtain annual policy approval and deliver quarterly KPI reports to the Board/Supervisory Committee within 30 days post-quarter.
 
-**(b) Enterprise Risk Assessment.** Maintain a risk register mapping assets, threats, and controls (including fraud, social engineering, ID theft, and AI risks), conducting assessments at least every 12 months with monthly POA&M updates and a lightweight risk assessment within 10 business days for new products.
+**(b) Enterprise Risk Assessment.** Maintain an information-security risk register mapping assets, threats, and controls (including fraud, social engineering, ID theft, and AI risks) that feeds into the centralized enterprise risk register owned by the Enterprise Risk Management Policy. Apply ERM's tiered reassessment cadence — High/Very High residual risks at least quarterly, Moderate at least annually, Low/Very Low every two years or on trigger events — with monthly POA&M updates. Complete a lightweight security risk assessment within 10 business days for new products and submit findings as input to the ERM new-product review process.
 
 **(c) Asset Inventory & Classification.** Maintain a CMDB of hardware, software, data stores, and vendors with data classification (Public/Internal/Confidential-NPI), posting inventory deltas within 5 business days of change and attesting quarterly.
 
@@ -62,7 +62,7 @@ The policy must establish the following controls:
 
 **(j) Identity Theft Red Flags Program.** Maintain a red-flag matrix with step-up verification and account holds, reviewing red-flag cases same day and the ruleset quarterly, with SAR referral where applicable.
 
-**(k) Vendor Risk Management.** Perform due diligence (security, privacy, SOC reports) and require contractual safeguards (breach notice, disposition, right to audit) with ongoing monitoring; review high-risk vendors annually and apply contractual breach-notice windows.
+**(k) Vendor Risk Management.** Perform information-security due diligence (security questionnaires, privacy controls, SOC reports, pen-test results) as the InfoSec contribution to the broader vendor lifecycle governed by the Third-Party Risk Policy. Require contractual safeguards (breach notice, data disposition, right to audit); breach-notice windows must align to Third-Party Risk's standard — vendors notify the institution within 24 hours of discovery, with internal security triage completed within 1 business day. Review high-risk vendors annually consistent with Third-Party Risk monitoring cadences.
 
 **(l) Physical Security & Facilities.** Enforce card/access controls, visitor escort and logs, CCTV/alarm monitoring, and secure areas for servers/media, deactivating badges within 24 hours of separation.
 
@@ -76,7 +76,7 @@ The policy must establish the following controls:
 
 **(q) Training, Awareness & Testing.** Provide role-based training with quarterly phishing simulations and high-risk-role deep-dives, completing new-hire training within 30 days and annual refreshers, with re-training after repeated phishing failures.
 
-**(r) Records Management & Retention.** Apply retention schedules by record class with a legal-hold process aligned to data disposal, processing the destruction queue monthly unless on hold.
+**(r) Records Management & Retention.** Apply the Record Retention Policy's Schedule A retention periods to security-specific record classes (SIEM and audit logs, incident-response records, vulnerability findings and POA&Ms, access-review evidence, AI-use registry entries, and physical security logs). Process the security destruction queue monthly unless a legal hold — governed by the Record Retention Policy's legal-hold process — is in effect. Data disposal must align with §3(g) of this policy (render data unreadable within 30 days of eligibility).
 
 Governance of these controls is centralized with the Chief Compliance Officer, with the Information Security/IT lead, Engineering/SecOps, Risk, Privacy, HR, Facilities, and the Board/Supervisory Committee as required participants.
 
