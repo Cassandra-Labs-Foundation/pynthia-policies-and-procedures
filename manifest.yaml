@@ -14,7 +14,7 @@
 policies:
   - folder: audit
     slug: audit
-    enabled: false
+    enabled: true
     notes: "Internal/external audit program."
 
   - folder: basel-ii-standardized-approach-framework
@@ -24,7 +24,7 @@ policies:
 
   - folder: bsa
     slug: bsa
-    enabled: true
+    enabled: false
     notes: "BSA/AML/CFT program — CIP, CDD/EDD, OFAC sanctions, SAR/CTR."
 
   - folder: business-continuity-plan
@@ -39,7 +39,7 @@ policies:
 
   - folder: cash
     slug: cash
-    enabled: false
+    enabled: true
     notes: "Cash control, handling, vault/teller, cash management."
 
   - folder: charitable-donation-accounts
