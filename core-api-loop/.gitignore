@@ -4,6 +4,8 @@ best.json
 moves.jsonl
 regen-log.jsonl
 JOURNAL.md
+supervisor-rounds.jsonl
+supervisor-state.json
 __pycache__/
 prepare/__pycache__/
 .regen/

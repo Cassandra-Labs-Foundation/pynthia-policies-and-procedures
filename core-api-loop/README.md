@@ -25,6 +25,8 @@ prepare/                      THE IMMUTABLE EVAL HARNESS — the agent must neve
 program.md                    agent instructions (Elon ordering, authority precedence, scope)
 run_loop.py                   INNER loop: keep-iff-best runner (init / status / adjudicate / run)
 regenerate.py                 OUTER loop: regenerate a policy vs the spec + measure demand delta
+supervise.py                  drives inner<->outer to a fixed point (outer only after inner converges)
+journal.py                    unified hypothesis->outcome log (inner moves + outer cycles)
 requirements.txt              PyYAML
 .venv/                        local venv (gitignored)
 best.json, moves.jsonl        inner-loop working state (gitignored)
@@ -129,6 +131,45 @@ measure` — see `regenerate.py --help`.
 > Today there is no `claude` CLI / `ANTHROPIC_API_KEY` / `anthropic` SDK on this machine, so the
 > usable backend is `stage` driven by a Claude Code subagent. `--backend api|cli` works as soon as
 > a key or the CLI is present (model: `claude-opus-4-8`).
+
+## Supervisor — drive inner↔outer to a fixed point
+
+`supervise.py` runs the full co-evolution. **The invariant: an outer cycle runs ONLY after the
+inner loop has converged.** Per round:
+
+1. freeze demand + snapshot the baseline spec
+2. **inner loop to convergence** — propose a move (`--proposer-cmd`) → adjudicate, repeated until
+   the proposer stops changing the spec, `--patience` consecutive moves are reverted, or
+   `--max-inner` is hit
+3. **gate** — only now compute the spec delta and the affected policies
+4. if nothing is affected → spec converged, no policy impacted → **fixed point**, stop
+5. **outer** — regenerate the affected policies (delegates to `regenerate.py`)
+6. re-freeze demand; if it didn't move → **fixed point**, stop; else next round
+
+Stops at `--max-outer` rounds or after `--ratchet` rounds with no best-score improvement. Every
+inner move and outer cycle flows into the same journal; round boundaries are in
+`supervisor-rounds.jsonl`.
+
+```bash
+PY=core-api-loop/.venv/bin/python
+# on a loop branch (inner moves commit); api/cli regenerate inline:
+$PY core-api-loop/supervise.py --proposer-cmd "<cmd that edits core-api.yaml, prints {label,note}>" \
+    --outer-backend api --patience 2 --max-inner 20 --max-outer 5
+# stage backend: each round preps+stages affected policies and PAUSES; generate them in parallel
+# (subagents), then continue with:
+$PY core-api-loop/supervise.py --resume
+```
+
+The **proposer** is the universal hook for the inner-move generator: a shell command that edits
+`core-api.yaml` to make one move and prints `{"label":..,"note":..}`. The supervisor writes the
+current scorer state to `.regen/proposer-context.json` before each call and the move contract is in
+[`program.md`](program.md). Point it at an LLM (`claude -p < prompt`), a script, anything; "no
+change" means the inner loop has converged.
+
+> Verified end-to-end (deterministic proposer, no LLM): round 1 kept 3 inner feasibility moves
+> (unregistered 1116→1113), declared convergence, the gate found 2 affected policies, the outer
+> step engaged and paused for staged generation; `--resume` applied + measured + re-froze and
+> reported the demand had moved (→ next round).
 
 ## Journal — what was tried and what happened
 
