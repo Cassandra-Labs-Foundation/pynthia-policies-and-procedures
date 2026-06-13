@@ -130,6 +130,36 @@ measure` — see `regenerate.py --help`.
 > usable backend is `stage` driven by a Claude Code subagent. `--backend api|cli` works as soon as
 > a key or the CLI is present (model: `claude-opus-4-8`).
 
+## Journal — what was tried and what happened
+
+Every hypothesis the loop tested and its outcome is logged, in one place:
+
+- **Inner moves** → `moves.jsonl` (written by `run_loop.py adjudicate`): the move `--label` is the
+  hypothesis, the `--note` its rationale; `kept`/Δ/coverage/complexity/commit is the outcome.
+- **Outer cycles** → `regen-log.jsonl` (written by `regenerate.py measure`/`cycle`): "regenerate
+  <slug>" is the hypothesis; the demand + unregistered delta is the outcome.
+
+`journal.py` merges both into one chronological view:
+
+```bash
+core-api-loop/.venv/bin/python core-api-loop/journal.py            # readable table + summary
+core-api-loop/.venv/bin/python core-api-loop/journal.py --kept-only # only moves that landed
+core-api-loop/.venv/bin/python core-api-loop/journal.py --write      # also -> core-api-loop/JOURNAL.md
+```
+
+```
+TIME         LOOP  HYPOTHESIS                         OUTCOME
+06-13 19:20  inner delete orphan /cases endpoints     KEPT   Δ-42 | unreg 1116 arch 34 cx 4412 [9ee05bc]
+06-13 19:21  inner delete Account state machine       revert Δ+100000 | unreg 1116 arch 35 cx 4412
+06-13 19:38  outer regenerate fair-lending            unreg 1116→1088 (-28) | demand 3792→3711 (+4/-85)
+inner: 1/2 moves kept (1 reverted) | best score 115004454 → 115004412 | outer cycles: 1
+```
+
+Pass a rationale at run time so it lands in the journal:
+`run_loop.py adjudicate --label "merge wire_details into wire_transfer" --note "both describe the same wire; fields are 1:1"`
+and `regenerate.py cycle fair-lending --note "lending vocab now registered"`. The logs + `JOURNAL.md`
+are local working state (gitignored); regenerate the journal any time from the logs.
+
 ## The score
 
 ```

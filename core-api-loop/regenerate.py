@@ -58,6 +58,7 @@ VENV_PY = os.path.join(HERE, ".venv", "bin", "python")
 PY = VENV_PY if os.path.exists(VENV_PY) else sys.executable
 
 REGEN_DIR = os.path.join(HERE, ".regen")
+REGEN_LOG = os.path.join(HERE, "regen-log.jsonl")  # outer-loop hypothesis->outcome log
 PREP_SCRIPT = os.path.join(REPO_ROOT, ".skills", "policy-prep", "scripts", "prepare_policy.py")
 PARSE_SCRIPT = os.path.join(SCRIPTS, "parse_core_api.py")
 CHECK_SCRIPT = os.path.join(SCRIPTS, "check_vocab_refs.py")
@@ -258,6 +259,27 @@ def cmd_measure(args) -> None:
             print(f"\n+ added {len(added)} codes (sample): {added[:20]}")
         if removed:
             print(f"\n- removed {len(removed)} codes (sample): {removed[:20]}")
+
+    # Persist the outcome to the outer-loop log (hypothesis -> outcome), for journal.py.
+    slug = getattr(args, "slug", None)
+    record = {
+        "ts": _now(),
+        "loop": "outer",
+        "hypothesis": f"regenerate {slug}" if slug else "remeasure demand",
+        "note": getattr(args, "note", None),
+        "demand_before": result["before"]["codes"],
+        "demand_after": result["after"]["codes"],
+        "codes_added": result["codes_added"],
+        "codes_removed": result["codes_removed"],
+    }
+    if "unregistered_delta" in result:
+        record.update({
+            "unregistered_before": result["unregistered_before"],
+            "unregistered_after": result["unregistered_after"],
+            "unregistered_delta": result["unregistered_delta"],
+        })
+    with open(REGEN_LOG, "a", encoding="utf-8") as fh:
+        fh.write(json.dumps(record) + "\n")
 
 
 # --------------------------------------------------------------------------- #
@@ -468,7 +490,8 @@ def _phase_apply_measure(slugs: list[str], args) -> None:
         print(f"\n========== finalize: {slug} ==========")
         cmd_apply(types.SimpleNamespace(slug=slug, from_path=None, strict=args.strict))
         cmd_measure(types.SimpleNamespace(before=_before_tag(slug), slug=slug,
-                                          spec_scored=True, show=args.show))
+                                          spec_scored=True, show=args.show,
+                                          note=getattr(args, "note", None)))
 
 
 def cmd_cycle(args) -> None:
@@ -535,6 +558,7 @@ def main(argv: list[str]) -> int:
     p_meas.add_argument("--spec-scored", action="store_true",
                         help="report unregistered before/after against the current spec")
     p_meas.add_argument("--show", action="store_true", help="print sample added/removed codes")
+    p_meas.add_argument("--note", default=None, help="rationale, recorded in regen-log.jsonl")
     p_meas.set_defaults(func=cmd_measure)
 
     def add_baseline(p):
@@ -569,6 +593,7 @@ def main(argv: list[str]) -> int:
     p_cyc.add_argument("--no-reparse", action="store_true")
     p_cyc.add_argument("--strict", action="store_true")
     p_cyc.add_argument("--show", action="store_true")
+    p_cyc.add_argument("--note", default=None, help="rationale, recorded in regen-log.jsonl")
     p_cyc.add_argument("--resume", action="store_true",
                        help="skip snapshot/prep/generate; apply+measure the staged Markdown")
     p_cyc.set_defaults(func=cmd_cycle)

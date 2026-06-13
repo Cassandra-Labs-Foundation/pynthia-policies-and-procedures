@@ -162,7 +162,10 @@ def cmd_adjudicate(args) -> int:
     keep = cand["score"] < best["score"]
     record = {
         "ts": _now(),
+        "loop": "inner",
+        "hypothesis": args.label,
         "label": args.label,
+        "note": getattr(args, "note", None),
         "candidate_score": cand["score"],
         "best_score": best["score"],
         "delta": round(cand["score"] - best["score"], 4),
@@ -242,7 +245,9 @@ def main(argv: list[str]) -> int:
 
     p_adj = sub.add_parser("adjudicate", help="score working tree, keep or revert")
     add_common(p_adj)
-    p_adj.add_argument("--label", required=True, help="name of this move")
+    p_adj.add_argument("--label", required=True, help="name of this move (the hypothesis)")
+    p_adj.add_argument("--note", default=None,
+                       help="rationale for the move, recorded in moves.jsonl")
     p_adj.add_argument("--allow-main", action="store_true",
                        help="permit committing on the default branch")
     p_adj.add_argument("--no-revert", action="store_true",
