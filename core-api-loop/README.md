@@ -18,6 +18,7 @@ prepare/                      THE IMMUTABLE EVAL HARNESS — the agent must neve
   control_oracle.py               coverage vs policy demand (unregistered = demand - events - fields)
   architecture_oracle.py          coverage vs architecture-spec.json
   architecture-spec.json          hand-reviewed checklist distilled from architecture-decisions.md
+  endpoint_rules.py               DERIVES the required endpoint surface from resources (REST per resource)
   fitness.py                      complexity (concepts/fields/endpoints/tasks + genericness tax)
   score.py                        single gated scalar + keep/revert verdict
   score-config.json               weights, budgets, big_penalty
@@ -234,19 +235,21 @@ hard 0 in `score-config.json`; set a provisional budget there or via
 | parsed spec | 265 entities, 1,683 fields, 1,221 events, 35 endpoints, 12 state machines, 28 task types |
 | control demand | 3,792 codes across 30 policies / 371 controls |
 | **unregistered (control gap)** | **1,116** |
-| **uncovered architecture elements** | **34 / 51** (state machines all pass; gap is the banking-core endpoint surface + `account_number`) |
+| **uncovered architecture elements** | **56** with `endpoint_derivation: stateful` (missing banking-core endpoints + per-resource REST the derivation requires; ~186 with `all`) |
 | complexity | 4,454 |
-| score | 115,004,454 |
+| score | 117,204,454 |
 
 > Note: the committed `controls.json` (942 unregistered, 26 policies) is **stale** vs the live
 > policy tree (1,116, 30 policies). The oracle computes against the live markdown.
 
 ### Harness verification (all pass)
 
-1. **Oracle sanity** — reproduces 1,116 control gap + a non-empty 34-element architecture gap.
-2. **Deletion safety** — free deletion (`/cases` endpoints) → complexity 4454→4412, no new
-   violation → **KEEP** (Δ=−42). Load-bearing deletion (`Account` state machine) → arch gap
-   34→35 → **REVERT** (Δ=+100000). The gate has teeth.
+1. **Oracle sanity** — reproduces the 1,116 control gap + a non-empty architecture gap (56 under
+   stateful endpoint derivation).
+2. **Deletion safety / endpoints are load-bearing** — endpoints are DERIVED from resources, so a
+   resource-backed endpoint cannot be deleted for free: removing the `/cases` endpoints opens
+   +4 gaps (list/create/get + lifecycle for the `Case` resource) → **REVERT**; likewise removing
+   the `Account` state machine raises the arch gap → **REVERT** (Δ=+100000). The gate has teeth.
 3. **Runner dry-run** — `adjudicate` committed only the kept move and reverted the losing one
    cleanly; `moves.jsonl` logged both attempts.
 4. **Round-trip integrity** — from-scratch `parse_core_api.py` + `extract_controls.py` reproduce

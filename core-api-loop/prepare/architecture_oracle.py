@@ -35,7 +35,8 @@ SCRIPTS_DIR = os.path.join(REPO_ROOT, "scripts")
 if SCRIPTS_DIR not in sys.path:
     sys.path.insert(0, SCRIPTS_DIR)
 
-import parse_core_api  # noqa: E402
+import parse_core_api   # noqa: E402
+import endpoint_rules    # noqa: E402  (derives per-resource REST surface)
 
 try:
     import yaml  # noqa: E402
@@ -105,14 +106,49 @@ def evaluate(vocab: dict, checklist: dict) -> dict:
             gaps.append({"category": "event_family", "element": ef["prefix"] + ".*",
                          "decision": ef.get("decision"), "detail": "no events under this prefix"})
 
-    # --- endpoints --------------------------------------------------------------
+    # --- endpoints (architecture-mandated specials + DERIVED per-resource REST) --
+    # (a) architecture-mandated special endpoints (payment hub, sandbox sims, entity
+    #     creation, etc.) — explicit in the checklist.
     for ep in checklist.get("endpoints", []):
         key = (ep["method"].upper(), _norm_path(ep["path"]))
         if key in endpoint_set:
             covered += 1
         else:
             gaps.append({"category": "endpoint", "element": f"{ep['method'].upper()} {ep['path']}",
-                         "decision": ep.get("decision"), "detail": "endpoint absent"})
+                         "decision": ep.get("decision"), "detail": "architecture-mandated endpoint absent"})
+
+    # (b) DERIVED per-resource REST — a resource's endpoints are a consequence of the resource
+    #     existing, so they are load-bearing: deleting them opens a gap.
+    mode = checklist.get("endpoint_derivation", "stateful")
+    required, plural_map = endpoint_rules.derive_required(vocab, mode)
+    for req in required:
+        if req["kind"] == "rest":
+            if (req["method"], _norm_path(req["path"])) in endpoint_set:
+                covered += 1
+            else:
+                gaps.append({"category": "endpoint", "element": f"{req['method']} {req['path']}",
+                             "decision": f"REST({req['resource']})",
+                             "detail": "resource REST endpoint absent"})
+        else:  # lifecycle: any POST under /P/{id}/...
+            prefix = _norm_path(req["path"]) + "/"
+            if any(m == "POST" and p.startswith(prefix) for (m, p) in endpoint_set):
+                covered += 1
+            else:
+                gaps.append({"category": "endpoint", "element": f"POST {req['path']}/<action>",
+                             "decision": f"lifecycle({req['resource']})",
+                             "detail": "stateful resource has no transition/action endpoint"})
+
+    # endpoints with no backing resource and not an exempt non-resource prefix -> reported as
+    # orphans (informational; not gated — the complexity term handles genuine orphans).
+    exempt = set(checklist.get("endpoint_exempt_prefixes", []))
+    special_segs = {endpoint_rules.first_segment(ep["path"]) for ep in checklist.get("endpoints", [])}
+    all_plurals = endpoint_rules.all_resource_plurals(vocab)  # attribute to ANY resource, not just in-scope
+    endpoint_orphans = sorted({
+        f"{m} {p}" for (m, p) in endpoint_set
+        if endpoint_rules.first_segment(p) not in all_plurals
+        and endpoint_rules.first_segment(p) not in exempt
+        and endpoint_rules.first_segment(p) not in special_segs
+    })
 
     # --- fields -----------------------------------------------------------------
     for f in checklist.get("fields", []):
@@ -138,6 +174,7 @@ def evaluate(vocab: dict, checklist: dict) -> dict:
         "covered": covered,
         "uncovered_count": len(gaps),
         "gaps": gaps,
+        "endpoint_orphans": endpoint_orphans,
         "by_category": {
             cat: sum(1 for g in gaps if g["category"] == cat)
             for cat in ("resource", "state_machine", "event_family", "endpoint", "field", "convention")

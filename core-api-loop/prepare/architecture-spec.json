@@ -73,6 +73,12 @@
     {"method": "GET",  "path": "/events",    "decision": "D15", "note": "Event backfill/list (append-only log)."}
   ],
 
+  "endpoint_derivation": "stateful",
+  "_endpoint_derivation_note": "How per-resource REST endpoints are DERIVED (in addition to the architecture-mandated specials in `endpoints` above). 'stateful' = REST for every resource that has a state machine (lifecycle entities you operate on); the spec's value-object resources get no endpoints. 'all' = REST for every authored resource (the current spec has 57, so 'all' demands ~140 endpoints and reports most as gaps). A resource's REST surface is REQUIRED, so deleting it opens a gap — that is what stops the loop from deleting legitimate endpoints like /cases.",
+
+  "endpoint_exempt_prefixes": ["sandbox", "payments", "fbo", "inbound", "auth", "events", "changelog"],
+  "_endpoint_exempt_note": "First path segments that are legitimately NOT backed by a resource (payment hub, sandbox simulators, FBO/inbound aggregator reads, auth, event log, changelog). Endpoints under these are never flagged as orphans.",
+
   "fields": [
     {"path": "account_number.informational_entity_id", "decision": "D2",  "note": "FBO attribution on account number."}
   ],

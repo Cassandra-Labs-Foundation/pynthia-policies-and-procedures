@@ -247,19 +247,22 @@ def propose_greedy(demand, vocab, result) -> dict:
                 return {"op": "add_field", "path": code, "type": "string",
                         "label": f"register {code}",
                         "note": f"feasibility: cited by {refs} control(s), was unregistered"}
-    # architecture gaps still open? (greedy can't synthesize endpoints safely) -> fall through
-    # feasible on controls: delete an orphan endpoint the architecture doesn't require
-    req_ep = {(_norm(e["path"])) for e in json.load(open(CHECKLIST)).get("endpoints", [])}
+    # feasible on controls: delete a TRUE orphan endpoint — one whose first path segment is
+    # neither a resource plural (so the derivation requires its REST) nor an architecture-mandated
+    # special / exempt prefix. Aligned with architecture_oracle so we never propose a move the
+    # gate would just revert.
+    import endpoint_rules as er
+    cl = json.load(open(CHECKLIST))
+    plurals = er.all_resource_plurals(vocab)
+    exempt = set(cl.get("endpoint_exempt_prefixes", []))
+    special = {er.first_segment(e["path"]) for e in cl.get("endpoints", [])}
     for path in sorted({ep["path"] for ep in vocab["endpoints"]}):
-        if _norm(path) not in req_ep:
+        seg = er.first_segment(path)
+        if seg not in plurals and seg not in exempt and seg not in special:
             return {"op": "delete_endpoint", "path": path,
                     "label": f"delete orphan endpoint {path}",
-                    "note": "not required by architecture-spec; control coverage ignores endpoints"}
+                    "note": "no backing resource and not an architecture-mandated/exempt endpoint"}
     return {"op": "noop", "label": None, "note": "greedy: no beneficial move left"}
-
-
-def _norm(path: str) -> str:
-    return re.sub(r"\{[^}]*\}", "{}", path.strip().lower()).rstrip("/")
 
 
 # --------------------------------------------------------------------------- #
