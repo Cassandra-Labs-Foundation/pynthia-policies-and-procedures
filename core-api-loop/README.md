@@ -26,6 +26,7 @@ program.md                    agent instructions (Elon ordering, authority prece
 run_loop.py                   INNER loop: keep-iff-best runner (init / status / adjudicate / run)
 regenerate.py                 OUTER loop: regenerate a policy vs the spec + measure demand delta
 supervise.py                  drives inner<->outer to a fixed point (outer only after inner converges)
+propose.py                    inner-move proposer (greedy / api / cli) — the autonomous --proposer-cmd
 journal.py                    unified hypothesis->outcome log (inner moves + outer cycles)
 requirements.txt              PyYAML
 .venv/                        local venv (gitignored)
@@ -160,15 +161,29 @@ $PY core-api-loop/supervise.py --proposer-cmd "<cmd that edits core-api.yaml, pr
 $PY core-api-loop/supervise.py --resume
 ```
 
-The **proposer** is the universal hook for the inner-move generator: a shell command that edits
-`core-api.yaml` to make one move and prints `{"label":..,"note":..}`. The supervisor writes the
-current scorer state to `.regen/proposer-context.json` before each call and the move contract is in
-[`program.md`](program.md). Point it at an LLM (`claude -p < prompt`), a script, anything; "no
-change" means the inner loop has converged.
+The **proposer** is the inner-move generator — a `--proposer-cmd` that edits `core-api.yaml` to
+make one move and prints `{"label","note"}`; "no change" means converged. `propose.py` is the
+first-class implementation:
 
-> Verified end-to-end (deterministic proposer, no LLM): round 1 kept 3 inner feasibility moves
-> (unregistered 1116→1113), declared convergence, the gate found 2 affected policies, the outer
-> step engaged and paused for staged generation; `--resume` applied + measured + re-froze and
+```bash
+# fully autonomous, no LLM (deterministic): register the highest-ref unregistered code while
+# infeasible, then delete architecture-orphan endpoints to cut complexity
+--proposer-cmd "core-api-loop/.venv/bin/python core-api-loop/propose.py --backend greedy"
+# LLM-driven (prompted with program.md + the live score state + spec inventory; emits one edit op)
+--proposer-cmd "core-api-loop/.venv/bin/python core-api-loop/propose.py --backend api"   # or cli
+```
+
+`propose.py` emits ONE structured edit op (`add_field` / `delete_field` / `delete_endpoint` /
+`delete_resource` / `delete_state_machine` / `add|delete_event_type` / `delete_task_type` /
+`noop`) and applies it with **surgical text edits** — no YAML round-trip, so comments/order/diffs
+are preserved. The scorer still judges every move (auto-reverted if it doesn't help), so the
+proposer only needs to suggest. `propose.py --backend greedy --dry-run` prints the next move
+without editing. It's a plain `--proposer-cmd`, so any other generator works too.
+
+> Verified end-to-end, fully autonomous (`propose.py --backend greedy`, no LLM): the supervisor
+> drove 3 inner feasibility moves hands-free (registered `employee.id`, `policy.version`,
+> `account.balances.balance`), declared convergence, the gate found the affected policies, and the
+> outer step engaged + paused for staged generation; `--resume` applied + measured + re-froze and
 > reported the demand had moved (→ next round).
 
 ## Journal — what was tried and what happened
