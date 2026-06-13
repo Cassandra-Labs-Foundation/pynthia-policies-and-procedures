@@ -102,9 +102,21 @@ def _write_proposer_context(args) -> None:
 # --------------------------------------------------------------------------- #
 # inner loop to convergence
 # --------------------------------------------------------------------------- #
+def _parse_proposer(stdout: str) -> dict:
+    for line in reversed(stdout.strip().splitlines()):
+        line = line.strip()
+        if line.startswith("{"):
+            try:
+                return json.loads(line)
+            except json.JSONDecodeError:
+                pass
+    return {}
+
+
 def run_inner(args) -> dict:
     moves = kept = 0
     streak = 0
+    bad_ops = 0
     score_before = _best_score()
     reason = "max_inner"
     for _ in range(args.max_inner):
@@ -116,22 +128,20 @@ def run_inner(args) -> dict:
             print(f"  proposer exited {proc.returncode}; treating as converged.\n{proc.stderr[:400]}")
             reason = "proposer_error"
             break
+        j = _parse_proposer(proc.stdout)
         if _spec_hash() == before_hash:
-            print("  proposer made no change -> inner converged.")
+            # no spec change: distinguish a deliberate noop (converged) from a bad op (retry)
+            if j.get("status") == "retry" and bad_ops < args.propose_retries:
+                bad_ops += 1
+                print(f"  proposer op didn't apply ({j.get('note')}) -> retry "
+                      f"{bad_ops}/{args.propose_retries}")
+                continue
+            print("  proposer has no further move -> inner converged.")
             reason = "proposer_no_change"
             break
-        # parse optional {"label","note"} from the proposer's last stdout line
-        label, note = f"auto move {moves + 1}", None
-        for line in reversed(proc.stdout.strip().splitlines()):
-            line = line.strip()
-            if line.startswith("{"):
-                try:
-                    j = json.loads(line)
-                    label = j.get("label") or label
-                    note = j.get("note")
-                    break
-                except json.JSONDecodeError:
-                    pass
+        bad_ops = 0
+        label = j.get("label") or f"auto move {moves + 1}"
+        note = j.get("note")
         s_before = _best_score()
         run_loop.cmd_adjudicate(types.SimpleNamespace(
             label=label, note=note, allow_main=args.allow_main, no_revert=False,
@@ -256,6 +266,8 @@ def main(argv=None) -> int:
     ap.add_argument("--jobs", type=int, default=4)
     ap.add_argument("--patience", type=int, default=2,
                     help="consecutive non-improving inner moves that mean 'converged'")
+    ap.add_argument("--propose-retries", type=int, default=2,
+                    help="times to retry the proposer when an op fails to apply before converging")
     ap.add_argument("--max-inner", type=int, default=20, help="inner-move cap per round")
     ap.add_argument("--max-outer", type=int, default=5, help="outer rounds cap")
     ap.add_argument("--ratchet", type=int, default=2,

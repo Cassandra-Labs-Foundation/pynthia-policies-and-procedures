@@ -373,20 +373,22 @@ def main(argv=None) -> int:
     else:
         op = propose_llm(demand, vocab, result, args.backend)
 
+    # status tells the supervisor how to read a "no change":
+    #   applied   -> the spec changed (a real move)
+    #   converged -> the proposer deliberately has no move (noop) -> inner loop is done
+    #   retry     -> the proposed op didn't apply (malformed / matched nothing) -> try again
+    deliberate_noop = op.get("op") in (None, "noop")
     applied = False
-    if not args.dry_run and op.get("op") not in (None, "noop"):
+    status = "converged" if deliberate_noop else "proposed"
+    if not args.dry_run and not deliberate_noop:
         try:
             applied = apply_op(op)
         except Exception as e:  # noqa: BLE001 — never let a bad op crash the proposer
-            op = {"op": "noop", "label": None, "note": f"op failed to apply: {e}"}
-        if not applied and op.get("op") != "noop":
-            # target absent / nothing changed -> signal convergence to the supervisor
-            op = {"op": "noop", "label": None,
-                  "note": f"op {op.get('op')} matched nothing (already applied?)"}
+            applied, op = False, {**op, "note": f"op failed to apply: {e}"}
+        status = "applied" if applied else "retry"
 
-    # the supervisor parses {"label","note"} from the last JSON line; "no change" = converged
     print(json.dumps({"label": op.get("label"), "note": op.get("note"),
-                      "op": op.get("op"), "applied": applied}))
+                      "op": op.get("op"), "applied": applied, "status": status}))
     return 0
 
 
