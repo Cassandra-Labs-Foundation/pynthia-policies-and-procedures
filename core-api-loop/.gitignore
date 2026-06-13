@@ -1,0 +1,7 @@
+# Volatile loop working state (regenerable; not part of the committed harness)
+.venv/
+best.json
+moves.jsonl
+__pycache__/
+prepare/__pycache__/
+.regen/

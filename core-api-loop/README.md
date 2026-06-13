@@ -1,0 +1,145 @@
+# core-api-loop
+
+An AutoResearch-style self-minimizing loop for `core-api.yaml`. The agent edits one file
+(`core-api.yaml`); an **immutable** eval harness scores it; the runner keeps a move iff it beats
+the best. Goal: the smallest API that fully spans both the **controls** (policy demand) and the
+**architecture** (`architecture-decisions.md`).
+
+See the plan in `~/.claude/plans/` and the agent contract in [`program.md`](program.md).
+
+## Layout
+
+```
+inputs/                       one-time snapshots from cassandra-core (see PROVENANCE.md)
+  architecture-decisions.md       authoritative (v1.1)
+  compliance-system-architecture.md  conceptual + STALE (Kafka/openapi.yaml superseded)
+  fair-lending-openapi.yaml       phase-1 reference sub-spec
+prepare/                      THE IMMUTABLE EVAL HARNESS — the agent must never edit this
+  control_oracle.py               coverage vs policy demand (unregistered = demand - events - fields)
+  architecture_oracle.py          coverage vs architecture-spec.json
+  architecture-spec.json          hand-reviewed checklist distilled from architecture-decisions.md
+  fitness.py                      complexity (concepts/fields/endpoints/tasks + genericness tax)
+  score.py                        single gated scalar + keep/revert verdict
+  score-config.json               weights, budgets, big_penalty
+  demand.json                     frozen demand snapshot (control_oracle.py --freeze)
+program.md                    agent instructions (Elon ordering, authority precedence, scope)
+run_loop.py                   INNER loop: keep-iff-best runner (init / status / adjudicate / run)
+regenerate.py                 OUTER loop: regenerate a policy vs the spec + measure demand delta
+requirements.txt              PyYAML
+.venv/                        local venv (gitignored)
+best.json, moves.jsonl        inner-loop working state (gitignored)
+.regen/                       outer-loop working state: generated md + demand snapshots (gitignored)
+```
+
+## Setup
+
+```bash
+python3.12 -m venv core-api-loop/.venv
+core-api-loop/.venv/bin/pip install -r core-api-loop/requirements.txt
+```
+
+## Use (human-approved inner loop)
+
+```bash
+PY=core-api-loop/.venv/bin/python
+$PY core-api-loop/run_loop.py init          # freeze demand + record baseline (run once)
+# ... edit core-api.yaml: one named move ...
+$PY core-api-loop/run_loop.py adjudicate --label "merge wire_details into wire_transfer"
+#   -> KEEP (commit) if score drops, else REVERT (git checkout). Logged to moves.jsonl.
+```
+
+Inspect any spec without the runner:
+```bash
+$PY core-api-loop/prepare/score.py                 # score current spec
+$PY core-api-loop/prepare/control_oracle.py        # unregistered codes
+$PY core-api-loop/prepare/architecture_oracle.py   # uncovered architecture elements
+```
+
+> The runner refuses to commit on `main` — work on a loop branch (e.g. `core-api-loop/run`)
+> or pass `--allow-main`.
+
+## Outer loop (policy regeneration → demand co-evolution)
+
+The inner loop minimizes the spec against a **frozen** demand. The outer loop regenerates the
+policies against the (now smaller/different) spec so they cite its registered vocabulary, which
+shifts the demand. If the demand stabilizes you've hit a fixed point; if it moves, run the inner
+loop again. `regenerate.py` owns all the determinism; the LLM that turns a composite prompt into
+Markdown is a **pluggable backend**.
+
+The composite prompt is assembled by the existing `.skills/policy-prep` skill: `meta-prompt.md`
++ the policy's `{slug}/prompt.md` INPUTS + the live vocabulary as `DESIGN_NOTES` (from
+`.skills/vocabulary/scripts/extract_vocabulary.py` over `core-vocabulary.json` — this is the spec
+coupling). `regenerate.py prep` re-parses the spec first so `DESIGN_NOTES` is current.
+
+**One-shot (`cycle`)** — snapshot → prep → generate → apply → measure:
+
+```bash
+PY=core-api-loop/.venv/bin/python
+# Fully automated (needs a backend):
+ANTHROPIC_API_KEY=... $PY core-api-loop/regenerate.py cycle fair-lending --backend api --show
+
+# Agent/human (no backend): cycle runs snapshot+prep, then PAUSES with the composite-prompt path.
+$PY core-api-loop/regenerate.py cycle fair-lending              # -> pauses, prints drop path
+#   ...a Claude Code subagent reads .cache/prep/fair-lending.composite-prompt.txt and writes the
+#      generated Markdown to core-api-loop/.regen/fair-lending.generated.md...
+$PY core-api-loop/regenerate.py cycle fair-lending --resume     # -> apply + measure
+```
+
+`cycle` stages the demand snapshot under `cycle-<slug>-before`; `--resume` reuses it. If the
+generated Markdown already exists when `cycle` reaches the generate step (stage backend), it
+proceeds without pausing.
+
+**Step-by-step** (same stages, run individually) — `snapshot --tag … / prep / generate / apply /
+measure` — see `regenerate.py --help`.
+
+> Today there is no `claude` CLI / `ANTHROPIC_API_KEY` / `anthropic` SDK on this machine, so the
+> usable backend is `stage` driven by a Claude Code subagent. `--backend api|cli` works as soon as
+> a key or the CLI is present (model: `claude-opus-4-8`).
+
+## The score
+
+```
+score = (control_violations + arch_violations) * big_penalty + complexity   # lower is better
+control_violations = max(0, unregistered_codes      - control_budget)
+arch_violations    = max(0, uncovered_arch_elements - arch_budget)
+```
+Feasibility first (drive violations to 0/budget), then minimize complexity. Budgets default to
+hard 0 in `score-config.json`; set a provisional budget there or via
+`--control-budget/--arch-budget` to start in the minimize-complexity regime.
+
+## Verified baseline (2026-06-13, live policy tree, hard budgets)
+
+| metric | value |
+|---|---|
+| parsed spec | 265 entities, 1,683 fields, 1,221 events, 35 endpoints, 12 state machines, 28 task types |
+| control demand | 3,792 codes across 30 policies / 371 controls |
+| **unregistered (control gap)** | **1,116** |
+| **uncovered architecture elements** | **34 / 51** (state machines all pass; gap is the banking-core endpoint surface + `account_number`) |
+| complexity | 4,454 |
+| score | 115,004,454 |
+
+> Note: the committed `controls.json` (942 unregistered, 26 policies) is **stale** vs the live
+> policy tree (1,116, 30 policies). The oracle computes against the live markdown.
+
+### Harness verification (all pass)
+
+1. **Oracle sanity** — reproduces 1,116 control gap + a non-empty 34-element architecture gap.
+2. **Deletion safety** — free deletion (`/cases` endpoints) → complexity 4454→4412, no new
+   violation → **KEEP** (Δ=−42). Load-bearing deletion (`Account` state machine) → arch gap
+   34→35 → **REVERT** (Δ=+100000). The gate has teeth.
+3. **Runner dry-run** — `adjudicate` committed only the kept move and reverted the losing one
+   cleanly; `moves.jsonl` logged both attempts.
+4. **Round-trip integrity** — from-scratch `parse_core_api.py` + `extract_controls.py` reproduce
+   265 entities and 1,116 unregistered, matching the oracle (no hidden state).
+5. **Outer-loop convergence** — demonstrated end-to-end on `fair-lending`: `prep` (reparse +
+   composite) → a Claude Code subagent generated a 46 KB / 13-control policy from the composite
+   prompt → `apply` (validated: 65 events + 61 fields + 29 tasks registered) → `measure`. The
+   demand moved 3,792→3,711 codes (4 added, 85 removed) and **unregistered dropped 1,116→1,088
+   (−28)** against the unchanged spec — purely from the regenerated policy reusing more registered
+   codes. (Demo reverted afterward; generated copy kept in `.regen/`.)
+
+### Fix shipped during verification
+
+`scripts/extract_controls.py` `EXCLUDE_PATH_PARTS` now also excludes `core-api-loop` — otherwise
+the harness's own Markdown (e.g. a generated policy staged in `.regen/`) would be miscounted as a
+policy and inflate both the demand and the repo's committed `controls.json`.

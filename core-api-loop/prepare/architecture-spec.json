@@ -1,0 +1,89 @@
+{
+  "meta": {
+    "title": "Architecture coverage checklist for core-api.yaml",
+    "purpose": "Machine-checkable distillation of the API-relevant mandates in architecture-decisions.md. The architecture oracle diffs this against the parsed core-vocabulary.json. Every element here is something the spec MUST express; uncovered elements are the architecture gap.",
+    "derived_from": "core-api-loop/inputs/architecture-decisions.md",
+    "source_doc_version": "1.1",
+    "source_doc_date": "2026-02-20",
+    "source_repo": "Cassandra-Labs-Foundation/core",
+    "source_commit": "1131f5ffa190744ab218993af69f5298e4ff72b9",
+    "authored_at": "2026-06-13",
+    "review_note": "Hand-authored from the decision text and reviewed once. Only API vocabulary (named resources, state machines, event families, endpoints, and load-bearing fields) is included. Pure infra/ops decisions (D3 ledger internals, D5 auth phasing, D10 card-processor adapter, D11 KYC providers, D14 rate limits, D15 webhook retry, D18/D23/D25 infra, D24 console, D26/D27 consumers, D28 origination internals) are intentionally excluded — they mandate no spec vocabulary. D22 (compliance_floor field binding) is documented but not yet gated; see conventions.notes."
+  },
+
+  "resources": [
+    {"name": "entity",         "decision": "D1",  "note": "Unified entity namespace (person/business/trust/joint discriminator)."},
+    {"name": "account",        "decision": "D2",  "note": "Ledger account (regulatory reporting unit)."},
+    {"name": "account_number", "decision": "D2",  "note": "Routing/account-number pair; 1:Many to account; FBO attribution."},
+    {"name": "ach_transfer",   "decision": "D8",  "note": "Semi-transparent ACH with explicit approval."},
+    {"name": "wire_transfer",  "decision": "D9",  "note": "Domestic Fed wire with return requests."},
+    {"name": "card",           "decision": "D10", "note": "BIN-sponsored issued card."},
+    {"name": "transaction",    "decision": "D21", "note": "Canonical transaction mirror."},
+    {"name": "fbo_position",   "decision": "D19", "note": "Aggregator FBO position (Payment Hub state)."},
+    {"name": "inbound_payment","decision": "D19", "note": "Aggregator inbound routing record."}
+  ],
+
+  "state_machines": [
+    {"name": "Entity",        "decision": "D7", "states": ["pending", "active", "disabled", "archived"]},
+    {"name": "Account",       "decision": "D7", "states": ["open", "frozen", "closed"]},
+    {"name": "AccountNumber", "decision": "D7", "states": ["active", "disabled", "canceled"]},
+    {"name": "AchTransfer",   "decision": "D8", "states": ["pending_approval", "submitted", "settled", "returned", "rejected", "canceled"]},
+    {"name": "WireTransfer",  "decision": "D9", "states": ["pending_approval", "submitted", "completed", "return_requested", "returned", "rejected", "canceled"]}
+  ],
+
+  "event_families": [
+    {"prefix": "entity",         "decision": "D7",      "note": "Entity transition events."},
+    {"prefix": "account",        "decision": "D2",      "note": "Ledger-level events (distinct from account_number.*)."},
+    {"prefix": "account_number", "decision": "D2",      "note": "Routing/external events (distinct from account.*)."},
+    {"prefix": "transaction",    "decision": "D4/D21",  "note": "Canonical transaction events (transaction.created, etc.)."}
+  ],
+
+  "endpoints": [
+    {"method": "GET",  "path": "/entities",          "decision": "D1"},
+    {"method": "POST", "path": "/entities/person",   "decision": "D1"},
+    {"method": "POST", "path": "/entities/business", "decision": "D1"},
+    {"method": "POST", "path": "/entities/trust",    "decision": "D1"},
+    {"method": "POST", "path": "/entities/joint",    "decision": "D1"},
+
+    {"method": "GET",  "path": "/transfers",         "decision": "D8/D16", "note": "Instance plane: transfer collection (book/internal)."},
+    {"method": "POST", "path": "/transfers",         "decision": "D8",     "note": "Instance plane: create transfer."},
+
+    {"method": "POST", "path": "/sandbox/simulate/kyc/approve",  "decision": "D17"},
+    {"method": "POST", "path": "/sandbox/simulate/kyc/deny",     "decision": "D17"},
+    {"method": "POST", "path": "/sandbox/simulate/ach/receive",  "decision": "D17"},
+    {"method": "POST", "path": "/sandbox/simulate/ach/settle",   "decision": "D17"},
+    {"method": "POST", "path": "/sandbox/simulate/ach/return",   "decision": "D17"},
+    {"method": "POST", "path": "/sandbox/simulate/wire/receive", "decision": "D17"},
+    {"method": "POST", "path": "/sandbox/simulate/wire/settle",  "decision": "D17"},
+    {"method": "POST", "path": "/sandbox/simulate/card/authorize","decision": "D17"},
+    {"method": "POST", "path": "/sandbox/simulate/card/settle",  "decision": "D17"},
+    {"method": "POST", "path": "/sandbox/simulate/time/advance", "decision": "D17"},
+    {"method": "POST", "path": "/sandbox/reset",                 "decision": "D17"},
+
+    {"method": "POST", "path": "/payments/ach/originate",          "decision": "D19", "note": "Aggregator plane."},
+    {"method": "POST", "path": "/payments/wire/originate",         "decision": "D19"},
+    {"method": "POST", "path": "/payments/wire/prepare",           "decision": "D19"},
+    {"method": "POST", "path": "/payments/wire/confirm",           "decision": "D19"},
+    {"method": "POST", "path": "/payments/rtp/originate",          "decision": "D19"},
+    {"method": "GET",  "path": "/fbo/{instance_id}/position",      "decision": "D19"},
+    {"method": "GET",  "path": "/fbo/{instance_id}/available_balance", "decision": "D19"},
+    {"method": "GET",  "path": "/inbound/{instance_id}",           "decision": "D19"},
+    {"method": "POST", "path": "/auth/token",                      "decision": "D19"},
+
+    {"method": "GET",  "path": "/events",    "decision": "D15", "note": "Event backfill/list (append-only log)."}
+  ],
+
+  "fields": [
+    {"path": "account_number.informational_entity_id", "decision": "D2",  "note": "FBO attribution on account number."}
+  ],
+
+  "conventions": {
+    "notes": "Cross-cutting conventions expressed once across the spec (D6/D12/D16). Checked as representative-token presence — soft signals, reported in the gap list under category 'convention'.",
+    "tokens": [
+      {"token": "idempotency_key", "decision": "D6",  "kind": "field_substring", "note": "Idempotency-Key header / idempotency_keys."},
+      {"token": "request_id",      "decision": "D12", "kind": "field_substring", "note": "Increase-style error correlation id."},
+      {"token": "doc_url",         "decision": "D12", "kind": "field_substring", "note": "Increase-style error doc link."},
+      {"token": "next_after",      "decision": "D16", "kind": "field_substring", "note": "Transparent cursor pagination."}
+    ]
+  }
+}

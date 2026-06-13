@@ -1,0 +1,3 @@
+# Dependencies for the core-api.yaml self-minimizing loop (core-api-loop/).
+# Set up:  python3.12 -m venv core-api-loop/.venv && core-api-loop/.venv/bin/pip install -r core-api-loop/requirements.txt
+PyYAML>=6.0

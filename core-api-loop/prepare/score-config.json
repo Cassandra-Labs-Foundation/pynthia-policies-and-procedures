@@ -1,0 +1,24 @@
+{
+  "_comment": "Immutable scoring config for the core-api.yaml loop. The agent must NEVER edit this. score(spec) = (control_violations + arch_violations) * big_penalty + complexity. Keep iff score(candidate) < score(best): feasibility first (drive violations down), then minimize complexity.",
+
+  "weights": {
+    "_comment": "Complexity weights. concept is heaviest so deleting/merging concepts pays most.",
+    "concept": 10,
+    "field": 1,
+    "endpoint": 3,
+    "task": 2,
+    "generic": 5,
+    "global_dl": 0.0001
+  },
+
+  "global_dl": false,
+  "_global_dl_note": "Off by default (API-only fitness, cheap). Set true once the outer loop lands to also penalize pushing complexity from the spec into controls.json / control-vocabulary.json (byte-length term).",
+
+  "big_penalty": 100000,
+
+  "control_budget": 0,
+  "_control_budget_note": "Allowed unregistered codes before it counts as a violation. control_violations = max(0, unregistered - control_budget). Default 0 = hard coverage (every cited code must be registered). The user's chosen default is a PROVISIONAL budget: set this to the current measured baseline (live full-repo = 1116; a fair-lending-scoped phase-1 run will be far smaller) so the loop starts in the minimize-complexity regime instead of having to register every code first. Tighten toward 0 as coverage improves. The keep-iff-best rule has teeth at any budget because it is relative: any move that raises unregistered raises the score.",
+
+  "arch_budget": 0,
+  "_arch_budget_note": "Allowed uncovered architectural elements before it counts as a violation. arch_violations = max(0, uncovered - arch_budget). Default 0 = hard architecture coverage. Current measured baseline uncovered = 34 (mostly the banking-core endpoint surface); set a provisional arch_budget similarly if you want to minimize complexity before building out endpoints."
+}

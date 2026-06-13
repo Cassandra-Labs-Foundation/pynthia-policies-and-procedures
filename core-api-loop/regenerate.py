@@ -1,0 +1,352 @@
+#!/usr/bin/env python3
+"""
+regenerate.py — The OUTER loop: regenerate a policy against the current spec, then measure how
+the control demand moved.
+
+The inner loop (run_loop.py) minimizes core-api.yaml against a FROZEN demand. This outer loop
+closes the co-evolution: once the spec changes, the policies should be regenerated so they cite
+the spec's now-registered vocabulary, which shifts the demand. If the demand stabilizes, you've
+reached a fixed point; if it moved, run the inner loop again. (See the plan's two-loop section.)
+
+The whole regeneration is deterministic EXCEPT one step — the LLM that turns a policy's composite
+prompt into Markdown. The deterministic scaffolding lives here; the LLM is a pluggable backend:
+
+  prep      reparse core-api.yaml -> core-vocabulary.json (so DESIGN_NOTES reflects the latest
+            spec), then run .skills/policy-prep to assemble the composite prompt. The composite
+            embeds the meta-prompt + the policy's prompt.md INPUTS + the live vocabulary as
+            DESIGN_NOTES. Prints the composite prompt path.
+  generate  call the LLM backend (api / cli) on the composite prompt -> raw Markdown. With
+            --backend stage it does NOT call an LLM: it just exposes the composite prompt and the
+            drop path, so an agent (e.g. a Claude Code subagent) or a human can produce the
+            Markdown. This is the default when no API key / claude CLI is present.
+  apply     validate the generated Markdown (scripts/check_vocab_refs.py) and install it as
+            {slug}/{slug}.md.
+  measure   re-extract the demand from the live policy tree and diff it against a saved snapshot
+            (codes added/removed, unregistered before/after against the current spec).
+
+Typical agent-driven cycle (no API key needed):
+  python core-api-loop/regenerate.py prep fair-lending
+  # -> a subagent/human reads .cache/prep/fair-lending.composite-prompt.txt, writes Markdown to
+  #    core-api-loop/.regen/fair-lending.generated.md
+  python core-api-loop/regenerate.py apply fair-lending
+  python core-api-loop/regenerate.py measure --slug fair-lending
+
+Fully automated cycle (with a backend):
+  ANTHROPIC_API_KEY=... python core-api-loop/regenerate.py cycle fair-lending --backend api
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import subprocess
+import sys
+from datetime import datetime, timezone
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.abspath(os.path.join(HERE, ".."))
+PREPARE = os.path.join(HERE, "prepare")
+SCRIPTS = os.path.join(REPO_ROOT, "scripts")
+sys.path.insert(0, PREPARE)
+
+import control_oracle  # noqa: E402
+
+VENV_PY = os.path.join(HERE, ".venv", "bin", "python")
+PY = VENV_PY if os.path.exists(VENV_PY) else sys.executable
+
+REGEN_DIR = os.path.join(HERE, ".regen")
+PREP_SCRIPT = os.path.join(REPO_ROOT, ".skills", "policy-prep", "scripts", "prepare_policy.py")
+PARSE_SCRIPT = os.path.join(SCRIPTS, "parse_core_api.py")
+CHECK_SCRIPT = os.path.join(SCRIPTS, "check_vocab_refs.py")
+
+GENERATE_MODEL = "claude-opus-4-8"
+
+
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def run(cmd: list[str], cwd: str = REPO_ROOT, capture: bool = True) -> subprocess.CompletedProcess:
+    return subprocess.run(cmd, cwd=cwd, text=True,
+                          capture_output=capture)
+
+
+def slug_md_path(slug: str) -> str:
+    return os.path.join(REPO_ROOT, slug, f"{slug}.md")
+
+
+def generated_path(slug: str) -> str:
+    return os.path.join(REGEN_DIR, f"{slug}.generated.md")
+
+
+def demand_snapshot_path(tag: str) -> str:
+    return os.path.join(REGEN_DIR, f"demand.{tag}.json")
+
+
+# --------------------------------------------------------------------------- #
+# prep
+# --------------------------------------------------------------------------- #
+def reparse_spec() -> dict:
+    """Re-run parse_core_api.py so core-vocabulary.json reflects the latest core-api.yaml.
+    This is what couples regeneration to the optimized spec (DESIGN_NOTES is derived from it)."""
+    r = run([PY, PARSE_SCRIPT])
+    if r.returncode != 0:
+        sys.exit(f"parse_core_api.py failed:\n{r.stderr}")
+    return json.loads(r.stdout)
+
+
+def cmd_prep(args) -> dict:
+    os.makedirs(REGEN_DIR, exist_ok=True)
+    if not args.no_reparse:
+        info = reparse_spec()
+        print(f"reparsed spec -> core-vocabulary.json ({info['stats']['entities']} entities, "
+              f"{info['stats']['events']} events, {info['stats']['fields']} fields)")
+    r = run([PY, PREP_SCRIPT, args.slug])
+    if r.returncode != 0:
+        sys.exit(f"prepare_policy.py failed for {args.slug}:\n{r.stderr or r.stdout}")
+    prep = json.loads(r.stdout)
+    prep["composite_prompt_abspath"] = os.path.join(REPO_ROOT, prep["composite_prompt_path"])
+    print(json.dumps({k: prep[k] for k in ("slug", "composite_prompt_path",
+                                           "composite_prompt_chars", "design_notes_source")},
+                     indent=2))
+    print(f"\nNext: produce Markdown from the composite prompt into:\n  {generated_path(args.slug)}")
+    return prep
+
+
+# --------------------------------------------------------------------------- #
+# generate (pluggable LLM backend)
+# --------------------------------------------------------------------------- #
+def _read_composite(slug: str) -> str:
+    path = os.path.join(REPO_ROOT, ".cache", "prep", f"{slug}.composite-prompt.txt")
+    if not os.path.exists(path):
+        sys.exit(f"composite prompt not found ({path}); run `prep {slug}` first.")
+    return open(path, encoding="utf-8").read()
+
+
+def _strip_fences(md: str) -> str:
+    s = md.strip()
+    if s.startswith("```"):
+        s = s.split("\n", 1)[1] if "\n" in s else s
+        if s.rstrip().endswith("```"):
+            s = s.rstrip()[:-3]
+    return s.strip() + "\n"
+
+
+def generate_via_api(composite: str) -> str:
+    try:
+        import anthropic
+    except ModuleNotFoundError:
+        sys.exit("--backend api needs the anthropic SDK (pip install anthropic) and ANTHROPIC_API_KEY.")
+    client = anthropic.Anthropic()
+    msg = client.messages.create(
+        model=GENERATE_MODEL,
+        max_tokens=32000,
+        messages=[{"role": "user", "content": composite}],
+    )
+    return _strip_fences("".join(b.text for b in msg.content if getattr(b, "type", "") == "text"))
+
+
+def generate_via_cli(composite: str) -> str:
+    import shutil
+    if not shutil.which("claude"):
+        sys.exit("--backend cli needs the `claude` CLI on PATH.")
+    r = subprocess.run(["claude", "-p", "--model", GENERATE_MODEL],
+                       input=composite, text=True, capture_output=True)
+    if r.returncode != 0:
+        sys.exit(f"claude CLI failed:\n{r.stderr}")
+    return _strip_fences(r.stdout)
+
+
+def cmd_generate(args) -> None:
+    os.makedirs(REGEN_DIR, exist_ok=True)
+    out = generated_path(args.slug)
+    if args.backend == "stage":
+        composite = _read_composite(args.slug)
+        print(f"composite prompt: {os.path.join(REPO_ROOT, '.cache', 'prep', args.slug + '.composite-prompt.txt')}")
+        print(f"  ({len(composite)} chars). Generate the policy Markdown from it and write to:")
+        print(f"  {out}")
+        print("Then run: regenerate.py apply " + args.slug)
+        return
+    composite = _read_composite(args.slug)
+    md = generate_via_api(composite) if args.backend == "api" else generate_via_cli(composite)
+    with open(out, "w", encoding="utf-8") as fh:
+        fh.write(md)
+    print(f"wrote {out} ({len(md)} chars) via backend={args.backend}")
+
+
+# --------------------------------------------------------------------------- #
+# apply
+# --------------------------------------------------------------------------- #
+def cmd_apply(args) -> None:
+    src = args.from_path or generated_path(args.slug)
+    if not os.path.exists(src):
+        sys.exit(f"generated Markdown not found: {src} (run prep + generate first).")
+    dst = slug_md_path(args.slug)
+
+    # validate references against the current spec (non-fatal report unless --strict)
+    chk = run([PY, CHECK_SCRIPT, src, "--json"])
+    report = {}
+    try:
+        report = json.loads(chk.stdout) if chk.stdout.strip() else {}
+    except json.JSONDecodeError:
+        pass
+    if args.strict and chk.returncode != 0:
+        sys.exit(f"check_vocab_refs --strict failed for {src}:\n{chk.stdout}\n{chk.stderr}")
+
+    md = open(src, encoding="utf-8").read()
+    with open(dst, "w", encoding="utf-8") as fh:
+        fh.write(md)
+    print(f"installed {src} -> {dst} ({len(md)} chars)")
+    if report:
+        print("vocab-ref check:", json.dumps(report.get("summary", report), indent=2)[:800])
+
+
+# --------------------------------------------------------------------------- #
+# measure
+# --------------------------------------------------------------------------- #
+def _snapshot_demand() -> dict:
+    return control_oracle.extract_demand(REPO_ROOT)
+
+
+def cmd_snapshot(args) -> None:
+    os.makedirs(REGEN_DIR, exist_ok=True)
+    d = _snapshot_demand()
+    path = demand_snapshot_path(args.tag)
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(d, fh, indent=2, ensure_ascii=False)
+    print(f"demand snapshot [{args.tag}] -> {path} "
+          f"({d['meta']['unique_codes']} codes, {d['meta']['controls']} controls)")
+
+
+def cmd_measure(args) -> None:
+    before_path = demand_snapshot_path(args.before)
+    if not os.path.exists(before_path):
+        sys.exit(f"no 'before' snapshot at {before_path}; run `snapshot --tag {args.before}` "
+                 f"before regenerating.")
+    before = json.load(open(before_path))
+    after = _snapshot_demand()  # live, post-apply
+
+    b_codes = set(before["codes"].keys())
+    a_codes = set(after["codes"].keys())
+    added = sorted(a_codes - b_codes)
+    removed = sorted(b_codes - a_codes)
+
+    result = {
+        "before": {"codes": len(b_codes), "controls": before["meta"]["controls"]},
+        "after": {"codes": len(a_codes), "controls": after["meta"]["controls"]},
+        "codes_added": len(added),
+        "codes_removed": len(removed),
+    }
+
+    # optional: unregistered before/after against the CURRENT spec
+    if args.slug or args.spec_scored:
+        ec, fp = control_oracle.code_sets(control_oracle.parse_vocab(
+            os.path.join(REPO_ROOT, "core-api.yaml"),
+            os.path.join(REPO_ROOT, "vocab-migration.json")))
+        unreg_before = len(b_codes - ec - fp)
+        unreg_after = len(a_codes - ec - fp)
+        result["unregistered_before"] = unreg_before
+        result["unregistered_after"] = unreg_after
+        result["unregistered_delta"] = unreg_after - unreg_before
+
+    print(json.dumps(result, indent=2))
+    if args.show:
+        if added:
+            print(f"\n+ added {len(added)} codes (sample): {added[:20]}")
+        if removed:
+            print(f"\n- removed {len(removed)} codes (sample): {removed[:20]}")
+
+
+# --------------------------------------------------------------------------- #
+# cycle (one-shot: snapshot -> prep -> generate -> apply -> measure)
+# --------------------------------------------------------------------------- #
+def cmd_cycle(args) -> None:
+    import types
+    slug = args.slug
+    before_tag = f"cycle-{slug}-before"
+    gen = generated_path(slug)
+
+    if not args.resume:
+        print(f"[cycle:{slug}] 1/5 snapshot demand (before)")
+        cmd_snapshot(types.SimpleNamespace(tag=before_tag))
+        print(f"\n[cycle:{slug}] 2/5 prep (reparse spec + composite prompt)")
+        cmd_prep(types.SimpleNamespace(slug=slug, no_reparse=args.no_reparse))
+        print(f"\n[cycle:{slug}] 3/5 generate (backend={args.backend})")
+        if args.backend in ("api", "cli"):
+            cmd_generate(types.SimpleNamespace(slug=slug, backend=args.backend))
+        elif os.path.exists(gen):
+            print(f"  using already-staged {gen}")
+        else:
+            cmd_generate(types.SimpleNamespace(slug=slug, backend="stage"))
+            print(f"\n[cycle:{slug}] paused — no LLM backend. Generate the Markdown into the path "
+                  f"above, then run:\n  regenerate.py cycle {slug} --resume")
+            return
+    else:
+        print(f"[cycle:{slug}] resuming from staged Markdown")
+
+    if not os.path.exists(gen):
+        sys.exit(f"[cycle:{slug}] no generated Markdown at {gen} — generate it first "
+                 f"(or use --backend api/cli).")
+    if not os.path.exists(demand_snapshot_path(before_tag)):
+        sys.exit(f"[cycle:{slug}] missing 'before' snapshot — run once without --resume first.")
+
+    print(f"\n[cycle:{slug}] 4/5 apply (validate + install)")
+    cmd_apply(types.SimpleNamespace(slug=slug, from_path=None, strict=args.strict))
+    print(f"\n[cycle:{slug}] 5/5 measure (demand delta vs before)")
+    cmd_measure(types.SimpleNamespace(before=before_tag, slug=slug,
+                                      spec_scored=True, show=args.show))
+
+
+def main(argv: list[str]) -> int:
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[1])
+    sub = ap.add_subparsers(dest="cmd", required=True)
+
+    p_prep = sub.add_parser("prep", help="reparse spec + assemble composite prompt")
+    p_prep.add_argument("slug")
+    p_prep.add_argument("--no-reparse", action="store_true",
+                        help="skip re-running parse_core_api.py (use existing core-vocabulary.json)")
+    p_prep.set_defaults(func=cmd_prep)
+
+    p_gen = sub.add_parser("generate", help="call the LLM backend on the composite prompt")
+    p_gen.add_argument("slug")
+    p_gen.add_argument("--backend", choices=["stage", "api", "cli"], default="stage")
+    p_gen.set_defaults(func=cmd_generate)
+
+    p_app = sub.add_parser("apply", help="validate + install generated Markdown as {slug}.md")
+    p_app.add_argument("slug")
+    p_app.add_argument("--from", dest="from_path", default=None)
+    p_app.add_argument("--strict", action="store_true")
+    p_app.set_defaults(func=cmd_apply)
+
+    p_snap = sub.add_parser("snapshot", help="snapshot the live demand under a tag")
+    p_snap.add_argument("--tag", required=True)
+    p_snap.set_defaults(func=cmd_snapshot)
+
+    p_meas = sub.add_parser("measure", help="diff live demand vs a 'before' snapshot")
+    p_meas.add_argument("--before", default="before")
+    p_meas.add_argument("--slug", default=None, help="also report unregistered before/after")
+    p_meas.add_argument("--spec-scored", action="store_true",
+                        help="report unregistered before/after against the current spec")
+    p_meas.add_argument("--show", action="store_true", help="print sample added/removed codes")
+    p_meas.set_defaults(func=cmd_measure)
+
+    p_cyc = sub.add_parser("cycle",
+                           help="one-shot: snapshot -> prep -> generate -> apply -> measure")
+    p_cyc.add_argument("slug")
+    p_cyc.add_argument("--backend", choices=["stage", "api", "cli"], default="stage",
+                       help="LLM backend; 'stage' pauses for an agent/human to generate, "
+                            "then resume with --resume")
+    p_cyc.add_argument("--no-reparse", action="store_true")
+    p_cyc.add_argument("--strict", action="store_true")
+    p_cyc.add_argument("--show", action="store_true")
+    p_cyc.add_argument("--resume", action="store_true",
+                       help="skip snapshot/prep/generate; apply+measure the staged Markdown")
+    p_cyc.set_defaults(func=cmd_cycle)
+
+    args = ap.parse_args(argv)
+    return args.func(args) or 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))

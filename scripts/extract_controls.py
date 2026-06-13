@@ -40,7 +40,7 @@ from datetime import datetime, timezone
 # --------------------------------------------------------------------------- #
 
 # Directory names (anywhere in the path) that never contain authored policies.
-EXCLUDE_PATH_PARTS = {".git", ".skills", ".cache", "references", "scripts"}
+EXCLUDE_PATH_PARTS = {".git", ".skills", ".cache", "references", "scripts", "core-api-loop"}
 
 # Top-level markdown files that are repo scaffolding, not policies.
 EXCLUDE_FILENAMES = {

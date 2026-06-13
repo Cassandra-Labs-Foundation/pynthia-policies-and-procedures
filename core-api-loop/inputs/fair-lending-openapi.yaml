@@ -1,0 +1,2666 @@
+openapi: 3.1.0
+info:
+  title: Cassandra Fair Lending API
+  description: |
+    Minimum viable OpenAPI specification for Fair Lending controls (FL-01 through FL-14).
+    
+    This spec serves triple duty:
+    1. **API documentation** — standard endpoints, schemas, parameters
+    2. **Compliance vocabulary source** — every field a control can reference
+    3. **Event & computed field registry** — via x- extensions
+    
+    The vocabulary parser extracts entities, fields, events, and computed fields
+    from this spec to produce vocabulary.json for the Control Builder and compiler.
+    
+    ## Extension Reference
+    
+    | Extension | Applies To | Purpose |
+    |-----------|-----------|---------|
+    | `x-events` | schemas, paths | Declares domain events the entity/endpoint emits |
+    | `x-computed` | properties | Marks fields derived at runtime, not stored directly |
+    | `x-plugin` | properties | Field resolved by calling a registered plugin |
+    | `x-pii` | properties | Marks personally identifiable information |
+    | `x-retention` | schemas | Minimum retention period for compliance |
+    | `x-state-machine` | properties (enum) | Declares valid transitions and transition events |
+    | `x-control-refs` | schemas, paths | Maps to control IDs that reference this vocabulary |
+    | `x-freshness` | properties | Maximum age of data before refresh required |
+    | `x-audit-events` | paths | Audit trail events emitted by operations |
+  version: 0.1.0
+  contact:
+    name: Cassandra Engineering
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://{instance}.cassandra.pynthia.com/v1
+    variables:
+      instance:
+        default: sandbox
+        description: Fintech instance identifier
+
+tags:
+  - name: Applications
+    description: Loan application lifecycle
+  - name: Products
+    description: Lending product configuration and credit boxes
+  - name: Underwriting
+    description: Credit evaluation, scoring, ATR/QM
+  - name: Decisions
+    description: Approve, deny, counteroffer outcomes
+  - name: Adverse Actions
+    description: ECOA/FCRA adverse action notices
+  - name: Exceptions
+    description: Policy exception detection and approval
+  - name: Valuations
+    description: Appraisals, collateral, LTV
+  - name: Pricing
+    description: Rate sheets, HPML, pricing exceptions
+  - name: Prequalification
+    description: Prequal decisioning and steering controls
+  - name: Fair Lending
+    description: Risk assessments, monitoring, governance
+  - name: Credit Packages
+    description: Documentation bundles and retention
+
+# ─────────────────────────────────────────────────────────────
+# PATHS
+# ─────────────────────────────────────────────────────────────
+
+paths:
+
+  # ── Products & Credit Boxes ──────────────────────────────
+
+  /lending/products:
+    get:
+      operationId: listLendingProducts
+      tags: [Products]
+      summary: List lending products
+      parameters:
+        - $ref: '#/components/parameters/ProgramType'
+        - $ref: '#/components/parameters/PageCursor'
+        - $ref: '#/components/parameters/PageLimit'
+      responses:
+        '200':
+          description: Product list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LendingProductList'
+    post:
+      operationId: createLendingProduct
+      tags: [Products]
+      summary: Create a lending product with credit box
+      x-audit-events:
+        - product.eligibility.changed
+        - program.scope.tagged
+      x-control-refs: [FL-01, FL-02]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LendingProductCreate'
+      responses:
+        '201':
+          description: Product created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LendingProduct'
+        '422':
+          description: Prohibited product type blocked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /lending/products/{product_id}:
+    parameters:
+      - $ref: '#/components/parameters/ProductId'
+    get:
+      operationId: getLendingProduct
+      tags: [Products]
+      summary: Retrieve a lending product
+      responses:
+        '200':
+          description: Product details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LendingProduct'
+    patch:
+      operationId: updateLendingProduct
+      tags: [Products]
+      summary: Update product configuration or credit box
+      x-audit-events:
+        - product.eligibility.changed
+        - product.config.updated
+      x-control-refs: [FL-01, FL-02, FL-10]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LendingProductUpdate'
+      responses:
+        '200':
+          description: Product updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LendingProduct'
+
+  # ── Applications ─────────────────────────────────────────
+
+  /lending/applications:
+    get:
+      operationId: listApplications
+      tags: [Applications]
+      summary: List loan applications
+      parameters:
+        - $ref: '#/components/parameters/ApplicationStatus'
+        - $ref: '#/components/parameters/ProductId_Query'
+        - $ref: '#/components/parameters/EntityId_Query'
+        - $ref: '#/components/parameters/PageCursor'
+        - $ref: '#/components/parameters/PageLimit'
+      responses:
+        '200':
+          description: Application list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationList'
+    post:
+      operationId: createApplication
+      tags: [Applications]
+      summary: Create a loan application
+      description: |
+        Creates a new loan application. The system will:
+        - Check product eligibility (FL-02)
+        - Flag insider/employee relationships (FL-14)
+        - Validate required disclosures (FL-03)
+        - Block prohibited product types
+      x-audit-events:
+        - application.logged
+        - application.blocked.prohibited_product
+        - insider.loan.flagged
+      x-control-refs: [FL-02, FL-03, FL-12, FL-14]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationCreate'
+      responses:
+        '201':
+          description: Application created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+        '422':
+          description: Blocked — prohibited product or eligibility failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /lending/applications/{application_id}:
+    parameters:
+      - $ref: '#/components/parameters/ApplicationId'
+    get:
+      operationId: getApplication
+      tags: [Applications]
+      summary: Retrieve an application
+      responses:
+        '200':
+          description: Application details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+    patch:
+      operationId: updateApplication
+      tags: [Applications]
+      summary: Update application data or mark complete
+      x-audit-events:
+        - application.logged
+      x-control-refs: [FL-03, FL-09]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationUpdate'
+      responses:
+        '200':
+          description: Application updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+
+  # ── Underwriting / Credit ────────────────────────────────
+
+  /lending/applications/{application_id}/credit-reports:
+    parameters:
+      - $ref: '#/components/parameters/ApplicationId'
+    post:
+      operationId: pullCreditReport
+      tags: [Underwriting]
+      summary: Pull or refresh a credit report for the applicant
+      x-audit-events:
+        - credit.report.pulled
+      x-control-refs: [FL-04]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditReportRequest'
+      responses:
+        '201':
+          description: Credit report pulled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditReport'
+
+  /lending/applications/{application_id}/atr-checklist:
+    parameters:
+      - $ref: '#/components/parameters/ApplicationId'
+    post:
+      operationId: createATRChecklist
+      tags: [Underwriting]
+      summary: Create ATR/QM checklist for covered mortgages
+      x-audit-events:
+        - atr.checklist.completed
+        - qm.type.assigned
+      x-control-refs: [FL-05]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ATRChecklistCreate'
+      responses:
+        '201':
+          description: ATR checklist created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ATRChecklist'
+    get:
+      operationId: getATRChecklist
+      tags: [Underwriting]
+      summary: Retrieve ATR/QM checklist
+      responses:
+        '200':
+          description: ATR checklist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ATRChecklist'
+
+  # ── Valuations & Collateral ──────────────────────────────
+
+  /lending/applications/{application_id}/valuations:
+    parameters:
+      - $ref: '#/components/parameters/ApplicationId'
+    post:
+      operationId: orderValuation
+      tags: [Valuations]
+      summary: Order an appraisal or valuation
+      x-audit-events:
+        - valuation.completed
+        - valuation.copy.sent
+      x-control-refs: [FL-06]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValuationOrder'
+      responses:
+        '201':
+          description: Valuation ordered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Valuation'
+    get:
+      operationId: listValuations
+      tags: [Valuations]
+      summary: List valuations for an application
+      responses:
+        '200':
+          description: Valuation list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValuationList'
+
+  /lending/applications/{application_id}/valuations/{valuation_id}:
+    parameters:
+      - $ref: '#/components/parameters/ApplicationId'
+      - $ref: '#/components/parameters/ValuationId'
+    get:
+      operationId: getValuation
+      tags: [Valuations]
+      summary: Retrieve a valuation
+      responses:
+        '200':
+          description: Valuation details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Valuation'
+    patch:
+      operationId: updateValuation
+      tags: [Valuations]
+      summary: Update valuation (complete, send copy, override LTV)
+      x-audit-events:
+        - valuation.completed
+        - valuation.copy.sent
+        - collateral.ltv.override
+      x-control-refs: [FL-06]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValuationUpdate'
+      responses:
+        '200':
+          description: Valuation updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Valuation'
+
+  # ── Decisions ────────────────────────────────────────────
+
+  /lending/applications/{application_id}/decisions:
+    parameters:
+      - $ref: '#/components/parameters/ApplicationId'
+    post:
+      operationId: createDecision
+      tags: [Decisions]
+      summary: Record an underwriting decision (approve, deny, counteroffer)
+      description: |
+        Records the final underwriting decision. The system enforces:
+        - Neutral-factor-only basis (FL-03)
+        - Secondary review for denials (FL-07)
+        - Exception capture if policy breaches exist (FL-08)
+        - OFAC clearance before approval (FL-11)
+      x-audit-events:
+        - decision.finalized
+        - underwriting.bundle.completed
+      x-control-refs: [FL-03, FL-07, FL-08, FL-11]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DecisionCreate'
+      responses:
+        '201':
+          description: Decision recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Decision'
+        '422':
+          description: Blocked — missing prerequisites or OFAC hold
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      operationId: listDecisions
+      tags: [Decisions]
+      summary: List decisions for an application
+      responses:
+        '200':
+          description: Decision list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecisionList'
+
+  # ── Adverse Actions ──────────────────────────────────────
+
+  /lending/applications/{application_id}/adverse-actions:
+    parameters:
+      - $ref: '#/components/parameters/ApplicationId'
+    post:
+      operationId: createAdverseAction
+      tags: [Adverse Actions]
+      summary: Generate an adverse action notice
+      x-audit-events:
+        - aa.secondary_review.completed
+        - adverse_action.notice_sent
+      x-control-refs: [FL-07]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdverseActionCreate'
+      responses:
+        '201':
+          description: Adverse action notice created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdverseAction'
+    get:
+      operationId: listAdverseActions
+      tags: [Adverse Actions]
+      summary: List adverse actions for an application
+      responses:
+        '200':
+          description: Adverse action list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdverseActionList'
+
+  # ── Exceptions ───────────────────────────────────────────
+
+  /lending/applications/{application_id}/exceptions:
+    parameters:
+      - $ref: '#/components/parameters/ApplicationId'
+    get:
+      operationId: listExceptions
+      tags: [Exceptions]
+      summary: List exceptions for an application
+      responses:
+        '200':
+          description: Exception list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionList'
+    post:
+      operationId: createException
+      tags: [Exceptions]
+      summary: Submit a policy exception with mitigants
+      x-audit-events:
+        - exception.logged
+        - exception.approved
+      x-control-refs: [FL-08]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExceptionCreate'
+      responses:
+        '201':
+          description: Exception submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exception'
+
+  /lending/applications/{application_id}/exceptions/{exception_id}:
+    parameters:
+      - $ref: '#/components/parameters/ApplicationId'
+      - $ref: '#/components/parameters/ExceptionId'
+    patch:
+      operationId: resolveException
+      tags: [Exceptions]
+      summary: Approve or deny an exception
+      x-audit-events:
+        - exception.approved
+      x-control-refs: [FL-08]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExceptionResolve'
+      responses:
+        '200':
+          description: Exception resolved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exception'
+
+  # ── Credit Packages ──────────────────────────────────────
+
+  /lending/applications/{application_id}/credit-package:
+    parameters:
+      - $ref: '#/components/parameters/ApplicationId'
+    get:
+      operationId: getCreditPackage
+      tags: [Credit Packages]
+      summary: Retrieve the credit package (documentation bundle)
+      x-control-refs: [FL-09]
+      responses:
+        '200':
+          description: Credit package
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditPackage'
+    patch:
+      operationId: updateCreditPackage
+      tags: [Credit Packages]
+      summary: Update credit package documents
+      x-audit-events:
+        - credit_package.updated
+      x-control-refs: [FL-09]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditPackageUpdate'
+      responses:
+        '200':
+          description: Credit package updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditPackage'
+
+  # ── Pricing ──────────────────────────────────────────────
+
+  /lending/pricing/rate-sheets:
+    get:
+      operationId: listRateSheets
+      tags: [Pricing]
+      summary: List active rate sheets
+      responses:
+        '200':
+          description: Rate sheet list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateSheetList'
+    post:
+      operationId: createRateSheet
+      tags: [Pricing]
+      summary: Import or create a rate sheet
+      x-audit-events:
+        - pricing.hpml_test.run
+      x-control-refs: [FL-10]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RateSheetCreate'
+      responses:
+        '201':
+          description: Rate sheet created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateSheet'
+
+  /lending/applications/{application_id}/pricing:
+    parameters:
+      - $ref: '#/components/parameters/ApplicationId'
+    post:
+      operationId: assignPricing
+      tags: [Pricing]
+      summary: Assign pricing to an application
+      x-audit-events:
+        - pricing.hpml_test.run
+        - pricing.exception.approved
+      x-control-refs: [FL-10]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PricingAssignment'
+      responses:
+        '201':
+          description: Pricing assigned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationPricing'
+
+  # ── Prequalification ─────────────────────────────────────
+
+  /lending/prequalifications:
+    post:
+      operationId: createPrequalification
+      tags: [Prequalification]
+      summary: Run a prequalification check
+      x-audit-events:
+        - steering.control.check_run
+        - prequal.letter.generated
+      x-control-refs: [FL-12]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrequalCreate'
+      responses:
+        '201':
+          description: Prequalification result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prequalification'
+
+  # ── OFAC Gate ────────────────────────────────────────────
+
+  /lending/applications/{application_id}/ofac-screening:
+    parameters:
+      - $ref: '#/components/parameters/ApplicationId'
+    post:
+      operationId: runOFACScreening
+      tags: [Applications]
+      summary: Run OFAC/sanctions screening for all obligors
+      x-audit-events:
+        - ofac.check_run
+        - ofac.override.recorded
+      x-control-refs: [FL-11]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OFACScreeningRequest'
+      responses:
+        '201':
+          description: Screening result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OFACScreeningResult'
+
+  # ── Fair Lending Risk Assessment ─────────────────────────
+
+  /lending/fair-lending/risk-assessments:
+    get:
+      operationId: listFLRiskAssessments
+      tags: [Fair Lending]
+      summary: List fair lending risk assessments
+      responses:
+        '200':
+          description: Assessment list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FLRiskAssessmentList'
+    post:
+      operationId: createFLRiskAssessment
+      tags: [Fair Lending]
+      summary: Start a new fair lending risk assessment cycle
+      x-audit-events:
+        - flra.report.issued
+        - flra.remediation.tracked
+      x-control-refs: [FL-13]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FLRiskAssessmentCreate'
+      responses:
+        '201':
+          description: Assessment started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FLRiskAssessment'
+
+  # ── Governance / Policy ──────────────────────────────────
+
+  /lending/policies:
+    get:
+      operationId: listLendingPolicies
+      tags: [Fair Lending]
+      summary: List lending and fair lending policies
+      x-control-refs: [FL-01]
+      responses:
+        '200':
+          description: Policy list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LendingPolicyList'
+
+  /lending/policies/{policy_id}:
+    parameters:
+      - $ref: '#/components/parameters/PolicyId'
+    patch:
+      operationId: updateLendingPolicy
+      tags: [Fair Lending]
+      summary: Update a lending/fair lending policy
+      x-audit-events:
+        - policy.change.logged
+        - control.owner.assigned
+      x-control-refs: [FL-01]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LendingPolicyUpdate'
+      responses:
+        '200':
+          description: Policy updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LendingPolicy'
+
+
+# ─────────────────────────────────────────────────────────────
+# COMPONENTS
+# ─────────────────────────────────────────────────────────────
+
+components:
+
+  # ── Parameters ───────────────────────────────────────────
+
+  parameters:
+    ApplicationId:
+      name: application_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^app_[a-zA-Z0-9]{20}$'
+    ProductId:
+      name: product_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^prod_[a-zA-Z0-9]{20}$'
+    ValuationId:
+      name: valuation_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^val_[a-zA-Z0-9]{20}$'
+    ExceptionId:
+      name: exception_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^exc_[a-zA-Z0-9]{20}$'
+    PolicyId:
+      name: policy_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^pol_[a-zA-Z0-9]{20}$'
+    ProductId_Query:
+      name: product_id
+      in: query
+      schema:
+        type: string
+    EntityId_Query:
+      name: entity_id
+      in: query
+      schema:
+        type: string
+    ApplicationStatus:
+      name: status
+      in: query
+      schema:
+        type: string
+        enum:
+          - draft
+          - submitted
+          - in_underwriting
+          - decision_pending
+          - approved
+          - denied
+          - counteroffer
+          - withdrawn
+          - incomplete
+          - closed
+    ProgramType:
+      name: program_type
+      in: query
+      schema:
+        type: string
+        enum: [direct, baas, partner, indirect]
+    PageCursor:
+      name: cursor
+      in: query
+      schema:
+        type: string
+      description: Opaque cursor for pagination
+    PageLimit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 25
+
+  # ── Schemas ──────────────────────────────────────────────
+
+  schemas:
+
+    # ── Envelope / Error ─────────────────────────────────
+
+    Error:
+      type: object
+      required: [type, title, status, detail, request_id]
+      properties:
+        type:
+          type: string
+          description: Machine-readable error type
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        request_id:
+          type: string
+        doc_url:
+          type: string
+          format: uri
+
+    PaginationMeta:
+      type: object
+      properties:
+        next_cursor:
+          type: string
+          nullable: true
+        has_more:
+          type: boolean
+
+    # ── Lending Product ──────────────────────────────────
+
+    LendingProduct:
+      type: object
+      x-entity: product
+      x-retention: 7y
+      x-control-refs: [FL-01, FL-02, FL-10]
+      x-events:
+        - name: product.config.updated
+          description: Product configuration or credit box changed
+          trigger: on_update
+        - name: product.program.onboarded
+          description: New product/program activated
+          trigger: on_create
+      required: [id, name, type, program_type, status, credit_box, created_at]
+      properties:
+        id:
+          type: string
+          pattern: '^prod_[a-zA-Z0-9]{20}$'
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - consumer_unsecured
+            - consumer_secured
+            - auto
+            - first_mortgage
+            - heloc
+            - home_equity_term
+            - lot_land
+            - commercial
+            - credit_card
+            - share_secured
+            - certificate_secured
+          description: Lending product type
+        program_type:
+          type: string
+          enum: [direct, baas, partner, indirect]
+          description: Origination channel / program classification
+        partner_id:
+          type: string
+          nullable: true
+          description: BaaS/partner identifier if applicable
+        status:
+          type: string
+          enum: [active, inactive, legacy, prohibited]
+          x-state-machine:
+            transitions:
+              - from: inactive
+                to: active
+                event: product.transition.activated
+              - from: active
+                to: inactive
+                event: product.transition.deactivated
+              - from: active
+                to: legacy
+                event: product.transition.legacy_marked
+              - from: inactive
+                to: prohibited
+                event: product.transition.prohibited
+        prohibited_flag:
+          type: boolean
+          default: false
+          description: |
+            True if product is explicitly prohibited (payday, vehicle-title, 
+            tax RALs, private education, stated-income/no-doc)
+        credit_box:
+          $ref: '#/components/schemas/CreditBox'
+        scope_flags:
+          type: array
+          items:
+            type: string
+            enum: [fair_lending, bsa_aml, hmda, cra, flood, tila]
+          description: Policy scope tags for this product
+        control_owner_role:
+          type: string
+          enum: [clo, compliance, fair_lending_officer, board]
+          description: Role responsible for this product's controls
+        attributes:
+          type: object
+          additionalProperties: true
+          description: Product-specific attributes (collateral requirements, term ranges, etc.)
+        next_review_date:
+          type: string
+          format: date
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CreditBox:
+      type: object
+      description: Machine-readable eligibility and underwriting parameters per product
+      x-control-refs: [FL-02, FL-04, FL-05, FL-06]
+      properties:
+        min_fico:
+          type: integer
+          description: Minimum FICO score (e.g., 725 unsecured, 660 secured)
+        max_dti:
+          type: number
+          format: float
+          description: Maximum DTI ratio (e.g., 0.43 for QM default, 0.35 for mortgage)
+        max_ltv:
+          type: number
+          format: float
+          description: Maximum LTV ratio (e.g., 0.90 for auto, 0.85 for HELOC)
+        max_loan_amount:
+          type: number
+          format: float
+        min_loan_amount:
+          type: number
+          format: float
+        allowed_collateral_types:
+          type: array
+          items:
+            type: string
+            enum: [real_estate, auto, share, certificate, equipment, none]
+        max_term_months:
+          type: integer
+        min_term_months:
+          type: integer
+        bk_seasoning_months:
+          type: integer
+          description: Minimum months since bankruptcy discharge (e.g., 48)
+        medical_judgment_tolerance:
+          type: number
+          format: float
+          description: Max small medical judgment amount that can be excepted (e.g., 1000)
+        prohibited_features:
+          type: array
+          items:
+            type: string
+          description: Explicitly prohibited product features for this credit box
+        qm_eligible:
+          type: boolean
+          description: Whether this product is subject to QM rules
+
+    LendingProductCreate:
+      allOf:
+        - type: object
+          required: [name, type, program_type, credit_box]
+          properties:
+            name:
+              type: string
+            type:
+              type: string
+            program_type:
+              type: string
+            credit_box:
+              $ref: '#/components/schemas/CreditBox'
+            partner_id:
+              type: string
+            scope_flags:
+              type: array
+              items:
+                type: string
+            control_owner_role:
+              type: string
+            attributes:
+              type: object
+
+    LendingProductUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        status:
+          type: string
+        credit_box:
+          $ref: '#/components/schemas/CreditBox'
+        scope_flags:
+          type: array
+          items:
+            type: string
+        control_owner_role:
+          type: string
+        attributes:
+          type: object
+        next_review_date:
+          type: string
+          format: date
+
+    LendingProductList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/LendingProduct'
+        pagination:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    # ── Application ──────────────────────────────────────
+
+    Application:
+      type: object
+      x-entity: application
+      x-retention: 25mo
+      x-control-refs: [FL-02, FL-03, FL-07, FL-08, FL-09, FL-12, FL-14]
+      x-events:
+        - name: application.created
+          description: New loan application submitted
+          trigger: on_create
+        - name: application.completed
+          description: Application marked as complete with all required data
+          trigger: on_status_change
+          condition: "status == 'submitted'"
+        - name: application.employee_match
+          description: Applicant identified as employee/insider
+          trigger: on_flag
+          condition: "insider_flag == true"
+      required: [id, entity_id, product_id, type, purpose, status, channel, created_at]
+      properties:
+        id:
+          type: string
+          pattern: '^app_[a-zA-Z0-9]{20}$'
+        entity_id:
+          type: string
+          description: Primary borrower entity ID
+        co_borrower_entity_ids:
+          type: array
+          items:
+            type: string
+          description: Co-borrowers and guarantors
+        product_id:
+          type: string
+        type:
+          type: string
+          enum: [new_purchase, refinance, heloc_draw, line_increase, renewal, modification]
+        purpose:
+          type: string
+          description: Loan purpose narrative
+        channel:
+          type: string
+          enum: [branch, online, phone, partner_api, indirect]
+        partner_id:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum:
+            - draft
+            - submitted
+            - in_underwriting
+            - decision_pending
+            - approved
+            - denied
+            - counteroffer
+            - withdrawn
+            - incomplete
+            - closed
+          x-state-machine:
+            transitions:
+              - from: draft
+                to: submitted
+                event: application.transition.submitted
+              - from: submitted
+                to: in_underwriting
+                event: application.transition.in_underwriting
+                description: Underwriting started
+              - from: in_underwriting
+                to: decision_pending
+                event: application.transition.decision_pending
+              - from: decision_pending
+                to: approved
+                event: decision.approved
+              - from: decision_pending
+                to: denied
+                event: decision.denied
+              - from: decision_pending
+                to: counteroffer
+                event: decision.counteroffer
+              - from: submitted
+                to: incomplete
+                event: application.transition.incomplete
+              - from: submitted
+                to: withdrawn
+                event: application.transition.withdrawn
+              - from: approved
+                to: closed
+                event: application.transition.closed
+        neutral_factors:
+          type: object
+          description: |
+            Neutral-factor underwriting inputs only. No prohibited bases or proxies.
+            Structured per Reg B requirements.
+          properties:
+            income:
+              type: number
+              format: float
+            assets:
+              type: number
+              format: float
+            existing_debts:
+              type: number
+              format: float
+            employment_stability_months:
+              type: integer
+            residence_stability_months:
+              type: integer
+        gmi:
+          $ref: '#/components/schemas/GMIData'
+        loan_amount_requested:
+          type: number
+          format: float
+        loan_term_months:
+          type: integer
+        insider_flag:
+          type: boolean
+          default: false
+          description: True if any obligor is an employee, officer, director, or related party
+        insider_relationship_type:
+          type: string
+          nullable: true
+          enum: [employee, officer, director, related_party, co_borrower_of_insider]
+        employee_flag:
+          type: boolean
+          default: false
+          x-computed:
+            source: entity.employment_records
+            description: Auto-detected from entity employment data matching CU employer
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        decision_deadline:
+          type: string
+          format: date-time
+          nullable: true
+          x-computed:
+            source: completed_at
+            description: "30 days from completed_at per ECOA"
+            formula: "completed_at + 30d"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    GMIData:
+      type: object
+      description: Government Monitoring Information (HMDA/ECOA). Collected voluntarily.
+      x-pii: true
+      x-retention: 25mo
+      properties:
+        ethnicity:
+          type: string
+          enum: [hispanic_latino, not_hispanic_latino, not_provided, not_applicable]
+        race:
+          type: array
+          items:
+            type: string
+        sex:
+          type: string
+          enum: [male, female, not_provided, not_applicable]
+        collection_method:
+          type: string
+          enum: [self_reported, visual_observation, not_collected]
+          description: How GMI was gathered (visual observation only when applicant declines)
+
+    ApplicationCreate:
+      type: object
+      required: [entity_id, product_id, type, purpose, channel]
+      properties:
+        entity_id:
+          type: string
+        co_borrower_entity_ids:
+          type: array
+          items:
+            type: string
+        product_id:
+          type: string
+        type:
+          type: string
+        purpose:
+          type: string
+        channel:
+          type: string
+        partner_id:
+          type: string
+        neutral_factors:
+          type: object
+        gmi:
+          $ref: '#/components/schemas/GMIData'
+        loan_amount_requested:
+          type: number
+        loan_term_months:
+          type: integer
+
+    ApplicationUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+        neutral_factors:
+          type: object
+        gmi:
+          $ref: '#/components/schemas/GMIData'
+        loan_amount_requested:
+          type: number
+        loan_term_months:
+          type: integer
+
+    ApplicationList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Application'
+        pagination:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    # ── Credit Report ────────────────────────────────────
+
+    CreditReport:
+      type: object
+      x-entity: credit_report
+      x-retention: 25mo
+      x-control-refs: [FL-04]
+      x-events:
+        - name: credit.report.pulled
+          description: New credit report pulled from bureau
+          trigger: on_create
+        - name: credit.report.refreshed
+          description: Existing credit report refreshed
+          trigger: on_update
+      required: [id, application_id, entity_id, bureau, fico_score, pull_date]
+      properties:
+        id:
+          type: string
+          pattern: '^cr_[a-zA-Z0-9]{20}$'
+        application_id:
+          type: string
+        entity_id:
+          type: string
+        bureau:
+          type: string
+          enum: [equifax, experian, transunion]
+        fico_score:
+          type: integer
+          minimum: 300
+          maximum: 850
+          nullable: true
+          description: FICO score; null for thin/no-file
+        score_band:
+          type: string
+          enum: [excellent, good, fair, subprime, thin_file, no_file]
+          x-computed:
+            source: fico_score
+            description: |
+              Derived from fico_score and product credit box thresholds.
+              thin_file/no_file when fico_score is null.
+        derogatories:
+          type: array
+          items:
+            $ref: '#/components/schemas/Derogatory'
+          description: Derogatory credit items
+        adverse_flags:
+          type: array
+          items:
+            type: string
+            enum:
+              - bankruptcy_recent
+              - bankruptcy_seasoned
+              - foreclosure
+              - judgment
+              - medical_judgment_small
+              - collections
+              - charge_off
+              - late_payments_severe
+          x-computed:
+            source: derogatories
+            description: Derived flags from derogatory analysis against product tolerances
+        report_age_days:
+          type: integer
+          x-computed:
+            source: pull_date
+            description: Days since report was pulled
+            formula: "now() - pull_date"
+          x-freshness:
+            max_age: 180d
+            description: Report must be ≤6 months old at decision time
+        pull_date:
+          type: string
+          format: date-time
+        alternative_credit_used:
+          type: boolean
+          default: false
+          description: True if alternative credit methods used (thin/no-file borrowers)
+        alternative_credit_sources:
+          type: array
+          items:
+            type: string
+            enum: [landlord_reference, utility_payment, insurance_payment, other]
+          nullable: true
+        raw_report_ref:
+          type: string
+          description: Reference to encrypted raw bureau report
+          x-pii: true
+
+    Derogatory:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [bankruptcy, foreclosure, judgment, medical_judgment, collections, charge_off, late_payment]
+        amount:
+          type: number
+          format: float
+          nullable: true
+        date_reported:
+          type: string
+          format: date
+        seasoning_months:
+          type: integer
+          x-computed:
+            source: date_reported
+            description: Months since derogatory was reported
+            formula: "months_between(now(), date_reported)"
+        status:
+          type: string
+          enum: [active, resolved, disputed]
+        narrative:
+          type: string
+          nullable: true
+
+    CreditReportRequest:
+      type: object
+      required: [entity_id, bureau]
+      properties:
+        entity_id:
+          type: string
+        bureau:
+          type: string
+          enum: [equifax, experian, transunion]
+        purpose:
+          type: string
+          enum: [initial_pull, refresh, monitoring]
+
+    # ── ATR/QM Checklist ─────────────────────────────────
+
+    ATRChecklist:
+      type: object
+      x-entity: atr_checklist
+      x-retention: life_of_loan_plus_3y
+      x-control-refs: [FL-05]
+      x-events:
+        - name: atr.scope.determined
+          description: Loan determined to be covered/exempt for ATR purposes
+          trigger: on_create
+        - name: underwriting.completed
+          description: ATR checklist and underwriting fully completed
+          trigger: on_status_change
+          condition: "status == 'completed'"
+      required: [id, application_id, atr_covered, status]
+      properties:
+        id:
+          type: string
+          pattern: '^atr_[a-zA-Z0-9]{20}$'
+        application_id:
+          type: string
+        atr_covered:
+          type: boolean
+          description: Whether this loan is subject to ATR (closed-end, 1-4 family dwelling-secured)
+        status:
+          type: string
+          enum: [pending, completed, not_applicable]
+        monthly_income:
+          type: number
+          format: float
+          description: Verified monthly income
+        monthly_debts:
+          type: number
+          format: float
+          description: Total recurring monthly debt obligations
+        housing_expenses:
+          type: number
+          format: float
+          description: Monthly housing expenses (PITI + HOA + other)
+        dti_ratio:
+          type: number
+          format: float
+          x-computed:
+            source: "[monthly_debts, monthly_income]"
+            description: Debt-to-income ratio
+            formula: "monthly_debts / monthly_income"
+        eight_factors:
+          type: object
+          description: ATR 8-factor checklist per Reg Z §1026.43
+          properties:
+            current_income_verified:
+              type: boolean
+            current_employment_verified:
+              type: boolean
+            monthly_payment_calculated:
+              type: boolean
+            monthly_payment_other_mortgages:
+              type: boolean
+            monthly_payment_related_obligations:
+              type: boolean
+            current_debt_obligations_verified:
+              type: boolean
+            monthly_dti_calculated:
+              type: boolean
+            credit_history_reviewed:
+              type: boolean
+        qm_type:
+          type: string
+          enum: [qm_standard, qm_small_creditor, qm_balloon, non_qm, exempt]
+          description: Qualified Mortgage classification
+        qm_classification:
+          type: string
+          nullable: true
+          x-computed:
+            source: "[dti_ratio, product.credit_box, eight_factors]"
+            description: System-derived QM classification based on DTI and product rules
+        checklist_id:
+          type: string
+          x-computed:
+            source: system
+            description: Unique identifier for the completed checklist audit record
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    ATRChecklistCreate:
+      type: object
+      required: [application_id]
+      properties:
+        application_id:
+          type: string
+        monthly_income:
+          type: number
+        monthly_debts:
+          type: number
+        housing_expenses:
+          type: number
+        eight_factors:
+          type: object
+        qm_type:
+          type: string
+
+    # ── Valuation / Collateral ───────────────────────────
+
+    Valuation:
+      type: object
+      x-entity: valuation
+      x-retention: 25mo
+      x-control-refs: [FL-06]
+      x-events:
+        - name: valuation.ordered
+          description: Appraisal or valuation ordered
+          trigger: on_create
+        - name: valuation.completed
+          description: Valuation report received and recorded
+          trigger: on_status_change
+          condition: "status == 'completed'"
+        - name: valuation.copy.sent
+          description: Appraisal copy delivered to applicant
+          trigger: on_flag
+          condition: "copy_sent == true"
+      required: [id, application_id, collateral_type, status]
+      properties:
+        id:
+          type: string
+          pattern: '^val_[a-zA-Z0-9]{20}$'
+        application_id:
+          type: string
+        collateral_type:
+          type: string
+          enum: [real_estate, auto, share, certificate, equipment, lot_land, other]
+        valuation_method:
+          type: string
+          enum: [full_appraisal, avm, bpo, nada, desktop, drive_by]
+        appraiser_id:
+          type: string
+          nullable: true
+          description: ID from approved appraiser list (independence enforced)
+        status:
+          type: string
+          enum: [ordered, in_progress, completed, reuse_approved]
+          x-state-machine:
+            transitions:
+              - from: ordered
+                to: in_progress
+                event: valuation.transition.in_progress
+              - from: in_progress
+                to: completed
+                event: valuation.transition.completed
+        value_appraised:
+          type: number
+          format: float
+          nullable: true
+          description: Appraised/estimated value
+        loan_amount:
+          type: number
+          format: float
+          description: Loan amount for LTV calculation
+        ltv:
+          type: number
+          format: float
+          nullable: true
+          x-computed:
+            source: "[loan_amount, value_appraised]"
+            description: Loan-to-value ratio
+            formula: "loan_amount / value_appraised"
+        ltv_exceeds_limit:
+          type: boolean
+          x-computed:
+            source: "[ltv, product.credit_box.max_ltv]"
+            description: Whether LTV exceeds the product credit box maximum
+            formula: "ltv > product.credit_box.max_ltv"
+        copy_sent:
+          type: boolean
+          default: false
+          description: Whether appraisal copy was delivered to applicant
+        copy_sent_date:
+          type: string
+          format: date-time
+          nullable: true
+        is_reuse:
+          type: boolean
+          default: false
+          description: Whether this is a reuse of a prior appraisal
+        reuse_rationale:
+          type: string
+          nullable: true
+        original_valuation_date:
+          type: string
+          format: date
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    ValuationOrder:
+      type: object
+      required: [collateral_type, valuation_method, loan_amount]
+      properties:
+        collateral_type:
+          type: string
+        valuation_method:
+          type: string
+        appraiser_id:
+          type: string
+        loan_amount:
+          type: number
+        is_reuse:
+          type: boolean
+        reuse_rationale:
+          type: string
+        original_valuation_date:
+          type: string
+          format: date
+
+    ValuationUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+        value_appraised:
+          type: number
+        copy_sent:
+          type: boolean
+
+    ValuationList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Valuation'
+
+    # ── Decision ─────────────────────────────────────────
+
+    Decision:
+      type: object
+      x-entity: decision
+      x-retention: 25mo
+      x-control-refs: [FL-03, FL-07]
+      x-events:
+        - name: decision.approved
+          description: Application approved
+          trigger: on_create
+          condition: "outcome == 'approved'"
+        - name: decision.denied
+          description: Application denied — triggers AA notice flow
+          trigger: on_create
+          condition: "outcome == 'denied'"
+        - name: decision.denied.proposed
+          description: Denial proposed, pending secondary review
+          trigger: on_create
+          condition: "outcome == 'denied' && secondary_review_status == 'pending'"
+        - name: decision.counteroffer
+          description: Counteroffer issued to applicant
+          trigger: on_create
+          condition: "outcome == 'counteroffer'"
+      required: [id, application_id, outcome, decided_by, decision_date]
+      properties:
+        id:
+          type: string
+          pattern: '^dec_[a-zA-Z0-9]{20}$'
+        application_id:
+          type: string
+        credit_package_car_id:
+          type: string
+          description: Reference to the Credit Analysis Record in the credit package
+          x-computed:
+            source: credit_package
+            description: Auto-linked from the application's credit package
+        outcome:
+          type: string
+          enum: [approved, denied, counteroffer]
+        decision_basis:
+          type: array
+          items:
+            type: string
+          description: Neutral factors that formed the basis of the decision
+        decided_by:
+          type: string
+          description: User or system that rendered the decision
+        decision_date:
+          type: string
+          format: date-time
+        secondary_review_status:
+          type: string
+          enum: [not_required, pending, completed]
+          description: Required for all denials (FL-07)
+        secondary_reviewer_id:
+          type: string
+          nullable: true
+        secondary_review_date:
+          type: string
+          format: date-time
+          nullable: true
+        secondary_review_notes:
+          type: string
+          nullable: true
+        exceptions_present:
+          type: boolean
+          x-computed:
+            source: application.exceptions
+            description: Whether any policy exceptions exist for this application
+        ofac_cleared:
+          type: boolean
+          x-computed:
+            source: ofac_screening
+            description: Whether OFAC screening returned clear before decision
+            x-plugin: ofac_screener
+        counteroffer_terms:
+          type: object
+          nullable: true
+          properties:
+            proposed_amount:
+              type: number
+            proposed_rate:
+              type: number
+            proposed_term_months:
+              type: integer
+            expiry_date:
+              type: string
+              format: date
+              description: 90 days from counteroffer per ECOA
+
+    DecisionCreate:
+      type: object
+      required: [outcome, decided_by]
+      properties:
+        outcome:
+          type: string
+          enum: [approved, denied, counteroffer]
+        decision_basis:
+          type: array
+          items:
+            type: string
+        decided_by:
+          type: string
+        counteroffer_terms:
+          type: object
+
+    DecisionList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Decision'
+
+    # ── Adverse Action ───────────────────────────────────
+
+    AdverseAction:
+      type: object
+      x-entity: adverse_action
+      x-retention: 25mo
+      x-control-refs: [FL-07]
+      x-events:
+        - name: adverse_action.notice_generated
+          description: AA notice content generated
+          trigger: on_create
+        - name: adverse_action.notice_sent
+          description: AA notice delivered to applicant
+          trigger: on_status_change
+          condition: "status == 'sent'"
+      required: [id, application_id, decision_id, notice_type, reasons_selected, status]
+      properties:
+        id:
+          type: string
+          pattern: '^aa_[a-zA-Z0-9]{20}$'
+        application_id:
+          type: string
+        decision_id:
+          type: string
+        notice_type:
+          type: string
+          enum: [denial, counteroffer_expired, existing_account_action, incompleteness]
+        reasons_selected:
+          type: array
+          items:
+            type: string
+          description: Standardized AA reason codes per ECOA/FCRA
+          minItems: 1
+          maxItems: 4
+        bureau_info:
+          type: object
+          description: Bureau contact info included per FCRA
+          properties:
+            bureau_name:
+              type: string
+            bureau_phone:
+              type: string
+            bureau_address:
+              type: string
+        score_disclosure:
+          type: object
+          nullable: true
+          description: Credit score disclosure per FCRA §609(g)
+          properties:
+            score_used:
+              type: integer
+            score_range_low:
+              type: integer
+            score_range_high:
+              type: integer
+            key_factors:
+              type: array
+              items:
+                type: string
+              maxItems: 4
+        secondary_review_completed:
+          type: boolean
+          description: Confirms second-level review was done before notice
+        status:
+          type: string
+          enum: [draft, pending_review, approved, sent]
+          x-state-machine:
+            transitions:
+              - from: draft
+                to: pending_review
+                event: adverse_action.transition.pending_review
+              - from: pending_review
+                to: approved
+                event: adverse_action.transition.approved
+              - from: approved
+                to: sent
+                event: adverse_action.transition.sent
+        sent_date:
+          type: string
+          format: date-time
+          nullable: true
+        deadline:
+          type: string
+          format: date-time
+          x-computed:
+            source: decision.decision_date
+            description: "30 days from decision date (ECOA); 90 days for counteroffer expiry"
+        created_at:
+          type: string
+          format: date-time
+
+    AdverseActionCreate:
+      type: object
+      required: [decision_id, notice_type, reasons_selected]
+      properties:
+        decision_id:
+          type: string
+        notice_type:
+          type: string
+        reasons_selected:
+          type: array
+          items:
+            type: string
+        bureau_info:
+          type: object
+        score_disclosure:
+          type: object
+
+    AdverseActionList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdverseAction'
+
+    # ── Exception ────────────────────────────────────────
+
+    Exception:
+      type: object
+      x-entity: exception
+      x-retention: 25mo
+      x-control-refs: [FL-08]
+      x-events:
+        - name: exception.detected
+          description: System auto-detected a policy breach
+          trigger: on_create
+          condition: "detection_method == 'automatic'"
+        - name: exception.submitted
+          description: Exception submitted for approval
+          trigger: on_status_change
+          condition: "status == 'submitted'"
+        - name: exception.decision.made
+          description: Exception approved or denied
+          trigger: on_status_change
+          condition: "status in ['approved', 'denied']"
+      required: [id, application_id, rule_ids, status]
+      properties:
+        id:
+          type: string
+          pattern: '^exc_[a-zA-Z0-9]{20}$'
+        application_id:
+          type: string
+        rule_ids:
+          type: array
+          items:
+            type: string
+          description: |
+            All breached rule identifiers (supports multi-rule exceptions).
+            E.g., ["dti_max", "fico_min", "ltv_max"]
+        detection_method:
+          type: string
+          enum: [automatic, manual]
+        metrics:
+          type: object
+          description: The actual values that triggered the exception
+          properties:
+            actual_dti:
+              type: number
+              format: float
+            limit_dti:
+              type: number
+              format: float
+            actual_fico:
+              type: integer
+            limit_fico:
+              type: integer
+            actual_ltv:
+              type: number
+              format: float
+            limit_ltv:
+              type: number
+              format: float
+            actual_bk_seasoning_months:
+              type: integer
+            limit_bk_seasoning_months:
+              type: integer
+          additionalProperties: true
+        mitigants:
+          type: array
+          items:
+            type: string
+            enum:
+              - strong_reserves
+              - low_ltv
+              - high_income_stability
+              - long_membership
+              - collateral_strength
+              - co_signer
+              - compensating_dti
+              - small_medical_judgment
+              - documented_extenuating
+              - other
+          description: Standardized mitigating factors
+        mitigant_narrative:
+          type: string
+          description: Free-text explanation of mitigating circumstances
+        status:
+          type: string
+          enum: [detected, submitted, approved, denied]
+          x-state-machine:
+            transitions:
+              - from: detected
+                to: submitted
+                event: exception.transition.submitted
+              - from: submitted
+                to: approved
+                event: exception.transition.approved
+              - from: submitted
+                to: denied
+                event: exception.transition.denied
+        approver_id:
+          type: string
+          nullable: true
+        approver_role:
+          type: string
+          nullable: true
+          enum: [underwriter_senior, clo, compliance, board]
+        approved_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    ExceptionCreate:
+      type: object
+      required: [rule_ids, mitigants, mitigant_narrative]
+      properties:
+        rule_ids:
+          type: array
+          items:
+            type: string
+        detection_method:
+          type: string
+        metrics:
+          type: object
+        mitigants:
+          type: array
+          items:
+            type: string
+        mitigant_narrative:
+          type: string
+
+    ExceptionResolve:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [approved, denied]
+
+    ExceptionList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Exception'
+
+    # ── Credit Package ───────────────────────────────────
+
+    CreditPackage:
+      type: object
+      x-entity: credit_package
+      x-retention: 25mo
+      x-control-refs: [FL-09]
+      x-events:
+        - name: credit_package.created
+          description: Credit package initialized for application
+          trigger: on_create
+        - name: credit_package.closed
+          description: Credit package finalized and archived
+          trigger: on_status_change
+          condition: "status == 'closed'"
+      required: [id, application_id, status]
+      properties:
+        id:
+          type: string
+          pattern: '^cpkg_[a-zA-Z0-9]{20}$'
+        application_id:
+          type: string
+        car_id:
+          type: string
+          description: Credit Analysis Record identifier
+          x-computed:
+            source: system
+            description: Generated when package is created
+        status:
+          type: string
+          enum: [open, complete, closed, archived]
+        required_docs:
+          type: array
+          items:
+            type: string
+            enum:
+              - application_form
+              - credit_report
+              - income_verification
+              - asset_verification
+              - debt_analysis
+              - dti_calculation
+              - collateral_valuation
+              - atr_checklist
+              - gmi_data
+              - ofac_screening
+              - aa_notice
+              - prequal_letter
+              - pricing_sheet
+              - exception_record
+              - closing_docs
+          description: List of required document types for this application
+        docs_present:
+          type: array
+          items:
+            type: string
+          x-computed:
+            source: system
+            description: Document types actually present in the package
+        completeness_pct:
+          type: number
+          format: float
+          x-computed:
+            source: "[docs_present, required_docs]"
+            description: Percentage of required documents present
+            formula: "len(docs_present) / len(required_docs)"
+        retention_category:
+          type: string
+          enum: [standard_25mo, extended_life_of_loan, hmda_3y, permanent]
+        missing_docs:
+          type: array
+          items:
+            type: string
+          x-computed:
+            source: "[required_docs, docs_present]"
+            description: Required docs not yet present
+            formula: "required_docs - docs_present"
+        created_at:
+          type: string
+          format: date-time
+        closed_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    CreditPackageUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+        docs_added:
+          type: array
+          items:
+            type: string
+          description: Document types being added
+
+    # ── Pricing ──────────────────────────────────────────
+
+    RateSheet:
+      type: object
+      x-entity: rate_sheet
+      x-control-refs: [FL-10]
+      x-events:
+        - name: pricing.apor_imported
+          description: APOR values imported for the week
+          trigger: on_create
+        - name: pricing.matrix_updated
+          description: Rate sheet or pricing matrix updated
+          trigger: on_update
+      required: [id, effective_date, product_id, status]
+      properties:
+        id:
+          type: string
+          pattern: '^rs_[a-zA-Z0-9]{20}$'
+        product_id:
+          type: string
+        effective_date:
+          type: string
+          format: date
+        expiry_date:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [draft, active, expired]
+        apor_values:
+          type: object
+          description: Average Prime Offer Rate values by term
+          additionalProperties:
+            type: number
+            format: float
+        tiers:
+          type: array
+          items:
+            type: object
+            properties:
+              score_band:
+                type: string
+              ltv_max:
+                type: number
+              margin:
+                type: number
+                format: float
+              rate:
+                type: number
+                format: float
+        created_at:
+          type: string
+          format: date-time
+
+    RateSheetCreate:
+      type: object
+      required: [product_id, effective_date, tiers]
+      properties:
+        product_id:
+          type: string
+        effective_date:
+          type: string
+          format: date
+        apor_values:
+          type: object
+        tiers:
+          type: array
+          items:
+            type: object
+
+    RateSheetList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/RateSheet'
+
+    ApplicationPricing:
+      type: object
+      x-entity: application_pricing
+      x-control-refs: [FL-10]
+      x-events:
+        - name: pricing.assigned
+          description: Final pricing assigned to an application
+          trigger: on_create
+      required: [id, application_id, rate_sheet_id, final_rate, final_apr]
+      properties:
+        id:
+          type: string
+          pattern: '^aprx_[a-zA-Z0-9]{20}$'
+        application_id:
+          type: string
+        rate_sheet_id:
+          type: string
+        product_margin:
+          type: number
+          format: float
+        final_rate:
+          type: number
+          format: float
+        final_apr:
+          type: number
+          format: float
+        fees:
+          type: number
+          format: float
+        points_and_fees_pct:
+          type: number
+          format: float
+          x-computed:
+            source: "[fees, loan_amount]"
+            description: Points and fees as percentage of loan amount
+        hpml_flag:
+          type: boolean
+          x-computed:
+            source: "[final_apr, rate_sheet.apor_values, product.type]"
+            description: |
+              Higher-Priced Mortgage Loan flag. True if APR exceeds APOR 
+              by threshold (1.5% first-lien, 3.5% subordinate-lien).
+            x-plugin: hpml_calculator
+        is_exception:
+          type: boolean
+          default: false
+          description: Whether pricing deviates from rate sheet
+        exception_id:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    PricingAssignment:
+      type: object
+      required: [rate_sheet_id, final_rate, final_apr]
+      properties:
+        rate_sheet_id:
+          type: string
+        final_rate:
+          type: number
+        final_apr:
+          type: number
+        fees:
+          type: number
+        is_exception:
+          type: boolean
+        exception_id:
+          type: string
+
+    # ── OFAC Screening ───────────────────────────────────
+
+    OFACScreeningResult:
+      type: object
+      x-entity: ofac_screening
+      x-control-refs: [FL-11]
+      x-events:
+        - name: ofac.check_run
+          description: OFAC screening executed
+          trigger: on_create
+        - name: ofac.override.recorded
+          description: OFAC apparent match cleared with rationale
+          trigger: on_update
+          condition: "override_recorded == true"
+      required: [id, application_id, screened_entities, overall_result]
+      properties:
+        id:
+          type: string
+          pattern: '^ofac_[a-zA-Z0-9]{20}$'
+        application_id:
+          type: string
+        screened_entities:
+          type: array
+          items:
+            type: object
+            properties:
+              entity_id:
+                type: string
+              role:
+                type: string
+                enum: [borrower, co_borrower, guarantor]
+              match_result:
+                type: string
+                enum: [clear, potential_match, confirmed_match]
+              match_score:
+                type: number
+                format: float
+                minimum: 0
+                maximum: 1
+                nullable: true
+                x-plugin: ofac_screener
+              matched_list:
+                type: string
+                nullable: true
+          description: Screening results for all obligors (borrower + co-borrowers + guarantors)
+        overall_result:
+          type: string
+          enum: [clear, potential_match, confirmed_match, override_cleared]
+        override_recorded:
+          type: boolean
+          default: false
+        override_rationale:
+          type: string
+          nullable: true
+        override_approved_by:
+          type: string
+          nullable: true
+        screened_at:
+          type: string
+          format: date-time
+
+    OFACScreeningRequest:
+      type: object
+      properties:
+        entity_ids:
+          type: array
+          items:
+            type: string
+          description: Specific entity IDs to screen (defaults to all obligors if omitted)
+        force_rescreen:
+          type: boolean
+          default: false
+          description: Force rescreen even for existing well-known members
+
+    # ── Prequalification ─────────────────────────────────
+
+    Prequalification:
+      type: object
+      x-entity: prequalification
+      x-retention: 25mo
+      x-control-refs: [FL-12]
+      x-events:
+        - name: prequal.requested
+          description: Prequalification check requested
+          trigger: on_create
+        - name: prequal.decision.made
+          description: Prequalification decision rendered
+          trigger: on_status_change
+          condition: "status in ['qualified', 'not_qualified']"
+        - name: product.menu.rendered
+          description: Product options presented to applicant (steering check)
+          trigger: on_create
+      required: [id, entity_id, status, channel]
+      properties:
+        id:
+          type: string
+          pattern: '^pq_[a-zA-Z0-9]{20}$'
+        entity_id:
+          type: string
+        channel:
+          type: string
+          enum: [branch, online, phone, partner_api]
+        partner_id:
+          type: string
+          nullable: true
+        criteria:
+          type: object
+          description: Neutral, documented prequal criteria
+          properties:
+            estimated_fico:
+              type: integer
+            estimated_dti:
+              type: number
+              format: float
+            estimated_income:
+              type: number
+              format: float
+            requested_amount:
+              type: number
+              format: float
+            requested_product_type:
+              type: string
+        eligible_products:
+          type: array
+          items:
+            type: object
+            properties:
+              product_id:
+                type: string
+              product_name:
+                type: string
+              estimated_rate_range:
+                type: object
+                properties:
+                  low:
+                    type: number
+                  high:
+                    type: number
+              estimated_max_amount:
+                type: number
+          description: All products the applicant may qualify for (anti-steering)
+        status:
+          type: string
+          enum: [pending, qualified, not_qualified]
+        letter_generated:
+          type: boolean
+          default: false
+        letter_generated_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    PrequalCreate:
+      type: object
+      required: [entity_id, channel, criteria]
+      properties:
+        entity_id:
+          type: string
+        channel:
+          type: string
+        partner_id:
+          type: string
+        criteria:
+          type: object
+
+    # ── Fair Lending Risk Assessment ─────────────────────
+
+    FLRiskAssessment:
+      type: object
+      x-entity: fl_risk_assessment
+      x-retention: 7y
+      x-control-refs: [FL-13]
+      x-events:
+        - name: flra.cycle_start
+          description: New FLRA cycle initiated
+          trigger: on_create
+        - name: flra.model_or_policy_changed
+          description: Model or policy change triggers targeted review
+          trigger: on_update
+      required: [id, assessment_type, status, period_start, period_end]
+      properties:
+        id:
+          type: string
+          pattern: '^flra_[a-zA-Z0-9]{20}$'
+        assessment_type:
+          type: string
+          enum: [annual_full, targeted, model_change, policy_change]
+        status:
+          type: string
+          enum: [initiated, data_collection, analysis, report_draft, finalized, remediation]
+        period_start:
+          type: string
+          format: date
+        period_end:
+          type: string
+          format: date
+        dataset:
+          type: object
+          description: Dataset parameters for the assessment
+          properties:
+            products:
+              type: array
+              items:
+                type: string
+            channels:
+              type: array
+              items:
+                type: string
+            partners:
+              type: array
+              items:
+                type: string
+            geographies:
+              type: array
+              items:
+                type: string
+        segment_tags:
+          type: array
+          items:
+            type: string
+          description: Analysis segments (product, channel, partner, geography)
+        findings_count:
+          type: integer
+          default: 0
+        open_remediations:
+          type: integer
+          default: 0
+          x-computed:
+            source: flra.remediations
+            description: Count of open remediation items
+        report_issued_date:
+          type: string
+          format: date
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    FLRiskAssessmentCreate:
+      type: object
+      required: [assessment_type, period_start, period_end]
+      properties:
+        assessment_type:
+          type: string
+        period_start:
+          type: string
+          format: date
+        period_end:
+          type: string
+          format: date
+        dataset:
+          type: object
+        segment_tags:
+          type: array
+          items:
+            type: string
+
+    FLRiskAssessmentList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/FLRiskAssessment'
+
+    # ── Lending Policy / Governance ──────────────────────
+
+    LendingPolicy:
+      type: object
+      x-entity: lending_policy
+      x-control-refs: [FL-01]
+      x-events:
+        - name: policy.lending_fl.updated
+          description: Lending or fair lending policy updated
+          trigger: on_update
+        - name: user.role.changed
+          description: Control owner role assignment changed
+          trigger: on_update
+          condition: "changed_fields includes 'control_mappings'"
+      required: [id, name, status, effective_date]
+      properties:
+        id:
+          type: string
+          pattern: '^pol_[a-zA-Z0-9]{20}$'
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [draft, active, under_review, archived]
+        effective_date:
+          type: string
+          format: date
+        next_review_date:
+          type: string
+          format: date
+        control_mappings:
+          type: array
+          items:
+            type: object
+            properties:
+              control_id:
+                type: string
+              owner_role:
+                type: string
+                enum: [clo, compliance, fair_lending_officer, executive, board]
+              product_scope:
+                type: array
+                items:
+                  type: string
+                description: Product IDs this control-owner mapping applies to
+        partner_policy_links:
+          type: array
+          items:
+            type: object
+            properties:
+              partner_id:
+                type: string
+              partner_policy_ref:
+                type: string
+              pynthia_stricter:
+                type: boolean
+                description: Whether Pynthia controls are stricter than partner policy
+          description: Links to BaaS partner policies where applicable
+        approved_by:
+          type: string
+          nullable: true
+        approved_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    LendingPolicyUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+        next_review_date:
+          type: string
+          format: date
+        control_mappings:
+          type: array
+          items:
+            type: object
+        partner_policy_links:
+          type: array
+          items:
+            type: object
+
+    LendingPolicyList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/LendingPolicy'
+
+  # ── Security Schemes ─────────────────────────────────────
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: Server-to-server JWT token scoped to partner_id
+
+security:
+  - BearerAuth: []
