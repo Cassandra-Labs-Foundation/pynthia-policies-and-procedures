@@ -162,30 +162,34 @@ def delete_block(lines, section, key) -> bool:
 
 
 def apply_op(op: dict) -> bool:
-    """Apply one edit op to core-api.yaml in place. Returns True iff the file changed."""
+    """Apply one edit op to core-api.yaml in place. Returns True iff the file changed.
+
+    Defensive: a malformed op (unknown kind, missing/empty path|name) is treated as a no-op,
+    never an exception — an LLM proposer can and will emit imperfect ops, and a bad suggestion
+    should just be ignored (and then reverted/converged), not crash the run."""
     lines = open(SPEC, encoding="utf-8").read().splitlines(keepends=True)
     kind = op.get("op")
+    path = (op.get("path") or "").strip()
+    name = (op.get("name") or "").strip()
     changed = False
-    if kind == "add_field":
-        changed = add_field(lines, op["path"], op.get("type", "string"))
-    elif kind == "delete_field":
-        changed = delete_field(lines, op["path"])
-    elif kind == "add_event_type":
-        changed = add_list_item(lines, "event_types", op["name"])
-    elif kind == "delete_event_type":
-        changed = delete_list_item(lines, "event_types", op["name"])
-    elif kind == "delete_task_type":
-        changed = delete_list_item(lines, "task_types", op["name"])
-    elif kind == "delete_endpoint":
-        changed = delete_block(lines, "endpoints", op["path"])
-    elif kind == "delete_resource":
-        changed = delete_block(lines, "resources", op["name"])
-    elif kind == "delete_state_machine":
-        changed = delete_block(lines, "state_machines", op["name"])
-    elif kind == "noop":
-        return False
+    if kind == "add_field" and path:
+        changed = add_field(lines, path, op.get("type", "string"))
+    elif kind == "delete_field" and path:
+        changed = delete_field(lines, path)
+    elif kind == "add_event_type" and name:
+        changed = add_list_item(lines, "event_types", name)
+    elif kind == "delete_event_type" and name:
+        changed = delete_list_item(lines, "event_types", name)
+    elif kind == "delete_task_type" and name:
+        changed = delete_list_item(lines, "task_types", name)
+    elif kind == "delete_endpoint" and path:
+        changed = delete_block(lines, "endpoints", path)
+    elif kind == "delete_resource" and name:
+        changed = delete_block(lines, "resources", name)
+    elif kind == "delete_state_machine" and name:
+        changed = delete_block(lines, "state_machines", name)
     else:
-        return False
+        return False  # noop or malformed/unsupported op
     if changed:
         open(SPEC, "w", encoding="utf-8").write("".join(lines))
     return changed
@@ -371,8 +375,11 @@ def main(argv=None) -> int:
 
     applied = False
     if not args.dry_run and op.get("op") not in (None, "noop"):
-        applied = apply_op(op)
-        if not applied:
+        try:
+            applied = apply_op(op)
+        except Exception as e:  # noqa: BLE001 — never let a bad op crash the proposer
+            op = {"op": "noop", "label": None, "note": f"op failed to apply: {e}"}
+        if not applied and op.get("op") != "noop":
             # target absent / nothing changed -> signal convergence to the supervisor
             op = {"op": "noop", "label": None,
                   "note": f"op {op.get('op')} matched nothing (already applied?)"}
