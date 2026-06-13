@@ -89,6 +89,27 @@ $PY core-api-loop/regenerate.py cycle fair-lending --resume     # -> apply + mea
 generated Markdown already exists when `cycle` reaches the generate step (stage backend), it
 proceeds without pausing.
 
+**Affected-only (recommended steady state)** — regenerate just the policies the spec change can
+actually move, not all ~26. A policy is *affected* iff it cites a code whose **registered status
+flipped** between the baseline spec and the current spec (symmetric difference of the registered
+sets ∩ the policy's cited codes) — i.e. a code it cited became registered (it can now reuse it →
+unregistered drops) or a code it cited got removed (its reference now dangles). Everything else is
+left untouched.
+
+```bash
+PY=core-api-loop/.venv/bin/python
+# At the START of an outer cycle (before the inner loop edits the spec):
+$PY core-api-loop/regenerate.py spec-snapshot --tag pre
+# ... run the inner loop (run_loop.py) — core-api.yaml changes ...
+$PY core-api-loop/regenerate.py affected --before pre --show          # preview: which policies + why
+$PY core-api-loop/regenerate.py cycle --affected --before pre --backend api   # regenerate just those
+```
+
+Baseline (the "old" spec) can be a `spec-snapshot` tag (`--before`), an old `core-vocabulary.json`
+(`--baseline-vocab`), or a git ref (`--baseline-ref <commit>`). With `--backend stage`,
+`cycle --affected` preps + stages each affected policy and pauses; generate each into its
+`.regen/<slug>.generated.md`, then `cycle --affected --before pre --resume`.
+
 **Step-by-step** (same stages, run individually) — `snapshot --tag … / prep / generate / apply /
 measure` — see `regenerate.py --help`.
 

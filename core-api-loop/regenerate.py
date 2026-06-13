@@ -42,6 +42,7 @@ import json
 import os
 import subprocess
 import sys
+import tempfile
 from datetime import datetime, timezone
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -50,7 +51,8 @@ PREPARE = os.path.join(HERE, "prepare")
 SCRIPTS = os.path.join(REPO_ROOT, "scripts")
 sys.path.insert(0, PREPARE)
 
-import control_oracle  # noqa: E402
+import control_oracle  # noqa: E402  (also puts SCRIPTS on sys.path)
+import extract_controls  # noqa: E402  (load_api_index for baseline registered sets)
 
 VENV_PY = os.path.join(HERE, ".venv", "bin", "python")
 PY = VENV_PY if os.path.exists(VENV_PY) else sys.executable
@@ -259,29 +261,153 @@ def cmd_measure(args) -> None:
 
 
 # --------------------------------------------------------------------------- #
+# affected-only selection (the spec delta -> which policies to regenerate)
+# --------------------------------------------------------------------------- #
+def spec_snapshot_path(tag: str) -> str:
+    return os.path.join(REGEN_DIR, f"spec.{tag}.json")
+
+
+def registered_current() -> set:
+    """Registered code set (events ∪ field paths) of the CURRENT core-api.yaml."""
+    ec, fp = control_oracle.code_sets(control_oracle.parse_vocab(
+        os.path.join(REPO_ROOT, "core-api.yaml"),
+        os.path.join(REPO_ROOT, "vocab-migration.json")))
+    return ec | fp
+
+
+def registered_from_vocab_json(path: str) -> set:
+    ec, fp, _meta, _v = extract_controls.load_api_index(path)
+    return ec | fp
+
+
+def registered_from_ref(ref: str) -> set:
+    """Registered set of core-api.yaml as of a git ref (uses the current migration)."""
+    r = run(["git", "show", f"{ref}:core-api.yaml"])
+    if r.returncode != 0:
+        sys.exit(f"git show {ref}:core-api.yaml failed:\n{r.stderr}")
+    fd, tmp = tempfile.mkstemp(suffix=".yaml")
+    os.close(fd)
+    open(tmp, "w").write(r.stdout)
+    try:
+        ec, fp = control_oracle.code_sets(control_oracle.parse_vocab(
+            tmp, os.path.join(REPO_ROOT, "vocab-migration.json")))
+    finally:
+        os.remove(tmp)
+    return ec | fp
+
+
+def resolve_baseline_registered(args) -> set:
+    """The 'old' spec's registered set — the other side of the delta."""
+    if getattr(args, "before", None):
+        p = spec_snapshot_path(args.before)
+        if not os.path.exists(p):
+            sys.exit(f"no spec snapshot '{args.before}' at {p}; "
+                     f"run `spec-snapshot --tag {args.before}` before changing the spec.")
+        return set(json.load(open(p))["registered"])
+    if getattr(args, "baseline_vocab", None):
+        return registered_from_vocab_json(args.baseline_vocab)
+    if getattr(args, "baseline_ref", None):
+        return registered_from_ref(args.baseline_ref)
+    sys.exit("provide a baseline: --before TAG | --baseline-vocab PATH | --baseline-ref GITREF")
+
+
+def load_demand_for_affected(args) -> dict:
+    """Per-policy citations. Defaults to the frozen prepare/demand.json (the loop's frozen
+    demand), falling back to a live extraction."""
+    p = getattr(args, "demand", None) or os.path.join(PREPARE, "demand.json")
+    if os.path.exists(p):
+        return json.load(open(p))
+    return control_oracle.extract_demand(REPO_ROOT)
+
+
+def select_affected(args) -> dict:
+    """A policy is AFFECTED iff it cites a code whose registered status flipped between the
+    baseline spec and the current spec (symmetric difference of the registered sets). That is
+    exactly the set of policies whose valid vocabulary footprint changed — the only ones a
+    regeneration can move."""
+    base = resolve_baseline_registered(args)
+    cur = registered_current()
+    delta = base ^ cur                      # codes registered in exactly one of the two specs
+    newly = cur - base                      # now registered (policy can adopt -> unregistered drops)
+    gone = base - cur                       # no longer registered (policy refs now dangling)
+    demand = load_demand_for_affected(args)
+
+    by_slug: dict[str, dict] = {}
+    for code, info in demand["codes"].items():
+        if code in delta:
+            for pol in info.get("policies", []):
+                rec = by_slug.setdefault(pol, {"newly": set(), "gone": set()})
+                (rec["newly"] if code in newly else rec["gone"]).add(code)
+
+    rows = []
+    for slug, rec in sorted(by_slug.items()):
+        triggers = sorted(rec["newly"] | rec["gone"])
+        rows.append({
+            "slug": slug,
+            "regeneratable": os.path.exists(os.path.join(REPO_ROOT, slug, "prompt.md")),
+            "trigger_count": len(triggers),
+            "newly_registered": sorted(rec["newly"]),
+            "deregistered": sorted(rec["gone"]),
+        })
+    return {
+        "delta_registered": len(delta),
+        "newly_registered_total": len(newly),
+        "deregistered_total": len(gone),
+        "affected_policies": len(rows),
+        "affected": rows,
+        "demand_codes": len(demand["codes"]),
+    }
+
+
+def cmd_spec_snapshot(args) -> None:
+    os.makedirs(REGEN_DIR, exist_ok=True)
+    reg = registered_current()
+    p = spec_snapshot_path(args.tag)
+    with open(p, "w", encoding="utf-8") as fh:
+        json.dump({"meta": {"tag": args.tag, "snapshot_at": _now(),
+                            "registered_count": len(reg)},
+                   "registered": sorted(reg)}, fh)
+    print(f"spec snapshot [{args.tag}] -> {p} ({len(reg)} registered codes)")
+
+
+def cmd_affected(args) -> dict:
+    sel = select_affected(args)
+    summary = {k: sel[k] for k in ("delta_registered", "newly_registered_total",
+                                   "deregistered_total", "affected_policies", "demand_codes")}
+    print(json.dumps(summary, indent=2))
+    for r in sel["affected"]:
+        mark = "" if r["regeneratable"] else "  [NO prompt.md — cannot regenerate]"
+        print(f"  {r['slug']:40} {r['trigger_count']:4} trigger codes{mark}")
+        if args.show:
+            if r["newly_registered"]:
+                print(f"      + now registered: {r['newly_registered'][:12]}")
+            if r["deregistered"]:
+                print(f"      - de-registered : {r['deregistered'][:12]}")
+    return sel
+
+
+# --------------------------------------------------------------------------- #
 # cycle (one-shot: snapshot -> prep -> generate -> apply -> measure)
 # --------------------------------------------------------------------------- #
-def cmd_cycle(args) -> None:
+def _cycle_one(slug: str, args) -> str:
+    """Run one policy's cycle. Returns 'paused' | 'done'."""
     import types
-    slug = args.slug
     before_tag = f"cycle-{slug}-before"
     gen = generated_path(slug)
 
     if not args.resume:
         print(f"[cycle:{slug}] 1/5 snapshot demand (before)")
         cmd_snapshot(types.SimpleNamespace(tag=before_tag))
-        print(f"\n[cycle:{slug}] 2/5 prep (reparse spec + composite prompt)")
+        print(f"[cycle:{slug}] 2/5 prep (reparse spec + composite prompt)")
         cmd_prep(types.SimpleNamespace(slug=slug, no_reparse=args.no_reparse))
-        print(f"\n[cycle:{slug}] 3/5 generate (backend={args.backend})")
+        print(f"[cycle:{slug}] 3/5 generate (backend={args.backend})")
         if args.backend in ("api", "cli"):
             cmd_generate(types.SimpleNamespace(slug=slug, backend=args.backend))
         elif os.path.exists(gen):
             print(f"  using already-staged {gen}")
         else:
             cmd_generate(types.SimpleNamespace(slug=slug, backend="stage"))
-            print(f"\n[cycle:{slug}] paused — no LLM backend. Generate the Markdown into the path "
-                  f"above, then run:\n  regenerate.py cycle {slug} --resume")
-            return
+            return "paused"
     else:
         print(f"[cycle:{slug}] resuming from staged Markdown")
 
@@ -291,11 +417,41 @@ def cmd_cycle(args) -> None:
     if not os.path.exists(demand_snapshot_path(before_tag)):
         sys.exit(f"[cycle:{slug}] missing 'before' snapshot — run once without --resume first.")
 
-    print(f"\n[cycle:{slug}] 4/5 apply (validate + install)")
+    print(f"[cycle:{slug}] 4/5 apply (validate + install)")
     cmd_apply(types.SimpleNamespace(slug=slug, from_path=None, strict=args.strict))
-    print(f"\n[cycle:{slug}] 5/5 measure (demand delta vs before)")
+    print(f"[cycle:{slug}] 5/5 measure (demand delta vs before)")
     cmd_measure(types.SimpleNamespace(before=before_tag, slug=slug,
                                       spec_scored=True, show=args.show))
+    return "done"
+
+
+def cmd_cycle(args) -> None:
+    if getattr(args, "affected", False):
+        sel = select_affected(args)
+        slugs = [r["slug"] for r in sel["affected"] if r["regeneratable"]]
+        skipped = [r["slug"] for r in sel["affected"] if not r["regeneratable"]]
+        print(f"[cycle --affected] spec delta = {sel['delta_registered']} codes "
+              f"({sel['newly_registered_total']} newly registered, "
+              f"{sel['deregistered_total']} de-registered); "
+              f"{sel['affected_policies']} affected, {len(slugs)} regeneratable"
+              + (f"; skipped (no prompt.md): {skipped}" if skipped else ""))
+        if not slugs:
+            print("nothing to regenerate — spec delta touches no cited codes.")
+            return
+    else:
+        if not args.slug:
+            sys.exit("cycle: pass a SLUG, or --affected with a baseline.")
+        slugs = [args.slug]
+
+    paused = []
+    for slug in slugs:
+        print(f"\n========== cycle: {slug} ==========")
+        if _cycle_one(slug, args) == "paused":
+            paused.append(slug)
+    if paused:
+        print(f"\n[cycle] {len(paused)} policy(ies) staged, awaiting generation: {paused}")
+        print("Generate each composite (.cache/prep/<slug>.composite-prompt.txt) into its drop "
+              "path (core-api-loop/.regen/<slug>.generated.md), then re-run with --resume.")
 
 
 def main(argv: list[str]) -> int:
@@ -331,9 +487,30 @@ def main(argv: list[str]) -> int:
     p_meas.add_argument("--show", action="store_true", help="print sample added/removed codes")
     p_meas.set_defaults(func=cmd_measure)
 
+    def add_baseline(p):
+        g = p.add_argument_group("baseline (the 'old' spec for the delta — pick one)")
+        g.add_argument("--before", help="spec-snapshot tag (see `spec-snapshot --tag`)")
+        g.add_argument("--baseline-vocab", help="path to an old core-vocabulary.json")
+        g.add_argument("--baseline-ref", help="git ref to read core-api.yaml from (e.g. a commit)")
+        g.add_argument("--demand", help="demand snapshot for per-policy citations "
+                                        "(default: prepare/demand.json, else live)")
+
+    p_spec = sub.add_parser("spec-snapshot", help="save the current spec's registered code set")
+    p_spec.add_argument("--tag", required=True)
+    p_spec.set_defaults(func=cmd_spec_snapshot)
+
+    p_aff = sub.add_parser("affected",
+                           help="list policies whose cited codes intersect the spec delta")
+    add_baseline(p_aff)
+    p_aff.add_argument("--show", action="store_true", help="print the trigger codes per policy")
+    p_aff.set_defaults(func=cmd_affected)
+
     p_cyc = sub.add_parser("cycle",
                            help="one-shot: snapshot -> prep -> generate -> apply -> measure")
-    p_cyc.add_argument("slug")
+    p_cyc.add_argument("slug", nargs="?", help="policy slug (omit when using --affected)")
+    p_cyc.add_argument("--affected", action="store_true",
+                       help="regenerate every policy affected by the spec delta (needs a baseline)")
+    add_baseline(p_cyc)
     p_cyc.add_argument("--backend", choices=["stage", "api", "cli"], default="stage",
                        help="LLM backend; 'stage' pauses for an agent/human to generate, "
                             "then resume with --resume")
