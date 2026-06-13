@@ -106,9 +106,22 @@ $PY core-api-loop/regenerate.py cycle --affected --before pre --backend api   # 
 ```
 
 Baseline (the "old" spec) can be a `spec-snapshot` tag (`--before`), an old `core-vocabulary.json`
-(`--baseline-vocab`), or a git ref (`--baseline-ref <commit>`). With `--backend stage`,
-`cycle --affected` preps + stages each affected policy and pauses; generate each into its
-`.regen/<slug>.generated.md`, then `cycle --affected --before pre --resume`.
+(`--baseline-vocab`), or a git ref (`--baseline-ref <commit>`).
+
+**Concurrent generation.** `cycle` is phase-batched (prep all → generate all → apply/measure all)
+so the generate phase — the only slow part — fans out across affected policies:
+
+- `--backend api|cli`: generations run in a thread pool (`--jobs N`, default 4). Each call is
+  I/O-bound, so N policies complete in ~one generation's wall-clock, not N×.
+- `--backend stage`: `cycle --affected` preps + stages every affected policy, then pauses with the
+  full pending list. Because the policies are independent, generate them **in parallel** (e.g. one
+  Claude Code subagent per policy, spawned in a single message — they run concurrently), each
+  writing its `.regen/<slug>.generated.md`. Then `cycle --affected --before pre --resume` applies +
+  measures all. Wall-clock ≈ one generation regardless of how many policies.
+
+Measured: one fair-lending cycle ≈ **5.7 min** (≈99.7% in the single LLM generation; prep + apply +
+measure together are ~1.4 s). A thread-pool sanity check showed 4 stubbed generations finishing in
+2.0 s at `--jobs 4` vs 8.0 s at `--jobs 1`.
 
 **Step-by-step** (same stages, run individually) — `snapshot --tag … / prep / generate / apply /
 measure` — see `regenerate.py --help`.

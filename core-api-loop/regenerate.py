@@ -387,42 +387,88 @@ def cmd_affected(args) -> dict:
 
 
 # --------------------------------------------------------------------------- #
-# cycle (one-shot: snapshot -> prep -> generate -> apply -> measure)
+# cycle (snapshot -> prep -> generate -> apply -> measure), phase-batched so the
+# generate phase can fan out across all affected policies concurrently.
 # --------------------------------------------------------------------------- #
-def _cycle_one(slug: str, args) -> str:
-    """Run one policy's cycle. Returns 'paused' | 'done'."""
+def _before_tag(slug: str) -> str:
+    return f"cycle-{slug}-before"
+
+
+def _phase_snapshot_prep(slugs: list[str], args) -> None:
+    """Snapshot demand + assemble each composite. Fast/deterministic. Reparse the spec only
+    once (the spec is identical across slugs in a single cycle)."""
     import types
-    before_tag = f"cycle-{slug}-before"
-    gen = generated_path(slug)
+    for i, slug in enumerate(slugs):
+        print(f"[prep:{slug}] snapshot demand + composite prompt")
+        cmd_snapshot(types.SimpleNamespace(tag=_before_tag(slug)))
+        cmd_prep(types.SimpleNamespace(slug=slug, no_reparse=(args.no_reparse or i > 0)))
 
-    if not args.resume:
-        print(f"[cycle:{slug}] 1/5 snapshot demand (before)")
-        cmd_snapshot(types.SimpleNamespace(tag=before_tag))
-        print(f"[cycle:{slug}] 2/5 prep (reparse spec + composite prompt)")
-        cmd_prep(types.SimpleNamespace(slug=slug, no_reparse=args.no_reparse))
-        print(f"[cycle:{slug}] 3/5 generate (backend={args.backend})")
-        if args.backend in ("api", "cli"):
-            cmd_generate(types.SimpleNamespace(slug=slug, backend=args.backend))
-        elif os.path.exists(gen):
-            print(f"  using already-staged {gen}")
-        else:
-            cmd_generate(types.SimpleNamespace(slug=slug, backend="stage"))
-            return "paused"
-    else:
-        print(f"[cycle:{slug}] resuming from staged Markdown")
 
-    if not os.path.exists(gen):
-        sys.exit(f"[cycle:{slug}] no generated Markdown at {gen} — generate it first "
-                 f"(or use --backend api/cli).")
-    if not os.path.exists(demand_snapshot_path(before_tag)):
-        sys.exit(f"[cycle:{slug}] missing 'before' snapshot — run once without --resume first.")
+def _ensure_backend(backend: str) -> None:
+    """Fail fast (before spawning threads) if an inline backend is unavailable."""
+    if backend == "api":
+        try:
+            import anthropic  # noqa: F401
+        except ModuleNotFoundError:
+            sys.exit("--backend api needs the anthropic SDK (pip install anthropic).")
+        if not os.environ.get("ANTHROPIC_API_KEY"):
+            sys.exit("--backend api needs ANTHROPIC_API_KEY in the environment.")
+    elif backend == "cli":
+        import shutil
+        if not shutil.which("claude"):
+            sys.exit("--backend cli needs the `claude` CLI on PATH.")
 
-    print(f"[cycle:{slug}] 4/5 apply (validate + install)")
-    cmd_apply(types.SimpleNamespace(slug=slug, from_path=None, strict=args.strict))
-    print(f"[cycle:{slug}] 5/5 measure (demand delta vs before)")
-    cmd_measure(types.SimpleNamespace(before=before_tag, slug=slug,
-                                      spec_scored=True, show=args.show))
-    return "done"
+
+def _generate_one_to_file(slug: str, backend: str) -> int:
+    composite = _read_composite(slug)
+    md = generate_via_api(composite) if backend == "api" else generate_via_cli(composite)
+    with open(generated_path(slug), "w", encoding="utf-8") as fh:
+        fh.write(md)
+    return len(md)
+
+
+def _phase_generate(slugs: list[str], args) -> list[str]:
+    """Generate every slug. Returns the slugs still PENDING (only possible for stage backend).
+
+    api/cli: independent generations run CONCURRENTLY in a thread pool — wall-clock is one
+    generation, not N (each call is I/O-bound and releases the GIL). stage: nothing is generated
+    inline; the orchestrator (e.g. parallel Claude Code subagents) produces each drop file, so we
+    just report which are still missing."""
+    if args.backend == "stage":
+        for s in slugs:
+            if os.path.exists(generated_path(s)):
+                print(f"[generate:{s}] using already-staged {os.path.relpath(generated_path(s), REPO_ROOT)}")
+        return [s for s in slugs if not os.path.exists(generated_path(s))]
+
+    _ensure_backend(args.backend)
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    jobs = max(1, args.jobs)
+    print(f"[generate] {len(slugs)} policy(ies) concurrently (jobs={jobs}, backend={args.backend})")
+    with ThreadPoolExecutor(max_workers=jobs) as ex:
+        futs = {ex.submit(_generate_one_to_file, s, args.backend): s for s in slugs}
+        for fut in as_completed(futs):
+            s = futs[fut]
+            try:
+                n = fut.result()
+                print(f"  ✓ {s} ({n} chars)")
+            except BaseException as e:                       # noqa: BLE001 — report, don't abort the batch
+                print(f"  ✗ {s}: {e}")
+    return [s for s in slugs if not os.path.exists(generated_path(s))]
+
+
+def _phase_apply_measure(slugs: list[str], args) -> None:
+    import types
+    for slug in slugs:
+        if not os.path.exists(generated_path(slug)):
+            print(f"[apply:{slug}] SKIP — no generated Markdown")
+            continue
+        if not os.path.exists(demand_snapshot_path(_before_tag(slug))):
+            print(f"[apply:{slug}] SKIP — missing 'before' snapshot (run without --resume first)")
+            continue
+        print(f"\n========== finalize: {slug} ==========")
+        cmd_apply(types.SimpleNamespace(slug=slug, from_path=None, strict=args.strict))
+        cmd_measure(types.SimpleNamespace(before=_before_tag(slug), slug=slug,
+                                          spec_scored=True, show=args.show))
 
 
 def cmd_cycle(args) -> None:
@@ -443,15 +489,19 @@ def cmd_cycle(args) -> None:
             sys.exit("cycle: pass a SLUG, or --affected with a baseline.")
         slugs = [args.slug]
 
-    paused = []
-    for slug in slugs:
-        print(f"\n========== cycle: {slug} ==========")
-        if _cycle_one(slug, args) == "paused":
-            paused.append(slug)
-    if paused:
-        print(f"\n[cycle] {len(paused)} policy(ies) staged, awaiting generation: {paused}")
-        print("Generate each composite (.cache/prep/<slug>.composite-prompt.txt) into its drop "
-              "path (core-api-loop/.regen/<slug>.generated.md), then re-run with --resume.")
+    if not args.resume:
+        _phase_snapshot_prep(slugs, args)
+        pending = _phase_generate(slugs, args)
+        if pending:
+            print(f"\n[cycle] {len(pending)} policy(ies) staged, awaiting generation "
+                  f"(generate these IN PARALLEL — they are independent):")
+            for s in pending:
+                print(f"  - {s}: prompt {os.path.join('.cache', 'prep', s + '.composite-prompt.txt')}"
+                      f"  ->  {os.path.relpath(generated_path(s), REPO_ROOT)}")
+            print("Then re-run the same command with --resume to apply + measure all.")
+            return
+
+    _phase_apply_measure(slugs, args)
 
 
 def main(argv: list[str]) -> int:
@@ -514,6 +564,8 @@ def main(argv: list[str]) -> int:
     p_cyc.add_argument("--backend", choices=["stage", "api", "cli"], default="stage",
                        help="LLM backend; 'stage' pauses for an agent/human to generate, "
                             "then resume with --resume")
+    p_cyc.add_argument("--jobs", type=int, default=4,
+                       help="concurrent generations for --backend api/cli (default 4)")
     p_cyc.add_argument("--no-reparse", action="store_true")
     p_cyc.add_argument("--strict", action="store_true")
     p_cyc.add_argument("--show", action="store_true")
