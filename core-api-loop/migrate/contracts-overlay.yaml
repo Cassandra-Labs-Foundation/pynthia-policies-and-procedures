@@ -90,3 +90,87 @@ Incident:
 Document:
   create_required: [type, subject_ref]
   examples: { type: board_pack }
+
+# --- Special (non-resource) endpoints, grounded in architecture-decisions.md ----------------
+# Typed under `paths:` (keyed by path), applied by author_contracts.apply_path_overlay.
+paths:
+  # D1: entity creation per type (response is the created Entity)
+  /entities/person: { post: { summary: Create a person entity,
+      request: { legal_name: {type: string}, ssn: {type: string}, date_of_birth: {type: string, format: date},
+                 address: {type: object}, owners: {type: array, items: {type: string}} },
+      required: [legal_name], response: { status: 201, ref: Entity } } }
+  /entities/business: { post: { summary: Create a business entity,
+      request: { legal_name: {type: string}, ein: {type: string}, entity_type: {type: string},
+                 beneficial_owners: {type: array, items: {type: string}} },
+      required: [legal_name, ein], response: { status: 201, ref: Entity } } }
+  /entities/trust: { post: { summary: Create a trust entity,
+      request: { legal_name: {type: string}, ein: {type: string}, trustees: {type: array, items: {type: string}} },
+      required: [legal_name], response: { status: 201, ref: Entity } } }
+  /entities/joint: { post: { summary: Create a joint entity,
+      request: { legal_name: {type: string}, owners: {type: array, items: {type: string}} },
+      required: [owners], response: { status: 201, ref: Entity } } }
+
+  # D19: aggregator payment hub — async origination returns pending; explicit prepare/confirm for large wires
+  /payments/ach/originate: { post: { summary: Originate an ACH payment,
+      request: { amount: {type: integer, description: "Minor units."}, account_number_id: {type: string},
+                 direction: {type: string, enum: [debit, credit]},
+                 counterparty: {type: object, properties: {routing_number: {type: string}, account_number: {type: string}}} },
+      required: [amount, account_number_id, direction],
+      response: { status: 202, schema: { payment_id: {type: string}, status: {type: string, enum: [pending]} } } } }
+  /payments/wire/originate: { post: { summary: Originate a wire payment,
+      request: { amount: {type: integer}, account_number_id: {type: string},
+                 beneficiary: {type: object}, purpose: {type: string} },
+      required: [amount, account_number_id],
+      response: { status: 202, schema: { payment_id: {type: string}, status: {type: string, enum: [pending]} } } } }
+  /payments/wire/prepare: { post: { summary: Reserve funds for a large wire,
+      request: { amount: {type: integer}, account_number_id: {type: string} }, required: [amount, account_number_id],
+      response: { status: 200, schema: { reservation_id: {type: string}, expires_at: {type: string, format: date-time} } } } }
+  /payments/wire/confirm: { post: { summary: Confirm a reserved wire,
+      request: { reservation_id: {type: string} }, required: [reservation_id],
+      response: { status: 202, schema: { payment_id: {type: string}, status: {type: string, enum: [pending]} } } } }
+  /payments/rtp/originate: { post: { summary: Originate an RTP payment,
+      request: { amount: {type: integer}, account_number_id: {type: string}, counterparty: {type: object} },
+      required: [amount, account_number_id],
+      response: { status: 202, schema: { payment_id: {type: string}, status: {type: string, enum: [pending]} } } } }
+
+  # D19: aggregator reads
+  /fbo/{instance_id}/position: { get: { summary: FBO position for an instance,
+      response: { status: 200, schema: { instance_id: {type: string}, balance: {type: integer}, held_amount: {type: integer} } } } }
+  /fbo/{instance_id}/available_balance: { get: { summary: FBO available balance,
+      response: { status: 200, schema: { instance_id: {type: string}, available_balance: {type: integer} } } } }
+  /inbound/{instance_id}: { get: { summary: Inbound payments routed to an instance,
+      response: { status: 200, schema: { data: {type: array, items: {type: object}}, pagination: {type: object} } } } }
+  # D19: short-lived JWT for instance-to-aggregator
+  /auth/token: { post: { summary: Issue a short-lived instance token,
+      request: { grant_type: {type: string}, client_id: {type: string}, client_secret: {type: string} },
+      required: [grant_type, client_id],
+      response: { status: 200, schema: { access_token: {type: string}, token_type: {type: string}, expires_in: {type: integer} } } } }
+
+  # D17: sandbox simulators — force outcomes against a target resource
+  /sandbox/simulate/kyc/approve: { post: { summary: Simulate KYC approval,
+      request: { entity_id: {type: string} }, required: [entity_id], response: { status: 200, schema: { status: {type: string} } } } }
+  /sandbox/simulate/kyc/deny: { post: { summary: Simulate KYC denial,
+      request: { entity_id: {type: string} }, required: [entity_id], response: { status: 200, schema: { status: {type: string} } } } }
+  /sandbox/simulate/ach/receive: { post: { summary: Simulate an inbound ACH,
+      request: { account_number_id: {type: string}, amount: {type: integer} }, required: [account_number_id, amount],
+      response: { status: 200, schema: { transaction_id: {type: string} } } } }
+  /sandbox/simulate/ach/settle: { post: { summary: Simulate ACH settlement,
+      request: { transfer_id: {type: string} }, required: [transfer_id], response: { status: 200, schema: { status: {type: string} } } } }
+  /sandbox/simulate/ach/return: { post: { summary: Simulate an ACH return,
+      request: { transfer_id: {type: string}, return_code: {type: string} }, required: [transfer_id],
+      response: { status: 200, schema: { status: {type: string} } } } }
+  /sandbox/simulate/wire/receive: { post: { summary: Simulate an inbound wire,
+      request: { account_number_id: {type: string}, amount: {type: integer} }, required: [account_number_id, amount],
+      response: { status: 200, schema: { transaction_id: {type: string} } } } }
+  /sandbox/simulate/wire/settle: { post: { summary: Simulate wire settlement,
+      request: { transfer_id: {type: string} }, required: [transfer_id], response: { status: 200, schema: { status: {type: string} } } } }
+  /sandbox/simulate/card/authorize: { post: { summary: Simulate a card authorization,
+      request: { card_id: {type: string}, amount: {type: integer} }, required: [card_id, amount],
+      response: { status: 200, schema: { authorization_id: {type: string}, decision: {type: string} } } } }
+  /sandbox/simulate/card/settle: { post: { summary: Simulate card settlement,
+      request: { authorization_id: {type: string} }, required: [authorization_id], response: { status: 200, schema: { status: {type: string} } } } }
+  /sandbox/simulate/time/advance: { post: { summary: Advance sandbox clock,
+      request: { duration: {type: string, description: "ISO-8601 duration, e.g. P1D."} }, required: [duration],
+      response: { status: 200, schema: { now: {type: string, format: date-time} } } } }
+  /sandbox/reset: { post: { summary: Reset the sandbox,
+      request: {}, response: { status: 200, schema: { reset: {type: boolean} } } } }

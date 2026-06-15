@@ -1,7 +1,7 @@
 {
   "meta": {
     "generator": "scripts/build_control_vocabulary.py",
-    "generated_at": "2026-06-15T22:35:55+00:00",
+    "generated_at": "2026-06-15T22:54:30+00:00",
     "source": "controls.json",
     "api_model": {
       "spec_title": "Cassandra Banking Core API (Minimal)",
@@ -10,7 +10,7 @@
       "fields": 1689,
       "entities": 266
     },
-    "controls_generated_at": "2026-06-15T22:35:55+00:00"
+    "controls_generated_at": "2026-06-15T22:54:30+00:00"
   },
   "stats": {
     "entities": 306,
@@ -3095,7 +3095,7 @@
           "status": "field",
           "spec": {
             "entity": "appraisal",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -8481,7 +8481,7 @@
           "status": "field",
           "spec": {
             "entity": "cash",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -20580,7 +20580,7 @@
           "status": "field",
           "spec": {
             "entity": "eps",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -35532,7 +35532,7 @@
           "status": "field",
           "spec": {
             "entity": "overdraft",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -40131,7 +40131,7 @@
           "status": "field",
           "spec": {
             "entity": "records",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -50395,7 +50395,7 @@
           "status": "field",
           "spec": {
             "entity": "vendor",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null

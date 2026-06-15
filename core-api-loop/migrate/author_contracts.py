@@ -173,6 +173,42 @@ def author_path(doc, path, methods, resource, resource_schema, ov) -> None:
             op["parameters"] = params
 
 
+def apply_path_overlay(doc, overlay_paths) -> int:
+    """Type the non-resource 'special' endpoints (payment hub, sandbox sims, entity creation, etc.)
+    from path-keyed overlay entries grounded in architecture-decisions.md (D1/D17/D19). Each entry:
+      <path>: { <method>: {summary, request: {<props>}, required: [...],
+                           response: {status, ref|schema, description}} }
+    """
+    paths = doc.get("paths") or {}
+    n = 0
+    for path, methods in (overlay_paths or {}).items():
+        if path not in paths:
+            continue
+        for method, spec in (methods or {}).items():
+            op = paths[path].get(method)
+            if not isinstance(op, dict):
+                continue
+            if spec.get("summary"):
+                op["summary"] = spec["summary"]
+            if spec.get("request") is not None:
+                body = {"type": "object", "properties": spec["request"]}
+                if spec.get("required"):
+                    body["required"] = spec["required"]
+                op["requestBody"] = {"required": True, **_json(body)}
+            resp = spec.get("response") or {}
+            code = str(resp.get("status", 200))
+            if resp.get("ref"):
+                schema = _ref(resp["ref"])
+            elif resp.get("schema") is not None:
+                schema = {"type": "object", "properties": resp["schema"]}
+            else:
+                schema = {"type": "object"}
+            op["responses"] = {code: {"description": resp.get("description", "OK"), **_json(schema)},
+                               **_err(400, "Invalid request.")}
+            n += 1
+    return n
+
+
 def main(argv) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[1])
     ap.add_argument("--paths-prefix", default=None)
@@ -202,10 +238,12 @@ def main(argv) -> int:
         author_path(doc, path, methods, resource, schemas[resource], overlay.get(resource))
         done.append(path)
 
+    specials = apply_path_overlay(doc, overlay.get("paths"))
+
     with open(SPEC, "w", encoding="utf-8") as fh:
         yaml.safe_dump(doc, fh, **DUMP_KW)
-    print(f"authored contracts for {len(done)} paths "
-          f"(overlay: {len(overlay)} resources from {os.path.relpath(args.overlay, REPO_ROOT) if os.path.exists(args.overlay) else 'none'})")
+    print(f"authored contracts for {len(done)} resource paths + {specials} special paths "
+          f"(overlay: {len(overlay)} entries from {os.path.relpath(args.overlay, REPO_ROOT) if os.path.exists(args.overlay) else 'none'})")
     return 0
 
 

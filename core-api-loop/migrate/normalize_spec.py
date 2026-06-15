@@ -10,6 +10,8 @@ normalize_spec.py — reproducible spec hygiene passes (re-runnable, vocab-safe)
      vocabulary-safe.
   3. Type discipline: *_count fields -> integer (a count is not a float); appraisal.value -> integer
      (a dollar figure). Field PATHS are unchanged, so controls and policies are unaffected.
+  4. Enum discipline: a bare-string `status` on a stateful resource is constrained to its own
+     x-states; Account.lock_type is constrained to the Decision 7 enum.
 """
 
 from __future__ import annotations
@@ -27,6 +29,7 @@ DUMP_KW = dict(sort_keys=False, default_flow_style=False, width=120, allow_unico
 _SNAKE = re.compile(r"(?<!^)(?=[A-Z])")
 VERBS = {"list", "get", "create", "update", "delete", "transition", "open"}
 MONEY_VALUE_FIELDS = {("appraisal", "value")}  # 'value' fields that are dollar amounts
+LOCK_TYPE_ENUM = ["none", "compliance", "fraud", "legal", "admin"]  # Decision 7
 
 
 def _snake(n): return _SNAKE.sub("_", n).lower()
@@ -67,10 +70,23 @@ def main() -> int:
             elif (name, prop) in MONEY_VALUE_FIELDS:
                 ps["type"] = "integer"; fixed_value += 1
 
+    # 4. enum discipline
+    fixed_enums = 0
+    for name, s in schemas.items():
+        props = s.get("properties") or {}
+        st = props.get("status")
+        if isinstance(st, dict) and st.get("type") == "string" and not st.get("enum") and s.get("x-states"):
+            st["enum"] = list(s["x-states"]); fixed_enums += 1
+        if name == "Account":
+            lt = props.get("lock_type")
+            if isinstance(lt, dict) and not lt.get("enum"):
+                lt["enum"] = list(LOCK_TYPE_ENUM); fixed_enums += 1
+
     with open(SPEC, "w", encoding="utf-8") as fh:
         yaml.safe_dump(doc, fh, **DUMP_KW)
     print(f"dropped x-elements: {dropped} | x-operation-ids qualified: {qualified} | "
-          f"count fields -> integer: {fixed_counts} | value fields -> integer: {fixed_value}")
+          f"count fields -> integer: {fixed_counts} | value fields -> integer: {fixed_value} | "
+          f"enums constrained: {fixed_enums}")
     return 0
 
 
