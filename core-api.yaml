@@ -74,25 +74,25 @@ paths:
             schema:
               type: object
               properties:
-                audit: &id004
+                audit: &id075
                   $ref: '#/components/schemas/AuditDetail'
-                disclosure: &id005
+                disclosure: &id076
                   $ref: '#/components/schemas/DisclosureDetail'
-                escalation: &id006
+                escalation: &id077
                   $ref: '#/components/schemas/EscalationDetail'
-                evidence: &id007
+                evidence: &id078
                   type: array
                   items:
                     $ref: '#/components/schemas/Document'
-                owner_id: &id008
+                owner_id: &id079
                   type: string
-                summary: &id009
+                summary: &id080
                   type: string
-                tasks: &id010
+                tasks: &id081
                   type: array
                   items:
                     type: string
-                type: &id011
+                type: &id082
                   type: string
                   enum:
                   - investigation
@@ -179,17 +179,47 @@ paths:
       x-operation-id: list_control_results
       responses:
         '200':
-          description: OK
+          description: A page of ControlResult objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ControlResult'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
       tags:
       - Control Results
       summary: List control results
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
   /control-results/{id}:
     get:
       operationId: get_control_results_id
       x-operation-id: get_control_result
       responses:
         '200':
-          description: OK
+          description: The requested ControlResult.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ControlResult'
+        '404':
+          description: ControlResult not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
       parameters:
       - name: id
         in: path
@@ -205,26 +235,121 @@ paths:
       x-operation-id: list_documents
       responses:
         '200':
-          description: OK
+          description: A page of Document objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: &id002
+                      $ref: '#/components/schemas/Document'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
       tags:
       - Documents
       summary: List documents
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
     post:
       operationId: post_documents
       x-operation-id: create_document
       responses:
-        '200':
-          description: OK
+        '201':
+          description: The created Document.
+          content:
+            application/json:
+              schema: *id002
+        '409':
+          description: Idempotency-Key reused with different args (D6).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
       tags:
       - Documents
       summary: Create document
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                attached: &id083
+                  type: string
+                curriculum: &id084
+                  $ref: '#/components/schemas/Curriculum'
+                edd: &id085
+                  $ref: '#/components/schemas/EddFile'
+                legal_hold_flag: &id086
+                  type: boolean
+                mi: &id087
+                  $ref: '#/components/schemas/MiCentralLog'
+                policy: &id088
+                  $ref: '#/components/schemas/PolicyDoc'
+                report: &id089
+                  $ref: '#/components/schemas/BoardPack'
+                retention_anchor: &id090
+                  type: string
+                  format: date
+                retention_schedule: &id091
+                  type: string
+                risk: &id092
+                  $ref: '#/components/schemas/RiskCatalogEntry'
+                subject_ref: &id093
+                  type: string
+                type: &id094
+                  type: string
+                  enum:
+                  - bo_certification
+                  - risk_profile
+                  - edd_file
+                  - risk_catalog
+                  - policy_version
+                  - mi_central_log
+                  - curriculum
+                  - audit_workpapers
+                  - board_pack
+                  - vendor_review
+                  - vendor_alert
+                vendor: &id095
+                  $ref: '#/components/schemas/VendorReview'
+                vendor_alert: &id096
+                  $ref: '#/components/schemas/VendorAlert'
   /documents/{id}:
     get:
       operationId: get_documents_id
       x-operation-id: get_document
       responses:
         '200':
-          description: OK
+          description: The requested Document.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '404':
+          description: Document not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
       parameters:
       - name: id
         in: path
@@ -240,36 +365,138 @@ paths:
       x-operation-id: list_events
       responses:
         '200':
-          description: OK
+          description: A page of Event objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Event'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
       tags:
       - Events
       summary: List events
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
   /filings:
     get:
       operationId: get_filings
       x-operation-id: list_filings
       responses:
         '200':
-          description: OK
+          description: A page of Filing objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: &id003
+                      $ref: '#/components/schemas/Filing'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
       tags:
       - Filings
       summary: List filings
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
     post:
       operationId: post_filings
       x-operation-id: prepare_filing
       responses:
-        '200':
-          description: OK
+        '201':
+          description: The created Filing.
+          content:
+            application/json:
+              schema: *id003
+        '409':
+          description: Idempotency-Key reused with different args (D6).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
       tags:
       - Filings
       summary: Prepare filing
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cmir: &id097
+                  $ref: '#/components/schemas/CmirData'
+                control_id: &id098
+                  type: string
+                ctr: &id099
+                  $ref: '#/components/schemas/CtrData'
+                fbar: &id100
+                  $ref: '#/components/schemas/FbarData'
+                filing_id: &id101
+                  type: string
+                fincen_314a: &id102
+                  $ref: '#/components/schemas/Fincen314aData'
+                ofac: &id103
+                  $ref: '#/components/schemas/OfacReportData'
+                sar: &id104
+                  $ref: '#/components/schemas/SarData'
+                type: &id105
+                  type: string
+                  enum:
+                  - ctr
+                  - doep
+                  - sar
+                  - sar_continuing
+                  - cmir
+                  - fbar
+                  - ofac_blocking
+                  - ofac_annual
+                  - fincen_314a
   /filings/{id}:
     get:
       operationId: get_filings_id
       x-operation-id: get_filing
       responses:
         '200':
-          description: OK
+          description: The requested Filing.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Filing'
+        '404':
+          description: Filing not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
       parameters:
       - name: id
         in: path
@@ -285,7 +512,23 @@ paths:
       x-operation-id: acknowledge_filing
       responses:
         '200':
-          description: OK
+          description: The updated Filing.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Filing'
+        '404':
+          description: Filing not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
       parameters:
       - name: id
         in: path
@@ -295,13 +538,36 @@ paths:
       tags:
       - Filings
       summary: Acknowledge filing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Inputs for the acknowledge action.
   /filings/{id}/submit:
     post:
       operationId: post_filings_id_submit
       x-operation-id: submit_filing
       responses:
         '200':
-          description: OK
+          description: The updated Filing.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Filing'
+        '404':
+          description: Filing not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
       parameters:
       - name: id
         in: path
@@ -311,34 +577,170 @@ paths:
       tags:
       - Filings
       summary: Submit filing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Inputs for the submit action.
   /incidents:
     get:
       operationId: get_incidents
       x-operation-id: list
       responses:
         '200':
-          description: OK
+          description: A page of Incident objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: &id004
+                      $ref: '#/components/schemas/Incident'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
       tags:
       - Incidents
       summary: List
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
     post:
       operationId: post_incidents
       x-operation-id: declare
       responses:
-        '200':
-          description: OK
+        '201':
+          description: The created Incident.
+          content:
+            application/json:
+              schema: *id004
+        '409':
+          description: Idempotency-Key reused with different args (D6).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
       tags:
       - Incidents
       summary: Declare
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bsa_referral_id: &id007
+                  type: string
+                cco_signoff: &id008
+                  type: string
+                checklist_first_hour: &id009
+                  type: string
+                comms_plan: &id010
+                  type: object
+                contained: &id011
+                  type: string
+                containment_timer: &id012
+                  type: string
+                criminal_suspected: &id013
+                  type: string
+                data_scope: &id014
+                  type: string
+                description: &id015
+                  type: string
+                detail: &id016
+                  type: object
+                detection_source: &id017
+                  type: string
+                discovery_notes: &id018
+                  type: string
+                facts: &id019
+                  type: string
+                ic_assignment_timer: &id020
+                  type: string
+                impact_summary: &id021
+                  type: object
+                legal_review: &id022
+                  type: string
+                member_notice_required: &id023
+                  type: boolean
+                member_notice_template: &id024
+                  type: string
+                misuse_determined: &id025
+                  type: string
+                misuse_likelihood: &id026
+                  type: string
+                notice_content: &id027
+                  type: string
+                notice_template_id: &id028
+                  type: string
+                notification_determined: &id029
+                  type: string
+                quarterly_summary: &id030
+                  type: object
+                recovered: &id031
+                  type: string
+                reportability_assessment: &id032
+                  type: string
+                reportability_determination: &id033
+                  type: string
+                reportability_rationale: &id034
+                  type: string
+                reportable_determined: &id035
+                  type: string
+                root_cause: &id036
+                  type: string
+                sar_referred: &id037
+                  type: string
+                scope: &id038
+                  type: string
+                scope_initial: &id039
+                  type: string
+                severity: &id040
+                  type: string
+                summary_id: &id041
+                  type: string
+                timeline: &id042
+                  type: string
+                triaged: &id043
+                  type: string
   /incidents/{id}:
     get:
       operationId: get_incidents_id
       x-operation-id: get
       responses:
         '200':
-          description: OK
-      parameters: &id002
-      - name: id
+          description: The requested Incident.
+          content:
+            application/json:
+              schema: &id005
+                $ref: '#/components/schemas/Incident'
+        '404':
+          description: Incident not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - &id006
+        name: id
         in: path
         required: true
         schema:
@@ -351,18 +753,94 @@ paths:
       x-operation-id: update
       responses:
         '200':
-          description: OK
-      parameters: *id002
+          description: The updated Incident.
+          content:
+            application/json:
+              schema: *id005
+        '404':
+          description: Incident not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      parameters:
+      - *id006
       tags:
       - Incidents
       summary: Update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bsa_referral_id: *id007
+                cco_signoff: *id008
+                checklist_first_hour: *id009
+                comms_plan: *id010
+                contained: *id011
+                containment_timer: *id012
+                criminal_suspected: *id013
+                data_scope: *id014
+                description: *id015
+                detail: *id016
+                detection_source: *id017
+                discovery_notes: *id018
+                facts: *id019
+                ic_assignment_timer: *id020
+                impact_summary: *id021
+                legal_review: *id022
+                member_notice_required: *id023
+                member_notice_template: *id024
+                misuse_determined: *id025
+                misuse_likelihood: *id026
+                notice_content: *id027
+                notice_template_id: *id028
+                notification_determined: *id029
+                quarterly_summary: *id030
+                recovered: *id031
+                reportability_assessment: *id032
+                reportability_determination: *id033
+                reportability_rationale: *id034
+                reportable_determined: *id035
+                root_cause: *id036
+                sar_referred: *id037
+                scope: *id038
+                scope_initial: *id039
+                severity: *id040
+                summary_id: *id041
+                timeline: *id042
+                triaged: *id043
   /incidents/{id}/transition:
     post:
       operationId: post_incidents_id_transition
       x-operation-id: transition
       responses:
         '200':
-          description: OK
+          description: The updated Incident.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incident'
+        '404':
+          description: Incident not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
       parameters:
       - name: id
         in: path
@@ -372,32 +850,121 @@ paths:
       tags:
       - Incidents
       summary: Transition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                to_state:
+                  type: string
+                  enum:
+                  - declared
+                  - responding
+                  - contained
+                  - postmortem
+                  - closed
+                reason:
+                  type: string
   /legal-holds:
     get:
       operationId: get_legal_holds
       x-operation-id: list_legal_holds
       responses:
         '200':
-          description: OK
+          description: A page of LegalHold objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: &id044
+                      $ref: '#/components/schemas/LegalHold'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
       tags:
       - Legal Holds
       summary: List legal holds
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
     post:
       operationId: post_legal_holds
       x-operation-id: place_legal_hold
       responses:
-        '200':
-          description: OK
+        '201':
+          description: The created LegalHold.
+          content:
+            application/json:
+              schema: *id044
+        '409':
+          description: Idempotency-Key reused with different args (D6).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
       tags:
       - Legal Holds
       summary: Place legal hold
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                hold_scope: &id106
+                  type: string
+                matter_id: &id107
+                  type: string
+                matter_ref: &id108
+                  type: object
+                release_approved_by: &id109
+                  type: string
+                released: &id110
+                  type: string
+                schedule_resumed: &id111
+                  type: string
   /legal-holds/{id}/release:
     post:
       operationId: post_legal_holds_id_release
       x-operation-id: release_legal_hold
       responses:
         '200':
-          description: OK
+          description: The updated LegalHold.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegalHold'
+        '404':
+          description: LegalHold not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
       parameters:
       - name: id
         in: path
@@ -407,34 +974,165 @@ paths:
       tags:
       - Legal Holds
       summary: Release legal hold
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Inputs for the release action.
   /loan-applications:
     get:
       operationId: get_loan_applications
       x-operation-id: list
       responses:
         '200':
-          description: OK
+          description: A page of LoanApplication objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: &id045
+                      $ref: '#/components/schemas/LoanApplication'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
       tags:
       - Loan Applications
       summary: List
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
     post:
       operationId: post_loan_applications
       x-operation-id: create
       responses:
-        '200':
-          description: OK
+        '201':
+          description: The created LoanApplication.
+          content:
+            application/json:
+              schema: *id045
+        '409':
+          description: Idempotency-Key reused with different args (D6).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
       tags:
       - Loan Applications
       summary: Create
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action_basis: &id048
+                  type: object
+                amount: &id049
+                  type: integer
+                applicant: &id050
+                  $ref: '#/components/schemas/Applicant'
+                atr_qm_result: &id051
+                  type: string
+                channel: &id052
+                  type: string
+                counteroffer_status: &id053
+                  type: string
+                  enum:
+                  - none
+                  - issued
+                  - accepted
+                  - expired
+                counteroffer_terms: &id054
+                  type: object
+                credit_structure: &id055
+                  type: object
+                data: &id056
+                  type: object
+                decision: &id057
+                  $ref: '#/components/schemas/Decision'
+                decision_block_state: &id058
+                  type: string
+                  enum:
+                  - open
+                  - cleared
+                  - blocked
+                doc_block_state: &id059
+                  type: string
+                  enum:
+                  - open
+                  - cleared
+                  - blocked
+                dti: &id060
+                  type: number
+                employment: &id061
+                  type: object
+                final_action: &id062
+                  type: string
+                geography: &id063
+                  type: string
+                gmi: &id064
+                  type: object
+                income_assets: &id065
+                  type: object
+                incomplete_aged: &id066
+                  type: boolean
+                option_shortfall_reason: &id067
+                  type: string
+                oral_adverse_decision: &id068
+                  type: boolean
+                oral_statement: &id069
+                  type: string
+                parties: &id070
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/LoanParty'
+                prequal: &id071
+                  $ref: '#/components/schemas/Prequal'
+                product_code: &id072
+                  type: string
+                product_type: &id073
+                  type: string
+                requested_terms: &id074
+                  type: object
   /loan-applications/{id}:
     get:
       operationId: get_loan_applications_id
       x-operation-id: get
       responses:
         '200':
-          description: OK
-      parameters: &id003
-      - name: id
+          description: The requested LoanApplication.
+          content:
+            application/json:
+              schema: &id046
+                $ref: '#/components/schemas/LoanApplication'
+        '404':
+          description: LoanApplication not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - &id047
+        name: id
         in: path
         required: true
         schema:
@@ -447,18 +1145,84 @@ paths:
       x-operation-id: update
       responses:
         '200':
-          description: OK
-      parameters: *id003
+          description: The updated LoanApplication.
+          content:
+            application/json:
+              schema: *id046
+        '404':
+          description: LoanApplication not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      parameters:
+      - *id047
       tags:
       - Loan Applications
       summary: Update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action_basis: *id048
+                amount: *id049
+                applicant: *id050
+                atr_qm_result: *id051
+                channel: *id052
+                counteroffer_status: *id053
+                counteroffer_terms: *id054
+                credit_structure: *id055
+                data: *id056
+                decision: *id057
+                decision_block_state: *id058
+                doc_block_state: *id059
+                dti: *id060
+                employment: *id061
+                final_action: *id062
+                geography: *id063
+                gmi: *id064
+                income_assets: *id065
+                incomplete_aged: *id066
+                option_shortfall_reason: *id067
+                oral_adverse_decision: *id068
+                oral_statement: *id069
+                parties: *id070
+                prequal: *id071
+                product_code: *id072
+                product_type: *id073
+                requested_terms: *id074
   /loan-applications/{id}/counteroffer:
     post:
       operationId: post_loan_applications_id_counteroffer
       x-operation-id: issue_counteroffer
       responses:
         '200':
-          description: OK
+          description: The updated LoanApplication.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoanApplication'
+        '404':
+          description: LoanApplication not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
       parameters:
       - name: id
         in: path
@@ -468,13 +1232,36 @@ paths:
       tags:
       - Loan Applications
       summary: Issue counteroffer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Inputs for the counteroffer action.
   /loan-applications/{id}/decision:
     post:
       operationId: post_loan_applications_id_decision
       x-operation-id: record_decision
       responses:
         '200':
-          description: OK
+          description: The updated LoanApplication.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoanApplication'
+        '404':
+          description: LoanApplication not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
       parameters:
       - name: id
         in: path
@@ -484,23 +1271,60 @@ paths:
       tags:
       - Loan Applications
       summary: Record decision
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Inputs for the decision action.
   /loans:
     get:
       operationId: get_loans
       x-operation-id: list
       responses:
         '200':
-          description: OK
+          description: A page of Loan objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Loan'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
       tags:
       - Loans
       summary: List
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
   /loans/{id}:
     get:
       operationId: get_loans_id
       x-operation-id: get
       responses:
         '200':
-          description: OK
+          description: The requested Loan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Loan'
+        '404':
+          description: Loan not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
       parameters:
       - name: id
         in: path
@@ -516,7 +1340,23 @@ paths:
       x-operation-id: request_booking
       responses:
         '200':
-          description: OK
+          description: The updated Loan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Loan'
+        '404':
+          description: Loan not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
       parameters:
       - name: id
         in: path
@@ -526,23 +1366,60 @@ paths:
       tags:
       - Loans
       summary: Request booking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Inputs for the book action.
   /tasks:
     get:
       operationId: get_tasks
       x-operation-id: list_tasks
       responses:
         '200':
-          description: OK
+          description: A page of Task objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Task'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
       tags:
       - Tasks
       summary: List tasks
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
   /tasks/{id}:
     get:
       operationId: get_tasks_id
       x-operation-id: get_task
       responses:
         '200':
-          description: OK
+          description: The requested Task.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          description: Task not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
       parameters:
       - name: id
         in: path
@@ -558,7 +1435,23 @@ paths:
       x-operation-id: complete_task
       responses:
         '200':
-          description: OK
+          description: The updated Task.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          description: Task not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
       parameters:
       - name: id
         in: path
@@ -568,6 +1461,13 @@ paths:
       tags:
       - Tasks
       summary: Complete task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Inputs for the complete action.
 components:
   schemas:
     Account:
@@ -1012,22 +1912,22 @@ components:
       - in_review
       - closed
       properties:
-        audit: *id004
-        disclosure: *id005
-        escalation: *id006
-        evidence: *id007
+        audit: *id075
+        disclosure: *id076
+        escalation: *id077
+        evidence: *id078
         id:
           type: string
-        owner_id: *id008
+        owner_id: *id079
         status:
           type: string
           enum:
           - opened
           - in_review
           - closed
-        summary: *id009
-        tasks: *id010
-        type: *id011
+        summary: *id080
+        tasks: *id081
+        type: *id082
     ControlResult:
       type: object
       x-kind: primitive
@@ -1060,49 +1960,22 @@ components:
       type: object
       x-kind: primitive
       properties:
-        attached:
-          type: string
-        curriculum:
-          $ref: '#/components/schemas/Curriculum'
-        edd:
-          $ref: '#/components/schemas/EddFile'
+        attached: *id083
+        curriculum: *id084
+        edd: *id085
         id:
           type: string
-        legal_hold_flag:
-          type: boolean
-        mi:
-          $ref: '#/components/schemas/MiCentralLog'
-        policy:
-          $ref: '#/components/schemas/PolicyDoc'
-        report:
-          $ref: '#/components/schemas/BoardPack'
-        retention_anchor:
-          type: string
-          format: date
-        retention_schedule:
-          type: string
-        risk:
-          $ref: '#/components/schemas/RiskCatalogEntry'
-        subject_ref:
-          type: string
-        type:
-          type: string
-          enum:
-          - bo_certification
-          - risk_profile
-          - edd_file
-          - risk_catalog
-          - policy_version
-          - mi_central_log
-          - curriculum
-          - audit_workpapers
-          - board_pack
-          - vendor_review
-          - vendor_alert
-        vendor:
-          $ref: '#/components/schemas/VendorReview'
-        vendor_alert:
-          $ref: '#/components/schemas/VendorAlert'
+        legal_hold_flag: *id086
+        mi: *id087
+        policy: *id088
+        report: *id089
+        retention_anchor: *id090
+        retention_schedule: *id091
+        risk: *id092
+        subject_ref: *id093
+        type: *id094
+        vendor: *id095
+        vendor_alert: *id096
     Filing:
       type: object
       x-kind: primitive
@@ -1114,27 +1987,19 @@ components:
       - amended
       - nil_determined
       properties:
-        cmir:
-          $ref: '#/components/schemas/CmirData'
-        control_id:
-          type: string
-        ctr:
-          $ref: '#/components/schemas/CtrData'
-        fbar:
-          $ref: '#/components/schemas/FbarData'
+        cmir: *id097
+        control_id: *id098
+        ctr: *id099
+        fbar: *id100
         filed_at:
           type: string
           format: date-time
-        filing_id:
-          type: string
-        fincen_314a:
-          $ref: '#/components/schemas/Fincen314aData'
+        filing_id: *id101
+        fincen_314a: *id102
         id:
           type: string
-        ofac:
-          $ref: '#/components/schemas/OfacReportData'
-        sar:
-          $ref: '#/components/schemas/SarData'
+        ofac: *id103
+        sar: *id104
         status:
           type: string
           enum:
@@ -1144,42 +2009,25 @@ components:
           - continuing
           - amended
           - nil_determined
-        type:
-          type: string
-          enum:
-          - ctr
-          - doep
-          - sar
-          - sar_continuing
-          - cmir
-          - fbar
-          - ofac_blocking
-          - ofac_annual
-          - fincen_314a
+        type: *id105
     LegalHold:
       type: object
       x-kind: primitive
       properties:
-        hold_scope:
-          type: string
+        hold_scope: *id106
         id:
           type: string
-        matter_id:
-          type: string
-        matter_ref:
-          type: object
+        matter_id: *id107
+        matter_ref: *id108
         placed_at:
           type: string
           format: date-time
-        release_approved_by:
-          type: string
-        released:
-          type: string
+        release_approved_by: *id109
+        released: *id110
         released_at:
           type: string
           format: date-time
-        schedule_resumed:
-          type: string
+        schedule_resumed: *id111
         status:
           type: string
     Task:
@@ -1559,84 +2407,47 @@ components:
       - postmortem
       - closed
       properties:
-        bsa_referral_id:
-          type: string
-        cco_signoff:
-          type: string
-        checklist_first_hour:
-          type: string
-        comms_plan:
-          type: object
-        contained:
-          type: string
-        containment_timer:
-          type: string
-        criminal_suspected:
-          type: string
-        data_scope:
-          type: string
-        description:
-          type: string
-        detail:
-          type: object
-        detection_source:
-          type: string
-        discovery_notes:
-          type: string
-        facts:
-          type: string
-        ic_assignment_timer:
-          type: string
+        bsa_referral_id: *id007
+        cco_signoff: *id008
+        checklist_first_hour: *id009
+        comms_plan: *id010
+        contained: *id011
+        containment_timer: *id012
+        criminal_suspected: *id013
+        data_scope: *id014
+        description: *id015
+        detail: *id016
+        detection_source: *id017
+        discovery_notes: *id018
+        facts: *id019
+        ic_assignment_timer: *id020
         id:
           type: string
-        impact_summary:
-          type: object
-        legal_review:
-          type: string
-        member_notice_required:
-          type: boolean
-        member_notice_template:
-          type: string
-        misuse_determined:
-          type: string
-        misuse_likelihood:
-          type: string
-        notice_content:
-          type: string
-        notice_template_id:
-          type: string
-        notification_determined:
-          type: string
-        quarterly_summary:
-          type: object
-        recovered:
-          type: string
-        reportability_assessment:
-          type: string
-        reportability_determination:
-          type: string
-        reportability_rationale:
-          type: string
-        reportable_determined:
-          type: string
-        root_cause:
-          type: string
-        sar_referred:
-          type: string
-        scope:
-          type: string
-        scope_initial:
-          type: string
-        severity:
-          type: string
+        impact_summary: *id021
+        legal_review: *id022
+        member_notice_required: *id023
+        member_notice_template: *id024
+        misuse_determined: *id025
+        misuse_likelihood: *id026
+        notice_content: *id027
+        notice_template_id: *id028
+        notification_determined: *id029
+        quarterly_summary: *id030
+        recovered: *id031
+        reportability_assessment: *id032
+        reportability_determination: *id033
+        reportability_rationale: *id034
+        reportable_determined: *id035
+        root_cause: *id036
+        sar_referred: *id037
+        scope: *id038
+        scope_initial: *id039
+        severity: *id040
         status:
           type: string
-        summary_id:
-          type: string
-        timeline:
-          type: string
-        triaged:
-          type: string
+        summary_id: *id041
+        timeline: *id042
+        triaged: *id043
     Loan:
       type: object
       x-kind: domain
@@ -1746,80 +2557,38 @@ components:
       - counteroffer
       - final_action
       properties:
-        action_basis:
-          type: object
-        amount:
-          type: integer
-        applicant:
-          $ref: '#/components/schemas/Applicant'
-        atr_qm_result:
-          type: string
-        channel:
-          type: string
-        counteroffer_status:
-          type: string
-          enum:
-          - none
-          - issued
-          - accepted
-          - expired
-        counteroffer_terms:
-          type: object
-        credit_structure:
-          type: object
-        data:
-          type: object
-        decision:
-          $ref: '#/components/schemas/Decision'
-        decision_block_state:
-          type: string
-          enum:
-          - open
-          - cleared
-          - blocked
-        doc_block_state:
-          type: string
-          enum:
-          - open
-          - cleared
-          - blocked
-        dti:
-          type: number
-        employment:
-          type: object
-        final_action:
-          type: string
-        geography:
-          type: string
-        gmi:
-          type: object
+        action_basis: *id048
+        amount: *id049
+        applicant: *id050
+        atr_qm_result: *id051
+        channel: *id052
+        counteroffer_status: *id053
+        counteroffer_terms: *id054
+        credit_structure: *id055
+        data: *id056
+        decision: *id057
+        decision_block_state: *id058
+        doc_block_state: *id059
+        dti: *id060
+        employment: *id061
+        final_action: *id062
+        geography: *id063
+        gmi: *id064
         id:
           type: string
-        income_assets:
-          type: object
-        incomplete_aged:
-          type: boolean
+        income_assets: *id065
+        incomplete_aged: *id066
         notified_at:
           type: string
           format: date-time
-        option_shortfall_reason:
-          type: string
-        oral_adverse_decision:
-          type: boolean
-        oral_statement:
-          type: string
-        parties:
-          type: array
-          items:
-            $ref: '#/components/schemas/LoanParty'
-        prequal:
-          $ref: '#/components/schemas/Prequal'
-        product_code:
-          type: string
-        product_type:
-          type: string
-        requested_terms:
-          type: object
+        option_shortfall_reason: *id067
+        oral_adverse_decision: *id068
+        oral_statement: *id069
+        parties: *id070
+        prequal: *id071
+        product_code: *id072
+        product_type: *id073
+        requested_terms: *id074
     Applicant:
       type: object
       x-kind: domain
