@@ -4,12 +4,6 @@ info:
   version: 2.2.0
   x-note: Specific domain codes (e.g. sar.filed, vendor_review) live as `subject` values in vocab-migration.json, not as distinct
     vocabulary elements.
-  x-elements:
-    resources: 57
-    event_types: 104
-    task_types: 28
-    fields: 1301
-    endpoints: 27
 paths:
   /cases:
     get:
@@ -614,7 +608,7 @@ paths:
   /incidents:
     get:
       operationId: get_incidents
-      x-operation-id: list
+      x-operation-id: list_incident
       responses:
         '200':
           description: A page of Incident objects.
@@ -756,7 +750,7 @@ paths:
   /incidents/{id}:
     get:
       operationId: get_incidents_id
-      x-operation-id: get
+      x-operation-id: get_incident
       responses:
         '200':
           description: The requested Incident.
@@ -782,7 +776,7 @@ paths:
       summary: Get
     patch:
       operationId: patch_incidents_id
-      x-operation-id: update
+      x-operation-id: update_incident
       responses:
         '200':
           description: The updated Incident.
@@ -895,7 +889,7 @@ paths:
   /incidents/{id}/transition:
     post:
       operationId: post_incidents_id_transition
-      x-operation-id: transition
+      x-operation-id: transition_incident
       responses:
         '200':
           description: The updated Incident.
@@ -1072,7 +1066,7 @@ paths:
   /loan-applications:
     get:
       operationId: get_loan_applications
-      x-operation-id: list
+      x-operation-id: list_loan_application
       responses:
         '200':
           description: A page of LoanApplication objects.
@@ -1101,7 +1095,7 @@ paths:
       - $ref: '#/components/parameters/After'
     post:
       operationId: post_loan_applications
-      x-operation-id: create
+      x-operation-id: create_loan_application
       responses:
         '201':
           description: The created LoanApplication.
@@ -1210,7 +1204,7 @@ paths:
   /loan-applications/{id}:
     get:
       operationId: get_loan_applications_id
-      x-operation-id: get
+      x-operation-id: get_loan_application
       responses:
         '200':
           description: The requested LoanApplication.
@@ -1236,7 +1230,7 @@ paths:
       summary: Get
     patch:
       operationId: patch_loan_applications_id
-      x-operation-id: update
+      x-operation-id: update_loan_application
       responses:
         '200':
           description: The updated LoanApplication.
@@ -1432,7 +1426,7 @@ paths:
   /loans:
     get:
       operationId: get_loans
-      x-operation-id: list
+      x-operation-id: list_loan
       responses:
         '200':
           description: A page of Loan objects.
@@ -1582,7 +1576,7 @@ paths:
   /loans/{id}:
     get:
       operationId: get_loans_id
-      x-operation-id: get
+      x-operation-id: get_loan
       responses:
         '200':
           description: The requested Loan.
@@ -5439,7 +5433,7 @@ components:
         document:
           type: string
         value:
-          type: number
+          type: integer
     asset:
       type: object
       x-kind: vocabulary
@@ -5793,7 +5787,7 @@ components:
       x-kind: vocabulary
       properties:
         asset.count:
-          type: number
+          type: integer
         asset.descriptor:
           type: string
         asset.limit:
@@ -6577,7 +6571,7 @@ components:
         auth.device_registered:
           type: string
         auth.failure_count:
-          type: number
+          type: integer
         auth.failure_threshold_reached:
           type: string
         bcp_test.scenario:
@@ -7489,7 +7483,7 @@ components:
         fee_schedule:
           type: string
         occurrence_count:
-          type: number
+          type: integer
         payroll_coverage_flag:
           type: boolean
         waiver_reason:
@@ -7833,7 +7827,7 @@ components:
         contact_vacated:
           type: string
         exception_count:
-          type: number
+          type: integer
         retention.class:
           type: string
         retention_expiry_at:
@@ -8561,7 +8555,7 @@ components:
         incident_history:
           type: string
         incident_member_count:
-          type: number
+          type: integer
         incident_scope:
           type: string
         incident_tracks_dispatched:
