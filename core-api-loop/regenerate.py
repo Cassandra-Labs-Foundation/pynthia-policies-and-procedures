@@ -141,7 +141,7 @@ def generate_via_api(composite: str) -> str:
         import anthropic
     except ModuleNotFoundError:
         sys.exit("--backend api needs the anthropic SDK (pip install anthropic) and ANTHROPIC_API_KEY.")
-    client = anthropic.Anthropic()
+    client = anthropic.Anthropic(max_retries=6)  # ride out 429s during big concurrent batches
     # Stream: a full-policy generation (max_tokens 32k) can exceed the SDK's 10-minute
     # non-streaming ceiling, which raises otherwise.
     parts: list[str] = []
@@ -532,9 +532,65 @@ def cmd_cycle(args) -> None:
     _phase_apply_measure(slugs, args)
 
 
+def cmd_regen_all(args) -> None:
+    """Full reconciliation: regenerate EVERY policy (any dir with a prompt.md) against the current
+    spec, with one aggregate before/after demand measure. Generation runs concurrently (api/cli)."""
+    import glob
+    import types
+    slugs = sorted({os.path.basename(os.path.dirname(p))
+                    for p in glob.glob(os.path.join(REPO_ROOT, "*", "prompt.md"))})
+    print(f"[regen-all] {len(slugs)} policies")
+
+    # Preserve the ORIGINAL baseline across re-runs (so a resumed/partial run still measures vs
+    # the pre-regeneration demand, not a half-regenerated one).
+    if not os.path.exists(demand_snapshot_path("all-before")):
+        cmd_snapshot(types.SimpleNamespace(tag="all-before"))
+    else:
+        print("[regen-all] reusing existing all-before baseline")
+
+    if not args.resume:
+        # Incremental: skip policies already generated in .regen (don't re-spend), unless --force.
+        to_gen = slugs if args.force else [s for s in slugs if not os.path.exists(generated_path(s))]
+        done = len(slugs) - len(to_gen)
+        if to_gen:
+            print(f"[regen-all] generating {len(to_gen)} policy(ies)"
+                  + (f" ({done} already generated, skipped)" if done else ""))
+            for i, slug in enumerate(to_gen):
+                print(f"[prep:{slug}]")
+                cmd_prep(types.SimpleNamespace(slug=slug, no_reparse=(i > 0)))
+            pending = _phase_generate(to_gen, args)
+            if pending and args.backend == "stage":
+                print(f"\n[regen-all] {len(pending)} awaiting generation (stage backend): {pending}")
+                print("Generate them, then re-run.")
+                return
+            if pending:
+                print(f"\n[regen-all] WARNING: {len(pending)} failed to generate (skipped): {pending}")
+        else:
+            print("[regen-all] all policies already generated; applying.")
+
+    applied = 0
+    for slug in slugs:
+        if os.path.exists(generated_path(slug)):
+            cmd_apply(types.SimpleNamespace(slug=slug, from_path=None, strict=False))
+            applied += 1
+    print(f"\n[regen-all] applied {applied}/{len(slugs)} policies")
+    print("\n[regen-all] AGGREGATE demand shift:")
+    cmd_measure(types.SimpleNamespace(before="all-before", slug="ALL",
+                                      spec_scored=True, show=False, note="regenerate all policies"))
+
+
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[1])
     sub = ap.add_subparsers(dest="cmd", required=True)
+
+    p_all = sub.add_parser("regen-all", help="regenerate EVERY policy vs the current spec (aggregate measure)")
+    p_all.add_argument("--backend", choices=["stage", "api", "cli"], default="api")
+    p_all.add_argument("--jobs", type=int, default=4)
+    p_all.add_argument("--resume", action="store_true",
+                       help="skip generation entirely; just apply what's in .regen + measure")
+    p_all.add_argument("--force", action="store_true",
+                       help="regenerate every policy even if a .regen file already exists")
+    p_all.set_defaults(func=cmd_regen_all)
 
     p_prep = sub.add_parser("prep", help="reparse spec + assemble composite prompt")
     p_prep.add_argument("slug")
