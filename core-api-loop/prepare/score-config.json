@@ -8,8 +8,10 @@
     "endpoint": 3,
     "task": 2,
     "generic": 5,
+    "money_float": 8,
     "global_dl": 0.0001
   },
+  "_money_float_note": "Penalty per money amount typed as float (`number`). Money must be integer minor units in a ledger system — float rounding drift breaks Sum(balances)==settlement invariants invisibly. Ratios/scores/rates legitimately stay number (see fitness.MONEY_WORDS / NONMONEY_WORDS). Weighted above `field` so converting amounts to integer is a score-improving move the loop keeps.",
 
   "global_dl": false,
   "_global_dl_note": "Off by default (API-only fitness, cheap). Set true once the outer loop lands to also penalize pushing complexity from the spec into controls.json / control-vocabulary.json (byte-length term).",

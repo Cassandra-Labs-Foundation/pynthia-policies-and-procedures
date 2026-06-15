@@ -22,7 +22,7 @@ resources:
       account_type:
         type: string
       balance:
-        type: number
+        type: integer
       blnk_ledger_id:
         type: string
       created_at:
@@ -52,7 +52,7 @@ resources:
     - canceled
     properties:
       amount:
-        type: number
+        type: integer
       control_results:
         type: object
       counterparty:
@@ -95,11 +95,11 @@ resources:
       account_code_5300:
         type: string
       amount:
-        type: number
+        type: integer
       id:
         type: string
       locked_amount:
-        type: number
+        type: integer
       running_balance:
         type: string
       schedule_a_code:
@@ -140,7 +140,7 @@ resources:
     kind: banking-core
     properties:
       amount:
-        type: number
+        type: integer
       control_results:
         type: object
       decline_reason:
@@ -248,12 +248,12 @@ resources:
     kind: banking-core
     properties:
       balance:
-        type: number
+        type: integer
   InboundPayment:
     kind: banking-core
     properties:
       amount:
-        type: number
+        type: integer
       id:
         type: string
       originator:
@@ -409,7 +409,7 @@ resources:
     - canceled
     properties:
       amount:
-        type: number
+        type: integer
       beneficiary:
         type: string
       control_results:
@@ -1078,7 +1078,7 @@ resources:
       action_basis:
         type: object
       balance:
-        type: number
+        type: integer
       bankruptcy_case_id:
         type: string
       booking_block_state:
@@ -1152,7 +1152,7 @@ resources:
       nonaccrual_placed:
         type: string
       past_due_amount:
-        type: number
+        type: integer
       product_type:
         type: string
       proposed_modification:
@@ -1536,7 +1536,7 @@ fields:
   affiliate.list_entry: string
   affiliate.market_terms_basis: string
   affiliate.required_coverage_ratio: number
-  affiliate.transaction_amount: number
+  affiliate.transaction_amount: integer
   affiliate.transaction_file_archived: string
   affiliate.transaction_type: string
   ai.approval_record: object
@@ -1639,7 +1639,7 @@ fields:
   byod.mdm_status: string
   cap.approval_timer: string
   cap.retest_plan: object
-  capital.action_amount: number
+  capital.action_amount: integer
   capital.action_analysis_id: string
   capital.action_analyzed: string
   capital.action_type: string
@@ -1685,7 +1685,7 @@ fields:
   capital.projection_below_target: string
   capital.projection_below_well_capitalized: string
   capital.proposed_ccyb_level: string
-  capital.proposed_distribution_amount: number
+  capital.proposed_distribution_amount: integer
   capital.proposed_tier: string
   capital.quarterly_report_id: string
   capital.ratio_below_target: string
@@ -1701,15 +1701,15 @@ fields:
   capital.regulatory_preapproval_status: string
   capital.retained_earnings: string
   capital.revaluation_reserves: string
-  capital.rwa_total: number
+  capital.rwa_total: integer
   capital.stress_assumptions: string
   capital.stress_report_id: string
   capital.subordinated_debt: string
   capital.target_tier1_leverage: string
   capital.target_tier1_rwa: string
   capital.target_total_rbc: string
-  capital.tier1_total: number
-  capital.tier2_total: number
+  capital.tier1_total: integer
+  capital.tier2_total: integer
   capital.trigger_schedule: string
   capital.undivided_earnings: string
   cash.asset.count: number
@@ -1777,7 +1777,7 @@ fields:
   cda.audit_finding: string
   cda.cap_breach_cured: string
   cda.cap_buffer_pct: string
-  cda.cap_excess_amount: number
+  cda.cap_excess_amount: integer
   cda.communication_archived: string
   cda.communication_draft: string
   cda.conflict_details: string
@@ -1785,17 +1785,17 @@ fields:
   cda.contract_transfer_steps: string
   cda.cure_plan: object
   cda.custodian_statement: string
-  cda.distribution_amount: number
+  cda.distribution_amount: integer
   cda.distribution_shortfall: string
   cda.distribution_window_alert: string
   cda.distributions_cumulative: string
   cda.donee_ein: string
   cda.donee_irs_status: string
   cda.donee_validated: string
-  cda.fee_amount: number
+  cda.fee_amount: integer
   cda.fee_payee: string
   cda.final_accounting: string
-  cda.funding_amount: number
+  cda.funding_amount: integer
   cda.funding_gate_evaluated: string
   cda.gl_balances: string
   cda.glossary_citation: string
@@ -1909,7 +1909,7 @@ fields:
   compliance.disparity_thresholds: string
   compliance.officer_vacancy: string
   concentration.computed: string
-  concentration.excess_amount: number
+  concentration.excess_amount: integer
   concentration.limit_exceeded: string
   concentration.position_id: string
   concentration.reviewer_id: string
@@ -1992,13 +1992,13 @@ fields:
   disposal.method: string
   dispute.basis: string
   dispute.category: string
-  dispute.correction_amount: number
+  dispute.correction_amount: integer
   dispute.findings: string
   dispute.idtheft_report: string
   dispute.regulator_case_id: string
   dispute.regulator_routed: string
   dlp.violation_detail: object
-  dq.variance_amount: number
+  dq.variance_amount: integer
   dr.plan: string
   dr.rto_rpo_matrix: object
   drill.affected_capability: string
@@ -2103,7 +2103,7 @@ fields:
   exception.reverted: string
   exception.risk_acceptance: string
   expense.category: string
-  expense.estimated_amount: number
+  expense.estimated_amount: integer
   expense.preapproval_id: string
   expense.report_id: string
   exposure.by_counterparty: string
@@ -2127,7 +2127,7 @@ fields:
   fair_lending.finding_id: string
   fee.overdraft.pending: string
   fee.overdraft.suppressed: string
-  fee.ytd_total: number
+  fee.ytd_total: integer
   finding.closure_evidence: object
   finding.communicated: string
   finding.department: string
@@ -2144,7 +2144,7 @@ fields:
   finding.tracked: string
   form.template_diff: string
   fraud.investigation_id: string
-  funding.draw_amount: number
+  funding.draw_amount: integer
   funding.draw_order_deviated: string
   funding.next_source: string
   funding.shortfall_estimate: string
@@ -2214,7 +2214,7 @@ fields:
   indemnification.request.routed: string
   indemnification.standard_determination.made: string
   indemnification.undertaking: string
-  insider.aggregate_credit_amount: number
+  insider.aggregate_credit_amount: integer
   insider.collateral_marketability: string
   insider.comparable_terms: object
   insider.correspondent_credit_data: object
@@ -2272,7 +2272,7 @@ fields:
   legal.rfpa_applicable: string
   lending_program.partner_id: string
   limit_set.parameters: string
-  liquidity.asf_total: number
+  liquidity.asf_total: integer
   liquidity.behavioral_assumptions: string
   liquidity.clf_capacity: string
   liquidity.haircut_table: string
@@ -2280,7 +2280,7 @@ fields:
   liquidity.liquid_assets: string
   liquidity.net_outflows_30d: string
   liquidity.ratio_to_shares: string
-  liquidity.rsf_total: number
+  liquidity.rsf_total: integer
   liquidity.system_balances: string
   liquidity.total_assets: string
   lo_comp.basis_analysis: string
@@ -2527,7 +2527,7 @@ fields:
   repo.counterparty_id: string
   repo.entered: string
   repo.haircut: string
-  repo.margin_shortfall_amount: number
+  repo.margin_shortfall_amount: integer
   repo.maturity_mismatch_days: string
   repo.required_margin: string
   report.weekly_deltas: string
@@ -2596,7 +2596,7 @@ fields:
   rwa.schedule_version: string
   rwa.trading_threshold_crossed: string
   safe_mode.cap_profile_id: string
-  safe_mode.daily_outflow_total: number
+  safe_mode.daily_outflow_total: integer
   safe_mode.transaction_evaluated: string
   safe_mode.trigger_basis: string
   safekeeping.statement: string
@@ -2685,7 +2685,7 @@ fields:
   trade.intermediary_validated: string
   trade.limit_blocked: string
   trade.pretrade_checklist: string
-  trade.settlement_amount: number
+  trade.settlement_amount: integer
   trade.settlement_date: string
   trade.sod_blocked: string
   trade.step_attempted: string

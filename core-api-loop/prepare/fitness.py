@@ -52,6 +52,24 @@ DEFAULT_CONFIG = os.path.join(HERE, "score-config.json")
 # Field-type strings (from parse_core_api) that count as "generic" / untyped.
 GENERIC_TYPES = {"", "object", "any", "json", "map", "dict", "unknown"}
 
+# Money-type discipline: a dollar amount must NOT be a float — rounding drift breaks ledger
+# invariants (Sum(balances) == settlement account) invisibly. Money = integer minor units.
+# Ratios/scores/rates legitimately stay `number`, so the check is amount-leaves only.
+MONEY_WORDS = ("amount", "balance", "total", "principal", "settlement", "proceeds", "draw")
+NONMONEY_WORDS = ("ratio", "rate", "score", "pct", "percent", "ltv", "cet1", "factor",
+                  "count", "days", "number", "probability", "weight", "multiplier", "bps",
+                  "yield", "dti", "apr", "value")
+
+
+def is_money_float(path: str, ftype) -> bool:
+    """True iff this field is a money amount typed as float (`number`) — a ledger ship-blocker."""
+    if str(ftype or "").split("(")[0].strip().lower() != "number":
+        return False
+    leaf = path.split(".")[-1].lower()
+    if any(k in leaf for k in NONMONEY_WORDS):
+        return False
+    return any(k in leaf for k in MONEY_WORDS)
+
 
 def load_config(path: str | None) -> dict:
     cfg = json.load(open(path or DEFAULT_CONFIG))
@@ -94,6 +112,7 @@ def components(vocab: dict) -> dict:
 
     field_count = len(fields)
     generic_fields = sum(1 for f in fields if _is_generic(f.get("type")))
+    money_floats = sum(1 for f in fields if is_money_float(f.get("path", ""), f.get("type")))
     endpoint_count = len(endpoints)
     task_type_count = len(vocab.get("task_types", []))
 
@@ -104,6 +123,7 @@ def components(vocab: dict) -> dict:
         "concepts": concepts,
         "field_count": field_count,
         "generic_field_count": generic_fields,
+        "money_float_count": money_floats,
         "endpoint_count": endpoint_count,
         "task_type_count": task_type_count,
     }
@@ -127,6 +147,7 @@ def complexity(vocab: dict, config: dict, root: str = REPO_ROOT) -> dict:
         + w.get("endpoint", 3) * c["endpoint_count"]
         + w.get("task", 2) * c["task_type_count"]
         + w.get("generic", 5) * c["generic_field_count"]
+        + w.get("money_float", 8) * c["money_float_count"]
     )
     gdl = 0
     if config.get("global_dl", False):
