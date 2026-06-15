@@ -52,7 +52,7 @@ def score_spec(spec_path: str, migration_path: str | None, *, config: dict,
 
     control = control_oracle.evaluate_vocab(vocab, demand)
     arch = architecture_oracle.evaluate(vocab, checklist, _doc)
-    cx = fitness.complexity(vocab, config, root=root)
+    cx = fitness.complexity(vocab, config, root=root, doc=_doc)
 
     control_budget = config.get("control_budget", 0)
     arch_budget = config.get("arch_budget", 0)
@@ -80,6 +80,11 @@ def score_spec(spec_path: str, migration_path: str | None, *, config: dict,
             "registered_events": control["registered_events"],
             "registered_fields": control["registered_fields"],
             "demand_codes": control["demand_codes"],
+            # inverse signal: spec supply no control cites (orphan / deletion candidates).
+            # informational, NOT a gate — much uncited supply is architecture-required or
+            # contract plumbing; the arch gate protects the load-bearing ones. See control_oracle.
+            "unused_field_count": control["unused_field_count"],
+            "unused_event_count": control["unused_event_count"],
         },
         "complexity": cx["complexity"],
         "complexity_components": cx["components"],

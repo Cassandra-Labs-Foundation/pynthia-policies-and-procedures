@@ -9,8 +9,11 @@
     "task": 2,
     "generic": 5,
     "money_float": 8,
+    "enum": 1,
     "global_dl": 0.0001
   },
+  "enum_cap": 12,
+  "_enum_note": "weights.enum is charged per enum value above enum_cap, summed across every enum in the doc. Closes a blind spot: enum VALUES are schema-internal constraints the parser never lifts into the vocabulary, so without this term a 337-value Task.type cost zero and the minimizer could neither see nor delete it. Cap 12 leaves normal status/type enums free; a 337-value enum contributes 325, making its collapse to the ~28 generic verbs a large, keep-worthy score win. The companion 'unused supply' signal (control_oracle: fields/events no control cites) is reported in score.coverage as deletion candidates for the proposer, but is intentionally NOT a score gate — much uncited supply is architecture-required or contract plumbing, and the arch gate already protects load-bearing elements.",
   "_money_float_note": "Penalty per money amount typed as float (`number`). Money must be integer minor units in a ledger system — float rounding drift breaks Sum(balances)==settlement invariants invisibly. Ratios/scores/rates legitimately stay number (see fitness.MONEY_WORDS / NONMONEY_WORDS). Weighted above `field` so converting amounts to integer is a score-improving move the loop keeps.",
 
   "global_dl": false,

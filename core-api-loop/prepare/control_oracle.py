@@ -146,12 +146,23 @@ def spec_index(spec_path: str, migration_path: str | None) -> tuple[set, set, di
 
 def evaluate_vocab(vocab: dict, demand: dict) -> dict:
     """Classify the frozen demand against an already-parsed vocab (no re-parse).
-    Mirrors extract_controls.classify_codes: event takes priority over field."""
+    Mirrors extract_controls.classify_codes: event takes priority over field.
+
+    Also reports the INVERSE — supply the demand never cites. The original direction
+    (demand -> supply) answers "is every cited code present?"; this one (supply -> demand)
+    answers "is every present code actually used?". The second question is what the minimizer
+    needs to find orphans, and nothing else asked it before. It is a SIGNAL, not a gate: much
+    uncited supply is architecture-required or contract plumbing, so deleting it blindly would
+    reopen the arch gap. The proposer uses unused_fields/unused_events as deletion *candidates*;
+    the arch + control gates remain the guardrail that protects the load-bearing ones."""
     event_codes, field_paths = code_sets(vocab)
     demand_codes = set(demand["codes"].keys())
     reg_events = sorted(demand_codes & event_codes)
     reg_fields = sorted((demand_codes & field_paths) - event_codes)
     unregistered = sorted(demand_codes - event_codes - field_paths)
+    # inverse: spec codes that no control cites
+    unused_events = sorted(event_codes - demand_codes)
+    unused_fields = sorted(field_paths - demand_codes - event_codes)
     return {
         "spec_stats": vocab.get("stats", {}),
         "demand_codes": len(demand_codes),
@@ -159,6 +170,10 @@ def evaluate_vocab(vocab: dict, demand: dict) -> dict:
         "registered_fields": len(reg_fields),
         "unregistered_count": len(unregistered),
         "unregistered": unregistered,
+        "unused_event_count": len(unused_events),
+        "unused_field_count": len(unused_fields),
+        "unused_events": unused_events,
+        "unused_fields": unused_fields,
         "demand_meta": demand.get("meta", {}),
     }
 
@@ -210,6 +225,8 @@ def main(argv: list[str]) -> int:
         print(f"registered events   : {result['registered_events']}")
         print(f"registered fields   : {result['registered_fields']}")
         print(f"UNREGISTERED (gap)  : {result['unregistered_count']}")
+        print(f"unused supply       : {result['unused_field_count']} fields + "
+              f"{result['unused_event_count']} events cited by no control (deletion candidates)")
     return 0
 
 

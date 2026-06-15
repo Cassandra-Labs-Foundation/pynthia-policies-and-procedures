@@ -11,6 +11,7 @@ delete/merge concepts — not to launder complexity into untyped blobs or into t
              + W_endpoint  * endpoint_count
              + W_task      * task_type_count
              + W_generic   * generic_field_count   (anti-gaming surcharge)
+             + W_enum      * enum_overage          (per enum value above enum_cap, across the doc)
              + W_global_dl * global_description_len (optional; off by default)
 
 Anti-gaming:
@@ -19,6 +20,11 @@ Anti-gaming:
   * The genericness surcharge taxes every `object`/`any`/untyped field, so "dump everything
     into a metadata blob" never scores well — and the control oracle still requires the real
     dotted field/event to exist, so a blob satisfies no codes for free.
+  * The enum-cardinality surcharge taxes every enum value above enum_cap. This closes a blind
+    spot: enum *values* (e.g. a 337-value Task.type) are constraints inside the schema that the
+    parser never lifts into the vocabulary, so without this term they cost zero and the minimizer
+    cannot see — let alone delete — them. A bloated enum now screams in the score; collapsing it
+    to a small generic set (the architecture's intent) is a large score win the loop will keep.
   * The optional global-DL term adds the byte-length of controls.json + control-vocabulary.json,
     catching attempts to push complexity out of the spec and into the controls.
 
@@ -97,7 +103,35 @@ def _normalize_endpoint_shape(path: str) -> str:
     return re.sub(r"\{[^}]*\}", "{}", path.strip().lower()).rstrip("/")
 
 
-def components(vocab: dict) -> dict:
+def enum_offenders(doc, cap: int) -> list[tuple[int, int, str]]:
+    """Walk the raw OpenAPI doc for enum constraints. Returns (size, overage, location) for every
+    enum with more than `cap` values, largest first. Enum *values* live inside schema/property
+    constraints and are never parsed into the vocabulary, so this is the only place they are seen."""
+    found: list[tuple[int, int, str]] = []
+
+    def walk(o, where: str) -> None:
+        if isinstance(o, dict):
+            e = o.get("enum")
+            if isinstance(e, list) and len(e) > cap:
+                found.append((len(e), len(e) - cap, where or "<root>"))
+            for k, v in o.items():
+                if k != "enum":
+                    walk(v, f"{where}.{k}" if where else k)
+        elif isinstance(o, list):
+            for i, v in enumerate(o):
+                walk(v, f"{where}[{i}]")
+
+    if isinstance(doc, dict):
+        walk(doc, "")
+    found.sort(reverse=True)
+    return found
+
+
+def enum_overage(doc, cap: int) -> int:
+    return sum(over for _size, over, _where in enum_offenders(doc, cap))
+
+
+def components(vocab: dict, doc=None, enum_cap: int = 12) -> dict:
     entities = vocab.get("entities", [])
     fields = vocab.get("fields", [])
     endpoints = vocab.get("endpoints", [])
@@ -116,6 +150,8 @@ def components(vocab: dict) -> dict:
     endpoint_count = len(endpoints)
     task_type_count = len(vocab.get("task_types", []))
 
+    enum_over = enum_overage(doc, enum_cap) if doc is not None else 0
+
     return {
         "resources": resources,
         "distinct_event_verbs": distinct_event_verbs,
@@ -126,6 +162,7 @@ def components(vocab: dict) -> dict:
         "money_float_count": money_floats,
         "endpoint_count": endpoint_count,
         "task_type_count": task_type_count,
+        "enum_overage": enum_over,
     }
 
 
@@ -138,9 +175,9 @@ def global_description_len(root: str) -> int:
     return total
 
 
-def complexity(vocab: dict, config: dict, root: str = REPO_ROOT) -> dict:
+def complexity(vocab: dict, config: dict, root: str = REPO_ROOT, doc=None) -> dict:
     w = config.get("weights", {})
-    c = components(vocab)
+    c = components(vocab, doc=doc, enum_cap=config.get("enum_cap", 12))
     score = (
         w.get("concept", 10) * c["concepts"]
         + w.get("field", 1) * c["field_count"]
@@ -148,6 +185,7 @@ def complexity(vocab: dict, config: dict, root: str = REPO_ROOT) -> dict:
         + w.get("task", 2) * c["task_type_count"]
         + w.get("generic", 5) * c["generic_field_count"]
         + w.get("money_float", 8) * c["money_float_count"]
+        + w.get("enum", 1) * c["enum_overage"]
     )
     gdl = 0
     if config.get("global_dl", False):
@@ -166,7 +204,9 @@ def main(argv: list[str]) -> int:
 
     cfg = load_config(args.config)
     vocab = parse_vocab(args.spec, args.migration)
-    result = complexity(vocab, cfg)
+    raw = yaml.safe_load(open(args.spec).read())
+    doc = raw if isinstance(raw, dict) and raw.get("openapi") else None
+    result = complexity(vocab, cfg, doc=doc)
 
     if args.json:
         print(json.dumps(result, indent=2))
@@ -176,6 +216,11 @@ def main(argv: list[str]) -> int:
             print(f"  {k:22}: {v}")
         if cfg.get("global_dl"):
             print(f"  global_dl_bytes       : {result['global_dl_bytes']}")
+        offenders = enum_offenders(doc, cfg.get("enum_cap", 12)) if doc is not None else []
+        if offenders:
+            print(f"  enum offenders (> {cfg.get('enum_cap', 12)}):")
+            for size, over, where in offenders[:8]:
+                print(f"    {size:4} values (+{over})  {where}")
     return 0
 
 
