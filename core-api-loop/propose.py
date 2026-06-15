@@ -47,6 +47,7 @@ sys.path.insert(0, PREPARE)
 import control_oracle  # noqa: E402
 import fitness         # noqa: E402
 import score as score_mod  # noqa: E402
+import yaml            # noqa: E402
 
 SPEC = os.path.join(REPO_ROOT, "core-api.yaml")
 MIGRATION = os.path.join(REPO_ROOT, "vocab-migration.json")
@@ -58,140 +59,119 @@ GENERATE_MODEL = "claude-opus-4-8"
 
 
 # --------------------------------------------------------------------------- #
-# surgical text-edit applier (no YAML round-trip)
+# edit applier — operates on the parsed OpenAPI 3 document.
+# core-api.yaml is machine-generated OpenAPI (no hand comments to preserve), so a
+# load -> modify -> dump round-trip is robust and keeps diffs minimal.
 # --------------------------------------------------------------------------- #
-def _find_section(lines: list[str], name: str):
-    """Return (body_start, body_end) line indices for a top-level `name:` section."""
-    hdr = None
-    for i, ln in enumerate(lines):
-        if ln[:1] not in (" ", "\t", "#") and ln.split(":", 1)[0] == name and ln.rstrip("\n").endswith(":"):
-            hdr = i
-            break
-    if hdr is None:
-        return None
-    body_start = hdr + 1
-    body_end = len(lines)
-    for j in range(body_start, len(lines)):
-        s = lines[j].rstrip("\n")
-        if not s.strip():
-            continue
-        if s.startswith("#"):
-            body_end = j
-            break
-        if lines[j][:1] not in (" ", "\t") and not s.startswith("- "):
-            body_end = j
-            break
-    return body_start, body_end
+_SNAKE = re.compile(r"(?<!^)(?=[A-Z])")
+DUMP_KW = dict(sort_keys=False, default_flow_style=False, width=120, allow_unicode=True)
 
 
-def _is_2indent_key(line: str) -> bool:
-    # a 2-space-indented mapping key — NOT a deeper indent and NOT a "- " list item
-    # (state-machine states are `  - state`, which must count as children, not keys)
-    return line[:2] == "  " and len(line) > 2 and line[2] not in (" ", "-")
+def _snake(n: str) -> str:
+    return _SNAKE.sub("_", n).lower()
 
 
-def add_list_item(lines, section, item) -> bool:
-    sec = _find_section(lines, section)
-    if not sec:
-        return False
-    bs, be = sec
-    if any(lines[i].strip() == f"- {item}" for i in range(bs, be)):
-        return False
-    lines.insert(bs, f"- {item}\n")
-    return True
+def _find_resource_key(schemas: dict, name: str):
+    """Resolve a resource/schema name tolerantly: exact key, else snake-case match."""
+    if name in schemas:
+        return name
+    target = _snake(name)
+    return next((k for k in schemas if _snake(k) == target), None)
 
 
-def delete_list_item(lines, section, item) -> bool:
-    sec = _find_section(lines, section)
-    if not sec:
-        return False
-    bs, be = sec
-    for i in range(bs, be):
-        if lines[i].strip() == f"- {item}":
-            del lines[i]
-            return True
-    return False
-
-
-def add_field(lines, path, typ="string") -> bool:
-    sec = _find_section(lines, "fields")
-    if not sec:
-        return False
-    bs, be = sec
-    if any(lines[i].startswith(f"  {path}:") for i in range(bs, be)):
-        return False
-    lines.insert(bs, f"  {path}: {typ}\n")
-    return True
-
-
-def delete_field(lines, path) -> bool:
-    sec = _find_section(lines, "fields")
-    if not sec:
-        return False
-    bs, be = sec
-    for i in range(bs, be):
-        if _is_2indent_key(lines[i]) and lines[i].rstrip("\n").startswith(f"  {path}:"):
-            if lines[i].split(":", 1)[0].strip() == path:
-                del lines[i]
-                return True
-    return False
-
-
-def delete_block(lines, section, key) -> bool:
-    """Delete a 2-indent keyed block (and its deeper-indented children) within a section."""
-    sec = _find_section(lines, section)
-    if not sec:
-        return False
-    bs, be = sec
-    start = None
-    for i in range(bs, be):
-        if _is_2indent_key(lines[i]) and lines[i].rstrip("\n").rstrip() == f"  {key}:":
-            start = i
-            break
-    if start is None:
-        return False
-    end = be
-    for j in range(start + 1, be):
-        if lines[j].strip() == "":
-            continue
-        if _is_2indent_key(lines[j]) or lines[j][:1] not in (" ", "\t"):
-            end = j
-            break
-    del lines[start:end]
-    return True
+def _is_referenced(doc: dict, schema_key: str) -> bool:
+    """True if any $ref points at this schema (deleting it would dangle the ref / break OpenAPI)."""
+    return f'"#/components/schemas/{schema_key}"' in json.dumps(doc)
 
 
 def apply_op(op: dict) -> bool:
-    """Apply one edit op to core-api.yaml in place. Returns True iff the file changed.
+    """Apply one edit op to the OpenAPI core-api.yaml in place. Returns True iff it changed.
 
-    Defensive: a malformed op (unknown kind, missing/empty path|name) is treated as a no-op,
-    never an exception — an LLM proposer can and will emit imperfect ops, and a bad suggestion
-    should just be ignored (and then reverted/converged), not crash the run."""
-    lines = open(SPEC, encoding="utf-8").read().splitlines(keepends=True)
+    Ops mirror the bespoke set but act on the OpenAPI structure:
+      add_field/delete_field  -> components/schemas/<prefix>/properties (vocab schema), or a
+                                 resource schema whose snake(name) == prefix
+      add_event_type/delete_* -> x-event-types / x-task-types
+      delete_endpoint         -> paths
+      delete_resource         -> components/schemas/<Name>
+      delete_state_machine    -> x-state-machines (+ the schema's x-states)
+
+    Defensive: a malformed/unknown op is a no-op, never an exception — LLM proposers emit
+    imperfect ops; a bad suggestion is ignored, then reverted/converged."""
+    doc = yaml.safe_load(open(SPEC, encoding="utf-8").read())
+    if not (isinstance(doc, dict) and doc.get("openapi")):
+        return False  # not an OpenAPI document
     kind = op.get("op")
     path = (op.get("path") or "").strip()
     name = (op.get("name") or "").strip()
+    schemas = doc.setdefault("components", {}).setdefault("schemas", {})
     changed = False
-    if kind == "add_field" and path:
-        changed = add_field(lines, path, op.get("type", "string"))
-    elif kind == "delete_field" and path:
-        changed = delete_field(lines, path)
+
+    if kind == "add_field" and "." in path:
+        prefix, rest = path.split(".", 1)
+        sch = schemas.setdefault(prefix, {"type": "object", "x-kind": "vocabulary", "properties": {}})
+        props = sch.setdefault("properties", {})
+        if rest not in props:
+            props[rest] = {"type": op.get("type", "string")}
+            changed = True
+
+    elif kind == "delete_field" and "." in path:
+        prefix, rest = path.split(".", 1)
+        if prefix in schemas and rest in (schemas[prefix].get("properties") or {}):
+            del schemas[prefix]["properties"][rest]
+            changed = True
+        else:
+            for k, sch in schemas.items():
+                if _snake(k) == prefix and rest in (sch.get("properties") or {}):
+                    del sch["properties"][rest]
+                    changed = True
+                    break
+
     elif kind == "add_event_type" and name:
-        changed = add_list_item(lines, "event_types", name)
+        lst = doc.setdefault("x-event-types", [])
+        if name not in lst:
+            lst.append(name)
+            changed = True
+
     elif kind == "delete_event_type" and name:
-        changed = delete_list_item(lines, "event_types", name)
+        lst = doc.get("x-event-types") or []
+        if name in lst:
+            lst.remove(name)
+            changed = True
+
     elif kind == "delete_task_type" and name:
-        changed = delete_list_item(lines, "task_types", name)
+        lst = doc.get("x-task-types") or []
+        if name in lst:
+            lst.remove(name)
+            changed = True
+
     elif kind == "delete_endpoint" and path:
-        changed = delete_block(lines, "endpoints", path)
+        if path in (doc.get("paths") or {}):
+            del doc["paths"][path]
+            changed = True
+
     elif kind == "delete_resource" and name:
-        changed = delete_block(lines, "resources", name)
+        key = _find_resource_key(schemas, name)
+        # refuse to delete a schema still referenced via $ref (it isn't an orphan, and removing
+        # it would leave a dangling ref / invalid OpenAPI). Un-reference it first.
+        if key is not None and schemas[key].get("x-kind") != "vocabulary" \
+                and not _is_referenced(doc, key):
+            del schemas[key]
+            changed = True
+
     elif kind == "delete_state_machine" and name:
-        changed = delete_block(lines, "state_machines", name)
-    else:
-        return False  # noop or malformed/unsupported op
+        sms = doc.get("x-state-machines") or {}
+        key = name if name in sms else next((k for k in sms if _snake(k) == _snake(name)), None)
+        if key is not None:
+            del sms[key]
+            changed = True
+        rk = _find_resource_key(schemas, name)
+        if rk is not None and "x-states" in schemas[rk]:
+            del schemas[rk]["x-states"]
+            changed = True
+
     if changed:
-        open(SPEC, "w", encoding="utf-8").write("".join(lines))
+        with open(SPEC, "w", encoding="utf-8") as fh:
+            yaml.safe_dump(doc, fh, **DUMP_KW)
     return changed
 
 

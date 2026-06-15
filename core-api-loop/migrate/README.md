@@ -27,9 +27,11 @@ policy's vocabulary reference — is byte-identical to the pre-migration output.
   35 endpoints, 12 state machines); OpenAPI 3 validates (GitBook-renderable).
 - Full pipeline runs off the OpenAPI source unchanged (control oracle 650, arch 56).
 
-## Known follow-up (not done here)
-- **`core-api-loop/propose.py` `apply_op`** does surgical text edits against the *bespoke* layout
-  (`fields:` / nested `resources:`). On the OpenAPI file it safely **no-ops** (no crash), so the
-  inner-loop autonomous *editor* is disabled until its applier is rewritten for OpenAPI (schema
-  properties / paths). The inner-loop *scoring* and all read-path tooling are unaffected.
-- GitBook: point a space at `core-api.yaml` (OpenAPI) to auto-render the API reference.
+## Follow-ups
+- **`core-api-loop/propose.py` `apply_op` — DONE.** Rewritten to edit the parsed OpenAPI document
+  (load → modify → dump; the file is machine-generated, so the round-trip is byte-clean and diffs
+  stay minimal). Ops map to the OpenAPI structure (fields → schema properties, resources →
+  components/schemas, event/task types → x-extensions, endpoints → paths); `delete_resource`
+  refuses to remove a still-`$ref`'d schema so the spec stays valid OpenAPI.
+- **GitBook — DONE.** A space syncs the raw `core-api.yaml` URL (~every 6h) and renders the
+  API reference.
