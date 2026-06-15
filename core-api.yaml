@@ -18,12 +18,18 @@ paths:
       responses:
         '200':
           description: OK
+      tags:
+      - Cases
+      summary: List cases
     post:
       operationId: post_cases
       x-operation-id: open_case
       responses:
         '200':
           description: OK
+      tags:
+      - Cases
+      summary: Open case
   /cases/{id}:
     get:
       operationId: get_cases_id
@@ -37,6 +43,9 @@ paths:
         required: true
         schema:
           type: string
+      tags:
+      - Cases
+      summary: Get case
   /cases/{id}/transition:
     post:
       operationId: post_cases_id_transition
@@ -50,6 +59,9 @@ paths:
         required: true
         schema:
           type: string
+      tags:
+      - Cases
+      summary: Transition case
   /control-results:
     get:
       operationId: get_control_results
@@ -57,6 +69,9 @@ paths:
       responses:
         '200':
           description: OK
+      tags:
+      - Control Results
+      summary: List control results
   /control-results/{id}:
     get:
       operationId: get_control_results_id
@@ -70,6 +85,9 @@ paths:
         required: true
         schema:
           type: string
+      tags:
+      - Control Results
+      summary: Get control result
   /documents:
     get:
       operationId: get_documents
@@ -77,12 +95,18 @@ paths:
       responses:
         '200':
           description: OK
+      tags:
+      - Documents
+      summary: List documents
     post:
       operationId: post_documents
       x-operation-id: create_document
       responses:
         '200':
           description: OK
+      tags:
+      - Documents
+      summary: Create document
   /documents/{id}:
     get:
       operationId: get_documents_id
@@ -96,6 +120,9 @@ paths:
         required: true
         schema:
           type: string
+      tags:
+      - Documents
+      summary: Get document
   /events:
     get:
       operationId: get_events
@@ -103,6 +130,9 @@ paths:
       responses:
         '200':
           description: OK
+      tags:
+      - Events
+      summary: List events
   /filings:
     get:
       operationId: get_filings
@@ -110,12 +140,18 @@ paths:
       responses:
         '200':
           description: OK
+      tags:
+      - Filings
+      summary: List filings
     post:
       operationId: post_filings
       x-operation-id: prepare_filing
       responses:
         '200':
           description: OK
+      tags:
+      - Filings
+      summary: Prepare filing
   /filings/{id}:
     get:
       operationId: get_filings_id
@@ -129,6 +165,9 @@ paths:
         required: true
         schema:
           type: string
+      tags:
+      - Filings
+      summary: Get filing
   /filings/{id}/acknowledge:
     post:
       operationId: post_filings_id_acknowledge
@@ -142,6 +181,9 @@ paths:
         required: true
         schema:
           type: string
+      tags:
+      - Filings
+      summary: Acknowledge filing
   /filings/{id}/submit:
     post:
       operationId: post_filings_id_submit
@@ -155,6 +197,9 @@ paths:
         required: true
         schema:
           type: string
+      tags:
+      - Filings
+      summary: Submit filing
   /incidents:
     get:
       operationId: get_incidents
@@ -162,12 +207,18 @@ paths:
       responses:
         '200':
           description: OK
+      tags:
+      - Incidents
+      summary: List
     post:
       operationId: post_incidents
       x-operation-id: declare
       responses:
         '200':
           description: OK
+      tags:
+      - Incidents
+      summary: Declare
   /incidents/{id}:
     get:
       operationId: get_incidents_id
@@ -181,6 +232,9 @@ paths:
         required: true
         schema:
           type: string
+      tags:
+      - Incidents
+      summary: Get
     patch:
       operationId: patch_incidents_id
       x-operation-id: update
@@ -188,6 +242,9 @@ paths:
         '200':
           description: OK
       parameters: *id001
+      tags:
+      - Incidents
+      summary: Update
   /incidents/{id}/transition:
     post:
       operationId: post_incidents_id_transition
@@ -201,6 +258,9 @@ paths:
         required: true
         schema:
           type: string
+      tags:
+      - Incidents
+      summary: Transition
   /legal-holds:
     get:
       operationId: get_legal_holds
@@ -208,12 +268,18 @@ paths:
       responses:
         '200':
           description: OK
+      tags:
+      - Legal Holds
+      summary: List legal holds
     post:
       operationId: post_legal_holds
       x-operation-id: place_legal_hold
       responses:
         '200':
           description: OK
+      tags:
+      - Legal Holds
+      summary: Place legal hold
   /legal-holds/{id}/release:
     post:
       operationId: post_legal_holds_id_release
@@ -227,6 +293,9 @@ paths:
         required: true
         schema:
           type: string
+      tags:
+      - Legal Holds
+      summary: Release legal hold
   /loan-applications:
     get:
       operationId: get_loan_applications
@@ -234,12 +303,18 @@ paths:
       responses:
         '200':
           description: OK
+      tags:
+      - Loan Applications
+      summary: List
     post:
       operationId: post_loan_applications
       x-operation-id: create
       responses:
         '200':
           description: OK
+      tags:
+      - Loan Applications
+      summary: Create
   /loan-applications/{id}:
     get:
       operationId: get_loan_applications_id
@@ -253,6 +328,9 @@ paths:
         required: true
         schema:
           type: string
+      tags:
+      - Loan Applications
+      summary: Get
     patch:
       operationId: patch_loan_applications_id
       x-operation-id: update
@@ -260,6 +338,9 @@ paths:
         '200':
           description: OK
       parameters: *id002
+      tags:
+      - Loan Applications
+      summary: Update
   /loan-applications/{id}/counteroffer:
     post:
       operationId: post_loan_applications_id_counteroffer
@@ -273,6 +354,9 @@ paths:
         required: true
         schema:
           type: string
+      tags:
+      - Loan Applications
+      summary: Issue counteroffer
   /loan-applications/{id}/decision:
     post:
       operationId: post_loan_applications_id_decision
@@ -286,6 +370,9 @@ paths:
         required: true
         schema:
           type: string
+      tags:
+      - Loan Applications
+      summary: Record decision
   /loans:
     get:
       operationId: get_loans
@@ -293,6 +380,9 @@ paths:
       responses:
         '200':
           description: OK
+      tags:
+      - Loans
+      summary: List
   /loans/{id}:
     get:
       operationId: get_loans_id
@@ -306,6 +396,9 @@ paths:
         required: true
         schema:
           type: string
+      tags:
+      - Loans
+      summary: Get
   /loans/{id}/book:
     post:
       operationId: post_loans_id_book
@@ -319,6 +412,9 @@ paths:
         required: true
         schema:
           type: string
+      tags:
+      - Loans
+      summary: Request booking
   /tasks:
     get:
       operationId: get_tasks
@@ -326,6 +422,9 @@ paths:
       responses:
         '200':
           description: OK
+      tags:
+      - Tasks
+      summary: List tasks
   /tasks/{id}:
     get:
       operationId: get_tasks_id
@@ -339,6 +438,9 @@ paths:
         required: true
         schema:
           type: string
+      tags:
+      - Tasks
+      summary: Get task
   /tasks/{id}/complete:
     post:
       operationId: post_tasks_id_complete
@@ -352,6 +454,9 @@ paths:
         required: true
         schema:
           type: string
+      tags:
+      - Tasks
+      summary: Complete task
 components:
   schemas:
     Account:
@@ -5522,3 +5627,24 @@ x-state-machines:
   - booking_requested
   - booked
   - funded
+tags:
+- name: Cases
+  description: Cases operations.
+- name: Control Results
+  description: Control Results operations.
+- name: Documents
+  description: Documents operations.
+- name: Events
+  description: Events operations.
+- name: Filings
+  description: Filings operations.
+- name: Incidents
+  description: Incidents operations.
+- name: Legal Holds
+  description: Legal Holds operations.
+- name: Loan Applications
+  description: Loan Applications operations.
+- name: Loans
+  description: Loans operations.
+- name: Tasks
+  description: Tasks operations.
