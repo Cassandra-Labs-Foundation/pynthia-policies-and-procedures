@@ -76,20 +76,26 @@ paths:
                   $ref: '#/components/schemas/EscalationDetail'
                 evidence:
                   type: array
-                  items: &id026
+                  items: &id068
                     $ref: '#/components/schemas/Document'
+                  x-bound-controls:
+                  - BSA-06
                 owner_id:
                   type: string
+                  x-bound-controls:
+                  - BSA-06
                 summary:
                   type: string
+                  x-bound-controls:
+                  - BSA-06
                   example: Possible structuring pattern on acct 0012
                 tasks:
                   type: array
-                  items: &id027
+                  items: &id069
                     type: string
                 type:
                   type: string
-                  enum: &id028
+                  enum: &id070
                   - investigation
                   - sar_decision
                   - escalation
@@ -308,15 +314,21 @@ paths:
                 retention_anchor:
                   type: string
                   format: date
+                  x-bound-controls:
+                  - IP-15
                 retention_schedule:
                   type: string
+                  x-bound-controls:
+                  - IP-15
                 risk:
                   $ref: '#/components/schemas/RiskCatalogEntry'
                 subject_ref:
                   type: string
+                  x-bound-controls:
+                  - IP-15
                 type:
                   type: string
-                  enum: &id029
+                  enum: &id071
                   - bo_certification
                   - risk_profile
                   - edd_file
@@ -328,6 +340,8 @@ paths:
                   - board_pack
                   - vendor_review
                   - vendor_alert
+                  x-bound-controls:
+                  - IP-15
                   example: board_pack
                 vendor:
                   $ref: '#/components/schemas/VendorReview'
@@ -465,6 +479,8 @@ paths:
                   $ref: '#/components/schemas/FbarData'
                 filing_id:
                   type: string
+                  x-bound-controls:
+                  - BSA-07
                 fincen_314a:
                   $ref: '#/components/schemas/Fincen314aData'
                 ofac:
@@ -473,7 +489,7 @@ paths:
                   $ref: '#/components/schemas/SarData'
                 type:
                   type: string
-                  enum: &id030
+                  enum: &id072
                   - ctr
                   - doep
                   - sar
@@ -670,27 +686,57 @@ paths:
               properties:
                 bsa_referral_id:
                   type: string
+                  x-bound-controls: &id007
+                  - PR-09
+                  - TPR-08
                 cco_signoff:
                   type: string
                 checklist_first_hour:
                   type: string
+                  x-bound-controls: &id008
+                  - BCP-06
                 comms_plan:
                   type: object
+                  x-bound-controls: &id009
+                  - BCP-05
+                  - BCP-06
+                  - EC-10
                 contained:
                   type: string
                 containment_timer:
                   type: string
+                  x-bound-controls: &id010
+                  - BCP-10
                 criminal_suspected:
                   type: string
+                  x-bound-controls: &id011
+                  - PR-09
                 data_scope:
                   type: string
+                  x-bound-controls: &id012
+                  - BCP-10
+                  - CL-08
+                  - EC-10
+                  - PR-09
+                  - TPR-08
                 description:
                   type: string
+                  x-bound-controls: &id013
+                  - LC-08
+                  - MEM-04
                   example: Unauthorized access to member PII detected
                 detail:
                   type: object
                 detection_source:
                   type: string
+                  x-bound-controls: &id014
+                  - BCP-05
+                  - BCP-10
+                  - CL-08
+                  - EC-10
+                  - IS-09
+                  - PR-09
+                  - TPR-08
                 discovery_notes:
                   type: string
                 facts:
@@ -699,18 +745,40 @@ paths:
                   type: string
                 impact_summary:
                   type: object
+                  x-bound-controls: &id015
+                  - BCP-06
+                  - PR-10
                 legal_review:
                   type: string
+                  x-bound-controls: &id016
+                  - BCP-10
+                  - EC-10
                 member_notice_required:
                   type: boolean
                 member_notice_template:
                   type: string
+                  x-bound-controls: &id017
+                  - BCP-10
+                  - CL-08
+                  - EC-10
+                  - IS-09
+                  - PR-09
                 misuse_determined:
                   type: string
                 misuse_likelihood:
                   type: string
+                  x-bound-controls: &id018
+                  - BCP-10
+                  - CL-08
+                  - EC-10
+                  - IS-09
+                  - TPR-08
                 notice_content:
                   type: string
+                  x-bound-controls: &id019
+                  - CL-08
+                  - EC-10
+                  - PR-09
                 notice_template_id:
                   type: string
                 notification_determined:
@@ -721,27 +789,59 @@ paths:
                   type: string
                 reportability_assessment:
                   type: string
+                  x-bound-controls: &id020
+                  - BCP-10
                 reportability_determination:
                   type: string
+                  x-bound-controls: &id021
+                  - CL-08
+                  - EC-10
+                  - FL-13
+                  - IS-09
+                  - PR-09
                 reportability_rationale:
                   type: string
+                  x-bound-controls: &id022
+                  - TPR-08
                 reportable_determined:
                   type: string
                 root_cause:
                   type: string
+                  x-bound-controls: &id023
+                  - BCP-13
                 sar_referred:
                   type: string
+                  x-bound-controls: &id024
+                  - PR-09
                 scope:
                   type: string
+                  x-bound-controls: &id025
+                  - LC-08
+                  - PR-09
                 scope_initial:
                   type: string
+                  x-bound-controls: &id026
+                  - BCP-06
+                  - EC-10
+                  - IS-09
                 severity:
                   type: string
+                  x-bound-controls: &id027
+                  - BCP-05
+                  - BCP-06
+                  - CL-08
+                  - EC-10
+                  - IS-09
+                  - PR-09
+                  - TPR-08
                   example: high
                 summary_id:
                   type: string
                 timeline:
                   type: string
+                  x-bound-controls: &id028
+                  - BCP-06
+                  - BCP-13
                 triaged:
                   type: string
               required:
@@ -809,27 +909,35 @@ paths:
               properties:
                 bsa_referral_id:
                   type: string
+                  x-bound-controls: *id007
                 cco_signoff:
                   type: string
                 checklist_first_hour:
                   type: string
+                  x-bound-controls: *id008
                 comms_plan:
                   type: object
+                  x-bound-controls: *id009
                 contained:
                   type: string
                 containment_timer:
                   type: string
+                  x-bound-controls: *id010
                 criminal_suspected:
                   type: string
+                  x-bound-controls: *id011
                 data_scope:
                   type: string
+                  x-bound-controls: *id012
                 description:
                   type: string
+                  x-bound-controls: *id013
                   example: Unauthorized access to member PII detected
                 detail:
                   type: object
                 detection_source:
                   type: string
+                  x-bound-controls: *id014
                 discovery_notes:
                   type: string
                 facts:
@@ -838,18 +946,23 @@ paths:
                   type: string
                 impact_summary:
                   type: object
+                  x-bound-controls: *id015
                 legal_review:
                   type: string
+                  x-bound-controls: *id016
                 member_notice_required:
                   type: boolean
                 member_notice_template:
                   type: string
+                  x-bound-controls: *id017
                 misuse_determined:
                   type: string
                 misuse_likelihood:
                   type: string
+                  x-bound-controls: *id018
                 notice_content:
                   type: string
+                  x-bound-controls: *id019
                 notice_template_id:
                   type: string
                 notification_determined:
@@ -860,27 +973,36 @@ paths:
                   type: string
                 reportability_assessment:
                   type: string
+                  x-bound-controls: *id020
                 reportability_determination:
                   type: string
+                  x-bound-controls: *id021
                 reportability_rationale:
                   type: string
+                  x-bound-controls: *id022
                 reportable_determined:
                   type: string
                 root_cause:
                   type: string
+                  x-bound-controls: *id023
                 sar_referred:
                   type: string
+                  x-bound-controls: *id024
                 scope:
                   type: string
+                  x-bound-controls: *id025
                 scope_initial:
                   type: string
+                  x-bound-controls: *id026
                 severity:
                   type: string
+                  x-bound-controls: *id027
                   example: high
                 summary_id:
                   type: string
                 timeline:
                   type: string
+                  x-bound-controls: *id028
                 triaged:
                   type: string
               required:
@@ -949,7 +1071,7 @@ paths:
                 properties:
                   data:
                     type: array
-                    items: &id007
+                    items: &id029
                       $ref: '#/components/schemas/LegalHold'
                   pagination:
                     $ref: '#/components/schemas/Pagination'
@@ -973,7 +1095,7 @@ paths:
           description: The created LegalHold.
           content:
             application/json:
-              schema: *id007
+              schema: *id029
         '409':
           description: Idempotency-Key reused with different args (D6).
           content:
@@ -1000,14 +1122,20 @@ paths:
               properties:
                 hold_scope:
                   type: string
+                  x-bound-controls:
+                  - FL-12
                   example: all records for member 0012
                 matter_id:
                   type: string
+                  x-bound-controls:
+                  - FL-12
                   example: MATTER-2026-014
                 matter_ref:
                   type: object
                 release_approved_by:
                   type: string
+                  x-bound-controls:
+                  - RR-07
                 released:
                   type: string
                 schedule_resumed:
@@ -1077,7 +1205,7 @@ paths:
                 properties:
                   data:
                     type: array
-                    items: &id008
+                    items: &id030
                       $ref: '#/components/schemas/LoanApplication'
                   pagination:
                     $ref: '#/components/schemas/Pagination'
@@ -1101,7 +1229,7 @@ paths:
           description: The created LoanApplication.
           content:
             application/json:
-              schema: *id008
+              schema: *id030
         '409':
           description: Idempotency-Key reused with different args (D6).
           content:
@@ -1128,76 +1256,133 @@ paths:
               properties:
                 action_basis:
                   type: object
+                  x-bound-controls: &id033
+                  - FL-05
+                  - LD-03
+                  - LD-07
                 amount:
                   type: integer
                   example: 25000
                 applicant:
                   $ref: '#/components/schemas/Applicant'
+                  x-bound-controls: &id034
+                  - LD-07
                 atr_qm_result:
                   type: string
+                  x-bound-controls: &id035
+                  - FL-04
+                  - LD-05
                 channel:
                   type: string
+                  x-bound-controls: &id036
+                  - LD-13
                   example: online
                 counteroffer_status:
                   type: string
-                  enum: &id011
+                  enum: &id037
                   - none
                   - issued
                   - accepted
                   - expired
+                  x-bound-controls: &id038
+                  - FL-05
+                  - LD-07
                 counteroffer_terms:
                   type: object
+                  x-bound-controls: &id039
+                  - FL-05
+                  - LD-07
                 credit_structure:
                   type: object
+                  x-bound-controls: &id040
+                  - LD-03
+                  - LD-04
                 data:
                   type: object
+                  x-bound-controls: &id041
+                  - FL-01
+                  - LD-03
                 decision:
                   $ref: '#/components/schemas/Decision'
                 decision_block_state:
                   type: string
-                  enum: &id012
+                  enum: &id042
                   - open
                   - cleared
                   - blocked
                 doc_block_state:
                   type: string
-                  enum: &id013
+                  enum: &id043
                   - open
                   - cleared
                   - blocked
+                  x-bound-controls: &id044
+                  - LD-05
+                  - LD-09
+                  - LD-10
                 dti:
                   type: number
+                  x-bound-controls: &id045
+                  - LD-03
+                  - LD-05
                 employment:
                   type: object
+                  x-bound-controls: &id046
+                  - LD-05
                 final_action:
                   type: string
+                  x-bound-controls: &id047
+                  - FL-06
                 geography:
                   type: string
+                  x-bound-controls: &id048
+                  - LD-13
                 gmi:
                   type: object
+                  x-bound-controls: &id049
+                  - FL-06
+                  - LD-07
+                  - LD-13
                 income_assets:
                   type: object
+                  x-bound-controls: &id050
+                  - LD-03
+                  - LD-04
+                  - LD-05
                 incomplete_aged:
                   type: boolean
                 option_shortfall_reason:
                   type: string
+                  x-bound-controls: &id051
+                  - FL-08
                 oral_adverse_decision:
                   type: boolean
                 oral_statement:
                   type: string
+                  x-bound-controls: &id052
+                  - FL-05
                 parties:
                   type: array
-                  items: &id014
+                  items: &id053
                     $ref: '#/components/schemas/LoanParty'
                 prequal:
                   $ref: '#/components/schemas/Prequal'
                 product_code:
                   type: string
+                  x-bound-controls: &id054
+                  - LD-02
                 product_type:
                   type: string
+                  x-bound-controls: &id055
+                  - FL-02
+                  - FL-13
+                  - LD-02
+                  - LD-13
                   example: auto
                 requested_terms:
                   type: object
+                  x-bound-controls: &id056
+                  - FL-08
               required:
               - amount
               - product_type
@@ -1210,7 +1395,7 @@ paths:
           description: The requested LoanApplication.
           content:
             application/json:
-              schema: &id009
+              schema: &id031
                 $ref: '#/components/schemas/LoanApplication'
         '404':
           description: LoanApplication not found.
@@ -1219,7 +1404,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
       parameters:
-      - &id010
+      - &id032
         name: id
         in: path
         required: true
@@ -1236,7 +1421,7 @@ paths:
           description: The updated LoanApplication.
           content:
             application/json:
-              schema: *id009
+              schema: *id031
         '404':
           description: LoanApplication not found.
           content:
@@ -1250,7 +1435,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ValidationError'
       parameters:
-      - *id010
+      - *id032
       tags:
       - Loan Applications
       summary: Update
@@ -1263,65 +1448,85 @@ paths:
               properties:
                 action_basis:
                   type: object
+                  x-bound-controls: *id033
                 amount:
                   type: integer
                   example: 25000
                 applicant:
                   $ref: '#/components/schemas/Applicant'
+                  x-bound-controls: *id034
                 atr_qm_result:
                   type: string
+                  x-bound-controls: *id035
                 channel:
                   type: string
+                  x-bound-controls: *id036
                   example: online
                 counteroffer_status:
                   type: string
-                  enum: *id011
+                  enum: *id037
+                  x-bound-controls: *id038
                 counteroffer_terms:
                   type: object
+                  x-bound-controls: *id039
                 credit_structure:
                   type: object
+                  x-bound-controls: *id040
                 data:
                   type: object
+                  x-bound-controls: *id041
                 decision:
                   $ref: '#/components/schemas/Decision'
                 decision_block_state:
                   type: string
-                  enum: *id012
+                  enum: *id042
                 doc_block_state:
                   type: string
-                  enum: *id013
+                  enum: *id043
+                  x-bound-controls: *id044
                 dti:
                   type: number
+                  x-bound-controls: *id045
                 employment:
                   type: object
+                  x-bound-controls: *id046
                 final_action:
                   type: string
+                  x-bound-controls: *id047
                 geography:
                   type: string
+                  x-bound-controls: *id048
                 gmi:
                   type: object
+                  x-bound-controls: *id049
                 income_assets:
                   type: object
+                  x-bound-controls: *id050
                 incomplete_aged:
                   type: boolean
                 option_shortfall_reason:
                   type: string
+                  x-bound-controls: *id051
                 oral_adverse_decision:
                   type: boolean
                 oral_statement:
                   type: string
+                  x-bound-controls: *id052
                 parties:
                   type: array
-                  items: *id014
+                  items: *id053
                 prequal:
                   $ref: '#/components/schemas/Prequal'
                 product_code:
                   type: string
+                  x-bound-controls: *id054
                 product_type:
                   type: string
+                  x-bound-controls: *id055
                   example: auto
                 requested_terms:
                   type: object
+                  x-bound-controls: *id056
               required:
               - amount
               - product_type
@@ -1437,7 +1642,7 @@ paths:
                 properties:
                   data:
                     type: array
-                    items: &id015
+                    items: &id057
                       $ref: '#/components/schemas/Loan'
                   pagination:
                     $ref: '#/components/schemas/Pagination'
@@ -1462,7 +1667,7 @@ paths:
           description: The created Loan.
           content:
             application/json:
-              schema: *id015
+              schema: *id057
         '409':
           description: Idempotency-Key reused with different args (D6).
           content:
@@ -1488,15 +1693,23 @@ paths:
               properties:
                 accrued_interest:
                   type: string
+                  x-bound-controls:
+                  - CL-09
                 action_basis:
                   type: object
+                  x-bound-controls:
+                  - LD-07
                 balance:
                   type: integer
+                  x-bound-controls:
+                  - CL-03
                 bankruptcy_case_id:
                   type: string
+                  x-bound-controls:
+                  - CL-03
                 booking_block_state:
                   type: string
-                  enum: &id032
+                  enum: &id074
                   - open
                   - cleared
                   - blocked
@@ -1504,16 +1717,27 @@ paths:
                   type: string
                 chargeoff_due_closed_end:
                   type: string
+                  x-bound-controls:
+                  - CL-03
                 chargeoff_due_open_end:
                   type: string
+                  x-bound-controls:
+                  - CL-03
                 classified_substandard:
                   type: string
                 collateral_value:
                   type: string
+                  x-bound-controls:
+                  - LD-06
                 collectibility_assessment:
                   type: string
+                  x-bound-controls:
+                  - CL-02
+                  - CL-09
                 death_loss_estimable:
                   type: string
+                  x-bound-controls:
+                  - CL-03
                 delinquency_day_10:
                   type: string
                 delinquency_day_20:
@@ -1530,49 +1754,93 @@ paths:
                   type: string
                 dpd:
                   type: string
+                  x-bound-controls:
+                  - CL-01
+                  - CL-02
+                  - CL-03
+                  - CL-09
                 dpd_reset:
                   type: string
                 dpd_reset_eligibility_check:
                   type: string
+                  x-bound-controls:
+                  - CL-04
                 estate_claim_status:
                   type: string
+                  x-bound-controls:
+                  - CL-03
                 estimated_recovery:
                   type: string
                 foreclosure_impact_eval:
                   type: string
+                  x-bound-controls:
+                  - CL-09
                 funding_block_state:
                   type: string
-                  enum: &id033
+                  enum: &id075
                   - open
                   - cleared
                   - blocked
                 grace_period_days:
                   type: string
+                  x-bound-controls:
+                  - CL-02
                 io_term_months:
                   type: string
+                  x-bound-controls:
+                  - CL-04
                 last_payment_date:
                   type: string
                   format: date-time
+                  x-bound-controls:
+                  - CL-02
                 ltv:
                   type: number
+                  x-bound-controls:
+                  - CL-03
+                  - LD-06
                 modified_schedule:
                   type: string
+                  x-bound-controls:
+                  - CL-04
                 nonaccrual_placed:
                   type: string
+                  x-bound-controls:
+                  - CL-01
                 past_due_amount:
                   type: integer
+                  x-bound-controls:
+                  - CL-02
                 product_type:
                   type: string
+                  x-bound-controls:
+                  - CL-02
+                  - CL-03
+                  - LC-03
                 proposed_modification:
                   type: string
+                  x-bound-controls:
+                  - CL-04
                 repayment_evidence:
                   type: object
+                  x-bound-controls:
+                  - CL-03
+                  - CL-04
+                  - CL-09
                 risk_rating:
                   type: string
+                  x-bound-controls:
+                  - CL-01
+                  - CL-09
+                  - LC-09
                 well_secured_documented:
                   type: string
+                  x-bound-controls:
+                  - CL-03
                 workout_alternatives:
                   type: string
+                  x-bound-controls:
+                  - CL-02
   /loans/{id}:
     get:
       operationId: get_loans_id
@@ -1662,7 +1930,7 @@ paths:
                 properties:
                   data:
                     type: array
-                    items: &id016
+                    items: &id058
                       $ref: '#/components/schemas/Task'
                   pagination:
                     $ref: '#/components/schemas/Pagination'
@@ -1687,7 +1955,7 @@ paths:
           description: The created Task.
           content:
             application/json:
-              schema: *id016
+              schema: *id058
         '409':
           description: Idempotency-Key reused with different args (D6).
           content:
@@ -1719,7 +1987,7 @@ paths:
                   $ref: '#/components/schemas/TrainingDetail'
                 type:
                   type: string
-                  enum: &id031
+                  enum: &id073
                   - aan_issuance
                   - access_deprovision
                   - access_review
@@ -2057,6 +2325,8 @@ paths:
                   - wholesale_compute
                   - wholesale_monthly_review
                   - wholesale_review
+                  x-bound-controls:
+                  - LP-14
   /tasks/{id}:
     get:
       operationId: get_tasks_id
@@ -2147,7 +2417,7 @@ paths:
                 properties:
                   data:
                     type: array
-                    items: &id017
+                    items: &id059
                       $ref: '#/components/schemas/Account'
                   pagination:
                     $ref: '#/components/schemas/Pagination'
@@ -2171,7 +2441,7 @@ paths:
           description: The created Account.
           content:
             application/json:
-              schema: *id017
+              schema: *id059
         '409':
           description: Idempotency-Key reused with different args (D6).
           content:
@@ -2197,19 +2467,40 @@ paths:
               properties:
                 account_type:
                   type: string
+                  x-bound-controls:
+                  - TIS-02
+                  - TIS-04
                 balance:
                   type: integer
+                  x-bound-controls:
+                  - MEM-05
+                  - MEM-06
+                  - MEM-07
                 blnk_ledger_id:
                   type: string
                 lock_type:
                   type: string
+                  enum: &id067
+                  - none
+                  - compliance
+                  - fraud
+                  - legal
+                  - admin
+                  x-bound-controls:
+                  - MEM-05
                 maturity_date:
                   type: string
                   format: date-time
+                  x-bound-controls:
+                  - TIS-04
                 maturity_disposition:
                   type: string
+                  x-bound-controls:
+                  - TIS-04
                 opening_channel:
                   type: string
+                  x-bound-controls:
+                  - TIS-02
   /accounts/{id}:
     get:
       operationId: get_account
@@ -2298,7 +2589,7 @@ paths:
                 properties:
                   data:
                     type: array
-                    items: &id018
+                    items: &id060
                       $ref: '#/components/schemas/Entity'
                   pagination:
                     $ref: '#/components/schemas/Pagination'
@@ -2322,7 +2613,7 @@ paths:
           description: The created Entity.
           content:
             application/json:
-              schema: *id018
+              schema: *id060
         '409':
           description: Idempotency-Key reused with different args (D6).
           content:
@@ -2348,32 +2639,50 @@ paths:
               properties:
                 address:
                   type: string
+                  x-bound-controls:
+                  - BSA-03
                 address_change:
                   type: string
                 address_new:
                   type: string
+                  x-bound-controls:
+                  - MEM-02
                 address_previous:
                   type: string
+                  x-bound-controls:
+                  - MEM-02
                 contact:
                   type: string
                 contact_preference:
                   type: string
                 date_of_birth:
                   type: string
+                  x-bound-controls:
+                  - BSA-03
                 disabled:
                   type: string
                 email:
                   type: string
+                  x-bound-controls:
+                  - EC-03
                 esign_consent:
                   type: string
+                  x-bound-controls:
+                  - TIS-02
                 jurisdiction:
                   type: string
                 name:
                   type: string
+                  x-bound-controls:
+                  - BSA-03
                 reg_e_opt_in:
                   type: string
+                  x-bound-controls:
+                  - TIS-08
                 tin:
                   type: string
+                  x-bound-controls:
+                  - BSA-03
                 type:
                   type: string
   /entities/{id}:
@@ -2465,7 +2774,7 @@ paths:
                 properties:
                   data:
                     type: array
-                    items: &id019
+                    items: &id061
                       $ref: '#/components/schemas/AccountNumber'
                   pagination:
                     $ref: '#/components/schemas/Pagination'
@@ -2489,7 +2798,7 @@ paths:
           description: The created AccountNumber.
           content:
             application/json:
-              schema: *id019
+              schema: *id061
         '409':
           description: Idempotency-Key reused with different args (D6).
           content:
@@ -2611,7 +2920,7 @@ paths:
                 properties:
                   data:
                     type: array
-                    items: &id020
+                    items: &id062
                       $ref: '#/components/schemas/AchTransfer'
                   pagination:
                     $ref: '#/components/schemas/Pagination'
@@ -2635,7 +2944,7 @@ paths:
           description: The created AchTransfer.
           content:
             application/json:
-              schema: *id020
+              schema: *id062
         '409':
           description: Idempotency-Key reused with different args (D6).
           content:
@@ -2664,7 +2973,7 @@ paths:
                 control_results:
                   type: object
                 counterparty:
-                  type: string
+                  $ref: '#/components/schemas/Counterparty'
                 window:
                   type: string
   /ach-transfers/{id}:
@@ -2758,7 +3067,7 @@ paths:
                 properties:
                   data:
                     type: array
-                    items: &id021
+                    items: &id063
                       $ref: '#/components/schemas/WireTransfer'
                   pagination:
                     $ref: '#/components/schemas/Pagination'
@@ -2782,7 +3091,7 @@ paths:
           description: The created WireTransfer.
           content:
             application/json:
-              schema: *id021
+              schema: *id063
         '409':
           description: Idempotency-Key reused with different args (D6).
           content:
@@ -2808,14 +3117,22 @@ paths:
               properties:
                 amount:
                   type: integer
+                  x-bound-controls:
+                  - BSA-10
                 beneficiary:
-                  type: string
+                  $ref: '#/components/schemas/Beneficiary'
                 control_results:
                   type: object
+                  x-bound-controls:
+                  - BSA-10
                 imad:
                   type: string
+                  x-bound-controls:
+                  - BSA-10
                 purpose:
                   type: string
+                  x-bound-controls:
+                  - BSA-10
                 record_retained:
                   type: string
   /wire-transfers/{id}:
@@ -2910,7 +3227,7 @@ paths:
                 properties:
                   data:
                     type: array
-                    items: &id022
+                    items: &id064
                       $ref: '#/components/schemas/Card'
                   pagination:
                     $ref: '#/components/schemas/Pagination'
@@ -2934,7 +3251,7 @@ paths:
           description: The created Card.
           content:
             application/json:
-              schema: *id022
+              schema: *id064
         '409':
           description: Idempotency-Key reused with different args (D6).
           content:
@@ -3005,7 +3322,7 @@ paths:
                 properties:
                   data:
                     type: array
-                    items: &id023
+                    items: &id065
                       $ref: '#/components/schemas/Transfer'
                   pagination:
                     $ref: '#/components/schemas/Pagination'
@@ -3029,7 +3346,7 @@ paths:
           description: The created Transfer.
           content:
             application/json:
-              schema: *id023
+              schema: *id065
         '409':
           description: Idempotency-Key reused with different args (D6).
           content:
@@ -3061,16 +3378,6 @@ paths:
                   $ref: '#/components/schemas/Party'
                 originator:
                   $ref: '#/components/schemas/Party'
-                rail:
-                  type: string
-                  enum: &id025
-                  - ach
-                  - wire
-                  - book
-                  - card
-                  - rtp
-                wire:
-                  $ref: '#/components/schemas/WireDetails'
   /transfers/{id}:
     get:
       operationId: get_transfer
@@ -3112,7 +3419,7 @@ paths:
                 properties:
                   data:
                     type: array
-                    items: &id024
+                    items: &id066
                       $ref: '#/components/schemas/Verification'
                   pagination:
                     $ref: '#/components/schemas/Pagination'
@@ -3136,7 +3443,7 @@ paths:
           description: The created Verification.
           content:
             application/json:
-              schema: *id024
+              schema: *id066
         '409':
           description: Idempotency-Key reused with different args (D6).
           content:
@@ -3162,26 +3469,45 @@ paths:
               properties:
                 alt_path_available:
                   type: string
+                  x-bound-controls:
+                  - BSA-03
+                  - PR-16
                 biometric_consent_id:
                   type: string
+                  x-bound-controls:
+                  - PR-16
                 biometric_declined:
                   type: string
+                  x-bound-controls:
+                  - PR-16
                 biometric_purged:
                   type: string
+                  x-bound-controls:
+                  - PR-16
                 cdd:
                   $ref: '#/components/schemas/CddProfile'
                 match_status:
                   type: string
+                  x-bound-controls:
+                  - BSA-03
+                  - MEM-01
                 ofac_result:
                   type: string
                 pep:
                   $ref: '#/components/schemas/PepStatus'
                 provider:
                   type: string
+                  x-bound-controls:
+                  - PR-16
                 provider_result:
                   type: string
+                  x-bound-controls:
+                  - BSA-03
+                  - MEM-01
                 trust_level:
                   type: string
+                  x-bound-controls:
+                  - BSA-03
                 type:
                   type: string
   /verifications/{id}:
@@ -4383,12 +4709,7 @@ components:
           - RP-06
         lock_type:
           type: string
-          enum:
-          - none
-          - compliance
-          - fraud
-          - legal
-          - admin
+          enum: *id067
           x-bound-controls:
           - MEM-05
         maturity_date:
@@ -4426,7 +4747,7 @@ components:
         control_results:
           type: object
         counterparty:
-          type: string
+          $ref: '#/components/schemas/Counterparty'
         status:
           type: string
           enum:
@@ -4780,9 +5101,6 @@ components:
           type: string
         originator:
           $ref: '#/components/schemas/Party'
-        rail:
-          type: string
-          enum: *id025
         status:
           type: string
           enum:
@@ -4792,8 +5110,7 @@ components:
           - returned
           - rejected
           - canceled
-        wire:
-          $ref: '#/components/schemas/WireDetails'
+      description: On-us / book transfer (D8). External rails use AchTransfer / WireTransfer.
     User:
       type: object
       x-kind: banking-core
@@ -4880,14 +5197,6 @@ components:
           - BSA-03
         type:
           type: string
-    WireDetails:
-      type: object
-      x-kind: banking-core
-      properties:
-        imad:
-          type: string
-        purpose:
-          type: string
     WireTransfer:
       type: object
       x-kind: banking-core
@@ -4905,7 +5214,7 @@ components:
           x-bound-controls:
           - BSA-10
         beneficiary:
-          type: string
+          $ref: '#/components/schemas/Beneficiary'
         control_results:
           type: object
           x-bound-controls:
@@ -4946,7 +5255,7 @@ components:
           $ref: '#/components/schemas/EscalationDetail'
         evidence:
           type: array
-          items: *id026
+          items: *id068
           x-bound-controls:
           - BSA-06
         id:
@@ -4969,10 +5278,10 @@ components:
           - BSA-06
         tasks:
           type: array
-          items: *id027
+          items: *id069
         type:
           type: string
-          enum: *id028
+          enum: *id070
     ControlResult:
       type: object
       x-kind: primitive
@@ -5041,7 +5350,7 @@ components:
           - IP-15
         type:
           type: string
-          enum: *id029
+          enum: *id071
           x-bound-controls:
           - IP-15
         vendor:
@@ -5093,7 +5402,7 @@ components:
           - nil_determined
         type:
           type: string
-          enum: *id030
+          enum: *id072
     LegalHold:
       type: object
       x-kind: primitive
@@ -5155,7 +5464,7 @@ components:
           $ref: '#/components/schemas/TrainingDetail'
         type:
           type: string
-          enum: *id031
+          enum: *id073
           x-bound-controls:
           - LP-14
     Incident:
@@ -5362,7 +5671,7 @@ components:
           - CL-03
         booking_block_state:
           type: string
-          enum: *id032
+          enum: *id074
         charged_off:
           type: string
         chargeoff_due_closed_end:
@@ -5432,7 +5741,7 @@ components:
           - CL-09
         funding_block_state:
           type: string
-          enum: *id033
+          enum: *id075
         grace_period_days:
           type: string
           x-bound-controls:
@@ -5529,7 +5838,7 @@ components:
           - LD-13
         counteroffer_status:
           type: string
-          enum: *id011
+          enum: *id037
           x-bound-controls:
           - FL-05
           - LD-07
@@ -5552,10 +5861,10 @@ components:
           $ref: '#/components/schemas/Decision'
         decision_block_state:
           type: string
-          enum: *id012
+          enum: *id042
         doc_block_state:
           type: string
-          enum: *id013
+          enum: *id043
           x-bound-controls:
           - LD-05
           - LD-09
@@ -5608,7 +5917,7 @@ components:
           - FL-05
         parties:
           type: array
-          items: *id014
+          items: *id053
         prequal:
           $ref: '#/components/schemas/Prequal'
         product_code:
