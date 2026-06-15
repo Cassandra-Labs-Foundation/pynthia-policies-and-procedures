@@ -1,16 +1,16 @@
 {
   "meta": {
     "generator": "scripts/build_control_vocabulary.py",
-    "generated_at": "2026-06-15T19:08:21+00:00",
+    "generated_at": "2026-06-15T22:35:55+00:00",
     "source": "controls.json",
     "api_model": {
       "spec_title": "Cassandra Banking Core API (Minimal)",
       "spec_version": "2.2.0",
       "events": 1221,
-      "fields": 1683,
-      "entities": 265
+      "fields": 1689,
+      "entities": 266
     },
-    "controls_generated_at": "2026-06-15T19:08:21+00:00"
+    "controls_generated_at": "2026-06-15T22:35:55+00:00"
   },
   "stats": {
     "entities": 306,
@@ -773,7 +773,7 @@
           "status": "field",
           "spec": {
             "entity": "Account",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -1677,7 +1677,7 @@
           "status": "field",
           "spec": {
             "entity": "affiliate",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -6355,7 +6355,7 @@
           "status": "field",
           "spec": {
             "entity": "capital",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -7100,7 +7100,7 @@
           "status": "field",
           "spec": {
             "entity": "capital",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -7387,7 +7387,7 @@
           "status": "field",
           "spec": {
             "entity": "capital",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -7521,7 +7521,7 @@
           "status": "field",
           "spec": {
             "entity": "capital",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -7542,7 +7542,7 @@
           "status": "field",
           "spec": {
             "entity": "capital",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -10558,7 +10558,7 @@
           "status": "field",
           "spec": {
             "entity": "cda",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -10703,7 +10703,7 @@
           "status": "field",
           "spec": {
             "entity": "cda",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -10813,7 +10813,7 @@
           "status": "field",
           "spec": {
             "entity": "cda",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -10867,7 +10867,7 @@
           "status": "field",
           "spec": {
             "entity": "cda",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -14971,7 +14971,7 @@
           "status": "field",
           "spec": {
             "entity": "concentration",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -18030,7 +18030,7 @@
           "status": "field",
           "spec": {
             "entity": "dispute",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -18374,7 +18374,7 @@
           "status": "field",
           "spec": {
             "entity": "dq",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -22613,7 +22613,7 @@
           "status": "field",
           "spec": {
             "entity": "expense",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -23400,7 +23400,7 @@
           "status": "field",
           "spec": {
             "entity": "fee",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -24447,7 +24447,7 @@
           "status": "field",
           "spec": {
             "entity": "funding",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -25883,7 +25883,7 @@
           "status": "field",
           "spec": {
             "entity": "InboundPayment",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -27760,7 +27760,7 @@
           "status": "field",
           "spec": {
             "entity": "insider",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -29896,7 +29896,7 @@
           "status": "field",
           "spec": {
             "entity": "liquidity",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -30053,7 +30053,7 @@
           "status": "field",
           "spec": {
             "entity": "liquidity",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -31153,7 +31153,7 @@
           "status": "field",
           "spec": {
             "entity": "Loan",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -31501,7 +31501,7 @@
           "status": "field",
           "spec": {
             "entity": "Loan",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -41194,7 +41194,7 @@
           "status": "field",
           "spec": {
             "entity": "repo",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -47380,7 +47380,7 @@
           "status": "field",
           "spec": {
             "entity": "trade",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null
@@ -51842,7 +51842,7 @@
           "status": "field",
           "spec": {
             "entity": "WireTransfer",
-            "type": "number",
+            "type": "integer",
             "pii": false,
             "required": false,
             "description": null

@@ -65,7 +65,30 @@ def _norm_path(path: str) -> str:
     return p
 
 
-def evaluate(vocab: dict, checklist: dict) -> dict:
+def _contract_gaps(doc: dict) -> list:
+    """Every existing operation must carry a contract: a content-bearing success response, and a
+    requestBody for write methods. An uncontracted endpoint (bare 200) is a scored gap so the loop
+    (and the local gate) can't let contracts silently regress."""
+    gaps = []
+    for path, methods in (doc.get("paths") or {}).items():
+        for m, op in (methods or {}).items():
+            if m.lower() not in ("get", "post", "put", "patch", "delete") or not isinstance(op, dict):
+                continue
+            responses = op.get("responses") or {}
+            has_resp = "204" in responses or any("content" in (r or {}) for r in responses.values())
+            needs_body = m.lower() in ("post", "put", "patch")
+            missing = []
+            if needs_body and not op.get("requestBody"):
+                missing.append("requestBody")
+            if not has_resp:
+                missing.append("response schema")
+            if missing:
+                gaps.append({"category": "contract", "element": f"{m.upper()} {path}",
+                             "decision": "D12/D16", "detail": "missing " + ", ".join(missing)})
+    return gaps
+
+
+def evaluate(vocab: dict, checklist: dict, doc: dict | None = None) -> dict:
     # --- index the parsed vocab -------------------------------------------------
     entity_names = {e["name"] for e in vocab.get("entities", [])}
     sm_index = {sm["name"]: set(sm.get("states") or []) for sm in vocab.get("state_machines", [])}
@@ -159,14 +182,21 @@ def evaluate(vocab: dict, checklist: dict) -> dict:
                          "decision": f.get("decision"), "detail": "field path absent"})
 
     # --- conventions (soft) -----------------------------------------------------
+    doc_norm = re.sub(r"[-_]", "", json.dumps(doc).lower()) if doc is not None else ""
     for tok in checklist.get("conventions", {}).get("tokens", []):
         needle = tok["token"]
-        if any(needle in p for p in field_paths):
+        # satisfied if it appears as a field path OR (separator/case-insensitively) anywhere in the
+        # spec doc — e.g. the Error/Pagination components or the Idempotency-Key parameter.
+        if any(needle in p for p in field_paths) or re.sub(r"[-_]", "", needle.lower()) in doc_norm:
             covered += 1
         else:
             gaps.append({"category": "convention", "element": needle,
                          "decision": tok.get("decision"),
-                         "detail": "no field path contains this token"})
+                         "detail": "convention not present in spec"})
+
+    # --- contract completeness (existing operations must be contracted) ---------
+    if doc is not None:
+        gaps.extend(_contract_gaps(doc))
 
     total = covered + len(gaps)
     return {
@@ -177,7 +207,8 @@ def evaluate(vocab: dict, checklist: dict) -> dict:
         "endpoint_orphans": endpoint_orphans,
         "by_category": {
             cat: sum(1 for g in gaps if g["category"] == cat)
-            for cat in ("resource", "state_machine", "event_family", "endpoint", "field", "convention")
+            for cat in ("resource", "state_machine", "event_family", "endpoint", "field",
+                        "convention", "contract")
         },
     }
 
@@ -192,7 +223,9 @@ def main(argv: list[str]) -> int:
 
     checklist = json.load(open(args.checklist))
     vocab = parse_vocab(args.spec, args.migration)
-    result = evaluate(vocab, checklist)
+    raw = yaml.safe_load(open(args.spec).read())
+    doc = raw if isinstance(raw, dict) and raw.get("openapi") else None
+    result = evaluate(vocab, checklist, doc)
 
     if args.json:
         print(json.dumps(result, indent=2))

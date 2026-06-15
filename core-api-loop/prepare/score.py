@@ -46,9 +46,12 @@ def score_spec(spec_path: str, migration_path: str | None, *, config: dict,
                demand: dict, checklist: dict, root: str = REPO_ROOT) -> dict:
     # Parse the candidate ONCE, share across all three components.
     vocab = fitness.parse_vocab(spec_path, migration_path)
+    import yaml as _yaml
+    _raw = _yaml.safe_load(open(spec_path).read())
+    _doc = _raw if isinstance(_raw, dict) and _raw.get("openapi") else None
 
     control = control_oracle.evaluate_vocab(vocab, demand)
-    arch = architecture_oracle.evaluate(vocab, checklist)
+    arch = architecture_oracle.evaluate(vocab, checklist, _doc)
     cx = fitness.complexity(vocab, config, root=root)
 
     control_budget = config.get("control_budget", 0)

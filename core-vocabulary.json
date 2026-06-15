@@ -3,7 +3,7 @@
     "spec_title": "Cassandra Banking Core API (Minimal)",
     "spec_version": "2.2.0",
     "parser_version": "0.2.0",
-    "parsed_at": "2026-06-15T20:14:35.163405Z",
+    "parsed_at": "2026-06-15T22:35:55.164083Z",
     "note": "Specific domain codes (e.g. sar.filed, vendor_review) live as `subject` values in vocab-migration.json, not as distinct vocabulary elements.",
     "sources": [
       "core-api.yaml",
@@ -11,11 +11,11 @@
     ]
   },
   "stats": {
-    "entities": 265,
-    "fields": 1683,
+    "entities": 266,
+    "fields": 1689,
     "computed_fields": 0,
     "events": 1221,
-    "endpoints": 35,
+    "endpoints": 95,
     "state_machines": 12,
     "plugins": 0,
     "task_types": 28,
@@ -27,6 +27,17 @@
       "name": "account",
       "schema_name": "Account",
       "field_count": 10,
+      "computed_field_count": 0,
+      "state_machine_field": "status",
+      "events": [],
+      "control_refs": [],
+      "retention": null,
+      "kind": "banking-core"
+    },
+    {
+      "name": "account_number",
+      "schema_name": "AccountNumber",
+      "field_count": 6,
       "computed_field_count": 0,
       "state_machine_field": "status",
       "events": [],
@@ -3097,6 +3108,108 @@
       "path": "account.status",
       "field": "status",
       "entity": "Account",
+      "type": "string",
+      "required": false,
+      "nullable": true,
+      "description": "",
+      "enum_values": null,
+      "pii": false,
+      "is_computed": false,
+      "computed": null,
+      "plugin": null,
+      "freshness": null,
+      "is_state_machine": false,
+      "bound_controls": []
+    },
+    {
+      "path": "account_number.account_id",
+      "field": "account_id",
+      "entity": "AccountNumber",
+      "type": "string",
+      "required": false,
+      "nullable": true,
+      "description": "",
+      "enum_values": null,
+      "pii": false,
+      "is_computed": false,
+      "computed": null,
+      "plugin": null,
+      "freshness": null,
+      "is_state_machine": false,
+      "bound_controls": []
+    },
+    {
+      "path": "account_number.account_number",
+      "field": "account_number",
+      "entity": "AccountNumber",
+      "type": "string",
+      "required": false,
+      "nullable": true,
+      "description": "",
+      "enum_values": null,
+      "pii": false,
+      "is_computed": false,
+      "computed": null,
+      "plugin": null,
+      "freshness": null,
+      "is_state_machine": false,
+      "bound_controls": []
+    },
+    {
+      "path": "account_number.id",
+      "field": "id",
+      "entity": "AccountNumber",
+      "type": "string",
+      "required": false,
+      "nullable": true,
+      "description": "",
+      "enum_values": null,
+      "pii": false,
+      "is_computed": false,
+      "computed": null,
+      "plugin": null,
+      "freshness": null,
+      "is_state_machine": false,
+      "bound_controls": []
+    },
+    {
+      "path": "account_number.informational_entity_id",
+      "field": "informational_entity_id",
+      "entity": "AccountNumber",
+      "type": "string",
+      "required": false,
+      "nullable": true,
+      "description": "",
+      "enum_values": null,
+      "pii": false,
+      "is_computed": false,
+      "computed": null,
+      "plugin": null,
+      "freshness": null,
+      "is_state_machine": false,
+      "bound_controls": []
+    },
+    {
+      "path": "account_number.routing_number",
+      "field": "routing_number",
+      "entity": "AccountNumber",
+      "type": "string",
+      "required": false,
+      "nullable": true,
+      "description": "",
+      "enum_values": null,
+      "pii": false,
+      "is_computed": false,
+      "computed": null,
+      "plugin": null,
+      "freshness": null,
+      "is_state_machine": false,
+      "bound_controls": []
+    },
+    {
+      "path": "account_number.status",
+      "field": "status",
+      "entity": "AccountNumber",
       "type": "string",
       "required": false,
       "nullable": true,
@@ -38883,6 +38996,150 @@
   "endpoints": [
     {
       "method": "GET",
+      "path": "/account-numbers",
+      "summary": "list_account_number",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/account-numbers",
+      "summary": "create_account_number",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "GET",
+      "path": "/account-numbers/{id}",
+      "summary": "get_account_number",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/account-numbers/{id}/transition",
+      "summary": "transition_account_number",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "GET",
+      "path": "/accounts",
+      "summary": "list_account",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/accounts",
+      "summary": "create_account",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "GET",
+      "path": "/accounts/{id}",
+      "summary": "get_account",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/accounts/{id}/transition",
+      "summary": "transition_account",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "GET",
+      "path": "/ach-transfers",
+      "summary": "list_ach_transfer",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/ach-transfers",
+      "summary": "create_ach_transfer",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "GET",
+      "path": "/ach-transfers/{id}",
+      "summary": "get_ach_transfer",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/ach-transfers/{id}/transition",
+      "summary": "transition_ach_transfer",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/auth/token",
+      "summary": "post__auth_token",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "GET",
+      "path": "/cards",
+      "summary": "list_card",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/cards",
+      "summary": "create_card",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "GET",
+      "path": "/cards/{id}",
+      "summary": "get_card",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "GET",
       "path": "/cases",
       "summary": "list_cases",
       "control_refs": [],
@@ -38964,8 +39221,98 @@
     },
     {
       "method": "GET",
+      "path": "/entities",
+      "summary": "list_entity",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/entities",
+      "summary": "create_entity",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/entities/business",
+      "summary": "post__entities_business",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/entities/joint",
+      "summary": "post__entities_joint",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/entities/person",
+      "summary": "post__entities_person",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/entities/trust",
+      "summary": "post__entities_trust",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "GET",
+      "path": "/entities/{id}",
+      "summary": "get_entity",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/entities/{id}/transition",
+      "summary": "transition_entity",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "GET",
       "path": "/events",
       "summary": "list_events",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "GET",
+      "path": "/fbo/{instance_id}/available_balance",
+      "summary": "get__fbo_instance_id_available_balance",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "GET",
+      "path": "/fbo/{instance_id}/position",
+      "summary": "get__fbo_instance_id_position",
       "control_refs": [],
       "audit_events": [],
       "request_schema": null,
@@ -39011,6 +39358,24 @@
       "method": "POST",
       "path": "/filings/{id}/submit",
       "summary": "submit_filing",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/filings/{id}/transition",
+      "summary": "transition_filing",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "GET",
+      "path": "/inbound/{instance_id}",
+      "summary": "get__inbound_instance_id",
       "control_refs": [],
       "audit_events": [],
       "request_schema": null,
@@ -39143,9 +39508,27 @@
       "response_schema": null
     },
     {
+      "method": "POST",
+      "path": "/loan-applications/{id}/transition",
+      "summary": "transition_loan_application",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
       "method": "GET",
       "path": "/loans",
       "summary": "list",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/loans",
+      "summary": "create_loan",
       "control_refs": [],
       "audit_events": [],
       "request_schema": null,
@@ -39170,9 +39553,171 @@
       "response_schema": null
     },
     {
+      "method": "POST",
+      "path": "/loans/{id}/transition",
+      "summary": "transition_loan",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/payments/ach/originate",
+      "summary": "post__payments_ach_originate",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/payments/rtp/originate",
+      "summary": "post__payments_rtp_originate",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/payments/wire/confirm",
+      "summary": "post__payments_wire_confirm",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/payments/wire/originate",
+      "summary": "post__payments_wire_originate",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/payments/wire/prepare",
+      "summary": "post__payments_wire_prepare",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/sandbox/reset",
+      "summary": "post__sandbox_reset",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/sandbox/simulate/ach/receive",
+      "summary": "post__sandbox_simulate_ach_receive",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/sandbox/simulate/ach/return",
+      "summary": "post__sandbox_simulate_ach_return",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/sandbox/simulate/ach/settle",
+      "summary": "post__sandbox_simulate_ach_settle",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/sandbox/simulate/card/authorize",
+      "summary": "post__sandbox_simulate_card_authorize",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/sandbox/simulate/card/settle",
+      "summary": "post__sandbox_simulate_card_settle",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/sandbox/simulate/kyc/approve",
+      "summary": "post__sandbox_simulate_kyc_approve",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/sandbox/simulate/kyc/deny",
+      "summary": "post__sandbox_simulate_kyc_deny",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/sandbox/simulate/time/advance",
+      "summary": "post__sandbox_simulate_time_advance",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/sandbox/simulate/wire/receive",
+      "summary": "post__sandbox_simulate_wire_receive",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/sandbox/simulate/wire/settle",
+      "summary": "post__sandbox_simulate_wire_settle",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
       "method": "GET",
       "path": "/tasks",
       "summary": "list_tasks",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/tasks",
+      "summary": "create_task",
       "control_refs": [],
       "audit_events": [],
       "request_schema": null,
@@ -39195,6 +39740,114 @@
       "audit_events": [],
       "request_schema": null,
       "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/tasks/{id}/transition",
+      "summary": "transition_task",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "GET",
+      "path": "/transfers",
+      "summary": "list_transfer",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/transfers",
+      "summary": "create_transfer",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "GET",
+      "path": "/transfers/{id}",
+      "summary": "get_transfer",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "GET",
+      "path": "/verifications",
+      "summary": "list_verification",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/verifications",
+      "summary": "create_verification",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "GET",
+      "path": "/verifications/{id}",
+      "summary": "get_verification",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/verifications/{id}/transition",
+      "summary": "transition_verification",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "GET",
+      "path": "/wire-transfers",
+      "summary": "list_wire_transfer",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/wire-transfers",
+      "summary": "create_wire_transfer",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "GET",
+      "path": "/wire-transfers/{id}",
+      "summary": "get_wire_transfer",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
+      "path": "/wire-transfers/{id}/transition",
+      "summary": "transition_wire_transfer",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
     }
   ],
   "state_machines": [
@@ -39209,7 +39862,7 @@
     },
     {
       "name": "AccountNumber",
-      "field": "",
+      "field": "status",
       "states": [
         "active",
         "disabled",

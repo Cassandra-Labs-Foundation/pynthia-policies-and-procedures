@@ -1,0 +1,92 @@
+# contracts-overlay.yaml — committed semantic facts for author_contracts.py (Layer 3).
+#
+# The generator derives the CRUD+transition skeleton from the schemas; this file supplies the
+# parts rules can't: required create-fields, named-action request bodies, and example values.
+# Grounded in the resource schemas + the policies' EVENTS semantics + architecture-decisions.md.
+# This is the reviewable source of truth — the spec's contracts are regenerated from it, never
+# hand-patched. Where intent is uncertain, the body is kept minimal rather than invented.
+#
+# Keyed by resource schema name. Shape:
+#   <Resource>:
+#     create_required: [field, ...]          # required on POST create
+#     examples: {field: value, ...}          # example values shown in the rendered docs
+#     actions: { <action>: {summary, required, body: {field: <schema>}} }
+
+Case:
+  create_required: [type, owner_id]
+  examples: { type: investigation, summary: "Possible structuring pattern on acct 0012" }
+
+Filing:
+  create_required: [type, control_id]
+  examples: { type: ctr }
+  actions:
+    submit:
+      summary: Submit a prepared filing to the regulator
+      required: [filed_at]
+      body:
+        filed_at: { type: string, format: date-time }
+        confirmation_number: { type: string }
+    acknowledge:
+      summary: Record the regulator's acknowledgement of a filing
+      required: [acknowledgement_id]
+      body:
+        acknowledgement_id: { type: string }
+        acknowledged_at: { type: string, format: date-time }
+
+LoanApplication:
+  create_required: [amount, product_type]
+  examples: { amount: 25000, product_type: auto, channel: online }
+  actions:
+    decision:
+      summary: Record the credit decision on an application
+      required: [decision]
+      body:
+        decision: { type: string, enum: [approve, deny, counteroffer] }
+        reason: { type: string }
+        action_basis: { type: object, description: "Basis/reasons supporting the decision (ECOA)." }
+    counteroffer:
+      summary: Issue a counteroffer on an application
+      required: [counteroffer_terms]
+      body:
+        counteroffer_terms: { type: object }
+        expires_at: { type: string, format: date-time }
+
+Loan:
+  actions:
+    book:
+      summary: Book a requested loan onto the ledger
+      required: [balance, product_type]
+      body:
+        balance: { type: integer, description: "Principal in minor units." }
+        product_type: { type: string }
+        collateral_value: { type: string }
+
+Task:
+  actions:
+    complete:
+      summary: Mark a task complete
+      required: [completed_at]
+      body:
+        completed_at: { type: string, format: date-time }
+        outcome: { type: string }
+        evidence_ref: { type: string, description: "Reference to the artifact evidencing completion." }
+
+LegalHold:
+  create_required: [matter_id, hold_scope]
+  examples: { matter_id: "MATTER-2026-014", hold_scope: "all records for member 0012" }
+  actions:
+    release:
+      summary: Release a legal hold
+      required: [release_approved_by]
+      body:
+        release_approved_by: { type: string }
+        reason: { type: string }
+        released_at: { type: string, format: date-time }
+
+Incident:
+  create_required: [severity, description]
+  examples: { severity: high, description: "Unauthorized access to member PII detected" }
+
+Document:
+  create_required: [type, subject_ref]
+  examples: { type: board_pack }

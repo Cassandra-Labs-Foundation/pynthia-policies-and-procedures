@@ -74,32 +74,37 @@ paths:
             schema:
               type: object
               properties:
-                audit: &id075
+                audit:
                   $ref: '#/components/schemas/AuditDetail'
-                disclosure: &id076
+                disclosure:
                   $ref: '#/components/schemas/DisclosureDetail'
-                escalation: &id077
+                escalation:
                   $ref: '#/components/schemas/EscalationDetail'
-                evidence: &id078
+                evidence:
                   type: array
-                  items:
+                  items: &id026
                     $ref: '#/components/schemas/Document'
-                owner_id: &id079
+                owner_id:
                   type: string
-                summary: &id080
+                summary:
                   type: string
-                tasks: &id081
+                  example: Possible structuring pattern on acct 0012
+                tasks:
                   type: array
-                  items:
+                  items: &id027
                     type: string
-                type: &id082
+                type:
                   type: string
-                  enum:
+                  enum: &id028
                   - investigation
                   - sar_decision
                   - escalation
                   - audit_engagement
                   - sar_disclosure_request
+                  example: investigation
+              required:
+              - type
+              - owner_id
   /cases/{id}:
     get:
       operationId: get_cases_id
@@ -292,32 +297,32 @@ paths:
             schema:
               type: object
               properties:
-                attached: &id083
+                attached:
                   type: string
-                curriculum: &id084
+                curriculum:
                   $ref: '#/components/schemas/Curriculum'
-                edd: &id085
+                edd:
                   $ref: '#/components/schemas/EddFile'
-                legal_hold_flag: &id086
+                legal_hold_flag:
                   type: boolean
-                mi: &id087
+                mi:
                   $ref: '#/components/schemas/MiCentralLog'
-                policy: &id088
+                policy:
                   $ref: '#/components/schemas/PolicyDoc'
-                report: &id089
+                report:
                   $ref: '#/components/schemas/BoardPack'
-                retention_anchor: &id090
+                retention_anchor:
                   type: string
                   format: date
-                retention_schedule: &id091
+                retention_schedule:
                   type: string
-                risk: &id092
+                risk:
                   $ref: '#/components/schemas/RiskCatalogEntry'
-                subject_ref: &id093
+                subject_ref:
                   type: string
-                type: &id094
+                type:
                   type: string
-                  enum:
+                  enum: &id029
                   - bo_certification
                   - risk_profile
                   - edd_file
@@ -329,10 +334,14 @@ paths:
                   - board_pack
                   - vendor_review
                   - vendor_alert
-                vendor: &id095
+                  example: board_pack
+                vendor:
                   $ref: '#/components/schemas/VendorReview'
-                vendor_alert: &id096
+                vendor_alert:
                   $ref: '#/components/schemas/VendorAlert'
+              required:
+              - type
+              - subject_ref
   /documents/{id}:
     get:
       operationId: get_documents_id
@@ -452,25 +461,25 @@ paths:
             schema:
               type: object
               properties:
-                cmir: &id097
+                cmir:
                   $ref: '#/components/schemas/CmirData'
-                control_id: &id098
+                control_id:
                   type: string
-                ctr: &id099
+                ctr:
                   $ref: '#/components/schemas/CtrData'
-                fbar: &id100
+                fbar:
                   $ref: '#/components/schemas/FbarData'
-                filing_id: &id101
+                filing_id:
                   type: string
-                fincen_314a: &id102
+                fincen_314a:
                   $ref: '#/components/schemas/Fincen314aData'
-                ofac: &id103
+                ofac:
                   $ref: '#/components/schemas/OfacReportData'
-                sar: &id104
+                sar:
                   $ref: '#/components/schemas/SarData'
-                type: &id105
+                type:
                   type: string
-                  enum:
+                  enum: &id030
                   - ctr
                   - doep
                   - sar
@@ -480,6 +489,10 @@ paths:
                   - ofac_blocking
                   - ofac_annual
                   - fincen_314a
+                  example: ctr
+              required:
+              - type
+              - control_id
   /filings/{id}:
     get:
       operationId: get_filings_id
@@ -544,7 +557,14 @@ paths:
           application/json:
             schema:
               type: object
-              description: Inputs for the acknowledge action.
+              properties:
+                acknowledgement_id:
+                  type: string
+                acknowledged_at:
+                  type: string
+                  format: date-time
+              required:
+              - acknowledgement_id
   /filings/{id}/submit:
     post:
       operationId: post_filings_id_submit
@@ -583,7 +603,14 @@ paths:
           application/json:
             schema:
               type: object
-              description: Inputs for the submit action.
+              properties:
+                filed_at:
+                  type: string
+                  format: date-time
+                confirmation_number:
+                  type: string
+              required:
+              - filed_at
   /incidents:
     get:
       operationId: get_incidents
@@ -647,80 +674,85 @@ paths:
             schema:
               type: object
               properties:
-                bsa_referral_id: &id007
+                bsa_referral_id:
                   type: string
-                cco_signoff: &id008
+                cco_signoff:
                   type: string
-                checklist_first_hour: &id009
+                checklist_first_hour:
                   type: string
-                comms_plan: &id010
+                comms_plan:
                   type: object
-                contained: &id011
+                contained:
                   type: string
-                containment_timer: &id012
+                containment_timer:
                   type: string
-                criminal_suspected: &id013
+                criminal_suspected:
                   type: string
-                data_scope: &id014
+                data_scope:
                   type: string
-                description: &id015
+                description:
                   type: string
-                detail: &id016
+                  example: Unauthorized access to member PII detected
+                detail:
                   type: object
-                detection_source: &id017
+                detection_source:
                   type: string
-                discovery_notes: &id018
+                discovery_notes:
                   type: string
-                facts: &id019
+                facts:
                   type: string
-                ic_assignment_timer: &id020
+                ic_assignment_timer:
                   type: string
-                impact_summary: &id021
+                impact_summary:
                   type: object
-                legal_review: &id022
+                legal_review:
                   type: string
-                member_notice_required: &id023
+                member_notice_required:
                   type: boolean
-                member_notice_template: &id024
+                member_notice_template:
                   type: string
-                misuse_determined: &id025
+                misuse_determined:
                   type: string
-                misuse_likelihood: &id026
+                misuse_likelihood:
                   type: string
-                notice_content: &id027
+                notice_content:
                   type: string
-                notice_template_id: &id028
+                notice_template_id:
                   type: string
-                notification_determined: &id029
+                notification_determined:
                   type: string
-                quarterly_summary: &id030
+                quarterly_summary:
                   type: object
-                recovered: &id031
+                recovered:
                   type: string
-                reportability_assessment: &id032
+                reportability_assessment:
                   type: string
-                reportability_determination: &id033
+                reportability_determination:
                   type: string
-                reportability_rationale: &id034
+                reportability_rationale:
                   type: string
-                reportable_determined: &id035
+                reportable_determined:
                   type: string
-                root_cause: &id036
+                root_cause:
                   type: string
-                sar_referred: &id037
+                sar_referred:
                   type: string
-                scope: &id038
+                scope:
                   type: string
-                scope_initial: &id039
+                scope_initial:
                   type: string
-                severity: &id040
+                severity:
                   type: string
-                summary_id: &id041
+                  example: high
+                summary_id:
                   type: string
-                timeline: &id042
+                timeline:
                   type: string
-                triaged: &id043
+                triaged:
                   type: string
+              required:
+              - severity
+              - description
   /incidents/{id}:
     get:
       operationId: get_incidents_id
@@ -781,43 +813,85 @@ paths:
             schema:
               type: object
               properties:
-                bsa_referral_id: *id007
-                cco_signoff: *id008
-                checklist_first_hour: *id009
-                comms_plan: *id010
-                contained: *id011
-                containment_timer: *id012
-                criminal_suspected: *id013
-                data_scope: *id014
-                description: *id015
-                detail: *id016
-                detection_source: *id017
-                discovery_notes: *id018
-                facts: *id019
-                ic_assignment_timer: *id020
-                impact_summary: *id021
-                legal_review: *id022
-                member_notice_required: *id023
-                member_notice_template: *id024
-                misuse_determined: *id025
-                misuse_likelihood: *id026
-                notice_content: *id027
-                notice_template_id: *id028
-                notification_determined: *id029
-                quarterly_summary: *id030
-                recovered: *id031
-                reportability_assessment: *id032
-                reportability_determination: *id033
-                reportability_rationale: *id034
-                reportable_determined: *id035
-                root_cause: *id036
-                sar_referred: *id037
-                scope: *id038
-                scope_initial: *id039
-                severity: *id040
-                summary_id: *id041
-                timeline: *id042
-                triaged: *id043
+                bsa_referral_id:
+                  type: string
+                cco_signoff:
+                  type: string
+                checklist_first_hour:
+                  type: string
+                comms_plan:
+                  type: object
+                contained:
+                  type: string
+                containment_timer:
+                  type: string
+                criminal_suspected:
+                  type: string
+                data_scope:
+                  type: string
+                description:
+                  type: string
+                  example: Unauthorized access to member PII detected
+                detail:
+                  type: object
+                detection_source:
+                  type: string
+                discovery_notes:
+                  type: string
+                facts:
+                  type: string
+                ic_assignment_timer:
+                  type: string
+                impact_summary:
+                  type: object
+                legal_review:
+                  type: string
+                member_notice_required:
+                  type: boolean
+                member_notice_template:
+                  type: string
+                misuse_determined:
+                  type: string
+                misuse_likelihood:
+                  type: string
+                notice_content:
+                  type: string
+                notice_template_id:
+                  type: string
+                notification_determined:
+                  type: string
+                quarterly_summary:
+                  type: object
+                recovered:
+                  type: string
+                reportability_assessment:
+                  type: string
+                reportability_determination:
+                  type: string
+                reportability_rationale:
+                  type: string
+                reportable_determined:
+                  type: string
+                root_cause:
+                  type: string
+                sar_referred:
+                  type: string
+                scope:
+                  type: string
+                scope_initial:
+                  type: string
+                severity:
+                  type: string
+                  example: high
+                summary_id:
+                  type: string
+                timeline:
+                  type: string
+                triaged:
+                  type: string
+              required:
+              - severity
+              - description
   /incidents/{id}/transition:
     post:
       operationId: post_incidents_id_transition
@@ -881,7 +955,7 @@ paths:
                 properties:
                   data:
                     type: array
-                    items: &id044
+                    items: &id007
                       $ref: '#/components/schemas/LegalHold'
                   pagination:
                     $ref: '#/components/schemas/Pagination'
@@ -905,7 +979,7 @@ paths:
           description: The created LegalHold.
           content:
             application/json:
-              schema: *id044
+              schema: *id007
         '409':
           description: Idempotency-Key reused with different args (D6).
           content:
@@ -930,18 +1004,23 @@ paths:
             schema:
               type: object
               properties:
-                hold_scope: &id106
+                hold_scope:
                   type: string
-                matter_id: &id107
+                  example: all records for member 0012
+                matter_id:
                   type: string
-                matter_ref: &id108
+                  example: MATTER-2026-014
+                matter_ref:
                   type: object
-                release_approved_by: &id109
+                release_approved_by:
                   type: string
-                released: &id110
+                released:
                   type: string
-                schedule_resumed: &id111
+                schedule_resumed:
                   type: string
+              required:
+              - matter_id
+              - hold_scope
   /legal-holds/{id}/release:
     post:
       operationId: post_legal_holds_id_release
@@ -980,7 +1059,16 @@ paths:
           application/json:
             schema:
               type: object
-              description: Inputs for the release action.
+              properties:
+                release_approved_by:
+                  type: string
+                reason:
+                  type: string
+                released_at:
+                  type: string
+                  format: date-time
+              required:
+              - release_approved_by
   /loan-applications:
     get:
       operationId: get_loan_applications
@@ -995,7 +1083,7 @@ paths:
                 properties:
                   data:
                     type: array
-                    items: &id045
+                    items: &id008
                       $ref: '#/components/schemas/LoanApplication'
                   pagination:
                     $ref: '#/components/schemas/Pagination'
@@ -1019,7 +1107,7 @@ paths:
           description: The created LoanApplication.
           content:
             application/json:
-              schema: *id045
+              schema: *id008
         '409':
           description: Idempotency-Key reused with different args (D6).
           content:
@@ -1044,75 +1132,81 @@ paths:
             schema:
               type: object
               properties:
-                action_basis: &id048
+                action_basis:
                   type: object
-                amount: &id049
+                amount:
                   type: integer
-                applicant: &id050
+                  example: 25000
+                applicant:
                   $ref: '#/components/schemas/Applicant'
-                atr_qm_result: &id051
+                atr_qm_result:
                   type: string
-                channel: &id052
+                channel:
                   type: string
-                counteroffer_status: &id053
+                  example: online
+                counteroffer_status:
                   type: string
-                  enum:
+                  enum: &id011
                   - none
                   - issued
                   - accepted
                   - expired
-                counteroffer_terms: &id054
+                counteroffer_terms:
                   type: object
-                credit_structure: &id055
+                credit_structure:
                   type: object
-                data: &id056
+                data:
                   type: object
-                decision: &id057
+                decision:
                   $ref: '#/components/schemas/Decision'
-                decision_block_state: &id058
+                decision_block_state:
                   type: string
-                  enum:
+                  enum: &id012
                   - open
                   - cleared
                   - blocked
-                doc_block_state: &id059
+                doc_block_state:
                   type: string
-                  enum:
+                  enum: &id013
                   - open
                   - cleared
                   - blocked
-                dti: &id060
+                dti:
                   type: number
-                employment: &id061
+                employment:
                   type: object
-                final_action: &id062
+                final_action:
                   type: string
-                geography: &id063
+                geography:
                   type: string
-                gmi: &id064
+                gmi:
                   type: object
-                income_assets: &id065
+                income_assets:
                   type: object
-                incomplete_aged: &id066
+                incomplete_aged:
                   type: boolean
-                option_shortfall_reason: &id067
+                option_shortfall_reason:
                   type: string
-                oral_adverse_decision: &id068
+                oral_adverse_decision:
                   type: boolean
-                oral_statement: &id069
+                oral_statement:
                   type: string
-                parties: &id070
+                parties:
                   type: array
-                  items:
+                  items: &id014
                     $ref: '#/components/schemas/LoanParty'
-                prequal: &id071
+                prequal:
                   $ref: '#/components/schemas/Prequal'
-                product_code: &id072
+                product_code:
                   type: string
-                product_type: &id073
+                product_type:
                   type: string
-                requested_terms: &id074
+                  example: auto
+                requested_terms:
                   type: object
+              required:
+              - amount
+              - product_type
   /loan-applications/{id}:
     get:
       operationId: get_loan_applications_id
@@ -1122,7 +1216,7 @@ paths:
           description: The requested LoanApplication.
           content:
             application/json:
-              schema: &id046
+              schema: &id009
                 $ref: '#/components/schemas/LoanApplication'
         '404':
           description: LoanApplication not found.
@@ -1131,7 +1225,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
       parameters:
-      - &id047
+      - &id010
         name: id
         in: path
         required: true
@@ -1148,7 +1242,7 @@ paths:
           description: The updated LoanApplication.
           content:
             application/json:
-              schema: *id046
+              schema: *id009
         '404':
           description: LoanApplication not found.
           content:
@@ -1162,7 +1256,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ValidationError'
       parameters:
-      - *id047
+      - *id010
       tags:
       - Loan Applications
       summary: Update
@@ -1173,33 +1267,70 @@ paths:
             schema:
               type: object
               properties:
-                action_basis: *id048
-                amount: *id049
-                applicant: *id050
-                atr_qm_result: *id051
-                channel: *id052
-                counteroffer_status: *id053
-                counteroffer_terms: *id054
-                credit_structure: *id055
-                data: *id056
-                decision: *id057
-                decision_block_state: *id058
-                doc_block_state: *id059
-                dti: *id060
-                employment: *id061
-                final_action: *id062
-                geography: *id063
-                gmi: *id064
-                income_assets: *id065
-                incomplete_aged: *id066
-                option_shortfall_reason: *id067
-                oral_adverse_decision: *id068
-                oral_statement: *id069
-                parties: *id070
-                prequal: *id071
-                product_code: *id072
-                product_type: *id073
-                requested_terms: *id074
+                action_basis:
+                  type: object
+                amount:
+                  type: integer
+                  example: 25000
+                applicant:
+                  $ref: '#/components/schemas/Applicant'
+                atr_qm_result:
+                  type: string
+                channel:
+                  type: string
+                  example: online
+                counteroffer_status:
+                  type: string
+                  enum: *id011
+                counteroffer_terms:
+                  type: object
+                credit_structure:
+                  type: object
+                data:
+                  type: object
+                decision:
+                  $ref: '#/components/schemas/Decision'
+                decision_block_state:
+                  type: string
+                  enum: *id012
+                doc_block_state:
+                  type: string
+                  enum: *id013
+                dti:
+                  type: number
+                employment:
+                  type: object
+                final_action:
+                  type: string
+                geography:
+                  type: string
+                gmi:
+                  type: object
+                income_assets:
+                  type: object
+                incomplete_aged:
+                  type: boolean
+                option_shortfall_reason:
+                  type: string
+                oral_adverse_decision:
+                  type: boolean
+                oral_statement:
+                  type: string
+                parties:
+                  type: array
+                  items: *id014
+                prequal:
+                  $ref: '#/components/schemas/Prequal'
+                product_code:
+                  type: string
+                product_type:
+                  type: string
+                  example: auto
+                requested_terms:
+                  type: object
+              required:
+              - amount
+              - product_type
   /loan-applications/{id}/counteroffer:
     post:
       operationId: post_loan_applications_id_counteroffer
@@ -1238,7 +1369,14 @@ paths:
           application/json:
             schema:
               type: object
-              description: Inputs for the counteroffer action.
+              properties:
+                counteroffer_terms:
+                  type: object
+                expires_at:
+                  type: string
+                  format: date-time
+              required:
+              - counteroffer_terms
   /loan-applications/{id}/decision:
     post:
       operationId: post_loan_applications_id_decision
@@ -1277,7 +1415,20 @@ paths:
           application/json:
             schema:
               type: object
-              description: Inputs for the decision action.
+              properties:
+                decision:
+                  type: string
+                  enum:
+                  - approve
+                  - deny
+                  - counteroffer
+                reason:
+                  type: string
+                action_basis:
+                  type: object
+                  description: Basis/reasons supporting the decision (ECOA).
+              required:
+              - decision
   /loans:
     get:
       operationId: get_loans
@@ -1292,7 +1443,7 @@ paths:
                 properties:
                   data:
                     type: array
-                    items:
+                    items: &id015
                       $ref: '#/components/schemas/Loan'
                   pagination:
                     $ref: '#/components/schemas/Pagination'
@@ -1308,6 +1459,126 @@ paths:
       parameters:
       - $ref: '#/components/parameters/Limit'
       - $ref: '#/components/parameters/After'
+    post:
+      operationId: create_loan
+      x-operation-id: create_loan
+      summary: Create Loan
+      responses:
+        '201':
+          description: The created Loan.
+          content:
+            application/json:
+              schema: *id015
+        '409':
+          description: Idempotency-Key reused with different args (D6).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                accrued_interest:
+                  type: string
+                action_basis:
+                  type: object
+                balance:
+                  type: integer
+                bankruptcy_case_id:
+                  type: string
+                booking_block_state:
+                  type: string
+                  enum: &id032
+                  - open
+                  - cleared
+                  - blocked
+                charged_off:
+                  type: string
+                chargeoff_due_closed_end:
+                  type: string
+                chargeoff_due_open_end:
+                  type: string
+                classified_substandard:
+                  type: string
+                collateral_value:
+                  type: string
+                collectibility_assessment:
+                  type: string
+                death_loss_estimable:
+                  type: string
+                delinquency_day_10:
+                  type: string
+                delinquency_day_20:
+                  type: string
+                delinquency_day_30:
+                  type: string
+                delinquency_day_60:
+                  type: string
+                delinquency_day_90:
+                  type: string
+                delinquency_engine_run:
+                  type: string
+                delinquency_engine_schedule:
+                  type: string
+                dpd:
+                  type: string
+                dpd_reset:
+                  type: string
+                dpd_reset_eligibility_check:
+                  type: string
+                estate_claim_status:
+                  type: string
+                estimated_recovery:
+                  type: string
+                foreclosure_impact_eval:
+                  type: string
+                funding_block_state:
+                  type: string
+                  enum: &id033
+                  - open
+                  - cleared
+                  - blocked
+                grace_period_days:
+                  type: string
+                io_term_months:
+                  type: string
+                last_payment_date:
+                  type: string
+                  format: date-time
+                ltv:
+                  type: number
+                modified_schedule:
+                  type: string
+                nonaccrual_placed:
+                  type: string
+                past_due_amount:
+                  type: integer
+                product_type:
+                  type: string
+                proposed_modification:
+                  type: string
+                repayment_evidence:
+                  type: object
+                risk_rating:
+                  type: string
+                well_secured_documented:
+                  type: string
+                workout_alternatives:
+                  type: string
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      tags:
+      - Loans
   /loans/{id}:
     get:
       operationId: get_loans_id
@@ -1372,7 +1643,17 @@ paths:
           application/json:
             schema:
               type: object
-              description: Inputs for the book action.
+              properties:
+                balance:
+                  type: integer
+                  description: Principal in minor units.
+                product_type:
+                  type: string
+                collateral_value:
+                  type: string
+              required:
+              - balance
+              - product_type
   /tasks:
     get:
       operationId: get_tasks
@@ -1387,7 +1668,7 @@ paths:
                 properties:
                   data:
                     type: array
-                    items:
+                    items: &id016
                       $ref: '#/components/schemas/Task'
                   pagination:
                     $ref: '#/components/schemas/Pagination'
@@ -1403,6 +1684,385 @@ paths:
       parameters:
       - $ref: '#/components/parameters/Limit'
       - $ref: '#/components/parameters/After'
+    post:
+      operationId: create_task
+      x-operation-id: create_task
+      summary: Create Task
+      responses:
+        '201':
+          description: The created Task.
+          content:
+            application/json:
+              schema: *id016
+        '409':
+          description: Idempotency-Key reused with different args (D6).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                retention:
+                  $ref: '#/components/schemas/RetentionSpec'
+                subject_ref:
+                  type: string
+                training:
+                  $ref: '#/components/schemas/TrainingDetail'
+                type:
+                  type: string
+                  enum: &id031
+                  - aan_issuance
+                  - access_deprovision
+                  - access_review
+                  - access_review_due
+                  - access_revocation
+                  - account_closure_payout
+                  - account_freeze_application
+                  - account_maturity_notice
+                  - ai_register_update
+                  - alert_triage
+                  - alm_irr_simulation
+                  - analytics_method_review
+                  - antivirus_log_review
+                  - application_decision
+                  - appraisal_delivery
+                  - audit_assessment_annual
+                  - audit_compliance_audit
+                  - audit_integrity_check
+                  - audit_monthly_schedule
+                  - audit_retention
+                  - backup_restore_test
+                  - backup_verify
+                  - badge_deactivation
+                  - bcp_annual_review
+                  - bia_annual_update
+                  - bia_certification
+                  - bia_review
+                  - board_notification
+                  - board_pack
+                  - board_report
+                  - cab_review
+                  - capital_contingency
+                  - capital_contingency_memo
+                  - capital_icaap
+                  - capital_payout_restriction
+                  - capital_plan
+                  - capital_quarterly_report
+                  - capital_ratio_calc
+                  - capital_ratio_computation
+                  - capital_remediation_plan
+                  - capital_stress_report
+                  - cash_coverage.attestation
+                  - cash_custody.rotation
+                  - cash_enterprise_limit.remediation
+                  - cash_kri.publish
+                  - cash_overshort.investigation
+                  - cash_shipment.verification
+                  - cash_surprise_count.due
+                  - catalogue_sync
+                  - cda_audit
+                  - cda_board_packet
+                  - cda_cap_cure
+                  - cda_cap_test
+                  - cda_conflict_escalation
+                  - cda_distribution
+                  - cda_policy_review
+                  - cda_posttrade
+                  - cda_reconciliation
+                  - cda_remediation
+                  - cda_termination_report
+                  - cda_vendor_review
+                  - cdd_refresh
+                  - cfp_execution_plan
+                  - cfp_investment_test
+                  - cfp_transition
+                  - change_post_review
+                  - claim_carrier_notice
+                  - cmdb_update
+                  - cmir_filing
+                  - coi_certification
+                  - coi_questionnaire
+                  - collateral_compute
+                  - collections_annual_review
+                  - collections_attorney_flag
+                  - collections_board_report
+                  - collections_breach_log
+                  - collections_cease_flag
+                  - comms_same_day
+                  - complaint_ack
+                  - complaint_final_response
+                  - complaint_initial_response
+                  - complaint_resolution
+                  - complaint_trend_review
+                  - compliance_board_report
+                  - compliance_risk_assessment
+                  - concentration_compute
+                  - concentration_waiver
+                  - continuing_sar_review
+                  - control_framework_review
+                  - core_archive_confirmation
+                  - correction_propagation
+                  - counteroffer_expiry
+                  - credit_box_review
+                  - credit_file_reanalysis
+                  - credit_report_refresh
+                  - crisis_convene
+                  - ctr_exemption_review
+                  - ctr_filing
+                  - disclosure_account_opening
+                  - disclosure_change_in_terms
+                  - disclosure_error_escalation
+                  - disclosure_pillar3
+                  - disparity_analysis
+                  - dispute_investigation
+                  - dispute_provisional_credit
+                  - dispute_regulator
+                  - dispute_response
+                  - document_attachment
+                  - dq_tieout
+                  - dr_exercise
+                  - drill_aar
+                  - drill_remediation
+                  - ecommerce_risk_assessment
+                  - edd_refresh
+                  - email_archive_test
+                  - eps_board_report.due
+                  - eps_deficiency.remediation
+                  - eps_incident.ncua
+                  - eps_pospay.decision
+                  - eps_test.retro
+                  - eps_training.self_cert
+                  - eps_vendor.dd
+                  - eps_vendor.soc1
+                  - escalation_ack
+                  - escalation_plan
+                  - estate_payout
+                  - ewi_daily_sweep
+                  - ewi_evaluation
+                  - ewi_summary
+                  - ewi_sweep
+                  - ewi_weekly_summary
+                  - exception_analytics
+                  - exercise_board_report
+                  - expense_preapproval
+                  - expense_review
+                  - facility_annual_test
+                  - facility_renewal
+                  - facility_test
+                  - fair_lending_assessment
+                  - fbar_filing
+                  - finding_escalation
+                  - finding_monthly_review
+                  - finding_quarterly_report
+                  - finding_remediation
+                  - finding_response
+                  - firewall_independent_review
+                  - firewall_review
+                  - funding_first_line
+                  - furnishing_cycle
+                  - furnishing_dispute
+                  - handover_access
+                  - handover_access_expiry
+                  - handover_full
+                  - handover_initial
+                  - hmda_lar_qc
+                  - hmda_submission
+                  - imt_roster_review
+                  - incident_ncua_notice
+                  - incident_notification
+                  - incident_regulator_notification
+                  - incident_trend_review
+                  - incident_triage
+                  - incompleteness_notice
+                  - indemnification_advance
+                  - indemnification_determination
+                  - indemnification_payment
+                  - independent_test
+                  - insider_loc_approval
+                  - insider_public_request_retention
+                  - insider_report
+                  - institution_freeze_activation
+                  - institution_freeze_notice
+                  - instrument_list_review
+                  - insurance_review
+                  - interest_crediting
+                  - intermediary_review
+                  - lar_compute
+                  - limit_set_review
+                  - liquidity_cfp_activation
+                  - liquidity_report
+                  - loan_bankruptcy_chargeoff
+                  - loan_classification
+                  - loan_courtesy_notice
+                  - loan_days_past
+                  - loan_fraud_chargeoff
+                  - loan_next_payment
+                  - loan_nonaccrual
+                  - loan_rating_review
+                  - loan_re_valuation
+                  - loan_right_to_cure
+                  - loan_second_reminder
+                  - loan_status_memo
+                  - member_address_hold
+                  - member_credential_expiry
+                  - member_portal_readonly
+                  - mi_consolidation
+                  - mismatch_compute
+                  - model_review
+                  - monitoring_coverage_review
+                  - monitoring_review
+                  - ncua_notification
+                  - ofac_reporting
+                  - overdraft_review
+                  - override_analytics
+                  - pentest_engagement
+                  - performance_attribution
+                  - policy_acknowledgment
+                  - policy_board_approval
+                  - policy_next_review
+                  - policy_review
+                  - policy_review.due
+                  - portfolio_board_report
+                  - portfolio_report
+                  - portfolio_stress_test
+                  - position_analytics_update
+                  - position_liquidity_classification
+                  - pricing_exception_review
+                  - privacy_access_review
+                  - privacy_annual_notice
+                  - privacy_board_report
+                  - privacy_notice_copy
+                  - privacy_optout_propagation
+                  - privacy_state_request
+                  - product_risk_assessment
+                  - program_governance_review
+                  - rate_sheet_refresh
+                  - recon_daily
+                  - recon_monthly
+                  - record_destruction
+                  - record_disposal
+                  - record_index
+                  - record_integrity_test
+                  - records_annual_review
+                  - records_board_report
+                  - records_package_complete
+                  - records_package_snapshot
+                  - records_package_start
+                  - redflag_review
+                  - redlining_review
+                  - regulation_inventory_review
+                  - regulator_contact_verification
+                  - regulator_response
+                  - regulator_verification
+                  - regulatory_analysis
+                  - remediation
+                  - repo_collateral_revaluation
+                  - report_board
+                  - report_board_deck
+                  - report_daily
+                  - report_daily_pack
+                  - report_weekly
+                  - report_weekly_digest
+                  - reporting_quarterly
+                  - resolution_policy_update
+                  - resolution_review_due
+                  - resolution_test_remediation
+                  - resolution_test_report
+                  - retention_purge
+                  - risk_acceptance_decision
+                  - risk_appetite_rereview
+                  - risk_appetite_review
+                  - risk_assessment
+                  - risk_assessment_refresh
+                  - risk_breach_committee
+                  - risk_breach_committee_presentation
+                  - risk_breach_review
+                  - risk_breach_triage
+                  - risk_reassessment
+                  - risk_report_board
+                  - risk_report_management
+                  - risk_scale_review
+                  - rov_decision
+                  - safe_mode_activation
+                  - safe_mode_propagation
+                  - safekeeping_reconciliation
+                  - sar_decision
+                  - sar_filing
+                  - scope_registry_attestation
+                  - scope_registry_publish
+                  - scope_registry_update
+                  - security_downgrade_review
+                  - security_fair_value_update
+                  - service_first_response
+                  - service_resolution
+                  - siem_alert_review
+                  - signage_review
+                  - site_capacity_test
+                  - staffing_readiness_review
+                  - steering_review
+                  - stress_quarterly
+                  - stress_rerun
+                  - survival_quarterly
+                  - takedown
+                  - taxonomy_review
+                  - tdr_quarterly_review
+                  - tdr_review
+                  - threat_register_refresh
+                  - tls_assessment
+                  - tls_certificate
+                  - tls_certificate_expiry
+                  - trade_reconciliation
+                  - training_annual
+                  - training_assessment
+                  - training_completion
+                  - training_due
+                  - training_newhire
+                  - training_onboarding
+                  - training_privacy
+                  - training_refresher
+                  - training_refresher.due
+                  - training_retention
+                  - vendor_annual_review
+                  - vendor_bcp_evidence
+                  - vendor_board_report
+                  - vendor_clause_library_review
+                  - vendor_concentration_review
+                  - vendor_core_review
+                  - vendor_dr_attestation
+                  - vendor_edd_refresh
+                  - vendor_exit_plan
+                  - vendor_exit_test
+                  - vendor_governance_review
+                  - vendor_incident_triage
+                  - vendor_inventory_reconciliation
+                  - vendor_mi_review
+                  - vendor_monitoring_review
+                  - vendor_program_audit
+                  - vendor_provisional_review
+                  - vendor_raci_review
+                  - vendor_remediation
+                  - vendor_review
+                  - verification_biometric_purge
+                  - vuln_remediation
+                  - vuln_triage
+                  - wholesale_compute
+                  - wholesale_monthly_review
+                  - wholesale_review
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      tags:
+      - Tasks
   /tasks/{id}:
     get:
       operationId: get_tasks_id
@@ -1467,7 +2127,1959 @@ paths:
           application/json:
             schema:
               type: object
-              description: Inputs for the complete action.
+              properties:
+                completed_at:
+                  type: string
+                  format: date-time
+                outcome:
+                  type: string
+                evidence_ref:
+                  type: string
+                  description: Reference to the artifact evidencing completion.
+              required:
+              - completed_at
+  /accounts:
+    get:
+      operationId: list_account
+      x-operation-id: list_account
+      summary: List accounts
+      responses:
+        '200':
+          description: A page of Account objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: &id017
+                      $ref: '#/components/schemas/Account'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
+      tags:
+      - Accounts
+    post:
+      operationId: create_account
+      x-operation-id: create_account
+      summary: Create Account
+      responses:
+        '201':
+          description: The created Account.
+          content:
+            application/json:
+              schema: *id017
+        '409':
+          description: Idempotency-Key reused with different args (D6).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                account_type:
+                  type: string
+                balance:
+                  type: integer
+                blnk_ledger_id:
+                  type: string
+                lock_type:
+                  type: string
+                maturity_date:
+                  type: string
+                  format: date-time
+                maturity_disposition:
+                  type: string
+                opening_channel:
+                  type: string
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      tags:
+      - Accounts
+  /accounts/{id}:
+    get:
+      operationId: get_account
+      x-operation-id: get_account
+      summary: Get Account
+      responses:
+        '200':
+          description: The requested Account.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '404':
+          description: Account not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Accounts
+  /accounts/{id}/transition:
+    post:
+      operationId: transition_account
+      x-operation-id: transition_account
+      summary: Transition Account
+      responses:
+        '200':
+          description: The updated Account.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '404':
+          description: Account not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                to_state:
+                  type: string
+                  enum:
+                  - open
+                  - frozen
+                  - closed
+                reason:
+                  type: string
+      tags:
+      - Accounts
+  /entities:
+    get:
+      operationId: list_entity
+      x-operation-id: list_entity
+      summary: List entities
+      responses:
+        '200':
+          description: A page of Entity objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: &id018
+                      $ref: '#/components/schemas/Entity'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
+      tags:
+      - Entities
+    post:
+      operationId: create_entity
+      x-operation-id: create_entity
+      summary: Create Entity
+      responses:
+        '201':
+          description: The created Entity.
+          content:
+            application/json:
+              schema: *id018
+        '409':
+          description: Idempotency-Key reused with different args (D6).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                address:
+                  type: string
+                address_change:
+                  type: string
+                address_new:
+                  type: string
+                address_previous:
+                  type: string
+                contact:
+                  type: string
+                contact_preference:
+                  type: string
+                date_of_birth:
+                  type: string
+                disabled:
+                  type: string
+                email:
+                  type: string
+                esign_consent:
+                  type: string
+                jurisdiction:
+                  type: string
+                name:
+                  type: string
+                reg_e_opt_in:
+                  type: string
+                tin:
+                  type: string
+                type:
+                  type: string
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      tags:
+      - Entities
+  /entities/{id}:
+    get:
+      operationId: get_entity
+      x-operation-id: get_entity
+      summary: Get Entity
+      responses:
+        '200':
+          description: The requested Entity.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entity'
+        '404':
+          description: Entity not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Entities
+  /entities/{id}/transition:
+    post:
+      operationId: transition_entity
+      x-operation-id: transition_entity
+      summary: Transition Entity
+      responses:
+        '200':
+          description: The updated Entity.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entity'
+        '404':
+          description: Entity not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                to_state:
+                  type: string
+                  enum:
+                  - pending
+                  - active
+                  - disabled
+                  - archived
+                reason:
+                  type: string
+      tags:
+      - Entities
+  /account-numbers:
+    get:
+      operationId: list_account_number
+      x-operation-id: list_account_number
+      summary: List account-numbers
+      responses:
+        '200':
+          description: A page of AccountNumber objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: &id019
+                      $ref: '#/components/schemas/AccountNumber'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
+      tags:
+      - Account Numbers
+    post:
+      operationId: create_account_number
+      x-operation-id: create_account_number
+      summary: Create AccountNumber
+      responses:
+        '201':
+          description: The created AccountNumber.
+          content:
+            application/json:
+              schema: *id019
+        '409':
+          description: Idempotency-Key reused with different args (D6).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                account_id:
+                  type: string
+                  description: Parent ledger Account (1:Many).
+                routing_number:
+                  type: string
+                account_number:
+                  type: string
+                informational_entity_id:
+                  type: string
+                  description: FBO attribution.
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      tags:
+      - Account Numbers
+  /account-numbers/{id}:
+    get:
+      operationId: get_account_number
+      x-operation-id: get_account_number
+      summary: Get AccountNumber
+      responses:
+        '200':
+          description: The requested AccountNumber.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountNumber'
+        '404':
+          description: AccountNumber not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Account Numbers
+  /account-numbers/{id}/transition:
+    post:
+      operationId: transition_account_number
+      x-operation-id: transition_account_number
+      summary: Transition AccountNumber
+      responses:
+        '200':
+          description: The updated AccountNumber.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountNumber'
+        '404':
+          description: AccountNumber not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                to_state:
+                  type: string
+                  enum:
+                  - active
+                  - disabled
+                  - canceled
+                reason:
+                  type: string
+      tags:
+      - Account Numbers
+  /ach-transfers:
+    get:
+      operationId: list_ach_transfer
+      x-operation-id: list_ach_transfer
+      summary: List ach-transfers
+      responses:
+        '200':
+          description: A page of AchTransfer objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: &id020
+                      $ref: '#/components/schemas/AchTransfer'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
+      tags:
+      - Ach Transfers
+    post:
+      operationId: create_ach_transfer
+      x-operation-id: create_ach_transfer
+      summary: Create AchTransfer
+      responses:
+        '201':
+          description: The created AchTransfer.
+          content:
+            application/json:
+              schema: *id020
+        '409':
+          description: Idempotency-Key reused with different args (D6).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: integer
+                control_results:
+                  type: object
+                counterparty:
+                  type: string
+                window:
+                  type: string
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      tags:
+      - Ach Transfers
+  /ach-transfers/{id}:
+    get:
+      operationId: get_ach_transfer
+      x-operation-id: get_ach_transfer
+      summary: Get AchTransfer
+      responses:
+        '200':
+          description: The requested AchTransfer.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AchTransfer'
+        '404':
+          description: AchTransfer not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Ach Transfers
+  /ach-transfers/{id}/transition:
+    post:
+      operationId: transition_ach_transfer
+      x-operation-id: transition_ach_transfer
+      summary: Transition AchTransfer
+      responses:
+        '200':
+          description: The updated AchTransfer.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AchTransfer'
+        '404':
+          description: AchTransfer not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                to_state:
+                  type: string
+                  enum:
+                  - pending_approval
+                  - submitted
+                  - settled
+                  - returned
+                  - rejected
+                  - canceled
+                reason:
+                  type: string
+      tags:
+      - Ach Transfers
+  /wire-transfers:
+    get:
+      operationId: list_wire_transfer
+      x-operation-id: list_wire_transfer
+      summary: List wire-transfers
+      responses:
+        '200':
+          description: A page of WireTransfer objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: &id021
+                      $ref: '#/components/schemas/WireTransfer'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
+      tags:
+      - Wire Transfers
+    post:
+      operationId: create_wire_transfer
+      x-operation-id: create_wire_transfer
+      summary: Create WireTransfer
+      responses:
+        '201':
+          description: The created WireTransfer.
+          content:
+            application/json:
+              schema: *id021
+        '409':
+          description: Idempotency-Key reused with different args (D6).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: integer
+                beneficiary:
+                  type: string
+                control_results:
+                  type: object
+                imad:
+                  type: string
+                purpose:
+                  type: string
+                record_retained:
+                  type: string
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      tags:
+      - Wire Transfers
+  /wire-transfers/{id}:
+    get:
+      operationId: get_wire_transfer
+      x-operation-id: get_wire_transfer
+      summary: Get WireTransfer
+      responses:
+        '200':
+          description: The requested WireTransfer.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WireTransfer'
+        '404':
+          description: WireTransfer not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Wire Transfers
+  /wire-transfers/{id}/transition:
+    post:
+      operationId: transition_wire_transfer
+      x-operation-id: transition_wire_transfer
+      summary: Transition WireTransfer
+      responses:
+        '200':
+          description: The updated WireTransfer.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WireTransfer'
+        '404':
+          description: WireTransfer not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                to_state:
+                  type: string
+                  enum:
+                  - pending_approval
+                  - submitted
+                  - completed
+                  - return_requested
+                  - returned
+                  - rejected
+                  - canceled
+                reason:
+                  type: string
+      tags:
+      - Wire Transfers
+  /cards:
+    get:
+      operationId: list_card
+      x-operation-id: list_card
+      summary: List cards
+      responses:
+        '200':
+          description: A page of Card objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: &id022
+                      $ref: '#/components/schemas/Card'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
+      tags:
+      - Cards
+    post:
+      operationId: create_card
+      x-operation-id: create_card
+      summary: Create Card
+      responses:
+        '201':
+          description: The created Card.
+          content:
+            application/json:
+              schema: *id022
+        '409':
+          description: Idempotency-Key reused with different args (D6).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reissue_request:
+                  type: string
+                request_during_address_hold:
+                  type: string
+                spend_controls:
+                  type: string
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      tags:
+      - Cards
+  /cards/{id}:
+    get:
+      operationId: get_card
+      x-operation-id: get_card
+      summary: Get Card
+      responses:
+        '200':
+          description: The requested Card.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+        '404':
+          description: Card not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Cards
+  /transfers:
+    get:
+      operationId: list_transfer
+      x-operation-id: list_transfer
+      summary: List transfers
+      responses:
+        '200':
+          description: A page of Transfer objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: &id023
+                      $ref: '#/components/schemas/Transfer'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
+      tags:
+      - Transfers
+    post:
+      operationId: create_transfer
+      x-operation-id: create_transfer
+      summary: Create Transfer
+      responses:
+        '201':
+          description: The created Transfer.
+          content:
+            application/json:
+              schema: *id023
+        '409':
+          description: Idempotency-Key reused with different args (D6).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: integer
+                beneficiary:
+                  $ref: '#/components/schemas/Party'
+                counterparty:
+                  $ref: '#/components/schemas/Party'
+                originator:
+                  $ref: '#/components/schemas/Party'
+                rail:
+                  type: string
+                  enum: &id025
+                  - ach
+                  - wire
+                  - book
+                  - card
+                  - rtp
+                wire:
+                  $ref: '#/components/schemas/WireDetails'
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      tags:
+      - Transfers
+  /transfers/{id}:
+    get:
+      operationId: get_transfer
+      x-operation-id: get_transfer
+      summary: Get Transfer
+      responses:
+        '200':
+          description: The requested Transfer.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transfer'
+        '404':
+          description: Transfer not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Transfers
+  /verifications:
+    get:
+      operationId: list_verification
+      x-operation-id: list_verification
+      summary: List verifications
+      responses:
+        '200':
+          description: A page of Verification objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: &id024
+                      $ref: '#/components/schemas/Verification'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
+      tags:
+      - Verifications
+    post:
+      operationId: create_verification
+      x-operation-id: create_verification
+      summary: Create Verification
+      responses:
+        '201':
+          description: The created Verification.
+          content:
+            application/json:
+              schema: *id024
+        '409':
+          description: Idempotency-Key reused with different args (D6).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                alt_path_available:
+                  type: string
+                biometric_consent_id:
+                  type: string
+                biometric_declined:
+                  type: string
+                biometric_purged:
+                  type: string
+                cdd:
+                  $ref: '#/components/schemas/CddProfile'
+                match_status:
+                  type: string
+                ofac_result:
+                  type: string
+                pep:
+                  $ref: '#/components/schemas/PepStatus'
+                provider:
+                  type: string
+                provider_result:
+                  type: string
+                trust_level:
+                  type: string
+                type:
+                  type: string
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      tags:
+      - Verifications
+  /verifications/{id}:
+    get:
+      operationId: get_verification
+      x-operation-id: get_verification
+      summary: Get Verification
+      responses:
+        '200':
+          description: The requested Verification.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Verification'
+        '404':
+          description: Verification not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Verifications
+  /verifications/{id}/transition:
+    post:
+      operationId: transition_verification
+      x-operation-id: transition_verification
+      summary: Transition Verification
+      responses:
+        '200':
+          description: The updated Verification.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Verification'
+        '404':
+          description: Verification not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                to_state:
+                  type: string
+                  enum:
+                  - pending
+                  - approved
+                  - denied
+                reason:
+                  type: string
+      tags:
+      - Verifications
+  /filings/{id}/transition:
+    post:
+      operationId: transition_filing
+      x-operation-id: transition_filing
+      summary: Transition Filing
+      responses:
+        '200':
+          description: The updated Filing.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Filing'
+        '404':
+          description: Filing not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                to_state:
+                  type: string
+                  enum:
+                  - prepared
+                  - submitted
+                  - acknowledged
+                  - continuing
+                  - amended
+                  - nil_determined
+                reason:
+                  type: string
+      tags:
+      - Filings
+  /tasks/{id}/transition:
+    post:
+      operationId: transition_task
+      x-operation-id: transition_task
+      summary: Transition Task
+      responses:
+        '200':
+          description: The updated Task.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          description: Task not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                to_state:
+                  type: string
+                  enum:
+                  - pending
+                  - due
+                  - completed
+                  - overdue
+                reason:
+                  type: string
+      tags:
+      - Tasks
+  /loans/{id}/transition:
+    post:
+      operationId: transition_loan
+      x-operation-id: transition_loan
+      summary: Transition Loan
+      responses:
+        '200':
+          description: The updated Loan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Loan'
+        '404':
+          description: Loan not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                to_state:
+                  type: string
+                  enum:
+                  - booking_requested
+                  - booked
+                  - funded
+                reason:
+                  type: string
+      tags:
+      - Loans
+  /loan-applications/{id}/transition:
+    post:
+      operationId: transition_loan_application
+      x-operation-id: transition_loan_application
+      summary: Transition LoanApplication
+      responses:
+        '200':
+          description: The updated LoanApplication.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoanApplication'
+        '404':
+          description: LoanApplication not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                to_state:
+                  type: string
+                  enum:
+                  - created
+                  - decisioned
+                  - counteroffer
+                  - final_action
+                reason:
+                  type: string
+      tags:
+      - Loan Applications
+  /entities/person:
+    post:
+      operationId: post__entities_person
+      x-operation-id: post__entities_person
+      summary: POST /entities/person
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      tags:
+      - Entities
+  /entities/business:
+    post:
+      operationId: post__entities_business
+      x-operation-id: post__entities_business
+      summary: POST /entities/business
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      tags:
+      - Entities
+  /entities/trust:
+    post:
+      operationId: post__entities_trust
+      x-operation-id: post__entities_trust
+      summary: POST /entities/trust
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      tags:
+      - Entities
+  /entities/joint:
+    post:
+      operationId: post__entities_joint
+      x-operation-id: post__entities_joint
+      summary: POST /entities/joint
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      tags:
+      - Entities
+  /sandbox/simulate/kyc/approve:
+    post:
+      operationId: post__sandbox_simulate_kyc_approve
+      x-operation-id: post__sandbox_simulate_kyc_approve
+      summary: POST /sandbox/simulate/kyc/approve
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      tags:
+      - Sandbox
+  /sandbox/simulate/kyc/deny:
+    post:
+      operationId: post__sandbox_simulate_kyc_deny
+      x-operation-id: post__sandbox_simulate_kyc_deny
+      summary: POST /sandbox/simulate/kyc/deny
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      tags:
+      - Sandbox
+  /sandbox/simulate/ach/receive:
+    post:
+      operationId: post__sandbox_simulate_ach_receive
+      x-operation-id: post__sandbox_simulate_ach_receive
+      summary: POST /sandbox/simulate/ach/receive
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      tags:
+      - Sandbox
+  /sandbox/simulate/ach/settle:
+    post:
+      operationId: post__sandbox_simulate_ach_settle
+      x-operation-id: post__sandbox_simulate_ach_settle
+      summary: POST /sandbox/simulate/ach/settle
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      tags:
+      - Sandbox
+  /sandbox/simulate/ach/return:
+    post:
+      operationId: post__sandbox_simulate_ach_return
+      x-operation-id: post__sandbox_simulate_ach_return
+      summary: POST /sandbox/simulate/ach/return
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      tags:
+      - Sandbox
+  /sandbox/simulate/wire/receive:
+    post:
+      operationId: post__sandbox_simulate_wire_receive
+      x-operation-id: post__sandbox_simulate_wire_receive
+      summary: POST /sandbox/simulate/wire/receive
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      tags:
+      - Sandbox
+  /sandbox/simulate/wire/settle:
+    post:
+      operationId: post__sandbox_simulate_wire_settle
+      x-operation-id: post__sandbox_simulate_wire_settle
+      summary: POST /sandbox/simulate/wire/settle
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      tags:
+      - Sandbox
+  /sandbox/simulate/card/authorize:
+    post:
+      operationId: post__sandbox_simulate_card_authorize
+      x-operation-id: post__sandbox_simulate_card_authorize
+      summary: POST /sandbox/simulate/card/authorize
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      tags:
+      - Sandbox
+  /sandbox/simulate/card/settle:
+    post:
+      operationId: post__sandbox_simulate_card_settle
+      x-operation-id: post__sandbox_simulate_card_settle
+      summary: POST /sandbox/simulate/card/settle
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      tags:
+      - Sandbox
+  /sandbox/simulate/time/advance:
+    post:
+      operationId: post__sandbox_simulate_time_advance
+      x-operation-id: post__sandbox_simulate_time_advance
+      summary: POST /sandbox/simulate/time/advance
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      tags:
+      - Sandbox
+  /sandbox/reset:
+    post:
+      operationId: post__sandbox_reset
+      x-operation-id: post__sandbox_reset
+      summary: POST /sandbox/reset
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      tags:
+      - Sandbox
+  /payments/ach/originate:
+    post:
+      operationId: post__payments_ach_originate
+      x-operation-id: post__payments_ach_originate
+      summary: POST /payments/ach/originate
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      tags:
+      - Payments
+  /payments/wire/originate:
+    post:
+      operationId: post__payments_wire_originate
+      x-operation-id: post__payments_wire_originate
+      summary: POST /payments/wire/originate
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      tags:
+      - Payments
+  /payments/wire/prepare:
+    post:
+      operationId: post__payments_wire_prepare
+      x-operation-id: post__payments_wire_prepare
+      summary: POST /payments/wire/prepare
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      tags:
+      - Payments
+  /payments/wire/confirm:
+    post:
+      operationId: post__payments_wire_confirm
+      x-operation-id: post__payments_wire_confirm
+      summary: POST /payments/wire/confirm
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      tags:
+      - Payments
+  /payments/rtp/originate:
+    post:
+      operationId: post__payments_rtp_originate
+      x-operation-id: post__payments_rtp_originate
+      summary: POST /payments/rtp/originate
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      tags:
+      - Payments
+  /fbo/{instance_id}/position:
+    get:
+      operationId: get__fbo_instance_id_position
+      x-operation-id: get__fbo_instance_id_position
+      summary: GET /fbo/{instance_id}/position
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: instance_id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Fbo
+  /fbo/{instance_id}/available_balance:
+    get:
+      operationId: get__fbo_instance_id_available_balance
+      x-operation-id: get__fbo_instance_id_available_balance
+      summary: GET /fbo/{instance_id}/available_balance
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: instance_id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Fbo
+  /inbound/{instance_id}:
+    get:
+      operationId: get__inbound_instance_id
+      x-operation-id: get__inbound_instance_id
+      summary: GET /inbound/{instance_id}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: instance_id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Inbound
+  /auth/token:
+    post:
+      operationId: post__auth_token
+      x-operation-id: post__auth_token
+      summary: POST /auth/token
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      tags:
+      - Auth
 components:
   schemas:
     Account:
@@ -1804,12 +4416,7 @@ components:
           $ref: '#/components/schemas/Party'
         rail:
           type: string
-          enum:
-          - ach
-          - wire
-          - book
-          - card
-          - rtp
+          enum: *id025
         status:
           type: string
           enum:
@@ -1912,22 +4519,33 @@ components:
       - in_review
       - closed
       properties:
-        audit: *id075
-        disclosure: *id076
-        escalation: *id077
-        evidence: *id078
+        audit:
+          $ref: '#/components/schemas/AuditDetail'
+        disclosure:
+          $ref: '#/components/schemas/DisclosureDetail'
+        escalation:
+          $ref: '#/components/schemas/EscalationDetail'
+        evidence:
+          type: array
+          items: *id026
         id:
           type: string
-        owner_id: *id079
+        owner_id:
+          type: string
         status:
           type: string
           enum:
           - opened
           - in_review
           - closed
-        summary: *id080
-        tasks: *id081
-        type: *id082
+        summary:
+          type: string
+        tasks:
+          type: array
+          items: *id027
+        type:
+          type: string
+          enum: *id028
     ControlResult:
       type: object
       x-kind: primitive
@@ -1960,22 +4578,38 @@ components:
       type: object
       x-kind: primitive
       properties:
-        attached: *id083
-        curriculum: *id084
-        edd: *id085
+        attached:
+          type: string
+        curriculum:
+          $ref: '#/components/schemas/Curriculum'
+        edd:
+          $ref: '#/components/schemas/EddFile'
         id:
           type: string
-        legal_hold_flag: *id086
-        mi: *id087
-        policy: *id088
-        report: *id089
-        retention_anchor: *id090
-        retention_schedule: *id091
-        risk: *id092
-        subject_ref: *id093
-        type: *id094
-        vendor: *id095
-        vendor_alert: *id096
+        legal_hold_flag:
+          type: boolean
+        mi:
+          $ref: '#/components/schemas/MiCentralLog'
+        policy:
+          $ref: '#/components/schemas/PolicyDoc'
+        report:
+          $ref: '#/components/schemas/BoardPack'
+        retention_anchor:
+          type: string
+          format: date
+        retention_schedule:
+          type: string
+        risk:
+          $ref: '#/components/schemas/RiskCatalogEntry'
+        subject_ref:
+          type: string
+        type:
+          type: string
+          enum: *id029
+        vendor:
+          $ref: '#/components/schemas/VendorReview'
+        vendor_alert:
+          $ref: '#/components/schemas/VendorAlert'
     Filing:
       type: object
       x-kind: primitive
@@ -1987,19 +4621,27 @@ components:
       - amended
       - nil_determined
       properties:
-        cmir: *id097
-        control_id: *id098
-        ctr: *id099
-        fbar: *id100
+        cmir:
+          $ref: '#/components/schemas/CmirData'
+        control_id:
+          type: string
+        ctr:
+          $ref: '#/components/schemas/CtrData'
+        fbar:
+          $ref: '#/components/schemas/FbarData'
         filed_at:
           type: string
           format: date-time
-        filing_id: *id101
-        fincen_314a: *id102
+        filing_id:
+          type: string
+        fincen_314a:
+          $ref: '#/components/schemas/Fincen314aData'
         id:
           type: string
-        ofac: *id103
-        sar: *id104
+        ofac:
+          $ref: '#/components/schemas/OfacReportData'
+        sar:
+          $ref: '#/components/schemas/SarData'
         status:
           type: string
           enum:
@@ -2009,25 +4651,33 @@ components:
           - continuing
           - amended
           - nil_determined
-        type: *id105
+        type:
+          type: string
+          enum: *id030
     LegalHold:
       type: object
       x-kind: primitive
       properties:
-        hold_scope: *id106
+        hold_scope:
+          type: string
         id:
           type: string
-        matter_id: *id107
-        matter_ref: *id108
+        matter_id:
+          type: string
+        matter_ref:
+          type: object
         placed_at:
           type: string
           format: date-time
-        release_approved_by: *id109
-        released: *id110
+        release_approved_by:
+          type: string
+        released:
+          type: string
         released_at:
           type: string
           format: date-time
-        schedule_resumed: *id111
+        schedule_resumed:
+          type: string
         status:
           type: string
     Task:
@@ -2059,344 +4709,7 @@ components:
           $ref: '#/components/schemas/TrainingDetail'
         type:
           type: string
-          enum:
-          - aan_issuance
-          - access_deprovision
-          - access_review
-          - access_review_due
-          - access_revocation
-          - account_closure_payout
-          - account_freeze_application
-          - account_maturity_notice
-          - ai_register_update
-          - alert_triage
-          - alm_irr_simulation
-          - analytics_method_review
-          - antivirus_log_review
-          - application_decision
-          - appraisal_delivery
-          - audit_assessment_annual
-          - audit_compliance_audit
-          - audit_integrity_check
-          - audit_monthly_schedule
-          - audit_retention
-          - backup_restore_test
-          - backup_verify
-          - badge_deactivation
-          - bcp_annual_review
-          - bia_annual_update
-          - bia_certification
-          - bia_review
-          - board_notification
-          - board_pack
-          - board_report
-          - cab_review
-          - capital_contingency
-          - capital_contingency_memo
-          - capital_icaap
-          - capital_payout_restriction
-          - capital_plan
-          - capital_quarterly_report
-          - capital_ratio_calc
-          - capital_ratio_computation
-          - capital_remediation_plan
-          - capital_stress_report
-          - cash_coverage.attestation
-          - cash_custody.rotation
-          - cash_enterprise_limit.remediation
-          - cash_kri.publish
-          - cash_overshort.investigation
-          - cash_shipment.verification
-          - cash_surprise_count.due
-          - catalogue_sync
-          - cda_audit
-          - cda_board_packet
-          - cda_cap_cure
-          - cda_cap_test
-          - cda_conflict_escalation
-          - cda_distribution
-          - cda_policy_review
-          - cda_posttrade
-          - cda_reconciliation
-          - cda_remediation
-          - cda_termination_report
-          - cda_vendor_review
-          - cdd_refresh
-          - cfp_execution_plan
-          - cfp_investment_test
-          - cfp_transition
-          - change_post_review
-          - claim_carrier_notice
-          - cmdb_update
-          - cmir_filing
-          - coi_certification
-          - coi_questionnaire
-          - collateral_compute
-          - collections_annual_review
-          - collections_attorney_flag
-          - collections_board_report
-          - collections_breach_log
-          - collections_cease_flag
-          - comms_same_day
-          - complaint_ack
-          - complaint_final_response
-          - complaint_initial_response
-          - complaint_resolution
-          - complaint_trend_review
-          - compliance_board_report
-          - compliance_risk_assessment
-          - concentration_compute
-          - concentration_waiver
-          - continuing_sar_review
-          - control_framework_review
-          - core_archive_confirmation
-          - correction_propagation
-          - counteroffer_expiry
-          - credit_box_review
-          - credit_file_reanalysis
-          - credit_report_refresh
-          - crisis_convene
-          - ctr_exemption_review
-          - ctr_filing
-          - disclosure_account_opening
-          - disclosure_change_in_terms
-          - disclosure_error_escalation
-          - disclosure_pillar3
-          - disparity_analysis
-          - dispute_investigation
-          - dispute_provisional_credit
-          - dispute_regulator
-          - dispute_response
-          - document_attachment
-          - dq_tieout
-          - dr_exercise
-          - drill_aar
-          - drill_remediation
-          - ecommerce_risk_assessment
-          - edd_refresh
-          - email_archive_test
-          - eps_board_report.due
-          - eps_deficiency.remediation
-          - eps_incident.ncua
-          - eps_pospay.decision
-          - eps_test.retro
-          - eps_training.self_cert
-          - eps_vendor.dd
-          - eps_vendor.soc1
-          - escalation_ack
-          - escalation_plan
-          - estate_payout
-          - ewi_daily_sweep
-          - ewi_evaluation
-          - ewi_summary
-          - ewi_sweep
-          - ewi_weekly_summary
-          - exception_analytics
-          - exercise_board_report
-          - expense_preapproval
-          - expense_review
-          - facility_annual_test
-          - facility_renewal
-          - facility_test
-          - fair_lending_assessment
-          - fbar_filing
-          - finding_escalation
-          - finding_monthly_review
-          - finding_quarterly_report
-          - finding_remediation
-          - finding_response
-          - firewall_independent_review
-          - firewall_review
-          - funding_first_line
-          - furnishing_cycle
-          - furnishing_dispute
-          - handover_access
-          - handover_access_expiry
-          - handover_full
-          - handover_initial
-          - hmda_lar_qc
-          - hmda_submission
-          - imt_roster_review
-          - incident_ncua_notice
-          - incident_notification
-          - incident_regulator_notification
-          - incident_trend_review
-          - incident_triage
-          - incompleteness_notice
-          - indemnification_advance
-          - indemnification_determination
-          - indemnification_payment
-          - independent_test
-          - insider_loc_approval
-          - insider_public_request_retention
-          - insider_report
-          - institution_freeze_activation
-          - institution_freeze_notice
-          - instrument_list_review
-          - insurance_review
-          - interest_crediting
-          - intermediary_review
-          - lar_compute
-          - limit_set_review
-          - liquidity_cfp_activation
-          - liquidity_report
-          - loan_bankruptcy_chargeoff
-          - loan_classification
-          - loan_courtesy_notice
-          - loan_days_past
-          - loan_fraud_chargeoff
-          - loan_next_payment
-          - loan_nonaccrual
-          - loan_rating_review
-          - loan_re_valuation
-          - loan_right_to_cure
-          - loan_second_reminder
-          - loan_status_memo
-          - member_address_hold
-          - member_credential_expiry
-          - member_portal_readonly
-          - mi_consolidation
-          - mismatch_compute
-          - model_review
-          - monitoring_coverage_review
-          - monitoring_review
-          - ncua_notification
-          - ofac_reporting
-          - overdraft_review
-          - override_analytics
-          - pentest_engagement
-          - performance_attribution
-          - policy_acknowledgment
-          - policy_board_approval
-          - policy_next_review
-          - policy_review
-          - policy_review.due
-          - portfolio_board_report
-          - portfolio_report
-          - portfolio_stress_test
-          - position_analytics_update
-          - position_liquidity_classification
-          - pricing_exception_review
-          - privacy_access_review
-          - privacy_annual_notice
-          - privacy_board_report
-          - privacy_notice_copy
-          - privacy_optout_propagation
-          - privacy_state_request
-          - product_risk_assessment
-          - program_governance_review
-          - rate_sheet_refresh
-          - recon_daily
-          - recon_monthly
-          - record_destruction
-          - record_disposal
-          - record_index
-          - record_integrity_test
-          - records_annual_review
-          - records_board_report
-          - records_package_complete
-          - records_package_snapshot
-          - records_package_start
-          - redflag_review
-          - redlining_review
-          - regulation_inventory_review
-          - regulator_contact_verification
-          - regulator_response
-          - regulator_verification
-          - regulatory_analysis
-          - remediation
-          - repo_collateral_revaluation
-          - report_board
-          - report_board_deck
-          - report_daily
-          - report_daily_pack
-          - report_weekly
-          - report_weekly_digest
-          - reporting_quarterly
-          - resolution_policy_update
-          - resolution_review_due
-          - resolution_test_remediation
-          - resolution_test_report
-          - retention_purge
-          - risk_acceptance_decision
-          - risk_appetite_rereview
-          - risk_appetite_review
-          - risk_assessment
-          - risk_assessment_refresh
-          - risk_breach_committee
-          - risk_breach_committee_presentation
-          - risk_breach_review
-          - risk_breach_triage
-          - risk_reassessment
-          - risk_report_board
-          - risk_report_management
-          - risk_scale_review
-          - rov_decision
-          - safe_mode_activation
-          - safe_mode_propagation
-          - safekeeping_reconciliation
-          - sar_decision
-          - sar_filing
-          - scope_registry_attestation
-          - scope_registry_publish
-          - scope_registry_update
-          - security_downgrade_review
-          - security_fair_value_update
-          - service_first_response
-          - service_resolution
-          - siem_alert_review
-          - signage_review
-          - site_capacity_test
-          - staffing_readiness_review
-          - steering_review
-          - stress_quarterly
-          - stress_rerun
-          - survival_quarterly
-          - takedown
-          - taxonomy_review
-          - tdr_quarterly_review
-          - tdr_review
-          - threat_register_refresh
-          - tls_assessment
-          - tls_certificate
-          - tls_certificate_expiry
-          - trade_reconciliation
-          - training_annual
-          - training_assessment
-          - training_completion
-          - training_due
-          - training_newhire
-          - training_onboarding
-          - training_privacy
-          - training_refresher
-          - training_refresher.due
-          - training_retention
-          - vendor_annual_review
-          - vendor_bcp_evidence
-          - vendor_board_report
-          - vendor_clause_library_review
-          - vendor_concentration_review
-          - vendor_core_review
-          - vendor_dr_attestation
-          - vendor_edd_refresh
-          - vendor_exit_plan
-          - vendor_exit_test
-          - vendor_governance_review
-          - vendor_incident_triage
-          - vendor_inventory_reconciliation
-          - vendor_mi_review
-          - vendor_monitoring_review
-          - vendor_program_audit
-          - vendor_provisional_review
-          - vendor_raci_review
-          - vendor_remediation
-          - vendor_review
-          - verification_biometric_purge
-          - vuln_remediation
-          - vuln_triage
-          - wholesale_compute
-          - wholesale_monthly_review
-          - wholesale_review
+          enum: *id031
     Incident:
       type: object
       x-kind: domain
@@ -2407,47 +4720,84 @@ components:
       - postmortem
       - closed
       properties:
-        bsa_referral_id: *id007
-        cco_signoff: *id008
-        checklist_first_hour: *id009
-        comms_plan: *id010
-        contained: *id011
-        containment_timer: *id012
-        criminal_suspected: *id013
-        data_scope: *id014
-        description: *id015
-        detail: *id016
-        detection_source: *id017
-        discovery_notes: *id018
-        facts: *id019
-        ic_assignment_timer: *id020
+        bsa_referral_id:
+          type: string
+        cco_signoff:
+          type: string
+        checklist_first_hour:
+          type: string
+        comms_plan:
+          type: object
+        contained:
+          type: string
+        containment_timer:
+          type: string
+        criminal_suspected:
+          type: string
+        data_scope:
+          type: string
+        description:
+          type: string
+        detail:
+          type: object
+        detection_source:
+          type: string
+        discovery_notes:
+          type: string
+        facts:
+          type: string
+        ic_assignment_timer:
+          type: string
         id:
           type: string
-        impact_summary: *id021
-        legal_review: *id022
-        member_notice_required: *id023
-        member_notice_template: *id024
-        misuse_determined: *id025
-        misuse_likelihood: *id026
-        notice_content: *id027
-        notice_template_id: *id028
-        notification_determined: *id029
-        quarterly_summary: *id030
-        recovered: *id031
-        reportability_assessment: *id032
-        reportability_determination: *id033
-        reportability_rationale: *id034
-        reportable_determined: *id035
-        root_cause: *id036
-        sar_referred: *id037
-        scope: *id038
-        scope_initial: *id039
-        severity: *id040
+        impact_summary:
+          type: object
+        legal_review:
+          type: string
+        member_notice_required:
+          type: boolean
+        member_notice_template:
+          type: string
+        misuse_determined:
+          type: string
+        misuse_likelihood:
+          type: string
+        notice_content:
+          type: string
+        notice_template_id:
+          type: string
+        notification_determined:
+          type: string
+        quarterly_summary:
+          type: object
+        recovered:
+          type: string
+        reportability_assessment:
+          type: string
+        reportability_determination:
+          type: string
+        reportability_rationale:
+          type: string
+        reportable_determined:
+          type: string
+        root_cause:
+          type: string
+        sar_referred:
+          type: string
+        scope:
+          type: string
+        scope_initial:
+          type: string
+        severity:
+          type: string
         status:
           type: string
-        summary_id: *id041
-        timeline: *id042
-        triaged: *id043
+        summary_id:
+          type: string
+        timeline:
+          type: string
+        triaged:
+          type: string
     Loan:
       type: object
       x-kind: domain
@@ -2466,10 +4816,7 @@ components:
           type: string
         booking_block_state:
           type: string
-          enum:
-          - open
-          - cleared
-          - blocked
+          enum: *id032
         charged_off:
           type: string
         chargeoff_due_closed_end:
@@ -2515,10 +4862,7 @@ components:
           type: string
         funding_block_state:
           type: string
-          enum:
-          - open
-          - cleared
-          - blocked
+          enum: *id033
         grace_period_days:
           type: string
         id:
@@ -2557,38 +4901,69 @@ components:
       - counteroffer
       - final_action
       properties:
-        action_basis: *id048
-        amount: *id049
-        applicant: *id050
-        atr_qm_result: *id051
-        channel: *id052
-        counteroffer_status: *id053
-        counteroffer_terms: *id054
-        credit_structure: *id055
-        data: *id056
-        decision: *id057
-        decision_block_state: *id058
-        doc_block_state: *id059
-        dti: *id060
-        employment: *id061
-        final_action: *id062
-        geography: *id063
-        gmi: *id064
+        action_basis:
+          type: object
+        amount:
+          type: integer
+        applicant:
+          $ref: '#/components/schemas/Applicant'
+        atr_qm_result:
+          type: string
+        channel:
+          type: string
+        counteroffer_status:
+          type: string
+          enum: *id011
+        counteroffer_terms:
+          type: object
+        credit_structure:
+          type: object
+        data:
+          type: object
+        decision:
+          $ref: '#/components/schemas/Decision'
+        decision_block_state:
+          type: string
+          enum: *id012
+        doc_block_state:
+          type: string
+          enum: *id013
+        dti:
+          type: number
+        employment:
+          type: object
+        final_action:
+          type: string
+        geography:
+          type: string
+        gmi:
+          type: object
         id:
           type: string
-        income_assets: *id065
-        incomplete_aged: *id066
+        income_assets:
+          type: object
+        incomplete_aged:
+          type: boolean
         notified_at:
           type: string
           format: date-time
-        option_shortfall_reason: *id067
-        oral_adverse_decision: *id068
-        oral_statement: *id069
-        parties: *id070
-        prequal: *id071
-        product_code: *id072
-        product_type: *id073
-        requested_terms: *id074
+        option_shortfall_reason:
+          type: string
+        oral_adverse_decision:
+          type: boolean
+        oral_statement:
+          type: string
+        parties:
+          type: array
+          items: *id014
+        prequal:
+          $ref: '#/components/schemas/Prequal'
+        product_code:
+          type: string
+        product_type:
+          type: string
+        requested_terms:
+          type: object
     Applicant:
       type: object
       x-kind: domain
@@ -6344,6 +8719,33 @@ components:
           type: string
         limit:
           type: integer
+    AccountNumber:
+      type: object
+      x-kind: banking-core
+      x-states:
+      - active
+      - disabled
+      - canceled
+      description: Routing/account-number pair; 1:Many to Account (D2); FBO attribution (D20).
+      properties:
+        id:
+          type: string
+        account_id:
+          type: string
+          description: Parent ledger Account (1:Many).
+        routing_number:
+          type: string
+        account_number:
+          type: string
+        informational_entity_id:
+          type: string
+          description: FBO attribution.
+        status:
+          type: string
+          enum:
+          - active
+          - disabled
+          - canceled
   parameters:
     Limit:
       name: limit
@@ -6564,16 +8966,32 @@ x-state-machines:
   - booked
   - funded
 tags:
+- name: Account Numbers
+  description: Account Numbers operations.
+- name: Accounts
+  description: Accounts operations.
+- name: Ach Transfers
+  description: Ach Transfers operations.
+- name: Auth
+  description: Auth operations.
+- name: Cards
+  description: Cards operations.
 - name: Cases
   description: Cases operations.
 - name: Control Results
   description: Control Results operations.
 - name: Documents
   description: Documents operations.
+- name: Entities
+  description: Entities operations.
 - name: Events
   description: Events operations.
+- name: Fbo
+  description: Fbo operations.
 - name: Filings
   description: Filings operations.
+- name: Inbound
+  description: Inbound operations.
 - name: Incidents
   description: Incidents operations.
 - name: Legal Holds
@@ -6582,5 +9000,15 @@ tags:
   description: Loan Applications operations.
 - name: Loans
   description: Loans operations.
+- name: Payments
+  description: Payments operations.
+- name: Sandbox
+  description: Sandbox operations.
 - name: Tasks
   description: Tasks operations.
+- name: Transfers
+  description: Transfers operations.
+- name: Verifications
+  description: Verifications operations.
+- name: Wire Transfers
+  description: Wire Transfers operations.
