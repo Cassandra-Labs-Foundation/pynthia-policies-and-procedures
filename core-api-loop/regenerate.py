@@ -142,12 +142,17 @@ def generate_via_api(composite: str) -> str:
     except ModuleNotFoundError:
         sys.exit("--backend api needs the anthropic SDK (pip install anthropic) and ANTHROPIC_API_KEY.")
     client = anthropic.Anthropic()
-    msg = client.messages.create(
+    # Stream: a full-policy generation (max_tokens 32k) can exceed the SDK's 10-minute
+    # non-streaming ceiling, which raises otherwise.
+    parts: list[str] = []
+    with client.messages.stream(
         model=GENERATE_MODEL,
         max_tokens=32000,
         messages=[{"role": "user", "content": composite}],
-    )
-    return _strip_fences("".join(b.text for b in msg.content if getattr(b, "type", "") == "text"))
+    ) as stream:
+        for chunk in stream.text_stream:
+            parts.append(chunk)
+    return _strip_fences("".join(parts))
 
 
 def generate_via_cli(composite: str) -> str:
