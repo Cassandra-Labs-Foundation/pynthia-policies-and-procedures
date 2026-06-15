@@ -9,349 +9,380 @@ approvers:
 tags: [Compliance, Liquidity, Contingency Funding Plan, CFP, ALCO, NCUA]
 ---
 
-# Liquidity Policy
-
 ## General Policy Statement
 
-Pynthia Credit Union maintains a risk-based liquidity program and a written Contingency Funding Plan (CFP) that together satisfy [12 CFR §741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12). The Liquidity Policy defines what we measure, limit, and report in normal conditions — cash-flow mismatch, funding concentration, liquid-asset coverage, and survival under stress — and the CFP defines how we detect stress, escalate, and execute funding actions before a stress event becomes a crisis. The policy applies across all funding and balance-sheet activities, including BaaS partner flows. Governance is centralized with the Chief Compliance Officer; the CFO owns the program day to day, with the CEO, ALCO, Treasury Operations, and the Board as required participants and approvers. Scope is NCUA-only for federally insured credit unions; investment-portfolio credit controls, capital adequacy, physical cash operations, enterprise risk appetite, and business continuity are governed by their own policies.
+Pynthia Credit Union maintains a board-approved, risk-based liquidity program and a written Contingency Funding Plan (CFP) that measure, limit, and report cash-flow mismatch, funding concentration, and survival capacity under normal and stressed conditions across all funding and balance-sheet activities, including BaaS partner flows. The Liquidity Policy governs measurement and limits in normal conditions; the CFP defines detection, escalation, and execution of funding actions when indicators breach triggers. The program aligns to NCUA requirements, maintains federal contingent-liquidity access (CLF and/or Discount Window), and excludes investment-portfolio credit/valuation, capital adequacy, physical cash/vault operations, enterprise risk-appetite governance beyond liquidity, business continuity, and OCC/FDIC frameworks (governed by their respective policies).
 
-## Timing Matrix {#timing-matrix}
+## Timing Matrix  {#timing-matrix}
 
 | Scenario | Trigger (human → event) | Deadline | Content Reference | Control |
 |---|---|---:|---|---|
-| Annual policy review | Review anniversary reached (`policy.review_due`) | Annual (ad-hoc within 10 BD after material change) | Versioned policy + limit registry | [LQ-01](#lq-01-policy-scope-risk-appetite) |
-| Daily mismatch run | EOD positions posted (`liquidity.eod_posted`) | Daily by 16:00 | Cumulative gap report by bucket | [LQ-03](#lq-03-maturity-mismatch-limits) |
-| Survival horizon refresh | Quarter opens (`stress.quarter_open`) | Quarterly (ad-hoc within 2 BD on EWI spike) | Survival-days model output | [LQ-04](#lq-04-survival-horizon-coverage-days) |
-| Daily LAR banding | EOD positions posted (`liquidity.eod_posted`) | Daily by 16:00 | LAR value + band classification | [LQ-05](#lq-05-liquid-assets-ratio-bands) |
-| Concentration limit check | EOD depositor file posted (`liquidity.depositor_file_posted`) | Daily (waiver resolved within 2 BD) | Top-10 / single-provider report | [LQ-06](#lq-06-funding-concentration-counterparty-limits) |
-| Quarterly stress run | Quarter opens (`stress.quarter_open`) | Quarterly (re-run within 5 BD on major EWI) | Stress pack with scenarios | [LQ-07](#lq-07-stress-testing) |
-| Daily GL tie-out | EOD GL close (`gl.eod_closed`) | Daily | Reconciliation report | [LQ-08](#lq-08-data-quality-model-governance) |
-| Daily ops pack | Pack generation scheduled (`report.daily_pack_due`) | Daily by 17:00 | Daily liquidity ops pack | [LQ-09](#lq-09-reporting-cadence) |
-| Weekly ALCO digest | Digest scheduled (`report.weekly_digest_due`) | Friday 12:00 | Weekly ALCO digest | [LQ-09](#lq-09-reporting-cadence) |
-| Quarterly Board deck | Quarter closes (`report.board_deck_due`) | Quarter-end + 5 BD | Board liquidity deck | [LQ-09](#lq-09-reporting-cadence) |
-| NCUA notification | Notification condition met (`ncua.notification_required`) | **24 hours** | Event memo to examiner/region | [LQ-10](#lq-10-regulatory-notification) |
-| Federal facility test | Annual test due (`facility.annual_test_due`) | Annual | Test report + readiness attestation | [LQ-11](#lq-11-contingent-federal-liquidity-access) |
-| Collateral inventory update | EOD collateral file posted (`collateral.file_posted`) | Daily (re-check after large moves) | Unencumbered balances + haircuts | [LQ-12](#lq-12-collateral-encumbrance-management) |
-| Listing-service exposure update | EOD wholesale file posted (`wholesale.exposure_posted`) | Daily (monthly ALCO review) | Exposure ladder report | [LQ-13](#lq-13-wholesale-listing-service-deposits-guardrails) |
-| CFP Level 2/3 activation | LAR enters Low/Critical band (`cfp.level_changed`) | Transition actions within **2 hours** | Activation record + playbook tasks | [LQ-14](#lq-14-cfp-purpose-activation) |
-| EWI daily sweep | EWI feed refreshed (`ewi.daily_sweep_due`) | Daily (weekly CEO summary) | EWI dashboard + summary | [LQ-15](#lq-15-early-warning-indicators-event-triggers) |
-| Crisis team convening | Level 2/3 activated (`cfp.level_changed`) | Within **60 minutes** | Crisis meeting + decision log | [LQ-16](#lq-16-escalation-ladder-crisis-roles) |
-| First-line funding draws | Level 2 activated (`cfp.level_changed`) | Within **2 hours** | Executed draw orders | [LQ-17](#lq-17-funding-playbooks-draw-order) |
-| Stakeholder communications | Level 2/3 activated (`cfp.level_changed`) | Same day | Scripted notices sent | [LQ-18](#lq-18-external-communications-stakeholder-matrix) |
-| Regulator request response | Regulator request received (`regulator.request_received`) | 1 business day | Response + liaison log | [LQ-19](#lq-19-regulator-liaison-protocols) |
-| After-action review | Drill or test completed (`drill.completed`) | Within 10 BD | AAR with owners and dates | [LQ-20](#lq-20-liquidity-drills-after-action-reviews) |
-| Record indexing | Liquidity artifact finalized (`record.finalized`) | Within 2 BD (retain 10 years) | Indexed, immutable archive entry | [LQ-21](#lq-21-documentation-retention) |
+| Daily mismatch gaps computed against limits | EOD liquidity data posted (`liquidity.eod_posted`) | Daily by 16:00 | Cumulative gap schedule by bucket | [LP-03](#lp-03-maturity-mismatch-limits) |
+| Intraday recompute on large unscheduled flow | Large flow detected (`liquidity.large_flow_detected`) | Intraday, real-time | Updated gap schedule | [LP-03](#lp-03-maturity-mismatch-limits) |
+| LAR computed and banded | EOD liquidity data posted (`liquidity.eod_posted`) | Daily by 16:00 | LAR value + band classification | [LP-05](#lp-05-liquid-assets-ratio-bands) |
+| LAR band breach alert | Band changed (`lar.band_changed`) | Real-time | Band-change alert | [LP-05](#lp-05-liquid-assets-ratio-bands) |
+| Concentration waiver resolution | Limit exceeded (`liquidity.concentration_breached`) | 2 business days | Waiver decision record | [LP-06](#lp-06-funding-concentration-and-counterparty-limits) |
+| Survival horizon ad-hoc rerun | EWI spike flagged (`ewi.spike_flagged`) | 2 business days | Survival-day pack | [LP-04](#lp-04-survival-horizon-and-coverage-days) |
+| Stress scenario rerun on major EWI | Major EWI flagged (`ewi.major_event_flagged`) | 5 business days | Stress pack with deltas | [LP-07](#lp-07-stress-testing) |
+| Daily ops pack published | GL/data posted (`liquidity.eod_posted`) | 17:00 daily | Daily ops pack | [LP-09](#lp-09-reporting-cadence) |
+| Weekly ALCO digest published | Weekly cycle (`report.weekly_digest_published`) | Fri 12:00 | ALCO digest | [LP-09](#lp-09-reporting-cadence) |
+| Quarterly Board deck published | Quarter close (`report.board_deck_published`) | +5 business days | Board deck | [LP-09](#lp-09-reporting-cadence) |
+| NCUA notification | Notify criteria met (`ncua.notification_required`) | 24 hours | Event memo to examiner/region | [LP-10](#lp-10-regulatory-notification) |
+| CFP Level 2/3 transition actions | Level changed (`cfp.level_changed`) | 2 hours | Transition tasking orders | [LP-14](#lp-14-cfp-purpose-and-activation) |
+| Crisis team convened | Level 2/3 active (`cfp.level_changed`) | 60 minutes | Crisis decision log | [LP-16](#lp-16-escalation-ladder-and-crisis-roles) |
+| First-line funding actions executed | Level 2 funding shortfall (`funding.shortfall_estimate` via `cfp.level_changed`) | 2 hours | Draw confirmations | [LP-17](#lp-17-funding-playbooks-and-draw-order) |
+| External Level 2/3 communications | Level 2/3 active (`cfp.level_changed`) | Same day | Approved stakeholder notices | [LP-18](#lp-18-external-communications-and-stakeholder-matrix) |
+| Regulator request response | Request received (`regulator.request_received`) | 1 business day | Response package | [LP-19](#lp-19-regulator-liaison-protocols) |
+| After-action review published | Drill completed (`drill.completed`) | 10 business days | AAR with owners/dates | [LP-20](#lp-20-liquidity-drills-and-after-action-reviews) |
+| Annual federal facility test | Test due (`cfp.investment_test_due`) | Annual | Facility test report | [LP-11](#lp-11-contingent-federal-liquidity-access) |
+| Document indexed | Artifact finalized (`record.created`) | 2 business days | Searchable index entry | [LP-21](#lp-21-documentation-and-retention) |
 
-## LQ-01 — Policy Scope & Risk Appetite {#lq-01-policy-scope-risk-appetite}
+---
 
-- **WHY (Reg cite):** [12 CFR §741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12) requires federally insured credit unions to maintain a board-approved liquidity policy; at $50MM or more in assets, a written CFP is required, and at $250MM or more, documented access to a federal contingent liquidity source.
-- **SYSTEM BEHAVIOR:** A single liquidity standard governs all in-scope activity, including BaaS partner flows. The policy and its limit registry are maintained as versioned artifacts; every limit referenced by [LQ-03](#lq-03-maturity-mismatch-limits), [LQ-05](#lq-05-liquid-assets-ratio-bands), [LQ-06](#lq-06-funding-concentration-counterparty-limits), and [LQ-13](#lq-13-wholesale-listing-service-deposits-guardrails) resolves to a registry entry, not to prose. The policy is reviewed at least annually and within 10 business days after a material change (new funding channel, new BaaS partner with novel flows, regulatory change); a new partner whose flows are not yet modeled operates under a provisional limit set until the registry is updated. The limit registry is write-restricted to Compliance; the CFO proposes changes and the Board approves them.
+## LP-01 — Policy Scope, Risk Appetite & Limit Registry
+
+- **WHY (Reg cite):** NCUA requires a board-approved liquidity policy and written CFP for credit unions ≥ $50MM ([12 CFR §741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12)).
+- **SYSTEM BEHAVIOR:** A single, versioned liquidity standard and limit registry applies across all in-scope funding and balance-sheet activities, including BaaS partner flows. The registry is reviewed at least annually and ad-hoc within 10 business days of a material change; each version captures limits, effective dates, and approver. The limit registry and policy document are write-restricted to Compliance with CFO/Board approval.
 - **EVENTS:**
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Annual review anniversary reached (`policy.review_due`) | Current policy version (`policy.version`), limit registry (`policy.limit_registry`), prior-year exceptions log (`policy.exceptions[]`) | Reviewed/re-approved policy version (`policy.version_approved`) | Annual (enforced by `policy.review_due_at`) |
-  | Material change identified (`policy.material_change_flagged`) | Change description (`policy.change_description`), impacted limits (`policy.impacted_limits[]`) | Ad-hoc policy revision (`policy.revision_published`) | 10 BD from flag |
-  | Limit registry edit requested (`policy.limit_change_requested`) | Proposed limit value (`policy.proposed_limit`), rationale (`policy.change_rationale`), approver identity (`policy.approver_id`) | Updated registry entry with approval chain (`policy.limit_updated`) | — |
+  | Annual review cycle opens or material change declared (`policy.board_review_started`, `strategy.material_change_declared`) | Policy doc (`policy.document_id`), version (`policy.document_version`), limit registry (`policy.limit_registry`), change rationale (`policy.change_rationale`) | Updated versioned policy + limit registry (`policy.version_published`) | Annual; ad-hoc within 10 BD (enforced by `policy.review_due_at`) |
+  | Board approves policy version (`policy.board_approved`) | Approver identity (`policy.owner_ref`), minutes (`policy.minutes_reference`) | Board approval record (`policy.version_approved`) | At review (enforced by `policy.board_approval_due_at`) |
 
-- **ALERTS/METRICS:** Alert when the annual review is within 30 days of due or past due (`alert.policy_review_aging`); target zero limits in production that lack a registry entry; count of provisional limit sets open longer than 10 BD (target zero).
+- **ALERTS/METRICS:** Alert on policy review past-due (`policy.review_warning_issued`); target zero overdue reviews; track days-to-update after material change.
 
-## LQ-02 — Definitions & Ratios Catalogue {#lq-02-definitions-ratios-catalogue}
+---
 
-- **WHY (Reg cite):** [12 CFR §741.12(b)](https://www.ecfr.gov/current/title-12/part-741/section-741.12) requires the liquidity policy to provide a framework for managing liquidity with a list of sources that can be employed — which presupposes standardized, consistently computed measures.
-- **SYSTEM BEHAVIOR:** A central catalogue defines every metric used in this policy — Liquid Assets Ratio (LAR), cumulative cash-flow mismatch by bucket, survival horizon, and funding concentration measures — with formula, data sources, and GL mapping. The catalogue is synced to the GL chart-of-accounts mapping daily so a GL change cannot silently break a ratio; a failed sync flags all dependent metrics as provisional until resolved. Each downstream control consumes catalogue definitions by reference, never by local re-definition. The catalogue is write-restricted to Treasury Operations with Compliance approval on definition changes.
+## LP-02 — Definitions & Ratios Catalogue
+
+- **WHY (Reg cite):** Standardized, timely liquidity measurement underpins a sound program ([12 CFR §741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12)).
+- **SYSTEM BEHAVIOR:** A central catalogue defines standardized metrics (LAR, cumulative mismatch, survival horizon, concentration) with formulas and data lineage, kept synced to GL mapping daily. A sync failure surfaces as a provisional state with an alert rather than silently stale values. Catalogue definitions are write-restricted to Compliance with model-governance review.
 - **EVENTS:**
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Daily GL mapping sync runs (`catalogue.sync_due`) | GL chart-of-accounts map (`gl.coa_map`), metric definitions (`catalogue.definitions[]`) | Sync result with diffs (`catalogue.sync_completed`) | Daily (enforced by `catalogue.sync_due_at`) |
-  | Metric definition change proposed (`catalogue.change_requested`) | New formula (`catalogue.formula`), data lineage (`catalogue.lineage`), approver identity (`catalogue.approver_id`) | Versioned definition with approval (`catalogue.definition_updated`) | — |
-  | Sync failure detected (`catalogue.sync_failed`) | Failure detail (`catalogue.failure_reason`), impacted metrics (`catalogue.impacted_metrics[]`) | Provisional flag on dependent metrics (`catalogue.metrics_flagged_provisional`) | Same day |
+  | Metric definition change requested (`catalogue.change_requested`) | Formula (`catalogue.formula`), lineage (`catalogue.lineage`), approver (`catalogue.approver_id`) | Updated metric definition (`catalogue.definition_updated`) | Per change (no registered timer) |
+  | Daily GL-to-catalogue sync runs (`catalogue.sync_completed`) | GL mapping (`gl.coa_map`), trial balance (`gl.trial_balance`) | Sync confirmation (`catalogue.sync_completed`) | Daily (enforced by `catalogue.sync_due_at`) |
+  | Sync fails (`catalogue.sync_failed`) | Failure reason (`catalogue.failure_reason`), provisional flags (`catalogue.metrics_flagged_provisional`) | Sync-failure record (`catalogue.sync_failed`) | Daily SLA (enforced by `catalogue.sync_due_at`) |
 
-- **ALERTS/METRICS:** Alert on sync failure (`alert.catalogue_sync_failed`); count of metrics in provisional status (target zero); age of oldest unresolved definition change request.
+- **ALERTS/METRICS:** Alert on catalogue sync failure (`alert.catalogue_sync_failed`); target 100% daily sync success; track count of metrics flagged provisional.
 
-## LQ-03 — Maturity Mismatch Limits {#lq-03-maturity-mismatch-limits}
+---
 
-- **WHY (Reg cite):** [12 CFR §741.12(b)](https://www.ecfr.gov/current/title-12/part-741/section-741.12) requires policies that provide for the management of liquidity risk, which examiners assess through cash-flow gap measurement against board-approved limits.
-- **SYSTEM BEHAVIOR:** The system computes cumulative cash-flow gaps in six time buckets — overnight, 2–7 days, 8–30 days, 31–90 days, 91–365 days, and over 1 year — daily by 16:00, comparing each cumulative gap to its registry limit from [LQ-01](#lq-01-policy-scope-risk-appetite). A large unscheduled flow (an inbound or outbound movement above the intraday-recalc threshold in the limit registry, including BaaS partner sweep anomalies) triggers an intraday recalculation rather than waiting for the next daily run. A breach routes to the CFO and ALCO for disposition; a breach that coincides with a LAR band deterioration also feeds [LQ-14](#lq-14-cfp-purpose-activation). Gap-limit values are write-restricted to Compliance.
+## LP-03 — Maturity Mismatch Limits
+
+- **WHY (Reg cite):** Cumulative cash-flow gap measurement against limits is core liquidity risk control ([12 CFR §741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12)).
+- **SYSTEM BEHAVIOR:** Cumulative cash-flow gaps are computed daily by 16:00 across time buckets (O/N, 2–7d, 8–30d, 31–90d, 91–365d, >1y) against policy limits, and recomputed intraday on large unscheduled flows. A breach in any bucket opens a disposition record. Limit parameters are write-restricted to Compliance; the computation engine reads GL and position data.
 - **EVENTS:**
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | EOD positions posted (`liquidity.eod_posted`) | Contractual cash flows by bucket (`liquidity.cashflows[]`), behavioral assumptions (`liquidity.behavioral_assumptions`), bucket limits (`policy.limit_registry`) | Cumulative gap report by bucket (`mismatch.gap_computed`) | Daily by 16:00 (enforced by `mismatch.compute_due_at`) |
-  | Large unscheduled flow detected (`liquidity.large_flow_detected`) | Flow amount and direction (`flow.amount`, `flow.direction`), current gap state (`mismatch.current_gaps`) | Intraday gap recalculation (`mismatch.intraday_recomputed`) | Intraday, immediate |
-  | Gap limit breached (`mismatch.limit_breached`) | Breached bucket (`mismatch.breached_bucket`), magnitude (`mismatch.breach_magnitude`), limit value (`policy.limit_registry`) | Breach notice to CFO/ALCO with disposition (`mismatch.breach_dispositioned`) | Same day |
+  | EOD liquidity data posted (`liquidity.eod_posted`) | GL balances (`gl.balances`), positions (`position.book_value`), bucket limits (`policy.limit_registry`), current gaps (`mismatch.current_gaps`) | Cumulative gap schedule (`mismatch.gap_computed`) | Daily by 16:00 (enforced by `mismatch.compute_due_at`) |
+  | Large unscheduled flow detected (`liquidity.large_flow_detected`) | Flow amount (`flow.amount`), direction (`flow.direction`) | Recomputed intraday gaps (`mismatch.intraday_recomputed`) | Intraday, real-time (no registered timer) |
+  | Bucket limit breached (`mismatch.limit_breached`) | Breached bucket (`mismatch.breached_bucket`), magnitude (`mismatch.breach_magnitude`) | Breach disposition record (`mismatch.breach_dispositioned`) | Same day (no registered timer) |
 
-- **ALERTS/METRICS:** Real-time alert on any cumulative gap breach (`alert.mismatch_breach`); daily-run on-time rate against the 16:00 deadline (target 100%); count of intraday recalcs and median recalc latency.
+- **ALERTS/METRICS:** Alert on mismatch limit breach (`alert.mismatch_breach`); target zero unremediated bucket breaches; track intraday recompute latency.
 
-## LQ-04 — Survival Horizon & Coverage Days {#lq-04-survival-horizon-coverage-days}
+---
 
-- **WHY (Reg cite):** [12 CFR §741.12(c)](https://www.ecfr.gov/current/title-12/part-741/section-741.12) requires the CFP to address stress events and the credit union's ability to meet obligations through them — survival-days modeling is the quantified expression of that ability.
-- **SYSTEM BEHAVIOR:** The system models survival days — how long the credit union can meet obligations without new external funding — under idiosyncratic stress and under combined (idiosyncratic plus systemic) stress, quarterly, using scenario assumptions from [LQ-07](#lq-07-stress-testing) and collateral headroom from [LQ-12](#lq-12-collateral-encumbrance-management). When an early-warning indicator from [LQ-15](#lq-15-early-warning-indicators-event-triggers) spikes, the model re-runs ad-hoc within 2 business days. A combined-stress survival result below 15 days triggers the NCUA notification path in [LQ-10](#lq-10-regulatory-notification). Model assumptions are write-restricted to Treasury Operations with independent review per [LQ-08](#lq-08-data-quality-model-governance).
+## LP-04 — Survival Horizon & Coverage Days
+
+- **WHY (Reg cite):** Survival-horizon modeling demonstrates capacity to withstand idiosyncratic and combined stress ([12 CFR §741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12)).
+- **SYSTEM BEHAVIOR:** Survival days are modeled quarterly under idiosyncratic and combined stress, and ad-hoc within 2 business days when early-warning indicators spike. A result below the policy threshold drives notification and CFP review. Survival assumptions are write-restricted to Compliance and subject to independent model review.
 - **EVENTS:**
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Quarter opens (`stress.quarter_open`) | Scenario set (`stress.scenarios[]`), cash-flow projections (`liquidity.cashflows[]`), available headroom (`collateral.unencumbered_balance`) | Survival-days result per scenario (`survival.computed`) | Quarterly (enforced by `survival.quarterly_due_at`) |
-  | EWI spike flagged (`ewi.spike_flagged`) | Spiking indicator (`ewi.indicator_id`), current value (`ewi.value`), refreshed assumptions (`stress.behavioral_assumptions`) | Ad-hoc survival re-run (`survival.adhoc_computed`) | 2 BD from spike |
-  | Combined survival below 15 days (`survival.below_threshold`) | Survival result (`survival.days_combined`), driving scenario (`survival.driver_scenario`) | NCUA notification trigger record (`ncua.notification_required`) | Immediate hand-off to [LQ-10](#lq-10-regulatory-notification) |
+  | Quarterly survival cycle opens (`survival.computed`) | Behavioral assumptions (`liquidity.behavioral_assumptions`), haircuts (`liquidity.haircut_table`), facility capacity (`liquidity.clf_capacity`) | Survival-day result (`survival.computed`) | Quarterly (enforced by `survival.quarterly_due_at`) |
+  | EWI spikes (`ewi.spike_flagged`) | Driver scenario (`survival.driver_scenario`), combined days (`survival.days_combined`) | Ad-hoc survival pack (`survival.adhoc_computed`) | 2 BD (no registered timer) |
+  | Survival below threshold (`survival.below_threshold`) | Threshold (`policy.limit_registry`), combined days (`survival.days_combined`) | Below-threshold record (`survival.below_threshold`) | Same day (no registered timer) |
 
-- **ALERTS/METRICS:** Alert when combined survival falls below 20 days (early buffer) and below 15 days (notification threshold) (`alert.survival_low`); quarterly-run on-time rate; distribution of survival days quarter over quarter.
+- **ALERTS/METRICS:** Alert on survival below target (`alert.survival_low`); target survival ≥ policy floor under combined stress; track ad-hoc rerun turnaround.
 
-## LQ-05 — Liquid Assets Ratio Bands {#lq-05-liquid-assets-ratio-bands}
+---
 
-- **WHY (Reg cite):** [12 CFR §741.12(b)](https://www.ecfr.gov/current/title-12/part-741/section-741.12) requires the policy to identify liquidity sources sufficient to meet demands; the LAR band structure is the board-approved measure of that sufficiency and the activation backbone of the CFP under [§741.12(c)](https://www.ecfr.gov/current/title-12/part-741/section-741.12).
-- **SYSTEM BEHAVIOR:** The system computes the Liquid Assets Ratio daily by 16:00 using the catalogue definition from [LQ-02](#lq-02-definitions-ratios-catalogue) and classifies it into policy-set bands: **Normal ≥10%**, **Watch <10%**, **Low <8%**, **Critical <6%**. A band change raises a real-time alert and, for Watch/Low/Critical, drives CFP activation per [LQ-14](#lq-14-cfp-purpose-activation); LAR below 6% additionally triggers NCUA notification per [LQ-10](#lq-10-regulatory-notification). A band change caused by a known transient (e.g., a same-day settlement timing artifact) may be annotated but not suppressed — the band stands until the next computation. Band thresholds are write-restricted to Compliance and changeable only via the limit registry in [LQ-01](#lq-01-policy-scope-risk-appetite).
+## LP-05 — Liquid Assets Ratio Bands
+
+- **WHY (Reg cite):** A maintained liquid-asset cushion and band discipline are central to the liquidity program ([12 CFR §741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12)).
+- **SYSTEM BEHAVIOR:** LAR is computed daily by 16:00 and classified into policy-set bands (Normal ≥10%; Watch <10%; Low <8%; Critical <6%), raising real-time alerts on a band change and tying Watch/Low/Critical to CFP Levels 1/2/3. A drop to Critical (<6%) also triggers NCUA notification. Band thresholds are write-restricted to Compliance with Board approval.
 - **EVENTS:**
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | EOD positions posted (`liquidity.eod_posted`) | Liquid asset balances (`liquidity.liquid_assets`), total assets (`liquidity.total_assets`), band thresholds (`policy.limit_registry`) | LAR value + band classification (`lar.computed`) | Daily by 16:00 (enforced by `lar.compute_due_at`) |
-  | Band change detected (`lar.band_changed`) | Prior band (`lar.prior_band`), new band (`lar.current_band`), LAR value (`lar.value`) | Real-time band-change alert + CFP hand-off record (`lar.band_alert_issued`) | Immediate |
-  | LAR below 6% (`lar.critical_breached`) | LAR value (`lar.value`), contributing balances (`liquidity.liquid_assets`) | NCUA notification trigger record (`ncua.notification_required`) | Immediate hand-off to [LQ-10](#lq-10-regulatory-notification) |
+  | EOD liquidity data posted (`liquidity.eod_posted`) | Liquid assets (`liquidity.liquid_assets`), total assets (`liquidity.total_assets`), band thresholds (`policy.limit_registry`) | LAR value + band (`lar.computed`) | Daily by 16:00 (enforced by `lar.compute_due_at`) |
+  | LAR band changes (`lar.band_changed`) | Prior band (`lar.prior_band`), current band (`lar.current_band`) | Band-change alert (`lar.band_alert_issued`) | Real-time (no registered timer) |
+  | LAR falls below 6% (`lar.critical_breached`) | LAR value (`lar.value`) | Critical-breach record + NCUA trigger (`lar.critical_breached`) | Real-time; notify 24h (enforced by `ncua.notification_due_at`) |
 
-- **ALERTS/METRICS:** Real-time band-change alerts (`alert.lar_band_change`); days-in-band distribution per quarter; LAR computation on-time rate against 16:00 (target 100%).
+- **ALERTS/METRICS:** Alert on band change (`alert.lar_band_change`); target LAR in Normal band; track count of Watch/Low/Critical days per quarter.
 
-## LQ-06 — Funding Concentration & Counterparty Limits {#lq-06-funding-concentration-counterparty-limits}
+---
 
-- **WHY (Reg cite):** [12 CFR §741.12(b)](https://www.ecfr.gov/current/title-12/part-741/section-741.12) requires the policy to provide for diversified funding; concentration limits are the enforceable form of that requirement.
-- **SYSTEM BEHAVIOR:** The system tracks the top-10 depositor concentration (including BaaS partner FBO positions, measured per `fbo_position` data) and single-provider/single-facility reliance against registry limits daily. A position that exceeds a limit opens a waiver workflow: the CFO requests, Compliance reviews, and the waiver is resolved — approved with conditions and expiry, or denied with a remediation plan — within 2 business days. A denied waiver requires the exposure to be brought within limit on the remediation timeline. Concentration limits are write-restricted to Compliance.
+## LP-06 — Funding Concentration & Counterparty Limits
+
+- **WHY (Reg cite):** Funding diversification and counterparty limits mitigate liquidity risk from over-reliance ([12 CFR §741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12)).
+- **SYSTEM BEHAVIOR:** Top-10 depositor and single-provider/facility reliance limits are computed daily; a breach opens a waiver workflow resolved within 2 business days by a designated reviewer. Concentration limits and waiver decisions are write-restricted to Compliance; the daily computation reads depositor and facility data.
 - **EVENTS:**
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | EOD depositor file posted (`liquidity.depositor_file_posted`) | Depositor balances (`depositor.balances[]`), FBO positions (`fbo_position.balance`), provider/facility reliance (`funding.provider_reliance[]`), limits (`policy.limit_registry`) | Top-10 / single-provider concentration report (`concentration.computed`) | Daily (enforced by `concentration.compute_due_at`) |
-  | Concentration limit exceeded (`concentration.limit_exceeded`) | Exceeding position (`concentration.position_id`), magnitude (`concentration.excess_amount`) | Waiver workflow opened (`concentration.waiver_opened`) | Same day |
-  | Waiver decision recorded (`concentration.waiver_decided`) | Waiver request (`concentration.waiver_request`), reviewer identity (`concentration.reviewer_id`), conditions/expiry (`concentration.waiver_terms`) | Approved-with-conditions or denied waiver record (`concentration.waiver_resolved`) | 2 BD from open (enforced by `concentration.waiver_due_at`) |
+  | Depositor file posted (`liquidity.depositor_file_posted`) | Top-10 exposures (`concentration.top10`), single-provider limits (`policy.limit_registry`) | Concentration computation (`concentration.computed`) | Daily (enforced by `concentration.compute_due_at`) |
+  | Concentration limit exceeded (`liquidity.concentration_breached`) | Excess amount (`concentration.excess_amount`), position (`concentration.position_id`) | Waiver request opened (`concentration.waiver_opened`) | Same day (no registered timer) |
+  | Waiver decisioned (`concentration.waiver_decided`) | Reviewer (`concentration.reviewer_id`), waiver terms (`concentration.waiver_terms`) | Waiver resolution record (`concentration.waiver_resolved`) | 2 BD (enforced by `concentration.waiver_due_at`) |
 
-- **ALERTS/METRICS:** Alert on any new limit excess (`alert.concentration_breach`); count of waivers open past 2 BD (target zero); trend of top-10 depositor share of total funding.
+- **ALERTS/METRICS:** Alert on concentration breach (`alert.concentration_breach`); target zero unresolved waivers past 2 BD; track top-10 depositor share trend.
 
-## LQ-07 — Stress Testing {#lq-07-stress-testing}
+---
 
-- **WHY (Reg cite):** [12 CFR §741.12(c)](https://www.ecfr.gov/current/title-12/part-741/section-741.12) requires the CFP to address a range of stress events; credible scenario testing is how the credit union demonstrates the plan would actually work.
-- **SYSTEM BEHAVIOR:** Treasury Operations runs idiosyncratic, systemic, and combined stress scenarios quarterly, including intraday payment peaks and BaaS-specific shocks (partner concentration runs, sweep failures, sudden program wind-down). Scenario outputs feed survival-horizon modeling in [LQ-04](#lq-04-survival-horizon-coverage-days) and playbook calibration in [LQ-17](#lq-17-funding-playbooks-draw-order). A major early-warning indicator event triggers a re-run within 5 business days. Scenario assumptions and their changes are governed under [LQ-08](#lq-08-data-quality-model-governance); scenario parameters are write-restricted to Treasury Operations with Compliance sign-off.
+## LP-07 — Stress Testing
+
+- **WHY (Reg cite):** Credible idiosyncratic, systemic, and combined stress testing underpins the CFP ([12 CFR §741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12)).
+- **SYSTEM BEHAVIOR:** Idiosyncratic, systemic, and combined scenarios (including intraday peaks and BaaS shocks) are run quarterly and re-run within 5 business days on a major early-warning indicator. A scenario that breaches a minimum drives escalation and CFP review. Scenario assumptions are versioned and write-restricted to Compliance, with independent model review annually.
 - **EVENTS:**
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Quarter opens (`stress.quarter_open`) | Scenario library (`stress.scenarios[]`), behavioral outflow assumptions (`stress.behavioral_assumptions`), intraday peak profile (`stress.intraday_profile`), BaaS shock parameters (`stress.baas_shock_params`) | Quarterly stress pack with results per scenario (`stress.pack_issued`) | Quarterly (enforced by `stress.quarterly_due_at`) |
-  | Major EWI event flagged (`ewi.major_event_flagged`) | Triggering indicator (`ewi.indicator_id`), refreshed assumptions (`stress.behavioral_assumptions`) | Ad-hoc stress re-run results (`stress.adhoc_rerun_issued`) | 5 BD from flag (enforced by `stress.rerun_due_at`) |
-  | Scenario assumption change approved (`stress.assumption_changed`) | New assumption value (`stress.assumption_value`), rationale (`stress.change_rationale`), approver (`stress.approver_id`) | Versioned assumption catalogue entry (`stress.assumption_versioned`) | — |
+  | Quarterly stress cycle opens (`stress.quarter_open`) | Scenario set (`stress.behavioral_assumptions`), intraday profile (`stress.intraday_profile`), BaaS shock params (`stress.baas_shock_params`) | Stress pack with results (`stress.pack_issued`) | Quarterly (enforced by `stress.quarterly_due_at`) |
+  | Major EWI flagged (`ewi.major_event_flagged`) | Changed assumptions (`stress.assumption_value`), rationale (`stress.change_rationale`) | Ad-hoc stress rerun (`stress.adhoc_rerun_issued`) | 5 BD (enforced by `stress.rerun_due_at`) |
+  | Scenario minimum breached (`stress_test.minimum_breached`) | Breach detail (`stress_test.breach_detail`), failing scenario (`stress.assumption_versioned`) | Remediation escalation (`stress_test.remediation_escalated`) | Same day (no registered timer) |
 
-- **ALERTS/METRICS:** Quarterly-run on-time rate (target 100%); count of ad-hoc re-runs and their latency against the 5 BD SLA; scenario-coverage check confirming idiosyncratic, systemic, combined, intraday, and BaaS shocks all ran each quarter.
+- **ALERTS/METRICS:** Alert on stress minimum breach (`stress_test.minimum_breached`); target all scenarios above minimum; track ad-hoc rerun completion within 5 BD.
 
-## LQ-08 — Data Quality & Model Governance {#lq-08-data-quality-model-governance}
+---
 
-- **WHY (Reg cite):** [12 CFR §741.12(b)](https://www.ecfr.gov/current/title-12/part-741/section-741.12) requires liquidity management commensurate with complexity; supervisory reliance on the program's outputs requires that its data and models be demonstrably sound.
-- **SYSTEM BEHAVIOR:** Treasury Operations maintains a data-lineage catalog (every metric input traced to source system and GL account) and an assumption catalog (every behavioral or scenario assumption with owner, basis, and last-review date). Liquidity data ties out to the GL daily; an unexplained tie-out variance above the registry tolerance flags all downstream outputs as provisional until resolved. The liquidity models receive an independent review annually, with strict segregation between model builders and reviewers — no individual may review a model they built or materially modified. Lineage and assumption catalogs are write-restricted to Treasury Operations; review findings are write-restricted to the independent reviewer.
+## LP-08 — Data Quality & Model Governance
+
+- **WHY (Reg cite):** Reliable data lineage, GL tie-out, and independent model review ensure measurement integrity ([12 CFR §741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12)).
+- **SYSTEM BEHAVIOR:** Data lineage and assumption catalogs are maintained, GL tie-out runs daily, and an independent model review is obtained annually with segregation between model builders and reviewers. A material tie-out variance opens an investigation. Model assumptions are write-restricted to Compliance; reviewer identity is segregated from the builder roster and enforced by control.
 - **EVENTS:**
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Daily GL close completes (`gl.eod_closed`) | GL balances (`gl.balances`), liquidity-system balances (`liquidity.system_balances`), tolerance (`policy.limit_registry`) | Daily tie-out report with variances (`dq.tieout_completed`) | Daily (enforced by `dq.tieout_due_at`) |
-  | Tie-out variance above tolerance (`dq.variance_detected`) | Variance amount (`dq.variance_amount`), affected accounts (`dq.affected_accounts[]`) | Provisional flag on downstream outputs + investigation ticket (`dq.investigation_opened`) | Same day |
-  | Annual model review due (`model.review_due`) | Model inventory (`model.inventory[]`), builder roster (`model.builder_roster`), reviewer assignment (`model.reviewer_id`) | Independent review report with findings (`model.review_completed`) | Annual (enforced by `model.review_due_at`) |
+  | Daily GL tie-out runs (`dq.tieout_completed`) | GL balances (`gl.balances`), catalogue values (`catalogue.formula`) | Tie-out result (`dq.tieout_completed`) | Daily (enforced by `dq.tieout_due_at`) |
+  | Variance detected (`dq.variance_detected`) | Variance amount (`dq.variance_amount`) | DQ investigation opened (`dq.investigation_opened`) | Same day (no registered timer) |
+  | Annual model review completed (`model.review_completed`) | Builder roster (`model.builder_roster`), reviewer id (`model.reviewer_id`) | Independent review record (`model.review_completed`) | Annual (enforced by `model.review_due_at`) |
 
-- **ALERTS/METRICS:** Alert on tie-out variance above tolerance (`alert.dq_variance`); count of days with provisional outputs (target zero); model-review findings open past their remediation date.
+- **ALERTS/METRICS:** Alert on DQ variance (`alert.dq_variance`); target zero unresolved variances; track model-review independence attestation completeness.
 
-## LQ-09 — Reporting Cadence {#lq-09-reporting-cadence}
+---
 
-- **WHY (Reg cite):** [12 CFR §741.12(b)](https://www.ecfr.gov/current/title-12/part-741/section-741.12) requires board-approved policies and oversight, which depends on a defined, evidenced reporting rhythm to ALCO and the Board.
-- **SYSTEM BEHAVIOR:** The system auto-generates three packs: a daily ops pack by 17:00 (LAR and band, cumulative gaps, top depositors, facility headroom, survival days), a weekly ALCO digest by Friday 12:00, and a quarterly Board deck within 5 business days of quarter-end. Each pack carries a required sign-off — Treasury Operations for daily, CFO for weekly, CFO plus CCO for quarterly — and an unsigned pack past its deadline escalates to the CFO. If an upstream feed is missing, the pack still publishes on time with the affected sections flagged provisional rather than holding the whole pack. Pack templates are write-restricted to Treasury Operations.
+## LP-09 — Reporting Cadence
+
+- **WHY (Reg cite):** Regular liquidity reporting to management and the Board is required for program oversight ([12 CFR §741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12)).
+- **SYSTEM BEHAVIOR:** A daily ops pack (17:00), weekly ALCO digest (Fri 12:00), and quarterly Board deck (+5 business days) are auto-generated, each requiring sign-off. A missed publication surfaces as an aging alert. Report templates and distribution lists are write-restricted to Compliance.
 - **EVENTS:**
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Daily pack scheduled (`report.daily_pack_due`) | LAR and band (`lar.value`, `lar.current_band`), gaps (`mismatch.current_gaps`), concentrations (`concentration.top10`), headroom (`collateral.unencumbered_balance`) | Daily ops pack + sign-off (`report.daily_pack_published`) | Daily by 17:00 (enforced by `report.daily_due_at`) |
-  | Weekly digest scheduled (`report.weekly_digest_due`) | Week-over-week metric deltas (`report.weekly_deltas`), open breaches/waivers (`report.open_items[]`) | Weekly ALCO digest + CFO sign-off (`report.weekly_digest_published`) | Friday 12:00 (enforced by `report.weekly_due_at`) |
-  | Quarter closes (`report.board_deck_due`) | Quarterly stress pack (`stress.pack_issued`), survival results (`survival.days_combined`), limit-exception history (`policy.exceptions[]`) | Quarterly Board deck + CFO/CCO sign-offs (`report.board_deck_published`) | Quarter-end + 5 BD (enforced by `report.board_due_at`) |
+  | EOD data posted (`liquidity.eod_posted`) | LAR (`lar.value`), gaps (`mismatch.current_gaps`), concentrations (`concentration.top10`) | Daily ops pack (`report.daily_pack_published`) | 17:00 daily (enforced by `report.daily_due_at`) |
+  | Weekly cycle closes (`report.weekly_digest_published`) | Weekly deltas (`report.weekly_deltas`) | Weekly ALCO digest (`report.weekly_digest_published`) | Fri 12:00 (enforced by `report.weekly_due_at`) |
+  | Quarter closes (`report.board_deck_published`) | Board pack inputs (`analytics.board_pack_inputs`), sign-off (`board.package_distributed`) | Quarterly Board deck (`report.board_deck_published`) | +5 BD (enforced by `report.board_due_at`) |
 
-- **ALERTS/METRICS:** On-time publication rate per pack type (target 100%); count of packs published with provisional sections; sign-off latency distribution.
+- **ALERTS/METRICS:** Alert on report aging (`alert.policy_review_aging` adapted via `report.*_due_at`); target 100% on-time publication; track sign-off latency per cadence.
 
-## LQ-10 — Regulatory Notification {#lq-10-regulatory-notification}
+---
 
-- **WHY (Reg cite):** [12 CFR §741.12(c)](https://www.ecfr.gov/current/title-12/part-741/section-741.12) requires the CFP to establish lines of communication for liquidity events; timely notification of the NCUA is the regulatory leg of that requirement.
-- **SYSTEM BEHAVIOR:** The credit union notifies the NCUA examiner-in-charge and regional office within 24 hours when any of four conditions occurs: CFP Level 2 or 3 activates ([LQ-14](#lq-14-cfp-purpose-activation)), a federal facility (CLF or Discount Window) is used or its use is attempted, combined-stress survival falls below 15 days ([LQ-04](#lq-04-survival-horizon-coverage-days)), or LAR falls below 6% ([LQ-05](#lq-05-liquid-assets-ratio-bands)). The CFO drafts the event memo, the CEO sends it, and the Board Chair is copied. An after-hours trigger is notified by 10:00 the next calendar day with the timing exception documented. Notification authority is restricted to the CEO (or Acting CEO per the succession matrix in [LQ-16](#lq-16-escalation-ladder-crisis-roles)).
+## LP-10 — Regulatory Notification
+
+- **WHY (Reg cite):** Material liquidity stress and federal-facility use must be escalated to NCUA ([12 CFR §741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12)).
+- **SYSTEM BEHAVIOR:** NCUA (examiner-in-charge and regional office) is notified within 24 hours when CFP Level 2 or 3 activates, a federal facility is used or attempted, survival falls below 15 days (combined), or LAR falls below 6%. An after-hours trigger is documented and sent by the next business morning. The notification memo is drafted by Compliance and sent under CEO authority; the contact list is write-restricted to Compliance.
 - **EVENTS:**
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Notification condition met (`ncua.notification_required`) | Triggering condition (`ncua.trigger_condition`), current metrics pack (`ncua.metrics_snapshot`), examiner/region contacts (`regulator.contacts`) | Event memo sent + send confirmation (`ncua.notification_sent`) | **24 hours** (enforced by `ncua.notification_due_at`) |
-  | NCUA acknowledges receipt (`ncua.ack_received`) | Acknowledgment detail (`ncua.ack_detail`) | Acknowledgment logged to incident record (`ncua.ack_logged`) | — |
-  | Follow-up request from NCUA (`regulator.request_received`) | Request content (`regulator.request_detail`) | Hand-off to liaison protocol (`regulator.request_routed`) | Immediate routing to [LQ-19](#lq-19-regulator-liaison-protocols) |
+  | Notification criteria met (`ncua.notification_required`) | Trigger condition (`ncua.trigger_condition`), metrics snapshot (`ncua.metrics_snapshot`), contacts (`regulator.contacts`) | Event memo sent (`ncua.notification_sent`) | 24 hours (enforced by `ncua.notification_due_at`) |
+  | NCUA acknowledges (`ncua.ack_received`) | Acknowledgment detail (`ncua.ack_detail`) | Acknowledgment logged (`ncua.ack_logged`) | On receipt (no registered timer) |
 
-- **ALERTS/METRICS:** Notifications-on-time rate (target 100%); countdown alert at 12 hours remaining on an unsent required notification (`alert.ncua_notification_aging`); count of after-hours timing exceptions.
+- **ALERTS/METRICS:** Alert on notification aging (`alert.ncua_notification_aging`); target zero late notifications; track time-from-trigger-to-send distribution.
 
-## LQ-11 — Contingent Federal Liquidity Access {#lq-11-contingent-federal-liquidity-access}
+---
 
-- **WHY (Reg cite):** [12 CFR §741.12(a)](https://www.ecfr.gov/current/title-12/part-741/section-741.12) requires credit unions of $250MM or more to demonstrate access to a federal contingent liquidity source — the Central Liquidity Facility under [12 U.S.C. §§1795–1795k](https://www.law.cornell.edu/uscode/text/12/chapter-14) and/or the Federal Reserve Discount Window under [12 U.S.C. §347b](https://www.law.cornell.edu/uscode/text/12/347b).
-- **SYSTEM BEHAVIOR:** The credit union maintains CLF membership (or agent access through a corporate credit union) and operational readiness at the Discount Window: executed legal agreements, current authorized-borrower lists, and collateral schedules kept synchronized with the encumbrance data in [LQ-12](#lq-12-collateral-encumbrance-management). An annual test of at least one federal facility — funded or no-funds — verifies that a draw could actually execute, with results feeding the after-action process in [LQ-20](#lq-20-liquidity-drills-after-action-reviews). Facility agreements and authorized-borrower lists are write-restricted to the CFO with Compliance countersign.
+## LP-11 — Contingent Federal Liquidity Access
+
+- **WHY (Reg cite):** Documented federal contingent liquidity access (CLF and/or Discount Window) is required at scale ([12 CFR §741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12); [CLF 12 U.S.C. §§1795–1795k](https://www.law.cornell.edu/uscode/text/12/chapter-14); [Fed advances 12 U.S.C. §347b](https://www.law.cornell.edu/uscode/text/12/347b)).
+- **SYSTEM BEHAVIOR:** CLF membership/agent access and Discount Window operational readiness are maintained, collateral schedules are kept current, and an annual funded or no-funds test is conducted. A failed or partial test opens a corrective plan with a deadline. Facility contacts and collateral schedules are write-restricted to Compliance/Treasury under dual control.
 - **EVENTS:**
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Annual facility test due (`facility.annual_test_due`) | Test script (`facility.test_script`), facility contacts (`facility.contacts`), pledged collateral schedule (`collateral.pledge_schedule`) | Test result + readiness attestation (`facility.test_completed`) | Annual (enforced by `facility.test_due_at`) |
-  | Membership/agreement renewal due (`facility.renewal_due`) | Current agreements (`facility.agreements[]`), authorized-borrower list (`facility.authorized_borrowers[]`) | Renewed/confirmed access documentation (`facility.access_confirmed`) | Before expiry |
-  | Collateral schedule drift detected (`facility.schedule_drift_detected`) | Facility-side schedule (`facility.collateral_schedule`), internal inventory (`collateral.inventory`) | Reconciled, re-filed collateral schedule (`facility.schedule_updated`) | 5 BD from detection |
+  | Annual federal test due (`cfp.investment_test_completed`) | Test script (`facility.test_script`), collateral schedule (`facility.collateral_schedule`), contacts (`facility.contacts`) | Facility test report (`cfp.investment_test_completed`) | Annual (enforced by `cfp.investment_test_due`) |
+  | Collateral schedule updated (`collateral.file_posted`) | Eligibility rules (`collateral.eligibility_rules`), unencumbered balance (`collateral.unencumbered_balance`) | Updated readiness record (`facility.access_confirmed`) | Per update (no registered timer) |
 
-- **ALERTS/METRICS:** Alert at 60 days before any facility agreement or test deadline (`alert.facility_readiness_aging`); readiness attestation freshness (target: none older than 12 months); collateral-schedule drift count (target zero).
+- **ALERTS/METRICS:** Alert on facility readiness aging (`alert.facility_readiness_aging`); target current collateral schedule and passed annual test; track days since last facility test.
 
-## LQ-12 — Collateral & Encumbrance Management {#lq-12-collateral-encumbrance-management}
+---
 
-- **WHY (Reg cite):** [12 CFR §741.12(c)](https://www.ecfr.gov/current/title-12/part-741/section-741.12) requires the CFP to identify funding sources actually available in stress — which depends on knowing, daily, what collateral is eligible, unencumbered, and at what haircut.
-- **SYSTEM BEHAVIOR:** The system tracks eligible and unencumbered collateral balances and applicable haircuts by counterparty (FHLB if eligible, Discount Window, CLF, repo counterparties), updating daily and re-checking after any large market move or large pledge/release. All pledges and releases execute under dual control — no single individual can encumber or free collateral. A security in dispute or with uncertain eligibility is removed from headroom until cleared. Headroom figures feed survival modeling ([LQ-04](#lq-04-survival-horizon-coverage-days)) and the funding playbooks ([LQ-17](#lq-17-funding-playbooks-draw-order)). Pledge/release authority is restricted to named Treasury Operations officers under the dual-control rule.
+## LP-12 — Collateral & Encumbrance Management
+
+- **WHY (Reg cite):** Accurate eligible/unencumbered collateral tracking supports contingent funding capacity ([12 CFR §741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12); [Fed advances 12 U.S.C. §347b](https://www.law.cornell.edu/uscode/text/12/347b)).
+- **SYSTEM BEHAVIOR:** Eligible/unencumbered balances and haircuts by counterparty are tracked under dual control, updated daily, and re-checked after large moves. A security in dispute is removed from headroom until cleared. Collateral pledges and releases require dual control; the inventory is write-restricted to Treasury Operations with Compliance oversight.
 - **EVENTS:**
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | EOD collateral file posted (`collateral.file_posted`) | Position inventory (`collateral.inventory`), eligibility rules (`collateral.eligibility_rules`), counterparty haircuts (`collateral.haircuts[]`) | Unencumbered-balance and headroom report (`collateral.headroom_computed`) | Daily (enforced by `collateral.compute_due_at`) |
-  | Large market move or large pledge/release (`collateral.large_move_detected`) | Move detail (`collateral.move_detail`), revalued positions (`collateral.revalued_positions[]`) | Intraday headroom re-check (`collateral.headroom_rechecked`) | Same day |
-  | Pledge or release requested (`collateral.pledge_requested`) | Position identifier (`collateral.position_id`), counterparty (`collateral.counterparty_id`), two authorizer identities (`collateral.authorizer_ids[]`) | Dual-controlled pledge/release record (`collateral.pledge_executed`) | — |
+  | Daily collateral computation runs (`collateral.headroom_computed`) | Inventory (`collateral.inventory`), haircuts (`liquidity.haircut_table`), counterparty (`collateral.counterparty_id`) | Headroom computation (`collateral.headroom_computed`) | Daily (enforced by `collateral.compute_due_at`) |
+  | Large collateral move detected (`collateral.large_move_detected`) | Move detail (`collateral.move_detail`), fair value (`collateral.fair_value`) | Re-checked headroom (`collateral.headroom_rechecked`) | After move, real-time (no registered timer) |
+  | Pledge executed (`collateral.pledge_executed`) | Pledge schedule (`collateral.pledge_schedule`), dual-control approval (`transaction.dual_control_required`) | Pledge record (`collateral.pledge_executed`) | Per pledge (no registered timer) |
 
-- **ALERTS/METRICS:** Alert when unencumbered headroom falls below the registry floor (`alert.headroom_low`); encumbrance percentage trend; count of pledge/release actions missing a second authorizer (target zero — hard block).
+- **ALERTS/METRICS:** Alert on low headroom (`alert.headroom_low`); target stable unencumbered headroom buffer; track encumbrance percentage trend.
 
-## LQ-13 — Wholesale / Listing-Service Deposits Guardrails {#lq-13-wholesale-listing-service-deposits-guardrails}
+---
 
-- **WHY (Reg cite):** [12 CFR §741.12(b)](https://www.ecfr.gov/current/title-12/part-741/section-741.12) requires identification of funding sources and diversified funding; wholesale and listing-service deposits are permitted sources only within enforced guardrails that prevent over-reliance.
-- **SYSTEM BEHAVIOR:** Only approved listing services may be used, with maturities laddered by tenor so no single maturity window concentrates rollover risk, and with rate-setting restricted to holders of pricing authority — the system rejects a listing posted outside the authorized rate schedule. Exposure (outstanding balance by service, tenor bucket, and rate) updates daily, and ALCO reviews the full wholesale book monthly. Listing-service exposure counts toward the concentration limits in [LQ-06](#lq-06-funding-concentration-counterparty-limits). The approved-service list and pricing authority matrix are write-restricted to Compliance.
+## LP-13 — Wholesale / Listing-Service Deposits Guardrails
+
+- **WHY (Reg cite):** Wholesale/listing-service funding guardrails control concentration and volatility risk ([12 CFR §741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12)).
+- **SYSTEM BEHAVIOR:** Approved listing services are allowed with tenor laddering and enforced pricing authority; exposure is updated daily and reviewed monthly by ALCO. A listing request outside the pricing authority or tenor ladder is blocked. Approved-service lists and pricing authority are write-restricted to Compliance/Treasury.
 - **EVENTS:**
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | EOD wholesale file posted (`wholesale.exposure_posted`) | Outstanding balances by service (`wholesale.balances[]`), tenor ladder (`wholesale.tenor_ladder`), registry limits (`policy.limit_registry`) | Exposure ladder report (`wholesale.exposure_computed`) | Daily (enforced by `wholesale.compute_due_at`) |
-  | New listing posted (`wholesale.listing_requested`) | Service identity (`wholesale.service_id`), rate and tenor (`wholesale.rate`, `wholesale.tenor`), poster's pricing authority (`wholesale.pricing_authority_id`) | Approved or rejected listing record (`wholesale.listing_decisioned`) | Real-time |
-  | Monthly ALCO review convenes (`wholesale.monthly_review_due`) | Month's exposure history (`wholesale.exposure_history`), maturity calendar (`wholesale.maturity_calendar`) | ALCO review minutes with dispositions (`wholesale.review_completed`) | Monthly (enforced by `wholesale.review_due_at`) |
+  | Daily wholesale exposure computed (`wholesale.exposure_posted`) | Service id (`wholesale.service_id`), tenor ladder (`wholesale.tenor_ladder`), maturity calendar (`wholesale.maturity_calendar`) | Exposure record (`wholesale.exposure_posted`) | Daily (enforced by `wholesale.compute_due_at`) |
+  | Listing request submitted (`wholesale.listing_requested`) | Rate (`wholesale.rate`), tenor (`wholesale.tenor`), pricing authority (`wholesale.pricing_authority_id`) | Listing decision (`wholesale.listing_decisioned`) | Per request (no registered timer) |
+  | Monthly ALCO review (`wholesale.review_completed`) | Exposure history (`wholesale.exposure_history`) | Monthly review record (`wholesale.review_completed`) | Monthly (enforced by `wholesale.monthly_review_due`) |
 
-- **ALERTS/METRICS:** Alert on a rejected listing attempt (`alert.wholesale_pricing_violation`); tenor-ladder concentration (share maturing in any 30-day window, target below the registry cap); listing-service share of total funding trend.
+- **ALERTS/METRICS:** Alert on pricing-authority violation (`alert.wholesale_pricing_violation`); target zero out-of-authority listings; track wholesale exposure as share of total funding.
 
-## LQ-14 — CFP Purpose & Activation {#lq-14-cfp-purpose-activation}
+---
 
-- **WHY (Reg cite):** [12 CFR §741.12(c)](https://www.ecfr.gov/current/title-12/part-741/section-741.12) requires a written CFP commensurate with complexity, addressing the management of liquidity events with defined responsibility and escalation.
-- **SYSTEM BEHAVIOR:** The CFP activates in three levels tied directly to the LAR bands in [LQ-05](#lq-05-liquid-assets-ratio-bands): **Level 1 (Watch)** when LAR enters the Watch band, **Level 2 (Low)** when LAR enters the Low band, and **Level 3 (Critical)** when LAR enters the Critical band. Level 2 and 3 activations start transition actions within 2 hours, convene the crisis team per [LQ-16](#lq-16-escalation-ladder-crisis-roles), open the funding playbook per [LQ-17](#lq-17-funding-playbooks-draw-order), and trigger NCUA notification per [LQ-10](#lq-10-regulatory-notification). De-activation requires the LAR to return to the higher band and hold for the registry-defined confirmation period; a false-positive activation is reverted with a documented rationale rather than silently withdrawn. Level 2/3 activation authority rests with the CEO; Level 1 activates automatically on band change.
+## LP-14 — CFP Purpose & Activation
+
+- **WHY (Reg cite):** The CFP must specify clear activation levels and tie them to liquidity indicators ([12 CFR §741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12)).
+- **SYSTEM BEHAVIOR:** Activation Level 1 (Watch), Level 2 (Low), and Level 3 (Critical) are defined and tied to the LAR bands in [LP-05](#lp-05-liquid-assets-ratio-bands), with transition actions starting within 2 hours of Level 2/3. A false-positive activation may be reverted with documented rationale. Activation authority for Level 2/3 rests with the CEO; the threshold table is write-restricted to Compliance.
 - **EVENTS:**
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | LAR band deteriorates (`lar.band_changed`) | New band (`lar.current_band`), LAR value (`lar.value`), survival context (`survival.days_combined`) | CFP activation record at mapped level (`cfp.level_changed`) | Immediate |
-  | Level 2/3 activation confirmed (`cfp.level_changed`) | Level playbook (`playbook.spec`), crisis roster (`crisis.roster`) | Transition actions opened as tasks (`cfp.transition_started`) | **2 hours** (enforced by `cfp.transition_due_at`) |
-  | Band recovers and holds (`lar.band_recovered`) | Recovery confirmation period (`policy.limit_registry`), closing metrics (`lar.value`) | De-activation record with rationale (`cfp.deactivated`) | After confirmation period |
+  | LAR band change or survival breach (`lar.band_changed`, `survival.below_threshold`) | Threshold table (`policy.limit_registry`), band (`lar.current_band`) | CFP level activation (`cfp.level_changed`) | Real-time (no registered timer) |
+  | Level 2/3 transition begins (`cfp.transition_started`) | Selected playbook (`playbook.spec`), tasking orders (`task.type`) | Transition record (`cfp.transition_started`) | 2 hours (enforced by `cfp.transition_due_at`) |
+  | Level deactivated (`cfp.deactivated`) | Deactivation rationale (`cfp.execution_plan_documented`) | Deactivation record (`cfp.deactivated`) | When stable (no registered timer) |
 
-- **ALERTS/METRICS:** Time-to-activate distribution (band change to activation record, target under 15 minutes); time-to-first-transition-action against the 2-hour SLA; count of false-positive activations with documented reversion.
+- **ALERTS/METRICS:** Alert on activation aging via `liquidity.cfp_activation_due_at`; target transition start within 2 hours at Level 2/3; track time-to-activate distribution.
 
-## LQ-15 — Early-Warning Indicators & Event Triggers {#lq-15-early-warning-indicators-event-triggers}
+---
 
-- **WHY (Reg cite):** [12 CFR §741.12(c)](https://www.ecfr.gov/current/title-12/part-741/section-741.12) requires the CFP to address events that could erode liquidity; early-warning monitoring is how the credit union positions itself into readiness before activation thresholds are hit.
-- **SYSTEM BEHAVIOR:** The system monitors a defined indicator set daily: volatile-liability growth, funding concentrations, negative press and social-media sentiment, asset-quality deterioration, rising funding costs, margin calls, early CD redemptions, and correspondent line cuts. Each indicator has green/amber/red thresholds in the limit registry. A red indicator opens an investigation and feeds the ad-hoc re-run triggers in [LQ-04](#lq-04-survival-horizon-coverage-days) and [LQ-07](#lq-07-stress-testing); a rumor or press spike also pre-stages communications per [LQ-18](#lq-18-external-communications-stakeholder-matrix). The CEO receives a weekly EWI summary regardless of status. Indicator thresholds are write-restricted to Compliance.
+## LP-15 — Early-Warning Indicators & Event Triggers
+
+- **WHY (Reg cite):** Early-warning monitoring positions the credit union into progressive readiness as stress evolves ([12 CFR §741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12)).
+- **SYSTEM BEHAVIOR:** Volatile-liability growth, concentrations, negative press, asset-quality deterioration, rising funding costs, margin calls, early CD redemptions, and correspondent line cuts are monitored daily with weekly CEO summaries. An indicator crossing threshold flags a spike that may drive survival rerun ([LP-04](#lp-04-survival-horizon-and-coverage-days)) or stress rerun ([LP-07](#lp-07-stress-testing)). Indicator thresholds are write-restricted to Compliance; Risk has read-only access.
 - **EVENTS:**
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Daily EWI sweep runs (`ewi.daily_sweep_due`) | Indicator feeds (`ewi.feeds[]`), thresholds (`ewi.thresholds[]`) | EWI dashboard refresh with statuses (`ewi.sweep_completed`) | Daily (enforced by `ewi.sweep_due_at`) |
-  | Indicator crosses red threshold (`ewi.threshold_breached`) | Breaching indicator (`ewi.indicator_id`), value and trend (`ewi.value`, `ewi.trend`) | Investigation opened + downstream trigger records (`ewi.spike_flagged`) | Same day |
-  | Weekly CEO summary due (`ewi.weekly_summary_due`) | Week's indicator history (`ewi.history`), open investigations (`ewi.open_investigations[]`) | CEO summary delivered (`ewi.ceo_summary_sent`) | Weekly (enforced by `ewi.summary_due_at`) |
+  | Daily EWI sweep runs (`ewi.sweep_completed`) | Indicator values (`ewi.value`), thresholds (`ewi.thresholds`), history (`ewi.history`) | EWI sweep record (`ewi.sweep_completed`) | Daily (enforced by `ewi.sweep_due_at`) |
+  | Indicator crosses threshold (`ewi.threshold_breached`) | Indicator id (`ewi.indicator_id`), trend (`ewi.trend`) | Spike flag (`ewi.spike_flagged`) | Real-time (no registered timer) |
+  | Weekly CEO summary due (`ewi.ceo_summary_sent`) | Sweep history (`ewi.history`) | CEO summary (`ewi.ceo_summary_sent`) | Weekly (enforced by `ewi.summary_due_at`) |
 
-- **ALERTS/METRICS:** Red-indicator acknowledgment latency (target under 4 business hours); count of red indicators without an open investigation (target zero); weekly summary on-time rate.
+- **ALERTS/METRICS:** Alert on EWI threshold breach (`ewi.threshold_breached`); target daily sweep completion; track number of red indicators and acknowledgment time.
 
-## LQ-16 — Escalation Ladder & Crisis Roles {#lq-16-escalation-ladder-crisis-roles}
+---
 
-- **WHY (Reg cite):** [12 CFR §741.12(c)](https://www.ecfr.gov/current/title-12/part-741/section-741.12) requires the CFP to identify the responsibilities and authorities of personnel during a liquidity event.
-- **SYSTEM BEHAVIOR:** Crisis roles are fixed in advance: the **CEO** owns external communications and is sole spokesperson, the **CFO** runs liquidity operations and the playbooks, **ALCO** advises, and the **Board** authorizes extraordinary measures (asset sales beyond playbook scope, emergency borrowing beyond pre-approved capacity). On Level 2/3 activation the crisis team convenes within 60 minutes; if the CEO is unreachable, the Acting CEO per the succession matrix assumes the role and the substitution is logged. All crisis decisions are recorded in a decision log with decider, basis, and time. The succession matrix and role roster are write-restricted to the CEO with Board visibility.
+## LP-16 — Escalation Ladder & Crisis Roles
+
+- **WHY (Reg cite):** Defined crisis roles and timely escalation enable execution before stress becomes crisis ([12 CFR §741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12)).
+- **SYSTEM BEHAVIOR:** Crisis roles are defined (CEO external comms, CFO liquidity ops, ALCO advisory, Board extraordinary measures), and the crisis team is convened within 60 minutes of Level 2/3. If the CEO is unavailable, the succession matrix designates an Acting CEO. The roster and succession matrix are write-restricted to the CFO and Compliance; Board authorizes extraordinary measures.
 - **EVENTS:**
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Level 2/3 activated (`cfp.level_changed`) | Crisis roster (`crisis.roster`), succession matrix (`crisis.succession_matrix`), current liquidity snapshot (`report.daily_pack_published`) | Crisis team convened, attendance logged (`crisis.team_convened`) | **60 minutes** (enforced by `crisis.convene_due_at`) |
-  | Crisis decision taken (`crisis.decision_proposed`) | Decision detail (`crisis.decision_detail`), decider identity (`crisis.decider_id`), authority basis (`crisis.authority_basis`) | Decision log entry (`crisis.decision_logged`) | Real-time |
-  | Extraordinary measure proposed (`crisis.extraordinary_proposed`) | Measure description (`crisis.measure_detail`), Board quorum (`crisis.board_quorum`) | Board authorization record (`crisis.board_authorized`) | Before execution |
+  | Level 2/3 activates (`cfp.level_changed`) | Roster (`crisis.roster`), succession matrix (`crisis.succession_matrix`) | Crisis team convened (`crisis.team_convened`) | 60 minutes (enforced by `crisis.convene_due_at`) |
+  | Crisis decision proposed (`crisis.decision_proposed`) | Decider id (`crisis.decider_id`), decision detail (`crisis.decision_detail`) | Decision logged (`crisis.decision_logged`) | During crisis (no registered timer) |
+  | Extraordinary measure proposed (`crisis.extraordinary_proposed`) | Authority basis (`crisis.authority_basis`), board quorum (`crisis.board_quorum`) | Board authorization (`crisis.board_authorized`) | During crisis (no registered timer) |
 
-- **ALERTS/METRICS:** Convening latency against the 60-minute SLA; count of decisions executed without a log entry (target zero); succession-matrix freshness (reviewed within the last 12 months).
+- **ALERTS/METRICS:** Track escalation time-to-convene against 60-minute SLA; target zero missed convenings at Level 2/3; track decision-log completeness.
 
-## LQ-17 — Funding Playbooks & Draw Order {#lq-17-funding-playbooks-draw-order}
+---
 
-- **WHY (Reg cite):** [12 CFR §741.12(c)](https://www.ecfr.gov/current/title-12/part-741/section-741.12) requires the CFP to list available funding sources in the order they would be used; the CLF ([12 U.S.C. §§1795–1795k](https://www.law.cornell.edu/uscode/text/12/chapter-14)) and the Discount Window ([12 U.S.C. §347b](https://www.law.cornell.edu/uscode/text/12/347b)) anchor the federal end of the draw order.
-- **SYSTEM BEHAVIOR:** The playbook specifies an internal-then-external draw order: (1) cash and Fed balances, (2) unencumbered AFS securities, (3) saleable loans; then external — (4) FHLB if eligible, (5) Discount Window, (6) CLF, (7) listing-service CDs within the guardrails of [LQ-13](#lq-13-wholesale-listing-service-deposits-guardrails). On Level 2 activation, first-line actions execute within 2 hours. Every external draw requires dual authorization — two named officers, neither of whom may self-authorize. If a planned facility is unavailable (counterparty outage, eligibility lapse), execution branches to the next source in the order with the deviation logged; the CEO approves any deviation from the published order. Draw execution authority is restricted to the CFO and named Treasury Operations officers.
+## LP-17 — Funding Playbooks & Draw Order
+
+- **WHY (Reg cite):** The CFP must enumerate an executable, ordered funding plan ([12 CFR §741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12); [CLF 12 U.S.C. §§1795–1795k](https://www.law.cornell.edu/uscode/text/12/chapter-14); [Fed advances 12 U.S.C. §347b](https://www.law.cornell.edu/uscode/text/12/347b)).
+- **SYSTEM BEHAVIOR:** An internal-then-external draw order is specified (cash/Fed balances, unencumbered AFS, saleable loans; then FHLB if eligible, Discount Window, CLF, listing-service CDs), with first-line actions executed within 2 hours of Level 2 under dual authorization on external draws. If a planned source is unavailable, the playbook branches to the next source and to collateral readiness in [LP-12](#lp-12-collateral-and-encumbrance-management). External draws require dual authorization; the source registry is write-restricted to Treasury/Compliance.
 - **EVENTS:**
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Level 2 activated (`cfp.level_changed`) | Funding shortfall estimate (`funding.shortfall_estimate`), source registry with capacity/tenor/cost (`funding.sources[]`), collateral headroom (`collateral.unencumbered_balance`) | First-line draw orders executed (`funding.first_line_executed`) | **2 hours** (enforced by `funding.first_line_due_at`) |
-  | External draw requested (`funding.external_draw_requested`) | Facility identity (`facility.id`), draw amount (`funding.draw_amount`), two authorizer identities (`funding.authorizer_ids[]`) | Dual-authorized draw + confirmation (`funding.draw_executed`) | Per facility cutoff |
-  | Planned source unavailable (`funding.source_unavailable`) | Failure reason (`funding.unavailability_reason`), next source in order (`funding.next_source`) | Logged branch to alternate source (`funding.draw_order_deviated`) | Immediate |
+  | Funding shortfall at Level 2 (`liquidity.cfp_trigger_breached`) | Shortfall estimate (`funding.shortfall_estimate`), next source (`funding.next_source`) | First-line draw executed (`funding.first_line_executed`) | 2 hours (enforced by `funding.first_line_due_at`) |
+  | External draw requested (`funding.external_draw_requested`) | Draw amount (`funding.draw_amount`), dual-control flag (`transaction.dual_control_required`) | Draw confirmation (`funding.draw_executed`) | At Level 2/3 (no registered timer) |
+  | Planned source unavailable (`funding.source_unavailable`) | Unavailability reason (`funding.unavailability_reason`), draw-order deviation (`funding.draw_order_deviated`) | Branch-to-backup record (`funding.draw_executed`) | Real-time (no registered timer) |
 
-- **ALERTS/METRICS:** First-line execution latency against the 2-hour SLA; count of external draws missing dual authorization (target zero — hard block); headroom-days remaining after each draw; realized cost of funds versus playbook estimate.
+- **ALERTS/METRICS:** Track first-line execution within 2 hours; target zero unauthorized single-signature external draws; track cost-of-funds and headroom-days at draw time.
 
-## LQ-18 — External Communications & Stakeholder Matrix {#lq-18-external-communications-stakeholder-matrix}
+---
 
-- **WHY (Reg cite):** [12 CFR §741.12(c)](https://www.ecfr.gov/current/title-12/part-741/section-741.12) requires the CFP to establish lines of communication; disciplined external communication is the principal mitigant against perception-driven run risk.
-- **SYSTEM BEHAVIOR:** The CEO is the sole spokesperson for all external liquidity communications. Pre-approved scripted updates exist for each stakeholder class in the stakeholder matrix — major depositors, BaaS partners, correspondent counterparties, media — and Level 2/3 communications go out same-day using only those scripts. Inbound media inquiries receive only the approved holding statement; no other employee may comment. Script edits require CEO approval with Compliance review; the stakeholder matrix is write-restricted to the Communications lead with CEO approval.
+## LP-18 — External Communications & Stakeholder Matrix
+
+- **WHY (Reg cite):** Controlled external communication mitigates reputation contagion and run risk during stress ([12 CFR §741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12)).
+- **SYSTEM BEHAVIOR:** The CEO is the sole spokesperson; scripted updates go to major depositors/partners, and Level 2/3 communications issue same-day. Inbound media inquiries are answered only with the approved holding statement. Scripts and the stakeholder matrix are write-restricted to the Comms team with CEO approval; the Board has view access.
 - **EVENTS:**
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Level 2/3 activated (`cfp.level_changed`) | Stakeholder matrix (`comms.stakeholder_matrix`), approved scripts (`comms.scripts[]`) | Scripted notices sent + delivery log (`comms.notices_sent`) | Same day (enforced by `comms.same_day_due_at`) |
-  | Media inquiry received (`comms.media_inquiry_received`) | Inquiry detail (`comms.inquiry_detail`), holding statement (`comms.holding_statement`) | Logged response using approved statement only (`comms.media_response_logged`) | Same day |
-  | Script revision requested (`comms.script_change_requested`) | Draft script (`comms.draft_script`), CEO approval (`comms.ceo_approval`), Compliance review (`comms.compliance_review`) | Versioned approved script (`comms.script_approved`) | — |
+  | Level 2/3 active (`cfp.level_changed`) | Approved script (`comms.draft_script`), stakeholder matrix (`comms.stakeholder_matrix`), CEO approval (`comms.ceo_approval`) | Stakeholder notices sent (`comms.notices_sent`) | Same day (enforced by `comms.same_day_due_at`) |
+  | Media inquiry received (`comms.media_inquiry_received`) | Holding statement (`comms.holding_statement`), inquiry detail (`comms.inquiry_detail`) | Media response logged (`comms.media_response_logged`) | Same day (no registered timer) |
 
-- **ALERTS/METRICS:** Same-day delivery rate for Level 2/3 communications (target 100%); count of off-script external statements detected (target zero); stakeholder-matrix freshness (reviewed within the last 12 months).
+- **ALERTS/METRICS:** Track communications latency at Level 2/3; target same-day issuance; track count of off-script external statements (target zero).
 
-## LQ-19 — Regulator Liaison Protocols {#lq-19-regulator-liaison-protocols}
+---
 
-- **WHY (Reg cite):** [12 CFR §741.12(c)](https://www.ecfr.gov/current/title-12/part-741/section-741.12) requires CFP communication lines to include the regulator; maintained contacts and responsive liaison are how that line stays open under stress.
-- **SYSTEM BEHAVIOR:** Compliance maintains a current contact file for the NCUA examiner-in-charge and regional office, verified at least annually, plus a running file of event memos covering every notification sent under [LQ-10](#lq-10-regulatory-notification). Any regulator request — information, follow-up, or examination support — is answered within 1 business day unless the regulator directs a different timeline, in which case the directed timeline is logged and followed. All regulator interactions are logged in the liaison record. The contact file and liaison log are write-restricted to Compliance.
+## LP-19 — Regulator Liaison Protocols
+
+- **WHY (Reg cite):** Maintained examiner contacts and prompt request response support supervisory engagement ([12 CFR §741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12)).
+- **SYSTEM BEHAVIOR:** Examiner/region contacts and event memos are maintained, and regulator requests are responded to within 1 business day unless otherwise directed. Contacts are verified periodically; an unverified contact list surfaces an aging alert. The contact registry and event memos are write-restricted to Compliance.
 - **EVENTS:**
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Regulator request received (`regulator.request_received`) | Request detail (`regulator.request_detail`), responsive materials (`regulator.response_materials[]`) | Response sent + liaison log entry (`regulator.response_sent`) | 1 BD unless otherwise directed (enforced by `regulator.response_due_at`) |
-  | Annual contact verification due (`regulator.contact_verification_due`) | Contact file (`regulator.contacts`) | Verified/updated contact file (`regulator.contacts_verified`) | Annual (enforced by `regulator.verification_due_at`) |
-  | Event memo finalized (`ncua.notification_sent`) | Memo content (`ncua.memo`), related metrics snapshot (`ncua.metrics_snapshot`) | Memo filed to liaison record (`regulator.memo_filed`) | 2 BD of send |
+  | Regulator request received (`regulator.request_received`) | Request detail (`regulator.request_detail`), contacts (`regulator.contacts`) | Response sent (`regulator.response_sent`) | 1 BD (enforced by `regulator.response_due_at`) |
+  | Contact verification due (`regulator.contacts_verified`) | Contact list (`regulator.contacts`) | Verified contacts record (`regulator.contacts_verified`) | Periodic (enforced by `regulator.verification_due_at`) |
 
-- **ALERTS/METRICS:** Regulator-response on-time rate (target 100%); aging alert on any open request past 1 BD without a directed extension (`alert.regulator_request_aging`); contact-file verification currency.
+- **ALERTS/METRICS:** Alert on regulator request aging (`alert.regulator_request_aging`); target 100% on-time responses; track contact-verification currency.
 
-## LQ-20 — Liquidity Drills & After-Action Reviews {#lq-20-liquidity-drills-after-action-reviews}
+---
 
-- **WHY (Reg cite):** [12 CFR §741.12(c)](https://www.ecfr.gov/current/title-12/part-741/section-741.12) requires the CFP to be operational, not aspirational — periodic testing of facilities ([12 U.S.C. §347b](https://www.law.cornell.edu/uscode/text/12/347b); [12 U.S.C. §§1795–1795k](https://www.law.cornell.edu/uscode/text/12/chapter-14)) and crisis processes is the evidence.
-- **SYSTEM BEHAVIOR:** The credit union runs the annual federal facility test from [LQ-11](#lq-11-contingent-federal-liquidity-access) plus at least one tabletop exercise per year simulating a Level 2/3 event end to end — detection, activation, convening, draws, communications, and notification. Every drill or test produces an after-action review published within 10 business days, with each finding assigned a remediation owner and due date tracked to closure. A failed test element (e.g., a draw that could not execute) opens an immediate corrective plan rather than waiting for the AAR. Drill design and AAR publication are owned by the CFO; remediation tracking is write-restricted to Compliance.
+## LP-20 — Liquidity Drills & After-Action Reviews
+
+- **WHY (Reg cite):** Drills and after-action reviews demonstrate CFP operability and drive remediation ([12 CFR §741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12); [CLF 12 U.S.C. §§1795–1795k](https://www.law.cornell.edu/uscode/text/12/chapter-14)).
+- **SYSTEM BEHAVIOR:** An annual facility test and tabletop exercises are run, and the after-action review is published within 10 business days with remediation owners and dates. A failed drill element opens a corrective plan with a deadline. Drill rosters and objectives are write-restricted to the CFO/Compliance.
 - **EVENTS:**
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Drill or test completes (`drill.completed`) | Drill objectives (`drill.objectives`), participant roster (`drill.roster`), observed results (`drill.observations[]`) | After-action review with owners and dates (`drill.aar_published`) | **10 BD** (enforced by `drill.aar_due_at`) |
-  | Test element fails (`drill.element_failed`) | Failure detail (`drill.failure_detail`), affected capability (`drill.affected_capability`) | Immediate corrective plan opened (`drill.corrective_plan_opened`) | Same day |
-  | Remediation item due (`drill.remediation_due`) | Remediation item (`drill.remediation_item`), owner (`drill.remediation_owner`) | Closure evidence or escalation (`drill.remediation_closed`) | Per assigned date (enforced by `drill.remediation_due_at`) |
+  | Drill/tabletop completed (`drill.completed`) | Roster (`drill.roster`), objectives (`drill.objectives`) | After-action review published (`drill.aar_published`) | 10 BD (enforced by `drill.aar_due_at`) |
+  | Drill element fails (`drill.element_failed`) | Failure detail (`drill.failure_detail`), affected capability (`drill.affected_capability`) | Corrective plan opened (`drill.corrective_plan_opened`) | Per AAR (enforced by `drill.remediation_due_at`) |
 
-- **ALERTS/METRICS:** AAR publication latency against the 10 BD SLA; remediation items past due (target zero, escalates to CCO); annual drill coverage check (facility test plus at least one tabletop completed per year).
+- **ALERTS/METRICS:** Track AAR publication within 10 BD; target zero overdue drill remediations; track number of failed drill elements per exercise.
 
-## LQ-21 — Documentation & Retention {#lq-21-documentation-retention}
+---
 
-- **WHY (Reg cite):** [12 CFR §741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12) compliance is demonstrated through records — examiners must be able to reconstruct the program's operation from retained evidence.
-- **SYSTEM BEHAVIOR:** All liquidity program artifacts — policy versions and limit registries, daily/weekly/quarterly packs, breach and waiver records, NCUA notifications and liaison logs, facility tests, drill records, and AARs — are retained for 10 years in an immutable archive, indexed within 2 business days of creation so any artifact is retrievable by date, type, and control ID. The archive supports legal hold: held records are exempt from any disposition until the hold is released by Legal. Records containing PII or privileged content are stored in a restricted vault tier. Archive disposition authority is restricted to Compliance, and legal-hold release is restricted to Legal.
+## LP-21 — Documentation & Retention
+
+- **WHY (Reg cite):** Retained evidence of the liquidity program supports examination and accountability ([12 CFR §741.12](https://www.ecfr.gov/current/title-12/part-741/section-741.12)).
+- **SYSTEM BEHAVIOR:** Policies, limits, packs, notifications, facility tests, drills, and AARs are retained for 10 years, indexed within 2 business days of creation, with legal-hold capability. Records under legal hold are exempt from destruction until released. Retention configuration and legal holds are write-restricted to Compliance/Legal with role-based access.
 - **EVENTS:**
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Liquidity artifact finalized (`record.finalized`) | Artifact content (`record.blob`), metadata: type, date, control ID (`record.metadata`) | Indexed immutable archive entry (`record.indexed`) | **2 BD** (enforced by `record.index_due_at`) |
-  | Legal hold placed (`record.legal_hold_placed`) | Hold scope (`record.hold_scope`), authorizing counsel (`record.hold_authorizer`) | Held records flagged, disposition suspended (`record.hold_applied`) | Same day |
-  | Retention period expires (`record.retention_expired`) | Record age (`record.age`), hold status (`record.hold_status`) | Disposition record or hold-based deferral (`record.dispositioned`) | After 10 years, hold permitting |
+  | Artifact finalized (`record.created`) | Artifact blob (`record.blob`), metadata (`record.metadata`), retention class (`record.retention_class`) | Indexed archive entry (`record.retention_clock_set`) | Index within 2 BD (enforced by `record.index_due_at`) |
+  | Legal hold placed (`record.hold_placed`) | Hold scope (`record.hold_scope`), matter id (`record.hold_matter_id`) | Hold applied record (`record.hold_applied`) | On placement (no registered timer) |
+  | Retention expires (`record.retention_expired`) | Disposal method (`record.disposal_method`), hold status (`record.hold_status`) | Disposal record (`record.disposed`) | At 10 years (enforced by `record.retention_expires_at`) |
 
-- **ALERTS/METRICS:** Indexing latency against the 2 BD SLA; retention-gap scan (artifacts referenced by other controls but missing from the archive, target zero); count of disposition actions attempted against held records (target zero — hard block).
+- **ALERTS/METRICS:** Track retention-index latency against 2 BD SLA; target zero unindexed artifacts; track count of records improperly disposed under hold (target zero).
 
-## Governance & Sign-Off {#governance}
+---
 
-- **Owner:** Patrick Wilson, Chief Compliance Officer (policy owner). The CFO is the liquidity program owner and operates the controls day to day.
-- **Approvers:** Patrick Wilson, Chief Compliance Officer. The CEO, ALCO, and the Board are required participants: ALCO reviews the wholesale book monthly ([LQ-13](#lq-13-wholesale-listing-service-deposits-guardrails)) and advises in crisis ([LQ-16](#lq-16-escalation-ladder-crisis-roles)); the Board approves the limit registry ([LQ-01](#lq-01-policy-scope-risk-appetite)), receives the quarterly deck ([LQ-09](#lq-09-reporting-cadence)), and authorizes extraordinary measures ([LQ-16](#lq-16-escalation-ladder-crisis-roles)).
-- **Review cadence:** Annual, and within 10 business days after any material change per [LQ-01](#lq-01-policy-scope-risk-appetite); drill and AAR findings ([LQ-20](#lq-20-liquidity-drills-after-action-reviews)) may force an earlier review.
-- **Cross-references:** Investment portfolio credit, valuation, and concentration — Investment Policy. Capital adequacy and reserves — Capitalization and Basel-II Standardized Approach Framework Policies. Physical cash and vault operations — Cash Policy. Enterprise-wide risk appetite — Enterprise Risk Management Policy. Business continuity and operational resilience — Business Continuity Plan.
+## Governance & Sign-Off  {#governance}
 
-## Assumptions & Gaps {#assumptions}
+- **Owner:** Patrick Wilson, Chief Compliance Officer. The CFO is program owner for day-to-day execution.
+- **Required Participants/Approvers:** CFO (program owner), CEO, ALCO, Treasury Operations, and the Board, as applicable to each control.
+- **Approvals:** Patrick Wilson, Chief Compliance Officer (policy approval); Board approves limit registry and CFP activation thresholds.
+- **Review Cadence:** At least annually; ad-hoc within 10 business days of a material change ([LP-01](#lp-01-policy-scope-risk-appetite-and-limit-registry)) and following any after-action review finding ([LP-20](#lp-20-liquidity-drills-and-after-action-reviews)).
+- **Cross-Refs:** Activation thresholds tie to LAR bands ([LP-05](#lp-05-liquid-assets-ratio-bands)); funding sequence references collateral readiness ([LP-12](#lp-12-collateral-and-encumbrance-management)); the Timing Matrix ([#timing-matrix](#timing-matrix)) provides the consolidated deadline view.
 
-- **Engineering vocabulary is provisional.** The parsed engineering spec (Cassandra Banking Core API v1.0.0) registers no events, timers, or state machines, and its entities cover banking-core resources only (accounts, transfers, FBO positions, BSA alerts). Every `event.code`, `field.code`, and timer referenced in the EVENTS tables of this document — the `policy.*`, `catalogue.*`, `liquidity.*`, `mismatch.*`, `survival.*`, `lar.*`, `concentration.*`, `stress.*`, `dq.*`, `model.*`, `report.*`, `ncua.*`, `facility.*`, `collateral.*`, `wholesale.*`, `cfp.*`, `ewi.*`, `crisis.*`, `funding.*`, `comms.*`, `regulator.*`, `drill.*`, and `record.*` namespaces — is the target naming scheme and must be registered by engineering before the next review. The only spec-registered surface this policy touches is FBO position data (`fbo_position.balance`) used in [LQ-06](#lq-06-funding-concentration-counterparty-limits).
-- **Asset-size applicability assumed.** The policy assumes Pynthia is at or above the $250MM threshold of 12 CFR §741.12(a), making documented federal contingent liquidity access ([LQ-11](#lq-11-contingent-federal-liquidity-access)) mandatory rather than advisory. If assets are between $50MM and $250MM, LQ-11 remains in force as a prudential control but the federal-access documentation requirement is not regulatory. Confirm current asset size and trajectory.
-- **LAR bands and survival thresholds are policy-set, not regulatory.** The 10/8/6% LAR bands, the 15-day combined-survival notification threshold, and the 2-hour/60-minute crisis SLAs operationalize §741.12 but are internal choices requiring Board confirmation; NCUA prescribes none of these specific values.
-- **The 24-hour NCUA notification commitment is self-imposed.** §741.12 requires CFP communication lines with the regulator but does not mandate a 24-hour clock; the four notification triggers in [LQ-10](#lq-10-regulatory-notification) reflect Patrick's directive and should be confirmed with the examiner-in-charge as the working protocol.
-- **FHLB eligibility unconfirmed.** The draw order in [LQ-17](#lq-17-funding-playbooks-draw-order) includes FHLB "if eligible." Credit-union FHLB membership depends on district and charter specifics; confirm eligibility, and if ineligible, the draw order collapses to Discount Window then CLF at the external tier.
-- **CLF access mode unconfirmed.** [LQ-11](#lq-11-contingent-federal-liquidity-access) covers both direct CLF membership and agent access through a corporate credit union; which mode Pynthia holds (or will establish) must be confirmed, as the legal documentation and test mechanics differ.
-- **Intraday-recalc and "large move" thresholds undefined.** [LQ-03](#lq-03-maturity-mismatch-limits) and [LQ-12](#lq-12-collateral-encumbrance-management) reference registry thresholds for triggering intraday recalculation; PATRICK_NOTES did not specify values. Treasury Operations should propose values for Board approval with the first limit registry.
-- **BaaS shock scenario parameters need partner data.** The BaaS-specific stress shocks in [LQ-07](#lq-07-stress-testing) (partner concentration runs, sweep failures, program wind-down) require per-partner flow profiles that do not yet exist as modeled inputs; provisional parameters will be used until partner flow histories support calibration.
-- **Retention period exceeds spec retention.** [LQ-21](#lq-21-documentation-retention) mandates 10-year retention for liquidity artifacts, while the engineering spec's underlying entities carry 5–7 year retention tags. The liquidity archive must be a separate store (or an override tier) so program records are not disposed on the banking-core schedule.
-- **Approver set is thin.** PATRICK_NOTES name the CCO as sole listed approver while requiring the CFO, CEO, ALCO, and Board as participants. Board adoption of this policy (standard for a §741.12 liquidity policy) should be added to the approval chain at the next Board meeting.
+## Assumptions & Gaps  {#assumptions}
+
+- **Engineering vocabulary is provisional.** Several liquidity-side fields and events referenced in the *When* / *What's needed* / *Produced (and logged)* / *Within* columns are not all confirmed in `core-vocabulary.json` for this domain. Provisional spellings used verbatim per DESIGN_NOTES include `flow.amount`, `flow.direction`, `catalogue.approver_id`, `catalogue.formula`, `catalogue.lineage`, `catalogue.failure_reason`, `catalogue.metrics_flagged_provisional`, `policy.id`, `policy.version`, `policy.approver_id`, `policy.change_summary`, and `stress.approver_id`. These represent the target naming scheme and will be confirmed by engineering before the next review.
+- **LAR band thresholds are policy-set.** The 10% / 8% / 6% Normal/Watch/Low/Critical bands and their mapping to CFP Levels 1/2/3 operationalize §741.12 and require Board confirmation as the standing policy floors.
+- **Survival-day notification floor.** The 15-day combined-stress NCUA notification trigger and the survival-day policy threshold used in [LP-04](#lp-04-survival-horizon-and-coverage-days) are policy-set and require Board confirmation.
+- **FHLB eligibility.** FHLB appears in the draw order in [LP-17](#lp-17-funding-playbooks-and-draw-order) only "if eligible"; FHLB membership/district eligibility and collateral programs for Pynthia Credit Union are not confirmed and need verification.
+- **CFP federal-access scale threshold.** Documented federal contingent-liquidity access (CLF and/or Discount Window) is required at $250MM or more under §741.12; confirmation that Pynthia Credit Union meets or exceeds this asset threshold (and the $50MM written-CFP threshold) is assumed and should be verified.
+- **BaaS partner flow modeling.** Treatment of BaaS partner balances within concentration ([LP-06](#lp-06-funding-concentration-and-counterparty-limits)), mismatch buckets ([LP-03](#lp-03-maturity-mismatch-limits)), and BaaS shock scenarios ([LP-07](#lp-07-stress-testing)) assumes partner flow data is available daily by 16:00; data-feed availability and partner-tier definitions need confirmation.
+- **Scope exclusions governed elsewhere.** Investment-portfolio credit/valuation, capital adequacy/PCA, physical cash/vault operations, enterprise risk-appetite governance beyond liquidity, and business continuity are out of scope and governed by their respective policies; only the liquidity-relevant collateral/AFS characteristics are addressed jointly here.
