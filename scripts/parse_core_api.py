@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """Parse core-api.yaml (+ vocab-migration.json) into core-vocabulary.json.
 
-Converts the minimal Cassandra Banking Core API spec into the
-core-vocabulary.json shape consumed by .skills/vocabulary/scripts/
-extract_vocabulary.py (and compared against by extract_vocab.py).
+core-api.yaml is an **OpenAPI 3** document (migrated from the original bespoke flat format).
+build() auto-detects the `openapi:` key and adapts it to the internal spec shape via
+openapi_to_spec() — components/schemas -> resources + flat fields, x-event-types / x-task-types /
+x-state-machines -> the corresponding sections, paths -> endpoints. A legacy bespoke spec (with
+top-level resources/fields/...) is still parsed directly. Either source yields the same
+core-vocabulary.json shape consumed by .skills/vocabulary/scripts/extract_vocabulary.py.
 
 Sources
 -------
@@ -77,6 +80,8 @@ def field_record(entity, field, ftype, fmt=None):
 
 
 def build(spec, migration_doc):
+    if isinstance(spec, dict) and spec.get("openapi"):   # OpenAPI 3 source -> adapt to bespoke
+        spec = openapi_to_spec(spec)
     resources = spec.get("resources") or {}
     flat_fields = spec.get("fields") or {}
     event_types = set(spec.get("event_types") or [])
@@ -249,6 +254,62 @@ def build(spec, migration_doc):
         "provisional_fields": provisional,
     }
     return out, warnings
+
+
+def openapi_to_spec(doc):
+    """Adapt an OpenAPI 3 document to the bespoke spec dict build() expects.
+
+    core-api.yaml is an OpenAPI 3 document (migrated from the bespoke flat format). Every
+    components/schema is a resource (x-kind != 'vocabulary') or a flat-vocabulary prefix
+    (x-kind == 'vocabulary'); events/tasks/state-machines/meta live in x- extensions. This is
+    the inverse of core-api-loop/migrate/convert.py and is verified lossless there.
+    """
+    schemas = (doc.get("components") or {}).get("schemas") or {}
+
+    def rewrite_refs(obj):
+        if isinstance(obj, dict):
+            return {k: (v.replace("#/components/schemas/", "#/schemas/")
+                        if k == "$ref" and isinstance(v, str) else rewrite_refs(v))
+                    for k, v in obj.items()}
+        if isinstance(obj, list):
+            return [rewrite_refs(x) for x in obj]
+        return obj
+
+    resources, fields = {}, {}
+    for key, sch in schemas.items():
+        if sch.get("x-kind") == "vocabulary":
+            for prop, ps in (sch.get("properties") or {}).items():
+                fields[f"{key}.{prop}"] = ps.get("type") if isinstance(ps, dict) else ps
+        else:
+            rspec = {"kind": sch.get("x-kind")}
+            if "x-states" in sch:
+                rspec["states"] = sch["x-states"]
+            if "x-retention" in sch:
+                rspec["retention"] = sch["x-retention"]
+            rspec["properties"] = {p: rewrite_refs(ps) for p, ps in (sch.get("properties") or {}).items()}
+            resources[key] = rspec
+
+    endpoints = {}
+    for path, methods in (doc.get("paths") or {}).items():
+        endpoints[path] = {m: (op or {}).get("x-operation-id", (op or {}).get("operationId"))
+                           for m, op in (methods or {}).items()}
+
+    info = doc.get("info") or {}
+    meta = {"spec_title": info.get("title"), "spec_version": info.get("version")}
+    if info.get("x-note") is not None:
+        meta["note"] = info["x-note"]
+    if info.get("x-elements") is not None:
+        meta["elements"] = info["x-elements"]
+
+    return {
+        "meta": meta,
+        "resources": resources,
+        "fields": fields,
+        "event_types": list(doc.get("x-event-types") or []),
+        "task_types": list(doc.get("x-task-types") or []),
+        "state_machines": doc.get("x-state-machines") or {},
+        "endpoints": endpoints,
+    }
 
 
 def main():
