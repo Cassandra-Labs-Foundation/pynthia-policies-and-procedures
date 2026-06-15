@@ -17,26 +17,106 @@ paths:
       x-operation-id: list_cases
       responses:
         '200':
-          description: OK
+          description: A page of Case objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: &id001
+                      $ref: '#/components/schemas/Case'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
       tags:
       - Cases
       summary: List cases
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
     post:
       operationId: post_cases
       x-operation-id: open_case
       responses:
-        '200':
-          description: OK
+        '201':
+          description: The created Case.
+          content:
+            application/json:
+              schema: *id001
+        '409':
+          description: Idempotency-Key reused with different args (D6).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
       tags:
       - Cases
       summary: Open case
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                audit: &id004
+                  $ref: '#/components/schemas/AuditDetail'
+                disclosure: &id005
+                  $ref: '#/components/schemas/DisclosureDetail'
+                escalation: &id006
+                  $ref: '#/components/schemas/EscalationDetail'
+                evidence: &id007
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Document'
+                owner_id: &id008
+                  type: string
+                summary: &id009
+                  type: string
+                tasks: &id010
+                  type: array
+                  items:
+                    type: string
+                type: &id011
+                  type: string
+                  enum:
+                  - investigation
+                  - sar_decision
+                  - escalation
+                  - audit_engagement
+                  - sar_disclosure_request
   /cases/{id}:
     get:
       operationId: get_cases_id
       x-operation-id: get_case
       responses:
         '200':
-          description: OK
+          description: The requested Case.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Case'
+        '404':
+          description: Case not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
       parameters:
       - name: id
         in: path
@@ -52,7 +132,23 @@ paths:
       x-operation-id: transition_case
       responses:
         '200':
-          description: OK
+          description: The updated Case.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Case'
+        '404':
+          description: Case not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
       parameters:
       - name: id
         in: path
@@ -62,6 +158,21 @@ paths:
       tags:
       - Cases
       summary: Transition case
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                to_state:
+                  type: string
+                  enum:
+                  - opened
+                  - in_review
+                  - closed
+                reason:
+                  type: string
   /control-results:
     get:
       operationId: get_control_results
@@ -226,7 +337,7 @@ paths:
       responses:
         '200':
           description: OK
-      parameters: &id001
+      parameters: &id002
       - name: id
         in: path
         required: true
@@ -241,7 +352,7 @@ paths:
       responses:
         '200':
           description: OK
-      parameters: *id001
+      parameters: *id002
       tags:
       - Incidents
       summary: Update
@@ -322,7 +433,7 @@ paths:
       responses:
         '200':
           description: OK
-      parameters: &id002
+      parameters: &id003
       - name: id
         in: path
         required: true
@@ -337,7 +448,7 @@ paths:
       responses:
         '200':
           description: OK
-      parameters: *id002
+      parameters: *id003
       tags:
       - Loan Applications
       summary: Update
@@ -901,40 +1012,22 @@ components:
       - in_review
       - closed
       properties:
-        audit:
-          $ref: '#/components/schemas/AuditDetail'
-        disclosure:
-          $ref: '#/components/schemas/DisclosureDetail'
-        escalation:
-          $ref: '#/components/schemas/EscalationDetail'
-        evidence:
-          type: array
-          items:
-            $ref: '#/components/schemas/Document'
+        audit: *id004
+        disclosure: *id005
+        escalation: *id006
+        evidence: *id007
         id:
           type: string
-        owner_id:
-          type: string
+        owner_id: *id008
         status:
           type: string
           enum:
           - opened
           - in_review
           - closed
-        summary:
-          type: string
-        tasks:
-          type: array
-          items:
-            type: string
-        type:
-          type: string
-          enum:
-          - investigation
-          - sar_decision
-          - escalation
-          - audit_engagement
-          - sar_disclosure_request
+        summary: *id009
+        tasks: *id010
+        type: *id011
     ControlResult:
       type: object
       x-kind: primitive
@@ -5429,6 +5522,80 @@ components:
           type: string
         availability:
           type: string
+    Error:
+      type: object
+      x-vocabulary: false
+      description: Increase-style error (architecture-decisions.md D12).
+      properties:
+        status:
+          type: integer
+        type:
+          type: string
+        title:
+          type: string
+        detail:
+          type: string
+        doc_url:
+          type: string
+          format: uri
+        request_id:
+          type: string
+        resource_id:
+          type: string
+        resource_type:
+          type: string
+    ValidationError:
+      type: object
+      x-vocabulary: false
+      description: Multiple validation errors (architecture-decisions.md D12).
+      properties:
+        status:
+          type: integer
+        type:
+          type: string
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              field:
+                type: string
+              message:
+                type: string
+    Pagination:
+      type: object
+      x-vocabulary: false
+      description: Transparent cursor pagination (architecture-decisions.md D16).
+      properties:
+        has_more:
+          type: boolean
+        next_after:
+          type: string
+        limit:
+          type: integer
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      description: Page size (D16).
+      schema:
+        type: integer
+        default: 100
+    After:
+      name: after
+      in: query
+      description: 'Cursor: return items after this id (D16).'
+      schema:
+        type: string
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: Idempotency key, never expires (D6).
+      schema:
+        type: string
 x-event-types:
 - acknowledged
 - activated

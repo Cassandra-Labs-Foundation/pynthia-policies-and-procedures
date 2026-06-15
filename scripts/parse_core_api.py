@@ -277,6 +277,8 @@ def openapi_to_spec(doc):
 
     resources, fields = {}, {}
     for key, sch in schemas.items():
+        if sch.get("x-vocabulary") is False:
+            continue  # API-plumbing schema (Error/Pagination/...) — not domain vocabulary
         if sch.get("x-kind") == "vocabulary":
             for prop, ps in (sch.get("properties") or {}).items():
                 fields[f"{key}.{prop}"] = ps.get("type") if isinstance(ps, dict) else ps
