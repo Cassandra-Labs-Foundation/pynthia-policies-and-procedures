@@ -1,0 +1,522 @@
+_note: Genuine domain-field gap authored by author_fields.py. Bootstrapped from the unregistered control demand (non-scheduling).
+  Reviewable source of truth; edit here.
+fields:
+  affiliate:
+    collateral_value: string
+  alert:
+    issued.risk_threshold: string
+  application:
+    channel: string
+  borrower:
+    total_exposure: integer
+  breach:
+    control_id: string
+    description: string
+  cash:
+    asset.balance: integer
+    asset.id: string
+    exception_register.summary: string
+    exception_ticket.id: string
+    load.amount: integer
+    location.id: string
+    overshort.amount: integer
+    shipment.amount: integer
+    surprise_count.due: string
+    surprise_count.schedule: string
+  catalogue:
+    approver_id: string
+  cda:
+    funding_first_line: string
+  cdd:
+    control_person: string
+    expected_activity: string
+    industry_code: string
+    risk_tier: string
+    source_of_funds: string
+  change:
+    approver_id: string
+    risk_rating: string
+  collateral:
+    costs_to_sell: integer
+    liquidation_rate: number
+    type: string
+  collections:
+    breach.root_cause: string
+    breach.severity: string
+    breach.type: string
+    contact.channel: string
+    contact.date_time: string
+    contact.initiated: string
+    contact.note_text: string
+    contact.scheduled: string
+    contact_attempt_logged: string
+    policy.config: string
+    policy.snapshot: string
+    queue.id: string
+    queue.priority: string
+  complaint:
+    alleged_harm: string
+    assigned: string
+    channel: string
+    issue: string
+    narrative: string
+    product: string
+    response_due_date_final: string
+    response_due_date_initial: string
+    root_cause: string
+    severity: string
+    source: string
+    status_changed: string
+  content:
+    published.claims: string
+  corp_opportunity:
+    description: string
+  courier:
+    receipt.id: string
+  covered_person:
+    id: string
+    role: string
+  credit_box:
+    version: string
+  credit_report:
+    stale_at: string
+  ctr:
+    cash_in_total: string
+    cash_out_total: string
+    exemption_basis: string
+  deficiency:
+    owner_id: string
+    severity: string
+  department:
+    id: string
+  dispute:
+    description: string
+    investigation.summary: string
+    reason_code: string
+    received: string
+    resolution_recorded: string
+    supporting_docs: string
+  edd:
+    approver_id: string
+    category_checklist: string
+    msb_registration_number: integer
+    site_visit_report: string
+    source_of_wealth: string
+  employee:
+    id: string
+  engagement:
+    provider: string
+    scope: string
+  eps:
+    auth.risk_tier: string
+    bcp_test.due_at: string
+    board_report.due_at: string
+    control_review.due_at: string
+    deficiency.description: string
+    incident.id: string
+    incident.reportable_determined: string
+    incident.severity: string
+    it_audit.due_at: string
+    limit_change.approver_id: string
+    service.id: string
+    vendor.id: string
+  escalation:
+    facts: string
+    reporter_id: string
+    severity: string
+  escrow:
+    link.shared: string
+  ewi:
+    thresholds: string
+  exam:
+    export.scope: string
+  expense:
+    amount: integer
+    purpose: string
+  finding:
+    description: string
+    risk_rating: string
+    root_cause: string
+    severity: string
+  fix:
+    deployed: string
+  flow:
+    amount: integer
+    direction: string
+  foreclosure:
+    expected_loss: string
+  freeze:
+    applied: string
+    exception.added: string
+    removed: string
+  furnisher:
+    batch.generated: number
+    batch.transmitted: string
+    report.history: string
+    tradeline.snapshot: string
+  governance:
+    authority_statement: string
+    bsa_officer_id: string
+    raci_registry: string
+  hmda:
+    hmda_lar: string
+  incident:
+    data_types_impacted: string
+    detected_at: string
+    logged: string
+    ncua_report_timestamp: string
+    regulatory_reported_flag: string
+    sensitive_data_flag: string
+    systems_impacted: string
+    type: string
+  indemnification:
+    legal_review: string
+  insider_report:
+    due: string
+  instrument_list:
+    version: string
+  intrusion:
+    severity: string
+  kri:
+    direction: string
+  legal:
+    hold_scope: string
+    matter_id: string
+  lending_program:
+    channel: string
+    id: string
+  limit:
+    changed: string
+  loan:
+    bankruptcy.notice_received: string
+    bankruptcy.status: string
+    classification: string
+    classification.changed: string
+    collections.case_assigned: string
+    delinquency.bucket: string
+    delinquency.bucket_changed: string
+    delinquency.grace_expired: string
+    delinquency.manual_adjustment: string
+    delinquency.override_reason: string
+    delinquency.threshold_reached: string
+    foreclosure.initiated: string
+    foreclosure.recommended: string
+    fraud.confirmed: string
+    fraud.flag: string
+    hardship.description: string
+    hardship.flag: string
+    hardship.requested: string
+    hardship.type: string
+    ltv.current: string
+    modification.count_life: integer
+    modification.count_past_12m: integer
+    modification.interest_capitalization_flag: string
+    modification.interest_reduction: string
+    modification.new_maturity_date: string
+    modification.new_payment: string
+    modification.new_rate: number
+    modification.principal_reduction: integer
+    nonaccrual.status: string
+    nonaccrual.status_changed: string
+    open_end_flag: string
+    payment.allocation_method: string
+    recovery.amount: integer
+    risk_rating.changed: string
+    risk_rating.rationale: number
+    schedule.due_dates: string
+    tdr.flag: string
+    workout.defaulted: string
+    workout.modified_terms_applied: string
+    workout.plan_id: string
+    workout.proposed: string
+    workout.restructured: string
+  loan_account:
+    action_basis: string
+  member:
+    cash_flow: string
+    contact.cease_communication: string
+    contact.channels_allowed: string
+    contact.do_not_call: string
+    contact.do_not_call_flags: string
+    contact.email_opt_in: string
+    contact.preference: string
+    deceased_flag: string
+    expense_ratio: number
+    id: string
+    income: string
+    represented_by_attorney: string
+    status.deceased_recorded: string
+    time_zone: string
+  mode:
+    safe.enable: string
+  monitoring:
+    scope: string
+  monitoring_coverage:
+    review: string
+  notice:
+    sent.member: string
+  ofac:
+    blocked_property: string
+    list_version: string
+    payment_instructions: string
+  official:
+    id: string
+  oreo:
+    asset.recorded: string
+    asset.value_at_recording: string
+  org:
+    freeze.enabled: string
+  overdraft:
+    amount: integer
+    approved_by_officer_id: string
+    daily_report_id: string
+    escalated_to_collections: string
+    fee_waiver.applied: string
+    fee_waiver.approved_by_id: string
+    fee_waiver.reason: string
+    fee_waiver.requested: string
+    id: string
+    posted_at: string
+    report.generated: number
+  packet:
+    delivered: string
+  pentest:
+    scope: string
+  policy:
+    change_summary: string
+    collections.breach_logged: string
+    collections.review_due_approaching: string
+    next_review_at: string
+    raci_registry: string
+    version_id: string
+  portal:
+    state.readonly: string
+  position:
+    instrument_type: string
+  process:
+    id: string
+  product:
+    catalog.collections_scope_flag: string
+    type: string
+  product_risk:
+    candidate_profile: string
+  recon:
+    research_notes: string
+  record:
+    hold_scope: string
+    legal_hold_flag: string
+    matter_id: string
+    retention_anchor: string
+  redflag:
+    type: string
+  reg:
+    notice.ack: string
+  regulation_inventory:
+    citation: string
+  reporting:
+    bsa_metrics: string
+    ofac_metrics: string
+    sar_count: integer
+    training_metrics: string
+  resolution_exception:
+    description: string
+  resolution_review:
+    due: string
+  resolution_test:
+    type: string
+  retention:
+    anchor_date: string
+    record_type: string
+    schedule: string
+  risk:
+    candidate_profile: string
+    description: string
+    geography_factors: string
+    id: string
+    inherent_score: number
+    owner_id: string
+    partner_dependency: string
+    posture.changed: string
+  risk_acceptance:
+    id: string
+    owner_id: string
+  risk_appetite:
+    version: string
+  risk_breach:
+    id: string
+    impact_summary: string
+    severity: string
+  role:
+    audit.owner_id: string
+    collections.owner_id: string
+    compliance.owner_id: string
+    credit.owner_id: string
+  sar:
+    narrative: string
+    prior_filing_id: string
+  schedule_a:
+    version: string
+  scope_registry:
+    approver_id: string
+  socialmedia:
+    evidence: string
+  steering_review:
+    due: string
+  storage_box:
+    description: string
+  strategy:
+    change_summary: string
+  template:
+    fdcpadisclosure_required: string
+    id: string
+    version: string
+  thirdparty:
+    collector.sync_performed: string
+  training:
+    change_summary: string
+    hire_date: string
+    role_curriculum: string
+  transaction:
+    amount: integer
+  trustee:
+    account.provisioned: string
+  vendor:
+    data_scope: string
+    dd_package: integer
+    id: string
+  vuln:
+    detail: string
+    severity: string
+events:
+  account_freeze.released:
+    as: event
+    type: released
+    subject: account_freeze
+  board.report.submitted:
+    as: event
+    type: submitted
+    subject: board
+  channel.updated:
+    as: event
+    type: updated
+    subject: channel
+  checksum.verified:
+    as: event
+    type: verified
+    subject: checksum
+  collateral.valuation.updated:
+    as: event
+    type: updated
+    subject: collateral
+  collections.contact.completed:
+    as: event
+    type: completed
+    subject: collections
+  collections.notice_sent:
+    as: event
+    type: sent
+    subject: collections
+  collections.past_due_memo_submitted:
+    as: event
+    type: submitted
+    subject: collections
+  complaint.closed:
+    as: event
+    type: closed
+    subject: complaint
+  complaint.escalated:
+    as: event
+    type: escalated
+    subject: complaint
+  complaint.interim_response_sent:
+    as: event
+    type: sent
+    subject: complaint
+  complaint.response_sent:
+    as: event
+    type: sent
+    subject: complaint
+  incident.classification_updated:
+    as: event
+    type: updated
+    subject: incident
+  incident.ncua_report_submitted:
+    as: event
+    type: submitted
+    subject: incident
+  incident.remediation_completed:
+    as: event
+    type: completed
+    subject: incident
+  issue.created:
+    as: event
+    type: created
+    subject: issue
+  loan.charge_off.completed:
+    as: event
+    type: completed
+    subject: loan
+  loan.nonaccrual.flagged:
+    as: event
+    type: flagged
+    subject: loan
+  loan.recovery.posted:
+    as: event
+    type: posted
+    subject: loan
+  loan.tdr.approved:
+    as: event
+    type: approved
+    subject: loan
+  loan.workout.approved:
+    as: event
+    type: approved
+    subject: loan
+  loan.workout.completed:
+    as: event
+    type: completed
+    subject: loan
+  member.contact.preferences_updated:
+    as: event
+    type: updated
+    subject: member
+  overdraft.item.posted:
+    as: event
+    type: posted
+    subject: overdraft
+  overdraft.notice_sent:
+    as: event
+    type: sent
+    subject: overdraft
+  policy.collections.draft_created:
+    as: event
+    type: created
+    subject: policy
+  policy.collections.exception_approved:
+    as: event
+    type: approved
+    subject: policy
+  policy.collections.review_completed:
+    as: event
+    type: completed
+    subject: policy
+  policy.collections.version_approved:
+    as: event
+    type: approved
+    subject: policy
+  policy.updated:
+    as: event
+    type: updated
+    subject: policy
+  scope.diff.approved:
+    as: event
+    type: approved
+    subject: scope
+  scope.published:
+    as: event
+    type: published
+    subject: scope
+  scope.version.created:
+    as: event
+    type: created
+    subject: scope

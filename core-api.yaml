@@ -5371,6 +5371,23 @@ components:
           - BCP-13
         triaged:
           type: string
+        data_types_impacted:
+          type: string
+        detected_at:
+          type: string
+          format: date-time
+        logged:
+          type: string
+        ncua_report_timestamp:
+          type: string
+        regulatory_reported_flag:
+          type: string
+        sensitive_data_flag:
+          type: string
+        systems_impacted:
+          type: string
+        type:
+          type: string
     Loan:
       type: object
       x-kind: domain
@@ -5532,6 +5549,90 @@ components:
           type: string
           x-bound-controls:
           - CL-02
+        bankruptcy.notice_received:
+          type: string
+        bankruptcy.status:
+          type: string
+        classification:
+          type: string
+        classification.changed:
+          type: string
+        collections.case_assigned:
+          type: string
+        delinquency.bucket:
+          type: string
+        delinquency.bucket_changed:
+          type: string
+        delinquency.grace_expired:
+          type: string
+        delinquency.manual_adjustment:
+          type: string
+        delinquency.override_reason:
+          type: string
+        delinquency.threshold_reached:
+          type: string
+        foreclosure.initiated:
+          type: string
+        foreclosure.recommended:
+          type: string
+        fraud.confirmed:
+          type: string
+        fraud.flag:
+          type: string
+        hardship.description:
+          type: string
+        hardship.flag:
+          type: string
+        hardship.requested:
+          type: string
+        hardship.type:
+          type: string
+        ltv.current:
+          type: string
+        modification.count_life:
+          type: integer
+        modification.count_past_12m:
+          type: integer
+        modification.interest_capitalization_flag:
+          type: string
+        modification.interest_reduction:
+          type: string
+        modification.new_maturity_date:
+          type: string
+        modification.new_payment:
+          type: string
+        modification.new_rate:
+          type: number
+        modification.principal_reduction:
+          type: integer
+        nonaccrual.status:
+          type: string
+        nonaccrual.status_changed:
+          type: string
+        open_end_flag:
+          type: string
+        payment.allocation_method:
+          type: string
+        recovery.amount:
+          type: integer
+        risk_rating.changed:
+          type: string
+        risk_rating.rationale:
+          type: number
+        schedule.due_dates:
+          type: string
+        tdr.flag:
+          type: string
+        workout.defaulted:
+          type: string
+        workout.modified_terms_applied:
+          type: string
+        workout.plan_id:
+          type: string
+        workout.proposed:
+          type: string
+        workout.restructured:
+          type: string
     LoanApplication:
       type: object
       x-kind: domain
@@ -6230,6 +6331,8 @@ components:
           type: string
           x-bound-controls:
           - FD-06
+        collateral_value:
+          type: string
     ai:
       type: object
       x-kind: vocabulary
@@ -6320,6 +6423,8 @@ components:
           type: string
           x-bound-controls:
           - LP-13
+        issued.risk_threshold:
+          type: string
     aml:
       type: object
       x-kind: vocabulary
@@ -6720,6 +6825,10 @@ components:
           x-bound-controls:
           - CL-01
           - ERM-06
+        control_id:
+          type: string
+        description:
+          type: string
     bureau:
       type: object
       x-kind: vocabulary
@@ -7268,6 +7377,26 @@ components:
           type: string
           x-bound-controls:
           - CC-09
+        asset.balance:
+          type: integer
+        asset.id:
+          type: string
+        exception_register.summary:
+          type: string
+        exception_ticket.id:
+          type: string
+        load.amount:
+          type: integer
+        location.id:
+          type: string
+        overshort.amount:
+          type: integer
+        shipment.amount:
+          type: integer
+        surprise_count.due:
+          type: string
+        surprise_count.schedule:
+          type: string
     catalogue:
       type: object
       x-kind: vocabulary
@@ -7289,6 +7418,8 @@ components:
           type: string
           x-bound-controls:
           - LP-02
+        approver_id:
+          type: string
     cda:
       type: object
       x-kind: vocabulary
@@ -7605,6 +7736,8 @@ components:
           x-bound-controls:
           - CDA-01
           - CDA-08
+        funding_first_line:
+          type: string
     cfp:
       type: object
       x-kind: vocabulary
@@ -7653,6 +7786,10 @@ components:
           x-bound-controls:
           - IC-05
           - IS-04
+        approver_id:
+          type: string
+        risk_rating:
+          type: string
     claim:
       type: object
       x-kind: vocabulary
@@ -7788,6 +7925,12 @@ components:
           type: string
           x-bound-controls:
           - LP-11
+        costs_to_sell:
+          type: integer
+        liquidation_rate:
+          type: number
+        type:
+          type: string
     collections:
       type: object
       x-kind: vocabulary
@@ -7827,6 +7970,32 @@ components:
           x-bound-controls:
           - CL-01
         policy_breach_identified:
+          type: string
+        breach.root_cause:
+          type: string
+        breach.severity:
+          type: string
+        breach.type:
+          type: string
+        contact.channel:
+          type: string
+        contact.date_time:
+          type: string
+        contact.initiated:
+          type: string
+        contact.note_text:
+          type: string
+        contact.scheduled:
+          type: string
+        contact_attempt_logged:
+          type: string
+        policy.config:
+          type: string
+        policy.snapshot:
+          type: string
+        queue.id:
+          type: string
+        queue.priority:
           type: string
     comms:
       type: object
@@ -7921,6 +8090,30 @@ components:
           - CL-06
           - CMP-09
           - LC-06
+        alleged_harm:
+          type: string
+        assigned:
+          type: string
+        channel:
+          type: string
+        issue:
+          type: string
+        narrative:
+          type: string
+        product:
+          type: string
+        response_due_date_final:
+          type: string
+        response_due_date_initial:
+          type: string
+        root_cause:
+          type: string
+        severity:
+          type: string
+        source:
+          type: string
+        status_changed:
+          type: string
     compliance:
       type: object
       x-kind: vocabulary
@@ -8074,6 +8267,8 @@ components:
           type: string
           x-bound-controls:
           - FD-08
+        description:
+          type: string
     correction:
       type: object
       x-kind: vocabulary
@@ -8103,6 +8298,10 @@ components:
           x-bound-controls:
           - FD-01
           - RR-01
+        id:
+          type: string
+        role:
+          type: string
     credit_box:
       type: object
       x-kind: vocabulary
@@ -8111,6 +8310,8 @@ components:
           type: string
           x-bound-controls:
           - LD-02
+        version:
+          type: string
     credit_config:
       type: object
       x-kind: vocabulary
@@ -8179,6 +8380,9 @@ components:
           x-bound-controls:
           - LD-04
           - LD-07
+        stale_at:
+          type: string
+          format: date-time
     crisis:
       type: object
       x-kind: vocabulary
@@ -8264,6 +8468,10 @@ components:
           x-bound-controls:
           - AU-07
           - IC-07
+        owner_id:
+          type: string
+        severity:
+          type: string
     destruction_log:
       type: object
       x-kind: vocabulary
@@ -8394,6 +8602,18 @@ components:
           type: string
           x-bound-controls:
           - MEM-04
+        description:
+          type: string
+        investigation.summary:
+          type: string
+        reason_code:
+          type: string
+        received:
+          type: string
+        resolution_recorded:
+          type: string
+        supporting_docs:
+          type: string
     dlp:
       type: object
       x-kind: vocabulary
@@ -8484,6 +8704,8 @@ components:
         onboarded:
           type: string
         terminated:
+          type: string
+        id:
           type: string
     enrollment:
       type: object
@@ -8762,6 +8984,34 @@ components:
           type: string
           x-bound-controls:
           - EPS-06
+        auth.risk_tier:
+          type: string
+        bcp_test.due_at:
+          type: string
+          format: date-time
+        board_report.due_at:
+          type: string
+          format: date-time
+        control_review.due_at:
+          type: string
+          format: date-time
+        deficiency.description:
+          type: string
+        incident.id:
+          type: string
+        incident.reportable_determined:
+          type: string
+        incident.severity:
+          type: string
+        it_audit.due_at:
+          type: string
+          format: date-time
+        limit_change.approver_id:
+          type: string
+        service.id:
+          type: string
+        vendor.id:
+          type: string
     estate:
       type: object
       x-kind: vocabulary
@@ -8830,6 +9080,8 @@ components:
           x-bound-controls:
           - LP-15
           - RP-02
+        thresholds:
+          type: string
     exam:
       type: object
       x-kind: vocabulary
@@ -8839,6 +9091,8 @@ components:
           x-bound-controls:
           - CC-12
         report_id:
+          type: string
+        export.scope:
           type: string
     exception:
       type: object
@@ -8892,6 +9146,10 @@ components:
           type: string
           x-bound-controls:
           - RII-01
+        amount:
+          type: integer
+        purpose:
+          type: string
     exposure:
       type: object
       x-kind: vocabulary
@@ -9072,6 +9330,14 @@ components:
           type: string
           x-bound-controls:
           - AU-07
+        description:
+          type: string
+        risk_rating:
+          type: string
+        root_cause:
+          type: string
+        severity:
+          type: string
     form:
       type: object
       x-kind: vocabulary
@@ -9276,6 +9542,8 @@ components:
           type: string
           x-bound-controls:
           - FL-06
+        hmda_lar:
+          type: string
     hr:
       type: object
       x-kind: vocabulary
@@ -9414,6 +9682,8 @@ components:
           type: string
           x-bound-controls:
           - RII-05
+        legal_review:
+          type: string
     insider:
       type: object
       x-kind: vocabulary
@@ -9515,6 +9785,8 @@ components:
           type: string
           x-bound-controls:
           - IP-03
+        version:
+          type: string
     insurance:
       type: object
       x-kind: vocabulary
@@ -9631,6 +9903,8 @@ components:
           - CC-12
           - ERM-05
           - ERM-08
+        direction:
+          type: string
     lar:
       type: object
       x-kind: vocabulary
@@ -9686,6 +9960,10 @@ components:
           type: string
         rfpa_applicable:
           type: string
+        hold_scope:
+          type: string
+        matter_id:
+          type: string
     lending_program:
       type: object
       x-kind: vocabulary
@@ -9694,6 +9972,10 @@ components:
           type: string
           x-bound-controls:
           - LD-01
+        channel:
+          type: string
+        id:
+          type: string
     limit_set:
       type: object
       x-kind: vocabulary
@@ -9914,6 +10196,34 @@ components:
           type: string
           x-bound-controls:
           - CL-05
+        cash_flow:
+          type: string
+        contact.cease_communication:
+          type: string
+        contact.channels_allowed:
+          type: string
+        contact.do_not_call:
+          type: string
+        contact.do_not_call_flags:
+          type: string
+        contact.email_opt_in:
+          type: string
+        contact.preference:
+          type: string
+        deceased_flag:
+          type: string
+        expense_ratio:
+          type: number
+        id:
+          type: string
+        income:
+          type: string
+        represented_by_attorney:
+          type: string
+        status.deceased_recorded:
+          type: string
+        time_zone:
+          type: string
     member_credential:
       type: object
       x-kind: vocabulary
@@ -10026,6 +10336,8 @@ components:
           - CMP-06
           - IC-07
           - TIS-10
+        scope:
+          type: string
     ncua:
       type: object
       x-kind: vocabulary
@@ -10067,6 +10379,8 @@ components:
       properties:
         sent_at:
           type: string
+        sent.member:
+          type: string
     officer:
       type: object
       x-kind: vocabulary
@@ -10092,6 +10406,8 @@ components:
           x-bound-controls:
           - RII-01
         reimbursement.paid:
+          type: string
+        id:
           type: string
     oncall:
       type: object
@@ -10122,6 +10438,8 @@ components:
           type: string
           x-bound-controls:
           - BSA-01
+        freeze.enabled:
+          type: string
     overdraft:
       type: object
       x-kind: vocabulary
@@ -10157,6 +10475,29 @@ components:
           type: string
           x-bound-controls:
           - CL-10
+        amount:
+          type: integer
+        approved_by_officer_id:
+          type: string
+        daily_report_id:
+          type: string
+        escalated_to_collections:
+          type: string
+        fee_waiver.applied:
+          type: string
+        fee_waiver.approved_by_id:
+          type: string
+        fee_waiver.reason:
+          type: string
+        fee_waiver.requested:
+          type: string
+        id:
+          type: string
+        posted_at:
+          type: string
+          format: date-time
+        report.generated:
+          type: number
     override:
       type: object
       x-kind: vocabulary
@@ -10189,6 +10530,8 @@ components:
           - AU-05
           - EC-09
           - IS-05
+        scope:
+          type: string
     performance:
       type: object
       x-kind: vocabulary
@@ -10363,6 +10706,19 @@ components:
           type: string
           x-bound-controls:
           - FD-10
+        change_summary:
+          type: string
+        collections.breach_logged:
+          type: string
+        collections.review_due_approaching:
+          type: string
+        next_review_at:
+          type: string
+          format: date-time
+        raci_registry:
+          type: string
+        version_id:
+          type: string
     portfolio:
       type: object
       x-kind: vocabulary
@@ -10436,6 +10792,8 @@ components:
           type: string
           x-bound-controls:
           - IP-06
+        instrument_type:
+          type: string
     pricing:
       type: object
       x-kind: vocabulary
@@ -10603,6 +10961,10 @@ components:
           type: string
         volume_stats:
           type: string
+        catalog.collections_scope_flag:
+          type: string
+        type:
+          type: string
     product_menu:
       type: object
       x-kind: vocabulary
@@ -10655,6 +11017,8 @@ components:
           x-bound-controls:
           - IC-04
         monthly_timer:
+          type: string
+        research_notes:
           type: string
     record:
       type: object
@@ -10811,6 +11175,14 @@ components:
           x-bound-controls:
           - RR-02
           - RR-03
+        hold_scope:
+          type: string
+        legal_hold_flag:
+          type: string
+        matter_id:
+          type: string
+        retention_anchor:
+          type: string
     record_class:
       type: object
       x-kind: vocabulary
@@ -10899,6 +11271,8 @@ components:
           x-bound-controls:
           - IS-10
           - MEM-02
+        type:
+          type: string
     regulation:
       type: object
       x-kind: vocabulary
@@ -11014,6 +11388,14 @@ components:
       properties:
         quarterly_timer:
           type: string
+        bsa_metrics:
+          type: string
+        ofac_metrics:
+          type: string
+        sar_count:
+          type: integer
+        training_metrics:
+          type: string
     resolution_exception:
       type: object
       x-kind: vocabulary
@@ -11022,6 +11404,8 @@ components:
           type: string
           x-bound-controls:
           - RP-10
+        description:
+          type: string
     resolution_policy:
       type: object
       x-kind: vocabulary
@@ -11060,6 +11444,8 @@ components:
           type: string
           x-bound-controls:
           - RP-09
+        type:
+          type: string
     restore:
       type: object
       x-kind: vocabulary
@@ -11165,6 +11551,22 @@ components:
           - BCP-02
           - EC-13
           - IS-02
+        candidate_profile:
+          type: string
+        description:
+          type: string
+        geography_factors:
+          type: string
+        id:
+          type: string
+        inherent_score:
+          type: number
+        owner_id:
+          type: string
+        partner_dependency:
+          type: string
+        posture.changed:
+          type: string
     risk_acceptance:
       type: object
       x-kind: vocabulary
@@ -11193,6 +11595,10 @@ components:
           type: string
           x-bound-controls:
           - ERM-07
+        id:
+          type: string
+        owner_id:
+          type: string
     risk_appetite:
       type: object
       x-kind: vocabulary
@@ -11210,6 +11616,8 @@ components:
           type: string
           x-bound-controls:
           - ERM-01
+        version:
+          type: string
     risk_breach:
       type: object
       x-kind: vocabulary
@@ -11230,6 +11638,12 @@ components:
           type: string
           x-bound-controls:
           - ERM-06
+        id:
+          type: string
+        impact_summary:
+          type: string
+        severity:
+          type: string
     risk_report:
       type: object
       x-kind: vocabulary
@@ -11272,6 +11686,14 @@ components:
           type: string
           x-bound-controls:
           - CMP-03
+        audit.owner_id:
+          type: string
+        collections.owner_id:
+          type: string
+        compliance.owner_id:
+          type: string
+        credit.owner_id:
+          type: string
     rule:
       type: object
       x-kind: vocabulary
@@ -11374,6 +11796,8 @@ components:
           type: string
           x-bound-controls:
           - RR-02
+        version:
+          type: string
     scope_registry:
       type: object
       x-kind: vocabulary
@@ -11398,6 +11822,8 @@ components:
           x-bound-controls:
           - RP-01
           - RP-03
+        approver_id:
+          type: string
     security:
       type: object
       x-kind: vocabulary
@@ -11515,6 +11941,8 @@ components:
           type: string
           x-bound-controls:
           - IS-16
+        evidence:
+          type: string
     sod:
       type: object
       x-kind: vocabulary
@@ -11606,6 +12034,8 @@ components:
           type: string
           x-bound-controls:
           - RR-06
+        description:
+          type: string
     stress:
       type: object
       x-kind: vocabulary
@@ -11708,6 +12138,12 @@ components:
           type: string
           x-bound-controls:
           - CL-05
+        fdcpadisclosure_required:
+          type: string
+        id:
+          type: string
+        version:
+          type: string
     threat:
       type: object
       x-kind: vocabulary
@@ -11909,6 +12345,12 @@ components:
           type: object
           x-bound-controls:
           - EC-12
+        change_summary:
+          type: string
+        hire_date:
+          type: string
+        role_curriculum:
+          type: string
     transaction:
       type: object
       x-kind: vocabulary
@@ -11936,6 +12378,8 @@ components:
           - CDA-11
           - EC-07
           - IC-03
+        amount:
+          type: integer
     treasury:
       type: object
       x-kind: vocabulary
@@ -12230,6 +12674,12 @@ components:
           type: string
           x-bound-controls:
           - PR-07
+        data_scope:
+          type: string
+        dd_package:
+          type: integer
+        id:
+          type: string
     vuln:
       type: object
       x-kind: vocabulary
@@ -12238,6 +12688,10 @@ components:
           type: object
           x-bound-controls:
           - IS-05
+        detail:
+          type: string
+        severity:
+          type: string
     web:
       type: object
       x-kind: vocabulary
@@ -12400,6 +12854,326 @@ components:
           - active
           - disabled
           - canceled
+    application:
+      type: object
+      x-kind: vocabulary
+      description: application vocabulary (control demand).
+      properties:
+        channel:
+          type: string
+    borrower:
+      type: object
+      x-kind: vocabulary
+      description: borrower vocabulary (control demand).
+      properties:
+        total_exposure:
+          type: integer
+    cdd:
+      type: object
+      x-kind: vocabulary
+      description: cdd vocabulary (control demand).
+      properties:
+        control_person:
+          type: string
+        expected_activity:
+          type: string
+        industry_code:
+          type: string
+        risk_tier:
+          type: string
+        source_of_funds:
+          type: string
+    content:
+      type: object
+      x-kind: vocabulary
+      description: content vocabulary (control demand).
+      properties:
+        published.claims:
+          type: string
+    courier:
+      type: object
+      x-kind: vocabulary
+      description: courier vocabulary (control demand).
+      properties:
+        receipt.id:
+          type: string
+    ctr:
+      type: object
+      x-kind: vocabulary
+      description: ctr vocabulary (control demand).
+      properties:
+        cash_in_total:
+          type: string
+        cash_out_total:
+          type: string
+        exemption_basis:
+          type: string
+    department:
+      type: object
+      x-kind: vocabulary
+      description: department vocabulary (control demand).
+      properties:
+        id:
+          type: string
+    edd:
+      type: object
+      x-kind: vocabulary
+      description: edd vocabulary (control demand).
+      properties:
+        approver_id:
+          type: string
+        category_checklist:
+          type: string
+        msb_registration_number:
+          type: integer
+        site_visit_report:
+          type: string
+        source_of_wealth:
+          type: string
+    engagement:
+      type: object
+      x-kind: vocabulary
+      description: engagement vocabulary (control demand).
+      properties:
+        provider:
+          type: string
+        scope:
+          type: string
+    escalation:
+      type: object
+      x-kind: vocabulary
+      description: escalation vocabulary (control demand).
+      properties:
+        facts:
+          type: string
+        reporter_id:
+          type: string
+        severity:
+          type: string
+    escrow:
+      type: object
+      x-kind: vocabulary
+      description: escrow vocabulary (control demand).
+      properties:
+        link.shared:
+          type: string
+    fix:
+      type: object
+      x-kind: vocabulary
+      description: fix vocabulary (control demand).
+      properties:
+        deployed:
+          type: string
+    flow:
+      type: object
+      x-kind: vocabulary
+      description: flow vocabulary (control demand).
+      properties:
+        amount:
+          type: integer
+        direction:
+          type: string
+    foreclosure:
+      type: object
+      x-kind: vocabulary
+      description: foreclosure vocabulary (control demand).
+      properties:
+        expected_loss:
+          type: string
+    freeze:
+      type: object
+      x-kind: vocabulary
+      description: freeze vocabulary (control demand).
+      properties:
+        applied:
+          type: string
+        exception.added:
+          type: string
+        removed:
+          type: string
+    furnisher:
+      type: object
+      x-kind: vocabulary
+      description: furnisher vocabulary (control demand).
+      properties:
+        batch.generated:
+          type: number
+        batch.transmitted:
+          type: string
+        report.history:
+          type: string
+        tradeline.snapshot:
+          type: string
+    governance:
+      type: object
+      x-kind: vocabulary
+      description: governance vocabulary (control demand).
+      properties:
+        authority_statement:
+          type: string
+        bsa_officer_id:
+          type: string
+        raci_registry:
+          type: string
+    insider_report:
+      type: object
+      x-kind: vocabulary
+      description: insider_report vocabulary (control demand).
+      properties:
+        due:
+          type: string
+    intrusion:
+      type: object
+      x-kind: vocabulary
+      description: intrusion vocabulary (control demand).
+      properties:
+        severity:
+          type: string
+    limit:
+      type: object
+      x-kind: vocabulary
+      description: limit vocabulary (control demand).
+      properties:
+        changed:
+          type: string
+    loan_account:
+      type: object
+      x-kind: vocabulary
+      description: loan_account vocabulary (control demand).
+      properties:
+        action_basis:
+          type: string
+    mode:
+      type: object
+      x-kind: vocabulary
+      description: mode vocabulary (control demand).
+      properties:
+        safe.enable:
+          type: string
+    monitoring_coverage:
+      type: object
+      x-kind: vocabulary
+      description: monitoring_coverage vocabulary (control demand).
+      properties:
+        review:
+          type: string
+    ofac:
+      type: object
+      x-kind: vocabulary
+      description: ofac vocabulary (control demand).
+      properties:
+        blocked_property:
+          type: string
+        list_version:
+          type: string
+        payment_instructions:
+          type: string
+    oreo:
+      type: object
+      x-kind: vocabulary
+      description: oreo vocabulary (control demand).
+      properties:
+        asset.recorded:
+          type: string
+        asset.value_at_recording:
+          type: string
+    packet:
+      type: object
+      x-kind: vocabulary
+      description: packet vocabulary (control demand).
+      properties:
+        delivered:
+          type: string
+    portal:
+      type: object
+      x-kind: vocabulary
+      description: portal vocabulary (control demand).
+      properties:
+        state.readonly:
+          type: string
+    process:
+      type: object
+      x-kind: vocabulary
+      description: process vocabulary (control demand).
+      properties:
+        id:
+          type: string
+    product_risk:
+      type: object
+      x-kind: vocabulary
+      description: product_risk vocabulary (control demand).
+      properties:
+        candidate_profile:
+          type: string
+    reg:
+      type: object
+      x-kind: vocabulary
+      description: reg vocabulary (control demand).
+      properties:
+        notice.ack:
+          type: string
+    regulation_inventory:
+      type: object
+      x-kind: vocabulary
+      description: regulation_inventory vocabulary (control demand).
+      properties:
+        citation:
+          type: string
+    resolution_review:
+      type: object
+      x-kind: vocabulary
+      description: resolution_review vocabulary (control demand).
+      properties:
+        due:
+          type: string
+    retention:
+      type: object
+      x-kind: vocabulary
+      description: retention vocabulary (control demand).
+      properties:
+        anchor_date:
+          type: string
+        record_type:
+          type: string
+        schedule:
+          type: string
+    sar:
+      type: object
+      x-kind: vocabulary
+      description: sar vocabulary (control demand).
+      properties:
+        narrative:
+          type: string
+        prior_filing_id:
+          type: string
+    steering_review:
+      type: object
+      x-kind: vocabulary
+      description: steering_review vocabulary (control demand).
+      properties:
+        due:
+          type: string
+    strategy:
+      type: object
+      x-kind: vocabulary
+      description: strategy vocabulary (control demand).
+      properties:
+        change_summary:
+          type: string
+    thirdparty:
+      type: object
+      x-kind: vocabulary
+      description: thirdparty vocabulary (control demand).
+      properties:
+        collector.sync_performed:
+          type: string
+    trustee:
+      type: object
+      x-kind: vocabulary
+      description: trustee vocabulary (control demand).
+      properties:
+        account.provisioned:
+          type: string
   parameters:
     Limit:
       name: limit
