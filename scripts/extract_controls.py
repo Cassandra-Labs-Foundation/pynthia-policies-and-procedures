@@ -40,7 +40,9 @@ from datetime import datetime, timezone
 # --------------------------------------------------------------------------- #
 
 # Directory names (anywhere in the path) that never contain authored policies.
-EXCLUDE_PATH_PARTS = {".git", ".skills", ".cache", "references", "scripts", "core-api-loop"}
+EXCLUDE_PATH_PARTS = {".git", ".claude", ".skills", ".cache", "references", "scripts", "core-api-loop"}
+# .claude holds session git worktrees (.claude/worktrees/*) — full stale copies of the policy
+# tree. Scanning them double-counts policies and inflates the demand with phantom duplicates.
 
 # Top-level markdown files that are repo scaffolding, not policies.
 EXCLUDE_FILENAMES = {

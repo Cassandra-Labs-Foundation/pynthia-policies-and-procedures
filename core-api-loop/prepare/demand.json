@@ -1,11 +1,11 @@
 {
   "meta": {
     "generator": "core-api-loop/prepare/control_oracle.py::extract_demand",
-    "extracted_at": "2026-06-16T00:43:38+00:00",
+    "extracted_at": "2026-06-16T01:29:25+00:00",
     "repo_root": "pynthia-policies-and-procedures",
-    "policies": 30,
-    "controls": 368,
-    "unique_codes": 2994
+    "policies": 26,
+    "controls": 314,
+    "unique_codes": 2819
   },
   "codes": {
     "aan.issued": {
@@ -989,14 +989,6 @@
       "policies": [
         "investment",
         "liquidity"
-      ]
-    },
-    "alert.issued.risk_threshold": {
-      "controls": [
-        "RZ-01"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/resolution"
       ]
     },
     "alert.lar_band_change": {
@@ -2517,14 +2509,6 @@
         "compliance"
       ]
     },
-    "board.report.submitted": {
-      "controls": [
-        "RZ-09"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/resolution"
-      ]
-    },
     "board.resolution_id": {
       "controls": [
         "AU-01",
@@ -2563,14 +2547,6 @@
       ],
       "policies": [
         "record-retention"
-      ]
-    },
-    "borrower.total_exposure": {
-      "controls": [
-        "LC-10"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "breach.control_id": {
@@ -6070,22 +6046,6 @@
         "internal-controls"
       ]
     },
-    "channel.updated": {
-      "controls": [
-        "RZ-02"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/resolution"
-      ]
-    },
-    "checksum.verified": {
-      "controls": [
-        "RZ-07"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/resolution"
-      ]
-    },
     "claim.carrier_notice_due_at": {
       "controls": [
         "RII-08"
@@ -6416,20 +6376,10 @@
     },
     "collateral.cost_to_sell": {
       "controls": [
-        "CL-03",
-        "LC-03"
+        "CL-03"
       ],
       "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections",
         "collections"
-      ]
-    },
-    "collateral.costs_to_sell": {
-      "controls": [
-        "LC-09"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "collateral.counterparty_id": {
@@ -6452,12 +6402,9 @@
       "controls": [
         "CL-03",
         "IP-09",
-        "LC-03",
-        "LC-09",
         "LP-12"
       ],
       "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections",
         "collections",
         "investment",
         "liquidity"
@@ -6505,14 +6452,6 @@
         "liquidity"
       ]
     },
-    "collateral.liquidation_rate": {
-      "controls": [
-        "LC-09"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "collateral.ltv_checked": {
       "controls": [
         "LD-06"
@@ -6545,28 +6484,12 @@
         "liquidity"
       ]
     },
-    "collateral.type": {
-      "controls": [
-        "LC-03"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "collateral.unencumbered_balance": {
       "controls": [
         "LP-11"
       ],
       "policies": [
         "liquidity"
-      ]
-    },
-    "collateral.valuation.updated": {
-      "controls": [
-        "LC-03"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "collateral.valued": {
@@ -6617,30 +6540,6 @@
         "collections"
       ]
     },
-    "collections.breach.root_cause": {
-      "controls": [
-        "LC-01"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "collections.breach.severity": {
-      "controls": [
-        "LC-01"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "collections.breach.type": {
-      "controls": [
-        "LC-01"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "collections.breach_log_due_at": {
       "controls": [
         "CL-01"
@@ -6663,62 +6562,6 @@
       ],
       "policies": [
         "collections"
-      ]
-    },
-    "collections.contact.channel": {
-      "controls": [
-        "LC-02"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "collections.contact.completed": {
-      "controls": [
-        "LC-05"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "collections.contact.date_time": {
-      "controls": [
-        "LC-02"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "collections.contact.initiated": {
-      "controls": [
-        "LC-05"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "collections.contact.note_text": {
-      "controls": [
-        "LC-02"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "collections.contact.scheduled": {
-      "controls": [
-        "LC-05"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "collections.contact_attempt_logged": {
-      "controls": [
-        "LC-02"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "collections.contact_channel": {
@@ -6762,44 +6605,12 @@
         "collections"
       ]
     },
-    "collections.notice_sent": {
-      "controls": [
-        "LC-02"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "collections.past_due_memo_submitted": {
-      "controls": [
-        "LC-02"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "collections.past_due_note_retained": {
       "controls": [
         "CL-02"
       ],
       "policies": [
         "collections"
-      ]
-    },
-    "collections.policy.config": {
-      "controls": [
-        "LC-01"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "collections.policy.snapshot": {
-      "controls": [
-        "LC-01"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "collections.policy_bound": {
@@ -6834,29 +6645,11 @@
         "collections"
       ]
     },
-    "collections.queue.id": {
-      "controls": [
-        "LC-02"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "collections.queue.priority": {
-      "controls": [
-        "LC-02"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "collections.right_to_cure_sent": {
       "controls": [
-        "CL-02",
-        "LC-02"
+        "CL-02"
       ],
       "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections",
         "collections"
       ]
     },
@@ -7053,22 +6846,6 @@
         "member"
       ]
     },
-    "complaint.alleged_harm": {
-      "controls": [
-        "LC-06"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "complaint.assigned": {
-      "controls": [
-        "LC-06"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "complaint.category": {
       "controls": [
         "CL-06",
@@ -7095,28 +6872,12 @@
         "fair-lending"
       ]
     },
-    "complaint.closed": {
-      "controls": [
-        "LC-06"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "complaint.direct_received": {
       "controls": [
         "CL-06"
       ],
       "policies": [
         "collections"
-      ]
-    },
-    "complaint.escalated": {
-      "controls": [
-        "LC-06"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "complaint.final_response_due_at": {
@@ -7167,14 +6928,6 @@
         "collections"
       ]
     },
-    "complaint.interim_response_sent": {
-      "controls": [
-        "LC-06"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "complaint.investigation_completed": {
       "controls": [
         "CL-06",
@@ -7199,14 +6952,6 @@
         "fair-lending",
         "member",
         "privacy"
-      ]
-    },
-    "complaint.issue": {
-      "controls": [
-        "LC-06"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "complaint.logged": {
@@ -7254,22 +6999,12 @@
         "privacy"
       ]
     },
-    "complaint.product": {
-      "controls": [
-        "LC-06"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "complaint.received": {
       "controls": [
         "FL-13",
-        "LC-06",
         "MEM-04"
       ],
       "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections",
         "fair-lending",
         "member"
       ]
@@ -7304,38 +7039,6 @@
         "privacy"
       ]
     },
-    "complaint.response_due_date_final": {
-      "controls": [
-        "LC-06"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "complaint.response_due_date_initial": {
-      "controls": [
-        "LC-06"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "complaint.response_sent": {
-      "controls": [
-        "LC-06"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "complaint.root_cause": {
-      "controls": [
-        "LC-06"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "complaint.root_cause_tag": {
       "controls": [
         "CL-06",
@@ -7346,30 +7049,6 @@
         "collections",
         "compliance",
         "member"
-      ]
-    },
-    "complaint.severity": {
-      "controls": [
-        "LC-06"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "complaint.source": {
-      "controls": [
-        "LC-06"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "complaint.status_changed": {
-      "controls": [
-        "LC-06"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "complaint.trend_reported": {
@@ -7411,11 +7090,9 @@
     "complaint.udaap_flag": {
       "controls": [
         "CL-06",
-        "CMP-09",
-        "LC-06"
+        "CMP-09"
       ],
       "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections",
         "collections",
         "compliance"
       ]
@@ -7754,14 +7431,6 @@
       ],
       "policies": [
         "privacy"
-      ]
-    },
-    "content.published.claims": {
-      "controls": [
-        "RZ-05"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/resolution"
       ]
     },
     "control.framework_approved": {
@@ -8974,28 +8643,12 @@
         "fair-lending"
       ]
     },
-    "dispute.description": {
-      "controls": [
-        "LC-07"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "dispute.idtheft_report": {
       "controls": [
         "CL-07"
       ],
       "policies": [
         "collections"
-      ]
-    },
-    "dispute.investigation.summary": {
-      "controls": [
-        "LC-07"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "dispute.investigation_due_at": {
@@ -9014,22 +8667,6 @@
       ],
       "policies": [
         "member"
-      ]
-    },
-    "dispute.reason_code": {
-      "controls": [
-        "LC-07"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "dispute.received": {
-      "controls": [
-        "LC-07"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "dispute.rege_clock_started": {
@@ -9054,22 +8691,6 @@
       ],
       "policies": [
         "member"
-      ]
-    },
-    "dispute.resolution_recorded": {
-      "controls": [
-        "LC-07"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "dispute.supporting_docs": {
-      "controls": [
-        "LC-07"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "dlp.violation_detail": {
@@ -10946,14 +10567,6 @@
         "bsa"
       ]
     },
-    "escrow.link.shared": {
-      "controls": [
-        "RZ-06"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/resolution"
-      ]
-    },
     "estate.authority_document_ref": {
       "controls": [
         "MEM-07"
@@ -12081,14 +11694,6 @@
         "e-commerce"
       ]
     },
-    "fix.deployed": {
-      "controls": [
-        "RZ-08"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/resolution"
-      ]
-    },
     "flow.amount": {
       "controls": [
         "IP-06",
@@ -12107,14 +11712,6 @@
       "policies": [
         "investment",
         "liquidity"
-      ]
-    },
-    "foreclosure.expected_loss": {
-      "controls": [
-        "LC-09"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "form.template_approved": {
@@ -12147,30 +11744,6 @@
       ],
       "policies": [
         "collections"
-      ]
-    },
-    "freeze.applied": {
-      "controls": [
-        "RZ-03"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/resolution"
-      ]
-    },
-    "freeze.exception.added": {
-      "controls": [
-        "RZ-03"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/resolution"
-      ]
-    },
-    "freeze.removed": {
-      "controls": [
-        "RZ-03"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/resolution"
       ]
     },
     "funding.draw_amount": {
@@ -12253,38 +11826,6 @@
       ],
       "policies": [
         "liquidity"
-      ]
-    },
-    "furnisher.batch.generated": {
-      "controls": [
-        "LC-07"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "furnisher.batch.transmitted": {
-      "controls": [
-        "LC-07"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "furnisher.report.history": {
-      "controls": [
-        "LC-07"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "furnisher.tradeline.snapshot": {
-      "controls": [
-        "LC-07"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "furnishing.correction_applied": {
@@ -12943,14 +12484,6 @@
         "business-continuity-plan"
       ]
     },
-    "incident.classification_updated": {
-      "controls": [
-        "LC-08"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "incident.classified": {
       "controls": [
         "CL-08",
@@ -13034,14 +12567,6 @@
         "third-party-risk"
       ]
     },
-    "incident.data_types_impacted": {
-      "controls": [
-        "LC-08"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "incident.declared": {
       "controls": [
         "BCP-06",
@@ -13057,11 +12582,9 @@
     },
     "incident.description": {
       "controls": [
-        "LC-08",
         "MEM-04"
       ],
       "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections",
         "member"
       ]
     },
@@ -13071,14 +12594,6 @@
       ],
       "policies": [
         "information-security"
-      ]
-    },
-    "incident.detected_at": {
-      "controls": [
-        "LC-08"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "incident.detection_source": {
@@ -13153,14 +12668,6 @@
         "e-commerce"
       ]
     },
-    "incident.logged": {
-      "controls": [
-        "LC-08"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "incident.material_flagged": {
       "controls": [
         "BCP-10",
@@ -13207,12 +12714,10 @@
         "CL-08",
         "EC-10",
         "IS-09",
-        "LC-08",
         "PR-09",
         "TPR-08"
       ],
       "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections",
         "collections",
         "e-commerce",
         "information-security",
@@ -13274,22 +12779,6 @@
         "third-party-risk"
       ]
     },
-    "incident.ncua_report_submitted": {
-      "controls": [
-        "LC-08"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "incident.ncua_report_timestamp": {
-      "controls": [
-        "LC-08"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "incident.notice_content": {
       "controls": [
         "CL-08",
@@ -13324,22 +12813,6 @@
       ],
       "policies": [
         "business-continuity-plan"
-      ]
-    },
-    "incident.regulatory_reported_flag": {
-      "controls": [
-        "LC-08"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "incident.remediation_completed": {
-      "controls": [
-        "LC-08"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "incident.reportability_assessment": {
@@ -13401,11 +12874,9 @@
     },
     "incident.scope": {
       "controls": [
-        "LC-08",
         "PR-09"
       ],
       "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections",
         "privacy"
       ]
     },
@@ -13431,14 +12902,6 @@
         "business-continuity-plan",
         "e-commerce",
         "privacy"
-      ]
-    },
-    "incident.sensitive_data_flag": {
-      "controls": [
-        "LC-08"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "incident.sev1_detected": {
@@ -13484,14 +12947,6 @@
         "business-continuity-plan"
       ]
     },
-    "incident.systems_impacted": {
-      "controls": [
-        "LC-08"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "incident.timeline": {
       "controls": [
         "BCP-06",
@@ -13523,14 +12978,6 @@
         "information-security",
         "privacy",
         "third-party-risk"
-      ]
-    },
-    "incident.type": {
-      "controls": [
-        "LC-08"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "incident_trend.report_issued": {
@@ -14396,14 +13843,6 @@
         "information-security"
       ]
     },
-    "issue.created": {
-      "controls": [
-        "RZ-08"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/resolution"
-      ]
-    },
     "it.blast_radius_isolated": {
       "controls": [
         "BCP-09"
@@ -14816,14 +14255,6 @@
         "lending"
       ]
     },
-    "limit.changed": {
-      "controls": [
-        "RZ-02"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/resolution"
-      ]
-    },
     "limit_set.parameters": {
       "controls": [
         "IP-07",
@@ -15152,23 +14583,6 @@
         "collections"
       ]
     },
-    "loan.bankruptcy.notice_received": {
-      "controls": [
-        "LC-03"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.bankruptcy.status": {
-      "controls": [
-        "LC-03",
-        "LC-05"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "loan.bankruptcy_case_id": {
       "controls": [
         "CL-03"
@@ -15193,14 +14607,6 @@
         "collections"
       ]
     },
-    "loan.charge_off.completed": {
-      "controls": [
-        "LC-03"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "loan.chargeoff_due_closed_end": {
       "controls": [
         "CL-03"
@@ -15223,22 +14629,6 @@
       ],
       "policies": [
         "collections"
-      ]
-    },
-    "loan.classification": {
-      "controls": [
-        "LC-03"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.classification.changed": {
-      "controls": [
-        "LC-03"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "loan.classification_due_at": {
@@ -15266,14 +14656,6 @@
         "collections"
       ]
     },
-    "loan.collections.case_assigned": {
-      "controls": [
-        "LC-02"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "loan.courtesy_notice_due_at": {
       "controls": [
         "CL-02"
@@ -15284,13 +14666,9 @@
     },
     "loan.days_past_due": {
       "controls": [
-        "CL-02",
-        "LC-02",
-        "LC-03",
-        "LC-04"
+        "CL-02"
       ],
       "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections",
         "collections"
       ]
     },
@@ -15300,54 +14678,6 @@
       ],
       "policies": [
         "collections"
-      ]
-    },
-    "loan.delinquency.bucket": {
-      "controls": [
-        "LC-02"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.delinquency.bucket_changed": {
-      "controls": [
-        "LC-02"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.delinquency.grace_expired": {
-      "controls": [
-        "LC-02"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.delinquency.manual_adjustment": {
-      "controls": [
-        "LC-02"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.delinquency.override_reason": {
-      "controls": [
-        "LC-02"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.delinquency.threshold_reached": {
-      "controls": [
-        "LC-03"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "loan.dpd": {
@@ -15387,22 +14717,6 @@
         "collections"
       ]
     },
-    "loan.foreclosure.initiated": {
-      "controls": [
-        "LC-09"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.foreclosure.recommended": {
-      "controls": [
-        "LC-09"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "loan.foreclosure_approved": {
       "controls": [
         "CL-09"
@@ -15427,22 +14741,6 @@
         "collections"
       ]
     },
-    "loan.fraud.confirmed": {
-      "controls": [
-        "LC-03"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.fraud.flag": {
-      "controls": [
-        "LC-03"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "loan.fraud_chargeoff_due_at": {
       "controls": [
         "CL-03"
@@ -15465,46 +14763,6 @@
       ],
       "policies": [
         "collections"
-      ]
-    },
-    "loan.hardship.description": {
-      "controls": [
-        "LC-04"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.hardship.flag": {
-      "controls": [
-        "LC-04"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.hardship.requested": {
-      "controls": [
-        "LC-04"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.hardship.type": {
-      "controls": [
-        "LC-04"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.id": {
-      "controls": [
-        "LC-06"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "loan.io_capitalization_proposed": {
@@ -15541,78 +14799,6 @@
         "lending"
       ]
     },
-    "loan.ltv.current": {
-      "controls": [
-        "LC-03"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.modification.count_life": {
-      "controls": [
-        "LC-04"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.modification.count_past_12m": {
-      "controls": [
-        "LC-04"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.modification.interest_capitalization_flag": {
-      "controls": [
-        "LC-04"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.modification.interest_reduction": {
-      "controls": [
-        "LC-04"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.modification.new_maturity_date": {
-      "controls": [
-        "LC-04"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.modification.new_payment": {
-      "controls": [
-        "LC-04"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.modification.new_rate": {
-      "controls": [
-        "LC-04"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.modification.principal_reduction": {
-      "controls": [
-        "LC-04"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "loan.modification_decided": {
       "controls": [
         "CL-04"
@@ -15635,30 +14821,6 @@
       ],
       "policies": [
         "collections"
-      ]
-    },
-    "loan.nonaccrual.flagged": {
-      "controls": [
-        "LC-09"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.nonaccrual.status": {
-      "controls": [
-        "LC-09"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.nonaccrual.status_changed": {
-      "controls": [
-        "LC-09"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "loan.nonaccrual_due_at": {
@@ -15685,14 +14847,6 @@
         "collections"
       ]
     },
-    "loan.open_end_flag": {
-      "controls": [
-        "LC-03"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "loan.past_due_amount": {
       "controls": [
         "CL-02"
@@ -15701,22 +14855,12 @@
         "collections"
       ]
     },
-    "loan.payment.allocation_method": {
-      "controls": [
-        "LC-02"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "loan.product_type": {
       "controls": [
         "CL-02",
-        "CL-03",
-        "LC-03"
+        "CL-03"
       ],
       "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections",
         "collections"
       ]
     },
@@ -15761,22 +14905,6 @@
         "collections"
       ]
     },
-    "loan.recovery.amount": {
-      "controls": [
-        "LC-03"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.recovery.posted": {
-      "controls": [
-        "LC-03"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "loan.repayment_evidence": {
       "controls": [
         "CL-03",
@@ -15798,36 +14926,10 @@
     "loan.risk_rating": {
       "controls": [
         "CL-01",
-        "CL-09",
-        "LC-09"
+        "CL-09"
       ],
       "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections",
         "collections"
-      ]
-    },
-    "loan.risk_rating.changed": {
-      "controls": [
-        "LC-09"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.risk_rating.rationale": {
-      "controls": [
-        "LC-09"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.schedule.due_dates": {
-      "controls": [
-        "LC-02"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "loan.second_reminder_due_at": {
@@ -15846,84 +14948,12 @@
         "collections"
       ]
     },
-    "loan.tdr.approved": {
-      "controls": [
-        "LC-04"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.tdr.flag": {
-      "controls": [
-        "LC-04"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "loan.well_secured_documented": {
       "controls": [
         "CL-03"
       ],
       "policies": [
         "collections"
-      ]
-    },
-    "loan.workout.approved": {
-      "controls": [
-        "LC-04"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.workout.completed": {
-      "controls": [
-        "LC-04"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.workout.defaulted": {
-      "controls": [
-        "LC-04"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.workout.modified_terms_applied": {
-      "controls": [
-        "LC-04"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.workout.plan_id": {
-      "controls": [
-        "LC-04"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.workout.proposed": {
-      "controls": [
-        "LC-04"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "loan.workout.restructured": {
-      "controls": [
-        "LC-03"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "loan.workout_alternatives": {
@@ -16561,14 +15591,6 @@
         "collections"
       ]
     },
-    "member.cash_flow": {
-      "controls": [
-        "LC-04"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "member.cease_flag_set": {
       "controls": [
         "CL-05"
@@ -16601,62 +15623,6 @@
         "member"
       ]
     },
-    "member.contact.cease_communication": {
-      "controls": [
-        "LC-05"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "member.contact.channels_allowed": {
-      "controls": [
-        "LC-05"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "member.contact.do_not_call": {
-      "controls": [
-        "LC-05"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "member.contact.do_not_call_flags": {
-      "controls": [
-        "LC-02"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "member.contact.email_opt_in": {
-      "controls": [
-        "LC-05"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "member.contact.preference": {
-      "controls": [
-        "LC-02"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "member.contact.preferences_updated": {
-      "controls": [
-        "LC-05"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "member.contact_preferences": {
       "controls": [
         "CL-02",
@@ -16675,14 +15641,6 @@
       "policies": [
         "collections",
         "member"
-      ]
-    },
-    "member.deceased_flag": {
-      "controls": [
-        "LC-03"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "member.delivery_channel": {
@@ -16783,14 +15741,6 @@
         "member"
       ]
     },
-    "member.expense_ratio": {
-      "controls": [
-        "LC-04"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "member.expulsion_decided": {
       "controls": [
         "MEM-06"
@@ -16841,11 +15791,9 @@
     },
     "member.id": {
       "controls": [
-        "IS-10",
-        "LC-06"
+        "IS-10"
       ],
       "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections",
         "information-security"
       ]
     },
@@ -16859,14 +15807,6 @@
         "e-commerce",
         "member",
         "resolution"
-      ]
-    },
-    "member.income": {
-      "controls": [
-        "LC-04"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "member.ineligibility_notice_sent": {
@@ -16893,36 +15833,12 @@
         "collections"
       ]
     },
-    "member.represented_by_attorney": {
-      "controls": [
-        "LC-05"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "member.restriction_notice_sent": {
       "controls": [
         "MEM-05"
       ],
       "policies": [
         "member"
-      ]
-    },
-    "member.status.deceased_recorded": {
-      "controls": [
-        "LC-03"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "member.time_zone": {
-      "controls": [
-        "LC-05"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "member.timezone": {
@@ -17175,14 +16091,6 @@
         "liquidity"
       ]
     },
-    "mode.safe.enable": {
-      "controls": [
-        "RZ-02"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/resolution"
-      ]
-    },
     "model.builder_roster": {
       "controls": [
         "LP-08"
@@ -17405,14 +16313,6 @@
         "fair-lending"
       ]
     },
-    "notice.sent.member": {
-      "controls": [
-        "RZ-04"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/resolution"
-      ]
-    },
     "notification.decision_recorded": {
       "controls": [
         "BCP-10"
@@ -17622,30 +16522,6 @@
         "business-continuity-plan"
       ]
     },
-    "oreo.asset.recorded": {
-      "controls": [
-        "LC-09"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "oreo.asset.value_at_recording": {
-      "controls": [
-        "LC-09"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "org.freeze.enabled": {
-      "controls": [
-        "RZ-04"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/resolution"
-      ]
-    },
     "org.material_change": {
       "controls": [
         "BSA-01"
@@ -17672,20 +16548,10 @@
     },
     "overdraft.amount": {
       "controls": [
-        "CL-10",
-        "LC-10"
+        "CL-10"
       ],
       "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections",
         "collections"
-      ]
-    },
-    "overdraft.approved_by_officer_id": {
-      "controls": [
-        "LC-10"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "overdraft.daily_report_generated": {
@@ -17696,28 +16562,12 @@
         "collections"
       ]
     },
-    "overdraft.daily_report_id": {
-      "controls": [
-        "LC-10"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "overdraft.days_outstanding": {
       "controls": [
         "CL-10"
       ],
       "policies": [
         "collections"
-      ]
-    },
-    "overdraft.escalated_to_collections": {
-      "controls": [
-        "LC-10"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "overdraft.fee_assessed": {
@@ -17748,62 +16598,6 @@
         "truth-in-savings"
       ]
     },
-    "overdraft.fee_waiver.applied": {
-      "controls": [
-        "LC-10"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "overdraft.fee_waiver.approved_by_id": {
-      "controls": [
-        "LC-10"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "overdraft.fee_waiver.reason": {
-      "controls": [
-        "LC-10"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "overdraft.fee_waiver.requested": {
-      "controls": [
-        "LC-10"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "overdraft.id": {
-      "controls": [
-        "LC-06"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "overdraft.item.posted": {
-      "controls": [
-        "LC-10"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "overdraft.notice_sent": {
-      "controls": [
-        "LC-10"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "overdraft.occurrence_count": {
       "controls": [
         "CL-10",
@@ -17824,14 +16618,6 @@
         "resolution"
       ]
     },
-    "overdraft.posted_at": {
-      "controls": [
-        "LC-10"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "overdraft.recurring_pattern_detected": {
       "controls": [
         "CL-10"
@@ -17846,14 +16632,6 @@
       ],
       "policies": [
         "collections"
-      ]
-    },
-    "overdraft.report.generated": {
-      "controls": [
-        "LC-10"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "overdraft.report_reviewed": {
@@ -17964,14 +16742,6 @@
       "policies": [
         "internal-controls",
         "lending"
-      ]
-    },
-    "packet.delivered": {
-      "controls": [
-        "RZ-06"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/resolution"
       ]
     },
     "pentest.engagement_due": {
@@ -18333,54 +17103,6 @@
         "bsa"
       ]
     },
-    "policy.collections.breach_logged": {
-      "controls": [
-        "LC-01"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "policy.collections.draft_created": {
-      "controls": [
-        "LC-01"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "policy.collections.exception_approved": {
-      "controls": [
-        "LC-01"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "policy.collections.review_completed": {
-      "controls": [
-        "LC-01"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "policy.collections.review_due_approaching": {
-      "controls": [
-        "LC-01"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "policy.collections.version_approved": {
-      "controls": [
-        "LC-01"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "policy.compliance_record_filed": {
       "controls": [
         "FD-10"
@@ -18680,28 +17402,12 @@
         "director-fiduciary-duties"
       ]
     },
-    "policy.updated": {
-      "controls": [
-        "RZ-09"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/resolution"
-      ]
-    },
     "policy.version_approved": {
       "controls": [
         "LP-01"
       ],
       "policies": [
         "liquidity"
-      ]
-    },
-    "policy.version_id": {
-      "controls": [
-        "LC-01"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "policy.version_published": {
@@ -18729,14 +17435,6 @@
       ],
       "policies": [
         "director-fiduciary-duties"
-      ]
-    },
-    "portal.state.readonly": {
-      "controls": [
-        "RZ-05"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/resolution"
       ]
     },
     "portfolio.board_report_due": {
@@ -19481,14 +18179,6 @@
         "truth-in-savings"
       ]
     },
-    "product.catalog.collections_scope_flag": {
-      "controls": [
-        "LC-01"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "product.contract_version": {
       "controls": [
         "TIS-01"
@@ -19530,14 +18220,6 @@
       ],
       "policies": [
         "truth-in-savings"
-      ]
-    },
-    "product.type": {
-      "controls": [
-        "LC-01"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "product_menu.change_requested": {
@@ -20540,14 +19222,6 @@
         "member"
       ]
     },
-    "reg.notice.ack": {
-      "controls": [
-        "RZ-04"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/resolution"
-      ]
-    },
     "regulation.citation": {
       "controls": [
         "CMP-02",
@@ -21524,14 +20198,6 @@
         "information-security"
       ]
     },
-    "risk.posture.changed": {
-      "controls": [
-        "RZ-01"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/resolution"
-      ]
-    },
     "risk.product_assessment_completed": {
       "controls": [
         "EPS-01",
@@ -22060,38 +20726,6 @@
         "enterprise-risk-management"
       ]
     },
-    "role.audit.owner_id": {
-      "controls": [
-        "LC-01"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "role.collections.owner_id": {
-      "controls": [
-        "LC-01"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "role.compliance.owner_id": {
-      "controls": [
-        "LC-01"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "role.credit.owner_id": {
-      "controls": [
-        "LC-01"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "role.definition": {
       "controls": [
         "CMP-03"
@@ -22464,30 +21098,6 @@
       ],
       "policies": [
         "record-retention"
-      ]
-    },
-    "scope.diff.approved": {
-      "controls": [
-        "RZ-00"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/resolution"
-      ]
-    },
-    "scope.published": {
-      "controls": [
-        "RZ-00"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/resolution"
-      ]
-    },
-    "scope.version.created": {
-      "controls": [
-        "RZ-00"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/resolution"
       ]
     },
     "scope_registry.approver_id": {
@@ -23598,44 +22208,12 @@
         "collections"
       ]
     },
-    "template.fdcpadisclosure_required": {
-      "controls": [
-        "LC-05"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "template.id": {
-      "controls": [
-        "LC-05"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
     "template.product_scope": {
       "controls": [
         "CL-05"
       ],
       "policies": [
         "collections"
-      ]
-    },
-    "template.version": {
-      "controls": [
-        "LC-05"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    "thirdparty.collector.sync_performed": {
-      "controls": [
-        "LC-05"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     },
     "threat_register.refresh_due": {
@@ -24149,11 +22727,9 @@
       "controls": [
         "BSA-19",
         "EC-12",
-        "FL-11",
-        "RZ-09"
+        "FL-11"
       ],
       "policies": [
-        ".claude/worktrees/nervous-joliot-757160/resolution",
         "bsa",
         "e-commerce",
         "fair-lending"
@@ -24545,14 +23121,6 @@
       ],
       "policies": [
         "cash"
-      ]
-    },
-    "trustee.account.provisioned": {
-      "controls": [
-        "RZ-06"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/resolution"
       ]
     },
     "user.employment_status": {

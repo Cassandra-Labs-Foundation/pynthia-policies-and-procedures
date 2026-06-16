@@ -1,7 +1,7 @@
 {
   "meta": {
     "generator": "scripts/build_control_vocabulary.py",
-    "generated_at": "2026-06-16T01:06:57+00:00",
+    "generated_at": "2026-06-16T01:29:25+00:00",
     "source": "controls.json",
     "api_model": {
       "spec_title": "Cassandra Banking Core API (Minimal)",
@@ -10,15 +10,15 @@
       "fields": 2303,
       "entities": 312
     },
-    "controls_generated_at": "2026-06-16T01:06:57+00:00"
+    "controls_generated_at": "2026-06-16T01:29:24+00:00"
   },
   "stats": {
-    "entities": 306,
-    "unique_codes": 2994,
-    "registered_events": 1093,
-    "registered_fields": 1901,
+    "entities": 287,
+    "unique_codes": 2819,
+    "registered_events": 1061,
+    "registered_fields": 1758,
     "unregistered_codes": 0,
-    "statuses": 5
+    "statuses": 1
   },
   "entities": {
     "aan": {
@@ -1999,9 +1999,9 @@
     },
     "alert": {
       "entity": "alert",
-      "code_count": 13,
+      "code_count": 12,
       "registered_events": 1,
-      "registered_fields": 12,
+      "registered_fields": 11,
       "unregistered": 0,
       "codes": [
         {
@@ -2093,24 +2093,6 @@
           "policies": [
             "investment",
             "liquidity"
-          ]
-        },
-        {
-          "code": "alert.issued.risk_threshold",
-          "status": "field",
-          "spec": {
-            "entity": "alert",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "RZ-01"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/resolution"
           ]
         },
         {
@@ -5118,8 +5100,8 @@
     },
     "board": {
       "entity": "board",
-      "code_count": 13,
-      "registered_events": 6,
+      "code_count": 12,
+      "registered_events": 5,
       "registered_fields": 7,
       "unregistered": 0,
       "codes": [
@@ -5197,21 +5179,6 @@
           ],
           "policies": [
             "compliance"
-          ]
-        },
-        {
-          "code": "board.report.submitted",
-          "status": "event",
-          "spec": {
-            "entity": "board",
-            "description": "canonical event_type: `submitted`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "RZ-09"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/resolution"
           ]
         },
         {
@@ -5431,33 +5398,6 @@
           ],
           "policies": [
             "record-retention"
-          ]
-        }
-      ]
-    },
-    "borrower": {
-      "entity": "borrower",
-      "code_count": 1,
-      "registered_events": 0,
-      "registered_fields": 1,
-      "unregistered": 0,
-      "codes": [
-        {
-          "code": "borrower.total_exposure",
-          "status": "field",
-          "spec": {
-            "entity": "borrower",
-            "type": "integer",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-10"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         }
       ]
@@ -12714,54 +12654,6 @@
         }
       ]
     },
-    "channel": {
-      "entity": "channel",
-      "code_count": 1,
-      "registered_events": 1,
-      "registered_fields": 0,
-      "unregistered": 0,
-      "codes": [
-        {
-          "code": "channel.updated",
-          "status": "event",
-          "spec": {
-            "entity": "channel",
-            "description": "canonical event_type: `updated`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "RZ-02"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/resolution"
-          ]
-        }
-      ]
-    },
-    "checksum": {
-      "entity": "checksum",
-      "code_count": 1,
-      "registered_events": 1,
-      "registered_fields": 0,
-      "unregistered": 0,
-      "codes": [
-        {
-          "code": "checksum.verified",
-          "status": "event",
-          "spec": {
-            "entity": "checksum",
-            "description": "canonical event_type: `verified`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "RZ-07"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/resolution"
-          ]
-        }
-      ]
-    },
     "claim": {
       "entity": "claim",
       "code_count": 5,
@@ -13448,9 +13340,9 @@
     },
     "collateral": {
       "entity": "collateral",
-      "code_count": 20,
-      "registered_events": 6,
-      "registered_fields": 14,
+      "code_count": 16,
+      "registered_events": 5,
+      "registered_fields": 11,
       "unregistered": 0,
       "codes": [
         {
@@ -13514,21 +13406,6 @@
           ]
         },
         {
-          "code": "collateral.valuation.updated",
-          "status": "event",
-          "spec": {
-            "entity": "collateral",
-            "description": "canonical event_type: `updated`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-03"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "collateral.valued",
           "status": "event",
           "spec": {
@@ -13571,32 +13448,12 @@
             "required": false,
             "description": null
           },
-          "ref_count": 2,
-          "controls": [
-            "CL-03",
-            "LC-03"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections",
-            "collections"
-          ]
-        },
-        {
-          "code": "collateral.costs_to_sell",
-          "status": "field",
-          "spec": {
-            "entity": "collateral",
-            "type": "integer",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
           "ref_count": 1,
           "controls": [
-            "LC-09"
+            "CL-03"
           ],
           "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
+            "collections"
           ]
         },
         {
@@ -13645,16 +13502,13 @@
             "required": false,
             "description": null
           },
-          "ref_count": 5,
+          "ref_count": 3,
           "controls": [
             "CL-03",
             "IP-09",
-            "LC-03",
-            "LC-09",
             "LP-12"
           ],
           "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections",
             "collections",
             "investment",
             "liquidity"
@@ -13717,24 +13571,6 @@
           ]
         },
         {
-          "code": "collateral.liquidation_rate",
-          "status": "field",
-          "spec": {
-            "entity": "collateral",
-            "type": "number",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-09"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "collateral.move_detail",
           "status": "field",
           "spec": {
@@ -13771,24 +13607,6 @@
           ]
         },
         {
-          "code": "collateral.type",
-          "status": "field",
-          "spec": {
-            "entity": "collateral",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-03"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "collateral.unencumbered_balance",
           "status": "field",
           "spec": {
@@ -13810,9 +13628,9 @@
     },
     "collections": {
       "entity": "collections",
-      "code_count": 39,
-      "registered_events": 15,
-      "registered_fields": 24,
+      "code_count": 23,
+      "registered_events": 12,
+      "registered_fields": 11,
       "unregistered": 0,
       "codes": [
         {
@@ -13846,21 +13664,6 @@
           ]
         },
         {
-          "code": "collections.contact.completed",
-          "status": "event",
-          "spec": {
-            "entity": "collections",
-            "description": "canonical event_type: `completed`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-05"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "collections.contact_logged",
           "status": "event",
           "spec": {
@@ -13889,36 +13692,6 @@
           ],
           "policies": [
             "collections"
-          ]
-        },
-        {
-          "code": "collections.notice_sent",
-          "status": "event",
-          "spec": {
-            "entity": "collections",
-            "description": "canonical event_type: `sent`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-02"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "collections.past_due_memo_submitted",
-          "status": "event",
-          "spec": {
-            "entity": "collections",
-            "description": "canonical event_type: `submitted`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-02"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -13973,13 +13746,11 @@
             "entity": "collections",
             "description": "canonical event_type: `sent`"
           },
-          "ref_count": 2,
+          "ref_count": 1,
           "controls": [
-            "CL-02",
-            "LC-02"
+            "CL-02"
           ],
           "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections",
             "collections"
           ]
         },
@@ -14116,60 +13887,6 @@
           ]
         },
         {
-          "code": "collections.breach.root_cause",
-          "status": "field",
-          "spec": {
-            "entity": "collections",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-01"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "collections.breach.severity",
-          "status": "field",
-          "spec": {
-            "entity": "collections",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-01"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "collections.breach.type",
-          "status": "field",
-          "spec": {
-            "entity": "collections",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-01"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "collections.breach_log_due_at",
           "status": "field",
           "spec": {
@@ -14203,114 +13920,6 @@
           ],
           "policies": [
             "collections"
-          ]
-        },
-        {
-          "code": "collections.contact.channel",
-          "status": "field",
-          "spec": {
-            "entity": "collections",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-02"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "collections.contact.date_time",
-          "status": "field",
-          "spec": {
-            "entity": "collections",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-02"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "collections.contact.initiated",
-          "status": "field",
-          "spec": {
-            "entity": "collections",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-05"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "collections.contact.note_text",
-          "status": "field",
-          "spec": {
-            "entity": "collections",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-02"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "collections.contact.scheduled",
-          "status": "field",
-          "spec": {
-            "entity": "collections",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-05"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "collections.contact_attempt_logged",
-          "status": "field",
-          "spec": {
-            "entity": "collections",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-02"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -14386,42 +13995,6 @@
           ]
         },
         {
-          "code": "collections.policy.config",
-          "status": "field",
-          "spec": {
-            "entity": "collections",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-01"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "collections.policy.snapshot",
-          "status": "field",
-          "spec": {
-            "entity": "collections",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-01"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "collections.policy_bound",
           "status": "field",
           "spec": {
@@ -14437,42 +14010,6 @@
           ],
           "policies": [
             "collections"
-          ]
-        },
-        {
-          "code": "collections.queue.id",
-          "status": "field",
-          "spec": {
-            "entity": "collections",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-02"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "collections.queue.priority",
-          "status": "field",
-          "spec": {
-            "entity": "collections",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-02"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         }
       ]
@@ -14766,9 +14303,9 @@
     },
     "complaint": {
       "entity": "complaint",
-      "code_count": 39,
-      "registered_events": 15,
-      "registered_fields": 24,
+      "code_count": 25,
+      "registered_events": 11,
+      "registered_fields": 14,
       "unregistered": 0,
       "codes": [
         {
@@ -14789,21 +14326,6 @@
           ]
         },
         {
-          "code": "complaint.closed",
-          "status": "event",
-          "spec": {
-            "entity": "complaint",
-            "description": "canonical event_type: `closed`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-06"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "complaint.direct_received",
           "status": "event",
           "spec": {
@@ -14816,21 +14338,6 @@
           ],
           "policies": [
             "collections"
-          ]
-        },
-        {
-          "code": "complaint.escalated",
-          "status": "event",
-          "spec": {
-            "entity": "complaint",
-            "description": "canonical event_type: `escalated`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-06"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -14863,21 +14370,6 @@
           ],
           "policies": [
             "collections"
-          ]
-        },
-        {
-          "code": "complaint.interim_response_sent",
-          "status": "event",
-          "spec": {
-            "entity": "complaint",
-            "description": "canonical event_type: `sent`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-06"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -14940,14 +14432,12 @@
             "entity": "complaint",
             "description": "canonical event_type: `received`"
           },
-          "ref_count": 3,
+          "ref_count": 2,
           "controls": [
             "FL-13",
-            "LC-06",
             "MEM-04"
           ],
           "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections",
             "fair-lending",
             "member"
           ]
@@ -14984,21 +14474,6 @@
           "policies": [
             "collections",
             "privacy"
-          ]
-        },
-        {
-          "code": "complaint.response_sent",
-          "status": "event",
-          "spec": {
-            "entity": "complaint",
-            "description": "canonical event_type: `sent`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-06"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -15040,42 +14515,6 @@
             "collections",
             "fair-lending",
             "member"
-          ]
-        },
-        {
-          "code": "complaint.alleged_harm",
-          "status": "field",
-          "spec": {
-            "entity": "complaint",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-06"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "complaint.assigned",
-          "status": "field",
-          "spec": {
-            "entity": "complaint",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-06"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -15209,24 +14648,6 @@
           ]
         },
         {
-          "code": "complaint.issue",
-          "status": "field",
-          "spec": {
-            "entity": "complaint",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-06"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "complaint.member_id",
           "status": "field",
           "spec": {
@@ -15272,24 +14693,6 @@
           ]
         },
         {
-          "code": "complaint.product",
-          "status": "field",
-          "spec": {
-            "entity": "complaint",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-06"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "complaint.resolution_due_at",
           "status": "field",
           "spec": {
@@ -15307,60 +14710,6 @@
           "policies": [
             "collections",
             "privacy"
-          ]
-        },
-        {
-          "code": "complaint.response_due_date_final",
-          "status": "field",
-          "spec": {
-            "entity": "complaint",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-06"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "complaint.response_due_date_initial",
-          "status": "field",
-          "spec": {
-            "entity": "complaint",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-06"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "complaint.root_cause",
-          "status": "field",
-          "spec": {
-            "entity": "complaint",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-06"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -15383,60 +14732,6 @@
             "collections",
             "compliance",
             "member"
-          ]
-        },
-        {
-          "code": "complaint.severity",
-          "status": "field",
-          "spec": {
-            "entity": "complaint",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-06"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "complaint.source",
-          "status": "field",
-          "spec": {
-            "entity": "complaint",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-06"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "complaint.status_changed",
-          "status": "field",
-          "spec": {
-            "entity": "complaint",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-06"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -15493,14 +14788,12 @@
             "required": false,
             "description": null
           },
-          "ref_count": 3,
+          "ref_count": 2,
           "controls": [
             "CL-06",
-            "CMP-09",
-            "LC-06"
+            "CMP-09"
           ],
           "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections",
             "collections",
             "compliance"
           ]
@@ -16216,33 +15509,6 @@
           ],
           "policies": [
             "privacy"
-          ]
-        }
-      ]
-    },
-    "content": {
-      "entity": "content",
-      "code_count": 1,
-      "registered_events": 0,
-      "registered_fields": 1,
-      "unregistered": 0,
-      "codes": [
-        {
-          "code": "content.published.claims",
-          "status": "field",
-          "spec": {
-            "entity": "content",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "RZ-05"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/resolution"
           ]
         }
       ]
@@ -18920,9 +18186,9 @@
     },
     "dispute": {
       "entity": "dispute",
-      "code_count": 15,
+      "code_count": 9,
       "registered_events": 2,
-      "registered_fields": 13,
+      "registered_fields": 7,
       "unregistered": 0,
       "codes": [
         {
@@ -19016,24 +18282,6 @@
           ]
         },
         {
-          "code": "dispute.description",
-          "status": "field",
-          "spec": {
-            "entity": "dispute",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-07"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "dispute.idtheft_report",
           "status": "field",
           "spec": {
@@ -19049,24 +18297,6 @@
           ],
           "policies": [
             "collections"
-          ]
-        },
-        {
-          "code": "dispute.investigation.summary",
-          "status": "field",
-          "spec": {
-            "entity": "dispute",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-07"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -19087,42 +18317,6 @@
           "policies": [
             "e-commerce",
             "member"
-          ]
-        },
-        {
-          "code": "dispute.reason_code",
-          "status": "field",
-          "spec": {
-            "entity": "dispute",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-07"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "dispute.received",
-          "status": "field",
-          "spec": {
-            "entity": "dispute",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-07"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -19159,42 +18353,6 @@
           ],
           "policies": [
             "member"
-          ]
-        },
-        {
-          "code": "dispute.resolution_recorded",
-          "status": "field",
-          "spec": {
-            "entity": "dispute",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-07"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "dispute.supporting_docs",
-          "status": "field",
-          "spec": {
-            "entity": "dispute",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-07"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         }
       ]
@@ -23203,33 +22361,6 @@
         }
       ]
     },
-    "escrow": {
-      "entity": "escrow",
-      "code_count": 1,
-      "registered_events": 0,
-      "registered_fields": 1,
-      "unregistered": 0,
-      "codes": [
-        {
-          "code": "escrow.link.shared",
-          "status": "field",
-          "spec": {
-            "entity": "escrow",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "RZ-06"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/resolution"
-          ]
-        }
-      ]
-    },
     "estate": {
       "entity": "estate",
       "code_count": 11,
@@ -25668,33 +24799,6 @@
         }
       ]
     },
-    "fix": {
-      "entity": "fix",
-      "code_count": 1,
-      "registered_events": 0,
-      "registered_fields": 1,
-      "unregistered": 0,
-      "codes": [
-        {
-          "code": "fix.deployed",
-          "status": "field",
-          "spec": {
-            "entity": "fix",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "RZ-08"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/resolution"
-          ]
-        }
-      ]
-    },
     "flow": {
       "entity": "flow",
       "code_count": 2,
@@ -25740,33 +24844,6 @@
           "policies": [
             "investment",
             "liquidity"
-          ]
-        }
-      ]
-    },
-    "foreclosure": {
-      "entity": "foreclosure",
-      "code_count": 1,
-      "registered_events": 0,
-      "registered_fields": 1,
-      "unregistered": 0,
-      "codes": [
-        {
-          "code": "foreclosure.expected_loss",
-          "status": "field",
-          "spec": {
-            "entity": "foreclosure",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-09"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         }
       ]
@@ -25851,69 +24928,6 @@
           ],
           "policies": [
             "collections"
-          ]
-        }
-      ]
-    },
-    "freeze": {
-      "entity": "freeze",
-      "code_count": 3,
-      "registered_events": 0,
-      "registered_fields": 3,
-      "unregistered": 0,
-      "codes": [
-        {
-          "code": "freeze.applied",
-          "status": "field",
-          "spec": {
-            "entity": "freeze",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "RZ-03"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/resolution"
-          ]
-        },
-        {
-          "code": "freeze.exception.added",
-          "status": "field",
-          "spec": {
-            "entity": "freeze",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "RZ-03"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/resolution"
-          ]
-        },
-        {
-          "code": "freeze.removed",
-          "status": "field",
-          "spec": {
-            "entity": "freeze",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "RZ-03"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/resolution"
           ]
         }
       ]
@@ -26096,87 +25110,6 @@
           ],
           "policies": [
             "liquidity"
-          ]
-        }
-      ]
-    },
-    "furnisher": {
-      "entity": "furnisher",
-      "code_count": 4,
-      "registered_events": 0,
-      "registered_fields": 4,
-      "unregistered": 0,
-      "codes": [
-        {
-          "code": "furnisher.batch.generated",
-          "status": "field",
-          "spec": {
-            "entity": "furnisher",
-            "type": "number",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-07"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "furnisher.batch.transmitted",
-          "status": "field",
-          "spec": {
-            "entity": "furnisher",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-07"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "furnisher.report.history",
-          "status": "field",
-          "spec": {
-            "entity": "furnisher",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-07"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "furnisher.tradeline.snapshot",
-          "status": "field",
-          "spec": {
-            "entity": "furnisher",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-07"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         }
       ]
@@ -27550,9 +26483,9 @@
     },
     "incident": {
       "entity": "incident",
-      "code_count": 57,
-      "registered_events": 24,
-      "registered_fields": 33,
+      "code_count": 46,
+      "registered_events": 21,
+      "registered_fields": 25,
       "unregistered": 0,
       "codes": [
         {
@@ -27572,21 +26505,6 @@
             "e-commerce",
             "information-security",
             "third-party-risk"
-          ]
-        },
-        {
-          "code": "incident.classification_updated",
-          "status": "event",
-          "spec": {
-            "entity": "incident",
-            "description": "canonical event_type: `updated`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-08"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -27799,17 +26717,15 @@
             "entity": "incident",
             "description": "canonical event_type: `sent`"
           },
-          "ref_count": 6,
+          "ref_count": 5,
           "controls": [
             "CL-08",
             "EC-10",
             "IS-09",
-            "LC-08",
             "PR-09",
             "TPR-08"
           ],
           "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections",
             "collections",
             "e-commerce",
             "information-security",
@@ -27845,21 +26761,6 @@
           ]
         },
         {
-          "code": "incident.ncua_report_submitted",
-          "status": "event",
-          "spec": {
-            "entity": "incident",
-            "description": "canonical event_type: `submitted`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-08"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "incident.postmortem_completed",
           "status": "event",
           "spec": {
@@ -27872,21 +26773,6 @@
           ],
           "policies": [
             "business-continuity-plan"
-          ]
-        },
-        {
-          "code": "incident.remediation_completed",
-          "status": "event",
-          "spec": {
-            "entity": "incident",
-            "description": "canonical event_type: `completed`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-08"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -28091,24 +26977,6 @@
           ]
         },
         {
-          "code": "incident.data_types_impacted",
-          "status": "field",
-          "spec": {
-            "entity": "Incident",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-08"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "incident.description",
           "status": "field",
           "spec": {
@@ -28118,32 +26986,12 @@
             "required": false,
             "description": null
           },
-          "ref_count": 2,
+          "ref_count": 1,
           "controls": [
-            "LC-08",
             "MEM-04"
           ],
           "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections",
             "member"
-          ]
-        },
-        {
-          "code": "incident.detected_at",
-          "status": "field",
-          "spec": {
-            "entity": "Incident",
-            "type": "string (date-time)",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-08"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -28213,24 +27061,6 @@
           "policies": [
             "business-continuity-plan",
             "e-commerce"
-          ]
-        },
-        {
-          "code": "incident.logged",
-          "status": "field",
-          "spec": {
-            "entity": "Incident",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-08"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -28314,24 +27144,6 @@
           ]
         },
         {
-          "code": "incident.ncua_report_timestamp",
-          "status": "field",
-          "spec": {
-            "entity": "Incident",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-08"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "incident.notice_content",
           "status": "field",
           "spec": {
@@ -28377,24 +27189,6 @@
             "e-commerce",
             "information-security",
             "privacy"
-          ]
-        },
-        {
-          "code": "incident.regulatory_reported_flag",
-          "status": "field",
-          "spec": {
-            "entity": "Incident",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-08"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -28505,13 +27299,11 @@
             "required": false,
             "description": null
           },
-          "ref_count": 2,
+          "ref_count": 1,
           "controls": [
-            "LC-08",
             "PR-09"
           ],
           "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections",
             "privacy"
           ]
         },
@@ -28535,24 +27327,6 @@
             "business-continuity-plan",
             "e-commerce",
             "information-security"
-          ]
-        },
-        {
-          "code": "incident.sensitive_data_flag",
-          "status": "field",
-          "spec": {
-            "entity": "Incident",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-08"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -28582,24 +27356,6 @@
             "information-security",
             "privacy",
             "third-party-risk"
-          ]
-        },
-        {
-          "code": "incident.systems_impacted",
-          "status": "field",
-          "spec": {
-            "entity": "Incident",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-08"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -28653,24 +27409,6 @@
             "information-security",
             "privacy",
             "third-party-risk"
-          ]
-        },
-        {
-          "code": "incident.type",
-          "status": "field",
-          "spec": {
-            "entity": "Incident",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-08"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         }
       ]
@@ -30549,30 +29287,6 @@
         }
       ]
     },
-    "issue": {
-      "entity": "issue",
-      "code_count": 1,
-      "registered_events": 1,
-      "registered_fields": 0,
-      "unregistered": 0,
-      "codes": [
-        {
-          "code": "issue.created",
-          "status": "event",
-          "spec": {
-            "entity": "issue",
-            "description": "canonical event_type: `created`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "RZ-08"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/resolution"
-          ]
-        }
-      ]
-    },
     "it": {
       "entity": "it",
       "code_count": 5,
@@ -31464,33 +30178,6 @@
         }
       ]
     },
-    "limit": {
-      "entity": "limit",
-      "code_count": 1,
-      "registered_events": 0,
-      "registered_fields": 1,
-      "unregistered": 0,
-      "codes": [
-        {
-          "code": "limit.changed",
-          "status": "field",
-          "spec": {
-            "entity": "limit",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "RZ-02"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/resolution"
-          ]
-        }
-      ]
-    },
     "limit_set": {
       "entity": "limit_set",
       "code_count": 4,
@@ -32089,9 +30776,9 @@
     },
     "loan": {
       "entity": "loan",
-      "code_count": 101,
-      "registered_events": 20,
-      "registered_fields": 81,
+      "code_count": 52,
+      "registered_events": 14,
+      "registered_fields": 38,
       "unregistered": 0,
       "codes": [
         {
@@ -32137,21 +30824,6 @@
           ],
           "policies": [
             "collections"
-          ]
-        },
-        {
-          "code": "loan.charge_off.completed",
-          "status": "event",
-          "spec": {
-            "entity": "loan",
-            "description": "canonical event_type: `completed`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-03"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -32262,21 +30934,6 @@
           ]
         },
         {
-          "code": "loan.nonaccrual.flagged",
-          "status": "event",
-          "spec": {
-            "entity": "loan",
-            "description": "canonical event_type: `flagged`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-09"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "loan.nonaccrual_triggered",
           "status": "event",
           "spec": {
@@ -32320,66 +30977,6 @@
           ],
           "policies": [
             "collections"
-          ]
-        },
-        {
-          "code": "loan.recovery.posted",
-          "status": "event",
-          "spec": {
-            "entity": "loan",
-            "description": "canonical event_type: `posted`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-03"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.tdr.approved",
-          "status": "event",
-          "spec": {
-            "entity": "loan",
-            "description": "canonical event_type: `approved`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-04"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.workout.approved",
-          "status": "event",
-          "spec": {
-            "entity": "loan",
-            "description": "canonical event_type: `approved`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-04"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.workout.completed",
-          "status": "event",
-          "spec": {
-            "entity": "loan",
-            "description": "canonical event_type: `completed`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-04"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -32449,43 +31046,6 @@
           ],
           "policies": [
             "collections"
-          ]
-        },
-        {
-          "code": "loan.bankruptcy.notice_received",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-03"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.bankruptcy.status",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 2,
-          "controls": [
-            "LC-03",
-            "LC-05"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -32579,42 +31139,6 @@
           ]
         },
         {
-          "code": "loan.classification",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-03"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.classification.changed",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-03"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "loan.classification_due_at",
           "status": "field",
           "spec": {
@@ -32670,24 +31194,6 @@
           ]
         },
         {
-          "code": "loan.collections.case_assigned",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-02"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "loan.courtesy_notice_due_at",
           "status": "field",
           "spec": {
@@ -32715,15 +31221,11 @@
             "required": false,
             "description": null
           },
-          "ref_count": 4,
+          "ref_count": 1,
           "controls": [
-            "CL-02",
-            "LC-02",
-            "LC-03",
-            "LC-04"
+            "CL-02"
           ],
           "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections",
             "collections"
           ]
         },
@@ -32743,114 +31245,6 @@
           ],
           "policies": [
             "collections"
-          ]
-        },
-        {
-          "code": "loan.delinquency.bucket",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-02"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.delinquency.bucket_changed",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-02"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.delinquency.grace_expired",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-02"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.delinquency.manual_adjustment",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-02"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.delinquency.override_reason",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-02"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.delinquency.threshold_reached",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-03"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -32911,42 +31305,6 @@
           ]
         },
         {
-          "code": "loan.foreclosure.initiated",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-09"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.foreclosure.recommended",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-09"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "loan.foreclosure_impact_eval",
           "status": "field",
           "spec": {
@@ -32962,42 +31320,6 @@
           ],
           "policies": [
             "collections"
-          ]
-        },
-        {
-          "code": "loan.fraud.confirmed",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-03"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.fraud.flag",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-03"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -33034,96 +31356,6 @@
           ],
           "policies": [
             "collections"
-          ]
-        },
-        {
-          "code": "loan.hardship.description",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-04"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.hardship.flag",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-04"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.hardship.requested",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-04"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.hardship.type",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-04"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.id",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-06"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -33183,168 +31415,6 @@
           ]
         },
         {
-          "code": "loan.ltv.current",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-03"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.modification.count_life",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "integer",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-04"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.modification.count_past_12m",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "integer",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-04"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.modification.interest_capitalization_flag",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-04"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.modification.interest_reduction",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-04"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.modification.new_maturity_date",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-04"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.modification.new_payment",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-04"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.modification.new_rate",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "number",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-04"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.modification.principal_reduction",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "integer",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-04"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "loan.modified_schedule",
           "status": "field",
           "spec": {
@@ -33360,42 +31430,6 @@
           ],
           "policies": [
             "collections"
-          ]
-        },
-        {
-          "code": "loan.nonaccrual.status",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-09"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.nonaccrual.status_changed",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-09"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -33435,24 +31469,6 @@
           ]
         },
         {
-          "code": "loan.open_end_flag",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-03"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "loan.past_due_amount",
           "status": "field",
           "spec": {
@@ -33471,24 +31487,6 @@
           ]
         },
         {
-          "code": "loan.payment.allocation_method",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-02"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "loan.product_type",
           "status": "field",
           "spec": {
@@ -33498,14 +31496,12 @@
             "required": false,
             "description": null
           },
-          "ref_count": 3,
+          "ref_count": 2,
           "controls": [
             "CL-02",
-            "CL-03",
-            "LC-03"
+            "CL-03"
           ],
           "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections",
             "collections"
           ]
         },
@@ -33564,24 +31560,6 @@
           ]
         },
         {
-          "code": "loan.recovery.amount",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "integer",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-03"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "loan.repayment_evidence",
           "status": "field",
           "spec": {
@@ -33629,69 +31607,13 @@
             "required": false,
             "description": null
           },
-          "ref_count": 3,
+          "ref_count": 2,
           "controls": [
             "CL-01",
-            "CL-09",
-            "LC-09"
+            "CL-09"
           ],
           "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections",
             "collections"
-          ]
-        },
-        {
-          "code": "loan.risk_rating.changed",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-09"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.risk_rating.rationale",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "number",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-09"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.schedule.due_dates",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-02"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -33731,24 +31653,6 @@
           ]
         },
         {
-          "code": "loan.tdr.flag",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-04"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "loan.well_secured_documented",
           "status": "field",
           "spec": {
@@ -33764,96 +31668,6 @@
           ],
           "policies": [
             "collections"
-          ]
-        },
-        {
-          "code": "loan.workout.defaulted",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-04"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.workout.modified_terms_applied",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-04"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.workout.plan_id",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-04"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.workout.proposed",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-04"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "loan.workout.restructured",
-          "status": "field",
-          "spec": {
-            "entity": "Loan",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-03"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -35040,9 +32854,9 @@
     },
     "member": {
       "entity": "member",
-      "code_count": 51,
-      "registered_events": 18,
-      "registered_fields": 33,
+      "code_count": 37,
+      "registered_events": 17,
+      "registered_fields": 20,
       "unregistered": 0,
       "codes": [
         {
@@ -35137,21 +32951,6 @@
           ],
           "policies": [
             "member"
-          ]
-        },
-        {
-          "code": "member.contact.preferences_updated",
-          "status": "event",
-          "spec": {
-            "entity": "member",
-            "description": "canonical event_type: `updated`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-05"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -35379,24 +33178,6 @@
           ]
         },
         {
-          "code": "member.cash_flow",
-          "status": "field",
-          "spec": {
-            "entity": "member",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-04"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "member.cease_request",
           "status": "field",
           "spec": {
@@ -35433,114 +33214,6 @@
           ]
         },
         {
-          "code": "member.contact.cease_communication",
-          "status": "field",
-          "spec": {
-            "entity": "member",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-05"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "member.contact.channels_allowed",
-          "status": "field",
-          "spec": {
-            "entity": "member",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-05"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "member.contact.do_not_call",
-          "status": "field",
-          "spec": {
-            "entity": "member",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-05"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "member.contact.do_not_call_flags",
-          "status": "field",
-          "spec": {
-            "entity": "member",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-02"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "member.contact.email_opt_in",
-          "status": "field",
-          "spec": {
-            "entity": "member",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-05"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "member.contact.preference",
-          "status": "field",
-          "spec": {
-            "entity": "member",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-02"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "member.contact_preferences",
           "status": "field",
           "spec": {
@@ -35558,24 +33231,6 @@
           "policies": [
             "collections",
             "member"
-          ]
-        },
-        {
-          "code": "member.deceased_flag",
-          "status": "field",
-          "spec": {
-            "entity": "member",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-03"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -35751,24 +33406,6 @@
           ]
         },
         {
-          "code": "member.expense_ratio",
-          "status": "field",
-          "spec": {
-            "entity": "member",
-            "type": "number",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-04"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "member.hardship_evidence",
           "status": "field",
           "spec": {
@@ -35796,13 +33433,11 @@
             "required": false,
             "description": null
           },
-          "ref_count": 2,
+          "ref_count": 1,
           "controls": [
-            "IS-10",
-            "LC-06"
+            "IS-10"
           ],
           "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections",
             "information-security"
           ]
         },
@@ -35829,24 +33464,6 @@
           ]
         },
         {
-          "code": "member.income",
-          "status": "field",
-          "spec": {
-            "entity": "member",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-04"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "member.repayment_capacity",
           "status": "field",
           "spec": {
@@ -35862,60 +33479,6 @@
           ],
           "policies": [
             "collections"
-          ]
-        },
-        {
-          "code": "member.represented_by_attorney",
-          "status": "field",
-          "spec": {
-            "entity": "member",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-05"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "member.status.deceased_recorded",
-          "status": "field",
-          "spec": {
-            "entity": "member",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-03"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "member.time_zone",
-          "status": "field",
-          "spec": {
-            "entity": "member",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-05"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -36501,33 +34064,6 @@
         }
       ]
     },
-    "mode": {
-      "entity": "mode",
-      "code_count": 1,
-      "registered_events": 0,
-      "registered_fields": 1,
-      "unregistered": 0,
-      "codes": [
-        {
-          "code": "mode.safe.enable",
-          "status": "field",
-          "spec": {
-            "entity": "mode",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "RZ-02"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/resolution"
-          ]
-        }
-      ]
-    },
     "model": {
       "entity": "model",
       "code_count": 4,
@@ -36997,9 +34533,9 @@
     },
     "notice": {
       "entity": "notice",
-      "code_count": 2,
+      "code_count": 1,
       "registered_events": 1,
-      "registered_fields": 1,
+      "registered_fields": 0,
       "unregistered": 0,
       "codes": [
         {
@@ -37015,24 +34551,6 @@
           ],
           "policies": [
             "fair-lending"
-          ]
-        },
-        {
-          "code": "notice.sent.member",
-          "status": "field",
-          "spec": {
-            "entity": "notice",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "RZ-04"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/resolution"
           ]
         }
       ]
@@ -37548,76 +35066,13 @@
         }
       ]
     },
-    "oreo": {
-      "entity": "oreo",
-      "code_count": 2,
-      "registered_events": 0,
-      "registered_fields": 2,
-      "unregistered": 0,
-      "codes": [
-        {
-          "code": "oreo.asset.recorded",
-          "status": "field",
-          "spec": {
-            "entity": "oreo",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-09"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "oreo.asset.value_at_recording",
-          "status": "field",
-          "spec": {
-            "entity": "oreo",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-09"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        }
-      ]
-    },
     "org": {
       "entity": "org",
-      "code_count": 2,
+      "code_count": 1,
       "registered_events": 0,
-      "registered_fields": 2,
+      "registered_fields": 1,
       "unregistered": 0,
       "codes": [
-        {
-          "code": "org.freeze.enabled",
-          "status": "field",
-          "spec": {
-            "entity": "org",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "RZ-04"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/resolution"
-          ]
-        },
         {
           "code": "org.material_change",
           "status": "field",
@@ -37685,9 +35140,9 @@
     },
     "overdraft": {
       "entity": "overdraft",
-      "code_count": 27,
-      "registered_events": 8,
-      "registered_fields": 19,
+      "code_count": 15,
+      "registered_events": 6,
+      "registered_fields": 9,
       "unregistered": 0,
       "codes": [
         {
@@ -37705,36 +35160,6 @@
           "policies": [
             "collections",
             "truth-in-savings"
-          ]
-        },
-        {
-          "code": "overdraft.item.posted",
-          "status": "event",
-          "spec": {
-            "entity": "overdraft",
-            "description": "canonical event_type: `posted`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-10"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "overdraft.notice_sent",
-          "status": "event",
-          "spec": {
-            "entity": "overdraft",
-            "description": "canonical event_type: `sent`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-10"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -37822,32 +35247,12 @@
             "required": false,
             "description": null
           },
-          "ref_count": 2,
-          "controls": [
-            "CL-10",
-            "LC-10"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections",
-            "collections"
-          ]
-        },
-        {
-          "code": "overdraft.approved_by_officer_id",
-          "status": "field",
-          "spec": {
-            "entity": "overdraft",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
           "ref_count": 1,
           "controls": [
-            "LC-10"
+            "CL-10"
           ],
           "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
+            "collections"
           ]
         },
         {
@@ -37869,24 +35274,6 @@
           ]
         },
         {
-          "code": "overdraft.daily_report_id",
-          "status": "field",
-          "spec": {
-            "entity": "overdraft",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-10"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "overdraft.days_outstanding",
           "status": "field",
           "spec": {
@@ -37902,24 +35289,6 @@
           ],
           "policies": [
             "collections"
-          ]
-        },
-        {
-          "code": "overdraft.escalated_to_collections",
-          "status": "field",
-          "spec": {
-            "entity": "overdraft",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-10"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -37961,96 +35330,6 @@
           ]
         },
         {
-          "code": "overdraft.fee_waiver.applied",
-          "status": "field",
-          "spec": {
-            "entity": "overdraft",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-10"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "overdraft.fee_waiver.approved_by_id",
-          "status": "field",
-          "spec": {
-            "entity": "overdraft",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-10"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "overdraft.fee_waiver.reason",
-          "status": "field",
-          "spec": {
-            "entity": "overdraft",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-10"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "overdraft.fee_waiver.requested",
-          "status": "field",
-          "spec": {
-            "entity": "overdraft",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-10"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "overdraft.id",
-          "status": "field",
-          "spec": {
-            "entity": "overdraft",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-06"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "overdraft.occurrence_count",
           "status": "field",
           "spec": {
@@ -38088,42 +35367,6 @@
           "policies": [
             "collections",
             "resolution"
-          ]
-        },
-        {
-          "code": "overdraft.posted_at",
-          "status": "field",
-          "spec": {
-            "entity": "overdraft",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-10"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "overdraft.report.generated",
-          "status": "field",
-          "spec": {
-            "entity": "overdraft",
-            "type": "number",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-10"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -38310,33 +35553,6 @@
           "policies": [
             "internal-controls",
             "lending"
-          ]
-        }
-      ]
-    },
-    "packet": {
-      "entity": "packet",
-      "code_count": 1,
-      "registered_events": 0,
-      "registered_fields": 1,
-      "unregistered": 0,
-      "codes": [
-        {
-          "code": "packet.delivered",
-          "status": "field",
-          "spec": {
-            "entity": "packet",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "RZ-06"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/resolution"
           ]
         }
       ]
@@ -38823,9 +36039,9 @@
     },
     "policy": {
       "entity": "policy",
-      "code_count": 49,
-      "registered_events": 21,
-      "registered_fields": 28,
+      "code_count": 41,
+      "registered_events": 16,
+      "registered_fields": 25,
       "unregistered": 0,
       "codes": [
         {
@@ -38917,66 +36133,6 @@
             "investment",
             "lending",
             "liquidity"
-          ]
-        },
-        {
-          "code": "policy.collections.draft_created",
-          "status": "event",
-          "spec": {
-            "entity": "policy",
-            "description": "canonical event_type: `created`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-01"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "policy.collections.exception_approved",
-          "status": "event",
-          "spec": {
-            "entity": "policy",
-            "description": "canonical event_type: `approved`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-01"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "policy.collections.review_completed",
-          "status": "event",
-          "spec": {
-            "entity": "policy",
-            "description": "canonical event_type: `completed`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-01"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "policy.collections.version_approved",
-          "status": "event",
-          "spec": {
-            "entity": "policy",
-            "description": "canonical event_type: `approved`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-01"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -39116,21 +36272,6 @@
           ],
           "policies": [
             "director-fiduciary-duties"
-          ]
-        },
-        {
-          "code": "policy.updated",
-          "status": "event",
-          "spec": {
-            "entity": "policy",
-            "description": "canonical event_type: `updated`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "RZ-09"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/resolution"
           ]
         },
         {
@@ -39335,42 +36476,6 @@
           ],
           "policies": [
             "bsa"
-          ]
-        },
-        {
-          "code": "policy.collections.breach_logged",
-          "status": "field",
-          "spec": {
-            "entity": "policy",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-01"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "policy.collections.review_due_approaching",
-          "status": "field",
-          "spec": {
-            "entity": "policy",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-01"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         },
         {
@@ -39767,24 +36872,6 @@
           ]
         },
         {
-          "code": "policy.version_id",
-          "status": "field",
-          "spec": {
-            "entity": "policy",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-01"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "policy.violation_description",
           "status": "field",
           "spec": {
@@ -39800,33 +36887,6 @@
           ],
           "policies": [
             "director-fiduciary-duties"
-          ]
-        }
-      ]
-    },
-    "portal": {
-      "entity": "portal",
-      "code_count": 1,
-      "registered_events": 0,
-      "registered_fields": 1,
-      "unregistered": 0,
-      "codes": [
-        {
-          "code": "portal.state.readonly",
-          "status": "field",
-          "spec": {
-            "entity": "portal",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "RZ-05"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/resolution"
           ]
         }
       ]
@@ -41368,9 +38428,9 @@
     },
     "product": {
       "entity": "product",
-      "code_count": 9,
+      "code_count": 7,
       "registered_events": 3,
-      "registered_fields": 6,
+      "registered_fields": 4,
       "unregistered": 0,
       "codes": [
         {
@@ -41461,24 +38521,6 @@
           ]
         },
         {
-          "code": "product.catalog.collections_scope_flag",
-          "status": "field",
-          "spec": {
-            "entity": "product",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-01"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "product.contract_version",
           "status": "field",
           "spec": {
@@ -41515,24 +38557,6 @@
           ],
           "policies": [
             "truth-in-savings"
-          ]
-        },
-        {
-          "code": "product.type",
-          "status": "field",
-          "spec": {
-            "entity": "product",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-01"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         }
       ]
@@ -43519,33 +40543,6 @@
         }
       ]
     },
-    "reg": {
-      "entity": "reg",
-      "code_count": 1,
-      "registered_events": 0,
-      "registered_fields": 1,
-      "unregistered": 0,
-      "codes": [
-        {
-          "code": "reg.notice.ack",
-          "status": "field",
-          "spec": {
-            "entity": "reg",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "RZ-04"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/resolution"
-          ]
-        }
-      ]
-    },
     "regulation": {
       "entity": "regulation",
       "code_count": 5,
@@ -45198,9 +42195,9 @@
     },
     "risk": {
       "entity": "risk",
-      "code_count": 34,
+      "code_count": 33,
       "registered_events": 11,
-      "registered_fields": 23,
+      "registered_fields": 22,
       "unregistered": 0,
       "codes": [
         {
@@ -45694,24 +42691,6 @@
           ],
           "policies": [
             "information-security"
-          ]
-        },
-        {
-          "code": "risk.posture.changed",
-          "status": "field",
-          "spec": {
-            "entity": "risk",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "RZ-01"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/resolution"
           ]
         },
         {
@@ -46798,83 +43777,11 @@
     },
     "role": {
       "entity": "role",
-      "code_count": 6,
+      "code_count": 2,
       "registered_events": 0,
-      "registered_fields": 6,
+      "registered_fields": 2,
       "unregistered": 0,
       "codes": [
-        {
-          "code": "role.audit.owner_id",
-          "status": "field",
-          "spec": {
-            "entity": "role",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-01"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "role.collections.owner_id",
-          "status": "field",
-          "spec": {
-            "entity": "role",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-01"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "role.compliance.owner_id",
-          "status": "field",
-          "spec": {
-            "entity": "role",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-01"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "role.credit.owner_id",
-          "status": "field",
-          "spec": {
-            "entity": "role",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-01"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
         {
           "code": "role.definition",
           "status": "field",
@@ -47695,60 +44602,6 @@
           ],
           "policies": [
             "record-retention"
-          ]
-        }
-      ]
-    },
-    "scope": {
-      "entity": "scope",
-      "code_count": 3,
-      "registered_events": 3,
-      "registered_fields": 0,
-      "unregistered": 0,
-      "codes": [
-        {
-          "code": "scope.diff.approved",
-          "status": "event",
-          "spec": {
-            "entity": "scope",
-            "description": "canonical event_type: `approved`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "RZ-00"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/resolution"
-          ]
-        },
-        {
-          "code": "scope.published",
-          "status": "event",
-          "spec": {
-            "entity": "scope",
-            "description": "canonical event_type: `published`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "RZ-00"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/resolution"
-          ]
-        },
-        {
-          "code": "scope.version.created",
-          "status": "event",
-          "spec": {
-            "entity": "scope",
-            "description": "canonical event_type: `created`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "RZ-00"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/resolution"
           ]
         }
       ]
@@ -50177,9 +47030,9 @@
     },
     "template": {
       "entity": "template",
-      "code_count": 5,
+      "code_count": 2,
       "registered_events": 0,
-      "registered_fields": 5,
+      "registered_fields": 2,
       "unregistered": 0,
       "codes": [
         {
@@ -50201,42 +47054,6 @@
           ]
         },
         {
-          "code": "template.fdcpadisclosure_required",
-          "status": "field",
-          "spec": {
-            "entity": "template",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-05"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
-          "code": "template.id",
-          "status": "field",
-          "spec": {
-            "entity": "template",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-05"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        },
-        {
           "code": "template.product_scope",
           "status": "field",
           "spec": {
@@ -50252,51 +47069,6 @@
           ],
           "policies": [
             "collections"
-          ]
-        },
-        {
-          "code": "template.version",
-          "status": "field",
-          "spec": {
-            "entity": "template",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-05"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
-          ]
-        }
-      ]
-    },
-    "thirdparty": {
-      "entity": "thirdparty",
-      "code_count": 1,
-      "registered_events": 0,
-      "registered_fields": 1,
-      "unregistered": 0,
-      "codes": [
-        {
-          "code": "thirdparty.collector.sync_performed",
-          "status": "field",
-          "spec": {
-            "entity": "thirdparty",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "LC-05"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/collections"
           ]
         }
       ]
@@ -51165,15 +47937,13 @@
             "entity": "training",
             "description": "canonical event_type: `completed`"
           },
-          "ref_count": 4,
+          "ref_count": 3,
           "controls": [
             "BSA-19",
             "EC-12",
-            "FL-11",
-            "RZ-09"
+            "FL-11"
           ],
           "policies": [
-            ".claude/worktrees/nervous-joliot-757160/resolution",
             "bsa",
             "e-commerce",
             "fair-lending"
@@ -52060,33 +48830,6 @@
           ],
           "policies": [
             "cash"
-          ]
-        }
-      ]
-    },
-    "trustee": {
-      "entity": "trustee",
-      "code_count": 1,
-      "registered_events": 0,
-      "registered_fields": 1,
-      "unregistered": 0,
-      "codes": [
-        {
-          "code": "trustee.account.provisioned",
-          "status": "field",
-          "spec": {
-            "entity": "trustee",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "RZ-06"
-          ],
-          "policies": [
-            ".claude/worktrees/nervous-joliot-757160/resolution"
           ]
         }
       ]
@@ -55767,46 +52510,6 @@
       ],
       "policies": [
         "director-fiduciary-duties"
-      ]
-    },
-    {
-      "value": "collections_systems",
-      "ref_count": 1,
-      "controls": [
-        "LC-08"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    {
-      "value": "credit_card",
-      "ref_count": 1,
-      "controls": [
-        "LC-01"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    {
-      "value": "credit_reporting",
-      "ref_count": 1,
-      "controls": [
-        "LC-08"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
-      ]
-    },
-    {
-      "value": "overdraft_program",
-      "ref_count": 1,
-      "controls": [
-        "LC-01"
-      ],
-      "policies": [
-        ".claude/worktrees/nervous-joliot-757160/collections"
       ]
     }
   ]
