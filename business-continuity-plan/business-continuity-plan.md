@@ -1,242 +1,246 @@
 ---
 title: Business Continuity Plan Policy (Table-First, Design-Overlay v2)
 owner: Patrick Wilson, Chief Compliance Officer
-version: v3.0
-effective: 2026-06-04
-next_review: 2027-06-04
+version: v1.0
+effective: 2026-06-16
+next_review: 2027-06-16
 approvers:
   - Patrick Wilson, Chief Compliance Officer
-tags: [Compliance, Business Continuity, Disaster Recovery, Incident Response, Resilience]
+tags: [Compliance, BCP, DR, Continuity, Resilience]
 ---
 
 ## General Policy Statement
 
-Pynthia Credit Union maintains a risk-based, Board-approved Business Continuity & Disaster Recovery (BCP/DR) program to withstand, respond to, and recover from disruptive events affecting facilities, systems, vendors, data, and people. The program prioritizes human safety, continuity of critical member-facing services (with electronic payment channels treated as highest priority), prudent recovery within defined RTO/RPO targets, and disciplined post-incident learning. It applies across all internal operations and member-facing channels and partners, aligns with NCUA records-preservation and catastrophic-act preparedness requirements (12 CFR Part 749) and GLBA-aligned safeguards and incident-response obligations (12 CFR Part 748, Appendix A & B), and operates under Board oversight per 12 CFR § 701.4. Channel-specific payment controls, security control design, third-party onboarding, and member breach-notification mechanics live in their respective policies and are out of scope here.
+Pynthia Credit Union maintains a risk-based, Board-approved Business Continuity & Disaster Recovery (BCP/DR) program to withstand, respond to, and recover from disruptive events affecting facilities, systems, vendors, data, and people. The program prioritizes human safety, continuity of critical member-facing services across all channels and partners, prudent recovery within defined RTO/RPO targets, and disciplined post-incident learning. It aligns with NCUA records-preservation and catastrophic-act-preparedness requirements (12 CFR Part 749), GLBA-aligned safeguards and incident response (12 CFR Part 748, Appendix A and Appendix B), and Board oversight duties (12 CFR § 701.4). Electronic payment channels are treated as highest-priority critical services; their channel-specific controls live in the Electronic Payment Systems Policy.
 
 ## Timing Matrix  {#timing-matrix}
 
 | Scenario | Trigger (human → event) | Deadline | Content Reference | Control |
 |---|---|---|---|---|
-| SEV-1 incident detected; Incident Commander must be assigned | On-call detects critical disruption (`incident.sev1_detected`) | 5 minutes | IC assignment + initial comms cadence | [BCP-05](#bcp-05--monitoring-detection--severity) |
-| SEV-1 initial communications issued | IC assigned (`incident.ic_assigned`) | 15 minutes | First internal alert / member status | [BCP-05](#bcp-05--monitoring-detection--severity) |
-| Incident declared; first-hour stabilization | Incident declared (`incident.declared`) | Sitrep v1 within 30 min; 30–60 min cadence | First-hour checklist + Sitrep | [BCP-06](#bcp-06--incident-declaration--initial-actions) |
-| Major IT/core/cloud outage | Outage detected (`it.major_failure_detected`) | IC 5 min; member status 15 min | Outage runbook, failover per BIA | [BCP-09](#bcp-09--major-it-failure-response) |
-| Privacy/security incident containment | Security incident confirmed (`incident.security_confirmed`) | Containment 1 hr; counsel 24 hr | GLBA IR containment & notification | [BCP-10](#bcp-10--incident-response-privacysecurity) |
-| Alternate-site / remote readiness | Facility loss declared (`facility.loss_declared`) | Readiness 8 hr; full critical ops 24 hr | Remote posture, hot site, staffing | [BCP-08](#bcp-08--alternate-site--remote-operations) |
-| People-availability / pandemic trigger | Absenteeism ≥30% or public-health trigger (`incident.declared`) | Staffing plan activated within 24 hr | Split teams / remote work activation | [BCP-12](#bcp-12--people-continuity--pandemic) |
-| Enterprise exercise results to Board | Exercise completed (`exercise.completed`) | 30 days | Exercise after-action + CAP feed | [BCP-04](#bcp-04--training-testing--exercises) |
-| Post-incident review | Incident closed/stabilized (`incident.postmortem_completed`) | PIR draft 10 BD; CAP approved 30 days | PIR root cause + corrective action | [BCP-13](#bcp-13--post-incident-review) |
+| SEV-1 incident detected by on-call/monitors | SEV-1 detected (`incident.sev1_detected`) | IC assigned in 5 min; initial comms in 15 min | Severity matrix, on-call rotation | [BCP-05](#bcp-05-monitoring-detection-and-severity) |
+| Incident declared; first-hour stabilization | Incident declared (`incident.declared`) | Sitrep v1 in 30 min; 30–60 min cadence | First-hour checklist | [BCP-06](#bcp-06-incident-declaration-and-initial-actions) |
+| Privacy/security breach suspected | Security incident confirmed (`incident.security_confirmed`) | Containment in 1 hr; counsel in 24 hr; NCUA notice per Part 748 App B | GLBA IR playbook | [BCP-10](#bcp-10-incident-response-privacy-security) |
+| Major core/cloud outage | Major IT failure detected (`it.major_failure_detected`) | IC in 5 min; member status in 15 min; failover per BIA tier | Outage runbook | [BCP-09](#bcp-09-major-it-failure-response) |
+| Facility loss / remote activation | Facility loss declared (`facility.loss_declared`) | Alternate/remote readiness in 8 hr; full critical ops in 24 hr | Remote posture, site readiness | [BCP-08](#bcp-08-alternate-site-and-remote-operations) |
+| Data loss / crypto-lock | Backup job failure or restore need (`backup.job_failed`) | Critical RPO ≤ 15 min; restore tests quarterly | Tiered backup/restore matrix | [BCP-07](#bcp-07-data-backup-and-restore-rto-rpo) |
+| Absenteeism ≥30% or public-health trigger | Staffing plan activation needed (`staffing.plan_activated`) | Activate within 24 hr | People continuity / pandemic plans | [BCP-12](#bcp-12-people-continuity-and-pandemic) |
+| Enterprise exercise completed | Exercise completed (`exercise.completed`) | Board report within 30 days | Exercise results, CAP | [BCP-04](#bcp-04-training-testing-and-exercises) |
+| Post-incident review | Incident contained (`incident.contained`) | PIR draft in 10 BD; CAP approved in 30 days | PIR + CAP | [BCP-13](#bcp-13-post-incident-review) |
+| Communications activation | Internal alert needed (`comms.internal_alert_issued`) | First internal alert in 15 min; regulator notice per law | Contact trees, status-page playbook | [BCP-11](#bcp-11-communications-and-notification-tree) |
+| Vendor contingency evidence refresh | Annual vendor BCP/DR cycle (`vendor.bcp_evidence_due`) | Annual refresh; exit/failover criteria defined | Vendor attestations, DR evidence | [BCP-14](#bcp-14-vendor-contingency-management) |
 
----
+## BCP-01 — Governance & Roles  {#bcp-01-governance-and-roles}
 
-## BCP-01 — Governance, Roles & Plan Maintenance  {#bcp-01--governance-roles--plan-maintenance}
+- **WHY (Reg cite):** The Board must approve and oversee the continuity program and key policies, and may delegate execution while retaining accountability ([12 CFR § 701.4](https://www.ecfr.gov/current/title-12/part-701/section-701.4)). NCUA catastrophic-act preparedness requires a documented, maintained recovery capability ([12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749)).
 
-- **WHY (Reg cite):** The Board must approve and oversee the continuity program and management must maintain it under [12 CFR § 701.4](https://www.ecfr.gov/current/title-12/part-701/section-701.4) (Board duties) and the records-preservation/catastrophic-act preparedness obligations of [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749) (including Appendices A & B).
-
-- **SYSTEM BEHAVIOR:** The system maintains a living BCP/DR plan document with named owners and an Incident Management Team (IMT) roster. The plan is reviewed and Board-approved at least annually, with a review-warning fired ahead of lapse; the IMT roster is verified quarterly. Each approval, version publication, and roster verification is recorded with its artifact. Plan content, owner assignments, and Board approvals are write-restricted to the Chief Compliance Officer and the Business Continuity Manager; Board sign-off is recorded against a Board resolution.
-
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | Annual BCP review cycle opens (`policy.board_review_started`) | Current plan (`bcp.plan_version`), owner (`policy.owner_ref`), next review date (`policy.next_review_date`) | Reviewed plan draft + emitted (`bcp.section_updated`) | 12 months (enforced by `bcp.annual_review_due`) |
-  | Board approves the plan (`bcp.board_approved`) | Board resolution (`board.resolution_id`), approval timestamp (`policy.board_approved_at`) | Board-approved BCP version (`policy.board_approved`) | At/before review due (enforced by `policy.board_approval_due_at`) |
-  | Quarterly IMT roster verification due (`imt.roster_verified`) | IMT roster (`crisis.roster`), succession matrix (`crisis.succession_matrix`) | Verified roster attestation (`imt.roster_verified`) | Quarterly (enforced by `imt.roster_review_due`) |
-
-- **ALERTS/METRICS:** Alert when `policy.review_warning_at` fires or the plan review lapses (`policy.review_lapsed`); target zero overdue IMT roster verifications and zero lapsed annual Board approvals.
-
-## BCP-02 — Risk Assessment (Hazards by Region)  {#bcp-02--risk-assessment-hazards-by-region}
-
-- **WHY (Reg cite):** Identifying disasters that could interrupt member services and preserving the ability to resume operations is required under [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749) (records preservation and catastrophic-act preparedness) and supports the Board's oversight duty under [12 CFR § 701.4](https://www.ecfr.gov/current/title-12/part-701/section-701.4).
-
-- **SYSTEM BEHAVIOR:** The system maintains a threat register scoring hazards (wildfire/smoke, earthquake, tornado, flood, grid outage, cyber, pandemic) by likelihood and impact, segmented by geography (e.g., CA wildfire/smoke, TX tornado/storm). The register is refreshed at least annually and after any major change, with interim updates permitted. Threat-register content and scoring are write-restricted to the Business Continuity Manager.
+- **SYSTEM BEHAVIOR:** The system maintains a living BCP/DR policy document with named owners and an Incident Management Team (IMT) roster. The Board approves the policy at least annually; a review timer warns before lapse and escalates if the review window passes. Management verifies the IMT roster quarterly via a recurring review task. Policy approval and roster edits are write-restricted to the Chief Compliance Officer and Board secretary roles.
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Annual or post-change refresh due (`threat_register.updated`) | Threat catalog (`risk.threat_catalog`), geography factors (`risk.geography_factors`), likelihood/impact scores (`risk.likelihood_score`, `risk.impact_score`) | Updated threat register (`threat_register.updated`) | Annual or on major change (enforced by `threat_register.refresh_due`) |
-  | Hazard watch raised by monitor feed (`risk.assessment_completed`) | Hazard feed detail (`hazard.feed_detail`), inherent rating (`risk.inherent_rating`) | Reassessed register entry (`risk.assessment_completed`) | Interim (no registered timer) |
+  | Annual Board approval cycle opens (`governance.board_cycle_opened`) | Policy document + version (`policy.document_id`, `policy.document_version`), owner (`policy.owner_ref`) | Board-approved BCP policy (`policy.board_approved`) | 12 months (enforced by `policy.board_approval_due_at`) |
+  | Policy nearing review lapse (`policy.review_warning_issued`) | Next review date (`policy.next_review_at`), review status (`policy.review_lapsed`) | Review warning + escalation (`policy.review_completed`) | Warning at `policy.review_warning_at`; due at `policy.review_due_at` |
+  | Quarterly IMT roster verification (`imt.roster_verified`) | IMT roster (`crisis.roster`), succession matrix (`crisis.succession_matrix`) | Verified roster record (`imt.roster_verified`) | Quarterly (enforced by `imt.roster_review_due`) |
 
-- **ALERTS/METRICS:** Alert when the threat register is past its refresh interval (`risk.review_overdue`); target a register refreshed within 12 months and updated after every declared major regional event.
+- **ALERTS/METRICS:** Alert on policy review aging (`alert.policy_review_aging`) and target zero lapsed approvals; track IMT roster verification on-time rate each quarter.
 
-## BCP-03 — Business Impact Analysis (BIA) & RTO/RPO  {#bcp-03--business-impact-analysis-bia--rtorpo}
+## BCP-02 — Risk Assessment (Hazards by Region)  {#bcp-02-risk-assessment-hazards-by-region}
 
-- **WHY (Reg cite):** Cataloguing critical services, vital records, and recovery sequencing is required to preserve and restore records under [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749) (vital records and catastrophic-act preparedness, Appendices A & B).
+- **WHY (Reg cite):** Catastrophic-act preparedness requires identifying threats that could interrupt operations and impair records ([12 CFR Part 749, App B](https://www.ecfr.gov/current/title-12/part-749)). GLBA safeguards require a risk assessment of foreseeable threats ([12 CFR Part 748, App A](https://www.ecfr.gov/current/title-12/part-748)).
 
-- **SYSTEM BEHAVIOR:** The system catalogs services, ranks them by member impact and regulatory dependency, identifies vital records, and sets RTO/RPO and recovery sequence. Electronic payment channels (ACH origination, wire transfer, debit/ATM card, mobile/remote deposit capture, Zelle) are tagged highest-priority critical services given direct member impact and regulatory dependency; channel-specific payment controls are governed by the Electronic Payment Systems Policy and are out of scope here. The BIA is updated at least annually and certified quarterly for changes. BIA scoring and RTO/RPO targets are write-restricted to the Business Continuity Manager.
-
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | Annual BIA update due (`bia.updated`) | Service catalog (`bia.criticality`), member impact (`bia.member_impact`), regulatory dependency (`bia.reg_dependency`), scope RTO/RPO (`scope_registry.item.rto`, `scope_registry.item.rpo`) | Updated BIA + scope registry version (`bia.updated`, `scope_registry.version_approved`) | 12 months (enforced by `bia.annual_update_due`) |
-  | Quarterly change certification due (`bia.certified`) | Current criticality ranking (`bia.criticality`), vital records list (`record.retention_class`) | BIA certification record (`bia.certified`) | Quarterly (enforced by `bia.certification_due`) |
-  | New/changed service needs provisional tier (`bia.provisional_tier_assigned`) | Service descriptor (`bia.criticality`), payment-channel flag (`bia.reg_dependency`) | Provisional BIA tier (`bia.provisional_tier_assigned`) | Before activation (no registered timer) |
-
-- **ALERTS/METRICS:** Alert on uncertified BIA changes past quarter-close and on any payment channel not tagged highest-priority; target 100% quarterly certification and zero critical services without an RTO/RPO.
-
-## BCP-04 — Training, Testing & Exercises  {#bcp-04--training-testing--exercises}
-
-- **WHY (Reg cite):** Testing the recovery plan and verifying the ability to resume operations supports the catastrophic-act preparedness expectations of [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749) and the Board oversight duty under [12 CFR § 701.4](https://www.ecfr.gov/current/title-12/part-701/section-701.4).
-
-- **SYSTEM BEHAVIOR:** The system schedules and runs at least one enterprise exercise per year (orientation, tabletop, or functional), tracks completion, captures failures, and feeds gaps to a corrective action plan. Results are reported to the Board within 30 days of exercise completion. Exercise scheduling and Board reporting are write-restricted to the Business Continuity Manager; remediation items route to named owners.
+- **SYSTEM BEHAVIOR:** The system maintains a threat register scoring each hazard (wildfire/smoke, earthquake, tornado, flood, grid outage, cyber, pandemic) by likelihood and impact, tagged by geography. The register is refreshed at least annually and on interim major change. Hazard watch feeds (weather/cyber/vendor) can raise an interim update. The threat register is write-restricted to the Business Continuity Manager and Compliance.
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Annual exercise scheduled (`exercise.scheduled`) | Exercise objectives (`drill.objectives`), participant roster (`drill.roster`) | Scheduled exercise (`exercise.scheduled`) | Annual (no registered timer) |
-  | Exercise completed (`exercise.completed`) | Failure detail (`drill.failure_detail`), affected capability (`drill.affected_capability`) | After-action report + corrective items (`drill.aar_published`, `drill.corrective_plan_opened`) | 30 days to Board (enforced by `exercise.board_report_due`) |
-  | Corrective item opened (`drill.corrective_plan_opened`) | Remediation owner (`drill.remediation_owner`), remediation item (`drill.remediation_item`) | Closed remediation + retest (`drill.remediation_closed`) | Per CAP (enforced by `drill.remediation_due`) |
+  | Annual refresh cycle opens (`threat_register.updated`) | Threat catalog (`risk.threat_catalog`), geography factors (`risk.geography_factors`), likelihood/impact (`threat.likelihood`, `threat.impact`) | Updated threat register (`threat_register.updated`) | Annual (enforced by `threat_register.refresh_due`) |
+  | Hazard feed raises a watch (`facility.schedule_drift_detected`) | Hazard feed detail (`hazard.feed_detail`), watch flag (`hazard.watch_raised`) | Interim register update (`threat_register.updated`) | On material change (interim `threat_register.interim_update`) |
 
-- **ALERTS/METRICS:** Alert on exercises overdue past 12 months and exercise results not delivered to Board within 30 days; target ≥1 enterprise exercise per year and zero overdue corrective items.
+- **ALERTS/METRICS:** Alert on register refresh aging; track count of hazards with stale scores (target zero) and interim updates triggered per quarter.
 
-## BCP-05 — Monitoring, Detection & Severity  {#bcp-05--monitoring-detection--severity}
+## BCP-03 — Business Impact Analysis (BIA)  {#bcp-03-business-impact-analysis-bia}
 
-- **WHY (Reg cite):** Timely detection and response to events threatening member-information systems is required under [12 CFR Part 748, Appendix A](https://www.ecfr.gov/current/title-12/part-748) (information security program; respond to and contain incidents); preparedness for service interruption is grounded in [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749).
+- **WHY (Reg cite):** Recovery of critical functions and preservation of vital records require cataloguing services, dependencies, and recovery sequencing ([12 CFR Part 749 and App B](https://www.ecfr.gov/current/title-12/part-749)).
 
-- **SYSTEM BEHAVIOR:** The system operates central on-call with a SEV-1 to SEV-4 severity matrix and weather/cyber/vendor monitors. On a SEV-1 detection it assigns an Incident Commander within 5 minutes and issues initial communications within 15 minutes. Severity assignment and IC designation are write-restricted to the on-call Incident Commander and the Business Continuity Manager.
-
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | SEV-1 condition detected (`incident.sev1_detected`) | Detection source (`incident.detection_source`), IC rotation (`oncall.ic_rotation`) | Assigned Incident Commander (`incident.ic_assigned`) | 5 minutes (enforced by `incident.triage_due_at`) |
-  | Incident Commander assigned (`incident.ic_assigned`) | Comms plan (`incident.comms_plan`), severity (`incident.severity`) | Initial internal/member alert (`comms.internal_alert_issued`) | 15 minutes (enforced by `comms.same_day_due_at`) |
-  | Monitor raises a signal (`incident.signal_received`) | Monitor source (`monitor.source`), severity matrix (`incident.severity`) | Severity classification (`incident.severity_assigned`) | At detection (no registered timer) |
-
-- **ALERTS/METRICS:** Aging alert on any SEV-1 without an IC at 5 minutes and without initial comms at 15 minutes; track IC-assignment latency distribution and monitor-feed uptime, target zero missed SLAs.
-
-## BCP-06 — Incident Declaration & Initial Actions  {#bcp-06--incident-declaration--initial-actions}
-
-- **WHY (Reg cite):** Structured incident response, stabilization, and notification are required under [12 CFR Part 748, Appendix A](https://www.ecfr.gov/current/title-12/part-748) and support resumption obligations under [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749).
-
-- **SYSTEM BEHAVIOR:** On declaration, the system drives a "first hour" checklist (safety, stabilize, scope, assign roles, notify, set cadence), produces a Sitrep v1 within 30 minutes, and maintains a 30–60 minute Sitrep cadence until stabilized. Declaration authority and checklist sign-off are write-restricted to the Incident Commander and Crisis Management Team Lead; the team is convened on declaration.
+- **SYSTEM BEHAVIOR:** The system catalogs services, ranks each by member impact and regulatory dependency, identifies vital records, and sets RTO/RPO and recovery sequence. The BIA is updated at least annually and certified quarterly for changes; provisional criticality tiers are assigned when a new service is onboarded pending full analysis. Electronic payment channels (ACH origination, wire, debit/ATM, mobile/RDC, Zelle) are pre-tagged highest-priority critical given direct member impact and regulatory dependency (see Electronic Payment Systems Policy). BIA criticality tiers and RTO/RPO values are write-restricted to the Business Continuity Manager.
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Incident declared (`incident.declared`) | First-hour checklist (`incident.checklist_first_hour`), initial scope (`incident.scope_initial`) | First-hour completion record (`incident.first_hour_completed`) | First hour (enforced by `incident.triage_due_at`) |
-  | First-hour stabilization underway (`incident.response_activated`) | Impact summary (`incident.impact_summary`), comms plan (`incident.comms_plan`) | Sitrep v1 (`sitrep.issued`) | 30 minutes (enforced by `sitrep.v1_timer`) |
-  | Stabilization continues (`sitrep.issued`) | Updated timeline (`incident.timeline`), severity (`incident.severity`) | Cadence Sitreps (`sitrep.issued`) | Every 30–60 min until stable (enforced by `sitrep.cadence_timer`) |
+  | Annual BIA update cycle (`bia.updated`) | Criticality (`bia.criticality`), member impact (`bia.member_impact`), reg dependency (`bia.reg_dependency`), RTO/RPO matrix (`dr.rto_rpo_matrix`) | Updated BIA (`bia.updated`) | Annual (enforced by `bia.annual_update_due`) |
+  | Quarterly change certification (`bia.certified`) | Service catalog deltas (`scope_registry.change_description`), RTO/RPO items (`scope_registry.item.rto`, `scope_registry.item.rpo`) | Certified BIA (`bia.certified`) | Quarterly (enforced by `bia.certification_due`) |
+  | New service onboarded before full BIA (`bia.provisional_tier_assigned`) | Provisional tier (`bia.criticality`), service ref (`eps.service.id`) | Provisional tier record (`bia.provisional_tier_assigned`) | At onboarding (review enforced by `bia.review_due`) |
 
-- **ALERTS/METRICS:** Alert if Sitrep v1 is late past 30 minutes or cadence Sitreps lapse past 60 minutes; target on-time first-hour checklist completion and unbroken Sitrep cadence until stabilization.
+- **ALERTS/METRICS:** Alert on BIA certification aging; track count of services missing RTO/RPO (target zero) and payment channels confirmed at highest tier each cycle.
 
-## BCP-07 — Data Backup & Restore; RTO/RPO  {#bcp-07--data-backup--restore-rtorpo}
+## BCP-04 — Training, Testing & Exercises  {#bcp-04-training-testing-and-exercises}
 
-- **WHY (Reg cite):** Maintaining and restoring vital records and backups is required under [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749) (records preservation; appendices on vital records and catastrophic-act preparedness); protecting against destruction of member information is grounded in [12 CFR Part 748, Appendix A](https://www.ecfr.gov/current/title-12/part-748).
+- **WHY (Reg cite):** A maintained, tested recovery capability is required to ensure operability after a catastrophic act ([12 CFR Part 749, App B](https://www.ecfr.gov/current/title-12/part-749)); Board oversight requires reporting of program effectiveness ([12 CFR § 701.4](https://www.ecfr.gov/current/title-12/part-701/section-701.4)).
 
-- **SYSTEM BEHAVIOR:** The system maintains tiered, immutable/offsite backups with a critical RPO ≤ 15 minutes, performs restore tests for each tier quarterly, and uses clean point-in-time restores for crypto-lock events. Backup tier configuration and restore-point selection are write-restricted to IT/SRE; restore tests are validated in an isolated test environment.
-
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | Backup cycle runs (`backup.cycle_completed`) | Tier config (`backup.tier_config`), RPO monitor (`backup.rpo_monitor`) | Verified backup + catalog (`backup.verified`) | RPO ≤ 15 min for critical (enforced by `backup.verify_due`) |
-  | Quarterly restore test due (`backup.restore_verified`) | Test environment (`restore.test_env`), validated restore point (`restore.point_validated`) | Restore-test result (`restore.test_completed`) | Quarterly per tier (enforced by `backup.restore_test_due`) |
-  | Crypto-lock event detected (`restore.initiated`) | Clean point-in-time (`restore.point_validated`), RTO timer (`restore.rto_timer`) | Clean restore completion (`restore.completed`) | Per BIA RTO (enforced by `restore.rto_timer`) |
-
-- **ALERTS/METRICS:** Alert on backup job failure (`backup.job_failed`), RPO breach beyond 15 minutes for critical tiers, and overdue quarterly restore tests; target zero failed verifications and 100% quarterly restore-test coverage.
-
-## BCP-08 — Alternate Site & Remote Operations  {#bcp-08--alternate-site--remote-operations}
-
-- **WHY (Reg cite):** Resuming critical operations after facility loss is a core catastrophic-act preparedness expectation under [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749); secure remote access to member information must satisfy [12 CFR Part 748, Appendix A](https://www.ecfr.gov/current/title-12/part-748).
-
-- **SYSTEM BEHAVIOR:** The system maintains a pre-approved remote posture (VPN, MFA), hot/virtual site options, and minimum staffing lists, achieving alternate-site/remote readiness within 8 hours and full critical operations within 24 hours of a facility loss. Remote-access configuration and site capacity validation are write-restricted to IT/SRE and the Business Continuity Manager.
+- **SYSTEM BEHAVIOR:** The system schedules and runs at least one enterprise exercise per year (orientation, tabletop, or functional), tracks completion, feeds identified gaps to a corrective action plan, and reports results to the Board within 30 days of completion. Failed exercise elements open a remediation task with an owner and due date. Exercise scheduling and Board reporting are write-restricted to the Business Continuity Manager.
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Facility loss declared (`facility.loss_declared`) | Remote config (`access.remote_config`), minimum staffing list (`staffing.split_team_plan`) | Site readiness confirmation (`site.readiness_confirmed`) | 8 hours (enforced by `site.readiness_timer`) |
-  | Readiness confirmed (`site.readiness_confirmed`) | Site capacity targets (`access.capacity_targets`), critical-ops scope (`scope_registry.item.rto`) | Capacity-validated full ops (`site.capacity_test_due` completed) | Full critical ops 24 hours (enforced by `ops.resumption_timer`) |
-  | Critical operations resumed (`ops.critical_resumed`) | Resumption checklist (`ops.resumption_timer`) | Resumption record (`ops.critical_resumed`) | 24 hours (enforced by `ops.resumption_timer`) |
+  | Annual exercise scheduled (`exercise.scheduled`) | Objectives (`drill.objectives`), roster (`drill.roster`) | Scheduled exercise record (`exercise.scheduled`) | Annual (enforced by `dr.exercise_due`) |
+  | Exercise completed (`exercise.completed`) | After-action results (`drill.failure_detail`), affected capability (`drill.affected_capability`) | AAR + CAP items (`drill.aar_published`, `cap.item_created`) | Board report in 30 days (enforced by `exercise.board_report_due`) |
+  | Exercise element failed (`drill.element_failed`) | Remediation item (`drill.remediation_item`), owner (`drill.remediation_owner`) | Corrective plan opened (`drill.corrective_plan_opened`) | Per CAP (enforced by `drill.remediation_due`) |
 
-- **ALERTS/METRICS:** Aging alert when readiness exceeds 8 hours or full critical ops exceed 24 hours after a facility loss; track site-capacity test pass rate and remote-access (MFA/VPN) availability, target zero readiness-SLA breaches.
+- **ALERTS/METRICS:** Alert on Board-report aging past 30 days (target zero); track exercise completion rate and open exercise CAP items past due.
 
-## BCP-09 — Major IT Failure Response  {#bcp-09--major-it-failure-response}
+## BCP-05 — Monitoring, Detection & Severity  {#bcp-05-monitoring-detection-and-severity}
 
-- **WHY (Reg cite):** Restoring critical systems and protecting member-information systems during outages is required under [12 CFR Part 748, Appendix A](https://www.ecfr.gov/current/title-12/part-748) and the operations-resumption expectations of [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749).
+- **WHY (Reg cite):** GLBA safeguards require monitoring systems and a documented incident-response capability to detect and respond to events ([12 CFR Part 748, App A and App B](https://www.ecfr.gov/current/title-12/part-748)).
 
-- **SYSTEM BEHAVIOR:** The system maintains a runbook for core/cloud outages (detect, isolate blast radius, rollback/failover, communicate), assigns an Incident Commander within 5 minutes, issues member status within 15 minutes, and fails over per BIA tier with dual control required for rollback. Failover decisions and rollback execution are write-restricted to IT/SRE under dual control; member-facing payment channel mechanics remain governed by the Electronic Payment Systems Policy.
-
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | Major IT/core/cloud failure detected (`it.major_failure_detected`) | Outage runbook (`it.outage_runbook`), blast-radius isolation (`it.blast_radius_isolated`), IC rotation (`oncall.ic_rotation`) | Assigned IC + member status (`incident.ic_assigned`, `comms.member_status_issued`) | IC 5 min; member status 15 min (enforced by `incident.triage_due_at`) |
-  | Failover decision required (`it.failover_decided`) | BIA tier (`bia.criticality`), dual-control flag (`transaction.dual_control_required`) | Failover execution (`it.failover_executed`) | Per BIA tier RTO (no registered timer) |
-  | Rollback proposed (`it.failover_executed`) | Dual-control approval (`transaction.approval_recorded`), backout plan (`change.backout_plan`) | Dual-control completion (`transaction.dual_control_completed`) | Before rollback (enforced by `transaction.approval_timer`) |
-
-- **ALERTS/METRICS:** Alert on missed 5-minute IC assignment or 15-minute member-status SLA and on any rollback attempted without dual control; track failover execution latency by BIA tier, target zero single-control rollbacks.
-
-## BCP-10 — Incident Response (Privacy/Security)  {#bcp-10--incident-response-privacysecurity}
-
-- **WHY (Reg cite):** GLBA-aligned containment, recovery, service-provider coordination, and notification decisioning are required under [12 CFR Part 748, Appendix A and Appendix B](https://www.ecfr.gov/current/title-12/part-748) (safeguarding member information and response programs). Detailed cyber runbooks and member breach-notification mechanics are governed by the Information Security and Privacy Policies and are out of scope here.
-
-- **SYSTEM BEHAVIOR:** The system implements GLBA-aligned containment, eradication, recovery, forensics, and notification decisioning with service-provider coordination. Containment begins within 1 hour of a confirmed security incident and counsel is consulted within 24 hours; member and regulator notices follow the applicable determination. Reportability determination and counsel consultation are write-restricted to the Chief Compliance Officer and legal; suspected criminal activity routes to a BSA/SAR referral.
+- **SYSTEM BEHAVIOR:** The system operates central on-call with a SEV-1 to SEV-4 severity matrix and weather/cyber/vendor monitors that emit signals. On a SEV-1 detection, an Incident Commander is assigned within 5 minutes and initial communications are issued within 15 minutes. Severity assignment and IC designation are write-restricted to the on-call IMT lead.
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Security incident confirmed (`incident.security_confirmed`) | Data scope (`incident.data_scope`), detection source (`incident.detection_source`) | Containment started (`incident.containment_started`) | 1 hour (enforced by `incident.containment_timer` via `incident.triage_due_at`) |
-  | Containment underway (`incident.containment_started`) | Legal review (`incident.legal_review`), misuse likelihood (`incident.misuse_likelihood`) | Counsel consultation logged (`legal.consulted`) | 24 hours (enforced by `legal.consult_timer`) |
-  | Reportability determined (`incident.material_flagged`) | Reportability assessment (`incident.reportability_assessment`), member-notice template (`incident.member_notice_template`) | Notification decision (`notification.decision_recorded`) | Per applicable breach law (enforced by `incident.notification_due_at`) |
+  | Monitor signal received (`incident.signal_received`) | Detection source (`incident.detection_source`), SIEM/monitor detail (`siem.alert_detail`) | Triaged signal + incident candidate (`incident.detected`) | Triage per SLA (enforced by `incident.triage_due_at`) |
+  | SEV-1 detected (`incident.sev1_detected`) | Severity (`incident.severity`), on-call rotation (`oncall.ic_rotation`) | IC assignment (`incident.ic_assigned`) | 5 min (enforced by `incident.ic_assignment_timer`) |
+  | IC assigned, initial comms required (`incident.ic_assigned`) | Holding statement (`comms.holding_statement`), contact tree (`comms.contact_tree`) | Initial comms issued (`comms.initial_issued`) | 15 min (internal: 15 min; enforced by `comms.initial_timer`) |
 
-- **ALERTS/METRICS:** Alert if containment exceeds 1 hour or counsel consultation exceeds 24 hours; track confirmed-incident containment latency and notification-decision timeliness, target zero overdue determinations.
+- **ALERTS/METRICS:** Track IC-assignment latency distribution for SEV-1 (target ≤5 min) and initial-comms latency (target ≤15 min); alert on SIEM source going silent (`siem.source_silent`).
 
-## BCP-11 — Communications & Notification Tree  {#bcp-11--communications--notification-tree}
+## BCP-06 — Incident Declaration & Initial Actions  {#bcp-06-incident-declaration-and-initial-actions}
 
-- **WHY (Reg cite):** Notifying regulators and coordinating member/employee communications during incidents supports [12 CFR Part 748, Appendix B](https://www.ecfr.gov/current/title-12/part-748) (response program and notification) and the resumption/communication expectations of [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749).
+- **WHY (Reg cite):** A documented incident-response program with defined actions and escalation is required under GLBA safeguards ([12 CFR Part 748, App A §III.B and App B](https://www.ecfr.gov/current/title-12/part-748)).
 
-- **SYSTEM BEHAVIOR:** The system maintains contact trees for employees, Board, regulators, vendors, and media, with predefined status-page playbooks and backup channels if primary comms platforms fail. The first internal alert issues within 15 minutes of activation, and NCUA/regulators are notified per law and policy. Communication scripts require compliance review and CEO approval before external release; media response is logged. Regulator-contact lists are write-restricted to the Chief Compliance Officer.
-
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | Incident response activated (`incident.response_activated`) | Contact tree (`comms.contact_tree`), stakeholder matrix (`comms.stakeholder_matrix`) | First internal alert (`comms.internal_alert_issued`) | 15 minutes (enforced by `comms.initial_timer`) |
-  | Regulator notice criteria met (`incident.ncua_notified`) | Regulator contacts (`regulator.contacts`), metrics snapshot (`ncua.metrics_snapshot`) | NCUA/regulator notification (`ncua.notification_sent`) | Per law/policy (enforced by `incident.ncua_notice_due_at`) |
-  | Primary comms platform fails (`comms.platform_failed`) | Backup channel config (`comms.statuspage_playbook`) | Backup channel activated (`comms.backup_activated`) | Immediate (no registered timer) |
-
-- **ALERTS/METRICS:** Aging alert on first internal alert past 15 minutes and on NCUA notification past its due time; track regulator-contact verification freshness, target zero unverified contact trees at incident time.
-
-## BCP-12 — People Continuity & Pandemic  {#bcp-12--people-continuity--pandemic}
-
-- **WHY (Reg cite):** Maintaining staffing for continuity of critical operations under absenteeism or public-health events is a catastrophic-act preparedness expectation under [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749) and supports Board oversight under [12 CFR § 701.4](https://www.ecfr.gov/current/title-12/part-701/section-701.4).
-
-- **SYSTEM BEHAVIOR:** The system identifies essential roles, supports cross-training, and implements split teams/remote work. Staffing plans activate within 24 hours of an absenteeism trigger (≥30%) or a public-health trigger. Staffing plan content and activation authority are write-restricted to HR and the Business Continuity Manager; pandemic-specific facility cleaning and member-facing measures coordinate through this control without duplicating Information Security or Privacy controls.
+- **SYSTEM BEHAVIOR:** On declaration, the system drives a "first hour" checklist (safety, stabilize, scope, assign roles, notify, set cadence), produces a Situation Report (Sitrep) v1 within 30 minutes, and maintains a 30–60 minute Sitrep cadence until the incident is stabilized/contained. Declaration authority and Sitrep publication are write-restricted to the Incident Commander and IMT lead.
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Absenteeism ≥30% or public-health trigger (`incident.declared`) | Workforce availability (`workforce.availability`), absenteeism threshold (`workforce.absenteeism_threshold`), split-team plan (`staffing.split_team_plan`) | Staffing plan activated (`staffing.plan_activated`) | 24 hours (enforced by `staffing.activation_timer`) |
-  | Periodic readiness review due (`staffing.review_completed`) | Critical roles (`eps.staffing.critical_roles`), backup map (`eps.staffing.backup_map`) | Coverage attestation (`staffing.coverage_attested`) | Per cycle (enforced by `staffing.readiness_review_due`) |
+  | Incident declared (`incident.declared`) | First-hour checklist (`incident.checklist_first_hour`), scope (`incident.scope_initial`), roles (`crisis.roster`) | First-hour completion record (`incident.first_hour_completed`) | First hour (checklist-driven) |
+  | Sitrep v1 required (`incident.response_activated`) | Timeline (`incident.timeline`), impact summary (`incident.impact_summary`) | Sitrep v1 issued (`sitrep.issued`) | 30 min (enforced by `sitrep.v1_timer`) |
+  | Ongoing stabilization (`sitrep.issued`) | Updated status (`incident.timeline`) | Cadence Sitreps (`sitrep.issued`) | Every 30–60 min until contained (enforced by `sitrep.cadence_timer`) |
 
-- **ALERTS/METRICS:** Alert when a staffing plan is not activated within 24 hours of a trigger and on stale readiness reviews; track essential-role coverage percentage and cross-training depth, target full coverage of essential roles.
+- **ALERTS/METRICS:** Track Sitrep v1 latency (target ≤30 min) and cadence adherence; alert on incidents with no Sitrep update within the cadence window.
 
-## BCP-13 — Post-Incident Review (PIR)  {#bcp-13--post-incident-review-pir}
+## BCP-07 — Data Backup & Restore; RTO/RPO  {#bcp-07-data-backup-and-restore-rto-rpo}
 
-- **WHY (Reg cite):** Documenting root cause and corrective actions to strengthen the program reflects the response-program and improvement expectations of [12 CFR Part 748, Appendix B](https://www.ecfr.gov/current/title-12/part-748) and the preparedness obligations of [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749).
+- **WHY (Reg cite):** Vital records must be preserved and reconstructable after a catastrophic act, with tested restoration capability ([12 CFR Part 749 and App B](https://www.ecfr.gov/current/title-12/part-749)).
 
-- **SYSTEM BEHAVIOR:** The system conducts a PIR capturing root cause, what worked/failed, and a corrective action plan (CAP) with retest verification. The PIR draft is produced within 10 business days and the CAP is approved within 30 days. PIR authorship and CAP approval are write-restricted to the Business Continuity Manager and the Chief Compliance Officer; corrective items route to named owners with retest evidence required for closure.
-
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | Incident stabilized/closed (`incident.postmortem_completed`) | Root cause (`incident.root_cause`), timeline (`incident.timeline`) | PIR draft (`pir.drafted`) | 10 business days (enforced by `pir.draft_timer`) |
-  | CAP items opened (`cap.item_created`) | Remediation owner (`finding.owner`), retest plan (`cap.retest_plan`) | Approved CAP (`cap.approved`) | 30 days (enforced by `cap.approval_timer`) |
-  | CAP item remediated (`cap.item_completed`) | Closure evidence (`finding.closure_evidence`) | Retest verification (`cap.retest_verified`) | Per CAP (no registered timer) |
-
-- **ALERTS/METRICS:** Alert on PIR drafts past 10 business days and CAP approvals past 30 days; track open CAP items by age and retest pass rate, target zero overdue CAP items and verified retest on every closed corrective action.
-
-## BCP-14 — Vendor Contingency Management  {#bcp-14--vendor-contingency-management}
-
-- **WHY (Reg cite):** Overseeing service providers that support critical services — including their BCP/IR and DR evidence — is required under [12 CFR Part 748, Appendix A](https://www.ecfr.gov/current/title-12/part-748) (service-provider oversight of member-information safeguards) and supports operations resumption under [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749). General vendor onboarding and due diligence are governed by the Third-Party Risk Policy and are out of scope here.
-
-- **SYSTEM BEHAVIOR:** The system maintains vendor BCP/IR attestations, SLAs, RTO/RPO, and DR test evidence, refreshes evidence annually, defines exit/failover criteria, and tracks diversification against shared failure modes. This control consumes continuity-relevant vendor evidence only; vendor selection and broad due diligence live in the Third-Party Risk Policy. Failover/exit criteria and continuity attestations are write-restricted to Vendor Risk and the Business Continuity Manager.
+- **SYSTEM BEHAVIOR:** The system maintains tiered, immutable/offsite backups with critical RPO ≤ 15 minutes monitored continuously, performs restore tests for each tier quarterly, and supports clean point-in-time restores for crypto-lock events. A failed backup job opens a remediation task; a missed restore test escalates. Backup tier configuration and restore execution are write-restricted to IT/SRE.
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Annual vendor continuity refresh due (`vendor.bcp_evidence_due` reached) | Vendor BCP/DR plan (`vendor.dr_plan`), DR test results (`vendor.dr_test_results`), RTO/RPO (`vendor.rto_rpo`) | Refreshed evidence + DR confirmation (`vendor.dr_confirmed`, `vendor.evidence_refreshed`) | Annual (enforced by `vendor.bcp_evidence_due`) |
-  | Failover/exit criteria set or reviewed (`vendor.failover_criteria_set`) | Failover criteria (`vendor.failover_criteria`), exit plan (`vendor.exit_plan_id`) | Recorded failover criteria + exit plan (`vendor.failover_criteria_set`, `vendor.exit_plan_approved`) | Per governance cycle (enforced by `vendor.exit_plan_due`) |
-  | Vendor outage/incident affecting critical service (`vendor.outage_detected`) | Impact scope (`vendor.incident_scope`), DR attestation (`vendor.dr_attestation_due`) | Failover decision + incident log (`vendor.failover_decided`, `vendor.incident_logged`) | Per BIA tier (enforced by `vendor.incident_triage_due`) |
+  | Backup job completes/fails (`backup.job_failed`) | Job detail (`backup.job_detail`), tier config (`backup.tier_config`), RPO monitor (`backup.rpo_monitor`) | Backup verification + remediation if failed (`backup.job_remediated`) | Critical RPO ≤ 15 min (enforced by `backup.verify_due_at`) |
+  | Quarterly restore test due (`restore.test_completed`) | Test environment (`restore.test_env`), point validation (`restore.point_validated`) | Restore-test result (`backup.restore_verified`) | Quarterly (enforced by `backup.restore_test_due`) |
+  | Crypto-lock recovery needed (`restore.initiated`) | Clean point-in-time selection (`restore.point_validated`), RTO timer (`restore.rto_timer`) | Restore completed (`restore.completed`) | Per BIA tier RTO (enforced by `restore.rto_timer`) |
 
-- **ALERTS/METRICS:** Alert on critical-vendor continuity evidence past annual refresh (`vendor.critical_alert`) and on vendor concentration exceeding shared-failure-mode thresholds; track DR-attestation freshness and exit-plan test coverage, target zero critical vendors with stale BCP/DR evidence.
+- **ALERTS/METRICS:** Alert on RPO breach (>15 min) and backup job failures (target zero unremediated); track per-tier restore-test pass rate quarterly.
+
+## BCP-08 — Alternate Site & Remote Operations  {#bcp-08-alternate-site-and-remote-operations}
+
+- **WHY (Reg cite):** Continuity of critical operations after facility loss is a core catastrophic-act-preparedness requirement ([12 CFR Part 749, App B](https://www.ecfr.gov/current/title-12/part-749)).
+
+- **SYSTEM BEHAVIOR:** The system maintains a pre-approved remote posture (VPN, MFA), hot/virtual site options, and minimum staffing lists. On facility loss, it drives alternate-site/remote readiness within 8 hours and full critical operations within 24 hours. Site capacity is validated on a recurring basis. Remote-access configuration and site designation are write-restricted to IT/SRE and the Business Continuity Manager.
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Facility loss declared (`facility.loss_declared`) | Remote config (`access.remote_config`), minimum staffing (`staffing.split_team_plan`), site readiness (`site.readiness_confirmed`) | Readiness confirmation (`site.readiness_confirmed`) | Alternate/remote in 8 hr (enforced by `site.readiness_timer`) |
+  | Critical ops resumption (`site.readiness_confirmed`) | Critical service list (`bia.criticality`), resumption status (`ops.critical_resumed`) | Critical ops resumed record (`ops.critical_resumed`) | Full critical ops in 24 hr (enforced by `ops.resumption_timer`) |
+  | Periodic capacity validation (`site.readiness_confirmed`) | Capacity targets (`access.capacity_targets`), validation result (`site.capacity_validated`) | Capacity test record (`site.readiness_confirmed`) | Recurring (enforced by `site.capacity_test_due`) |
+
+- **ALERTS/METRICS:** Alert on alternate-site readiness aging (`alert.facility_readiness_aging`); track time-to-readiness and time-to-full-critical-ops against 8 hr / 24 hr targets.
+
+## BCP-09 — Major IT Failure Response  {#bcp-09-major-it-failure-response}
+
+- **WHY (Reg cite):** GLBA safeguards require response and recovery for events affecting critical systems ([12 CFR Part 748, App A and App B](https://www.ecfr.gov/current/title-12/part-748)); recovery of critical functions is required under [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749). Detailed cyber runbooks live in the Information Security Policy.
+
+- **SYSTEM BEHAVIOR:** The system maintains a runbook for core/cloud outages (detect, isolate blast radius, rollback/failover, communicate). On a major IT failure, an Incident Commander is assigned within 5 minutes, member status is issued within 15 minutes, and failover proceeds per BIA tier with dual control required for rollback. Failover decisioning and rollback execution are write-restricted to IT/SRE with dual-control enforcement.
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Major IT failure detected (`it.major_failure_detected`) | Outage runbook (`it.outage_runbook`), blast-radius status (`it.blast_radius_isolated`) | IC assignment (`incident.ic_assigned`) | IC in 5 min (enforced by `incident.ic_assignment_timer`) |
+  | Member-facing impact confirmed (`incident.member_impact_confirmed`) | Status-page playbook (`comms.statuspage_playbook`) | Member status issued (`comms.member_status_issued`) | 15 min (enforced by `comms.initial_timer`) |
+  | Failover/rollback required (`it.failover_decided`) | BIA tier (`bia.criticality`), dual-control approval (`transaction.dual_control_required`, `transaction.approval_timer`) | Failover executed (`it.failover_executed`) | Per BIA tier RTO (enforced by `restore.rto_timer`) |
+
+- **ALERTS/METRICS:** Track IC-assignment and member-status latency (targets ≤5 min, ≤15 min); alert on any rollback executed without recorded dual-control approval (target zero).
+
+## BCP-10 — Incident Response (Privacy/Security)  {#bcp-10-incident-response-privacy-security}
+
+- **WHY (Reg cite):** GLBA response programs require containment, recovery, and member-notice decisioning with service-provider coordination ([12 CFR Part 748, App A §III and App B](https://www.ecfr.gov/current/title-12/part-748)); NCUA requires notification of certain reportable cyber incidents ([12 CFR § 748.1(c)](https://www.ecfr.gov/current/title-12/part-748/section-748.1)). Member breach-notice mechanics in detail live in the Privacy Policy.
+
+- **SYSTEM BEHAVIOR:** The system implements GLBA-aligned containment, eradication, recovery, forensics, and notification decisioning with service-provider coordination. Containment begins within 1 hour of a confirmed security incident, counsel is consulted within 24 hours, and reportability/NCUA notification is determined per applicable law. Where the incident is determined reportable, NCUA notice is driven within the regulatory window. SAR referral is created where criminal activity is suspected. Reportability determination and member-notice content are write-restricted to Compliance and Legal.
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Security incident confirmed (`incident.security_confirmed`) | Data scope (`incident.data_scope`), detection source (`incident.detection_source`) | Containment started (`incident.containment_started`) | 1 hr (enforced by `incident.containment_timer`) |
+  | Legal review required (`incident.assessment_started`) | Facts (`incident.facts`), reportability assessment (`incident.reportability_assessment`) | Legal review recorded (`incident.assessment_completed`) | Counsel in 24 hr (internal: 24 hr) |
+  | Incident determined reportable (`incident.material_flagged`) | Reportability determination (`incident.reportability_determination`), metrics snapshot (`ncua.metrics_snapshot`) | NCUA notification (`incident.ncua_notified`) | Per § 748.1(c) (enforced by `incident.ncua_notice_due_at`) |
+  | Member misuse likely (`incident.member_impact_confirmed`) | Notice template (`incident.member_notice_template`), notification determination (`incident.notification_determined`) | Member notices sent (`incident.member_notices_sent`) | Per breach law (enforced by `incident.notification_due_at`) |
+
+- **ALERTS/METRICS:** Alert on NCUA-notification aging (`alert.ncua_notification_aging`); track containment-start latency (target ≤1 hr) and counsel-consult latency (target ≤24 hr).
+
+## BCP-11 — Communications & Notification Tree  {#bcp-11-communications-and-notification-tree}
+
+- **WHY (Reg cite):** Effective internal/external communication and regulator notification are integral to the documented response and recovery capability ([12 CFR Part 748, App B](https://www.ecfr.gov/current/title-12/part-748); [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749)). Regulator contact verification supports timely notice ([12 CFR § 748.1](https://www.ecfr.gov/current/title-12/part-748/section-748.1)).
+
+- **SYSTEM BEHAVIOR:** The system maintains contact trees for employees, Board, regulators, vendors, and media, with predefined status-page playbooks and backup channels if comms platforms fail. The first internal alert is issued within 15 minutes of activation, and regulators are notified per law/policy. Regulator contacts are verified on a recurring basis. Comms scripts and regulator notifications are write-restricted to the CCO and CEO-approved spokespersons.
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Communications activation (`comms.internal_alert_issued`) | Contact tree (`comms.contact_tree`), stakeholder matrix (`comms.stakeholder_matrix`) | Internal alert issued (`comms.internal_alert_issued`) | 15 min (internal: 15 min; enforced by `comms.initial_timer`) |
+  | Comms platform failure (`comms.platform_failed`) | Backup channel plan (`comms.statuspage_playbook`) | Backup channel activated (`comms.backup_activated`) | Immediately on failure |
+  | Regulator notification required (`regulator.ncua_notified`) | Verified regulator contacts (`regulator.contacts`), notice criteria (`regulator.notice_criteria_met`) | Regulator notice sent (`incident.regulator_notified`) | Per law (enforced by `incident.regulator_notification_due`) |
+  | Periodic contact verification (`regulator.contacts_verified`) | Contact roster (`regulator.contacts`) | Verified contacts record (`regulator.contacts_verified`) | Recurring (enforced by `regulator.contact_verification_due`) |
+
+- **ALERTS/METRICS:** Track first-internal-alert latency (target ≤15 min); alert on stale regulator contacts and on any activation lacking a logged backup-channel fallback when the primary platform failed.
+
+## BCP-12 — People Continuity & Pandemic  {#bcp-12-people-continuity-and-pandemic}
+
+- **WHY (Reg cite):** Continuity of critical operations through people-availability events is required under catastrophic-act preparedness ([12 CFR Part 749, App B](https://www.ecfr.gov/current/title-12/part-749)); Board oversight of continuity arrangements applies ([12 CFR § 701.4](https://www.ecfr.gov/current/title-12/part-701/section-701.4)).
+
+- **SYSTEM BEHAVIOR:** The system identifies essential roles, supports cross-training, and implements split-team/remote-work plans. Staffing plans activate within 24 hours of an absenteeism trigger (≥30%) or a public-health trigger. Staffing readiness is reviewed on a recurring basis. Staffing-plan activation and essential-role designation are write-restricted to HR and the Business Continuity Manager.
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Absenteeism ≥30% or public-health trigger (`staffing.plan_activated`) | Availability (`workforce.availability`), absenteeism threshold (`workforce.absenteeism_threshold`), split-team plan (`staffing.split_team_plan`) | Staffing plan activated (`staffing.plan_activated`) | 24 hr (enforced by `staffing.activation_timer`) |
+  | Periodic staffing readiness review (`staffing.review_completed`) | Critical-role map (`eps.staffing.critical_roles`), backup map (`eps.staffing.backup_map`) | Readiness review record (`staffing.review_completed`) | Recurring (enforced by `staffing.readiness_review_due`) |
+  | Coverage attestation (`staffing.coverage_attested`) | Coverage roster (`staffing.split_team_plan`) | Coverage attestation (`staffing.coverage_attested`) | Per review cycle (enforced by `staffing.review_timer`) |
+
+- **ALERTS/METRICS:** Track staffing-plan activation latency (target ≤24 hr) and essential-role coverage ratio; alert on readiness review aging.
+
+## BCP-13 — Post-Incident Review (PIR)  {#bcp-13-post-incident-review}
+
+- **WHY (Reg cite):** A maintained program requires learning from events and correcting weaknesses to preserve operability ([12 CFR Part 748, App B](https://www.ecfr.gov/current/title-12/part-748); [12 CFR Part 749, App B](https://www.ecfr.gov/current/title-12/part-749)).
+
+- **SYSTEM BEHAVIOR:** The system conducts a PIR with root cause, what worked/failed, and a corrective action plan. The PIR is drafted within 10 business days of containment, the CAP is approved within 30 days, and corrective items are tracked to retest verification. PIR authorship and CAP approval are write-restricted to the Business Continuity Manager and CCO.
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Incident contained (`incident.contained`) | Root cause (`incident.root_cause`), timeline (`incident.timeline`) | PIR draft (`incident.postmortem_completed`) | 10 business days (internal: 10 BD; enforced by `pir.draft_timer`) |
+  | CAP requires approval (`cap.item_created`) | CAP items (`cap.retest_plan`), owners (`finding.owner`) | CAP approved (`cap.approved`) | 30 days (enforced by `cap.approval_timer`) |
+  | Corrective item retest (`cap.retest_verified`) | Retest plan (`cap.retest_plan`), closure evidence (`finding.closure_evidence`) | Retest verified + item closed (`cap.item_completed`) | Per CAP item (enforced by `finding.response_due_at`) |
+
+- **ALERTS/METRICS:** Alert on PIR-draft aging past 10 BD and CAP approval aging past 30 days (targets zero); track open CAP items past due and retest pass rate.
+
+## BCP-14 — Vendor Contingency Management  {#bcp-14-vendor-contingency-management}
+
+- **WHY (Reg cite):** Service-provider arrangements supporting critical functions must be overseen and coordinated for incident response and continuity ([12 CFR Part 748, App A §III.D and App B](https://www.ecfr.gov/current/title-12/part-748); [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749)). General vendor onboarding/due diligence lives in the Third-Party Risk Policy.
+
+- **SYSTEM BEHAVIOR:** The system maintains vendor BCP/IR attestations, SLAs, RTO/RPO, and DR test evidence; refreshes evidence at least annually; defines exit/failover criteria; and assesses diversification against shared failure modes. A vendor outage or breach triages an incident track. DR attestation refresh and failover criteria are write-restricted to Vendor Risk and the Business Continuity Manager.
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Annual vendor BCP/DR evidence cycle (`vendor.dr_confirmed`) | DR plan (`vendor.dr_plan`), DR test results (`vendor.dr_test_results`), RTO/RPO (`vendor.rto_rpo`) | DR attestation confirmed (`vendor.dr_confirmed`) | Annual (enforced by `vendor.dr_attestation_due`) |
+  | Failover/exit criteria set (`vendor.failover_criteria_set`) | Failover criteria (`vendor.failover_criteria`), exit plan (`vendor.exit_plan_id`) | Exit/failover criteria record (`vendor.failover_criteria_set`) | Per program cycle (enforced by `vendor.exit_plan_due`) |
+  | Vendor outage or breach (`vendor.outage_detected`) | Impact scope (`vendor.affected_scope`), incident detail (`vendor.breach_detail`) | Vendor incident logged + triaged (`vendor.incident_logged`) | Triage per SLA (enforced by `vendor.incident_triage_due`) |
+  | Concentration / shared-failure review (`vendor.reconciliation_completed`) | Dependency map (`vendor.dependency_map`), concentration assessment (`vendor.concentration_assessed`) | Diversification plan logged (`liquidity.diversification_plan_logged`) | Recurring (enforced by `vendor.concentration_review_due`) |
+
+- **ALERTS/METRICS:** Alert on DR-attestation refresh aging and critical-vendor alerts (`vendor.critical_alert`); track count of critical vendors with current DR evidence (target 100%) and vendor incidents triaged on time.
 
 ## Governance & Sign-Off  {#governance}
 
-- **Owner:** Patrick Wilson, Chief Compliance Officer. Day-to-day program management is delegated to the Business Continuity Manager, with required participation from the Incident Management Team, IT/SRE, HR, Vendor Risk, and the Board of Directors.
-- **Approval:** Board-approved; current approver of record is Patrick Wilson, Chief Compliance Officer (see [BCP-01](#bcp-01--governance-roles--plan-maintenance)).
-- **Review cadence:** Plan reviewed and Board-approved at least annually and after any major change; IMT roster verified quarterly; threat register and BIA refreshed per [BCP-02](#bcp-02--risk-assessment-hazards-by-region) and [BCP-03](#bcp-03--business-impact-analysis-bia--rtorpo).
-- **Cross-references:** Electronic Payment Systems Policy (payment-channel controls, ACH/wire dual control, authentication); Information Security Policy (cyber IR runbooks, security control design); Third-Party Risk Policy (vendor onboarding/due diligence/oversight); Privacy Policy (member breach-notification detail); Record Retention Policy (vital-records retention schedules outside continuity); Enterprise Risk Management Policy (risk taxonomy and aggregation).
-- **Deadline view:** The [Timing Matrix](#timing-matrix) is the single consolidated source for cross-control deadlines.
+- **Owner:** Patrick Wilson, Chief Compliance Officer — accountable for program maintenance, control operation, and Board reporting.
+- **Approver(s):** Patrick Wilson, Chief Compliance Officer.
+- **Required participants:** Business Continuity Manager, Incident Management Team (IMT), IT/SRE, HR, Vendor Risk, and the Board of Directors (oversight and approval per [12 CFR § 701.4](https://www.ecfr.gov/current/title-12/part-701/section-701.4)).
+- **Review cadence:** Board approves the policy at least annually (BCP-01); IMT roster verified quarterly; BIA updated annually and certified quarterly (BCP-03); threat register refreshed annually or on major change (BCP-02); at least one enterprise exercise per year with Board reporting within 30 days (BCP-04).
+- **Cross-references:** Information Security Policy (cyber IR runbooks, security control design); Third-Party Risk Policy (vendor onboarding, due diligence, oversight); Privacy Policy (member breach-notification mechanics); Record Retention Policy (vital-records retention schedules outside continuity); Enterprise Risk Management Policy (risk taxonomy and aggregation); Electronic Payment Systems Policy (payment channel-specific controls, ACH/wire dual control, payment authentication).
+- **Examiner deadline view:** see the [Timing Matrix](#timing-matrix).
 
 ## Assumptions & Gaps  {#assumptions}
 
-- **Engineering vocabulary is provisional.** The continuity-side resources, fields, events, and timers referenced throughout the control overlays target the registered core-API vocabulary and the agreed provisional spellings in DESIGN_NOTES, but the parsed spec is banking-core-oriented. Codes coined by composition where no registered or provisional code fit — notably hazard/threat-feed handling (`hazard.feed_detail`, `risk.geography_factors`), the SEV-1 IC-assignment timer (mapped onto `incident.triage_due_at`), full-ops resumption (`ops.resumption_timer`, `ops.critical_resumed`), and pandemic absenteeism triggers (`workforce.availability`, `workforce.absenteeism_threshold`) — will be confirmed by engineering before the next review.
-- **SEV-1 5-minute IC and 15-minute comms SLAs** are mapped onto the generic `incident.triage_due_at` / `comms.same_day_due_at` / `comms.initial_timer` timers because no dedicated sub-5-minute continuity timer is registered; engineering to confirm whether finer-grained timers are needed.
-- **Charter type and NCUA applicability** (federally insured credit union; applicability of 12 CFR Part 749 and Part 748 vs. NCUA Part 701.31, which addresses advertising of insured status rather than continuity) is assumed; Part 701.31 was reviewed and intentionally not anchored to a control as it is not a continuity authority. To be confirmed by the Chief Compliance Officer.
-- **Pandemic in-office cleaning, signage, and member-facing contagion measures** from the reference plan are treated as operational sub-steps of [BCP-12](#bcp-12--people-continuity--pandemic) rather than separate controls; confirm whether a standalone facility-sanitation control is required.
-- **Electronic payment channel prioritization** in the BIA assumes ACH origination, wire, debit/ATM, mobile/RDC, and Zelle are all in-scope highest-priority services; channel-specific control design remains in the Electronic Payment Systems Policy. Confirm the full payment-channel inventory with the EPS Policy owner.
-- **Quarterly restore-test and RPO ≤ 15-minute targets** assume all critical tiers can meet immutable/offsite backup with point-in-time recovery; confirm tier-by-tier feasibility with IT/SRE.
-- **Vendor continuity scope** assumes Vendor Risk supplies continuity-relevant evidence (BCP/IR/DR, RTO/RPO, exit/failover) while onboarding and broad due diligence remain in the Third-Party Risk Policy; confirm the evidence hand-off and ownership split.
+- **Engineering vocabulary is provisional.** The continuity-side resources, fields, events, and timers referenced in the EVENTS tables throughout this document (e.g., `incident.*`, `backup.*`, `restore.*`, `bia.*`, `threat_register.*`, `comms.*`, `sitrep.*`, `staffing.*`, `vendor.dr_*`, `site.*`, `ops.*`, `drill.*`, `cap.*`, `pir.*`, hazard feeds via `facility.schedule_drift_detected`/`hazard.feed_detail`) are drawn from the registered core-API vocabulary where a fit exists and otherwise composed per the registered grammar. Names are the target naming scheme and will be confirmed by engineering before the next review. `pir.draft_timer` is used as the registered PIR draft timer; if engineering prefers a generic `Task` of type `report` keyed to `incident`, that substitution is acceptable.
+- **Charter type / NCUA applicability.** This policy assumes Pynthia Credit Union is a federally insured credit union subject to 12 CFR Parts 748 and 749 and § 701.4. NCUA Part 701.31 (nondiscrimination in real-estate lending) was reviewed and intentionally not anchored to any control — it governs fair-lending advertising, not continuity, and is out of scope here. Confirm charter type and any state-specific continuity or breach-notification overlays.
+- **Reportable-incident notification window.** BCP-10 assumes the NCUA reportable-cyber-incident notification obligation under § 748.1(c) (notify as soon as possible and no later than 72 hours after reasonable belief). The specific clock is enforced via `incident.ncua_notice_due_at`; confirm the exact trigger definition and hour count with Compliance/Legal before go-live.
+- **RPO/RTO targets are policy inputs, not yet system-validated.** Critical RPO ≤ 15 minutes (BCP-07) and the 8 hr / 24 hr readiness targets (BCP-08), 5 min IC / 15 min comms (BCP-05, BCP-09) are taken from Patrick's notes; confirm these match contractual SLAs and the BIA-derived tier matrix once `dr.rto_rpo_matrix` is populated.
+- **Payment-channel tier designation.** BCP-03 pre-tags electronic payment channels as highest-priority critical; the authoritative channel list and any tier nuances are owned by the Electronic Payment Systems Policy and must be reconciled with the BIA service catalog.
+- **Absenteeism trigger threshold.** The ≥30% absenteeism trigger (BCP-12) is taken from Patrick's notes and modeled via `workforce.absenteeism_threshold`; confirm measurement basis (enterprise-wide vs. per-critical-function) with HR.

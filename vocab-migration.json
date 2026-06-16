@@ -1,6 +1,6 @@
 {
   "meta": {
-    "tokens": 3419,
+    "tokens": 3420,
     "orphans": 0
   },
   "task_map": {
@@ -17081,6 +17081,11 @@
     "workforce.availability": {
       "as": "field",
       "ref": "workforce.availability"
+    },
+    "pricing.exception_requested": {
+      "as": "event",
+      "type": "requested",
+      "subject": "pricing"
     }
   }
 }

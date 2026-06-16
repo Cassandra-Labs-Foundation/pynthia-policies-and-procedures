@@ -108,7 +108,7 @@ Owner, approvals, review cadence, cross-refs.
 A single consolidated list at the end of the document. Each bullet is one assumption or gap, in business terms. Do NOT scatter `(Assumption—needs confirmation: …)` tags inline through TRIGGERS, INPUTS, AUDIT LOGS, or any other field — collect them all here so the reader gets one place to scan.
 
 Typical entries:
-- **Engineering vocabulary is provisional.** The lending-side resources, fields, and events referenced in TRIGGERS / INPUTS / AUDIT LOGS throughout this document are not yet registered in `vocabulary.json` (parsed spec is banking-core only). Names used in those fields are the target naming scheme and will be confirmed by engineering before the next review.
+- **Engineering vocabulary is provisional.** The lending-side resources, fields, and events referenced in TRIGGERS / INPUTS / AUDIT LOGS throughout this document are not yet registered in `core-vocabulary.json` (parsed spec is banking-core only). Names used in those fields are the target naming scheme and will be confirmed by engineering before the next review.
 - Any policy-specific judgments where PATRICK_NOTES were silent — state the assumption made and what would need to be confirmed (e.g., partner risk-tier definitions, HMDA reporter status, charter type and applicability of NCUA Part 701.31).
 
 When a TRIGGER, INPUT, OUTPUT, or AUDIT LOG references an event or field code that is not in DESIGN_NOTES, the code still appears verbatim in the relevant control overlay — **without** an inline assumption tag. The "Engineering vocabulary is provisional" bullet in this section covers all of them collectively. If DESIGN_NOTES is non-empty, only flag the specific codes still missing.
@@ -4080,9 +4080,9 @@ Regulation B, Equal Credit Opportunity Act, 12 CFR 1002
 - **FFIEC Interagency Fair Lending Examination Procedures** — the examination framework used by NCUA and other agencies to scope, assess, and conclude fair lending examinations; controls in this policy must satisfy the Compliance Management Analysis Checklist (Appendix §A–B) and address the overt, underwriting, pricing, steering, redlining, and marketing risk factors (O1–O5, U1–U9, P1–P7, S1–S8, R1–R12, M1–M7) identified in Part I of those procedures.
 - DESIGN_NOTES: """# System Design Notes — Engineering Vocabulary
 
-> Generated from `vocabulary.json` — **Cassandra Banking Core API (Minimal)** v2.2.0
-> Parsed at 2026-06-05T18:05:54.298707Z
-> Totals: 265 entities · 1683 fields · 0 computed fields · 1221 events · 35 endpoints · 12 state machines · 0 plugins
+> Generated from `core-vocabulary.json` — **Cassandra Banking Core API (Minimal)** v2.2.0
+> Parsed at 2026-06-16T01:53:57.061598Z
+> Totals: 297 entities · 2161 fields · 0 computed fields · 1222 events · 95 endpoints · 12 state machines · 0 plugins
 
 This block is a verbatim dump of the current engineering vocabulary. Downstream regeneration decides what to reference in the Design Overlay v2 control blocks — do not pre-filter.
 
@@ -4096,32 +4096,45 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 
 **Registered event verbs (104):** `acknowledged`, `activated`, `added`, `alert`, `applied`, `approved`, `arrived`, `assigned`, `attested`, `authorized`, `blocked`, `booked`, `breached`, `certified`, `changed`, `checked`, `classified`, `cleared`, `closed`, `completed`, `confirmed`, `created`, `decided`, `declared`, `declined`, `delivered`, `denied`, `deployed`, `deprovisioned`, `designated`, `destroyed`, `detected`, `determined`, `disabled`, `disposed`, `dispositioned`, `downgraded`, `drafted`, `enrolled`, `escalated`, `executed`, `expired`, `extended`, `failed`, `filed`, `flagged`, `funded`, `granted`, `hired`, `identified`, `initiated`, `invoked`, `issued`, `launched`, `lifted`, `locked`, `logged`, `mapped`, `notified`, `opened`, `ordered`, `passed`, `placed`, `posted`, `presented`, `proposed`, `provisioned`, `published`, `purchased`, `reached`, `received`, `reconciled`, `recorded`, `refreshed`, `rejected`, `released`, `remediated`, `rendered`, `renewed`, `reported`, `requested`, `resolved`, `restored`, `retained`, `returned`, `reviewed`, `revised`, `routed`, `scheduled`, `screened`, `sealed`, `sent`, `separated`, `settled`, `signed`, `started`, `submitted`, `tested`, `triggered`, `updated`, `used`, `validated`, `valued`, `verified`
 
-**Registered task types (28):** `acknowledgement`, `analysis`, `approval`, `assessment`, `attestation`, `consolidation`, `decision`, `deprovision`, `disposal`, `escalation`, `exercise`, `expiry`, `filing`, `issuance`, `notice`, `onboarding`, `plan`, `purge`, `reconciliation`, `refresh`, `remediation`, `renewal`, `report`, `review`, `test`, `triage`, `update`, `verification`
+**Registered task types (55):** `acknowledgement`, `activation`, `analysis`, `approval`, `assessment`, `attestation`, `audit`, `certification`, `chargeoff`, `check`, `classification`, `completion`, `compute`, `consolidation`, `decision`, `delivery`, `deprovision`, `disposal`, `distribution`, `escalation`, `exercise`, `expiry`, `filing`, `flag`, `hold`, `investigation`, `issuance`, `notice`, `onboarding`, `other`, `payment`, `plan`, `propagation`, `publish`, `purge`, `reconciliation`, `refresh`, `remediation`, `renewal`, `report`, `resolution`, `response`, `retention`, `review`, `revocation`, `simulation`, `submission`, `sweep`, `test`, `training`, `transition`, `triage`, `update`, `valuation`, `verification`
 
 **Registered subjects (383):** `aan`, `access`, `access_review`, `access_right`, `accessibility`, `account`, `account_closure`, `account_freeze`, `account_maturity`, `ach_transfer`, `ad`, `address`, `advertising`, `affiliate`, `ai`, `ai_register`, `alco`, `alert`, `alm`, `alm_irr`, `aml`, `analytics`, `analytics_method`, `antivirus`, `antivirus_log`, `application`, `appraisal`, `asset`, `audit`, `audit_assessment`, `audit_integrity`, `audit_monthly`, `aup`, `authority`, `backup`, `backup_restore`, `badge`, `balance`, `bcp`, `bcp_annual`, `bia`, `bia_annual`, `board`, `book_transfer`, `bsa_alert`, `bureau`, `byod`, `cab`, `cap`, `capital`, `capital_contingency`, `capital_payout`, `capital_quarterly`, `capital_ratio`, `capital_remediation`, `capital_stress`, `car`, `card_authorization`, `case`, `cash`, `cash_enterprise`, `cash_surprise`, `catalogue`, `cda`, `cda_board`, `cda_cap`, `cda_conflict`, `cda_policy`, `cda_termination`, `cda_vendor`, `cdd`, `cfp`, `cfp_execution`, `cfp_investment`, `change`, `change_post`, `claim`, `claim_carrier`, `cmdb`, `cmir`, `coi`, `collateral`, `collections`, `collections_annual`, `collections_attorney`, `collections_board`, `collections_breach`, `collections_cease`, `comms`, `comms_same`, `complaint`, `complaint_final`, `complaint_initial`, `complaint_trend`, `compliance`, `compliance_board`, `compliance_risk`, `concentration`, `config`, `connection`, `continuing_sar`, `control`, `control_framework`, `core_archive`, `corp_opportunity`, `correction`, `counteroffer`, `covered_person`, `credit_box`, `credit_config`, `credit_file`, `credit_package`, `credit_report`, `credit_score`, `crisis`, `crypto`, `csa`, `ctr`, `ctr_exemption`, `decision`, `deficiency`, `destruction_log`, `disclosure`, `disclosure_account`, `disclosure_change_in`, `disclosure_error`, `disparity`, `disposal`, `dispute`, `dispute_provisional`, `dlp`, `document`, `dq`, `dr`, `drill`, `ecommerce`, `ecommerce_risk`, `edd`, `elc`, `email_archive`, `employee`, `entity`, `eps`, `eps_board`, `eps_training.self`, `escalation`, `estate`, `event`, `ewi`, `ewi_daily`, `ewi_weekly`, `exam`, `exception`, `exercise`, `exercise_board`, `expense`, `expulsion`, `facility`, `facility_annual`, `fair_lending`, `fbar`, `fee`, `finding`, `finding_monthly`, `finding_quarterly`, `firewall`, `firewall_independent`, `form`, `fraud`, `funding`, `funding_first`, `furnishing`, `gift`, `gl`, `governance`, `handover`, `handover_access`, `hmda`, `hmda_lar`, `hr`, `icaap`, `imt`, `imt_roster`, `incident`, `incident_ncua`, `incident_regulator`, `incident_trend`, `incompleteness`, `indemnification`, `independent`, `insider`, `insider_case`, `insider_loc`, `insider_public_request`, `insider_report`, `institution_freeze`, `instrument_list`, `insurance`, `interest`, `intermediary`, `intrusion`, `it`, `kri`, `lar`, `ledger`, `legal`, `legal_hold`, `lending_program`, `limit_set`, `liquidity`, `liquidity_cfp`, `lo_comp`, `loan`, `loan_account`, `loan_application`, `loan_bankruptcy`, `loan_courtesy`, `loan_days`, `loan_exception`, `loan_fraud`, `loan_next`, `loan_party`, `loan_pricing`, `loan_rating`, `loan_re`, `loan_right_to`, `loan_second`, `loan_status`, `member`, `member_address`, `member_credential`, `member_portal`, `mi`, `mismatch`, `model`, `monetary_instrument`, `monitoring`, `monitoring_coverage`, `ncua`, `notice`, `notification`, `ofac`, `official`, `overdraft`, `override`, `pentest`, `pep`, `performance`, `phishing`, `policy`, `policy_board`, `portfolio`, `portfolio_board`, `portfolio_stress`, `position`, `position_analytics`, `position_liquidity`, `prequal`, `pricing`, `pricing_exception`, `privacy`, `privacy_access`, `privacy_annual`, `privacy_board`, `privacy_notice`, `privacy_optout`, `privacy_state`, `procedure`, `process`, `product`, `product_menu`, `product_risk`, `program_governance`, `rate_sheet`, `recon`, `record`, `record_integrity`, `records`, `records_annual`, `records_board`, `records_package`, `redflag`, `redflags`, `redlining`, `regulation`, `regulation_inventory`, `regulator`, `regulator_contact`, `regulatory`, `remediation`, `repo`, `repo_collateral`, `report`, `report_board`, `report_daily`, `report_weekly`, `reporting`, `resolution_exception`, `resolution_policy`, `resolution_posture`, `resolution_review`, `resolution_test`, `restore`, `retention`, `risk`, `risk_acceptance`, `risk_appetite`, `risk_assessment`, `risk_breach`, `risk_breach_committee`, `risk_report`, `risk_scale`, `rov`, `rule`, `rwa`, `safe_mode`, `safekeeping`, `sar`, `schedule_a`, `scope_registry`, `security`, `security_downgrade`, `security_fair_value`, `security_finding`, `service`, `service_first`, `siem`, `siem_alert`, `signage`, `site`, `site_capacity`, `sitrep`, `socialmedia`, `sod`, `staffing`, `staffing_readiness`, `statement`, `steering`, `steering_review`, `storage_box`, `strategy`, `stress`, `stress_test`, `supervisory`, `survival`, `takedown`, `taxonomy`, `tdr`, `tdr_quarterly`, `threat_register`, `tiein`, `tls`, `tls_certificate`, `trade`, `training`, `transaction`, `user`, `valuation`, `vendor`, `vendor_annual`, `vendor_bcp`, `vendor_board`, `vendor_clause_library`, `vendor_concentration`, `vendor_core`, `vendor_dr`, `vendor_edd`, `vendor_exit`, `vendor_governance`, `vendor_incident`, `vendor_inventory`, `vendor_mi`, `vendor_monitoring`, `vendor_program`, `vendor_provisional`, `vendor_raci`, `verification`, `verification_biometric`, `vuln`, `web`, `wholesale`, `wholesale_monthly`, `wire_transfer`
 
 ## Entities and fields
 
-### `account`  (schema: `Account` · 10 fields · state field: `status`)
+### `account`  (schema: `Account` · 12 fields · state field: `status`)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `account_type` | string |  |  |  |  |
-| `balance` | number |  |  |  |  |
+| `balance` | integer |  |  |  |  |
 | `blnk_ledger_id` | string |  |  |  |  |
+| `closure_payout_due_at` | string (date-time) |  |  |  |  |
 | `created_at` | string (date-time) |  |  |  |  |
 | `id` | string |  |  |  |  |
 | `lock_type` | string |  |  |  |  |
 | `maturity_date` | string (date-time) |  |  |  |  |
 | `maturity_disposition` | string |  |  |  |  |
+| `maturity_notice_due_at` | string (date-time) |  |  |  |  |
 | `opening_channel` | string |  |  |  |  |
+| `status` | string |  |  |  |  |
+
+### `account_number`  (schema: `AccountNumber` · 6 fields · state field: `status`)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `account_id` | string |  |  |  |  |
+| `account_number` | string |  |  |  |  |
+| `id` | string |  |  |  |  |
+| `informational_entity_id` | string |  |  |  |  |
+| `routing_number` | string |  |  |  |  |
 | `status` | string |  |  |  |  |
 
 ### `ach_transfer`  (schema: `AchTransfer` · 5 fields · state field: `status`)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
-| `amount` | number |  |  |  |  |
+| `amount` | integer |  |  |  |  |
 | `control_results` | object |  |  |  |  |
 | `counterparty` | string |  |  |  |  |
 | `status` | string |  |  |  |  |
@@ -4178,9 +4191,9 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `account_code_5300` | string |  |  |  |  |
-| `amount` | number |  |  |  |  |
+| `amount` | integer |  |  |  |  |
 | `id` | string |  |  |  |  |
-| `locked_amount` | number |  |  |  |  |
+| `locked_amount` | integer |  |  |  |  |
 | `running_balance` | string |  |  |  |  |
 | `schedule_a_code` | string |  |  |  |  |
 
@@ -4211,14 +4224,14 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
-| `amount` | number |  |  |  |  |
+| `amount` | integer |  |  |  |  |
 | `control_results` | object |  |  |  |  |
 | `decline_reason` | string |  |  |  |  |
 | `id` | string |  |  |  |  |
 | `merchant` | string |  |  |  |  |
 | `status` | string |  |  |  |  |
 
-### `case`  (schema: `Case` · 10 fields · state field: `status`)
+### `case`  (schema: `Case` · 11 fields · state field: `status`)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
@@ -4228,6 +4241,7 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `evidence` | array |  |  |  |  |
 | `id` | string |  |  |  |  |
 | `owner_id` | string |  |  |  |  |
+| `sar_decision_timer` | string |  |  |  |  |
 | `status` | string |  |  |  |  |
 | `summary` | string |  |  |  |  |
 | `tasks` | array |  |  |  |  |
@@ -4302,11 +4316,12 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `request_doc` | string |  |  |  |  |
 | `requester` | string |  |  |  |  |
 
-### `document`  (schema: `Document` · 15 fields)
+### `document`  (schema: `Document` · 16 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `attached` | string |  |  |  |  |
+| `attachment_due_at` | string (date-time) |  |  |  |  |
 | `curriculum` | string |  |  |  |  |
 | `edd` | string |  |  |  |  |
 | `id` | string |  |  |  |  |
@@ -4389,7 +4404,7 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
-| `balance` | number |  |  |  |  |
+| `balance` | integer |  |  |  |  |
 
 ### `filing`  (schema: `Filing` · 12 fields · state field: `status`)
 
@@ -4419,11 +4434,11 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
-| `amount` | number |  |  |  |  |
+| `amount` | integer |  |  |  |  |
 | `id` | string |  |  |  |  |
 | `originator` | string |  |  |  |  |
 
-### `incident`  (schema: `Incident` · 39 fields · state field: `status`)
+### `incident`  (schema: `Incident` · 42 fields · state field: `status`)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
@@ -4448,9 +4463,11 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `member_notice_template` | string |  |  |  |  |
 | `misuse_determined` | string |  |  |  |  |
 | `misuse_likelihood` | string |  |  |  |  |
+| `ncua_notice_due_at` | string (date-time) |  |  |  |  |
 | `notice_content` | string |  |  |  |  |
 | `notice_template_id` | string |  |  |  |  |
 | `notification_determined` | string |  |  |  |  |
+| `notification_due_at` | string (date-time) |  |  |  |  |
 | `quarterly_summary` | object |  |  |  |  |
 | `recovered` | string |  |  |  |  |
 | `reportability_assessment` | string |  |  |  |  |
@@ -4465,6 +4482,7 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `status` | string |  |  |  |  |
 | `summary_id` | string |  |  |  |  |
 | `timeline` | string |  |  |  |  |
+| `triage_due_at` | string (date-time) |  |  |  |  |
 | `triaged` | string |  |  |  |  |
 
 ### `legal_hold`  (schema: `LegalHold` · 10 fields)
@@ -4482,22 +4500,26 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `schedule_resumed` | string |  |  |  |  |
 | `status` | string |  |  |  |  |
 
-### `loan`  (schema: `Loan` · 41 fields)
+### `loan`  (schema: `Loan` · 52 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `accrued_interest` | string |  |  |  |  |
 | `action_basis` | object |  |  |  |  |
-| `balance` | number |  |  |  |  |
+| `balance` | integer |  |  |  |  |
 | `bankruptcy_case_id` | string |  |  |  |  |
+| `bankruptcy_chargeoff_due_at` | string (date-time) |  |  |  |  |
 | `booking_block_state` | string |  |  |  |  |
 | `charged_off` | string |  |  |  |  |
 | `chargeoff_due_closed_end` | string |  |  |  |  |
 | `chargeoff_due_open_end` | string |  |  |  |  |
 | `chargeoff_month_end_at` | string (date-time) |  |  |  |  |
+| `classification_due_at` | string (date-time) |  |  |  |  |
 | `classified_substandard` | string |  |  |  |  |
 | `collateral_value` | string |  |  |  |  |
 | `collectibility_assessment` | string |  |  |  |  |
+| `courtesy_notice_due_at` | string (date-time) |  |  |  |  |
+| `days_past_due` | string (date) |  |  |  |  |
 | `death_loss_estimable` | string |  |  |  |  |
 | `delinquency_day_10` | string |  |  |  |  |
 | `delinquency_day_20` | string |  |  |  |  |
@@ -4512,6 +4534,7 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `estate_claim_status` | string |  |  |  |  |
 | `estimated_recovery` | string |  |  |  |  |
 | `foreclosure_impact_eval` | string |  |  |  |  |
+| `fraud_chargeoff_due_at` | string (date-time) |  |  |  |  |
 | `funding_block_state` | string |  |  |  |  |
 | `grace_period_days` | string |  |  |  |  |
 | `id` | string |  |  |  |  |
@@ -4519,30 +4542,39 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `last_payment_date` | string (date-time) |  |  |  |  |
 | `ltv` | number |  |  |  |  |
 | `modified_schedule` | string |  |  |  |  |
+| `nonaccrual_due_at` | string (date-time) |  |  |  |  |
 | `nonaccrual_placed` | string |  |  |  |  |
-| `past_due_amount` | number |  |  |  |  |
+| `past_due_amount` | integer |  |  |  |  |
 | `product_type` | string |  |  |  |  |
 | `proposed_modification` | string |  |  |  |  |
+| `rating_review_due_at` | string (date-time) |  |  |  |  |
+| `re_valuation_due` | string (date) |  |  |  |  |
 | `repayment_evidence` | object |  |  |  |  |
+| `right_to_cure_due_at` | string (date-time) |  |  |  |  |
 | `risk_rating` | string |  |  |  |  |
+| `second_reminder_due_at` | string (date-time) |  |  |  |  |
+| `status_memo_due_at` | string (date-time) |  |  |  |  |
 | `well_secured_documented` | string |  |  |  |  |
 | `workout_alternatives` | string |  |  |  |  |
 
-### `loan_application`  (schema: `LoanApplication` · 29 fields)
+### `loan_application`  (schema: `LoanApplication` · 32 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `aan_due_at` | string (date-time) |  |  |  |  |
 | `action_basis` | object |  |  |  |  |
 | `amount` | integer |  |  |  |  |
 | `applicant` | string |  |  |  |  |
 | `atr_qm_result` | string |  |  |  |  |
 | `channel` | string |  |  |  |  |
+| `counteroffer_aan_due_at` | string (date-time) |  |  |  |  |
 | `counteroffer_status` | string |  |  |  |  |
 | `counteroffer_terms` | object |  |  |  |  |
 | `credit_structure` | object |  |  |  |  |
 | `data` | object |  |  |  |  |
 | `decision` | string |  |  |  |  |
 | `decision_block_state` | string |  |  |  |  |
+| `decision_due_at` | string (date-time) |  |  |  |  |
 | `doc_block_state` | string |  |  |  |  |
 | `dti` | number |  |  |  |  |
 | `employment` | object |  |  |  |  |
@@ -4676,7 +4708,7 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `narrative` | string |  |  |  |  |
 | `prior_filing_id` | string |  |  |  |  |
 
-### `task`  (schema: `Task` · 7 fields · state field: `status`)
+### `task`  (schema: `Task` · 8 fields · state field: `status`)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
@@ -4684,6 +4716,7 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `id` | string |  |  |  |  |
 | `retention` | string |  |  |  |  |
 | `status` | string |  |  |  |  |
+| `subject` | string |  |  |  |  |
 | `subject_ref` | string |  |  |  |  |
 | `training` | string |  |  |  |  |
 | `type` | string |  |  |  |  |
@@ -4694,7 +4727,7 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 |---|---|---|---|---|---|
 | `hire_date` | string (date) |  |  |  |  |
 
-### `transfer`  (schema: `Transfer` · 8 fields)
+### `transfer`  (schema: `Transfer` · 6 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
@@ -4703,9 +4736,7 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `counterparty` | string |  |  |  |  |
 | `id` | string |  |  |  |  |
 | `originator` | string |  |  |  |  |
-| `rail` | string |  |  |  |  |
 | `status` | string |  |  |  |  |
-| `wire` | string |  |  |  |  |
 
 ### `user`  (schema: `User` · 3 fields)
 
@@ -4730,13 +4761,14 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `dd_package` | string |  |  |  |  |
 | `efficacy_results` | object |  |  |  |  |
 
-### `verification`  (schema: `Verification` · 15 fields · state field: `status`)
+### `verification`  (schema: `Verification` · 16 fields · state field: `status`)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `alt_path_available` | string |  |  |  |  |
 | `biometric_consent_id` | string |  |  |  |  |
 | `biometric_declined` | string |  |  |  |  |
+| `biometric_purge_due_at` | string (date-time) |  |  |  |  |
 | `biometric_purged` | string |  |  |  |  |
 | `cdd` | string |  |  |  |  |
 | `expires_at` | string (date-time) |  |  |  |  |
@@ -4750,18 +4782,11 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `trust_level` | string |  |  |  |  |
 | `type` | string |  |  |  |  |
 
-### `wire_details`  (schema: `WireDetails` · 2 fields)
-
-| Field | Type | Required | PII | Bound controls | Description |
-|---|---|---|---|---|---|
-| `imad` | string |  |  |  |  |
-| `purpose` | string |  |  |  |  |
-
 ### `wire_transfer`  (schema: `WireTransfer` · 7 fields · state field: `status`)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
-| `amount` | number |  |  |  |  |
+| `amount` | integer |  |  |  |  |
 | `beneficiary` | string |  |  |  |  |
 | `control_results` | object |  |  |  |  |
 | `imad` | string |  |  |  |  |
@@ -4769,7 +4794,7 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `record_retained` | string |  |  |  |  |
 | `status` | string |  |  |  |  |
 
-### `access`  (schema: `access` · 25 fields)
+### `access`  (schema: `access` · 28 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
@@ -4780,6 +4805,7 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `breakglass_reviewed` | string |  |  |  |  |
 | `breakglass_used` | string |  |  |  |  |
 | `capacity_targets` | string |  |  |  |  |
+| `deprovision_due_at` | string |  |  |  |  |
 | `justification` | string |  |  |  |  |
 | `last_reviewed_at` | string |  |  |  |  |
 | `manager_approval` | string |  |  |  |  |
@@ -4789,6 +4815,8 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `remote_config` | object |  |  |  |  |
 | `requested` | string |  |  |  |  |
 | `review_attestation` | string |  |  |  |  |
+| `review_due` | string |  |  |  |  |
+| `review_due_at` | string |  |  |  |  |
 | `review_timer` | string |  |  |  |  |
 | `reviewer_roster` | object |  |  |  |  |
 | `revoked` | string |  |  |  |  |
@@ -4805,10 +4833,11 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 |---|---|---|---|---|---|
 | `approved_by` | string |  |  |  |  |
 
-### `account_freeze`  (schema: `account_freeze` · 3 fields)
+### `account_freeze`  (schema: `account_freeze` · 4 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `application_due_at` | string |  |  |  |  |
 | `legal_process_reference` | string |  |  |  |  |
 | `order_reference` | string |  |  |  |  |
 | `release_reference` | string |  |  |  |  |
@@ -4820,31 +4849,33 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `audience_definition` | string |  |  |  |  |
 | `creative` | string |  |  |  |  |
 
-### `advertising`  (schema: `advertising` · 3 fields)
+### `advertising`  (schema: `advertising` · 4 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `approval_id` | string |  |  |  |  |
 | `asset_id` | string |  |  |  |  |
 | `medium` | string |  |  |  |  |
+| `reach_review_due` | string |  |  |  |  |
 
-### `affiliate`  (schema: `affiliate` · 11 fields)
+### `affiliate`  (schema: `affiliate` · 12 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `asset_quality_classification` | string |  |  |  |  |
 | `collateral_type` | string |  |  |  |  |
+| `collateral_value` | string |  |  |  |  |
 | `independent_evaluation` | string |  |  |  |  |
 | `limit_utilization` | string |  |  |  |  |
 | `list` | string |  |  |  |  |
 | `list_entry` | string |  |  |  |  |
 | `market_terms_basis` | string |  |  |  |  |
 | `required_coverage_ratio` | number |  |  |  |  |
-| `transaction_amount` | number |  |  |  |  |
+| `transaction_amount` | integer |  |  |  |  |
 | `transaction_file_archived` | string |  |  |  |  |
 | `transaction_type` | string |  |  |  |  |
 
-### `ai`  (schema: `ai` · 5 fields)
+### `ai`  (schema: `ai` · 6 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
@@ -4852,6 +4883,7 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `disclosure_channel` | string |  |  |  |  |
 | `disclosure_text` | string |  |  |  |  |
 | `dpia_ref` | object |  |  |  |  |
+| `register_update_due_at` | string |  |  |  |  |
 | `use_case` | string |  |  |  |  |
 
 ### `alco`  (schema: `alco` · 1 fields)
@@ -4876,13 +4908,20 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `survival_low` | string |  |  |  |  |
 | `wholesale_pricing_violation` | string |  |  |  |  |
 
+### `alm`  (schema: `alm` · 2 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `irr_simulation_due` | string |  |  |  |  |
+| `irr_simulation_due_at` | string |  |  |  |  |
+
 ### `aml`  (schema: `aml` · 1 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `case.referred` | string |  |  |  |  |
 
-### `analytics`  (schema: `analytics` · 10 fields)
+### `analytics`  (schema: `analytics` · 14 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
@@ -4891,49 +4930,66 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `breach_detail` | object |  |  |  |  |
 | `cohort_threshold` | string |  |  |  |  |
 | `deid_method_id` | string |  |  |  |  |
+| `disparity_due_at` | string |  |  |  |  |
 | `geo_lending_dataset` | string |  |  |  |  |
 | `group_estimators` | string |  |  |  |  |
 | `lending_dataset` | string |  |  |  |  |
+| `method_review_due` | string |  |  |  |  |
+| `method_review_due_at` | string |  |  |  |  |
+| `redlining_due_at` | string |  |  |  |  |
 | `reid_risk_assessment` | string |  |  |  |  |
 | `source_scope` | string |  |  |  |  |
 
-### `antivirus`  (schema: `antivirus` · 3 fields)
+### `antivirus`  (schema: `antivirus` · 4 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `definitions_version` | string |  |  |  |  |
 | `detection` | string |  |  |  |  |
+| `log_review_due` | string |  |  |  |  |
 | `signature` | string |  |  |  |  |
 
-### `appraisal`  (schema: `appraisal` · 2 fields)
+### `application`  (schema: `application` · 2 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
-| `document` | string |  |  |  |  |
-| `value` | number |  |  |  |  |
+| `channel` | string |  |  |  |  |
+| `notice_due_at` | string |  |  |  |  |
 
-### `asset`  (schema: `asset` · 6 fields)
+### `appraisal`  (schema: `appraisal` · 3 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `delivery_due_at` | string |  |  |  |  |
+| `document` | string |  |  |  |  |
+| `value` | integer |  |  |  |  |
+
+### `asset`  (schema: `asset` · 7 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `attributes` | string |  |  |  |  |
 | `classification` | string |  |  |  |  |
 | `cmdb_snapshot` | object |  |  |  |  |
+| `cmdb_update_due_at` | string |  |  |  |  |
 | `media_type` | string |  |  |  |  |
 | `owner` | string |  |  |  |  |
 | `owner_roster` | object |  |  |  |  |
 
-### `audit`  (schema: `audit` · 29 fields)
+### `audit`  (schema: `audit` · 35 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `access_request_detail` | object |  |  |  |  |
 | `annual_plan_id` | string |  |  |  |  |
 | `annual_results_summary` | object |  |  |  |  |
+| `assessment_annual_due_at` | string |  |  |  |  |
 | `assessment_type` | string |  |  |  |  |
 | `budget_status` | string |  |  |  |  |
 | `cae_personnel_action` | string |  |  |  |  |
+| `compliance_audit_due_at` | string |  |  |  |  |
 | `critical_exposure_identified` | string |  |  |  |  |
+| `cycle_timer` | string |  |  |  |  |
 | `distribution_list` | string |  |  |  |  |
 | `engagement_cost` | string |  |  |  |  |
 | `engagement_scope` | string |  |  |  |  |
@@ -4945,11 +5001,14 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `manual_updates` | string |  |  |  |  |
 | `overall_rating` | string |  |  |  |  |
 | `record_written` | string |  |  |  |  |
+| `remediation_due` | string |  |  |  |  |
+| `remediation_timer` | string |  |  |  |  |
 | `report_distributed` | string |  |  |  |  |
 | `report_finalized` | string |  |  |  |  |
 | `report_id` | string |  |  |  |  |
 | `resource_assessment` | string |  |  |  |  |
 | `results_delivered_to_board` | string |  |  |  |  |
+| `retention_expires_at` | string |  |  |  |  |
 | `retention_extended` | string |  |  |  |  |
 | `schedule_finalized` | string |  |  |  |  |
 | `scope_change_documented` | string |  |  |  |  |
@@ -4986,14 +5045,17 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 |---|---|---|---|---|---|
 | `role_limits` | string |  |  |  |  |
 
-### `backup`  (schema: `backup` · 4 fields)
+### `backup`  (schema: `backup` · 7 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `catalog` | string |  |  |  |  |
 | `job_detail` | object |  |  |  |  |
+| `restore_test_due` | string |  |  |  |  |
 | `rpo_monitor` | string |  |  |  |  |
 | `tier_config` | object |  |  |  |  |
+| `verify_due` | string |  |  |  |  |
+| `verify_due_at` | string |  |  |  |  |
 
 ### `balance`  (schema: `balance` · 1 fields)
 
@@ -5007,21 +5069,25 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 |---|---|---|---|---|---|
 | `inflight_balance` | string |  |  |  |  |
 
-### `bcp`  (schema: `bcp` · 1 fields)
+### `bcp`  (schema: `bcp` · 2 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `annual_review_due` | string |  |  |  |  |
 | `plan_version` | string |  |  |  |  |
 
-### `bia`  (schema: `bia` · 3 fields)
+### `bia`  (schema: `bia` · 6 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `annual_update_due` | string |  |  |  |  |
+| `certification_due` | string |  |  |  |  |
 | `criticality` | string |  |  |  |  |
 | `member_impact` | string |  |  |  |  |
 | `reg_dependency` | string |  |  |  |  |
+| `review_due` | string |  |  |  |  |
 
-### `board`  (schema: `board` · 7 fields)
+### `board`  (schema: `board` · 8 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
@@ -5030,13 +5096,16 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `disinterested_quorum` | string |  |  |  |  |
 | `meeting_date` | string |  |  |  |  |
 | `meeting_held` | string |  |  |  |  |
+| `notification_due_at` | string |  |  |  |  |
 | `package_distributed` | string |  |  |  |  |
 | `resolution_id` | string |  |  |  |  |
 
-### `breach`  (schema: `breach` · 1 fields)
+### `breach`  (schema: `breach` · 3 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `control_id` | string |  |  |  |  |
+| `description` | string |  |  |  |  |
 | `owner` | string |  |  |  |  |
 
 ### `bureau`  (schema: `bureau` · 1 fields)
@@ -5059,11 +5128,11 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `approval_timer` | string |  |  |  |  |
 | `retest_plan` | object |  |  |  |  |
 
-### `capital`  (schema: `capital` · 73 fields)
+### `capital`  (schema: `capital` · 83 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
-| `action_amount` | number |  |  |  |  |
+| `action_amount` | integer |  |  |  |  |
 | `action_analysis_id` | string |  |  |  |  |
 | `action_analyzed` | string |  |  |  |  |
 | `action_type` | string |  |  |  |  |
@@ -5080,6 +5149,8 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `cet1_ratio` | number |  |  |  |  |
 | `concentration_exposures` | string |  |  |  |  |
 | `contingency_action_id` | string |  |  |  |  |
+| `contingency_due_at` | string |  |  |  |  |
+| `contingency_memo_due_at` | string |  |  |  |  |
 | `contingency_referred` | string |  |  |  |  |
 | `credit_growth_threshold_crossed` | string |  |  |  |  |
 | `dividend_limit` | string |  |  |  |  |
@@ -5091,16 +5162,19 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `general_reserves` | string |  |  |  |  |
 | `goodwill` | string |  |  |  |  |
 | `icaap_cco_signoff` | string |  |  |  |  |
+| `icaap_due_at` | string |  |  |  |  |
 | `icaap_report_id` | string |  |  |  |  |
 | `instrument_terms` | object |  |  |  |  |
 | `intangibles_balance` | string |  |  |  |  |
 | `irr_measures` | string |  |  |  |  |
 | `max_payout_ratio` | number |  |  |  |  |
 | `payout_restricted` | string |  |  |  |  |
+| `payout_restriction_due_at` | string |  |  |  |  |
 | `payout_restriction_schedule` | string |  |  |  |  |
 | `pca_category` | string |  |  |  |  |
 | `pca_mandatory_actions` | string |  |  |  |  |
 | `perpetual_preferred` | string |  |  |  |  |
+| `plan_due_at` | string |  |  |  |  |
 | `plan_id` | string |  |  |  |  |
 | `prior_plan_id` | string |  |  |  |  |
 | `prior_ratios` | string |  |  |  |  |
@@ -5109,10 +5183,13 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `projection_below_target` | string |  |  |  |  |
 | `projection_below_well_capitalized` | string |  |  |  |  |
 | `proposed_ccyb_level` | string |  |  |  |  |
-| `proposed_distribution_amount` | number |  |  |  |  |
+| `proposed_distribution_amount` | integer |  |  |  |  |
 | `proposed_tier` | string |  |  |  |  |
+| `quarterly_report_due_at` | string |  |  |  |  |
 | `quarterly_report_id` | string |  |  |  |  |
 | `ratio_below_target` | string |  |  |  |  |
+| `ratio_calc_due_at` | string |  |  |  |  |
+| `ratio_computation_due_at` | string |  |  |  |  |
 | `ratio_record_id` | string |  |  |  |  |
 | `ratio_tier1_leverage` | string |  |  |  |  |
 | `ratio_tier1_rwa` | string |  |  |  |  |
@@ -5123,32 +5200,38 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `regulatory_minima` | string |  |  |  |  |
 | `regulatory_preapproval_id` | string |  |  |  |  |
 | `regulatory_preapproval_status` | string |  |  |  |  |
+| `remediation_plan_due_at` | string |  |  |  |  |
 | `retained_earnings` | string |  |  |  |  |
 | `revaluation_reserves` | string |  |  |  |  |
-| `rwa_total` | number |  |  |  |  |
+| `rwa_total` | integer |  |  |  |  |
 | `stress_assumptions` | string |  |  |  |  |
+| `stress_report_due_at` | string |  |  |  |  |
 | `stress_report_id` | string |  |  |  |  |
 | `subordinated_debt` | string |  |  |  |  |
 | `target_tier1_leverage` | string |  |  |  |  |
 | `target_tier1_rwa` | string |  |  |  |  |
 | `target_total_rbc` | string |  |  |  |  |
-| `tier1_total` | number |  |  |  |  |
-| `tier2_total` | number |  |  |  |  |
+| `tier1_total` | integer |  |  |  |  |
+| `tier2_total` | integer |  |  |  |  |
 | `trigger_schedule` | string |  |  |  |  |
 | `undivided_earnings` | string |  |  |  |  |
 
-### `cash`  (schema: `cash` · 48 fields)
+### `cash`  (schema: `cash` · 64 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
-| `asset.count` | number |  |  |  |  |
+| `asset.balance` | integer |  |  |  |  |
+| `asset.count` | integer |  |  |  |  |
 | `asset.descriptor` | string |  |  |  |  |
+| `asset.id` | string |  |  |  |  |
 | `asset.limit` | string |  |  |  |  |
 | `counter.user_id` | string |  |  |  |  |
+| `coverage.attestation_due_at` | string |  |  |  |  |
 | `coverage.registry` | string |  |  |  |  |
 | `custodian.user_id` | string |  |  |  |  |
 | `custody.revoked` | string |  |  |  |  |
 | `custody.rotated` | string |  |  |  |  |
+| `custody.rotation_due_at` | string |  |  |  |  |
 | `deviation.period` | string |  |  |  |  |
 | `deviation.reason` | string |  |  |  |  |
 | `deviation.requested` | string |  |  |  |  |
@@ -5156,24 +5239,32 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `device.serviced` | string |  |  |  |  |
 | `duty.restricted` | string |  |  |  |  |
 | `enterprise_limit.pct` | string |  |  |  |  |
+| `enterprise_limit.remediation_due_at` | string |  |  |  |  |
 | `enterprise_limit.warning` | string |  |  |  |  |
 | `enterprise_position.computed` | string |  |  |  |  |
 | `enterprise_position.excess` | string |  |  |  |  |
 | `enterprise_position.headroom` | string |  |  |  |  |
 | `evidence.retained` | string |  |  |  |  |
 | `exception_register` | string |  |  |  |  |
+| `exception_register.summary` | string |  |  |  |  |
+| `exception_ticket.id` | string |  |  |  |  |
 | `keybox.reason` | string |  |  |  |  |
+| `kri.publish_due_at` | string |  |  |  |  |
 | `kri.trend` | string |  |  |  |  |
 | `limit_block.alerted` | string |  |  |  |  |
 | `limits_schedule` | string |  |  |  |  |
 | `limits_schedule.effective` | string |  |  |  |  |
 | `limits_whitelist.entry` | string |  |  |  |  |
 | `limits_whitelist.sunset` | string |  |  |  |  |
+| `load.amount` | integer |  |  |  |  |
 | `load.overage` | string |  |  |  |  |
 | `load.requested` | string |  |  |  |  |
+| `location.id` | string |  |  |  |  |
 | `location_limit.exceeded` | string |  |  |  |  |
 | `nightdrop.retrieved` | string |  |  |  |  |
+| `overshort.amount` | integer |  |  |  |  |
 | `overshort.cumulative` | string |  |  |  |  |
+| `overshort.investigation_due_at` | string |  |  |  |  |
 | `overshort.monthly_summary` | object |  |  |  |  |
 | `overshort.pattern` | string |  |  |  |  |
 | `overshort.research_notes` | string |  |  |  |  |
@@ -5187,19 +5278,25 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `seal.expected` | string |  |  |  |  |
 | `seal.found` | string |  |  |  |  |
 | `seal.mismatch` | string |  |  |  |  |
+| `shipment.amount` | integer |  |  |  |  |
 | `shipment.dispatched` | string |  |  |  |  |
+| `shipment.verification_due_at` | string |  |  |  |  |
+| `surprise_count.due` | string |  |  |  |  |
+| `surprise_count.schedule` | string |  |  |  |  |
 | `surprise_count.variance` | string |  |  |  |  |
 
-### `catalogue`  (schema: `catalogue` · 4 fields)
+### `catalogue`  (schema: `catalogue` · 6 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `approver_id` | string |  |  |  |  |
 | `failure_reason` | string |  |  |  |  |
 | `formula` | string |  |  |  |  |
 | `lineage` | string |  |  |  |  |
 | `metrics_flagged_provisional` | string |  |  |  |  |
+| `sync_due_at` | string |  |  |  |  |
 
-### `cda`  (schema: `cda` · 73 fields)
+### `cda`  (schema: `cda` · 86 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
@@ -5213,28 +5310,35 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `agreement_strategy_clause` | string |  |  |  |  |
 | `agreement_validated` | string |  |  |  |  |
 | `asset_details` | string |  |  |  |  |
+| `audit_due_at` | string |  |  |  |  |
 | `audit_finding` | string |  |  |  |  |
+| `board_packet_due_at` | string |  |  |  |  |
 | `cap_breach_cured` | string |  |  |  |  |
 | `cap_buffer_pct` | string |  |  |  |  |
-| `cap_excess_amount` | number |  |  |  |  |
+| `cap_cure_due_at` | string |  |  |  |  |
+| `cap_excess_amount` | integer |  |  |  |  |
+| `cap_test_due_at` | string |  |  |  |  |
 | `communication_archived` | string |  |  |  |  |
 | `communication_draft` | string |  |  |  |  |
 | `conflict_details` | string |  |  |  |  |
+| `conflict_escalation_due_at` | string |  |  |  |  |
 | `contract_termination_clause` | string |  |  |  |  |
 | `contract_transfer_steps` | string |  |  |  |  |
 | `cure_plan` | object |  |  |  |  |
 | `custodian_statement` | string |  |  |  |  |
-| `distribution_amount` | number |  |  |  |  |
+| `distribution_amount` | integer |  |  |  |  |
+| `distribution_due_at` | string |  |  |  |  |
 | `distribution_shortfall` | string |  |  |  |  |
 | `distribution_window_alert` | string |  |  |  |  |
 | `distributions_cumulative` | string |  |  |  |  |
 | `donee_ein` | string |  |  |  |  |
 | `donee_irs_status` | string |  |  |  |  |
 | `donee_validated` | string |  |  |  |  |
-| `fee_amount` | number |  |  |  |  |
+| `fee_amount` | integer |  |  |  |  |
 | `fee_payee` | string |  |  |  |  |
 | `final_accounting` | string |  |  |  |  |
-| `funding_amount` | number |  |  |  |  |
+| `funding_amount` | integer |  |  |  |  |
+| `funding_first_line` | string |  |  |  |  |
 | `funding_gate_evaluated` | string |  |  |  |  |
 | `gl_balances` | string |  |  |  |  |
 | `glossary_citation` | string |  |  |  |  |
@@ -5247,16 +5351,21 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `permissibility_determination` | string |  |  |  |  |
 | `policy_expiry_at` | string |  |  |  |  |
 | `policy_readopted` | string |  |  |  |  |
+| `policy_review_due` | string |  |  |  |  |
 | `policy_version` | string |  |  |  |  |
 | `portfolio_composition` | string |  |  |  |  |
 | `portfolio_performance` | string |  |  |  |  |
+| `posttrade_due_at` | string |  |  |  |  |
 | `preparer_id` | string |  |  |  |  |
 | `proposal_packet` | string |  |  |  |  |
+| `reconciliation_due_at` | string |  |  |  |  |
+| `remediation_due_at` | string |  |  |  |  |
 | `remediation_owner` | string |  |  |  |  |
 | `risk_assessment` | string |  |  |  |  |
 | `strategy_limits` | string |  |  |  |  |
 | `structure_selected` | string |  |  |  |  |
 | `structure_type` | string |  |  |  |  |
+| `termination_report_due_at` | string |  |  |  |  |
 | `total_return_cumulative` | string |  |  |  |  |
 | `trade_details` | string |  |  |  |  |
 | `vendor_aum` | string |  |  |  |  |
@@ -5272,50 +5381,79 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `vendor_registration_status` | string |  |  |  |  |
 | `vendor_regulator` | string |  |  |  |  |
 | `vendor_revalidated` | string |  |  |  |  |
+| `vendor_review_due` | string |  |  |  |  |
 | `vendor_soc_iso` | string |  |  |  |  |
 | `wcag_checklist` | string |  |  |  |  |
 | `window_close_at` | string |  |  |  |  |
 | `window_coverage_pct` | string |  |  |  |  |
 
-### `cfp`  (schema: `cfp` · 2 fields)
+### `cdd`  (schema: `cdd` · 6 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `control_person` | string |  |  |  |  |
+| `expected_activity` | string |  |  |  |  |
+| `industry_code` | string |  |  |  |  |
+| `refresh_due` | string |  |  |  |  |
+| `risk_tier` | string |  |  |  |  |
+| `source_of_funds` | string |  |  |  |  |
+
+### `cfp`  (schema: `cfp` · 6 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `execution_plan_documented` | string |  |  |  |  |
+| `execution_plan_due_at` | string |  |  |  |  |
+| `investment_test_due` | string |  |  |  |  |
+| `investment_test_due_at` | string |  |  |  |  |
 | `liquidation_hierarchy` | string |  |  |  |  |
+| `transition_due_at` | string |  |  |  |  |
 
-### `change`  (schema: `change` · 7 fields)
+### `change`  (schema: `change` · 11 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `approver_id` | string |  |  |  |  |
 | `backout_plan` | object |  |  |  |  |
+| `cab_review_due_at` | string |  |  |  |  |
 | `deployment_record` | object |  |  |  |  |
 | `emergency_approval_timer` | string |  |  |  |  |
 | `emergency_justification` | string |  |  |  |  |
+| `post_review_due_at` | string |  |  |  |  |
 | `requested` | string |  |  |  |  |
+| `risk_rating` | string |  |  |  |  |
 | `rollback_plan` | object |  |  |  |  |
 | `test_evidence` | object |  |  |  |  |
 
-### `claim`  (schema: `claim` · 2 fields)
+### `claim`  (schema: `claim` · 3 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `carrier_notice_due_at` | string |  |  |  |  |
 | `record_scope` | string |  |  |  |  |
 | `resolution_record` | object |  |  |  |  |
 
-### `coi`  (schema: `coi` · 15 fields)
+### `cmir`  (schema: `cmir` · 1 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `filing_timer` | string |  |  |  |  |
+
+### `coi`  (schema: `coi` · 17 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `adhoc_form` | string |  |  |  |  |
 | `attestation_date` | string |  |  |  |  |
 | `attestation_signature` | string |  |  |  |  |
+| `certification_due` | string |  |  |  |  |
 | `conflict_identified` | string |  |  |  |  |
 | `conflicted_matter_voted` | string |  |  |  |  |
 | `determination_made` | string |  |  |  |  |
 | `independent_review` | string |  |  |  |  |
 | `interest_description` | string |  |  |  |  |
 | `matter_reference` | string |  |  |  |  |
+| `questionnaire_due_at` | string |  |  |  |  |
 | `questionnaire_responses` | string |  |  |  |  |
 | `questionnaire_version` | string |  |  |  |  |
 | `recusal_noticed` | string |  |  |  |  |
@@ -5323,10 +5461,11 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `register_entry_id` | string |  |  |  |  |
 | `related_party` | string |  |  |  |  |
 
-### `collateral`  (schema: `collateral` · 12 fields)
+### `collateral`  (schema: `collateral` · 13 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `compute_due_at` | string |  |  |  |  |
 | `cost_to_sell` | string |  |  |  |  |
 | `counterparty_id` | string |  |  |  |  |
 | `eligibility_rules` | object |  |  |  |  |
@@ -5340,11 +5479,16 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `property` | string |  |  |  |  |
 | `unencumbered_balance` | string |  |  |  |  |
 
-### `collections`  (schema: `collections` · 12 fields)
+### `collections`  (schema: `collections` · 17 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `annual_review_due_at` | string |  |  |  |  |
+| `attorney_flag_due_at` | string |  |  |  |  |
 | `attorney_identified` | string |  |  |  |  |
+| `board_report_due_at` | string |  |  |  |  |
+| `breach_log_due_at` | string |  |  |  |  |
+| `cease_flag_due_at` | string |  |  |  |  |
 | `collector_id` | string |  |  |  |  |
 | `contact_attempted` | string |  |  |  |  |
 | `contact_channel` | string |  |  |  |  |
@@ -5357,7 +5501,7 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `policy_bound` | string |  |  |  |  |
 | `policy_breach_identified` | string |  |  |  |  |
 
-### `comms`  (schema: `comms` · 9 fields)
+### `comms`  (schema: `comms` · 10 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
@@ -5368,41 +5512,53 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `holding_statement` | string |  |  |  |  |
 | `initial_timer` | string |  |  |  |  |
 | `inquiry_detail` | object |  |  |  |  |
+| `same_day_due_at` | string |  |  |  |  |
 | `stakeholder_matrix` | object |  |  |  |  |
 | `statuspage_playbook` | string |  |  |  |  |
 
-### `complaint`  (schema: `complaint` · 8 fields)
+### `complaint`  (schema: `complaint` · 15 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `ack_due_at` | string |  |  |  |  |
 | `category` | string |  |  |  |  |
+| `channel` | string |  |  |  |  |
+| `final_response_due_at` | string |  |  |  |  |
 | `final_response_pending` | string |  |  |  |  |
+| `initial_response_due_at` | string |  |  |  |  |
 | `investigation_notes` | string |  |  |  |  |
 | `member_id` | string |  |  |  |  |
+| `narrative` | string |  |  |  |  |
 | `portal_due_date` | string |  |  |  |  |
+| `resolution_due_at` | string |  |  |  |  |
 | `root_cause_tag` | string |  |  |  |  |
+| `trend_review_due` | string |  |  |  |  |
 | `trend_summary` | object |  |  |  |  |
 | `udaap_flag` | boolean |  |  |  |  |
 
-### `compliance`  (schema: `compliance` · 4 fields)
+### `compliance`  (schema: `compliance` · 6 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `board_report_due_at` | string |  |  |  |  |
 | `board_report_id` | string |  |  |  |  |
 | `change_rationale` | string |  |  |  |  |
 | `disparity_thresholds` | string |  |  |  |  |
 | `officer_vacancy` | string |  |  |  |  |
+| `risk_assessment_due_at` | string |  |  |  |  |
 
-### `concentration`  (schema: `concentration` · 8 fields)
+### `concentration`  (schema: `concentration` · 10 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `compute_due_at` | string |  |  |  |  |
 | `computed` | string |  |  |  |  |
-| `excess_amount` | number |  |  |  |  |
+| `excess_amount` | integer |  |  |  |  |
 | `limit_exceeded` | string |  |  |  |  |
 | `position_id` | string |  |  |  |  |
 | `reviewer_id` | string |  |  |  |  |
 | `top10` | string |  |  |  |  |
+| `waiver_due_at` | string |  |  |  |  |
 | `waiver_request` | string |  |  |  |  |
 | `waiver_terms` | object |  |  |  |  |
 
@@ -5428,49 +5584,63 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `suspended` | string |  |  |  |  |
 | `token_revoked` | string |  |  |  |  |
 
-### `control`  (schema: `control` · 4 fields)
+### `control`  (schema: `control` · 5 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `framework_review_due_at` | string |  |  |  |  |
 | `owner_vacancy_timer` | string |  |  |  |  |
 | `owner_vacated` | string |  |  |  |  |
 | `register` | string |  |  |  |  |
 | `vacancy_reason` | string |  |  |  |  |
 
-### `core_archive`  (schema: `core_archive` · 1 fields)
+### `core_archive`  (schema: `core_archive` · 2 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `confirmation_due` | string |  |  |  |  |
 | `retention_config` | object |  |  |  |  |
 
-### `corp_opportunity`  (schema: `corp_opportunity` · 4 fields)
+### `corp_opportunity`  (schema: `corp_opportunity` · 5 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `authority_assessment` | string |  |  |  |  |
 | `board_voted` | string |  |  |  |  |
+| `description` | string |  |  |  |  |
 | `identified` | string |  |  |  |  |
 | `presented` | string |  |  |  |  |
 
-### `correction`  (schema: `correction` · 2 fields)
+### `correction`  (schema: `correction` · 3 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `evidence_artifact_id` | string |  |  |  |  |
 | `propagated` | string |  |  |  |  |
+| `propagation_due_at` | string |  |  |  |  |
 
-### `covered_person`  (schema: `covered_person` · 2 fields)
+### `courier`  (schema: `courier` · 1 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `receipt.id` | string |  |  |  |  |
+
+### `covered_person`  (schema: `covered_person` · 4 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `designated` | string |  |  |  |  |
 | `effective_date` | string |  |  |  |  |
+| `id` | string |  |  |  |  |
+| `role` | string |  |  |  |  |
 
-### `credit_box`  (schema: `credit_box` · 1 fields)
+### `credit_box`  (schema: `credit_box` · 3 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `definition` | string |  |  |  |  |
+| `review_due` | string |  |  |  |  |
+| `version` | string |  |  |  |  |
 
 ### `credit_config`  (schema: `credit_config` · 7 fields)
 
@@ -5484,32 +5654,37 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `margins` | string |  |  |  |  |
 | `seasoning_rules` | object |  |  |  |  |
 
-### `credit_file`  (schema: `credit_file` · 2 fields)
+### `credit_file`  (schema: `credit_file` · 4 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `internal_rating` | string |  |  |  |  |
 | `issuer_analysis` | string |  |  |  |  |
+| `reanalysis_due` | string |  |  |  |  |
+| `reanalysis_due_at` | string |  |  |  |  |
 
-### `credit_package`  (schema: `credit_package` · 1 fields)
+### `credit_package`  (schema: `credit_package` · 2 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `retention_expires_at` | string |  |  |  |  |
 | `schema` | string |  |  |  |  |
 
-### `credit_report`  (schema: `credit_report` · 2 fields)
+### `credit_report`  (schema: `credit_report` · 3 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `report_date` | string |  |  |  |  |
 | `score_disclosure` | string |  |  |  |  |
+| `stale_at` | string |  |  |  |  |
 
-### `crisis`  (schema: `crisis` · 8 fields)
+### `crisis`  (schema: `crisis` · 9 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `authority_basis` | string |  |  |  |  |
 | `board_quorum` | string |  |  |  |  |
+| `convene_due_at` | string |  |  |  |  |
 | `decider_id` | string |  |  |  |  |
 | `decision_detail` | object |  |  |  |  |
 | `measure_detail` | object |  |  |  |  |
@@ -5530,21 +5705,40 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `cycle_timer` | string |  |  |  |  |
 | `prior_results` | object |  |  |  |  |
 
+### `ctr`  (schema: `ctr` · 6 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `cash_in_total` | string |  |  |  |  |
+| `cash_out_total` | string |  |  |  |  |
+| `exemption_basis` | string |  |  |  |  |
+| `exemption_review_due` | string |  |  |  |  |
+| `exemption_review_timer` | string |  |  |  |  |
+| `filing_timer` | string |  |  |  |  |
+
 ### `cu`  (schema: `cu` · 1 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `unimpaired_capital_surplus` | string |  |  |  |  |
 
-### `deficiency`  (schema: `deficiency` · 5 fields)
+### `deficiency`  (schema: `deficiency` · 7 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `aging_report` | string |  |  |  |  |
+| `owner_id` | string |  |  |  |  |
 | `plan_timer` | string |  |  |  |  |
 | `reopened` | string |  |  |  |  |
 | `retest_result` | string |  |  |  |  |
+| `severity` | string |  |  |  |  |
 | `source` | string |  |  |  |  |
+
+### `department`  (schema: `department` · 1 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string |  |  |  |  |
 
 ### `destruction_log`  (schema: `destruction_log` · 1 fields)
 
@@ -5552,20 +5746,24 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 |---|---|---|---|---|---|
 | `entry_id` | string |  |  |  |  |
 
-### `disclosure`  (schema: `disclosure` · 19 fields)
+### `disclosure`  (schema: `disclosure` · 23 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `account_opening_due_at` | string |  |  |  |  |
 | `artifact_id` | string |  |  |  |  |
 | `basis_blocked` | string |  |  |  |  |
 | `change_description` | string |  |  |  |  |
 | `change_effective_date` | string |  |  |  |  |
 | `change_in_terms.classified_nonadverse` | string |  |  |  |  |
+| `change_in_terms_due_at` | string |  |  |  |  |
 | `classification_basis` | string |  |  |  |  |
 | `delivered_at` | string |  |  |  |  |
 | `error_description` | string |  |  |  |  |
+| `error_escalation_due_at` | string |  |  |  |  |
 | `error_root_cause` | string |  |  |  |  |
 | `legal_basis` | string |  |  |  |  |
+| `pillar3_due_at` | string |  |  |  |  |
 | `rate_available_date` | string |  |  |  |  |
 | `requested` | string |  |  |  |  |
 | `retirement_reason` | string |  |  |  |  |
@@ -5585,15 +5783,16 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `held` | string |  |  |  |  |
 | `method` | string |  |  |  |  |
 
-### `dispute`  (schema: `dispute` · 7 fields)
+### `dispute`  (schema: `dispute` · 8 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `basis` | string |  |  |  |  |
 | `category` | string |  |  |  |  |
-| `correction_amount` | number |  |  |  |  |
+| `correction_amount` | integer |  |  |  |  |
 | `findings` | string |  |  |  |  |
 | `idtheft_report` | string |  |  |  |  |
+| `investigation_due_at` | string |  |  |  |  |
 | `regulator_case_id` | string |  |  |  |  |
 | `regulator_routed` | string |  |  |  |  |
 
@@ -5603,36 +5802,53 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 |---|---|---|---|---|---|
 | `violation_detail` | object |  |  |  |  |
 
-### `dq`  (schema: `dq` · 1 fields)
+### `dq`  (schema: `dq` · 2 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
-| `variance_amount` | number |  |  |  |  |
+| `tieout_due_at` | string |  |  |  |  |
+| `variance_amount` | integer |  |  |  |  |
 
-### `dr`  (schema: `dr` · 2 fields)
+### `dr`  (schema: `dr` · 3 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `exercise_due_at` | string |  |  |  |  |
 | `plan` | string |  |  |  |  |
 | `rto_rpo_matrix` | object |  |  |  |  |
 
-### `drill`  (schema: `drill` · 6 fields)
+### `drill`  (schema: `drill` · 9 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `aar_due_at` | string |  |  |  |  |
 | `affected_capability` | string |  |  |  |  |
 | `failure_detail` | object |  |  |  |  |
 | `objectives` | string |  |  |  |  |
+| `remediation_due` | string |  |  |  |  |
+| `remediation_due_at` | string |  |  |  |  |
 | `remediation_item` | string |  |  |  |  |
 | `remediation_owner` | string |  |  |  |  |
 | `roster` | string |  |  |  |  |
 
-### `ecommerce`  (schema: `ecommerce` · 2 fields)
+### `ecommerce`  (schema: `ecommerce` · 3 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `login_attempted` | string |  |  |  |  |
+| `risk_assessment_due` | string |  |  |  |  |
 | `session_authenticated` | string |  |  |  |  |
+
+### `edd`  (schema: `edd` · 6 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `approver_id` | string |  |  |  |  |
+| `category_checklist` | string |  |  |  |  |
+| `msb_registration_number` | integer |  |  |  |  |
+| `refresh_due` | string |  |  |  |  |
+| `site_visit_report` | string |  |  |  |  |
+| `source_of_wealth` | string |  |  |  |  |
 
 ### `elc`  (schema: `elc` · 1 fields)
 
@@ -5640,12 +5856,26 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 |---|---|---|---|---|---|
 | `approval_packet` | string |  |  |  |  |
 
-### `employee`  (schema: `employee` · 2 fields)
+### `email_archive`  (schema: `email_archive` · 1 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `test_due` | string |  |  |  |  |
+
+### `employee`  (schema: `employee` · 3 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string |  |  |  |  |
 | `onboarded` | string |  |  |  |  |
 | `terminated` | string |  |  |  |  |
+
+### `engagement`  (schema: `engagement` · 2 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `provider` | string |  |  |  |  |
+| `scope` | string |  |  |  |  |
 
 ### `enrollment`  (schema: `enrollment` · 3 fields)
 
@@ -5655,16 +5885,19 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `identity_evidence` | object |  |  |  |  |
 | `member_number_match` | boolean |  |  |  |  |
 
-### `eps`  (schema: `eps` · 64 fields)
+### `eps`  (schema: `eps` · 83 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `auth.challenged` | string |  |  |  |  |
 | `auth.credentials` | string |  |  |  |  |
 | `auth.device_registered` | string |  |  |  |  |
-| `auth.failure_count` | number |  |  |  |  |
+| `auth.failure_count` | integer |  |  |  |  |
 | `auth.failure_threshold_reached` | string |  |  |  |  |
+| `auth.risk_tier` | string |  |  |  |  |
+| `bcp_test.due_at` | string |  |  |  |  |
 | `bcp_test.scenario` | string |  |  |  |  |
+| `board_report.due_at` | string |  |  |  |  |
 | `card.fraud_score` | number |  |  |  |  |
 | `card.institution_limits` | string |  |  |  |  |
 | `change.exception_approval` | string |  |  |  |  |
@@ -5678,20 +5911,30 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `client.wire_daily_limit` | string |  |  |  |  |
 | `control_review.checklist` | string |  |  |  |  |
 | `control_review.deficiency_found` | string |  |  |  |  |
+| `control_review.due_at` | string |  |  |  |  |
 | `control_review.prior_findings` | string |  |  |  |  |
 | `dashboard.deposit_ops` | string |  |  |  |  |
 | `dashboard.it` | string |  |  |  |  |
+| `deficiency.description` | string |  |  |  |  |
 | `deficiency.open_list` | string |  |  |  |  |
 | `deficiency.rating` | string |  |  |  |  |
+| `deficiency.remediation_due_at` | string |  |  |  |  |
 | `deployment.emergency_exception` | string |  |  |  |  |
 | `erm_review.convened` | string |  |  |  |  |
 | `fraud.industry_alerts` | string |  |  |  |  |
 | `fraud.loss_data` | object |  |  |  |  |
+| `incident.id` | string |  |  |  |  |
 | `incident.impact` | string |  |  |  |  |
+| `incident.ncua_due_at` | string |  |  |  |  |
+| `incident.reportable_determined` | string |  |  |  |  |
+| `incident.severity` | string |  |  |  |  |
 | `incident.vendor_linked` | string |  |  |  |  |
+| `it_audit.due_at` | string |  |  |  |  |
 | `it_audit.prior_findings` | string |  |  |  |  |
 | `it_committee.convened` | string |  |  |  |  |
+| `limit_change.approver_id` | string |  |  |  |  |
 | `limit_change.justification` | string |  |  |  |  |
+| `pospay.decision_due_at` | string |  |  |  |  |
 | `pospay.issue_file` | string |  |  |  |  |
 | `pospay.presented_item` | string |  |  |  |  |
 | `product_risk_analysis.drafted` | string |  |  |  |  |
@@ -5699,6 +5942,7 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `proposal.sponsor` | string |  |  |  |  |
 | `proposal.study_doc` | string |  |  |  |  |
 | `risk_assessment.delta` | string |  |  |  |  |
+| `service.id` | string |  |  |  |  |
 | `staffing.backup_map` | string |  |  |  |  |
 | `staffing.critical_roles` | string |  |  |  |  |
 | `summary.ebanking` | string |  |  |  |  |
@@ -5706,25 +5950,40 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `test.interop_scope` | string |  |  |  |  |
 | `test.plan` | string |  |  |  |  |
 | `test.results` | string |  |  |  |  |
+| `test.retro_due_at` | string |  |  |  |  |
 | `test.risk_acceptance` | string |  |  |  |  |
 | `test.signed_off` | string |  |  |  |  |
 | `training.employee_plan` | object |  |  |  |  |
 | `training.guide_version` | string |  |  |  |  |
+| `training.self_cert_due_at` | string |  |  |  |  |
 | `training.self_cert_form` | string |  |  |  |  |
 | `vendor.cuec_list` | string |  |  |  |  |
+| `vendor.dd_due_at` | string |  |  |  |  |
 | `vendor.dd_summary` | object |  |  |  |  |
 | `vendor.encryption_reqs` | string |  |  |  |  |
+| `vendor.id` | string |  |  |  |  |
 | `vendor.issue_description` | string |  |  |  |  |
 | `vendor.issue_identified` | string |  |  |  |  |
 | `vendor.issue_severity` | string |  |  |  |  |
 | `vendor.performance_metrics` | object |  |  |  |  |
+| `vendor.soc1_due_at` | string |  |  |  |  |
 | `vendor.soc1_report` | string |  |  |  |  |
 | `vendor.test_participation` | string |  |  |  |  |
 | `wire.originator_id` | string |  |  |  |  |
 | `wire.release_pin` | string |  |  |  |  |
 | `wire.second_approval` | string |  |  |  |  |
 
-### `estate`  (schema: `estate` · 7 fields)
+### `escalation`  (schema: `escalation` · 5 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `ack_timer` | string |  |  |  |  |
+| `facts` | string |  |  |  |  |
+| `plan_timer` | string |  |  |  |  |
+| `reporter_id` | string |  |  |  |  |
+| `severity` | string |  |  |  |  |
+
+### `estate`  (schema: `estate` · 8 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
@@ -5735,8 +5994,9 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `claimant_verification_id` | string |  |  |  |  |
 | `date_of_death` | string |  |  |  |  |
 | `death_certificate_ref` | object |  |  |  |  |
+| `payout_due_at` | string |  |  |  |  |
 
-### `ewi`  (schema: `ewi` · 8 fields)
+### `ewi`  (schema: `ewi` · 11 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
@@ -5745,15 +6005,19 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `history` | string |  |  |  |  |
 | `indicator_id` | string |  |  |  |  |
 | `prior_breach_state` | string |  |  |  |  |
+| `summary_due_at` | string |  |  |  |  |
+| `sweep_due_at` | string |  |  |  |  |
 | `threshold_recovered` | string |  |  |  |  |
+| `thresholds` | string |  |  |  |  |
 | `trend` | string |  |  |  |  |
 | `value` | number |  |  |  |  |
 
-### `exam`  (schema: `exam` · 2 fields)
+### `exam`  (schema: `exam` · 3 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `export.requested` | string |  |  |  |  |
+| `export.scope` | string |  |  |  |  |
 | `report_id` | string |  |  |  |  |
 
 ### `exception`  (schema: `exception` · 6 fields)
@@ -5767,14 +6031,24 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `reverted` | string |  |  |  |  |
 | `risk_acceptance` | string |  |  |  |  |
 
-### `expense`  (schema: `expense` · 4 fields)
+### `exercise`  (schema: `exercise` · 1 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `board_report_due` | string |  |  |  |  |
+
+### `expense`  (schema: `expense` · 8 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `amount` | integer |  |  |  |  |
 | `category` | string |  |  |  |  |
-| `estimated_amount` | number |  |  |  |  |
+| `estimated_amount` | integer |  |  |  |  |
+| `preapproval_due_at` | string |  |  |  |  |
 | `preapproval_id` | string |  |  |  |  |
+| `purpose` | string |  |  |  |  |
 | `report_id` | string |  |  |  |  |
+| `review_due_at` | string |  |  |  |  |
 
 ### `exposure`  (schema: `exposure` · 3 fields)
 
@@ -5794,26 +6068,36 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `meeting_date` | string |  |  |  |  |
 | `reconsideration_requested_at` | string |  |  |  |  |
 
-### `facility`  (schema: `facility` · 9 fields)
+### `facility`  (schema: `facility` · 11 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `access_approval` | string |  |  |  |  |
+| `badge_deactivation_due_at` | string |  |  |  |  |
 | `badge_id` | string |  |  |  |  |
 | `cctv_ref` | object |  |  |  |  |
 | `collateral_schedule` | string |  |  |  |  |
 | `contacts` | string |  |  |  |  |
+| `test_due_at` | string |  |  |  |  |
 | `test_script` | string |  |  |  |  |
 | `visit_purpose` | string |  |  |  |  |
 | `visitor_identity` | string |  |  |  |  |
 | `zone` | string |  |  |  |  |
 
-### `fair_lending`  (schema: `fair_lending` · 2 fields)
+### `fair_lending`  (schema: `fair_lending` · 4 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `assessment_due` | string |  |  |  |  |
 | `dataset_version` | string |  |  |  |  |
 | `finding_id` | string |  |  |  |  |
+| `remediation_due_at` | string |  |  |  |  |
+
+### `fbar`  (schema: `fbar` · 1 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `filing_timer` | string |  |  |  |  |
 
 ### `fee`  (schema: `fee` · 3 fields)
 
@@ -5821,26 +6105,48 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 |---|---|---|---|---|---|
 | `overdraft.pending` | string |  |  |  |  |
 | `overdraft.suppressed` | string |  |  |  |  |
-| `ytd_total` | number |  |  |  |  |
+| `ytd_total` | integer |  |  |  |  |
 
-### `finding`  (schema: `finding` · 14 fields)
+### `finding`  (schema: `finding` · 22 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `closure_evidence` | object |  |  |  |  |
 | `communicated` | string |  |  |  |  |
 | `department` | string |  |  |  |  |
+| `description` | string |  |  |  |  |
+| `escalation_due_at` | string |  |  |  |  |
 | `identified` | string |  |  |  |  |
 | `implementation_date` | string |  |  |  |  |
 | `management_response` | string |  |  |  |  |
+| `monthly_review_due` | string |  |  |  |  |
 | `open_report` | string |  |  |  |  |
 | `owner` | string |  |  |  |  |
+| `quarterly_report_due` | string |  |  |  |  |
 | `remediation_evidence` | object |  |  |  |  |
 | `remediation_status` | string |  |  |  |  |
+| `response_due_at` | string |  |  |  |  |
 | `responsible_party` | string |  |  |  |  |
 | `risk_acceptance_package` | string |  |  |  |  |
 | `risk_acceptance_rationale` | string |  |  |  |  |
+| `risk_rating` | string |  |  |  |  |
+| `root_cause` | string |  |  |  |  |
+| `severity` | string |  |  |  |  |
 | `tracked` | string |  |  |  |  |
+
+### `firewall`  (schema: `firewall` · 2 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `independent_review_due` | string |  |  |  |  |
+| `review_due` | string |  |  |  |  |
+
+### `flow`  (schema: `flow` · 2 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `amount` | integer |  |  |  |  |
+| `direction` | string |  |  |  |  |
 
 ### `form`  (schema: `form` · 1 fields)
 
@@ -5854,22 +6160,25 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 |---|---|---|---|---|---|
 | `investigation_id` | string |  |  |  |  |
 
-### `funding`  (schema: `funding` · 6 fields)
+### `funding`  (schema: `funding` · 7 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
-| `draw_amount` | number |  |  |  |  |
+| `draw_amount` | integer |  |  |  |  |
 | `draw_order_deviated` | string |  |  |  |  |
+| `first_line_due_at` | string |  |  |  |  |
 | `next_source` | string |  |  |  |  |
 | `shortfall_estimate` | string |  |  |  |  |
 | `source_unavailable` | string |  |  |  |  |
 | `unavailability_reason` | string |  |  |  |  |
 
-### `furnishing`  (schema: `furnishing` · 3 fields)
+### `furnishing`  (schema: `furnishing` · 5 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `correction_identified` | string |  |  |  |  |
+| `cycle_due_at` | string |  |  |  |  |
+| `dispute_due_at` | string |  |  |  |  |
 | `disputed_account` | string |  |  |  |  |
 | `file_transmitted` | string |  |  |  |  |
 
@@ -5902,13 +6211,25 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `total_shares` | string |  |  |  |  |
 | `trial_balance` | string |  |  |  |  |
 
-### `handover`  (schema: `handover` · 10 fields)
+### `governance`  (schema: `governance` · 4 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `authority_statement` | string |  |  |  |  |
+| `bsa_officer_id` | string |  |  |  |  |
+| `policy_review_due` | string |  |  |  |  |
+| `raci_registry` | string |  |  |  |  |
+
+### `handover`  (schema: `handover` · 13 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `access_expiry_due` | string |  |  |  |  |
 | `access_scope` | string |  |  |  |  |
 | `appointment_reference` | string |  |  |  |  |
 | `appointment_status` | string |  |  |  |  |
+| `full_due_at` | string |  |  |  |  |
+| `initial_due_at` | string |  |  |  |  |
 | `personnel_roster` | object |  |  |  |  |
 | `trustee_access_grant_id` | string |  |  |  |  |
 | `trustee_access_provisioned` | string |  |  |  |  |
@@ -5924,10 +6245,13 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `feed_detail` | object |  |  |  |  |
 | `watch_raised` | string |  |  |  |  |
 
-### `hmda`  (schema: `hmda` · 1 fields)
+### `hmda`  (schema: `hmda` · 4 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `hmda_lar` | string |  |  |  |  |
+| `lar_qc_due_at` | string |  |  |  |  |
+| `submission_due_at` | string |  |  |  |  |
 | `submission_window_open` | string |  |  |  |  |
 
 ### `hr`  (schema: `hr` · 1 fields)
@@ -5945,13 +6269,20 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `material_risk_identified` | string |  |  |  |  |
 | `new_risk_assessment` | string |  |  |  |  |
 
-### `indemnification`  (schema: `indemnification` · 24 fields)
+### `imt`  (schema: `imt` · 1 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `roster_review_due` | string |  |  |  |  |
+
+### `indemnification`  (schema: `indemnification` · 28 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `advance.disbursed` | string |  |  |  |  |
 | `advance.requested` | string |  |  |  |  |
 | `advance_balance` | string |  |  |  |  |
+| `advance_due_at` | string |  |  |  |  |
 | `claim.notified` | string |  |  |  |  |
 | `conduct_record` | object |  |  |  |  |
 | `counsel_opinion` | string |  |  |  |  |
@@ -5959,14 +6290,17 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `decision_body.selected` | string |  |  |  |  |
 | `defense_budget` | string |  |  |  |  |
 | `defense_invoice` | string |  |  |  |  |
+| `determination_due_at` | string |  |  |  |  |
 | `disposition_record` | object |  |  |  |  |
 | `enforcement_status` | string |  |  |  |  |
 | `expense_statement` | string |  |  |  |  |
 | `federal_screen_result` | string |  |  |  |  |
+| `legal_review` | string |  |  |  |  |
 | `liability_terms` | object |  |  |  |  |
 | `matter.resolved_favorably` | string |  |  |  |  |
 | `payment.blocked` | string |  |  |  |  |
 | `payment.disbursed` | string |  |  |  |  |
+| `payment_due_at` | string |  |  |  |  |
 | `recusal_record` | object |  |  |  |  |
 | `repayment.demanded` | string |  |  |  |  |
 | `request` | string |  |  |  |  |
@@ -5974,11 +6308,11 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `standard_determination.made` | string |  |  |  |  |
 | `undertaking` | string |  |  |  |  |
 
-### `insider`  (schema: `insider` · 15 fields)
+### `insider`  (schema: `insider` · 17 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
-| `aggregate_credit_amount` | number |  |  |  |  |
+| `aggregate_credit_amount` | integer |  |  |  |  |
 | `collateral_marketability` | string |  |  |  |  |
 | `comparable_terms` | object |  |  |  |  |
 | `correspondent_credit_data` | object |  |  |  |  |
@@ -5986,9 +6320,11 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `credit_threshold_exceeded` | string |  |  |  |  |
 | `funded_terms` | object |  |  |  |  |
 | `limits_recomputed` | string |  |  |  |  |
+| `loc_approval_expires_at` | string |  |  |  |  |
 | `officer_financial_statement` | string |  |  |  |  |
 | `proposed_terms` | object |  |  |  |  |
 | `public_request` | string |  |  |  |  |
+| `public_request_retention_expires_at` | string |  |  |  |  |
 | `record_circulated` | string |  |  |  |  |
 | `record_compiled` | string |  |  |  |  |
 | `record_entry` | string |  |  |  |  |
@@ -6000,27 +6336,38 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 |---|---|---|---|---|---|
 | `attestation` | string |  |  |  |  |
 
+### `insider_report`  (schema: `insider_report` · 1 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `due` | string |  |  |  |  |
+
 ### `institution`  (schema: `institution` · 1 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `risk_profile` | string |  |  |  |  |
 
-### `institution_freeze`  (schema: `institution_freeze` · 3 fields)
+### `institution_freeze`  (schema: `institution_freeze` · 5 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `activation_due_at` | string |  |  |  |  |
 | `activation_evidence` | object |  |  |  |  |
+| `notice_due_at` | string |  |  |  |  |
 | `notice_record` | object |  |  |  |  |
 | `order_reference` | string |  |  |  |  |
 
-### `instrument_list`  (schema: `instrument_list` · 1 fields)
+### `instrument_list`  (schema: `instrument_list` · 4 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `part703_category` | string |  |  |  |  |
+| `review_due` | string |  |  |  |  |
+| `review_due_at` | string |  |  |  |  |
+| `version` | string |  |  |  |  |
 
-### `insurance`  (schema: `insurance` · 7 fields)
+### `insurance`  (schema: `insurance` · 8 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
@@ -6031,21 +6378,31 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `fidelity_bond_terms` | object |  |  |  |  |
 | `policy.bound` | string |  |  |  |  |
 | `policy_terms` | object |  |  |  |  |
+| `review_due_at` | string |  |  |  |  |
 
-### `interest`  (schema: `interest` · 3 fields)
+### `interest`  (schema: `interest` · 4 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `accrued` | string |  |  |  |  |
 | `accrued_balance` | string |  |  |  |  |
 | `credited` | string |  |  |  |  |
+| `crediting_due_at` | string |  |  |  |  |
 
-### `intermediary`  (schema: `intermediary` · 2 fields)
+### `intermediary`  (schema: `intermediary` · 4 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `approved_list` | string |  |  |  |  |
 | `due_diligence_file` | string |  |  |  |  |
+| `review_due` | string |  |  |  |  |
+| `review_due_at` | string |  |  |  |  |
+
+### `intrusion`  (schema: `intrusion` · 1 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `severity` | string |  |  |  |  |
 
 ### `it`  (schema: `it` · 2 fields)
 
@@ -6054,13 +6411,14 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `blast_radius_isolated` | string |  |  |  |  |
 | `outage_runbook` | string |  |  |  |  |
 
-### `kri`  (schema: `kri` · 9 fields)
+### `kri`  (schema: `kri` · 10 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `data_source` | string |  |  |  |  |
 | `data_stale` | string |  |  |  |  |
 | `defined` | string |  |  |  |  |
+| `direction` | string |  |  |  |  |
 | `observed_at` | string |  |  |  |  |
 | `refresh_interval` | string |  |  |  |  |
 | `staleness_check_at` | string |  |  |  |  |
@@ -6068,17 +6426,18 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `thresholds` | string |  |  |  |  |
 | `value` | number |  |  |  |  |
 
-### `lar`  (schema: `lar` · 5 fields)
+### `lar`  (schema: `lar` · 6 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `band_recovered` | string |  |  |  |  |
+| `compute_due_at` | string |  |  |  |  |
 | `computed` | string |  |  |  |  |
 | `current_band` | string |  |  |  |  |
 | `prior_band` | string |  |  |  |  |
 | `value` | number |  |  |  |  |
 
-### `legal`  (schema: `legal` · 7 fields)
+### `legal`  (schema: `legal` · 9 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
@@ -6087,34 +6446,44 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `cure_parameters` | string |  |  |  |  |
 | `foreclosure_checklist` | string |  |  |  |  |
 | `hold_release_id` | string |  |  |  |  |
+| `hold_scope` | string |  |  |  |  |
+| `matter_id` | string |  |  |  |  |
 | `process_artifact_id` | string |  |  |  |  |
 | `rfpa_applicable` | string |  |  |  |  |
 
-### `lending_program`  (schema: `lending_program` · 1 fields)
+### `lending_program`  (schema: `lending_program` · 4 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `channel` | string |  |  |  |  |
+| `governance_due_at` | string |  |  |  |  |
+| `id` | string |  |  |  |  |
 | `partner_id` | string |  |  |  |  |
 
-### `limit_set`  (schema: `limit_set` · 1 fields)
+### `limit_set`  (schema: `limit_set` · 3 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `parameters` | string |  |  |  |  |
+| `review_due` | string |  |  |  |  |
+| `review_due_at` | string |  |  |  |  |
 
-### `liquidity`  (schema: `liquidity` · 11 fields)
+### `liquidity`  (schema: `liquidity` · 14 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
-| `asf_total` | number |  |  |  |  |
+| `asf_total` | integer |  |  |  |  |
 | `behavioral_assumptions` | string |  |  |  |  |
+| `cfp_activation_due_at` | string |  |  |  |  |
 | `clf_capacity` | string |  |  |  |  |
 | `haircut_table` | string |  |  |  |  |
 | `hqla_balance` | string |  |  |  |  |
 | `liquid_assets` | string |  |  |  |  |
 | `net_outflows_30d` | string |  |  |  |  |
 | `ratio_to_shares` | string |  |  |  |  |
-| `rsf_total` | number |  |  |  |  |
+| `report_due` | string |  |  |  |  |
+| `report_due_at` | string |  |  |  |  |
+| `rsf_total` | integer |  |  |  |  |
 | `system_balances` | string |  |  |  |  |
 | `total_assets` | string |  |  |  |  |
 
@@ -6125,10 +6494,18 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `basis_analysis` | string |  |  |  |  |
 | `plan_terms` | object |  |  |  |  |
 
-### `loan_exception`  (schema: `loan_exception` · 4 fields)
+### `loan_account`  (schema: `loan_account` · 2 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `aan_due_at` | string |  |  |  |  |
+| `action_basis` | string |  |  |  |  |
+
+### `loan_exception`  (schema: `loan_exception` · 5 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `analytics_due` | string |  |  |  |  |
 | `approval_tier` | string |  |  |  |  |
 | `closing_block_state` | string |  |  |  |  |
 | `observed_value` | string |  |  |  |  |
@@ -6150,11 +6527,12 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `depth_indicator` | string |  |  |  |  |
 | `yield_curve` | string |  |  |  |  |
 
-### `member`  (schema: `member` · 21 fields)
+### `member`  (schema: `member` · 23 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `address_change_disputed` | string |  |  |  |  |
+| `address_hold_expires_at` | string |  |  |  |  |
 | `amounts_owed` | string |  |  |  |  |
 | `attorney_contact` | string |  |  |  |  |
 | `cease_request` | string |  |  |  |  |
@@ -6171,15 +6549,17 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `expelled` | string |  |  |  |  |
 | `expulsion_hearing_held` | string |  |  |  |  |
 | `hardship_evidence` | object |  |  |  |  |
+| `id` | string |  |  |  |  |
 | `identity_check_method` | string |  |  |  |  |
 | `preferences_effective` | string |  |  |  |  |
 | `repayment_capacity` | string |  |  |  |  |
 | `timezone` | string |  |  |  |  |
 
-### `member_credential`  (schema: `member_credential` · 8 fields)
+### `member_credential`  (schema: `member_credential` · 9 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `expiry_due` | string |  |  |  |  |
 | `failed_attempts` | string |  |  |  |  |
 | `is_temporary` | boolean |  |  |  |  |
 | `login_id` | string |  |  |  |  |
@@ -6189,30 +6569,39 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `security_questions` | string |  |  |  |  |
 | `temp_password` | string |  |  |  |  |
 
-### `member_portal`  (schema: `member_portal` · 4 fields)
+### `member_portal`  (schema: `member_portal` · 5 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `claims_template_id` | string |  |  |  |  |
 | `core_unavailable` | string |  |  |  |  |
 | `readonly_accessed` | string |  |  |  |  |
+| `readonly_due_at` | string |  |  |  |  |
 | `snapshot_served` | string |  |  |  |  |
 
-### `mismatch`  (schema: `mismatch` · 5 fields)
+### `mi`  (schema: `mi` · 1 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `consolidation_timer` | string |  |  |  |  |
+
+### `mismatch`  (schema: `mismatch` · 6 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `breach_magnitude` | string |  |  |  |  |
 | `breached_bucket` | string |  |  |  |  |
+| `compute_due_at` | string |  |  |  |  |
 | `current_gaps` | string |  |  |  |  |
 | `gap_computed` | string |  |  |  |  |
 | `intraday_recomputed` | string |  |  |  |  |
 
-### `model`  (schema: `model` · 2 fields)
+### `model`  (schema: `model` · 3 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `builder_roster` | object |  |  |  |  |
+| `review_due_at` | string |  |  |  |  |
 | `reviewer_id` | string |  |  |  |  |
 
 ### `monitor`  (schema: `monitor` · 1 fields)
@@ -6221,20 +6610,30 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 |---|---|---|---|---|---|
 | `source` | string |  |  |  |  |
 
-### `monitoring`  (schema: `monitoring` · 2 fields)
+### `monitoring`  (schema: `monitoring` · 5 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `coverage_review_due` | string |  |  |  |  |
+| `review_due_at` | string |  |  |  |  |
 | `sample_drawn` | string |  |  |  |  |
 | `sample_spec` | string |  |  |  |  |
+| `scope` | string |  |  |  |  |
 
-### `ncua`  (schema: `ncua` · 5 fields)
+### `monitoring_coverage`  (schema: `monitoring_coverage` · 1 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `review` | string |  |  |  |  |
+
+### `ncua`  (schema: `ncua` · 6 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `ack_detail` | object |  |  |  |  |
 | `memo` | string |  |  |  |  |
 | `metrics_snapshot` | object |  |  |  |  |
+| `notification_due_at` | string |  |  |  |  |
 | `notification_required` | boolean |  |  |  |  |
 | `trigger_condition` | string |  |  |  |  |
 
@@ -6250,17 +6649,28 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 |---|---|---|---|---|---|
 | `sent_at` | string |  |  |  |  |
 
+### `ofac`  (schema: `ofac` · 5 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `annual_report_due` | string |  |  |  |  |
+| `blocked_property` | string |  |  |  |  |
+| `list_version` | string |  |  |  |  |
+| `payment_instructions` | string |  |  |  |  |
+| `report_timer` | string |  |  |  |  |
+
 ### `officer`  (schema: `officer` · 1 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `lending_authority` | string |  |  |  |  |
 
-### `official`  (schema: `official` · 4 fields)
+### `official`  (schema: `official` · 5 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `expense_preapproval.requested` | string |  |  |  |  |
+| `id` | string |  |  |  |  |
 | `payment_account` | string |  |  |  |  |
 | `reimbursement.disbursed` | string |  |  |  |  |
 | `reimbursement.paid` | string |  |  |  |  |
@@ -6284,37 +6694,44 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 |---|---|---|---|---|---|
 | `material_change` | string |  |  |  |  |
 
-### `overdraft`  (schema: `overdraft` · 7 fields)
+### `overdraft`  (schema: `overdraft` · 9 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `amount` | integer |  |  |  |  |
 | `daily_report_generated` | string |  |  |  |  |
 | `days_outstanding` | string |  |  |  |  |
 | `fee_assessed` | string |  |  |  |  |
 | `fee_schedule` | string |  |  |  |  |
-| `occurrence_count` | number |  |  |  |  |
+| `occurrence_count` | integer |  |  |  |  |
 | `payroll_coverage_flag` | boolean |  |  |  |  |
+| `review_due_at` | string |  |  |  |  |
 | `waiver_reason` | string |  |  |  |  |
 
-### `override`  (schema: `override` · 4 fields)
+### `override`  (schema: `override` · 5 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `analytics_due` | string |  |  |  |  |
 | `escalation_required` | boolean |  |  |  |  |
 | `escalation_timer` | string |  |  |  |  |
 | `rationale` | string |  |  |  |  |
 | `senior_approver_id` | string |  |  |  |  |
 
-### `pentest`  (schema: `pentest` · 1 fields)
+### `pentest`  (schema: `pentest` · 3 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `engagement_due` | string |  |  |  |  |
 | `independence` | string |  |  |  |  |
+| `scope` | string |  |  |  |  |
 
-### `performance`  (schema: `performance` · 1 fields)
+### `performance`  (schema: `performance` · 3 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `attribution_due` | string |  |  |  |  |
+| `attribution_due_at` | string |  |  |  |  |
 | `targets` | string |  |  |  |  |
 
 ### `phishing`  (schema: `phishing` · 3 fields)
@@ -6338,14 +6755,17 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 |---|---|---|---|---|---|
 | `spec` | string |  |  |  |  |
 
-### `policy`  (schema: `policy` · 22 fields)
+### `policy`  (schema: `policy` · 29 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `acknowledgment_due_at` | string |  |  |  |  |
 | `acknowledgment_record` | object |  |  |  |  |
+| `board_approval_due_at` | string |  |  |  |  |
 | `board_approved_at` | string |  |  |  |  |
 | `change_description` | string |  |  |  |  |
 | `change_rationale` | string |  |  |  |  |
+| `change_summary` | string |  |  |  |  |
 | `document_id` | string |  |  |  |  |
 | `document_version` | string |  |  |  |  |
 | `draft_id` | string |  |  |  |  |
@@ -6356,23 +6776,33 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `limit_registry` | object |  |  |  |  |
 | `materiality_threshold` | string |  |  |  |  |
 | `minutes_reference` | string |  |  |  |  |
+| `next_review_at` | string |  |  |  |  |
 | `next_review_date` | string |  |  |  |  |
 | `owner_ref` | object |  |  |  |  |
 | `proposed_limit` | string |  |  |  |  |
+| `raci_registry` | string |  |  |  |  |
+| `review_due` | string |  |  |  |  |
+| `review_due_at` | string |  |  |  |  |
 | `review_due_soon` | string |  |  |  |  |
 | `review_lapsed` | string |  |  |  |  |
 | `review_warning_at` | string |  |  |  |  |
 | `training_completion_record` | object |  |  |  |  |
 | `violation_description` | string |  |  |  |  |
 
-### `portfolio`  (schema: `portfolio` · 2 fields)
+### `portfolio`  (schema: `portfolio` · 8 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `board_report_due` | string |  |  |  |  |
+| `board_report_due_at` | string |  |  |  |  |
 | `gain_loss_summary` | object |  |  |  |  |
 | `performance_metrics` | object |  |  |  |  |
+| `report_due` | string |  |  |  |  |
+| `report_due_at` | string |  |  |  |  |
+| `stress_test_due` | string |  |  |  |  |
+| `stress_test_due_at` | string |  |  |  |  |
 
-### `position`  (schema: `position` · 11 fields)
+### `position`  (schema: `position` · 13 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
@@ -6384,11 +6814,13 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `days_to_liquidate` | string |  |  |  |  |
 | `effective_duration` | string |  |  |  |  |
 | `fair_value` | string |  |  |  |  |
+| `instrument_type` | string |  |  |  |  |
 | `liquidity_bucket` | string |  |  |  |  |
+| `liquidity_classification_due` | string |  |  |  |  |
 | `policy_tagged` | string |  |  |  |  |
 | `stress_haircut` | string |  |  |  |  |
 
-### `pricing`  (schema: `pricing` · 9 fields)
+### `pricing`  (schema: `pricing` · 10 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
@@ -6397,12 +6829,13 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `exception_demographics_summary` | object |  |  |  |  |
 | `exception_raised` | string |  |  |  |  |
 | `exception_rationale` | string |  |  |  |  |
+| `exception_review_due_at` | string |  |  |  |  |
 | `override_rationale` | string |  |  |  |  |
 | `proposed_price` | string |  |  |  |  |
 | `sheet_price` | string |  |  |  |  |
 | `source` | string |  |  |  |  |
 
-### `privacy`  (schema: `privacy` · 21 fields)
+### `privacy`  (schema: `privacy` · 26 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
@@ -6410,23 +6843,34 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `age_gate_blocked` | string |  |  |  |  |
 | `age_gate_ruleset_id` | string |  |  |  |  |
 | `annual_exemption_status` | string |  |  |  |  |
+| `annual_notice_due_at` | string |  |  |  |  |
+| `board_report_due_at` | string |  |  |  |  |
 | `collection_vector` | string |  |  |  |  |
 | `data_classification` | string |  |  |  |  |
 | `esign_access_confirmation` | string |  |  |  |  |
 | `metrics_package_id` | string |  |  |  |  |
 | `minor_data_deleted` | string |  |  |  |  |
+| `notice_copy_due_at` | string |  |  |  |  |
 | `nv_optout_enforced` | string |  |  |  |  |
 | `optout_channel` | string |  |  |  |  |
 | `optout_enforced` | string |  |  |  |  |
 | `optout_propagated` | string |  |  |  |  |
+| `optout_propagation_due_at` | string |  |  |  |  |
 | `optout_revoked` | string |  |  |  |  |
 | `optout_scope` | string |  |  |  |  |
 | `revocation_artifact_id` | string |  |  |  |  |
 | `sharing_blocked` | string |  |  |  |  |
 | `sharing_change_basis` | string |  |  |  |  |
+| `state_request_due_at` | string |  |  |  |  |
 | `state_request_fulfilled` | string |  |  |  |  |
 | `state_request_type` | string |  |  |  |  |
 | `vt_optin_status` | string |  |  |  |  |
+
+### `process`  (schema: `process` · 1 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `id` | string |  |  |  |  |
 
 ### `product`  (schema: `product` · 7 fields)
 
@@ -6448,25 +6892,35 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `outcome_metrics` | object |  |  |  |  |
 | `steering_review` | string |  |  |  |  |
 
-### `rate_sheet`  (schema: `rate_sheet` · 1 fields)
+### `product_risk`  (schema: `product_risk` · 1 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `candidate_profile` | string |  |  |  |  |
+
+### `rate_sheet`  (schema: `rate_sheet` · 2 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `apor_values` | string |  |  |  |  |
+| `refresh_due_at` | string |  |  |  |  |
 
-### `recon`  (schema: `recon` · 7 fields)
+### `recon`  (schema: `recon` · 10 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `daily_due` | string |  |  |  |  |
 | `daily_timer` | string |  |  |  |  |
 | `item` | string |  |  |  |  |
 | `item_age_days` | string |  |  |  |  |
 | `item_aged` | string |  |  |  |  |
 | `item_aging_timer` | string |  |  |  |  |
 | `item_owner` | string |  |  |  |  |
+| `monthly_due` | string |  |  |  |  |
 | `monthly_timer` | string |  |  |  |  |
+| `research_notes` | string |  |  |  |  |
 
-### `record`  (schema: `record` · 35 fields)
+### `record`  (schema: `record` · 45 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
@@ -6479,7 +6933,10 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `blob` | string |  |  |  |  |
 | `class` | string |  |  |  |  |
 | `destruction_cycle` | string |  |  |  |  |
+| `destruction_cycle_due_at` | string |  |  |  |  |
 | `destruction_date` | string |  |  |  |  |
+| `destruction_due_at` | string |  |  |  |  |
+| `disposal_due_at` | string |  |  |  |  |
 | `disposal_eligible` | boolean |  |  |  |  |
 | `disposal_method` | string |  |  |  |  |
 | `dispositioned` | string |  |  |  |  |
@@ -6492,15 +6949,22 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `hold_matter_id` | string |  |  |  |  |
 | `hold_registry` | object |  |  |  |  |
 | `hold_release_auth` | string |  |  |  |  |
+| `hold_scope` | string |  |  |  |  |
 | `hold_status` | string |  |  |  |  |
+| `index_due_at` | string |  |  |  |  |
 | `indexed` | string |  |  |  |  |
+| `integrity_test_due` | string |  |  |  |  |
+| `legal_hold_flag` | string |  |  |  |  |
 | `legal_hold_placed` | string |  |  |  |  |
+| `matter_id` | string |  |  |  |  |
 | `media_converted` | string |  |  |  |  |
 | `media_type` | string |  |  |  |  |
 | `metadata` | string |  |  |  |  |
 | `reproduction_result` | string |  |  |  |  |
 | `retained` | string |  |  |  |  |
+| `retention_anchor` | string |  |  |  |  |
 | `retention_class` | string |  |  |  |  |
+| `retention_expires_at` | string |  |  |  |  |
 | `retention_inventory` | object |  |  |  |  |
 | `retention_timer` | string |  |  |  |  |
 | `sensitive_access` | string |  |  |  |  |
@@ -6512,46 +6976,60 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 |---|---|---|---|---|---|
 | `unmatched` | string |  |  |  |  |
 
-### `records`  (schema: `records` · 5 fields)
+### `records`  (schema: `records` · 7 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `annual_review_due_at` | string |  |  |  |  |
+| `board_report_due_at` | string |  |  |  |  |
 | `contact_name` | string |  |  |  |  |
 | `contact_vacated` | string |  |  |  |  |
-| `exception_count` | number |  |  |  |  |
+| `exception_count` | integer |  |  |  |  |
 | `retention.class` | string |  |  |  |  |
 | `retention_expiry_at` | string |  |  |  |  |
 
-### `records_package`  (schema: `records_package` · 9 fields)
+### `records_package`  (schema: `records_package` · 12 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `artifact_id` | string |  |  |  |  |
 | `checksum_chain` | string |  |  |  |  |
+| `complete_due_at` | string |  |  |  |  |
 | `failure_reason` | string |  |  |  |  |
 | `manifest_id` | string |  |  |  |  |
 | `rebuilt` | string |  |  |  |  |
 | `requested` | string |  |  |  |  |
 | `snapshot_as_of` | string |  |  |  |  |
+| `snapshot_due` | string |  |  |  |  |
 | `snapshot_id` | string |  |  |  |  |
 | `snapshot_schedule` | string |  |  |  |  |
+| `start_due_at` | string |  |  |  |  |
 
-### `redflag`  (schema: `redflag` · 4 fields)
+### `redflag`  (schema: `redflag` · 6 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `address_reissue_match` | boolean |  |  |  |  |
 | `case_stats` | string |  |  |  |  |
 | `pattern_updates` | string |  |  |  |  |
+| `review_due_at` | string |  |  |  |  |
 | `stepup_required` | boolean |  |  |  |  |
+| `type` | string |  |  |  |  |
 
-### `regulation`  (schema: `regulation` · 1 fields)
+### `regulation`  (schema: `regulation` · 2 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `citation` | string |  |  |  |  |
+| `inventory_review_due_at` | string |  |  |  |  |
+
+### `regulation_inventory`  (schema: `regulation_inventory` · 1 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `citation` | string |  |  |  |  |
 
-### `regulator`  (schema: `regulator` · 6 fields)
+### `regulator`  (schema: `regulator` · 8 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
@@ -6561,54 +7039,71 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `report_timer` | string |  |  |  |  |
 | `request_detail` | object |  |  |  |  |
 | `request_routed` | string |  |  |  |  |
+| `response_due_at` | string |  |  |  |  |
+| `verification_due_at` | string |  |  |  |  |
 
-### `regulatory`  (schema: `regulatory` · 4 fields)
+### `regulatory`  (schema: `regulatory` · 5 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `analysis_due_at` | string |  |  |  |  |
 | `change_identified` | string |  |  |  |  |
 | `change_implemented` | string |  |  |  |  |
 | `change_required` | boolean |  |  |  |  |
 | `source_doc` | string |  |  |  |  |
 
-### `repo`  (schema: `repo` · 9 fields)
+### `repo`  (schema: `repo` · 11 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `blocked_rule_violation` | string |  |  |  |  |
 | `collateral_cusip` | string |  |  |  |  |
 | `collateral_marked` | string |  |  |  |  |
+| `collateral_revaluation_due` | string |  |  |  |  |
+| `collateral_revaluation_due_at` | string |  |  |  |  |
 | `counterparty_id` | string |  |  |  |  |
 | `entered` | string |  |  |  |  |
 | `haircut` | string |  |  |  |  |
-| `margin_shortfall_amount` | number |  |  |  |  |
+| `margin_shortfall_amount` | integer |  |  |  |  |
 | `maturity_mismatch_days` | string |  |  |  |  |
 | `required_margin` | string |  |  |  |  |
 
-### `report`  (schema: `report` · 1 fields)
+### `report`  (schema: `report` · 4 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `board_due_at` | string |  |  |  |  |
+| `daily_due_at` | string |  |  |  |  |
 | `weekly_deltas` | string |  |  |  |  |
+| `weekly_due_at` | string |  |  |  |  |
 
-### `reporting`  (schema: `reporting` · 1 fields)
+### `reporting`  (schema: `reporting` · 7 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `board_pack_due` | string |  |  |  |  |
+| `bsa_metrics` | string |  |  |  |  |
+| `ofac_metrics` | string |  |  |  |  |
+| `quarterly_due` | string |  |  |  |  |
 | `quarterly_timer` | string |  |  |  |  |
+| `sar_count` | integer |  |  |  |  |
+| `training_metrics` | string |  |  |  |  |
 
-### `resolution_exception`  (schema: `resolution_exception` · 1 fields)
+### `resolution_exception`  (schema: `resolution_exception` · 3 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `description` | string |  |  |  |  |
+| `expires_at` | string |  |  |  |  |
 | `requested` | string |  |  |  |  |
 
-### `resolution_policy`  (schema: `resolution_policy` · 2 fields)
+### `resolution_policy`  (schema: `resolution_policy` · 3 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `change_description` | string |  |  |  |  |
 | `change_identified` | string |  |  |  |  |
+| `update_due_at` | string |  |  |  |  |
 
 ### `resolution_posture`  (schema: `resolution_posture` · 1 fields)
 
@@ -6616,15 +7111,24 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 |---|---|---|---|---|---|
 | `current` | string |  |  |  |  |
 
-### `resolution_test`  (schema: `resolution_test` · 5 fields)
+### `resolution_review`  (schema: `resolution_review` · 1 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `due` | string |  |  |  |  |
+
+### `resolution_test`  (schema: `resolution_test` · 8 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `finding_id` | string |  |  |  |  |
 | `finding_severity` | string |  |  |  |  |
 | `plan_id` | string |  |  |  |  |
+| `remediation_due_at` | string |  |  |  |  |
 | `remediation_owner` | string |  |  |  |  |
+| `report_due_at` | string |  |  |  |  |
 | `sandbox_baseline` | string |  |  |  |  |
+| `type` | string |  |  |  |  |
 
 ### `restore`  (schema: `restore` · 3 fields)
 
@@ -6641,19 +7145,39 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `approved_by` | string |  |  |  |  |
 | `grounds` | string |  |  |  |  |
 
-### `risk`  (schema: `risk` · 15 fields)
+### `retention`  (schema: `retention` · 4 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `anchor_date` | string |  |  |  |  |
+| `purge_due` | string |  |  |  |  |
+| `record_type` | string |  |  |  |  |
+| `schedule` | string |  |  |  |  |
+
+### `risk`  (schema: `risk` · 26 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `assessment_due_at` | string |  |  |  |  |
 | `assessment_results` | object |  |  |  |  |
 | `assessment_scored` | string |  |  |  |  |
+| `assessment_timer` | string |  |  |  |  |
+| `candidate_profile` | string |  |  |  |  |
+| `description` | string |  |  |  |  |
+| `geography_factors` | string |  |  |  |  |
+| `id` | string |  |  |  |  |
 | `impact_score` | number |  |  |  |  |
 | `inherent_rating` | string |  |  |  |  |
+| `inherent_score` | number |  |  |  |  |
 | `last_assessed_at` | string |  |  |  |  |
 | `likelihood_score` | number |  |  |  |  |
+| `owner_id` | string |  |  |  |  |
+| `partner_dependency` | string |  |  |  |  |
 | `poam_cycle` | string |  |  |  |  |
 | `poam_status` | string |  |  |  |  |
+| `product_assessment_due_at` | string |  |  |  |  |
 | `reassessed` | string |  |  |  |  |
+| `reassessment_due_at` | string |  |  |  |  |
 | `register_snapshot` | object |  |  |  |  |
 | `registered` | string |  |  |  |  |
 | `remediation_evidence` | object |  |  |  |  |
@@ -6661,41 +7185,55 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `review_overdue` | string |  |  |  |  |
 | `threat_catalog` | object |  |  |  |  |
 
-### `risk_acceptance`  (schema: `risk_acceptance` · 6 fields)
+### `risk_acceptance`  (schema: `risk_acceptance` · 9 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `decision_due_at` | string |  |  |  |  |
 | `expiry_alert_at` | string |  |  |  |  |
 | `expiry_alerted` | string |  |  |  |  |
 | `expiry_date` | string |  |  |  |  |
 | `expiry_warning` | string |  |  |  |  |
+| `id` | string |  |  |  |  |
+| `owner_id` | string |  |  |  |  |
 | `rationale` | string |  |  |  |  |
 | `requested` | string |  |  |  |  |
 
-### `risk_appetite`  (schema: `risk_appetite` · 3 fields)
+### `risk_appetite`  (schema: `risk_appetite` · 6 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `document` | string |  |  |  |  |
 | `effective_date` | string |  |  |  |  |
 | `next_review_date` | string |  |  |  |  |
+| `rereview_due_at` | string |  |  |  |  |
+| `review_due_at` | string |  |  |  |  |
+| `version` | string |  |  |  |  |
 
-### `risk_breach`  (schema: `risk_breach` · 4 fields)
+### `risk_breach`  (schema: `risk_breach` · 10 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `committee_due_at` | string |  |  |  |  |
 | `current_excursion` | string |  |  |  |  |
 | `excursion_size` | string |  |  |  |  |
+| `id` | string |  |  |  |  |
+| `impact_summary` | string |  |  |  |  |
 | `remediation_plan` | object |  |  |  |  |
 | `remediation_status` | string |  |  |  |  |
+| `review_due_at` | string |  |  |  |  |
+| `severity` | string |  |  |  |  |
+| `triage_due_at` | string |  |  |  |  |
 
-### `risk_report`  (schema: `risk_report` · 1 fields)
+### `risk_report`  (schema: `risk_report` · 3 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `board_due_at` | string |  |  |  |  |
+| `management_due_at` | string |  |  |  |  |
 | `reconciliation_record` | object |  |  |  |  |
 
-### `risk_scale`  (schema: `risk_scale` · 5 fields)
+### `risk_scale`  (schema: `risk_scale` · 6 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
@@ -6703,6 +7241,7 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `definition` | string |  |  |  |  |
 | `exemption_id` | string |  |  |  |  |
 | `exemption_rationale` | string |  |  |  |  |
+| `review_due_at` | string |  |  |  |  |
 | `usage_stats` | string |  |  |  |  |
 
 ### `role`  (schema: `role` · 2 fields)
@@ -6735,22 +7274,34 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `schedule_version` | string |  |  |  |  |
 | `trading_threshold_crossed` | string |  |  |  |  |
 
-### `safe_mode`  (schema: `safe_mode` · 4 fields)
+### `safe_mode`  (schema: `safe_mode` · 6 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `activation_due_at` | string |  |  |  |  |
 | `cap_profile_id` | string |  |  |  |  |
-| `daily_outflow_total` | number |  |  |  |  |
+| `daily_outflow_total` | integer |  |  |  |  |
+| `propagation_due_at` | string |  |  |  |  |
 | `transaction_evaluated` | string |  |  |  |  |
 | `trigger_basis` | string |  |  |  |  |
 
-### `safekeeping`  (schema: `safekeeping` · 1 fields)
+### `safekeeping`  (schema: `safekeeping` · 2 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `reconciliation_due_at` | string |  |  |  |  |
 | `statement` | string |  |  |  |  |
 
-### `schedule_a`  (schema: `schedule_a` · 4 fields)
+### `sar`  (schema: `sar` · 4 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `continuing_timer` | string |  |  |  |  |
+| `filing_timer` | string |  |  |  |  |
+| `narrative` | string |  |  |  |  |
+| `prior_filing_id` | string |  |  |  |  |
+
+### `schedule_a`  (schema: `schedule_a` · 5 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
@@ -6758,20 +7309,29 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `entry_amended` | string |  |  |  |  |
 | `entry_inherited` | string |  |  |  |  |
 | `retention_period` | string |  |  |  |  |
+| `version` | string |  |  |  |  |
 
-### `scope_registry`  (schema: `scope_registry` · 4 fields)
+### `scope_registry`  (schema: `scope_registry` · 8 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `approver_id` | string |  |  |  |  |
+| `attestation_due` | string |  |  |  |  |
 | `change_description` | string |  |  |  |  |
 | `item.rpo` | string |  |  |  |  |
 | `item.rto` | string |  |  |  |  |
+| `publish_due_at` | string |  |  |  |  |
+| `update_due_at` | string |  |  |  |  |
 | `version_id` | string |  |  |  |  |
 
-### `security`  (schema: `security` · 5 fields)
+### `security`  (schema: `security` · 9 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `board_report_due_at` | string |  |  |  |  |
+| `downgrade_review_due_at` | string |  |  |  |  |
+| `fair_value_update_due` | string |  |  |  |  |
+| `fair_value_update_due_at` | string |  |  |  |  |
 | `impairment_indicator_raised` | string |  |  |  |  |
 | `kpi_snapshot` | object |  |  |  |  |
 | `policy_change_log` | object |  |  |  |  |
@@ -6784,30 +7344,34 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 |---|---|---|---|---|---|
 | `owner` | string |  |  |  |  |
 
-### `service`  (schema: `service` · 5 fields)
+### `service`  (schema: `service` · 7 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `assigned_to` | string |  |  |  |  |
 | `category` | string |  |  |  |  |
+| `first_response_due_at` | string |  |  |  |  |
 | `inquiry_id` | string |  |  |  |  |
 | `launched` | string |  |  |  |  |
 | `reclassified_as_dispute` | string |  |  |  |  |
+| `resolution_due_at` | string |  |  |  |  |
 
-### `siem`  (schema: `siem` · 5 fields)
+### `siem`  (schema: `siem` · 6 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `alert_confirmed_malicious` | string |  |  |  |  |
 | `alert_critical` | string |  |  |  |  |
 | `alert_detail` | object |  |  |  |  |
+| `alert_review_due_at` | string |  |  |  |  |
 | `last_seen_at` | string |  |  |  |  |
 | `source_inventory` | object |  |  |  |  |
 
-### `site`  (schema: `site` · 2 fields)
+### `site`  (schema: `site` · 3 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `capacity_test_due` | string |  |  |  |  |
 | `capacity_validated` | string |  |  |  |  |
 | `readiness_timer` | string |  |  |  |  |
 
@@ -6818,13 +7382,15 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `cadence_timer` | string |  |  |  |  |
 | `v1_timer` | string |  |  |  |  |
 
-### `socialmedia`  (schema: `socialmedia` · 3 fields)
+### `socialmedia`  (schema: `socialmedia` · 5 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `approver` | string |  |  |  |  |
+| `evidence` | string |  |  |  |  |
 | `impersonation_detail` | object |  |  |  |  |
 | `post_content` | string |  |  |  |  |
+| `takedown_due_at` | string |  |  |  |  |
 
 ### `sod`  (schema: `sod` · 7 fields)
 
@@ -6845,11 +7411,12 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `daily_limit` | string |  |  |  |  |
 | `per_transaction_limit` | string |  |  |  |  |
 
-### `staffing`  (schema: `staffing` · 3 fields)
+### `staffing`  (schema: `staffing` · 4 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `activation_timer` | string |  |  |  |  |
+| `readiness_review_due` | string |  |  |  |  |
 | `review_timer` | string |  |  |  |  |
 | `split_team_plan` | object |  |  |  |  |
 
@@ -6859,16 +7426,29 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 |---|---|---|---|---|---|
 | `days_in_period` | string |  |  |  |  |
 
-### `storage_box`  (schema: `storage_box` · 4 fields)
+### `steering_review`  (schema: `steering_review` · 1 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `due` | string |  |  |  |  |
+
+### `storage_box`  (schema: `storage_box` · 5 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `description` | string |  |  |  |  |
 | `destruction_date` | string |  |  |  |  |
 | `from_date` | string |  |  |  |  |
 | `number` | string |  |  |  |  |
 | `to_date` | string |  |  |  |  |
 
-### `stress`  (schema: `stress` · 7 fields)
+### `strategy`  (schema: `strategy` · 1 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `change_summary` | string |  |  |  |  |
+
+### `stress`  (schema: `stress` · 9 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
@@ -6879,6 +7459,8 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `change_rationale` | string |  |  |  |  |
 | `intraday_profile` | string |  |  |  |  |
 | `quarter_open` | string |  |  |  |  |
+| `quarterly_due_at` | string |  |  |  |  |
+| `rerun_due_at` | string |  |  |  |  |
 
 ### `stress_test`  (schema: `stress_test` · 2 fields)
 
@@ -6887,7 +7469,7 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `assumptions` | string |  |  |  |  |
 | `breach_detail` | object |  |  |  |  |
 
-### `survival`  (schema: `survival` · 5 fields)
+### `survival`  (schema: `survival` · 6 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
@@ -6896,15 +7478,23 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `computed` | string |  |  |  |  |
 | `days_combined` | string |  |  |  |  |
 | `driver_scenario` | string |  |  |  |  |
+| `quarterly_due_at` | string |  |  |  |  |
 
-### `taxonomy`  (schema: `taxonomy` · 4 fields)
+### `taxonomy`  (schema: `taxonomy` · 5 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `active_version` | string |  |  |  |  |
 | `category_code` | string |  |  |  |  |
 | `change_request` | string |  |  |  |  |
+| `review_due_at` | string |  |  |  |  |
 | `subcategory_code` | string |  |  |  |  |
+
+### `tdr`  (schema: `tdr` · 1 fields)
+
+| Field | Type | Required | PII | Bound controls | Description |
+|---|---|---|---|---|---|
+| `quarterly_review_due` | string |  |  |  |  |
 
 ### `template`  (schema: `template` · 2 fields)
 
@@ -6920,11 +7510,12 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `impact` | string |  |  |  |  |
 | `likelihood` | string |  |  |  |  |
 
-### `threat_register`  (schema: `threat_register` · 1 fields)
+### `threat_register`  (schema: `threat_register` · 2 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `interim_update` | string |  |  |  |  |
+| `refresh_due` | string |  |  |  |  |
 
 ### `tiein`  (schema: `tiein` · 2 fields)
 
@@ -6933,14 +7524,17 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `condition_description` | string |  |  |  |  |
 | `transaction_terms` | object |  |  |  |  |
 
-### `tls`  (schema: `tls` · 2 fields)
+### `tls`  (schema: `tls` · 5 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `assessment_due` | string |  |  |  |  |
+| `certificate_expires_at` | string |  |  |  |  |
+| `certificate_expiry_due` | string |  |  |  |  |
 | `cipher_suite` | string |  |  |  |  |
 | `test_rating` | string |  |  |  |  |
 
-### `trade`  (schema: `trade` · 16 fields)
+### `trade`  (schema: `trade` · 17 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
@@ -6954,37 +7548,51 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `intermediary_validated` | string |  |  |  |  |
 | `limit_blocked` | string |  |  |  |  |
 | `pretrade_checklist` | string |  |  |  |  |
-| `settlement_amount` | number |  |  |  |  |
+| `reconciliation_due_at` | string |  |  |  |  |
+| `settlement_amount` | integer |  |  |  |  |
 | `settlement_date` | string |  |  |  |  |
 | `sod_blocked` | string |  |  |  |  |
 | `step_attempted` | string |  |  |  |  |
 | `ticket` | string |  |  |  |  |
 | `valuation_support` | string |  |  |  |  |
 
-### `training`  (schema: `training` · 15 fields)
+### `training`  (schema: `training` · 27 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `annual_due` | string |  |  |  |  |
+| `annual_due_at` | string |  |  |  |  |
+| `annual_timer` | string |  |  |  |  |
 | `assessment_score` | number |  |  |  |  |
 | `assignee_id` | string |  |  |  |  |
+| `change_summary` | string |  |  |  |  |
+| `completion_due_at` | string |  |  |  |  |
 | `completion_status` | string |  |  |  |  |
 | `content_version` | string |  |  |  |  |
 | `coverage_pct` | string |  |  |  |  |
 | `curriculum_id` | string |  |  |  |  |
 | `curriculum_map` | string |  |  |  |  |
 | `cycle_close_at` | string |  |  |  |  |
+| `hire_date` | string |  |  |  |  |
 | `lapsed` | string |  |  |  |  |
 | `module_id` | string |  |  |  |  |
+| `new_hire_timer` | string |  |  |  |  |
+| `newhire_due_at` | string |  |  |  |  |
+| `onboarding_due_at` | string |  |  |  |  |
+| `privacy_due` | string |  |  |  |  |
 | `proficiency.failed` | string |  |  |  |  |
 | `refresher_curriculum` | string |  |  |  |  |
 | `required_curriculum` | string |  |  |  |  |
+| `retention_due_at` | string |  |  |  |  |
+| `role_curriculum` | string |  |  |  |  |
 | `role_matrix` | object |  |  |  |  |
 | `skills_inventory` | object |  |  |  |  |
 
-### `transaction`  (schema: `transaction` · 4 fields)
+### `transaction`  (schema: `transaction` · 5 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `amount` | integer |  |  |  |  |
 | `approval_required` | boolean |  |  |  |  |
 | `approval_timer` | string |  |  |  |  |
 | `dual_control_required` | boolean |  |  |  |  |
@@ -6996,24 +7604,30 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 |---|---|---|---|---|---|
 | `invest_excess.notified` | string |  |  |  |  |
 
-### `valuation`  (schema: `valuation` · 1 fields)
+### `valuation`  (schema: `valuation` · 2 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `bias_screen_rules` | object |  |  |  |  |
+| `rov_due_at` | string |  |  |  |  |
 
-### `vendor`  (schema: `vendor` · 64 fields)
+### `vendor`  (schema: `vendor` · 87 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
 | `affected_scope` | string |  |  |  |  |
+| `annual_review_due` | string |  |  |  |  |
+| `annual_review_due_at` | string |  |  |  |  |
 | `attestation_request` | string |  |  |  |  |
+| `bcp_evidence_due` | string |  |  |  |  |
+| `board_report_due` | string |  |  |  |  |
 | `breach_detail` | object |  |  |  |  |
 | `bsa_function_scope` | string |  |  |  |  |
 | `bsa_responsibility_split` | string |  |  |  |  |
 | `bsa_role_flag` | boolean |  |  |  |  |
 | `business_case` | string |  |  |  |  |
 | `clause_id` | string |  |  |  |  |
+| `clause_library_review_due` | string |  |  |  |  |
 | `clause_library_version` | string |  |  |  |  |
 | `compensation_flag` | boolean |  |  |  |  |
 | `concentration_assessed` | string |  |  |  |  |
@@ -7022,60 +7636,82 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `contract_id` | string |  |  |  |  |
 | `core_function_flag` | boolean |  |  |  |  |
 | `core_function_scope` | string |  |  |  |  |
+| `core_review_due` | string |  |  |  |  |
 | `critical_onboarded` | string |  |  |  |  |
 | `criticality_tier` | string |  |  |  |  |
 | `data_deletion_attestation` | string |  |  |  |  |
 | `data_map_id` | string |  |  |  |  |
+| `data_scope` | string |  |  |  |  |
+| `dd_package` | integer |  |  |  |  |
 | `dependency_map` | string |  |  |  |  |
 | `destruction_certificate` | string |  |  |  |  |
+| `dr_attestation_due` | string |  |  |  |  |
 | `dr_plan` | object |  |  |  |  |
 | `dr_test_results` | object |  |  |  |  |
 | `due_diligence_artifact_id` | string |  |  |  |  |
+| `edd_refresh_due` | string |  |  |  |  |
 | `edd_refreshed` | string |  |  |  |  |
 | `evidence_refreshed` | string |  |  |  |  |
 | `exception_rationale` | string |  |  |  |  |
+| `exit_plan_due` | string |  |  |  |  |
 | `exit_plan_id` | string |  |  |  |  |
 | `exit_plan_refreshed` | string |  |  |  |  |
+| `exit_test_due` | string |  |  |  |  |
 | `exit_test_scenario` | string |  |  |  |  |
 | `failover_criteria` | string |  |  |  |  |
 | `financial_review` | string |  |  |  |  |
 | `glba_addendum_id` | string |  |  |  |  |
 | `governance_map` | string |  |  |  |  |
+| `governance_review_due` | string |  |  |  |  |
+| `id` | string |  |  |  |  |
 | `identified` | string |  |  |  |  |
 | `incident_containment_status` | string |  |  |  |  |
 | `incident_history` | string |  |  |  |  |
-| `incident_member_count` | number |  |  |  |  |
+| `incident_member_count` | integer |  |  |  |  |
 | `incident_scope` | string |  |  |  |  |
 | `incident_tracks_dispatched` | string |  |  |  |  |
+| `incident_triage_due` | string |  |  |  |  |
 | `incident_triaged` | string |  |  |  |  |
 | `inherent_risk` | string |  |  |  |  |
 | `inventory_id` | string |  |  |  |  |
+| `inventory_reconciliation_due` | string |  |  |  |  |
 | `issue_detail` | object |  |  |  |  |
 | `issue_rated_high` | string |  |  |  |  |
 | `issue_severity` | string |  |  |  |  |
 | `legal_name` | string |  |  |  |  |
 | `materiality_flag` | boolean |  |  |  |  |
+| `mi_due_at` | string |  |  |  |  |
 | `mi_pack` | object |  |  |  |  |
 | `mi_trends` | string |  |  |  |  |
 | `migration_evidence` | object |  |  |  |  |
 | `monitoring_alert` | string |  |  |  |  |
+| `monitoring_review_due` | string |  |  |  |  |
 | `network_access_flag` | boolean |  |  |  |  |
 | `npi_access_flag` | boolean |  |  |  |  |
 | `onboarded` | string |  |  |  |  |
 | `privacy_blocked` | string |  |  |  |  |
+| `program_audit_due` | string |  |  |  |  |
 | `provisional_justification` | string |  |  |  |  |
+| `provisional_review_due` | string |  |  |  |  |
+| `raci_review_due` | string |  |  |  |  |
+| `remediation_due` | string |  |  |  |  |
 | `remediation_plan_accepted` | string |  |  |  |  |
+| `review_due_at` | string |  |  |  |  |
 | `rto_rpo` | string |  |  |  |  |
 | `security_questionnaire` | string |  |  |  |  |
 | `service_description` | string |  |  |  |  |
 | `soc_report` | string |  |  |  |  |
 | `subprocessor_attestation` | string |  |  |  |  |
 
-### `vuln`  (schema: `vuln` · 1 fields)
+### `vuln`  (schema: `vuln` · 5 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `detail` | string |  |  |  |  |
+| `remediation_due_at` | string |  |  |  |  |
 | `remediation_plan` | object |  |  |  |  |
+| `severity` | string |  |  |  |  |
+| `triage_due_at` | string |  |  |  |  |
 
 ### `web`  (schema: `web` · 7 fields)
 
@@ -7089,14 +7725,16 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `visitor_id` | string |  |  |  |  |
 | `visitor_jurisdiction` | string |  |  |  |  |
 
-### `wholesale`  (schema: `wholesale` · 9 fields)
+### `wholesale`  (schema: `wholesale` · 11 fields)
 
 | Field | Type | Required | PII | Bound controls | Description |
 |---|---|---|---|---|---|
+| `compute_due_at` | string |  |  |  |  |
 | `exposure_computed` | string |  |  |  |  |
 | `exposure_history` | string |  |  |  |  |
 | `listing_decisioned` | string |  |  |  |  |
 | `maturity_calendar` | string |  |  |  |  |
+| `monthly_review_due` | string |  |  |  |  |
 | `pricing_authority_id` | string |  |  |  |  |
 | `rate` | string |  |  |  |  |
 | `service_id` | string |  |  |  |  |
@@ -7147,6 +7785,7 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `account_freeze.legal_conflict_detected` | account_freeze | canonical event_type: `detected` |
 | `account_freeze.precedence_resolved` | account_freeze | canonical event_type: `resolved` |
 | `account_freeze.release_approved` | account_freeze | canonical event_type: `approved` |
+| `account_freeze.released` | account_freeze | canonical event_type: `released` |
 | `ach_transfer.created` | ach_transfer | canonical event_type: `created` |
 | `ad.accessibility_check` | ad | canonical event_type: `checked` |
 | `ad.preflight_decided` | ad | canonical event_type: `decided` |
@@ -8340,6 +8979,22 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 
 | Method | Path | Summary | Control refs | Audit events |
 |---|---|---|---|---|
+| `GET` | `/account-numbers` | list_account_number |  |  |
+| `POST` | `/account-numbers` | create_account_number |  |  |
+| `GET` | `/account-numbers/{id}` | get_account_number |  |  |
+| `POST` | `/account-numbers/{id}/transition` | transition_account_number |  |  |
+| `GET` | `/accounts` | list_account |  |  |
+| `POST` | `/accounts` | create_account |  |  |
+| `GET` | `/accounts/{id}` | get_account |  |  |
+| `POST` | `/accounts/{id}/transition` | transition_account |  |  |
+| `GET` | `/ach-transfers` | list_ach_transfer |  |  |
+| `POST` | `/ach-transfers` | create_ach_transfer |  |  |
+| `GET` | `/ach-transfers/{id}` | get_ach_transfer |  |  |
+| `POST` | `/ach-transfers/{id}/transition` | transition_ach_transfer |  |  |
+| `POST` | `/auth/token` | post__auth_token |  |  |
+| `GET` | `/cards` | list_card |  |  |
+| `POST` | `/cards` | create_card |  |  |
+| `GET` | `/cards/{id}` | get_card |  |  |
 | `GET` | `/cases` | list_cases |  |  |
 | `POST` | `/cases` | open_case |  |  |
 | `GET` | `/cases/{id}` | get_case |  |  |
@@ -8349,36 +9004,80 @@ The engineering vocabulary is **closed-world and compositional**. Before citing 
 | `GET` | `/documents` | list_documents |  |  |
 | `POST` | `/documents` | create_document |  |  |
 | `GET` | `/documents/{id}` | get_document |  |  |
+| `GET` | `/entities` | list_entity |  |  |
+| `POST` | `/entities` | create_entity |  |  |
+| `POST` | `/entities/business` | post__entities_business |  |  |
+| `POST` | `/entities/joint` | post__entities_joint |  |  |
+| `POST` | `/entities/person` | post__entities_person |  |  |
+| `POST` | `/entities/trust` | post__entities_trust |  |  |
+| `GET` | `/entities/{id}` | get_entity |  |  |
+| `POST` | `/entities/{id}/transition` | transition_entity |  |  |
 | `GET` | `/events` | list_events |  |  |
+| `GET` | `/fbo/{instance_id}/available_balance` | get__fbo_instance_id_available_balance |  |  |
+| `GET` | `/fbo/{instance_id}/position` | get__fbo_instance_id_position |  |  |
 | `GET` | `/filings` | list_filings |  |  |
 | `POST` | `/filings` | prepare_filing |  |  |
 | `GET` | `/filings/{id}` | get_filing |  |  |
 | `POST` | `/filings/{id}/acknowledge` | acknowledge_filing |  |  |
 | `POST` | `/filings/{id}/submit` | submit_filing |  |  |
-| `GET` | `/incidents` | list |  |  |
+| `POST` | `/filings/{id}/transition` | transition_filing |  |  |
+| `GET` | `/inbound/{instance_id}` | get__inbound_instance_id |  |  |
+| `GET` | `/incidents` | list_incident |  |  |
 | `POST` | `/incidents` | declare |  |  |
-| `GET` | `/incidents/{id}` | get |  |  |
-| `PATCH` | `/incidents/{id}` | update |  |  |
-| `POST` | `/incidents/{id}/transition` | transition |  |  |
+| `GET` | `/incidents/{id}` | get_incident |  |  |
+| `PATCH` | `/incidents/{id}` | update_incident |  |  |
+| `POST` | `/incidents/{id}/transition` | transition_incident |  |  |
 | `GET` | `/legal-holds` | list_legal_holds |  |  |
 | `POST` | `/legal-holds` | place_legal_hold |  |  |
 | `POST` | `/legal-holds/{id}/release` | release_legal_hold |  |  |
-| `GET` | `/loan-applications` | list |  |  |
-| `POST` | `/loan-applications` | create |  |  |
-| `GET` | `/loan-applications/{id}` | get |  |  |
-| `PATCH` | `/loan-applications/{id}` | update |  |  |
+| `GET` | `/loan-applications` | list_loan_application |  |  |
+| `POST` | `/loan-applications` | create_loan_application |  |  |
+| `GET` | `/loan-applications/{id}` | get_loan_application |  |  |
+| `PATCH` | `/loan-applications/{id}` | update_loan_application |  |  |
 | `POST` | `/loan-applications/{id}/counteroffer` | issue_counteroffer |  |  |
 | `POST` | `/loan-applications/{id}/decision` | record_decision |  |  |
-| `GET` | `/loans` | list |  |  |
-| `GET` | `/loans/{id}` | get |  |  |
+| `POST` | `/loan-applications/{id}/transition` | transition_loan_application |  |  |
+| `GET` | `/loans` | list_loan |  |  |
+| `POST` | `/loans` | create_loan |  |  |
+| `GET` | `/loans/{id}` | get_loan |  |  |
 | `POST` | `/loans/{id}/book` | request_booking |  |  |
+| `POST` | `/loans/{id}/transition` | transition_loan |  |  |
+| `POST` | `/payments/ach/originate` | post__payments_ach_originate |  |  |
+| `POST` | `/payments/rtp/originate` | post__payments_rtp_originate |  |  |
+| `POST` | `/payments/wire/confirm` | post__payments_wire_confirm |  |  |
+| `POST` | `/payments/wire/originate` | post__payments_wire_originate |  |  |
+| `POST` | `/payments/wire/prepare` | post__payments_wire_prepare |  |  |
+| `POST` | `/sandbox/reset` | post__sandbox_reset |  |  |
+| `POST` | `/sandbox/simulate/ach/receive` | post__sandbox_simulate_ach_receive |  |  |
+| `POST` | `/sandbox/simulate/ach/return` | post__sandbox_simulate_ach_return |  |  |
+| `POST` | `/sandbox/simulate/ach/settle` | post__sandbox_simulate_ach_settle |  |  |
+| `POST` | `/sandbox/simulate/card/authorize` | post__sandbox_simulate_card_authorize |  |  |
+| `POST` | `/sandbox/simulate/card/settle` | post__sandbox_simulate_card_settle |  |  |
+| `POST` | `/sandbox/simulate/kyc/approve` | post__sandbox_simulate_kyc_approve |  |  |
+| `POST` | `/sandbox/simulate/kyc/deny` | post__sandbox_simulate_kyc_deny |  |  |
+| `POST` | `/sandbox/simulate/time/advance` | post__sandbox_simulate_time_advance |  |  |
+| `POST` | `/sandbox/simulate/wire/receive` | post__sandbox_simulate_wire_receive |  |  |
+| `POST` | `/sandbox/simulate/wire/settle` | post__sandbox_simulate_wire_settle |  |  |
 | `GET` | `/tasks` | list_tasks |  |  |
+| `POST` | `/tasks` | create_task |  |  |
 | `GET` | `/tasks/{id}` | get_task |  |  |
 | `POST` | `/tasks/{id}/complete` | complete_task |  |  |
+| `POST` | `/tasks/{id}/transition` | transition_task |  |  |
+| `GET` | `/transfers` | list_transfer |  |  |
+| `POST` | `/transfers` | create_transfer |  |  |
+| `GET` | `/transfers/{id}` | get_transfer |  |  |
+| `GET` | `/verifications` | list_verification |  |  |
+| `POST` | `/verifications` | create_verification |  |  |
+| `GET` | `/verifications/{id}` | get_verification |  |  |
+| `POST` | `/verifications/{id}/transition` | transition_verification |  |  |
+| `GET` | `/wire-transfers` | list_wire_transfer |  |  |
+| `POST` | `/wire-transfers` | create_wire_transfer |  |  |
+| `GET` | `/wire-transfers/{id}` | get_wire_transfer |  |  |
+| `POST` | `/wire-transfers/{id}/transition` | transition_wire_transfer |  |  |
 
 ## Tasks & timers
 
-Registered task types (generic `Task` resource: `type` · `subject_ref` · `due_at` · `status`): `acknowledgement`, `analysis`, `approval`, `assessment`, `attestation`, `consolidation`, `decision`, `deprovision`, `disposal`, `escalation`, `exercise`, `expiry`, `filing`, `issuance`, `notice`, `onboarding`, `plan`, `purge`, `reconciliation`, `refresh`, `remediation`, `renewal`, `report`, `review`, `test`, `triage`, `update`, `verification`
+Registered task types (generic `Task` resource: `type` · `subject_ref` · `due_at` · `status`): `acknowledgement`, `activation`, `analysis`, `approval`, `assessment`, `attestation`, `audit`, `certification`, `chargeoff`, `check`, `classification`, `completion`, `compute`, `consolidation`, `decision`, `delivery`, `deprovision`, `disposal`, `distribution`, `escalation`, `exercise`, `expiry`, `filing`, `flag`, `hold`, `investigation`, `issuance`, `notice`, `onboarding`, `other`, `payment`, `plan`, `propagation`, `publish`, `purge`, `reconciliation`, `refresh`, `remediation`, `renewal`, `report`, `resolution`, `response`, `retention`, `review`, `revocation`, `simulation`, `submission`, `sweep`, `test`, `training`, `transition`, `triage`, `update`, `valuation`, `verification`
 
 Domain task/timer codes below are registered — each maps to a `Task` instance. Timer codes (`*_due_at`, `*_expires_at`) are the `due_at` of the named task; cite them in the *Within* column as registered timers.
 
@@ -9140,130 +9839,93 @@ Domain task/timer codes below are registered — each maps to a `Task` instance.
 
 ## Provisional codes (agreed target naming — reuse, don't re-coin)
 
-The 269 codes below are known to the migration map but not yet registered in the spec. Their spelling is already agreed with engineering: if the policy needs one of these concepts, use the exact code below (and list it in the Assumptions & Gaps provisional-vocabulary bullet). Do not invent a near-duplicate.
+The 138 codes below are known to the migration map but not yet registered in the spec. Their spelling is already agreed with engineering: if the policy needs one of these concepts, use the exact code below (and list it in the Assumptions & Gaps provisional-vocabulary bullet). Do not invent a near-duplicate.
 
 - **access**: `access.channel`
 - **account**: `account.balances.balance`
-- **account_freeze**: `account_freeze.released`
-- **affiliate**: `affiliate.collateral_value`
 - **agreement**: `agreement.version`
-- **application**: `application.channel`, `application.counteroffer_status`, `application.counteroffer_terms`, `application.credit_structure`, `application.incomplete_aged`, `application.option_shortfall_reason`, `application.oral_adverse_decision`, `application.product_type`
+- **application**: `application.counteroffer_status`, `application.counteroffer_terms`, `application.credit_structure`, `application.incomplete_aged`, `application.option_shortfall_reason`, `application.oral_adverse_decision`, `application.product_type`
 - **audit**: `audit.corrective_action`, `audit.finding_owner`
 - **aup**: `aup.version`
 - **authority_matrix**: `authority_matrix.version`
 - **balances**: `balances.balance`
 - **board**: `board.approval.id`
 - **bookkeeping**: `bookkeeping.account_code_5300`, `bookkeeping.locked_amount`
-- **breach**: `breach.control_id`, `breach.description`
 - **car**: `car.id`
-- **cash**: `cash.asset.balance`, `cash.asset.id`, `cash.duty.id`, `cash.enterprise_position.schedule`, `cash.evidence.type`, `cash.exception_register.summary`, `cash.exception_ticket.id`, `cash.load.amount`, `cash.location.id`, `cash.overshort.amount`, `cash.recon.due_at`, `cash.shipment.amount`, `cash.surprise_count.schedule`
-- **catalogue**: `catalogue.approver_id`
+- **cash**: `cash.duty.id`, `cash.enterprise_position.schedule`, `cash.evidence.type`, `cash.recon.due_at`
 - **cda**: `cda.approver_id`
-- **cdd**: `cdd.control_person`, `cdd.expected_activity`, `cdd.industry_code`, `cdd.profile`, `cdd.source_of_funds`
-- **change**: `change.approver_id`, `change.description`, `change.risk_rating`, `change.summary`
+- **cdd**: `cdd.profile`
+- **change**: `change.description`, `change.summary`
 - **claim**: `claim.description`, `claim.litigation_hold.released`
 - **cmir**: `cmir.amount`, `cmir.counterparty`, `cmir.direction`, `cmir.shipment_manifest`
 - **collateral**: `collateral.ltv`
-- **complaint**: `complaint.channel`, `complaint.id`, `complaint.narrative`, `complaint.summary_id`
+- **complaint**: `complaint.id`, `complaint.summary_id`
 - **connection**: `connection.id`
 - **control**: `control.id`
-- **corp_opportunity**: `corp_opportunity.description`
-- **courier**: `courier.receipt.id`
-- **covered_person**: `covered_person.id`, `covered_person.role`
-- **credit_box**: `credit_box.version`
 - **credit_file**: `credit_file.approver_id`, `credit_file.id`
 - **credit_report**: `credit_report.id`, `credit_report.score`
-- **ctr**: `ctr.cash_in_total`, `ctr.cash_out_total`, `ctr.exemption_basis`
-- **deficiency**: `deficiency.owner_id`, `deficiency.severity`, `deficiency.summary`
-- **department**: `department.id`
+- **deficiency**: `deficiency.summary`
 - **disposal**: `disposal.due_at`
 - **dispute**: `dispute.amount`, `dispute.description`, `dispute.status`
-- **edd**: `edd.approver_id`, `edd.category_checklist`, `edd.file`, `edd.msb_registration_number`, `edd.site_visit_report`, `edd.source_of_wealth`
-- **employee**: `employee.id`, `employee.role`
+- **edd**: `edd.file`
+- **employee**: `employee.role`
 - **endpoint**: `endpoint.id`
-- **engagement**: `engagement.provider`, `engagement.scope`
 - **enrollment**: `enrollment.channel`
-- **eps**: `eps.auth.risk_tier`, `eps.bcp_test.due_at`, `eps.board_report.due_at`, `eps.control_review.due_at`, `eps.deficiency.description`, `eps.fraud_trend_review.report`, `eps.incident.id`, `eps.incident.reportable_determined`, `eps.incident.severity`, `eps.it_audit.due_at`, `eps.limit_change.approver_id`, `eps.product_risk_analysis.id`, `eps.proposal.description`, `eps.risk_assessment.id`, `eps.service.id`, `eps.vendor.id`, `eps.wire.released`
-- **escalation**: `escalation.description`, `escalation.facts`, `escalation.owner_id`, `escalation.regulatory_assessment`, `escalation.reporter_id`, `escalation.severity`
-- **exam**: `exam.export.scope`, `exam.requestor.id`
+- **eps**: `eps.fraud_trend_review.report`, `eps.product_risk_analysis.id`, `eps.proposal.description`, `eps.risk_assessment.id`, `eps.wire.released`
+- **escalation**: `escalation.description`, `escalation.owner_id`, `escalation.regulatory_assessment`
+- **exam**: `exam.requestor.id`
 - **exception**: `exception.approver_id`, `exception.expires_at`, `exception.scope`
-- **expense**: `expense.amount`, `expense.purpose`
 - **facility**: `facility.id`
 - **fbar**: `fbar.account_record`, `fbar.authority_type`
 - **fee**: `fee.type`
 - **field**: `field.code`
 - **fincen**: `fincen.counterpart_registration`, `fincen.request_scope`
-- **finding**: `finding.description`, `finding.id`, `finding.quarterly_summary`, `finding.risk_rating`, `finding.root_cause`, `finding.severity`
-- **flow**: `flow.amount`, `flow.direction`
+- **finding**: `finding.id`, `finding.quarterly_summary`
 - **gift**: `gift.description`
-- **governance**: `governance.authority_statement`, `governance.bsa_officer_id`, `governance.raci_registry`
 - **hmda**: `hmda.reporter_id`
 - **hr**: `hr.user.id`
 - **icaap**: `icaap.due_at`
-- **indemnification**: `indemnification.legal_review`
 - **insider_case**: `insider_case.approver_id`
 - **institution_freeze**: `institution_freeze.notice_template_id`
-- **instrument_list**: `instrument_list.version`
-- **intrusion**: `intrusion.severity`
-- **kri**: `kri.direction`
-- **legal**: `legal.hold_scope`, `legal.matter_id`, `legal.request_doc`, `legal.requester`
-- **lending_program**: `lending_program.channel`, `lending_program.id`
+- **legal**: `legal.request_doc`, `legal.requester`
 - **limit_set**: `limit_set.version`
-- **loan_account**: `loan_account.action_basis`
 - **member**: `member.state`
 - **mi**: `mi.amount`, `mi.central_log`, `mi.instrument_type`, `mi.purchaser_id_number`
-- **monitoring**: `monitoring.scope`
 - **notice**: `notice.oral_statement`
-- **ofac**: `ofac.blocked_property`, `ofac.hotline_record`, `ofac.list_version`, `ofac.payment_instructions`
-- **official**: `official.id`
-- **overdraft**: `overdraft.amount`
+- **ofac**: `ofac.hotline_record`
 - **override**: `override.approver_id`
-- **pentest**: `pentest.scope`
 - **pep**: `pep.status`, `pep.subject_role`
-- **policy**: `policy.approver_id`, `policy.change_summary`, `policy.id`, `policy.version`
-- **position**: `position.instrument_type`, `position.maturity_date`
+- **policy**: `policy.approver_id`, `policy.id`, `policy.version`
+- **position**: `position.maturity_date`
 - **privacy**: `privacy.notice_template_id`
-- **process**: `process.description`, `process.id`, `process.owner_id`, `process.risk_rating`
+- **process**: `process.description`, `process.owner_id`, `process.risk_rating`
 - **product**: `product.description`, `product.id`
 - **property**: `property.address`
-- **record**: `record.hold_scope`, `record.id`, `record.legal_hold_flag`, `record.matter_id`
+- **record**: `record.id`
 - **record_class**: `record_class.description`
 - **records**: `records.retention.expires_at`
-- **redflag**: `redflag.type`
 - **regulator**: `regulator.contact`
-- **reporting**: `reporting.bsa_metrics`, `reporting.ofac_metrics`, `reporting.sar_count`, `reporting.training_metrics`
-- **resolution_exception**: `resolution_exception.description`, `resolution_exception.expires_at`
 - **resolution_review**: `resolution_review.due_at`
-- **resolution_test**: `resolution_test.schedule`, `resolution_test.type`
-- **retention**: `retention.anchor_date`, `retention.record_type`, `retention.schedule`, `retention.timer`
-- **risk**: `risk.candidate_profile`, `risk.description`, `risk.geography_factors`, `risk.id`, `risk.inherent_score`, `risk.owner_id`, `risk.partner_dependency`
-- **risk_acceptance**: `risk_acceptance.id`, `risk_acceptance.owner_id`
-- **risk_appetite**: `risk_appetite.version`
-- **risk_breach**: `risk_breach.id`, `risk_breach.impact_summary`, `risk_breach.severity`
+- **resolution_test**: `resolution_test.schedule`
+- **retention**: `retention.timer`
 - **risk_scale**: `risk_scale.version`
-- **sar**: `sar.filing_id`, `sar.narrative`, `sar.prior_filing_id`
-- **schedule_a**: `schedule_a.version`
-- **scope_registry**: `scope_registry.approver_id`
+- **sar**: `sar.filing_id`
 - **security_finding**: `security_finding.description`, `security_finding.due_at`, `security_finding.severity`
 - **service**: `service.channel`, `service.status`, `service.summary`
-- **socialmedia**: `socialmedia.evidence`
-- **storage_box**: `storage_box.description`
-- **strategy**: `strategy.change_summary`
 - **stress**: `stress.approver_id`
 - **stress_test**: `stress_test.due_at`
 - **template**: `template.channel`
 - **trade**: `trade.amount`, `trade.instrument_type`
-- **training**: `training.board_curriculum`, `training.change_summary`, `training.competency.id`, `training.curriculum`, `training.curriculum.id`, `training.curriculum_version`, `training.due_at`, `training.hire_date`, `training.initial.due_at`, `training.refresher.due_at`, `training.role_curriculum`
-- **transaction**: `transaction.amount`, `transaction.id`, `transaction.type`
+- **training**: `training.board_curriculum`, `training.competency.id`, `training.curriculum`, `training.curriculum.id`, `training.curriculum_version`, `training.due_at`, `training.initial.due_at`, `training.refresher.due_at`
+- **transaction**: `transaction.id`, `transaction.type`
 - **valuation**: `valuation.report`
-- **vendor**: `vendor.alert_details`, `vendor.contract_terms`, `vendor.data_scope`, `vendor.dd_package`, `vendor.efficacy_results`, `vendor.id`, `vendor.impact_scope`
+- **vendor**: `vendor.alert_details`, `vendor.contract_terms`, `vendor.efficacy_results`, `vendor.impact_scope`
 - **verification**: `verification.ofac_result.match_status`
-- **vuln**: `vuln.detail`, `vuln.severity`
 
 ## State machines
 
 - **Account** (`status`): open, frozen, closed
-- **AccountNumber** (``): active, disabled, canceled
+- **AccountNumber** (`status`): active, disabled, canceled
 - **AchTransfer** (`status`): pending_approval, submitted, settled, returned, rejected, canceled
 - **Case** (`status`): opened, in_review, closed
 - **Entity** (`status`): pending, active, disabled, archived
@@ -9277,7 +9939,7 @@ The 269 codes below are known to the migration map but not yet registered in the
 
 ## Plugins
 
-_No plugins defined in vocabulary.json._
+_No plugins defined in core-vocabulary.json._
 """
 
 

@@ -2,184 +2,170 @@
 title: Internal Controls Policy (Table-First, Design-Overlay v2)
 owner: Patrick Wilson, Chief Compliance Officer
 version: v1.0
-effective: 2026-06-04
-next_review: 2027-06-04
+effective: 2026-06-16
+next_review: 2027-06-16
 approvers:
   - Patrick Wilson, Chief Compliance Officer
-tags: [Compliance, Internal Controls, Segregation of Duties, Reconciliation, Governance]
+tags: [Compliance, Internal Controls, Segregation of Duties, Reconciliation, Access, Override, Audit Trail]
 ---
 
 ## General Policy Statement
 
-Pynthia Credit Union maintains a documented system of internal controls — segregation of duties, authorization limits, reconciliations, access and change controls, exception/override management, monitoring, and tamper-evident audit trails — designed to provide reasonable assurance that assets are safeguarded, financial reporting is reliable, and operations comply with applicable laws and regulations. This policy applies to all operational and financial processes, business units, employees, and supporting systems, including activities performed by third-party service providers on the credit union's behalf. Information-security technical controls, enterprise risk appetite, audit execution scope, BSA/AML program controls, vendor control assurance, and general record-retention schedules are governed by their respective policies and are out of scope here except where this framework assigns control ownership.
+Pynthia Credit Union maintains a system of internal control — segregation of duties, authorizations, reconciliations, access controls, override discipline, and management oversight — that safeguards member assets, ensures reliable financial reporting, and promotes compliance with law. The framework applies to all operational and financial processes, business units, employees, and supporting systems, including activities third-party service providers perform on the credit union's behalf. Control risk is concentrated wherever a single person could initiate, approve, record, and conceal a transaction; this policy is engineered to detect and block those concentrations and to give the Board and Supervisory Committee timely, reliable evidence that controls operate as designed.
 
 ## Timing Matrix  {#timing-matrix}
 
 | Scenario | Trigger (human → event) | Deadline | Content Reference | Control |
 |---|---|---|---|---|
-| Control framework annual review | Framework review window opens (`control.framework_review_due_at`) | Annually | Approved framework + owner assignments | [IC-01](#ic-01--control-environment-and-governance) |
-| Incompatible-duty grant attempted | Access grant would create SoD conflict (`sod.conflict_detected`) | Real-time (block at grant) | SoD matrix + violation log | [IC-02](#ic-02--segregation-of-duties) |
-| High-risk transaction initiated | Transaction flagged dual-control (`transaction.approval_recorded`) | Before execution | Authority matrix + approval record | [IC-03](#ic-03--authorization-and-approval-limits) |
-| Daily cash / high-volume recon | Recon timer fires (`recon.daily_due`) | Daily (by EOD next BD) | Completed recon + aged-item escalation | [IC-04](#ic-04--reconciliations) |
-| Monthly GL / subsidiary recon | Recon timer fires (`recon.monthly_due`) | Monthly | Completed recon + aged-item escalation | [IC-04](#ic-04--reconciliations) |
-| Entitlement review cycle | Review window opens (`access.review_due`) | Annually / on role change | Access review attestation | [IC-05](#ic-05--access-and-change-controls) |
-| Change to financial system / control config | RFC submitted (`change.rfc_submitted`) | Before deployment | CAB decision + deployment record | [IC-05](#ic-05--access-and-change-controls) |
-| Control override invoked | Override recorded (`control.override_invoked`) | At invocation; senior approval for above-limit | Override record + senior decision | [IC-06](#ic-06--exception-and-override-management) |
-| Self-assessment cycle | CSA cycle opens (`csa.cycle_opened`) | Per cycle | CSA results + deficiency tracking | [IC-07](#ic-07--monitoring-and-self-assessment) |
-| Deficiency identified | Deficiency logged (`deficiency.logged`) | Remediation plan per SLA | Tracked finding to closure | [IC-07](#ic-07--monitoring-and-self-assessment) |
-| Quarterly board / SC report | Quarterly reporting timer fires (`reporting.quarterly_due`) | Quarterly | Board/SC control report | [IC-07](#ic-07--monitoring-and-self-assessment) |
-| Control event / transaction logged | Event emitted (`record.created`) | Real-time; retained per schedule | Tamper-evident audit entry | [IC-08](#ic-08--audit-trail-and-recordkeeping) |
+| Control framework annual review | Framework review timer fires (`control.framework_review_due_at`) | Annually | Reviewed framework + board approval | [IC-01](#ic-01-control-environment-and-governance) |
+| Incompatible-duty grant attempt | Entitlement requested triggers SoD check (`access.entitlement_requested`) | Real time (block) | SoD conflict logged, grant blocked | [IC-02](#ic-02-segregation-of-duties) |
+| High-risk transaction initiated | Transaction needs approval (`transaction.approval_recorded`) | Before execution | Documented approval + dual control | [IC-03](#ic-03-authorization-and-approval-limits) |
+| Daily cash / high-volume recon | Daily recon timer fires (`recon.daily_due`) | End of business day (internal: same BD) | Completed reconciliation | [IC-04](#ic-04-reconciliations) |
+| Other GL / subledger recon | Monthly recon timer fires (`recon.monthly_due`) | Month-end + 10 BD | Completed reconciliation | [IC-04](#ic-04-reconciliations) |
+| Aged reconciling item | Item aging timer fires (`recon.item_aging_timer`) | 30 days (internal: escalate at 30, resolve by 60) | Escalation + resolution | [IC-04](#ic-04-reconciliations) |
+| Entitlement review | Access review timer fires (`access.review_due`) | Annually + on role change | Completed entitlement review | [IC-05](#ic-05-access-and-change-controls) |
+| Change to financial system | RFC submitted (`change.rfc_submitted`) | Before deployment | CAB decision + post-review | [IC-05](#ic-05-access-and-change-controls) |
+| Control override invoked | Override recorded (`override.recorded`) | Real time; senior approval within 1 BD | Override record + analytics | [IC-06](#ic-06-exception-and-override-management) |
+| Control self-assessment cycle | CSA cycle opens (`csa.cycle_opened`) | Per cycle | CSA results + deficiency tracking | [IC-07](#ic-07-monitoring-and-self-assessment) |
+| Deficiency identified | Deficiency logged (`deficiency.logged`) | Remediate by owner due date | Remediation to closure | [IC-07](#ic-07-monitoring-and-self-assessment) |
+| Quarterly results to Board/Supervisory Committee | Quarterly report timer fires (`finding.quarterly_report_due`) | Quarterly | Board/Supervisory Committee report | [IC-07](#ic-07-monitoring-and-self-assessment) |
+| Control event / transaction recorded | Any control or transaction event (`event.created`) | Real time | Tamper-evident audit entry | [IC-08](#ic-08-audit-trail-and-recordkeeping) |
+| Record retention expiry | Retention timer fires (`record.retention_expires_at`) | Per schedule (hold-aware) | Disposal certificate | [IC-08](#ic-08-audit-trail-and-recordkeeping) |
 
-## IC-01 — Control Environment and Governance
+## IC-01 — Control Environment and Governance  {#ic-01-control-environment-and-governance}
 
-**WHY (Reg cite):** The Supervisory Committee must ensure internal controls are established and effectively maintained ([FCU Act 12 U.S.C. §1761b](https://www.law.cornell.edu/uscode/text/12/1761b)), supported by an internal-control structure for the annual audit ([NCUA 12 CFR Part 715](https://www.ecfr.gov/current/title-12/part-715)) and adequate internal controls and recordkeeping as a condition of insurance ([NCUA 12 CFR §741.3](https://www.ecfr.gov/current/title-12/part-741/section-741.3)).
+- **WHY (Reg cite):** The Federal Credit Union Act vests the Supervisory Committee with the duty to ensure internal controls are established and effectively maintained ([12 U.S.C. §1761b](https://www.law.cornell.edu/uscode/text/12/1761b)); sound internal controls and recordkeeping are a condition of insurability ([12 CFR §741.3](https://www.ecfr.gov/current/title-12/part-741/section-741.3)), and Part 715 requires an internal control structure supporting the annual Supervisory Committee audit ([12 CFR Part 715](https://www.ecfr.gov/current/title-12/part-715)). FFIEC/NCUA examiner guidance expects a COSO-aligned control environment.
 
-**SYSTEM BEHAVIOR:** The credit union maintains a control framework register that assigns a named owner to each material process and is approved by the board, reviewed at least annually. A review timer drives the annual re-approval; lapsed reviews escalate to the CCO and Supervisory Committee. When a control owner role becomes vacant, the framework register flags the gap and starts a vacancy timer so reassignment is forced. Board and Supervisory Committee oversight is evidenced through recorded meeting minutes and delivered control reports. The control framework register and owner assignments are write-restricted to Compliance.
+- **SYSTEM BEHAVIOR:** The credit union maintains a control register naming an owner for each material process; the framework is approved by the Board and reviewed at least annually, with the Supervisory Committee exercising oversight. A timer drives the annual review; if a control owner role is vacated, an owner-vacancy timer opens a remediation task so no material process is left unowned. The control register and framework approval status are write-restricted to Compliance; process owners hold read access to their own entries.
 
-**EVENTS:**
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Framework annual review due (`control.framework_review_due_at`) | Control register (`control.register`), prior framework, owner roster (`control.owner_vacated`) | Reviewed framework presented for approval (`governance.board_cycle_opened`) | Annually (enforced by `control.framework_review_due_at`) |
+  | Board approves framework (`control.framework_approved`) | Reviewed framework, board agenda (`board.agenda_id`) | Approved framework + board minutes (`board.minutes_recorded`) | Annually (internal: at the approving board meeting) |
+  | Control owner assigned to a process (`control.owner_assigned`) | Process identifier (`process.id`), owner identity (`control.register`) | Ownership recorded in register (`control.owner_assigned`) | At process onboarding (internal: 5 BD) |
+  | Control owner role vacated (`risk.ownership_gap_detected`) | Vacancy reason (`control.vacancy_reason`), affected process (`process.id`) | Ownership-gap flagged for reassignment (`risk.ownership_gap_detected`) | Reassign within owner-vacancy window (enforced by `control.owner_vacancy_timer`) |
 
-| When | What's needed | Produced (and logged) | Within |
-|---|---|---|---|
-| Annual framework review window opens (`control.framework_review_due_at`) | Current framework register (`control.register`), process owner map (`policy.raci_registry`), prior approval (`policy.board_approved_at`) | Re-approved framework + board resolution (`control.framework_approved`) | Annually (internal: complete within review window; enforced by `control.framework_review_due_at`) |
-| Material process onboarded or owner reassigned (`control.owner_assigned`) | Process identifier (`process.id`), owner identity (`risk.owner_id`), framework register (`control.register`) | Owner assignment recorded (`control.owner_assigned`) | At assignment (internal: 5 BD) |
-| Control owner role vacated (`control.owner_vacated`) | Vacancy reason (`control.vacancy_reason`), vacancy timer (`control.owner_vacancy_timer`) | Reassignment task + escalation logged (`escalation.created`) | Per vacancy timer (`control.owner_vacancy_timer`) |
-| Board/SC oversight review held (`board.audit_review_recorded`) | Meeting date (`board.meeting_date`), control report package (`board.package_distributed`) | Minutes recorded (`board.minutes_recorded`) | Per board cadence (internal: each scheduled meeting) |
+- **ALERTS/METRICS:** Alert when the annual framework review is past due or an owner-vacancy timer ages beyond its window; target zero material processes without a named owner and zero overdue framework reviews.
 
-**ALERTS/METRICS:** Aging alert when the framework review passes its due date with target zero overdue; count of material processes with no assigned owner (target zero); and time-to-reassignment distribution for vacated control-owner roles.
+## IC-02 — Segregation of Duties  {#ic-02-segregation-of-duties}
 
-## IC-02 — Segregation of Duties
+- **WHY (Reg cite):** Separation of incompatible duties so no individual controls all phases of a transaction is the foundation of insurable internal control under [12 CFR §741.3](https://www.ecfr.gov/current/title-12/part-741/section-741.3) and the internal-control structure required by [12 CFR Part 715](https://www.ecfr.gov/current/title-12/part-715), consistent with COSO control activities expected by FFIEC/NCUA guidance.
 
-**WHY (Reg cite):** Sound internal controls preventing any one person from controlling all phases of a transaction are required for insurability ([NCUA 12 CFR §741.3](https://www.ecfr.gov/current/title-12/part-741/section-741.3)) and form the control structure the Supervisory Committee must maintain ([FCU Act 12 U.S.C. §1761b](https://www.law.cornell.edu/uscode/text/12/1761b); [NCUA 12 CFR Part 715](https://www.ecfr.gov/current/title-12/part-715)).
+- **SYSTEM BEHAVIOR:** A versioned SoD matrix defines incompatible duty combinations across initiation, authorization, custody, recording, and reconciliation. At entitlement-request time the system evaluates the requested role against the matrix and blocks any grant that would create a conflict, logging the attempt. Where separation is operationally impractical, a documented compensating control (job rotation or supervisory review) may be approved in lieu of blocking; that exception is itself routed through [IC-06](#ic-06-exception-and-override-management). The SoD matrix is write-restricted to Compliance.
 
-**SYSTEM BEHAVIOR:** A versioned SoD matrix defines incompatible-duty combinations across initiation, authorization, custody, recording, and reconciliation. At entitlement grant the system checks the requested role against the matrix and blocks any grant that would create a conflict, logging the attempted violation. Where separation is operationally impractical, an approved compensating control (e.g., job rotation or supervisory review) may be registered against the conflict; the compensating control requires documented approval before the otherwise-blocked grant proceeds. The SoD matrix and compensating-control approvals are write-restricted to Compliance.
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Entitlement requested (`access.entitlement_requested`) | Requested role (`access.role_id`), role entitlements (`access.role_entitlements`), SoD matrix version (`sod.matrix_version`) | SoD check result (`sod.conflict_detected`) | Real time (synchronous to request) |
+  | Incompatible combination detected (`sod.conflict_detected`) | Conflict detail (`sod.check_result`), requester identity (`access.agent_identity`) | Grant blocked + violation logged (`sod.violation_logged`) | Real time (block) |
+  | Compensating control proposed for impractical separation (`sod.compensating_control_proposed`) | Rationale (`sod.risk_rationale`), proposed control (`sod.compensating_control`) | Compensating control approved/recorded (`sod.compensating_control_approved`) | Before grant (internal: 2 BD) |
 
-**EVENTS:**
+- **ALERTS/METRICS:** Alert on every blocked-grant attempt and on any compensating control approaching its review timer (`sod.review_timer`); target zero approved exceptions without a documented compensating control and trend the count of blocked attempts.
 
-| When | What's needed | Produced (and logged) | Within |
-|---|---|---|---|
-| Entitlement grant would create incompatible duties (`sod.conflict_detected`) | Requested role (`access.role_id`), role entitlements (`access.role_entitlements`), SoD matrix version (`sod.matrix_version`) | Grant blocked + violation logged (`sod.violation_logged`) | Real-time (block at grant) |
-| Compensating control proposed for an unavoidable conflict (`sod.compensating_control_proposed`) | Compensating control description (`sod.compensating_control`), risk rationale (`sod.risk_rationale`), approver identity (`access_right.approved_by`) | Approval decision recorded (`sod.compensating_control_approved`) | Before grant proceeds (internal: 5 BD) |
-| SoD matrix periodic review timer fires (`sod.review_timer`) | Current matrix (`sod.matrix_version`), prior check results (`sod.check_result`) | Updated matrix version (`access_review.completed`) | Annually (enforced by `sod.review_timer`) |
+## IC-03 — Authorization and Approval Limits  {#ic-03-authorization-and-approval-limits}
 
-**ALERTS/METRICS:** Count of blocked grant attempts (trend monitored for spikes), target zero un-reviewed compensating controls, and number of active SoD exceptions without a registered compensating control (target zero).
+- **WHY (Reg cite):** Documented authorization within defined limits, with heightened control over high-risk transactions, is a required control activity under the insurability standard ([12 CFR §741.3](https://www.ecfr.gov/current/title-12/part-741/section-741.3)) and the internal-control structure supporting the Supervisory Committee audit ([12 CFR Part 715](https://www.ecfr.gov/current/title-12/part-715)).
 
-## IC-03 — Authorization and Approval Limits
+- **SYSTEM BEHAVIOR:** A role-based authority matrix sets transaction and approval limits; transactions requiring approval are gated until a documented approval is recorded before execution, and transactions flagged high-risk additionally require dual control. Changes to the authority matrix require documented rationale and Finance concurrence. The authority matrix is write-restricted to Compliance and Finance.
 
-**WHY (Reg cite):** Documented authorization and approval controls are part of the sound business practices and internal-control structure required for insurability ([NCUA 12 CFR §741.3](https://www.ecfr.gov/current/title-12/part-741/section-741.3)) and the controls the Supervisory Committee must ensure are maintained ([FCU Act 12 U.S.C. §1761b](https://www.law.cornell.edu/uscode/text/12/1761b)).
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Transaction initiated requiring approval (`transaction.approval_recorded`) | Initiator (`transaction.initiated_by`), amount, approval-required flag (`transaction.approval_required`), authority matrix limits (`authority_matrix.role_limits`) | Documented approval recorded (`transaction.approval_recorded`) | Before execution (enforced by `transaction.approval_timer`) |
+  | High-risk transaction requires second control (`transaction.dual_control_completed`) | Dual-control-required flag (`transaction.dual_control_required`), second approver identity (`access.agent_identity`) | Dual control completed (`transaction.dual_control_completed`) | Before execution (internal: synchronous) |
+  | Authority matrix change proposed (`authority.matrix_change_proposed`) | Change rationale (`authority.change_rationale`), Finance concurrence (`authority.finance_concurrence`), matrix entry (`authority.matrix_entry`) | Updated authority matrix (`authority.matrix_updated`) | Before effective (internal: 5 BD) |
 
-**SYSTEM BEHAVIOR:** A role-based authority matrix defines transaction and approval limits by role. Transactions above a role's limit require documented approval before execution, and transactions designated high-risk require dual control (two distinct approvers). The system gates execution until the required approval(s) are recorded; an approval timer flags transactions awaiting authorization. Changes to the authority matrix require finance concurrence and documented rationale. The authority matrix is write-restricted to Compliance.
+- **ALERTS/METRICS:** Alert on any approval timer aging past its execution gate and on dual-control completion latency for high-risk transactions; target zero executed transactions lacking a recorded pre-execution approval.
 
-**EVENTS:**
+## IC-04 — Reconciliations  {#ic-04-reconciliations}
 
-| When | What's needed | Produced (and logged) | Within |
-|---|---|---|---|
-| Transaction initiated above role limit (`transaction.approval_recorded`) | Initiator (`transaction.initiated_by`), amount (`transaction.amount`), approval flag (`transaction.approval_required`), authority matrix (`authority_matrix.role_limits`) | Approval record gating execution (`transaction.approval_recorded`) | Before execution (internal: per `transaction.approval_timer`) |
-| High-risk transaction requires dual control (`transaction.dual_control_completed`) | Dual-control flag (`transaction.dual_control_required`), first/second approver identities (`access.role_id`) | Dual-control completion logged (`transaction.dual_control_completed`) | Before execution (internal: per `transaction.approval_timer`) |
-| Authority matrix change proposed (`authority.matrix_change_proposed`) | Change rationale (`authority.change_rationale`), finance concurrence (`authority.finance_concurrence`), matrix entry (`authority.matrix_entry`) | Updated authority matrix (`authority.matrix_updated`) | Before effect (internal: 5 BD) |
+- **WHY (Reg cite):** Timely reconciliation of general ledger, subsidiary, suspense, and clearing accounts evidences asset safeguarding and reliable reporting required for insurability ([12 CFR §741.3](https://www.ecfr.gov/current/title-12/part-741/section-741.3)) and supports the Supervisory Committee's verification duty ([12 U.S.C. §1761b](https://www.law.cornell.edu/uscode/text/12/1761b); [12 CFR Part 715](https://www.ecfr.gov/current/title-12/part-715)).
 
-**ALERTS/METRICS:** Count of executions attempted without required approval (target zero), aging of transactions stalled awaiting approval against the approval timer, and dual-control completion rate for designated high-risk transactions (target 100%).
+- **SYSTEM BEHAVIOR:** Cash and high-volume accounts reconcile daily; other GL, subledger, suspense, and clearing accounts reconcile monthly. Reconciling items carry an age and owner; items breaching the aging threshold escalate automatically and must resolve within defined timeframes. Suspense and clearing entries follow the same aging discipline (`gl.cash_suspense.aged`). Reconciliation completion and item resolution are write-restricted to Finance with Compliance read access.
 
-## IC-04 — Reconciliations
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Daily reconciliation due (`recon.daily_due`) | GL balances (`gl.balances`), trial balance (`gl.trial_balance`), recon item set (`recon.item`) | Daily reconciliation completed (`recon.daily_completed`) | End of business day (enforced by `recon.daily_timer`) |
+  | Monthly reconciliation due (`recon.monthly_due`) | GL balances (`gl.balances`), subledger balances, recon item set (`recon.item`) | Monthly reconciliation completed (`recon.monthly_completed`) | Month-end + 10 BD (enforced by `recon.monthly_timer`) |
+  | Reconciling item ages past threshold (`recon.item_aged`) | Item age (`recon.item_age_days`), owner (`recon.item_owner`), research notes (`recon.research_notes`) | Aged item escalated (`recon.item_escalated`) | Escalate at 30 days (enforced by `recon.item_aging_timer`) |
+  | Aged item researched and cleared (`recon.item_resolved`) | Research notes (`recon.research_notes`), suspense entry (`gl.cash_suspense.item`) | Item resolved + suspense cleared (`recon.item_resolved`, `gl.cash_suspense.cleared`) | Resolve by 60 days (internal SLA) |
 
-**WHY (Reg cite):** Timely reconciliation of ledgers and clearing/suspense accounts is part of the recordkeeping and internal-control adequacy required for insurance ([NCUA 12 CFR §741.3](https://www.ecfr.gov/current/title-12/part-741/section-741.3)) and supports the verification structure underpinning the Supervisory Committee audit ([NCUA 12 CFR Part 715](https://www.ecfr.gov/current/title-12/part-715)).
+- **ALERTS/METRICS:** Alert on any daily recon not completed by EOD, any monthly recon past month-end + 10 BD, and the aging distribution of open reconciling items; target zero items aged beyond 60 days.
 
-**SYSTEM BEHAVIOR:** The system reconciles general ledger, subsidiary ledgers, and suspense/clearing accounts on a defined cadence — daily for cash and high-volume accounts, monthly for others — driven by recon timers. Reconciling items are aged; items exceeding the defined aging threshold are escalated to a named owner and must be resolved within defined timeframes. Cash-suspense items have their own aging timer and escalate independently. Reconciliation records and aged-item dispositions are write-restricted to Finance.
+## IC-05 — Access and Change Controls  {#ic-05-access-and-change-controls}
 
-**EVENTS:**
+- **WHY (Reg cite):** Least-privilege provisioning, periodic entitlement review, and change-management approval over financial systems and control configurations are control activities required for insurable operations ([12 CFR §741.3](https://www.ecfr.gov/current/title-12/part-741/section-741.3)) and the internal-control structure under [12 CFR Part 715](https://www.ecfr.gov/current/title-12/part-715). (Technical logical-access controls live in the Information Security Policy.)
 
-| When | What's needed | Produced (and logged) | Within |
-|---|---|---|---|
-| Daily cash / high-volume recon timer fires (`recon.daily_due`) | Account balances (`gl.balances`), recon items (`recon.item`) | Completed daily recon (`recon.daily_completed`) | Daily (internal: by EOD next BD; enforced by `recon.daily_due`) |
-| Monthly GL / subsidiary recon timer fires (`recon.monthly_due`) | Trial balance (`gl.trial_balance`), subsidiary balances (`gl.balances`) | Completed monthly recon (`recon.monthly_completed`) | Monthly (enforced by `recon.monthly_due`) |
-| Reconciling item exceeds aging threshold (`recon.item_aged`) | Item age (`recon.item_age_days`), item owner (`recon.item_owner`), aging timer (`recon.item_aging_timer`) | Aged item escalated (`recon.item_escalated`) | Per aging threshold (enforced by `recon.item_aging_timer`) |
-| Aged reconciling item resolved (`recon.item_resolved`) | Research notes (`cash.recon.research_notes`), variance detail (`cash.recon.variance`) | Resolution logged (`recon.item_resolved`) | Within defined resolution timeframe (internal: per item aging SLA) |
-| Cash-suspense item aged (`gl.cash_suspense.escalated`) | Suspense item (`gl.cash_suspense.item`), aging timer (`gl.cash_suspense.aging_timer`) | Suspense escalation logged (`gl.cash_suspense.escalated`) | Per suspense aging threshold (enforced by `gl.cash_suspense.aging_timer`) |
+- **SYSTEM BEHAVIOR:** Access is provisioned on least-privilege and need-to-know with manager approval and justification; entitlements are reviewed at least annually and on role change, and access is deprovisioned promptly on separation. Changes to financial systems and control configurations require a submitted RFC, CAB approval before deployment, and a post-implementation review; emergency changes use the emergency-approval path and are reviewed retroactively. Access provisioning and review attestation are write-restricted to Compliance and the entitlement reviewers named in the roster.
 
-**ALERTS/METRICS:** Aging alert for reconciling items past threshold (target zero unresolved beyond SLA), recon completion rate against daily/monthly timers (target 100% on-time), and cash over/short variance trend monitored for anomalies.
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Access entitlement requested (`access.entitlement_requested`) | Requested role (`access.role_id`), justification (`access.justification`), manager approval (`access.manager_approval`) | Access provisioned on least-privilege (`access.provisioned`) | At onboarding/role change (internal: 2 BD) |
+  | Entitlement review due (`access.review_due`) | Reviewer roster (`access.reviewer_roster`), current entitlements (`access.role_entitlements`), last reviewed date (`access.last_reviewed_at`) | Review attestation completed (`access.review_completed`) | Annually + on role change (enforced by `access.review_due`) |
+  | Employee separated (`employee.separated`) | User identity (`user.id`), employment status (`user.employment_status`) | Access deprovisioned (`access.deprovisioned`) | Promptly (enforced by `access.deprovision_due_at`) |
+  | Change to financial system submitted (`change.rfc_submitted`) | Change detail (`change.requested`), risk rating (`change.risk_rating`), test evidence (`change.test_evidence`), backout plan (`change.backout_plan`) | CAB decision recorded (`change.cab_decision_recorded`) | Before deployment (enforced by `change.cab_review_due_at`) |
+  | Change deployed (`change.completed`) | Deployment record (`change.deployment_record`), approver (`change.approver_id`) | Post-implementation review completed (`change.post_review_completed`) | Post-deploy (enforced by `change.post_review_due_at`) |
 
-## IC-05 — Access and Change Controls
+- **ALERTS/METRICS:** Alert on entitlement reviews past due, separations with access not deprovisioned within SLA, and financial-system changes deployed without recorded CAB approval; target zero standing entitlements beyond their review window and zero un-reviewed emergency changes.
 
-**WHY (Reg cite):** Least-privilege provisioning, periodic entitlement review, and controlled changes to financial systems are part of the internal-control and recordkeeping adequacy required for insurance ([NCUA 12 CFR §741.3](https://www.ecfr.gov/current/title-12/part-741/section-741.3)); security-program controls over records are required by [NCUA 12 CFR Part 748](https://www.ecfr.gov/current/title-12/part-748). Technical/logical security controls are governed by the Information Security Policy; this control covers entitlement governance and change-management approval over financial systems and control configurations.
+## IC-06 — Exception and Override Management  {#ic-06-exception-and-override-management}
 
-**SYSTEM BEHAVIOR:** Access is provisioned on least-privilege and need-to-know principles, with each grant tied to documented approval. Entitlements are reviewed at least annually and on role change; review windows are driven by an access-review timer and produce an attestation. Separations and role changes trigger deprovisioning. Changes to financial systems and control configurations require change-management (CAB) approval with test evidence and a rollback plan before deployment; emergency changes require post-deployment review within a defined window. Access-review attestations and change approvals are write-restricted to Compliance and the change-advisory function respectively.
+- **WHY (Reg cite):** Capturing every control override with rationale and approver, escalating above-limit exceptions, and producing override analytics for management and audit is a control-monitoring expectation under the insurability standard ([12 CFR §741.3](https://www.ecfr.gov/current/title-12/part-741/section-741.3)) and supports the Supervisory Committee audit's reliance on controls ([12 CFR Part 715](https://www.ecfr.gov/current/title-12/part-715)).
 
-**EVENTS:**
+- **SYSTEM BEHAVIOR:** Every control override or exception is recorded with rationale and approver at the moment it is invoked; overrides above the configured limit route for senior approval, and periodic override analytics are produced for management and audit. Registered exceptions carry an expiry so they cannot become permanent silently; an expiry timer reverts or re-reviews the exception. Override records and senior-approval decisions are write-restricted to Compliance.
 
-| When | What's needed | Produced (and logged) | Within |
-|---|---|---|---|
-| Entitlement requested (`access.entitlement_requested`) | Requestor justification (`access.justification`), role (`access.role_id`), manager approval (`access.manager_approval`) | Access provisioned on least-privilege (`access.provisioned`) | At provisioning (internal: per approval workflow) |
-| Access review window opens (`access.review_due`) | Entitlement roster (`access.user_roster`), reviewer roster (`access.reviewer_roster`), review timer (`access.review_timer`) | Review attestation completed (`access.review_completed`) | Annually / on role change (enforced by `access.review_due`) |
-| Employee separated or role changed (`employee.role_changed`) | Employment status (`user.employment_status`), deprovision timer (`access.deprovision_due_at`) | Access deprovisioned (`access.deprovisioned`) | At separation/change (enforced by `access.deprovision_due_at`) |
-| Change to financial system / control config submitted (`change.rfc_submitted`) | Change description (`change.requested`), test evidence (`change.test_evidence`), rollback plan (`change.rollback_plan`) | CAB decision + deployment record (`change.cab_decision_recorded`) | Before deployment (internal: per `change.cab_review_due_at`) |
-| Emergency change deployed (`change.emergency_deployed`) | Emergency justification (`change.emergency_justification`), backout plan (`change.backout_plan`) | Post-implementation review (`change.post_review_completed`) | Per `change.post_review_due_at` |
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Control override invoked (`control.override_invoked`) | Rationale (`override.rationale`), invoking user (`access.agent_identity`), escalation-required flag (`override.escalation_required`) | Override recorded (`override.recorded`) | Real time (at invocation) |
+  | Above-limit override needs senior approval (`override.recorded`) | Senior approver (`override.senior_approver_id`), rationale (`override.rationale`) | Senior decision recorded (`override.senior_decision_recorded`) | 1 BD (enforced by `override.escalation_timer`) |
+  | Exception registered with expiry (`exception.registered`) | Risk acceptance (`exception.risk_acceptance`), rationale (`exception.rationale`) | Exception registered; revert scheduled (`exception.reverted`) | Expire/re-review by set date (enforced by `exception.expiry_timer`) |
+  | Override analytics cycle due (`override.analytics_published`) | Override population, escalation outcomes (`override.senior_approver_id`) | Override analytics published for management/audit (`override.analytics_published`) | Per cycle (enforced by `override.analytics_due`) |
 
-**ALERTS/METRICS:** Aging alert for overdue access reviews (target zero), count of active entitlements for separated users (target zero), and rate of changes to financial systems deployed without CAB approval (target zero).
+- **ALERTS/METRICS:** Alert on above-limit overrides awaiting senior approval past 1 BD and on exceptions nearing expiry; target zero overrides without rationale/approver and zero expired-but-still-active exceptions.
 
-## IC-06 — Exception and Override Management
+## IC-07 — Monitoring and Self-Assessment  {#ic-07-monitoring-and-self-assessment}
 
-**WHY (Reg cite):** Capturing every control override with rationale and approver, and routing above-limit exceptions for senior approval, is part of the documented internal-control structure required for insurance ([NCUA 12 CFR §741.3](https://www.ecfr.gov/current/title-12/part-741/section-741.3)) and the controls the Supervisory Committee must ensure are maintained ([FCU Act 12 U.S.C. §1761b](https://www.law.cornell.edu/uscode/text/12/1761b)).
+- **WHY (Reg cite):** Ongoing control self-assessment, management testing, deficiency tracking to remediation, and reporting to the Board and Supervisory Committee operationalize the monitoring component expected by FFIEC/NCUA guidance and the Supervisory Committee's oversight duty ([12 U.S.C. §1761b](https://www.law.cornell.edu/uscode/text/12/1761b); [12 CFR Part 715](https://www.ecfr.gov/current/title-12/part-715)). (Audit execution and scope are governed by the Audit Policy.)
 
-**SYSTEM BEHAVIOR:** Every control override or exception is captured with its rationale and the approver. Exceptions above a defined limit are flagged as requiring senior approval and routed accordingly; an escalation timer enforces timely senior decision. Override and exception activity is consolidated into analytics for management and audit. Registered exceptions carry an expiry timer so they revert rather than persist silently. Override records and senior-decision records are write-restricted to Compliance.
+- **SYSTEM BEHAVIOR:** Control self-assessments and management testing run on a defined cycle; identified deficiencies are logged with an owner and due date, tracked through remediation, and re-tested before closure. Monthly deficiency review and quarterly reporting roll results to the Board and Supervisory Committee. Critical or aging deficiencies escalate automatically. CSA results, deficiency status, and Board reporting are write-restricted to Compliance, with management owners able to update remediation status on their own items.
 
-**EVENTS:**
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | CSA cycle opens (`csa.cycle_opened`) | Prior results (`csa.prior_results`), sample spec (`monitoring.sample_spec`) | CSA completed (`csa.completed`) | Per cycle (enforced by `csa.cycle_timer`) |
+  | Deficiency identified (`deficiency.logged`) | Source (`deficiency.source`), severity (`deficiency.severity`), owner (`deficiency.owner_id`) | Remediation plan recorded (`deficiency.plan_recorded`) | Plan by set date (enforced by `deficiency.plan_timer`) |
+  | Remediation submitted (`deficiency.remediation_submitted`) | Retest result (`deficiency.retest_result`), closure evidence (`finding.closure_evidence`) | Deficiency closed after verification (`deficiency.closed`, `finding.closure_verified`) | By owner due date (enforced by `audit.remediation_timer`) |
+  | Deficiency ages past threshold (`finding.aging_threshold_breached`) | Aging report (`deficiency.aging_report`), severity (`deficiency.severity`) | Critical/aged deficiency escalated (`finding.critical_escalated`) | At threshold (enforced by `finding.escalation_due_at`) |
+  | Quarterly reporting due (`finding.quarterly_report_due`) | Open/closed deficiency population, monthly review record (`finding.monthly_review_recorded`) | Board/Supervisory Committee report delivered (`finding.quarterly_report_delivered`) | Quarterly (enforced by `finding.quarterly_report_due`) |
 
-| When | What's needed | Produced (and logged) | Within |
-|---|---|---|---|
-| Control override invoked (`control.override_invoked`) | Override rationale (`override.rationale`), approver identity (`override.senior_approver_id`), escalation flag (`override.escalation_required`) | Override recorded (`override.recorded`) | At invocation (real-time) |
-| Above-limit exception requires senior approval (`override.senior_decision_recorded`) | Escalation flag (`override.escalation_required`), escalation timer (`override.escalation_timer`) | Senior decision recorded (`override.senior_decision_recorded`) | Per `override.escalation_timer` |
-| Exception registered with expiry (`exception.registered`) | Rationale (`exception.rationale`), risk acceptance (`exception.risk_acceptance`), expiry timer (`exception.expiry_timer`) | Registered exception + revert on expiry (`exception.reverted`) | Per `exception.expiry_timer` |
-| Override analytics period closes (`override.analytics_published`) | Override register (`override.rationale`), analytics window (`override.analytics_due`) | Override analytics published (`override.analytics_published`) | Per `override.analytics_due` |
+- **ALERTS/METRICS:** Alert on deficiencies past remediation due date, the open-deficiency aging distribution, and any missed CSA cycle or quarterly report; target zero overdue critical deficiencies and 100% on-time Board/Supervisory Committee reporting.
 
-**ALERTS/METRICS:** Count of above-limit exceptions awaiting senior approval past the escalation timer (target zero), count of expired-but-not-reverted exceptions (target zero), and override volume trend by control for management review.
+## IC-08 — Audit Trail and Recordkeeping  {#ic-08-audit-trail-and-recordkeeping}
 
-## IC-07 — Monitoring and Self-Assessment
+- **WHY (Reg cite):** Complete, tamper-evident audit logs of transactions and control events and retention of control documentation are required for the security/recordkeeping program ([12 CFR Part 748](https://www.ecfr.gov/current/title-12/part-748)) and for insurable recordkeeping ([12 CFR §741.3](https://www.ecfr.gov/current/title-12/part-741/section-741.3)); the records must support the Supervisory Committee audit ([12 CFR Part 715](https://www.ecfr.gov/current/title-12/part-715)). (General retention schedules are set by the Record Retention Policy.)
 
-**WHY (Reg cite):** Ongoing monitoring, deficiency tracking, and reporting to the board and Supervisory Committee support the control structure and annual audit requirements of [NCUA 12 CFR Part 715](https://www.ecfr.gov/current/title-12/part-715) and the Supervisory Committee's duty to ensure controls are effectively maintained ([FCU Act 12 U.S.C. §1761b](https://www.law.cornell.edu/uscode/text/12/1761b)); adequate controls are also a condition of insurance ([NCUA 12 CFR §741.3](https://www.ecfr.gov/current/title-12/part-741/section-741.3)).
+- **SYSTEM BEHAVIOR:** Every transaction and control event is written to an immutable, tamper-evident audit log keyed by event code, actor, and timestamp; integrity tests run periodically to confirm the chain is intact. Control documentation is retained on its retention schedule with disposal blocked while a legal hold is in place; the retention clock resumes on hold release. Audit-log configuration and record-disposal authority are write-restricted to Compliance; sensitive-record access is logged.
 
-**SYSTEM BEHAVIOR:** Control self-assessments and management testing run on defined cycles, driven by a CSA cycle timer. Deficiencies are logged with a named owner and due date and tracked to remediation; aged deficiencies escalate. Results are consolidated into a quarterly report delivered to the board and Supervisory Committee, driven by a quarterly reporting timer. Deficiency tracking and self-assessment results are write-restricted to Compliance.
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Transaction or control event occurs (`event.created`) | Event code (`event.code`), actor (`record.actor_id`), resource reference (`event.resource_id`) | Tamper-evident audit entry written (`record.access_logged`) | Real time (synchronous) |
+  | Audit-log integrity test due (`record.integrity_test_completed`) | Integrity test scope (`record.integrity_test_due`), checksum chain (`records_package.checksum_chain`) | Integrity test completed (`record.integrity_test_completed`) | Per cycle (enforced by `record.integrity_test_due`) |
+  | Legal hold placed on control records (`record.hold_placed`) | Hold matter (`record.hold_matter_id`), hold scope (`record.hold_scope`), authorizer (`record.hold_authorizer`) | Hold applied; disposal suspended (`record.hold_applied`) | Real time (on hold) |
+  | Retention period expires (`record.retention_expires_at`) | Retention class (`record.retention_class`), disposal eligibility (`record.disposal_eligible`), hold status (`record.hold_status`) | Disposal executed + certificate recorded (`record.destroyed`, `record.destruction_certified`) | Per schedule, hold-aware (enforced by `record.retention_expires_at`) |
 
-**EVENTS:**
-
-| When | What's needed | Produced (and logged) | Within |
-|---|---|---|---|
-| Self-assessment cycle opens (`csa.cycle_opened`) | Sample specification (`monitoring.sample_spec`), prior results (`csa.prior_results`), cycle timer (`csa.cycle_timer`) | CSA completed (`csa.completed`) | Per cycle (enforced by `csa.cycle_timer`) |
-| Deficiency identified (`deficiency.logged`) | Source (`deficiency.source`), owner (`deficiency.owner_id`), severity (`deficiency.severity`), plan timer (`deficiency.plan_timer`) | Remediation plan recorded (`deficiency.plan_recorded`) | Per `deficiency.plan_timer` |
-| Deficiency remediation submitted (`deficiency.remediation_submitted`) | Retest result (`deficiency.retest_result`), aging report (`deficiency.aging_report`) | Deficiency closed (`deficiency.closed`) | Per remediation due date (internal: tracked to closure) |
-| Quarterly board/SC report timer fires (`reporting.quarterly_due`) | Monitoring findings (`monitoring.findings_reported`), deficiency status (`deficiency.aging_report`) | Board/SC control report (`reporting.quarterly_published`) | Quarterly (enforced by `reporting.quarterly_due`) |
-
-**ALERTS/METRICS:** Aging alert for deficiencies past remediation due date (target zero), CSA cycle completion rate against the cycle timer (target 100% on-time), and reopened-deficiency count trend.
-
-## IC-08 — Audit Trail and Recordkeeping
-
-**WHY (Reg cite):** Complete, tamper-evident records of transactions and control events are required as part of the security program and records preservation under [NCUA 12 CFR Part 748](https://www.ecfr.gov/current/title-12/part-748) and the recordkeeping adequacy required for insurance ([NCUA 12 CFR §741.3](https://www.ecfr.gov/current/title-12/part-741/section-741.3)); they also support the Supervisory Committee verification structure ([NCUA 12 CFR Part 715](https://www.ecfr.gov/current/title-12/part-715)).
-
-**SYSTEM BEHAVIOR:** Transactions and control events emit immutable, tamper-evident audit entries capturing actor, action, and timestamp; entries cannot be edited after write. Control documentation is retained per the applicable retention class and protected from premature destruction by legal-hold flags; detailed retention schedules are governed by the Record Retention Policy and inherited here. Integrity of the audit log is periodically tested. Audit-log configuration and retention/legal-hold settings are write-restricted to Compliance.
-
-**EVENTS:**
-
-| When | What's needed | Produced (and logged) | Within |
-|---|---|---|---|
-| Transaction or control event occurs (`record.created`) | Actor (`record.actor_id`), actor role (`record.actor_role`), artifact (`record.artifact`), retention class (`record.retention_class`) | Tamper-evident audit entry written (`record.access_logged`) | Real-time |
-| Retention clock set on a control record (`record.retention_clock_set`) | Record class (`record.retention_class`), retention timer (`record.retention_timer`), legal-hold flag (`record.legal_hold_placed`) | Retention clock recorded (`record.retention_clock_set`) | At record creation (per retention schedule) |
-| Audit-log integrity test due (`record.integrity_test_due`) | Integrity test scope (`audit.assessment_type`), test timer (`record.integrity_test_due`) | Integrity test completed (`record.integrity_test_completed`) | Per `record.integrity_test_due` |
-| Retention period expires with no hold (`record.retention_expired`) | Disposal eligibility (`record.disposal_eligible`), hold status (`record.hold_status`), disposal timer (`record.destruction_due_at`) | Record disposed + certificate (`record.destruction_certified`) | Per `record.destruction_due_at` |
-
-**ALERTS/METRICS:** Target zero detected audit-log tamper events, integrity-test pass rate (target 100%), and count of records past retention expiry still pending disposition (excluding legal holds; target zero).
+- **ALERTS/METRICS:** Alert on any audit-log integrity test failure, gaps in the event chain, and disposals attempted while a hold is active; target zero integrity-test failures and zero records destroyed under legal hold.
 
 ## Governance & Sign-Off  {#governance}
 
-- **Owner:** Patrick Wilson, Chief Compliance Officer — accountable for the control framework, control ownership assignments, and override/exception governance.
-- **Approver:** Patrick Wilson, Chief Compliance Officer.
-- **Required participants:** Process owners (control execution and self-assessment), Finance (reconciliations and authority-matrix concurrence), Internal Audit (independent testing), and the Supervisory Committee (oversight and acceptance).
-- **Review cadence:** Reviewed and re-approved at least annually (see [IC-01](#ic-01--control-environment-and-governance)); the control framework, deficiency status, and override analytics are reported to the board and Supervisory Committee quarterly (see [IC-07](#ic-07--monitoring-and-self-assessment)).
-- **Cross-refs:** Information Security Policy (logical/technical access controls), Enterprise Risk Management Policy (risk appetite/taxonomy), Audit Policy (audit execution and scope), BSA Policy (BSA/AML controls), Third-Party Risk Policy (vendor control assurance), Record Retention Policy (retention schedules consumed by [IC-08](#ic-08--audit-trail-and-recordkeeping)).
+- **Owner:** Patrick Wilson, Chief Compliance Officer — accountable for the internal control framework, the control register, and the consolidated SoD, authority, exception, and reconciliation configurations.
+- **Approval:** Approved by Patrick Wilson, Chief Compliance Officer. Board and Supervisory Committee exercise oversight per [IC-01](#ic-01-control-environment-and-governance) and receive monitoring results per [IC-07](#ic-07-monitoring-and-self-assessment).
+- **Participants:** Process owners (control execution and remediation), Finance (reconciliations and authority-matrix concurrence), Internal Audit and the Supervisory Committee (independent assurance and reporting recipients).
+- **Review cadence:** At least annually (next review {{2027-06-16}}) and upon material change to processes, systems, or regulation, driven by the framework review timer in [IC-01](#ic-01-control-environment-and-governance).
+- **Cross-references:** Information Security Policy (logical-access technical controls), Enterprise Risk Management Policy (risk appetite/taxonomy), Audit Policy (audit execution and scope), BSA Policy (BSA/AML program controls), Third-Party Risk Policy (vendor control assurance), Record Retention Policy (retention schedules).
 
 ## Assumptions & Gaps  {#assumptions}
 
-- **Engineering vocabulary is provisional.** Several field, event, and timer codes referenced in the control overlays map to the registered or provisional naming scheme in DESIGN_NOTES but are reused here under the closed-world grammar; where a needed concept had no exact registered code (e.g., `control.register`, `control.owner_vacancy_timer`, `sod.matrix_version`, `sod.review_timer`, `authority_matrix.role_limits`, `recon.item_aging_timer`, `override.escalation_timer`, `exception.expiry_timer`, `csa.cycle_timer`, `record.integrity_test_due`), the closest registered or provisional spelling was used. Engineering will confirm the final registry mapping before the next review.
-- **Charter type and applicability.** This policy is drafted for a federally insured credit union and anchors to NCUA Part 715, §741.3, Part 748, and FCU Act §1761b. The original reference policy was a Minnesota state-chartered bank document (12 CFR 363, MN Rule 2675); those bank-specific authorities are intentionally not carried over. Confirm Pynthia's exact charter and whether any state supervisory-authority internal-control rules also apply.
-- **Reconciliation aging thresholds and resolution timeframes** ("defined timeframes" for aged items) are not specified in PATRICK_NOTES; minimal viable cadence (daily/monthly) is encoded, but the specific day-count thresholds for escalation and resolution must be confirmed by Finance and set on the recon aging timers.
-- **High-risk transaction definition and dual-control thresholds** are referenced but not enumerated; the authority matrix must define which transaction types/amounts are "high-risk" and the specific role limits — to be confirmed by the CCO and Finance.
-- **Self-assessment cycle frequency** (e.g., quarterly vs. semi-annual CSA) is assumed to run on a defined recurring cycle; the exact frequency and deficiency remediation SLAs must be confirmed by the CCO.
-- **Supervisory Committee audit reporting deadline.** The reference policy cited a 30-day post-examination report deadline under state rule; that specific deadline is not carried into the NCUA framework here. Confirm whether an internal SLA for delivering control-monitoring results to the Supervisory Committee should be fixed.
-- **NCUA notification triggers.** This policy does not enumerate events requiring NCUA notification (governed by incident/BSA policies); confirm whether any internal-control failure thresholds should independently trigger `ncua.notification_required`.
+- **Engineering vocabulary is provisional.** Several control-event and field codes referenced in the overlays are not registered in the parsed core vocabulary (which is banking-core only) and are used here as the target naming scheme to be confirmed by engineering before the next review. Codes coined under the composition grammar from registered subjects/verbs/task types include: `control.framework_approved`, `control.owner_assigned`, `control.override_invoked`, `authority.matrix_change_proposed`, `authority.matrix_updated`, `transaction.approval_recorded`, `transaction.dual_control_completed`, `sod.compensating_control_proposed`, `sod.compensating_control_approved`, and the use of `risk.ownership_gap_detected` for control-owner vacancy. Existing registered codes were reused wherever they fit (e.g., `recon.*`, `access.*`, `change.*`, `override.*`, `deficiency.*`, `finding.*`, `csa.*`, `event.created`, `record.*`).
+- **Deadline numerics for reconciling-item aging and monthly recon are internal assumptions.** PATRICK_NOTES require "defined timeframes" but do not state them; this policy assumes escalation at 30 days, resolution by 60 days, and monthly recon completion by month-end + 10 business days. Confirm against operating procedures.
+- **High-risk transaction definition is delegated to configuration.** The set of transactions requiring dual control under [IC-03](#ic-03-authorization-and-approval-limits) is driven by the `transaction.dual_control_required` flag and the authority matrix; the criteria themselves are assumed to be maintained in procedure and confirmed by Finance/Compliance.
+- **Override and exception cadence/limits are configuration-driven assumptions.** The above-limit threshold for senior approval, the 1-business-day escalation SLA, and the override-analytics cycle in [IC-06](#ic-06-exception-and-override-management) are assumed defaults pending confirmation.
+- **Audit-log tamper-evidence mechanism is assumed.** [IC-08](#ic-08-audit-trail-and-recordkeeping) assumes a checksum/hash-chained immutable log with periodic integrity testing; the specific cryptographic and storage controls are owned by the Information Security Policy and assumed available.
+- **Charter/insurability and Supervisory Committee applicability.** Authorities are cited on the assumption that Pynthia is a federally insured credit union subject to NCUA Parts 715, 741, and 748 and FCU Act §1761b; if the charter differs (e.g., state-chartered with a different examiner), the WHY citations should be re-mapped.
+- **Several reused codes carry a generic subject.** Suspense/clearing aging reuses `gl.cash_suspense.*` and aged-item handling reuses `recon.item_*`; if a distinct clearing-account subject is later required, it should be registered rather than coined ad hoc.

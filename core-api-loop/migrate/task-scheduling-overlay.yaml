@@ -38,6 +38,7 @@ fields:
     remediation_due: string
     remediation_timer: string
     retention_expires_at: string
+    monthly_schedule_due: string
   backup:
     restore_test_due: string
     verify_due: string
@@ -150,12 +151,15 @@ fields:
     pillar3_due_at: string
   dispute:
     investigation_due_at: string
+    provisional_credit_due_at: string
+    response_due_at: string
   document:
     attachment_due_at: string
   dq:
     tieout_due_at: string
   dr:
     exercise_due_at: string
+    exercise_due: string
   drill:
     aar_due_at: string
     remediation_due: string
@@ -190,6 +194,7 @@ fields:
   facility:
     badge_deactivation_due_at: string
     test_due_at: string
+    annual_test_due: string
   fair_lending:
     assessment_due: string
     remediation_due_at: string
@@ -223,6 +228,7 @@ fields:
     ncua_notice_due_at: string
     notification_due_at: string
     triage_due_at: string
+    regulator_notification_due: string
   indemnification:
     advance_due_at: string
     determination_due_at: string
@@ -230,6 +236,7 @@ fields:
   insider:
     loc_approval_expires_at: string
     public_request_retention_expires_at: string
+    report_due: string
   institution_freeze:
     activation_due_at: string
     notice_due_at: string
@@ -317,6 +324,7 @@ fields:
     stress_test_due_at: string
   position:
     liquidity_classification_due: string
+    analytics_update_due: string
   pricing:
     exception_review_due_at: string
   privacy:
@@ -351,6 +359,7 @@ fields:
   regulator:
     response_due_at: string
     verification_due_at: string
+    contact_verification_due: string
   regulatory:
     analysis_due_at: string
   repo:
@@ -428,6 +437,7 @@ fields:
     review_due_at: string
   tdr:
     quarterly_review_due: string
+    review_due_at: string
   threat_register:
     refresh_due: string
   tls:
@@ -469,6 +479,7 @@ fields:
     raci_review_due: string
     remediation_due: string
     review_due_at: string
+    concentration_review_due: string
   verification:
     biometric_purge_due_at: string
   vuln:

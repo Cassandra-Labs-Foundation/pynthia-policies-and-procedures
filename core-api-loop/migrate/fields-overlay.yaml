@@ -5,6 +5,10 @@ fields:
     collateral_value: string
   application:
     channel: string
+  asset:
+    id: string
+  audit:
+    corrective_action: string
   breach:
     control_id: string
     description: string
@@ -23,18 +27,22 @@ fields:
     approver_id: string
   cda:
     funding_first_line: string
+    approver_id: string
   cdd:
     control_person: string
     expected_activity: string
     industry_code: string
     risk_tier: string
     source_of_funds: string
+    profile: string
   change:
     approver_id: string
     risk_rating: string
   complaint:
     channel: string
     narrative: string
+  connection:
+    id: string
   corp_opportunity:
     description: string
   courier:
@@ -44,6 +52,9 @@ fields:
     role: string
   credit_box:
     version: string
+    next_review_at: string
+  credit_file:
+    id: string
   credit_report:
     stale_at: string
   ctr:
@@ -66,6 +77,8 @@ fields:
   engagement:
     provider: string
     scope: string
+  enrollment:
+    channel: string
   eps:
     auth.risk_tier: string
     bcp_test.due_at: string
@@ -90,6 +103,8 @@ fields:
   expense:
     amount: integer
     purpose: string
+  fair_lending:
+    next_assessment_at: string
   finding:
     description: string
     risk_rating: string
@@ -108,18 +123,25 @@ fields:
     legal_review: string
   insider_report:
     due: string
+  institution_freeze:
+    notice_template_id: string
   instrument_list:
     version: string
   intrusion:
     severity: string
   kri:
     direction: string
+    trend: string
   legal:
     hold_scope: string
     matter_id: string
   lending_program:
     channel: string
     id: string
+  limit_set:
+    version: string
+  liquidity:
+    report: string
   loan_account:
     action_basis: string
   member:
@@ -132,6 +154,7 @@ fields:
     blocked_property: string
     list_version: string
     payment_instructions: string
+    hotline_record: string
   official:
     id: string
   overdraft:
@@ -142,12 +165,17 @@ fields:
     change_summary: string
     next_review_at: string
     raci_registry: string
+    approver_id: string
   position:
     instrument_type: string
+  privacy:
+    notice_template_id: string
   process:
     id: string
   product_risk:
     candidate_profile: string
+  property:
+    address: string
   recon:
     research_notes: string
   record:
@@ -155,6 +183,7 @@ fields:
     legal_hold_flag: string
     matter_id: string
     retention_anchor: string
+    id: string
   redflag:
     type: string
   regulation_inventory:
@@ -191,6 +220,8 @@ fields:
     id: string
     impact_summary: string
     severity: string
+  risk_scale:
+    version: string
   sar:
     narrative: string
     prior_filing_id: string
@@ -206,12 +237,19 @@ fields:
     description: string
   strategy:
     change_summary: string
+  stress:
+    set: string
+  trade:
+    instrument_type: string
   training:
     change_summary: string
     hire_date: string
     role_curriculum: string
+    board_curriculum: string
   transaction:
     amount: integer
+  valuation:
+    report: string
   vendor:
     data_scope: string
     dd_package: integer

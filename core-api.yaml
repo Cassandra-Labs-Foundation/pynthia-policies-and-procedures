@@ -4410,14 +4410,13 @@ components:
         account_type:
           type: string
           x-bound-controls:
-          - TIS-02
           - TIS-04
         balance:
           type: integer
           x-bound-controls:
-          - MEM-05
-          - MEM-06
-          - MEM-07
+          - MB-05
+          - MB-06
+          - TIS-06
         blnk_ledger_id:
           type: string
         created_at:
@@ -4427,7 +4426,6 @@ components:
           type: string
           x-bound-controls:
           - RP-04
-          - RP-06
         lock_type:
           type: string
           enum: *id067
@@ -4456,8 +4454,7 @@ components:
           type: string
           format: date-time
           x-bound-controls:
-          - MEM-05
-          - MEM-06
+          - MB-05
         maturity_notice_due_at:
           type: string
           format: date-time
@@ -4501,15 +4498,18 @@ components:
           type: string
         line1:
           type: string
+          x-bound-controls:
+          - PR-05
         line2:
           type: string
         ncoa_candidate:
           type: string
           x-bound-controls:
-          - MEM-02
           - PR-05
         postal_code:
           type: string
+          x-bound-controls:
+          - PR-05
         region:
           type: string
     Beneficiary:
@@ -4558,6 +4558,8 @@ components:
           - BSA-06
         details:
           type: string
+          x-bound-controls:
+          - BSA-06
         entity_hash:
           type: string
           x-bound-controls:
@@ -4588,6 +4590,8 @@ components:
           type: string
         request_during_address_hold:
           type: string
+          x-bound-controls:
+          - MB-02
         spend_controls:
           type: string
         status:
@@ -4652,11 +4656,11 @@ components:
         address_new:
           type: string
           x-bound-controls:
-          - MEM-02
+          - MB-02
         address_previous:
           type: string
           x-bound-controls:
-          - MEM-02
+          - MB-02
         contact:
           type: string
         contact_preference:
@@ -4714,6 +4718,8 @@ components:
       properties:
         code:
           type: string
+          x-bound-controls:
+          - IC-08
         created_at:
           type: string
           format: date-time
@@ -4729,6 +4735,8 @@ components:
           type: object
         resource_id:
           type: string
+          x-bound-controls:
+          - IC-08
         type:
           type: string
     FboPosition:
@@ -4759,6 +4767,8 @@ components:
           - BSA-05
         match_status:
           type: string
+          x-bound-controls:
+          - BSA-05
         matched_lists:
           type: string
           x-bound-controls:
@@ -4802,7 +4812,7 @@ components:
           - pep
           - family_or_associate
           x-bound-controls:
-          - BSA-16
+          - BSA-20
         subject_role:
           type: string
           enum:
@@ -4810,7 +4820,7 @@ components:
           - beneficial_owner
           - signer
           x-bound-controls:
-          - BSA-16
+          - BSA-20
     ProviderResult:
       type: object
       x-kind: banking-core
@@ -4856,17 +4866,15 @@ components:
         id:
           type: string
           x-bound-controls:
+          - IC-05
           - IS-06
-          - IS-15
           - PR-06
         role:
           type: string
           x-bound-controls:
-          - IP-14
-          - IP-16
+          - CP-03
           - IS-06
           - IS-15
-          - PR-06
     Verification:
       type: object
       x-kind: banking-core
@@ -4878,7 +4886,6 @@ components:
         alt_path_available:
           type: string
           x-bound-controls:
-          - BSA-03
           - PR-16
         biometric_consent_id:
           type: string
@@ -4903,7 +4910,7 @@ components:
           type: string
           x-bound-controls:
           - BSA-03
-          - MEM-01
+          - EC-03
         ofac_result:
           type: string
         pep:
@@ -4916,13 +4923,15 @@ components:
           type: string
           x-bound-controls:
           - BSA-03
-          - MEM-01
         status:
           type: string
           enum:
           - pending
           - approved
           - denied
+          x-bound-controls:
+          - BSA-03
+          - MB-01
         trust_level:
           type: string
           x-bound-controls:
@@ -4952,6 +4961,8 @@ components:
           - BSA-10
         beneficiary:
           $ref: '#/components/schemas/Beneficiary'
+          x-bound-controls:
+          - BSA-10
         control_results:
           type: object
           x-bound-controls:
@@ -4998,7 +5009,7 @@ components:
         id:
           type: string
           x-bound-controls:
-          - BSA-08
+          - BSA-06
         owner_id:
           type: string
           x-bound-controls:
@@ -5024,6 +5035,7 @@ components:
           description: Timer/SLA marker.
           x-bound-controls:
           - BSA-06
+          - TPR-08
     ControlResult:
       type: object
       x-kind: primitive
@@ -5054,13 +5066,14 @@ components:
           type: string
           x-bound-controls:
           - BSA-05
-          - BSA-07
     Document:
       type: object
       x-kind: primitive
       properties:
         attached:
           type: string
+          x-bound-controls:
+          - IP-15
         curriculum:
           $ref: '#/components/schemas/Curriculum'
         edd:
@@ -5090,11 +5103,14 @@ components:
           type: string
           x-bound-controls:
           - IP-15
+          - LN-09
+          - RII-09
         type:
           type: string
           enum: *id071
           x-bound-controls:
           - IP-15
+          - LN-09
         vendor:
           $ref: '#/components/schemas/VendorReview'
         vendor_alert:
@@ -5104,6 +5120,7 @@ components:
           format: date-time
           x-bound-controls:
           - IP-15
+          - LN-09
     Filing:
       type: object
       x-kind: primitive
@@ -5157,21 +5174,26 @@ components:
         hold_scope:
           type: string
           x-bound-controls:
-          - FL-12
+          - IS-18
+          - PR-08
+          - RR-07
         id:
           type: string
         matter_id:
           type: string
           x-bound-controls:
-          - FL-12
+          - RR-07
         matter_ref:
           type: object
+          x-bound-controls:
+          - IS-18
         placed_at:
           type: string
           format: date-time
         release_approved_by:
           type: string
           x-bound-controls:
+          - IS-18
           - RR-07
         released:
           type: string
@@ -5180,6 +5202,8 @@ components:
           format: date-time
         schedule_resumed:
           type: string
+          x-bound-controls:
+          - IS-18
         status:
           type: string
     Task:
@@ -5248,6 +5272,8 @@ components:
           - EC-10
         contained:
           type: string
+          x-bound-controls:
+          - BCP-13
         containment_timer:
           type: string
           x-bound-controls:
@@ -5260,10 +5286,10 @@ components:
           type: string
           x-bound-controls:
           - BCP-10
-          - CL-08
+          - COL-08
           - EC-10
+          - IS-09
           - PR-09
-          - TPR-08
         description:
           type: string
           x-bound-controls:
@@ -5275,7 +5301,7 @@ components:
           x-bound-controls:
           - BCP-05
           - BCP-10
-          - CL-08
+          - COL-08
           - EC-10
           - IS-09
           - PR-09
@@ -5284,19 +5310,26 @@ components:
           type: string
         facts:
           type: string
+          x-bound-controls:
+          - BCP-10
         ic_assignment_timer:
           type: string
+          x-bound-controls:
+          - BCP-05
+          - BCP-09
+          - IS-09
         id:
           type: string
         impact_summary:
           type: object
           x-bound-controls:
           - BCP-06
+          - COL-08
+          - FL-13
           - PR-10
         legal_review:
           type: string
           x-bound-controls:
-          - BCP-10
           - EC-10
         member_notice_required:
           type: boolean
@@ -5304,30 +5337,32 @@ components:
           type: string
           x-bound-controls:
           - BCP-10
-          - CL-08
+          - COL-08
           - EC-10
           - IS-09
           - PR-09
+          - TPR-08
         misuse_determined:
           type: string
+          x-bound-controls:
+          - PR-09
         misuse_likelihood:
           type: string
           x-bound-controls:
-          - BCP-10
-          - CL-08
+          - COL-08
           - EC-10
           - IS-09
-          - TPR-08
         notice_content:
           type: string
           x-bound-controls:
-          - CL-08
           - EC-10
-          - PR-09
+          - IS-09
         notice_template_id:
           type: string
         notification_determined:
           type: string
+          x-bound-controls:
+          - BCP-10
         quarterly_summary:
           type: object
         recovered:
@@ -5339,17 +5374,18 @@ components:
         reportability_determination:
           type: string
           x-bound-controls:
-          - CL-08
-          - EC-10
-          - FL-13
-          - IS-09
+          - BCP-10
+          - COL-08
           - PR-09
+          - TPR-08
         reportability_rationale:
           type: string
           x-bound-controls:
-          - TPR-08
+          - IS-09
         reportable_determined:
           type: string
+          x-bound-controls:
+          - IS-09
         root_cause:
           type: string
           x-bound-controls:
@@ -5368,13 +5404,14 @@ components:
           - BCP-06
           - EC-10
           - IS-09
+          - TPR-08
         severity:
           type: string
           x-bound-controls:
           - BCP-05
-          - BCP-06
-          - CL-08
+          - COL-08
           - EC-10
+          - FL-13
           - IS-09
           - PR-09
           - TPR-08
@@ -5388,6 +5425,8 @@ components:
           - closed
         summary_id:
           type: string
+          x-bound-controls:
+          - PR-10
         timeline:
           type: string
           x-bound-controls:
@@ -5399,8 +5438,8 @@ components:
           type: string
           format: date-time
           x-bound-controls:
-          - BCP-11
-          - CL-08
+          - BCP-10
+          - COL-08
           - EC-10
           - IS-09
           - PR-09
@@ -5410,8 +5449,7 @@ components:
           format: date-time
           x-bound-controls:
           - BCP-10
-          - CL-08
-          - EC-10
+          - COL-08
           - IS-09
           - PR-09
         triage_due_at:
@@ -5419,16 +5457,13 @@ components:
           format: date-time
           x-bound-controls:
           - BCP-05
-          - BCP-06
-          - BCP-09
-          - BCP-10
-          - CL-08
+          - COL-08
           - EC-10
-          - EPS-02
           - IS-09
-          - IS-14
           - PR-09
-          - TPR-08
+        regulator_notification_due:
+          type: string
+          format: date
     Loan:
       type: object
       x-kind: domain
@@ -5440,7 +5475,7 @@ components:
         accrued_interest:
           type: string
           x-bound-controls:
-          - CL-09
+          - COL-09
         action_basis:
           type: object
           x-bound-controls:
@@ -5448,11 +5483,11 @@ components:
         balance:
           type: integer
           x-bound-controls:
-          - CL-03
+          - COL-03
         bankruptcy_case_id:
           type: string
           x-bound-controls:
-          - CL-03
+          - COL-03
         booking_block_state:
           type: string
           enum: *id074
@@ -5470,18 +5505,20 @@ components:
           type: string
           format: date-time
           x-bound-controls:
-          - CL-03
+          - COL-03
         classified_substandard:
           type: string
+          x-bound-controls:
+          - COL-09
         collateral_value:
           type: string
           x-bound-controls:
-          - LD-06
+          - COL-03
         collectibility_assessment:
           type: string
           x-bound-controls:
-          - CL-02
-          - CL-09
+          - COL-02
+          - COL-09
         death_loss_estimable:
           type: string
           x-bound-controls:
@@ -5509,27 +5546,33 @@ components:
           - CL-09
         dpd_reset:
           type: string
+          x-bound-controls:
+          - COL-04
         dpd_reset_eligibility_check:
           type: string
           x-bound-controls:
-          - CL-04
+          - COL-04
         estate_claim_status:
           type: string
           x-bound-controls:
           - CL-03
         estimated_recovery:
           type: string
+          x-bound-controls:
+          - COL-09
         foreclosure_impact_eval:
           type: string
           x-bound-controls:
-          - CL-09
+          - COL-09
         funding_block_state:
           type: string
           enum: *id075
+          x-bound-controls:
+          - LN-11
         grace_period_days:
           type: string
           x-bound-controls:
-          - CL-02
+          - COL-02
         id:
           type: string
           x-bound-controls:
@@ -5537,112 +5580,116 @@ components:
         io_term_months:
           type: string
           x-bound-controls:
-          - CL-04
+          - COL-04
         last_payment_date:
           type: string
           format: date-time
           x-bound-controls:
-          - CL-02
+          - COL-02
         ltv:
           type: number
           x-bound-controls:
-          - CL-03
-          - LD-06
+          - COL-03
+          - LN-06
         modified_schedule:
           type: string
           x-bound-controls:
-          - CL-04
+          - COL-04
         nonaccrual_placed:
           type: string
           x-bound-controls:
-          - CL-01
+          - COL-01
         past_due_amount:
           type: integer
           x-bound-controls:
-          - CL-02
+          - COL-02
         product_type:
           type: string
           x-bound-controls:
-          - CL-02
-          - CL-03
+          - COL-02
+          - COL-03
         proposed_modification:
           type: string
           x-bound-controls:
-          - CL-04
+          - COL-04
         repayment_evidence:
           type: object
           x-bound-controls:
-          - CL-03
-          - CL-04
-          - CL-09
+          - COL-03
+          - COL-04
+          - COL-09
         risk_rating:
           type: string
           x-bound-controls:
-          - CL-01
-          - CL-09
+          - COL-01
+          - COL-04
+          - COL-09
         well_secured_documented:
           type: string
           x-bound-controls:
-          - CL-03
+          - COL-03
         workout_alternatives:
           type: string
           x-bound-controls:
-          - CL-02
+          - COL-02
         bankruptcy_chargeoff_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - CL-03
+          - COL-03
         classification_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - CL-03
+          - COL-03
         courtesy_notice_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - CL-02
+          - COL-02
         days_past_due:
           type: string
           format: date
           x-bound-controls:
-          - CL-02
+          - COL-01
+          - COL-02
+          - COL-03
+          - COL-09
         fraud_chargeoff_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - CL-03
+          - COL-03
         nonaccrual_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - CL-09
+          - COL-09
         rating_review_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - CL-09
+          - COL-09
         re_valuation_due:
           type: string
           format: date
           x-bound-controls:
-          - CL-03
+          - COL-03
         right_to_cure_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - CL-02
+          - COL-02
         second_reminder_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - CL-02
+          - COL-02
         status_memo_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - CL-02
+          - COL-02
     LoanApplication:
       type: object
       x-kind: domain
@@ -5656,19 +5703,18 @@ components:
           type: object
           x-bound-controls:
           - FL-05
-          - LD-03
-          - LD-07
+          - LN-03
+          - LN-07
         amount:
           type: integer
         applicant:
           $ref: '#/components/schemas/Applicant'
           x-bound-controls:
-          - LD-07
+          - FL-05
         atr_qm_result:
           type: string
           x-bound-controls:
-          - FL-04
-          - LD-05
+          - LN-05
         channel:
           type: string
           x-bound-controls:
@@ -5678,39 +5724,41 @@ components:
           enum: *id037
           x-bound-controls:
           - FL-05
-          - LD-07
+          - LN-07
         counteroffer_terms:
           type: object
           x-bound-controls:
           - FL-05
-          - LD-07
+          - LN-07
         credit_structure:
           type: object
           x-bound-controls:
-          - LD-03
-          - LD-04
+          - LN-03
         data:
           type: object
           x-bound-controls:
-          - FL-01
-          - LD-03
+          - LN-03
+          - LN-04
         decision:
           $ref: '#/components/schemas/Decision'
+          x-bound-controls:
+          - LN-03
+          - LN-07
         decision_block_state:
           type: string
           enum: *id042
+          x-bound-controls:
+          - LN-14
         doc_block_state:
           type: string
           enum: *id043
           x-bound-controls:
-          - LD-05
-          - LD-09
-          - LD-10
+          - LN-05
         dti:
           type: number
           x-bound-controls:
-          - LD-03
-          - LD-05
+          - LN-03
+          - LN-05
         employment:
           type: object
           x-bound-controls:
@@ -5718,27 +5766,27 @@ components:
         final_action:
           type: string
           x-bound-controls:
-          - FL-06
+          - LN-03
         geography:
           type: string
           x-bound-controls:
-          - LD-13
+          - FL-06
         gmi:
           type: object
           x-bound-controls:
-          - FL-06
-          - LD-07
-          - LD-13
+          - FL-02
+          - LN-13
         id:
           type: string
         income_assets:
           type: object
           x-bound-controls:
-          - LD-03
-          - LD-04
-          - LD-05
+          - LN-03
         incomplete_aged:
           type: boolean
+          x-bound-controls:
+          - FL-05
+          - LN-03
         notified_at:
           type: string
           format: date-time
@@ -5752,22 +5800,23 @@ components:
           type: string
           x-bound-controls:
           - FL-05
+          - LN-07
         parties:
           type: array
           items: *id053
+          x-bound-controls:
+          - LN-14
         prequal:
           $ref: '#/components/schemas/Prequal'
         product_code:
           type: string
           x-bound-controls:
-          - LD-02
+          - LN-02
         product_type:
           type: string
           x-bound-controls:
           - FL-02
-          - FL-13
-          - LD-02
-          - LD-13
+          - LN-02
         requested_terms:
           type: object
           x-bound-controls:
@@ -5777,18 +5826,18 @@ components:
           format: date-time
           x-bound-controls:
           - FL-05
-          - LD-07
+          - LN-07
         counteroffer_aan_due_at:
           type: string
           format: date-time
           x-bound-controls:
           - FL-05
-          - LD-07
+          - LN-07
         decision_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - LD-03
+          - LN-03
     Applicant:
       type: object
       x-kind: domain
@@ -5800,13 +5849,12 @@ components:
         contact:
           type: object
           x-bound-controls:
-          - LD-03
-          - LD-06
+          - LN-06
         gmi_responses:
           type: object
           x-bound-controls:
           - FL-06
-          - LD-13
+          - LN-13
         state:
           type: string
     AuditDetail:
@@ -5816,25 +5864,31 @@ components:
         corrective_action:
           type: string
           x-bound-controls:
-          - CMP-01
-          - CMP-07
+          - CP-07
         finding_owner:
           type: string
+          x-bound-controls:
+          - CP-07
     BoardPack:
       type: object
       x-kind: domain
       properties:
         bsa_metrics:
           type: object
+          x-bound-controls:
+          - BSA-01
         ofac_metrics:
           type: object
+          x-bound-controls:
+          - BSA-01
         sar_count:
           type: integer
+          x-bound-controls:
+          - BSA-01
         training_metrics:
           type: object
           x-bound-controls:
-          - CMP-01
-          - PR-10
+          - BSA-01
     CmirData:
       type: object
       x-kind: domain
@@ -5842,7 +5896,7 @@ components:
         amount:
           type: integer
           x-bound-controls:
-          - BSA-13
+          - BSA-17
         counterparty:
           type: string
           x-bound-controls:
@@ -5853,11 +5907,11 @@ components:
           - inbound
           - outbound
           x-bound-controls:
-          - BSA-13
+          - BSA-17
         shipment_manifest:
           type: string
           x-bound-controls:
-          - BSA-13
+          - BSA-17
     CtrData:
       type: object
       x-kind: domain
@@ -5901,15 +5955,11 @@ components:
         request_doc:
           type: string
           x-bound-controls:
-          - AU-10
           - BSA-08
-          - FD-09
         requester:
           type: string
           x-bound-controls:
-          - AU-10
           - BSA-08
-          - FD-09
     EddFile:
       type: object
       x-kind: domain
@@ -5939,7 +5989,7 @@ components:
         regulatory_assessment:
           type: string
           x-bound-controls:
-          - BSA-12
+          - BSA-13
         reporter_id:
           type: string
           x-bound-controls:
@@ -5960,14 +6010,14 @@ components:
         account_record:
           type: object
           x-bound-controls:
-          - BSA-14
+          - BSA-18
         authority_type:
           type: string
           enum:
           - financial_interest
           - signature_authority
           x-bound-controls:
-          - BSA-14
+          - BSA-18
     Fincen314aData:
       type: object
       x-kind: domain
@@ -5980,7 +6030,6 @@ components:
           type: string
           x-bound-controls:
           - BSA-11
-          - BSA-17
     LoanParty:
       type: object
       x-kind: domain
@@ -5990,16 +6039,16 @@ components:
         identity:
           type: object
           x-bound-controls:
-          - LD-07
-          - LD-11
-          - LD-14
-          - RP-04
+          - LN-07
+          - LN-11
         ofac_potential_match:
           type: boolean
+          x-bound-controls:
+          - LN-11
         ofac_result:
           $ref: '#/components/schemas/OfacResult'
           x-bound-controls:
-          - LD-11
+          - LN-11
         ofac_status:
           type: string
           enum:
@@ -6008,6 +6057,8 @@ components:
           - cleared
           - potential_match
           - escalated
+          x-bound-controls:
+          - LN-11
     MiCentralLog:
       type: object
       x-kind: domain
@@ -6034,6 +6085,8 @@ components:
       properties:
         hotline_record:
           type: string
+          x-bound-controls:
+          - BSA-05
         list_version:
           type: string
           x-bound-controls:
@@ -6044,8 +6097,12 @@ components:
       properties:
         blocked_property:
           type: object
+          x-bound-controls:
+          - BSA-05
         payment_instructions:
           type: string
+          x-bound-controls:
+          - BSA-05
     PolicyDoc:
       type: object
       x-kind: domain
@@ -6067,16 +6124,16 @@ components:
         criteria_version:
           type: string
           x-bound-controls:
-          - LD-12
+          - LN-12
         inputs:
           type: object
           x-bound-controls:
-          - LD-04
-          - LD-12
+          - LN-12
         product_mapping:
           type: object
           x-bound-controls:
-          - LD-12
+          - FL-08
+          - LN-12
     RetentionSpec:
       type: object
       x-kind: domain
@@ -6101,20 +6158,31 @@ components:
       properties:
         candidate_profile:
           type: string
+          x-bound-controls:
+          - BSA-02
         geography_factors:
           type: string
+          x-bound-controls:
+          - BSA-02
         inherent_score:
           type: number
         partner_dependency:
           type: string
+          x-bound-controls:
+          - BSA-02
     SarData:
       type: object
       x-kind: domain
       properties:
         narrative:
           type: string
+          x-bound-controls:
+          - BSA-06
+          - BSA-08
         prior_filing_id:
           type: string
+          x-bound-controls:
+          - BSA-08
     TrainingDetail:
       type: object
       x-kind: domain
@@ -6133,11 +6201,11 @@ components:
         alert_details:
           type: object
           x-bound-controls:
-          - BSA-18
+          - BSA-19
         impact_scope:
           type: string
           x-bound-controls:
-          - BSA-18
+          - BSA-19
     VendorReview:
       type: object
       x-kind: domain
@@ -6145,15 +6213,15 @@ components:
         contract_terms:
           type: string
           x-bound-controls:
-          - BSA-18
+          - BSA-19
         dd_package:
           type: string
           x-bound-controls:
-          - BSA-18
+          - BSA-19
         efficacy_results:
           type: object
           x-bound-controls:
-          - BSA-18
+          - BSA-19
     access:
       type: object
       x-kind: vocabulary
@@ -6161,9 +6229,11 @@ components:
         agent_identity:
           type: string
           x-bound-controls:
+          - EC-07
+          - IC-02
+          - IC-03
+          - IC-06
           - PR-04
-          - RP-03
-          - RP-04
         authenticated:
           type: string
           x-bound-controls:
@@ -6187,11 +6257,13 @@ components:
         justification:
           type: string
           x-bound-controls:
+          - EC-02
           - IC-05
         last_reviewed_at:
           type: string
           x-bound-controls:
           - EC-02
+          - IC-05
         manager_approval:
           type: string
           x-bound-controls:
@@ -6203,6 +6275,8 @@ components:
           - PR-04
         poa_validated:
           type: string
+          x-bound-controls:
+          - PR-04
         refused:
           type: string
         remote_config:
@@ -6213,6 +6287,9 @@ components:
           type: string
         review_attestation:
           type: string
+          x-bound-controls:
+          - EC-02
+          - IS-06
         review_timer:
           type: string
           x-bound-controls:
@@ -6233,14 +6310,13 @@ components:
           x-bound-controls:
           - EC-02
           - IC-02
+          - IC-05
           - IS-06
           - PR-06
         role_id:
           type: string
           x-bound-controls:
-          - EC-02
           - IC-02
-          - IC-03
           - IC-05
           - IP-16
         roster:
@@ -6263,15 +6339,15 @@ components:
           type: string
           format: date
           x-bound-controls:
-          - EC-02
           - IC-05
-          - IS-06
           - PR-06
         review_due_at:
           type: string
           format: date-time
           x-bound-controls:
+          - EC-02
           - IS-06
+          - PR-06
     access_right:
       type: object
       x-kind: vocabulary
@@ -6313,7 +6389,6 @@ components:
           type: string
           x-bound-controls:
           - FL-07
-          - TIS-07
     advertising:
       type: object
       x-kind: vocabulary
@@ -6328,7 +6403,6 @@ components:
           x-bound-controls:
           - FL-07
           - TIS-07
-          - TIS-10
         medium:
           type: string
           x-bound-controls:
@@ -6362,7 +6436,6 @@ components:
         list:
           type: string
           x-bound-controls:
-          - CDA-13
           - FD-06
         list_entry:
           type: string
@@ -6427,6 +6500,8 @@ components:
       properties:
         meeting_convened:
           type: string
+          x-bound-controls:
+          - CAP-07
     alert:
       type: object
       x-kind: vocabulary
@@ -6435,58 +6510,52 @@ components:
           type: string
           x-bound-controls:
           - IP-07
-          - LP-06
+          - LIQ-06
         dq_variance:
           type: string
           x-bound-controls:
-          - LP-08
+          - LIQ-08
         facility_readiness_aging:
           type: string
           x-bound-controls:
-          - LP-11
+          - BCP-08
+          - LIQ-11
         headroom_low:
           type: string
           x-bound-controls:
           - IP-06
-          - LP-12
+          - LIQ-12
         lar_band_change:
           type: string
           x-bound-controls:
-          - LP-05
+          - LIQ-05
         mismatch_breach:
           type: string
           x-bound-controls:
           - IP-09
-          - LP-03
+          - LIQ-03
         ncua_notification_aging:
           type: string
           x-bound-controls:
-          - IS-09
-          - LP-10
+          - BCP-10
+          - LIQ-10
         policy_review_aging:
           type: string
           x-bound-controls:
+          - BCP-01
           - IP-01
-          - IP-02
-          - IP-03
-          - IP-18
-          - IS-01
-          - LD-01
-          - LP-09
         regulator_request_aging:
           type: string
           x-bound-controls:
-          - LP-19
+          - LIQ-19
         survival_low:
           type: string
           x-bound-controls:
-          - IP-06
-          - IP-17
-          - LP-04
+          - LIQ-04
         wholesale_pricing_violation:
           type: string
           x-bound-controls:
-          - LP-13
+          - LIQ-13
     aml:
       type: object
       x-kind: vocabulary
@@ -6504,6 +6573,7 @@ components:
           x-bound-controls:
           - FL-07
           - FL-10
+          - LN-12
         board_pack_inputs:
           type: object
           x-bound-controls:
@@ -6512,14 +6582,13 @@ components:
           type: object
           x-bound-controls:
           - FL-10
-          - IP-04
+          - FL-13
+          - LN-13
         cohort_threshold:
           type: string
           x-bound-controls:
-          - FL-01
           - FL-10
-          - FL-13
-          - LD-13
+          - LN-13
           - PR-13
         deid_method_id:
           type: string
@@ -6538,7 +6607,7 @@ components:
           type: string
           x-bound-controls:
           - FL-10
-          - LD-13
+          - LN-13
         reid_risk_assessment:
           type: string
           x-bound-controls:
@@ -6546,12 +6615,14 @@ components:
         source_scope:
           type: string
           x-bound-controls:
+          - FL-10
           - PR-13
         disparity_due_at:
           type: string
           format: date-time
           x-bound-controls:
           - FL-10
+          - LN-13
         method_review_due:
           type: string
           format: date
@@ -6562,6 +6633,7 @@ components:
           type: string
           format: date-time
           x-bound-controls:
+          - FL-10
           - PR-13
         redlining_due_at:
           type: string
@@ -6575,10 +6647,12 @@ components:
         definitions_version:
           type: string
           x-bound-controls:
+          - EC-02
           - EC-08
         detection:
           type: string
           x-bound-controls:
+          - EC-02
           - EC-08
         signature:
           type: string
@@ -6588,6 +6662,7 @@ components:
           type: string
           format: date
           x-bound-controls:
+          - EC-02
           - EC-08
     appraisal:
       type: object
@@ -6597,29 +6672,30 @@ components:
           type: string
           x-bound-controls:
           - FL-04
-          - LD-06
+          - LN-06
         value:
           type: integer
           x-bound-controls:
           - FL-04
-          - LD-06
+          - LN-06
         delivery_due_at:
           type: string
           format: date-time
           x-bound-controls:
           - FL-04
-          - LD-06
+          - LN-06
     asset:
       type: object
       x-kind: vocabulary
       properties:
         attributes:
           type: string
+          x-bound-controls:
+          - IS-03
         classification:
           type: string
           x-bound-controls:
           - IS-03
-          - IS-13
         cmdb_snapshot:
           type: object
           x-bound-controls:
@@ -6639,6 +6715,8 @@ components:
           format: date-time
           x-bound-controls:
           - IS-03
+        id:
+          type: string
     audit:
       type: object
       x-kind: vocabulary
@@ -6651,6 +6729,8 @@ components:
           type: string
           x-bound-controls:
           - AU-04
+          - BSA-15
+          - TPR-01
         annual_results_summary:
           type: object
           x-bound-controls:
@@ -6659,8 +6739,6 @@ components:
           type: string
           x-bound-controls:
           - AU-05
-          - BSA-20
-          - IC-08
         budget_status:
           type: string
           x-bound-controls:
@@ -6674,6 +6752,7 @@ components:
         distribution_list:
           type: string
           x-bound-controls:
+          - AU-02
           - AU-06
         engagement_cost:
           type: string
@@ -6684,14 +6763,10 @@ components:
           x-bound-controls:
           - AU-02
           - AU-03
-          - AU-04
           - AU-05
           - AU-06
-          - AU-09
-          - BSA-20
-          - CDA-11
-          - CMP-07
-          - TPR-01
+          - BSA-15
+          - CP-07
         findings_routed_to_board:
           type: string
           x-bound-controls:
@@ -6703,7 +6778,7 @@ components:
         independence_escalation_raised:
           type: string
           x-bound-controls:
-          - AU-03
+          - AU-02
         integrity_timer:
           type: string
         legal_hold_status:
@@ -6716,11 +6791,14 @@ components:
           type: string
           x-bound-controls:
           - AU-04
-          - AU-05
           - AU-06
-          - AU-09
+          - BSA-15
+          - CP-07
         record_written:
           type: string
+          x-bound-controls:
+          - AU-05
+          - AU-06
         report_distributed:
           type: string
           x-bound-controls:
@@ -6731,6 +6809,11 @@ components:
           - AU-06
         report_id:
           type: string
+          x-bound-controls:
+          - AU-06
+          - AU-08
+          - AU-10
+          - CP-07
         resource_assessment:
           type: string
           x-bound-controls:
@@ -6743,6 +6826,8 @@ components:
           type: string
         scope_change_documented:
           type: string
+          x-bound-controls:
+          - AU-04
         scope_change_identified:
           type: string
         scope_change_rationale:
@@ -6763,27 +6848,40 @@ components:
           type: string
           format: date-time
           x-bound-controls:
-          - CMP-07
+          - AU-05
+          - CP-07
         cycle_timer:
           type: string
           description: Timer/SLA marker.
           x-bound-controls:
-          - BSA-20
+          - AU-02
+          - AU-03
+          - AU-04
+          - AU-06
+          - BSA-15
+          - CP-07
         remediation_due:
           type: string
           format: date
           x-bound-controls:
-          - CMP-07
+          - AU-09
         remediation_timer:
           type: string
           description: Timer/SLA marker.
           x-bound-controls:
-          - BSA-20
+          - AU-09
+          - BSA-15
+          - IC-07
         retention_expires_at:
           type: string
           format: date-time
           x-bound-controls:
           - AU-10
+        corrective_action:
+          type: string
+        monthly_schedule_due:
+          type: string
+          format: date
     auditor:
       type: object
       x-kind: vocabulary
@@ -6803,8 +6901,9 @@ components:
         independence_attestation:
           type: string
           x-bound-controls:
+          - AU-02
           - AU-03
-          - CMP-07
+          - CP-07
     aup:
       type: object
       x-kind: vocabulary
@@ -6826,11 +6925,11 @@ components:
           type: string
           x-bound-controls:
           - IC-03
+          - IP-02
         matrix_entry:
           type: string
           x-bound-controls:
           - IC-03
-          - IP-02
     authority_matrix:
       type: object
       x-kind: vocabulary
@@ -6851,7 +6950,7 @@ components:
         job_detail:
           type: object
           x-bound-controls:
-          - IS-08
+          - BCP-07
         rpo_monitor:
           type: string
           x-bound-controls:
@@ -6861,6 +6960,7 @@ components:
           type: object
           x-bound-controls:
           - BCP-07
+          - IS-08
         restore_test_due:
           type: string
           format: date
@@ -6876,6 +6976,7 @@ components:
           type: string
           format: date-time
           x-bound-controls:
+          - BCP-07
           - IS-08
     balance:
       type: object
@@ -6885,6 +6986,7 @@ components:
           type: string
           x-bound-controls:
           - RP-06
+          - TIS-08
     balances:
       type: object
       x-kind: vocabulary
@@ -6893,6 +6995,7 @@ components:
           type: string
           x-bound-controls:
           - RP-05
+          - TIS-08
     bcp:
       type: object
       x-kind: vocabulary
@@ -6914,6 +7017,7 @@ components:
           type: string
           x-bound-controls:
           - BCP-03
+          - BCP-08
           - BCP-09
           - EC-11
         member_impact:
@@ -6936,10 +7040,12 @@ components:
           format: date
           x-bound-controls:
           - BCP-03
+          - EC-11
         review_due:
           type: string
           format: date
           x-bound-controls:
+          - BCP-03
           - EC-11
     board:
       type: object
@@ -6947,24 +7053,23 @@ components:
       properties:
         agenda_id:
           type: string
+          x-bound-controls:
+          - IC-01
+          - RR-01
         agenda_item_flagged_conflicted:
           type: string
           x-bound-controls:
-          - FD-04
-          - RII-07
+          - FD-02
         disinterested_quorum:
           type: string
           x-bound-controls:
+          - FD-02
           - FD-04
-          - FD-05
-          - FD-08
           - RII-07
         meeting_date:
           type: string
           x-bound-controls:
-          - CMP-01
-          - IC-01
-          - IS-01
+          - CP-01
         meeting_held:
           type: string
           x-bound-controls:
@@ -6972,22 +7077,24 @@ components:
         package_distributed:
           type: string
           x-bound-controls:
-          - IC-01
-          - LP-09
-          - TPR-01
+          - IS-01
         resolution_id:
           type: string
           x-bound-controls:
           - AU-01
-          - BCP-01
-          - FD-08
-          - IP-02
+          - AU-08
+          - CDA-01
+          - CP-01
+          - TPR-01
         notification_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - BA-08
-          - CAP-06
+          - AU-01
+          - CAP-08
+          - CP-01
+          - CP-07
+          - MB-06
     breach:
       type: object
       x-kind: vocabulary
@@ -6995,16 +7102,15 @@ components:
         owner:
           type: string
           x-bound-controls:
-          - CL-01
-          - ERM-06
+          - COL-01
         control_id:
           type: string
           x-bound-controls:
-          - CL-01
+          - COL-01
         description:
           type: string
           x-bound-controls:
-          - CL-01
+          - COL-01
     bureau:
       type: object
       x-kind: vocabulary
@@ -7012,7 +7118,7 @@ components:
         discrepancy_artifact_id:
           type: string
           x-bound-controls:
-          - MEM-02
+          - PR-05
     byod:
       type: object
       x-kind: vocabulary
@@ -7033,12 +7139,12 @@ components:
           type: string
           x-bound-controls:
           - BCP-13
+          - FL-10
           - FL-13
         retest_plan:
           type: object
           x-bound-controls:
           - BCP-13
-          - FL-13
     capital:
       type: object
       x-kind: vocabulary
@@ -7046,10 +7152,11 @@ components:
         action_amount:
           type: integer
           x-bound-controls:
-          - CAP-07
-          - CAP-08
+          - CAP-09
         action_analysis_id:
           type: string
+          x-bound-controls:
+          - CAP-09
         action_analyzed:
           type: string
           x-bound-controls:
@@ -7057,9 +7164,8 @@ components:
         action_type:
           type: string
           x-bound-controls:
-          - BA-01
-          - CAP-07
           - CAP-08
+          - CAP-09
         afs_unrealized_gl:
           type: string
         allowance_balance:
@@ -7069,16 +7175,17 @@ components:
         board_resolution_id:
           type: string
           x-bound-controls:
-          - CAP-08
+          - CAP-01
+          - CAP-09
         breached_trigger:
           type: string
           x-bound-controls:
-          - BA-01
-          - CAP-02
+          - CAP-01
+          - CAP-03
         budget_assumptions:
           type: string
           x-bound-controls:
-          - CAP-04
+          - CAP-05
         buffer_assessed:
           type: string
           x-bound-controls:
@@ -7088,98 +7195,97 @@ components:
         buffer_requirement:
           type: string
           x-bound-controls:
-          - BA-06
-          - CAP-03
+          - CAP-04
+          - CAP-06
         buffer_shortfall:
           type: string
           x-bound-controls:
-          - BA-06
-          - CAP-03
+          - CAP-04
+          - CAP-06
         ccyb_level:
           type: string
           x-bound-controls:
-          - BA-06
+          - CAP-06
         cet1_ratio:
           type: number
           x-bound-controls:
-          - BA-06
+          - CAP-01
+          - CAP-06
         concentration_exposures:
           type: string
           x-bound-controls:
-          - CAP-09
+          - CAP-10
         contingency_action_id:
           type: string
           x-bound-controls:
-          - BA-01
-          - CAP-07
+          - CAP-08
         contingency_referred:
           type: string
         credit_growth_threshold_crossed:
           type: string
           x-bound-controls:
-          - BA-06
+          - CAP-06
         dividend_limit:
           type: string
           x-bound-controls:
-          - CAP-08
+          - CAP-09
         dividend_schedule:
           type: string
         dta_balance:
           type: string
           x-bound-controls:
-          - BA-02
+          - CAP-02
         eligible_retained_income:
           type: string
           x-bound-controls:
-          - BA-06
-          - CAP-03
+          - CAP-04
+          - CAP-06
         expected_capital_impact:
           type: string
           x-bound-controls:
-          - BA-01
-          - CAP-07
+          - CAP-09
         failing_scenario:
           type: string
           x-bound-controls:
-          - BA-07
-          - CAP-05
+          - CAP-06
+          - CAP-07
         general_reserves:
           type: string
           x-bound-controls:
-          - BA-02
-          - CAP-01
+          - CAP-02
         goodwill:
           type: string
           x-bound-controls:
-          - BA-02
+          - CAP-02
         icaap_cco_signoff:
           type: string
           x-bound-controls:
-          - BA-07
-          - CAP-09
+          - CAP-10
         icaap_report_id:
           type: string
           x-bound-controls:
-          - CAP-09
+          - CAP-07
+          - CAP-10
         instrument_terms:
           type: object
           x-bound-controls:
-          - BA-02
-          - CAP-08
+          - CAP-02
+          - CAP-09
         intangibles_balance:
           type: string
         irr_measures:
           type: string
           x-bound-controls:
-          - CAP-09
+          - CAP-10
         max_payout_ratio:
           type: number
           x-bound-controls:
-          - BA-06
-          - CAP-03
-          - CAP-08
+          - CAP-04
+          - CAP-06
         payout_restricted:
           type: string
+          x-bound-controls:
+          - CAP-04
         payout_restriction_schedule:
           type: string
           x-bound-controls:
@@ -7187,84 +7293,88 @@ components:
         pca_category:
           type: string
           x-bound-controls:
-          - BA-08
-          - CAP-02
+          - CAP-03
+          - CAP-07
+          - CAP-08
         pca_mandatory_actions:
           type: string
           x-bound-controls:
-          - BA-08
-          - CAP-02
+          - CAP-03
         perpetual_preferred:
           type: string
           x-bound-controls:
-          - BA-02
+          - CAP-02
         plan_id:
           type: string
           x-bound-controls:
-          - CAP-04
+          - CAP-05
         prior_plan_id:
           type: string
           x-bound-controls:
-          - CAP-04
+          - CAP-05
         prior_ratios:
           type: string
           x-bound-controls:
-          - BA-08
-          - CAP-04
+          - CAP-05
+          - CAP-07
+          - CAP-08
         proforma_ratios:
           type: string
           x-bound-controls:
-          - BA-07
-          - CAP-04
           - CAP-05
+          - CAP-06
+          - CAP-09
         projected_shortfall:
           type: string
           x-bound-controls:
-          - BA-07
-          - CAP-04
           - CAP-05
           - CAP-06
           - CAP-07
+          - CAP-08
         projection_below_target:
           type: string
           x-bound-controls:
-          - CAP-07
+          - CAP-05
+          - CAP-08
         projection_below_well_capitalized:
           type: string
           x-bound-controls:
-          - BA-07
           - CAP-07
+          - CAP-08
         proposed_ccyb_level:
           type: string
           x-bound-controls:
-          - BA-06
+          - CAP-06
+          - CAP-10
         proposed_distribution_amount:
           type: integer
           x-bound-controls:
-          - CAP-03
+          - CAP-04
         proposed_tier:
           type: string
           x-bound-controls:
-          - BA-02
+          - CAP-02
         quarterly_report_id:
           type: string
           x-bound-controls:
-          - BA-08
-          - CAP-06
+          - CAP-07
+          - CAP-08
         ratio_below_target:
           type: string
           x-bound-controls:
-          - BA-01
-          - BA-08
-          - CAP-06
+          - CAP-01
+          - CAP-07
+          - CAP-08
         ratio_record_id:
           type: string
           x-bound-controls:
-          - CAP-06
+          - CAP-02
         ratio_tier1_leverage:
           type: string
           x-bound-controls:
-          - BA-01
+          - CAP-01
+          - CAP-03
+          - CAP-07
         ratio_tier1_rwa:
           type: string
           x-bound-controls:
@@ -7283,151 +7393,138 @@ components:
         recovery_plan_draft:
           type: string
           x-bound-controls:
-          - BA-07
-          - BA-08
-          - CAP-07
+          - CAP-08
         regulatory_minima:
           type: string
           x-bound-controls:
-          - BA-01
-          - BA-08
           - CAP-01
-          - CAP-02
-          - CAP-04
+          - CAP-08
         regulatory_preapproval_id:
           type: string
           x-bound-controls:
-          - CAP-08
+          - CAP-09
         regulatory_preapproval_status:
           type: string
           x-bound-controls:
-          - CAP-08
+          - CAP-09
         retained_earnings:
           type: string
           x-bound-controls:
-          - BA-02
-          - CAP-01
+          - CAP-02
         revaluation_reserves:
           type: string
           x-bound-controls:
-          - BA-02
+          - CAP-02
         rwa_total:
           type: integer
           x-bound-controls:
-          - BA-01
-          - BA-03
-          - BA-08
+          - CAP-01
+          - CAP-02
+          - CAP-03
+          - CAP-06
+          - CAP-08
         stress_assumptions:
           type: string
           x-bound-controls:
-          - BA-07
-          - CAP-05
+          - CAP-06
+          - CAP-07
         stress_report_id:
           type: string
           x-bound-controls:
-          - CAP-05
+          - CAP-06
+          - CAP-07
         subordinated_debt:
           type: string
           x-bound-controls:
-          - BA-02
-          - CAP-08
+          - CAP-02
         target_tier1_leverage:
           type: string
           x-bound-controls:
-          - BA-01
           - CAP-01
         target_tier1_rwa:
           type: string
           x-bound-controls:
-          - BA-01
+          - CAP-01
         target_total_rbc:
           type: string
           x-bound-controls:
-          - BA-01
+          - CAP-01
         tier1_total:
           type: integer
           x-bound-controls:
-          - BA-01
-          - BA-02
-          - IP-04
+          - CAP-01
+          - CAP-02
         tier2_total:
           type: integer
           x-bound-controls:
-          - BA-01
-          - BA-02
+          - CAP-02
         trigger_schedule:
           type: string
           x-bound-controls:
-          - BA-01
-          - CAP-02
+          - CAP-03
         undivided_earnings:
           type: string
           x-bound-controls:
-          - BA-02
-          - CAP-01
+          - CAP-02
         contingency_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - BA-01
-          - CAP-07
+          - CAP-01
+          - CAP-08
         contingency_memo_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - BA-01
-          - CAP-07
+          - CAP-08
         icaap_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - BA-07
-          - CAP-09
+          - CAP-07
+          - CAP-10
         payout_restriction_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - BA-06
-          - CAP-03
+          - CAP-04
+          - CAP-06
         plan_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - CAP-04
+          - CAP-05
         quarterly_report_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - BA-08
-          - CAP-06
+          - CAP-07
+          - CAP-08
         ratio_calc_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - BA-01
           - CAP-01
+          - CAP-02
+          - CAP-06
         ratio_computation_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - BA-01
-          - BA-02
-          - BA-03
-          - BA-06
-          - CAP-01
+          - CAP-02
+          - CAP-03
         remediation_plan_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - BA-07
-          - BA-08
           - CAP-07
+          - CAP-08
         stress_report_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - BA-07
-          - CAP-05
+          - CAP-06
+          - CAP-07
     cash:
       type: object
       x-kind: vocabulary
@@ -7447,12 +7544,13 @@ components:
         counter.user_id:
           type: string
           x-bound-controls:
+          - CC-05
+          - CC-07
           - CC-09
         coverage.registry:
           type: string
           x-bound-controls:
           - CC-02
-          - CC-05
         custodian.user_id:
           type: string
           x-bound-controls:
@@ -7488,6 +7586,8 @@ components:
           type: string
         duty.restricted:
           type: string
+          x-bound-controls:
+          - CC-04
         enterprise_limit.pct:
           type: string
           x-bound-controls:
@@ -7524,6 +7624,7 @@ components:
           type: string
           x-bound-controls:
           - CC-01
+          - CC-12
         limit_block.alerted:
           type: string
           x-bound-controls:
@@ -7584,12 +7685,11 @@ components:
         recon.research_notes:
           type: string
           x-bound-controls:
-          - IC-04
+          - CC-09
         recon.variance:
           type: string
           x-bound-controls:
           - CC-06
-          - IC-04
         recon.variance_found:
           type: string
           x-bound-controls:
@@ -7619,11 +7719,15 @@ components:
         asset.balance:
           type: integer
           x-bound-controls:
+          - CC-03
           - CC-06
+          - CC-09
         asset.id:
           type: string
           x-bound-controls:
+          - CC-02
           - CC-04
+          - CC-05
           - CC-08
         exception_register.summary:
           type: string
@@ -7638,10 +7742,12 @@ components:
           type: integer
           x-bound-controls:
           - CC-04
+          - CC-08
         location.id:
           type: string
           x-bound-controls:
-          - CC-09
+          - CC-02
+          - CC-07
         overshort.amount:
           type: integer
           x-bound-controls:
@@ -7697,29 +7803,29 @@ components:
         failure_reason:
           type: string
           x-bound-controls:
-          - LP-02
+          - LIQ-02
         formula:
           type: string
           x-bound-controls:
-          - LP-02
-          - LP-08
+          - LIQ-02
         lineage:
           type: string
           x-bound-controls:
-          - LP-02
+          - LIQ-02
+          - LIQ-08
         metrics_flagged_provisional:
           type: string
           x-bound-controls:
-          - LP-02
+          - LIQ-02
         approver_id:
           type: string
           x-bound-controls:
-          - LP-02
+          - LIQ-02
         sync_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - LP-02
+          - LIQ-02
     cda:
       type: object
       x-kind: vocabulary
@@ -7741,7 +7847,6 @@ components:
           x-bound-controls:
           - CDA-01
           - CDA-06
-          - CDA-09
         agreement_distribution_clause:
           type: string
           x-bound-controls:
@@ -7765,15 +7870,15 @@ components:
         asset_details:
           type: string
           x-bound-controls:
-          - CDA-11
           - CDA-12
         audit_finding:
           type: string
           x-bound-controls:
-          - CDA-01
           - CDA-11
         cap_breach_cured:
           type: string
+          x-bound-controls:
+          - CDA-06
         cap_buffer_pct:
           type: string
           x-bound-controls:
@@ -7816,13 +7921,15 @@ components:
           x-bound-controls:
           - CDA-08
           - CDA-11
-          - CDA-12
         distribution_shortfall:
           type: string
           x-bound-controls:
           - CDA-08
+          - CDA-12
         distribution_window_alert:
           type: string
+          x-bound-controls:
+          - CDA-08
         distributions_cumulative:
           type: string
           x-bound-controls:
@@ -7854,17 +7961,17 @@ components:
         funding_amount:
           type: integer
           x-bound-controls:
-          - CDA-05
+          - CDA-06
         funding_gate_evaluated:
           type: string
           x-bound-controls:
+          - CDA-03
           - CDA-05
           - CDA-06
         gl_balances:
           type: string
           x-bound-controls:
           - CDA-09
-          - CDA-12
         glossary_citation:
           type: string
           x-bound-controls:
@@ -7881,7 +7988,6 @@ components:
           type: string
           x-bound-controls:
           - CDA-11
-          - IP-10
         inkind_transfer_evaluated:
           type: string
           x-bound-controls:
@@ -7892,7 +7998,7 @@ components:
           - CDA-01
           - CDA-06
           - IP-04
-          - IP-12
+          - IP-07
         overlay_limits:
           type: string
           x-bound-controls:
@@ -7934,7 +8040,6 @@ components:
         remediation_owner:
           type: string
           x-bound-controls:
-          - CDA-06
           - CDA-11
         risk_assessment:
           type: string
@@ -7943,23 +8048,19 @@ components:
         strategy_limits:
           type: string
           x-bound-controls:
-          - CDA-01
           - CDA-07
         structure_selected:
           type: string
           x-bound-controls:
           - CDA-03
-          - CDA-05
         structure_type:
           type: string
           x-bound-controls:
-          - CDA-01
           - CDA-03
         total_return_cumulative:
           type: string
           x-bound-controls:
           - CDA-08
-          - CDA-09
           - CDA-12
         trade_details:
           type: string
@@ -7995,7 +8096,6 @@ components:
         vendor_qualified:
           type: string
           x-bound-controls:
-          - CDA-01
           - CDA-04
         vendor_registration_evidence:
           type: object
@@ -8005,7 +8105,6 @@ components:
           type: string
           x-bound-controls:
           - CDA-04
-          - CDA-10
         vendor_registration_status:
           type: string
           x-bound-controls:
@@ -8026,7 +8125,6 @@ components:
           type: string
           x-bound-controls:
           - CDA-14
-          - FL-07
         window_close_at:
           type: string
           x-bound-controls:
@@ -8035,7 +8133,6 @@ components:
           type: string
           x-bound-controls:
           - CDA-01
-          - CDA-08
         funding_first_line:
           type: string
           x-bound-controls:
@@ -8051,6 +8148,7 @@ components:
           x-bound-controls:
           - CDA-01
           - CDA-09
+          - CDA-13
         cap_cure_due_at:
           type: string
           format: date-time
@@ -8078,6 +8176,7 @@ components:
           format: date
           x-bound-controls:
           - CDA-01
+          - CDA-02
         posttrade_due_at:
           type: string
           format: date-time
@@ -8104,7 +8203,8 @@ components:
           format: date
           x-bound-controls:
           - CDA-04
-          - CDA-10
+        approver_id:
+          type: string
     cfp:
       type: object
       x-kind: vocabulary
@@ -8112,13 +8212,10 @@ components:
         execution_plan_documented:
           type: string
           x-bound-controls:
-          - BA-05
           - IP-17
-          - LP-14
         liquidation_hierarchy:
           type: string
           x-bound-controls:
-          - BA-05
           - IP-17
         execution_plan_due_at:
           type: string
@@ -8140,7 +8237,7 @@ components:
           type: string
           format: date-time
           x-bound-controls:
-          - LP-14
+          - IP-17
     change:
       type: object
       x-kind: vocabulary
@@ -8148,17 +8245,18 @@ components:
         backout_plan:
           type: object
           x-bound-controls:
-          - BCP-09
           - IC-05
           - IS-04
         deployment_record:
           type: object
+          x-bound-controls:
+          - IC-05
+          - IS-04
         emergency_approval_timer:
           type: string
         emergency_justification:
           type: string
           x-bound-controls:
-          - IC-05
           - IS-04
         requested:
           type: string
@@ -8177,10 +8275,12 @@ components:
         approver_id:
           type: string
           x-bound-controls:
+          - IC-05
           - IS-04
         risk_rating:
           type: string
           x-bound-controls:
+          - IC-05
           - IS-04
         cab_review_due_at:
           type: string
@@ -8231,13 +8331,11 @@ components:
           type: string
           x-bound-controls:
           - FD-02
-          - FD-03
-          - IP-16
           - RII-07
         conflicted_matter_voted:
           type: string
           x-bound-controls:
-          - FD-04
+          - FD-02
         determination_made:
           type: string
           x-bound-controls:
@@ -8251,28 +8349,29 @@ components:
           x-bound-controls:
           - FD-02
           - FD-03
-          - RII-07
         matter_reference:
           type: string
           x-bound-controls:
           - FD-02
           - FD-04
+          - RII-07
         questionnaire_responses:
           type: string
           x-bound-controls:
           - FD-03
-          - IP-16
         questionnaire_version:
           type: string
           x-bound-controls:
           - FD-03
+          - IP-16
         recusal_noticed:
           type: string
+          x-bound-controls:
+          - FD-02
         recusal_record:
           type: object
           x-bound-controls:
           - FD-04
-          - RII-07
         register_entry_id:
           type: string
         related_party:
@@ -8280,12 +8379,12 @@ components:
           x-bound-controls:
           - FD-02
           - FD-03
+          - RII-07
         certification_due:
           type: string
           format: date
           x-bound-controls:
           - FD-03
-          - IP-16
         questionnaire_due_at:
           type: string
           format: date-time
@@ -8299,42 +8398,40 @@ components:
         cost_to_sell:
           type: string
           x-bound-controls:
-          - CL-03
+          - COL-03
         counterparty_id:
           type: string
           x-bound-controls:
-          - LP-12
+          - LIQ-12
         eligibility_rules:
           type: object
           x-bound-controls:
-          - LP-11
+          - LIQ-12
         fair_value:
           type: string
           x-bound-controls:
-          - CL-03
-          - IP-09
-          - LP-12
+          - COL-03
         headroom_computed:
           type: string
           x-bound-controls:
-          - LP-12
+          - LIQ-09
+          - LIQ-12
         headroom_rechecked:
           type: string
           x-bound-controls:
-          - LP-12
+          - LIQ-12
         inventory:
           type: string
           x-bound-controls:
-          - CL-01
-          - LP-12
+          - LIQ-12
         move_detail:
           type: object
           x-bound-controls:
-          - LP-12
+          - LIQ-12
         pledge_schedule:
           type: string
           x-bound-controls:
-          - LP-12
+          - LIQ-12
         position_id:
           type: string
         property:
@@ -8342,12 +8439,12 @@ components:
         unencumbered_balance:
           type: string
           x-bound-controls:
-          - LP-11
+          - LIQ-12
         compute_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - LP-12
+          - LIQ-12
     collections:
       type: object
       x-kind: vocabulary
@@ -8363,13 +8460,15 @@ components:
         contact_channel:
           type: string
           x-bound-controls:
-          - CL-05
+          - COL-05
         contact_frequency_7d:
           type: string
           x-bound-controls:
-          - CL-05
+          - COL-05
         contact_gate_check:
           type: string
+          x-bound-controls:
+          - COL-05
         contact_gated:
           type: string
         contact_outcome:
@@ -8385,14 +8484,14 @@ components:
         policy_bound:
           type: string
           x-bound-controls:
-          - CL-01
+          - COL-01
         policy_breach_identified:
           type: string
         annual_review_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - CL-01
+          - COL-01
         attorney_flag_due_at:
           type: string
           format: date-time
@@ -8402,17 +8501,17 @@ components:
           type: string
           format: date-time
           x-bound-controls:
-          - CL-01
+          - COL-01
         breach_log_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - CL-01
+          - COL-01
         cease_flag_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - CL-05
+          - COL-05
     comms:
       type: object
       x-kind: vocabulary
@@ -8421,46 +8520,49 @@ components:
           type: string
           x-bound-controls:
           - EC-10
-          - LP-18
+          - LIQ-18
         compliance_review:
           type: string
         contact_tree:
           type: string
           x-bound-controls:
+          - BCP-05
           - BCP-11
-          - RP-05
         draft_script:
           type: string
           x-bound-controls:
-          - LP-18
+          - EC-10
+          - LIQ-18
         holding_statement:
           type: string
           x-bound-controls:
-          - LP-18
+          - BCP-05
+          - LIQ-18
         initial_timer:
           type: string
           x-bound-controls:
+          - BCP-05
+          - BCP-09
           - BCP-11
         inquiry_detail:
           type: object
           x-bound-controls:
-          - LP-18
+          - LIQ-18
         stakeholder_matrix:
           type: object
           x-bound-controls:
           - BCP-11
-          - LP-18
+          - LIQ-18
         statuspage_playbook:
           type: string
           x-bound-controls:
+          - BCP-09
           - BCP-11
         same_day_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - BCP-05
-          - EC-10
-          - LP-18
+          - LIQ-18
     complaint:
       type: object
       x-kind: vocabulary
@@ -8468,10 +8570,9 @@ components:
         category:
           type: string
           x-bound-controls:
-          - CL-06
-          - CMP-09
+          - COL-06
+          - CP-08
           - FL-13
-          - MEM-04
           - PR-10
         final_response_pending:
           type: string
@@ -8480,79 +8581,81 @@ components:
         investigation_notes:
           type: string
           x-bound-controls:
-          - CL-06
+          - COL-06
           - FL-13
-          - MEM-04
-          - PR-10
         member_id:
           type: string
           x-bound-controls:
-          - CL-05
-          - CL-06
-          - CMP-09
+          - COL-06
+          - CP-08
           - FL-13
-          - MEM-04
           - PR-10
         portal_due_date:
           type: string
+          x-bound-controls:
+          - MB-04
         root_cause_tag:
           type: string
           x-bound-controls:
-          - CL-06
-          - CMP-09
-          - MEM-04
+          - COL-06
+          - CP-08
+          - FL-13
         trend_summary:
           type: object
           x-bound-controls:
-          - CL-06
-          - CMP-09
+          - COL-06
+          - CP-08
           - FL-13
+          - PR-10
         udaap_flag:
           type: boolean
           x-bound-controls:
-          - CL-06
-          - CMP-09
+          - COL-06
+          - CP-08
         channel:
           type: string
           x-bound-controls:
-          - CL-06
+          - COL-06
           - FL-13
         narrative:
           type: string
           x-bound-controls:
-          - CL-06
+          - COL-06
+          - CP-08
+          - FL-13
+          - MB-04
+          - PR-10
         ack_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - CL-06
+          - COL-06
+          - CP-08
           - FL-13
-          - MEM-04
+          - MB-04
         final_response_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - CL-06
-          - MEM-04
+          - COL-06
+          - MB-04
         initial_response_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - CL-06
+          - COL-06
           - FL-13
-          - MEM-04
         resolution_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - CL-06
-          - PR-10
+          - COL-06
         trend_review_due:
           type: string
           format: date
           x-bound-controls:
-          - CL-06
-          - CMP-09
+          - COL-06
+          - CP-08
           - FL-13
     compliance:
       type: object
@@ -8561,12 +8664,11 @@ components:
         board_report_id:
           type: string
           x-bound-controls:
-          - CMP-01
-          - FL-01
-          - FL-13
+          - CP-01
         change_rationale:
           type: string
           x-bound-controls:
+          - CP-03
           - FL-01
         disparity_thresholds:
           type: string
@@ -8576,20 +8678,20 @@ components:
         officer_vacancy:
           type: string
           x-bound-controls:
-          - CMP-03
+          - CP-01
+          - CP-03
+          - FL-01
         board_report_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - BSA-01
-          - CMP-01
-          - FL-01
-          - FL-13
+          - CC-01
+          - CP-01
         risk_assessment_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - CMP-04
+          - CP-04
     concentration:
       type: object
       x-kind: vocabulary
@@ -8597,13 +8699,12 @@ components:
         computed:
           type: string
           x-bound-controls:
-          - IP-07
-          - LP-06
+          - LIQ-06
         excess_amount:
           type: integer
           x-bound-controls:
           - IP-07
-          - LP-06
+          - LIQ-06
         limit_exceeded:
           type: string
           x-bound-controls:
@@ -8611,35 +8712,34 @@ components:
         position_id:
           type: string
           x-bound-controls:
-          - LP-06
+          - IP-07
         reviewer_id:
           type: string
           x-bound-controls:
-          - LP-06
+          - LIQ-06
         top10:
           type: string
           x-bound-controls:
           - IP-07
-          - LP-06
-          - LP-09
+          - LIQ-06
         waiver_request:
           type: string
         waiver_terms:
           type: object
           x-bound-controls:
-          - IP-07
-          - LP-06
+          - LIQ-06
         compute_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - FD-06
-          - LP-06
+          - IP-07
+          - LIQ-06
         waiver_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - LP-06
+          - IP-07
+          - LIQ-06
     config:
       type: object
       x-kind: vocabulary
@@ -8647,12 +8747,10 @@ components:
         baseline_id:
           type: string
           x-bound-controls:
-          - EC-05
           - IS-04
         drift_detail:
           type: object
           x-bound-controls:
-          - EC-05
           - IS-04
     confirmation:
       type: object
@@ -8674,6 +8772,7 @@ components:
         party_id:
           type: string
           x-bound-controls:
+          - EC-09
           - PR-15
         suspended:
           type: string
@@ -8683,6 +8782,8 @@ components:
           type: string
           x-bound-controls:
           - PR-15
+        id:
+          type: string
     control:
       type: object
       x-kind: vocabulary
@@ -8698,6 +8799,7 @@ components:
         register:
           type: string
           x-bound-controls:
+          - EC-01
           - IC-01
         vacancy_reason:
           type: string
@@ -8707,6 +8809,7 @@ components:
           type: string
           format: date-time
           x-bound-controls:
+          - EC-01
           - IC-01
     core_archive:
       type: object
@@ -8752,7 +8855,6 @@ components:
         evidence_artifact_id:
           type: string
           x-bound-controls:
-          - CL-07
           - PR-05
         propagated:
           type: string
@@ -8770,27 +8872,24 @@ components:
         designated:
           type: string
           x-bound-controls:
-          - CMP-03
-          - IP-16
-          - LD-14
-          - RR-01
+          - FD-01
         effective_date:
           type: string
           x-bound-controls:
+          - CP-03
           - FD-01
-          - RR-01
         id:
           type: string
           x-bound-controls:
           - FD-01
           - FD-02
           - FD-03
-          - FD-04
           - FD-10
         role:
           type: string
           x-bound-controls:
           - FD-01
+          - IP-16
     credit_box:
       type: object
       x-kind: vocabulary
@@ -8798,16 +8897,19 @@ components:
         definition:
           type: string
           x-bound-controls:
-          - LD-02
+          - LN-02
         version:
           type: string
           x-bound-controls:
-          - LD-02
+          - LN-02
         review_due:
           type: string
           format: date
           x-bound-controls:
-          - LD-02
+          - LN-02
+        next_review_at:
+          type: string
+          format: date-time
     credit_config:
       type: object
       x-kind: vocabulary
@@ -8815,25 +8917,23 @@ components:
         approval_id:
           type: string
           x-bound-controls:
-          - FL-03
-          - LD-01
+          - LN-01
         diff:
           type: string
           x-bound-controls:
-          - FL-03
-          - LD-01
+          - LN-01
         dti_tiers:
           type: string
           x-bound-controls:
-          - LD-05
+          - LN-05
         fico_bands:
           type: string
           x-bound-controls:
-          - LD-04
+          - LN-04
         ltv_matrix:
           type: object
           x-bound-controls:
-          - LD-06
+          - LN-06
         margins:
           type: string
           x-bound-controls:
@@ -8841,7 +8941,7 @@ components:
         seasoning_rules:
           type: object
           x-bound-controls:
-          - LD-04
+          - LN-04
     credit_file:
       type: object
       x-kind: vocabulary
@@ -8854,7 +8954,6 @@ components:
           type: string
           x-bound-controls:
           - IP-05
-          - IP-11
         reanalysis_due:
           type: string
           format: date
@@ -8865,6 +8964,8 @@ components:
           format: date-time
           x-bound-controls:
           - IP-05
+        id:
+          type: string
     credit_package:
       type: object
       x-kind: vocabulary
@@ -8872,12 +8973,12 @@ components:
         schema:
           type: string
           x-bound-controls:
-          - LD-09
+          - LN-09
         retention_expires_at:
           type: string
           format: date-time
           x-bound-controls:
-          - LD-09
+          - LN-09
     credit_report:
       type: object
       x-kind: vocabulary
@@ -8885,17 +8986,16 @@ components:
         report_date:
           type: string
           x-bound-controls:
-          - LD-04
+          - LN-04
         score_disclosure:
           type: string
           x-bound-controls:
-          - LD-04
-          - LD-07
+          - LN-04
         stale_at:
           type: string
           format: date-time
           x-bound-controls:
-          - LD-04
+          - LN-04
     crisis:
       type: object
       x-kind: vocabulary
@@ -8907,42 +9007,47 @@ components:
         board_quorum:
           type: string
           x-bound-controls:
-          - LP-16
+          - LIQ-16
         decider_id:
           type: string
           x-bound-controls:
-          - LP-16
+          - LIQ-16
         decision_detail:
           type: object
           x-bound-controls:
-          - LP-16
+          - LIQ-16
         measure_detail:
           type: object
+          x-bound-controls:
+          - LIQ-16
         roster:
           type: string
           x-bound-controls:
           - BCP-01
-          - LP-16
+          - BCP-06
+          - LIQ-16
         succession_matrix:
           type: object
           x-bound-controls:
           - BCP-01
-          - LP-16
+          - LIQ-16
         team_convened:
           type: string
           x-bound-controls:
-          - LP-16
+          - LIQ-16
         convene_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - LP-16
+          - LIQ-16
     crypto:
       type: object
       x-kind: vocabulary
       properties:
         config:
           type: string
+          x-bound-controls:
+          - IS-07
     csa:
       type: object
       x-kind: vocabulary
@@ -8962,7 +9067,7 @@ components:
         unimpaired_capital_surplus:
           type: string
           x-bound-controls:
-          - FD-06
+          - FD-05
     deficiency:
       type: object
       x-kind: vocabulary
@@ -8977,14 +9082,16 @@ components:
           - IC-07
         reopened:
           type: string
+          x-bound-controls:
+          - AU-09
         retest_result:
           type: string
           x-bound-controls:
+          - AU-09
           - IC-07
         source:
           type: string
           x-bound-controls:
-          - AU-07
           - IC-07
         owner_id:
           type: string
@@ -9061,18 +9168,18 @@ components:
         template_id:
           type: string
           x-bound-controls:
-          - BA-08
           - FL-02
-          - PR-01
-          - PR-04
-          - PR-11
-          - TIS-01
+          - TIS-02
         template_retired:
           type: string
         vendor_basis_check:
           type: string
+          x-bound-controls:
+          - PR-03
         vt_optin_check:
           type: string
+          x-bound-controls:
+          - PR-12
         vt_optin_enforced:
           type: string
         account_opening_due_at:
@@ -9094,7 +9201,7 @@ components:
           type: string
           format: date-time
           x-bound-controls:
-          - BA-08
+          - CAP-08
     disposal:
       type: object
       x-kind: vocabulary
@@ -9102,6 +9209,8 @@ components:
         batch_manifest_id:
           type: string
           x-bound-controls:
+          - IS-07
+          - PR-08
           - RR-05
         clock_resumed:
           type: string
@@ -9109,8 +9218,13 @@ components:
           - PR-08
         held:
           type: string
+          x-bound-controls:
+          - IS-07
         method:
           type: string
+          x-bound-controls:
+          - IS-07
+          - RR-05
     dispute:
       type: object
       x-kind: vocabulary
@@ -9118,38 +9232,45 @@ components:
         basis:
           type: string
           x-bound-controls:
-          - CL-07
-          - MEM-04
+          - COL-07
+          - MB-04
         category:
           type: string
           x-bound-controls:
-          - CL-07
-          - MEM-04
+          - COL-07
+          - MB-04
         correction_amount:
           type: integer
           x-bound-controls:
-          - CL-07
-          - FL-13
+          - MB-04
         findings:
           type: string
+          x-bound-controls:
+          - COL-07
+          - MB-04
         idtheft_report:
           type: string
           x-bound-controls:
-          - CL-07
+          - COL-07
         regulator_case_id:
           type: string
           x-bound-controls:
-          - MEM-04
+          - MB-04
         regulator_routed:
           type: string
           x-bound-controls:
-          - MEM-04
+          - MB-04
         investigation_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - EC-07
-          - MEM-04
+          - MB-04
+        provisional_credit_due_at:
+          type: string
+          format: date-time
+        response_due_at:
+          type: string
+          format: date-time
     dlp:
       type: object
       x-kind: vocabulary
@@ -9166,13 +9287,12 @@ components:
         variance_amount:
           type: integer
           x-bound-controls:
-          - FL-06
-          - LP-08
+          - LIQ-08
         tieout_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - LP-08
+          - LIQ-08
     dr:
       type: object
       x-kind: vocabulary
@@ -9180,16 +9300,23 @@ components:
         plan:
           type: string
           x-bound-controls:
+          - EC-11
           - IS-08
         rto_rpo_matrix:
           type: object
           x-bound-controls:
+          - BCP-03
+          - EC-11
           - IS-08
         exercise_due_at:
           type: string
           format: date-time
           x-bound-controls:
+          - EC-11
           - IS-08
+        exercise_due:
+          type: string
+          format: date
     drill:
       type: object
       x-kind: vocabulary
@@ -9198,35 +9325,37 @@ components:
           type: string
           x-bound-controls:
           - BCP-04
-          - LP-20
+          - LIQ-20
         failure_detail:
           type: object
           x-bound-controls:
           - BCP-04
-          - LP-20
+          - LIQ-20
         objectives:
           type: string
           x-bound-controls:
           - BCP-04
-          - LP-20
+          - LIQ-20
         remediation_item:
           type: string
           x-bound-controls:
           - BCP-04
+          - LIQ-20
         remediation_owner:
           type: string
           x-bound-controls:
           - BCP-04
+          - LIQ-20
         roster:
           type: string
           x-bound-controls:
           - BCP-04
-          - LP-20
+          - LIQ-20
         aar_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - LP-20
+          - LIQ-20
         remediation_due:
           type: string
           format: date
@@ -9236,7 +9365,7 @@ components:
           type: string
           format: date-time
           x-bound-controls:
-          - LP-20
+          - LIQ-20
     ecommerce:
       type: object
       x-kind: vocabulary
@@ -9254,7 +9383,7 @@ components:
           type: string
           format: date
           x-bound-controls:
-          - EC-13
+          - EC-01
     elc:
       type: object
       x-kind: vocabulary
@@ -9274,7 +9403,10 @@ components:
         id:
           type: string
           x-bound-controls:
-          - IS-12
+          - CC-05
+          - CP-03
+          - CP-05
+          - IS-15
     enrollment:
       type: object
       x-kind: vocabulary
@@ -9283,19 +9415,19 @@ components:
           type: string
           x-bound-controls:
           - EC-03
-          - FL-02
-          - FL-04
-          - FL-05
-          - MEM-01
+          - MB-01
         identity_evidence:
           type: object
           x-bound-controls:
           - EC-03
-          - MEM-01
+          - MB-01
         member_number_match:
           type: boolean
           x-bound-controls:
           - EC-03
+          - MB-01
+        channel:
+          type: string
     eps:
       type: object
       x-kind: vocabulary
@@ -9331,6 +9463,7 @@ components:
         card.institution_limits:
           type: string
           x-bound-controls:
+          - EPS-06
           - EPS-07
         change.exception_approval:
           type: string
@@ -9429,6 +9562,7 @@ components:
         limit_change.justification:
           type: string
           x-bound-controls:
+          - EPS-05
           - EPS-06
         pospay.issue_file:
           type: string
@@ -9458,6 +9592,7 @@ components:
           type: string
           x-bound-controls:
           - EPS-01
+          - EPS-04
         staffing.backup_map:
           type: string
           x-bound-controls:
@@ -9532,6 +9667,8 @@ components:
           - EPS-08
         vendor.performance_metrics:
           type: object
+          x-bound-controls:
+          - EPS-08
         vendor.soc1_report:
           type: string
           x-bound-controls:
@@ -9595,11 +9732,13 @@ components:
         limit_change.approver_id:
           type: string
           x-bound-controls:
-          - EPS-06
+          - EPS-05
         service.id:
           type: string
           x-bound-controls:
+          - BCP-03
           - EPS-01
+          - EPS-02
         vendor.id:
           type: string
           x-bound-controls:
@@ -9646,11 +9785,11 @@ components:
         authority_document_ref:
           type: object
           x-bound-controls:
-          - MEM-07
+          - MB-07
         benefit_received_postmortem:
           type: string
           x-bound-controls:
-          - MEM-07
+          - MB-07
         claim_documented:
           type: string
           x-bound-controls:
@@ -9658,24 +9797,24 @@ components:
         claim_form_ref:
           type: object
           x-bound-controls:
-          - MEM-07
+          - MB-07
         claimant_verification_id:
           type: string
           x-bound-controls:
-          - MEM-07
+          - MB-07
         date_of_death:
           type: string
           x-bound-controls:
-          - MEM-07
+          - MB-07
         death_certificate_ref:
           type: object
           x-bound-controls:
-          - MEM-07
+          - MB-07
         payout_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - MEM-07
+          - MB-07
     ewi:
       type: object
       x-kind: vocabulary
@@ -9689,12 +9828,13 @@ components:
         history:
           type: string
           x-bound-controls:
-          - LP-15
+          - LIQ-15
           - RP-02
         indicator_id:
           type: string
           x-bound-controls:
-          - LP-15
+          - LIQ-07
+          - LIQ-15
           - RP-02
         prior_breach_state:
           type: string
@@ -9705,28 +9845,29 @@ components:
         trend:
           type: string
           x-bound-controls:
-          - LP-15
+          - LIQ-15
           - RP-02
         value:
           type: number
           x-bound-controls:
-          - LP-15
+          - LIQ-15
           - RP-02
         thresholds:
           type: string
           x-bound-controls:
-          - LP-15
+          - LIQ-15
+          - RP-02
         summary_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - LP-15
+          - LIQ-15
           - RP-02
         sweep_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - LP-15
+          - LIQ-15
           - RP-02
     exam:
       type: object
@@ -9757,13 +9898,10 @@ components:
           x-bound-controls:
           - IC-06
           - IP-11
-          - LD-08
         registered:
           type: string
           x-bound-controls:
           - IC-06
-          - IP-11
-          - LD-08
         reverted:
           type: string
           x-bound-controls:
@@ -9771,9 +9909,7 @@ components:
         risk_acceptance:
           type: string
           x-bound-controls:
-          - ERM-07
           - IC-06
-          - IP-11
     expense:
       type: object
       x-kind: vocabulary
@@ -9827,7 +9963,7 @@ components:
         by_sector:
           type: string
           x-bound-controls:
-          - IP-07
+          - CAP-08
     expulsion:
       type: object
       x-kind: vocabulary
@@ -9835,21 +9971,23 @@ components:
         decided_by:
           type: string
           x-bound-controls:
-          - MEM-06
+          - MB-06
         grounds:
           type: string
           x-bound-controls:
-          - MEM-06
+          - MB-06
         hearing_requested_at:
           type: string
+          x-bound-controls:
+          - MB-06
         meeting_date:
           type: string
           x-bound-controls:
-          - MEM-06
+          - MB-06
         reconsideration_requested_at:
           type: string
           x-bound-controls:
-          - MEM-06
+          - MB-06
     facility:
       type: object
       x-kind: vocabulary
@@ -9869,15 +10007,16 @@ components:
         collateral_schedule:
           type: string
           x-bound-controls:
-          - LP-11
+          - LIQ-11
         contacts:
           type: string
           x-bound-controls:
-          - LP-11
+          - LIQ-11
         test_script:
           type: string
           x-bound-controls:
-          - LP-11
+          - IS-12
+          - LIQ-11
         visit_purpose:
           type: string
           x-bound-controls:
@@ -9899,7 +10038,10 @@ components:
           type: string
           format: date-time
           x-bound-controls:
-          - IS-12
+          - LIQ-11
+        annual_test_due:
+          type: string
+          format: date
     fair_lending:
       type: object
       x-kind: vocabulary
@@ -9907,23 +10049,29 @@ components:
         dataset_version:
           type: string
           x-bound-controls:
-          - LD-13
+          - FL-01
+          - LN-13
         finding_id:
           type: string
           x-bound-controls:
-          - LD-12
-          - LD-13
+          - FL-01
+          - FL-13
+          - LN-13
         assessment_due:
           type: string
           format: date
           x-bound-controls:
-          - LD-13
+          - FL-01
+          - LN-13
         remediation_due_at:
           type: string
           format: date-time
           x-bound-controls:
           - FL-13
-          - LD-13
+          - LN-13
+        next_assessment_at:
+          type: string
+          format: date-time
     fee:
       type: object
       x-kind: vocabulary
@@ -9935,9 +10083,7 @@ components:
         ytd_total:
           type: integer
           x-bound-controls:
-          - CDA-13
           - TIS-05
-          - TIS-08
     finding:
       type: object
       x-kind: vocabulary
@@ -9947,14 +10093,14 @@ components:
           x-bound-controls:
           - AU-09
           - BCP-13
-          - BSA-20
+          - CP-07
+          - IC-07
         communicated:
           type: string
         department:
           type: string
           x-bound-controls:
           - AU-07
-          - CMP-06
         identified:
           type: string
           x-bound-controls:
@@ -9969,38 +10115,39 @@ components:
         management_response:
           type: string
           x-bound-controls:
-          - BSA-20
-          - CMP-06
-          - CMP-07
+          - AU-06
+          - CP-07
         open_report:
           type: string
           x-bound-controls:
           - AU-07
+          - CP-01
           - TPR-01
         owner:
           type: string
           x-bound-controls:
-          - AU-07
-          - AU-08
           - BCP-13
-          - BSA-20
-          - CMP-06
-          - CMP-07
+          - BSA-15
+          - CP-06
+          - EC-05
+          - EC-06
         remediation_evidence:
           type: object
           x-bound-controls:
+          - AU-08
           - AU-09
-          - CMP-07
+          - BSA-15
         remediation_status:
           type: string
           x-bound-controls:
           - AU-07
+          - CP-07
         responsible_party:
           type: string
           x-bound-controls:
           - AU-06
+          - AU-07
           - AU-08
-          - FL-13
         risk_acceptance_package:
           type: string
           x-bound-controls:
@@ -10016,29 +10163,38 @@ components:
         description:
           type: string
           x-bound-controls:
-          - BSA-20
-          - CMP-06
-          - CMP-07
+          - AU-03
+          - AU-05
+          - AU-06
+          - AU-07
+          - BSA-15
+          - CP-06
+          - CP-07
         risk_rating:
           type: string
           x-bound-controls:
+          - AU-03
           - AU-06
           - AU-07
         root_cause:
           type: string
           x-bound-controls:
           - AU-06
+          - EC-05
         severity:
           type: string
           x-bound-controls:
-          - BSA-20
+          - AU-07
+          - CP-06
+          - EC-05
+          - EC-06
         escalation_due_at:
           type: string
           format: date-time
           x-bound-controls:
           - AU-07
-          - FD-10
           - FL-13
+          - IC-07
         monthly_review_due:
           type: string
           format: date
@@ -10049,12 +10205,22 @@ components:
           format: date
           x-bound-controls:
           - AU-07
+          - IC-07
         response_due_at:
           type: string
           format: date-time
           x-bound-controls:
+          - AU-03
+          - AU-06
+          - AU-07
           - AU-08
-          - CMP-06
+          - AU-09
+          - BCP-13
+          - CP-06
+          - CP-07
+          - EC-05
+          - EC-06
+          - FL-13
     form:
       type: object
       x-kind: vocabulary
@@ -10062,7 +10228,7 @@ components:
         template_diff:
           type: string
           x-bound-controls:
-          - FL-02
+          - CP-08
     fraud:
       type: object
       x-kind: vocabulary
@@ -10070,7 +10236,7 @@ components:
         investigation_id:
           type: string
           x-bound-controls:
-          - CL-03
+          - COL-03
     funding:
       type: object
       x-kind: vocabulary
@@ -10078,33 +10244,36 @@ components:
         draw_amount:
           type: integer
           x-bound-controls:
-          - LP-17
+          - IP-17
+          - LIQ-10
+          - LIQ-17
         draw_order_deviated:
           type: string
           x-bound-controls:
-          - LP-17
+          - LIQ-17
         next_source:
           type: string
           x-bound-controls:
-          - LP-17
+          - IP-17
+          - LIQ-10
+          - LIQ-17
         shortfall_estimate:
           type: string
           x-bound-controls:
-          - LP-17
+          - LIQ-17
         source_unavailable:
           type: string
           x-bound-controls:
-          - LP-17
+          - LIQ-17
         unavailability_reason:
           type: string
           x-bound-controls:
-          - LP-17
+          - LIQ-17
         first_line_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - CDA-05
-          - LP-17
+          - LIQ-17
     furnishing:
       type: object
       x-kind: vocabulary
@@ -10112,27 +10281,26 @@ components:
         correction_identified:
           type: string
           x-bound-controls:
-          - CL-07
-          - PR-05
+          - COL-07
         disputed_account:
           type: string
           x-bound-controls:
-          - CL-07
+          - COL-07
           - PR-05
         file_transmitted:
           type: string
           x-bound-controls:
-          - CL-07
+          - COL-07
         cycle_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - CL-07
+          - COL-07
         dispute_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - CL-07
+          - COL-07
     gift:
       type: object
       x-kind: vocabulary
@@ -10172,20 +10340,20 @@ components:
           x-bound-controls:
           - CC-06
           - IC-04
-          - LP-03
-          - LP-08
-          - RP-08
+          - LIQ-03
+          - LIQ-08
         cash_in_transit.entry:
           type: string
           x-bound-controls:
           - CC-08
         cash_suspense.aged:
           type: string
+          x-bound-controls:
+          - IC-04
         cash_suspense.aging_timer:
           type: string
           x-bound-controls:
           - CC-06
-          - IC-04
         cash_suspense.item:
           type: string
           x-bound-controls:
@@ -10194,19 +10362,18 @@ components:
         coa_map:
           type: string
           x-bound-controls:
-          - LP-02
+          - LIQ-02
         correction.txn_id:
           type: string
         loan_growth_yoy:
           type: string
           x-bound-controls:
-          - BA-06
+          - CAP-06
         total_assets:
           type: string
           x-bound-controls:
-          - BA-01
-          - BA-03
           - CAP-01
+          - CAP-02
           - CC-03
         total_loans:
           type: string
@@ -10216,7 +10383,6 @@ components:
           type: string
           x-bound-controls:
           - IC-04
-          - LP-02
     handover:
       type: object
       x-kind: vocabulary
@@ -10282,6 +10448,8 @@ components:
           - BCP-02
         watch_raised:
           type: string
+          x-bound-controls:
+          - BCP-02
     hmda:
       type: object
       x-kind: vocabulary
@@ -10320,20 +10488,23 @@ components:
         capital_projections:
           type: string
           x-bound-controls:
-          - BA-07
+          - CAP-07
+          - CAP-10
         irr_measures:
           type: string
           x-bound-controls:
-          - BA-07
+          - CAP-07
+          - CAP-10
         material_risk_identified:
           type: string
           x-bound-controls:
-          - BA-07
-          - CAP-09
+          - CAP-07
+          - CAP-10
         new_risk_assessment:
           type: string
           x-bound-controls:
-          - CAP-09
+          - CAP-07
+          - CAP-10
     indemnification:
       type: object
       x-kind: vocabulary
@@ -10357,6 +10528,7 @@ components:
         conduct_record:
           type: object
           x-bound-controls:
+          - RII-03
           - RII-04
           - RII-06
         counsel_opinion:
@@ -10389,7 +10561,7 @@ components:
         enforcement_status:
           type: string
           x-bound-controls:
-          - RII-05
+          - RII-06
         expense_statement:
           type: string
           x-bound-controls:
@@ -10397,14 +10569,17 @@ components:
         federal_screen_result:
           type: string
           x-bound-controls:
+          - RII-03
           - RII-04
           - RII-05
           - RII-06
         liability_terms:
           type: object
           x-bound-controls:
+          - RII-03
           - RII-04
           - RII-06
+          - RII-08
         matter.resolved_favorably:
           type: string
           x-bound-controls:
@@ -10412,10 +10587,12 @@ components:
         payment.blocked:
           type: string
           x-bound-controls:
+          - RII-04
           - RII-06
         payment.disbursed:
           type: string
           x-bound-controls:
+          - RII-03
           - RII-04
         recusal_record:
           type: object
@@ -10438,6 +10615,7 @@ components:
           type: string
           x-bound-controls:
           - RII-04
+          - RII-05
         undertaking:
           type: string
           x-bound-controls:
@@ -10457,14 +10635,15 @@ components:
           x-bound-controls:
           - RII-03
           - RII-04
-          - RII-06
           - RII-07
         payment_due_at:
           type: string
           format: date-time
           x-bound-controls:
+          - RII-03
           - RII-04
           - RII-05
+          - RII-06
     insider:
       type: object
       x-kind: vocabulary
@@ -10473,7 +10652,7 @@ components:
           type: integer
           x-bound-controls:
           - FD-05
-          - LD-14
+          - LN-14
         collateral_marketability:
           type: string
           x-bound-controls:
@@ -10482,7 +10661,7 @@ components:
           type: object
           x-bound-controls:
           - FD-05
-          - LD-14
+          - LN-14
         correspondent_credit_data:
           type: object
           x-bound-controls:
@@ -10499,7 +10678,7 @@ components:
           type: object
           x-bound-controls:
           - FD-05
-          - LD-14
+          - LN-14
         limits_recomputed:
           type: string
           x-bound-controls:
@@ -10512,11 +10691,15 @@ components:
           type: object
           x-bound-controls:
           - FD-05
-          - LD-14
+          - LN-14
         public_request:
           type: string
+          x-bound-controls:
+          - FD-09
         record_circulated:
           type: string
+          x-bound-controls:
+          - FD-03
         record_compiled:
           type: string
           x-bound-controls:
@@ -10525,11 +10708,11 @@ components:
           type: string
           x-bound-controls:
           - FD-03
+          - LN-14
         record_prior:
           type: string
           x-bound-controls:
           - FD-03
-          - FD-05
         loc_approval_expires_at:
           type: string
           format: date-time
@@ -10540,12 +10723,17 @@ components:
           format: date-time
           x-bound-controls:
           - FD-09
+        report_due:
+          type: string
+          format: date
     insider_case:
       type: object
       x-kind: vocabulary
       properties:
         attestation:
           type: string
+          x-bound-controls:
+          - LN-14
     institution:
       type: object
       x-kind: vocabulary
@@ -10578,6 +10766,8 @@ components:
           format: date-time
           x-bound-controls:
           - RP-05
+        notice_template_id:
+          type: string
     instrument_list:
       type: object
       x-kind: vocabulary
@@ -10613,11 +10803,9 @@ components:
           type: string
           x-bound-controls:
           - RII-02
-          - RII-08
         dfpi_minimum:
           type: string
           x-bound-controls:
-          - CAP-01
           - RII-02
         fidelity_bond.deficient:
           type: string
@@ -10646,15 +10834,18 @@ components:
       properties:
         accrued:
           type: string
+          x-bound-controls:
+          - TIS-05
+          - TIS-06
         accrued_balance:
           type: string
           x-bound-controls:
-          - TIS-05
           - TIS-06
         credited:
           type: string
           x-bound-controls:
           - TIS-05
+          - TIS-06
         crediting_due_at:
           type: string
           format: date-time
@@ -10667,7 +10858,6 @@ components:
         approved_list:
           type: string
           x-bound-controls:
-          - FL-07
           - IP-08
         due_diligence_file:
           type: string
@@ -10702,6 +10892,7 @@ components:
         data_source:
           type: string
           x-bound-controls:
+          - CC-01
           - ERM-05
         data_stale:
           type: string
@@ -10709,6 +10900,8 @@ components:
           - ERM-05
         defined:
           type: string
+          x-bound-controls:
+          - ERM-05
         observed_at:
           type: string
           x-bound-controls:
@@ -10727,49 +10920,48 @@ components:
           type: string
           x-bound-controls:
           - CC-01
-          - CC-12
           - ERM-05
         value:
           type: number
           x-bound-controls:
-          - CC-01
-          - CC-12
           - ERM-05
-          - ERM-08
         direction:
           type: string
           x-bound-controls:
           - ERM-05
+        trend:
+          type: string
     lar:
       type: object
       x-kind: vocabulary
       properties:
         band_recovered:
           type: string
+          x-bound-controls:
+          - LIQ-14
         computed:
           type: string
           x-bound-controls:
-          - LP-05
+          - LIQ-05
         current_band:
           type: string
           x-bound-controls:
-          - LP-05
-          - LP-14
+          - LIQ-05
+          - LIQ-09
+          - LIQ-14
         prior_band:
           type: string
           x-bound-controls:
-          - LP-05
+          - LIQ-05
         value:
           type: number
           x-bound-controls:
-          - FL-06
-          - LP-05
-          - LP-09
+          - LIQ-05
         compute_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - LP-05
+          - LIQ-05
     legal:
       type: object
       x-kind: vocabulary
@@ -10786,16 +10978,15 @@ components:
         cure_parameters:
           type: string
           x-bound-controls:
-          - CL-02
+          - COL-02
         foreclosure_checklist:
           type: string
           x-bound-controls:
-          - CL-09
+          - COL-09
         hold_release_id:
           type: string
           x-bound-controls:
           - RII-08
-          - RR-07
         process_artifact_id:
           type: string
         rfpa_applicable:
@@ -10803,15 +10994,12 @@ components:
         hold_scope:
           type: string
           x-bound-controls:
-          - IS-18
-          - RII-08
-          - RR-07
+          - FL-12
         matter_id:
           type: string
           x-bound-controls:
-          - IS-18
+          - FL-12
           - RII-08
-          - RR-07
     lending_program:
       type: object
       x-kind: vocabulary
@@ -10819,20 +11007,20 @@ components:
         partner_id:
           type: string
           x-bound-controls:
-          - LD-01
+          - LN-01
         channel:
           type: string
           x-bound-controls:
-          - LD-01
+          - LN-01
         id:
           type: string
           x-bound-controls:
-          - LD-01
+          - LN-01
         governance_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - LD-01
+          - LN-01
     limit_set:
       type: object
       x-kind: vocabulary
@@ -10852,6 +11040,8 @@ components:
           format: date-time
           x-bound-controls:
           - IP-07
+        version:
+          type: string
     liquidity:
       type: object
       x-kind: vocabulary
@@ -10859,60 +11049,61 @@ components:
         asf_total:
           type: integer
           x-bound-controls:
-          - BA-05
+          - CAP-05
         behavioral_assumptions:
           type: string
           x-bound-controls:
-          - IP-17
-          - LP-04
+          - CAP-05
         clf_capacity:
           type: string
           x-bound-controls:
-          - BA-05
-          - LP-04
+          - CAP-05
         haircut_table:
           type: string
           x-bound-controls:
           - IP-06
-          - LP-04
-          - LP-12
+          - LIQ-04
+          - LIQ-12
+          - LIQ-17
         hqla_balance:
           type: string
           x-bound-controls:
-          - BA-05
-          - IP-06
+          - CAP-05
         liquid_assets:
           type: string
           x-bound-controls:
-          - BA-05
-          - LP-05
+          - CAP-05
+          - IP-06
+          - IP-17
+          - LIQ-05
         net_outflows_30d:
           type: string
           x-bound-controls:
-          - BA-05
+          - CAP-05
           - IP-06
         ratio_to_shares:
           type: string
           x-bound-controls:
-          - BA-05
+          - CAP-05
         rsf_total:
           type: integer
           x-bound-controls:
-          - BA-05
+          - CAP-05
         system_balances:
           type: string
           x-bound-controls:
-          - BA-05
+          - CAP-05
         total_assets:
           type: string
           x-bound-controls:
-          - LP-05
+          - CAP-05
+          - LIQ-05
         cfp_activation_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - BA-05
-          - LP-14
+          - CAP-05
+          - LIQ-14
         report_due:
           type: string
           format: date
@@ -10922,8 +11113,10 @@ components:
           type: string
           format: date-time
           x-bound-controls:
-          - BA-05
+          - CAP-05
           - IP-06
+        report:
+          type: string
     lo_comp:
       type: object
       x-kind: vocabulary
@@ -10932,10 +11125,12 @@ components:
           type: string
           x-bound-controls:
           - FL-08
+          - LN-10
         plan_terms:
           type: object
           x-bound-controls:
           - FL-08
+          - LN-10
     loan_exception:
       type: object
       x-kind: vocabulary
@@ -10943,24 +11138,24 @@ components:
         approval_tier:
           type: string
           x-bound-controls:
-          - LD-08
+          - LN-08
         closing_block_state:
           type: string
           x-bound-controls:
-          - LD-08
+          - LN-08
         observed_value:
           type: string
           x-bound-controls:
-          - LD-08
+          - LN-08
         rule:
           type: string
           x-bound-controls:
-          - LD-08
+          - LN-08
         analytics_due:
           type: string
           format: date
           x-bound-controls:
-          - LD-08
+          - LN-08
     loan_pricing:
       type: object
       x-kind: vocabulary
@@ -10969,7 +11164,7 @@ components:
           type: number
           x-bound-controls:
           - FL-03
-          - LD-10
+          - LN-10
         deviation:
           type: string
           x-bound-controls:
@@ -10977,8 +11172,7 @@ components:
         points_fees:
           type: string
           x-bound-controls:
-          - FL-03
-          - LD-10
+          - LN-10
     market:
       type: object
       x-kind: vocabulary
@@ -11002,37 +11196,36 @@ components:
         amounts_owed:
           type: string
           x-bound-controls:
-          - MEM-05
-          - MEM-06
+          - COL-02
+          - MB-05
+          - MB-06
         attorney_contact:
           type: string
           x-bound-controls:
-          - CL-05
+          - COL-05
         cease_request:
           type: string
           x-bound-controls:
-          - CL-05
+          - COL-05
         channel_reverted:
           type: string
           x-bound-controls:
-          - MEM-03
+          - MB-03
         contact_preferences:
           type: string
           x-bound-controls:
-          - CL-02
-          - MEM-03
+          - COL-02
+          - MB-03
         delivery_channel:
           type: string
           x-bound-controls:
-          - MEM-03
+          - MB-03
           - PR-01
-          - PR-11
-          - TIS-01
           - TIS-02
         delivery_failure_reason:
           type: string
           x-bound-controls:
-          - MEM-03
+          - MB-03
         edelivery_enabled:
           type: string
           x-bound-controls:
@@ -11040,11 +11233,11 @@ components:
         eligibility_basis:
           type: string
           x-bound-controls:
-          - MEM-01
+          - MB-01
         eligibility_denied:
           type: string
           x-bound-controls:
-          - MEM-01
+          - MB-01
         eligibility_determined:
           type: string
           x-bound-controls:
@@ -11052,12 +11245,11 @@ components:
         esign_consent_captured:
           type: string
           x-bound-controls:
-          - EC-03
-          - MEM-03
+          - TIS-02
         esign_consent_evidence:
           type: object
           x-bound-controls:
-          - MEM-03
+          - MB-03
           - PR-11
         expelled:
           type: string
@@ -11068,33 +11260,40 @@ components:
         hardship_evidence:
           type: object
           x-bound-controls:
-          - CL-04
+          - COL-04
         identity_check_method:
           type: string
           x-bound-controls:
-          - EC-03
-          - MEM-02
-          - RP-06
+          - MB-02
+          - PR-04
         preferences_effective:
           type: string
         repayment_capacity:
           type: string
           x-bound-controls:
-          - CL-04
+          - COL-04
         timezone:
           type: string
           x-bound-controls:
-          - CL-05
+          - COL-05
+          - RP-06
         id:
           type: string
           x-bound-controls:
+          - EC-03
           - IS-10
+          - PR-01
+          - PR-02
+          - PR-04
+          - PR-11
+          - PR-12
+          - PR-17
+          - RP-06
         address_hold_expires_at:
           type: string
           format: date-time
           x-bound-controls:
-          - IS-10
-          - MEM-02
+          - MB-02
     member_credential:
       type: object
       x-kind: vocabulary
@@ -11110,7 +11309,6 @@ components:
         login_id:
           type: string
           x-bound-controls:
-          - EC-03
           - EC-04
         new_password:
           type: string
@@ -11119,7 +11317,7 @@ components:
         password_hash:
           type: string
           x-bound-controls:
-          - EC-04
+          - EC-03
         password_set_at:
           type: string
           x-bound-controls:
@@ -11165,29 +11363,29 @@ components:
         breach_magnitude:
           type: string
           x-bound-controls:
-          - LP-03
+          - LIQ-03
         breached_bucket:
           type: string
           x-bound-controls:
-          - LP-03
+          - LIQ-03
         current_gaps:
           type: string
           x-bound-controls:
-          - LP-03
-          - LP-09
+          - LIQ-03
+          - LIQ-09
         gap_computed:
           type: string
           x-bound-controls:
-          - LP-03
+          - LIQ-03
         intraday_recomputed:
           type: string
           x-bound-controls:
-          - LP-03
+          - LIQ-03
         compute_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - LP-03
+          - LIQ-03
     model:
       type: object
       x-kind: vocabulary
@@ -11195,16 +11393,16 @@ components:
         builder_roster:
           type: object
           x-bound-controls:
-          - LP-08
+          - LIQ-08
         reviewer_id:
           type: string
           x-bound-controls:
-          - LP-08
+          - LIQ-08
         review_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - LP-08
+          - LIQ-08
     monitor:
       type: object
       x-kind: vocabulary
@@ -11220,27 +11418,30 @@ components:
         sample_drawn:
           type: string
           x-bound-controls:
-          - CMP-06
+          - CP-06
         sample_spec:
           type: string
           x-bound-controls:
-          - CMP-06
+          - CP-04
+          - CP-06
           - IC-07
           - TIS-10
         scope:
           type: string
           x-bound-controls:
-          - CMP-06
+          - CP-04
+          - CP-06
+          - TIS-10
         coverage_review_due:
           type: string
           format: date
           x-bound-controls:
-          - CMP-06
+          - CP-06
         review_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - CMP-06
+          - CP-06
           - TIS-10
     ncua:
       type: object
@@ -11249,36 +11450,34 @@ components:
         ack_detail:
           type: object
           x-bound-controls:
-          - LP-10
+          - LIQ-10
         memo:
           type: string
+          x-bound-controls:
+          - LIQ-19
         metrics_snapshot:
           type: object
           x-bound-controls:
-          - BCP-11
-          - CL-08
+          - BCP-10
+          - CAP-08
           - EC-10
-          - IS-09
-          - LP-10
+          - LIQ-10
           - PR-09
-          - PR-10
         notification_required:
           type: boolean
           x-bound-controls:
-          - LP-10
+          - CAP-08
         trigger_condition:
           type: string
           x-bound-controls:
-          - CL-08
-          - LP-10
+          - CAP-08
+          - LIQ-10
         notification_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - BA-08
-          - CAP-02
-          - LP-05
-          - LP-10
+          - CAP-08
+          - LIQ-10
     network:
       type: object
       x-kind: vocabulary
@@ -11311,16 +11510,20 @@ components:
           type: string
           x-bound-controls:
           - RII-01
+          - RII-05
         reimbursement.disbursed:
           type: string
           x-bound-controls:
           - RII-01
         reimbursement.paid:
           type: string
+          x-bound-controls:
+          - RII-01
         id:
           type: string
           x-bound-controls:
           - RII-01
+          - RII-04
     oncall:
       type: object
       x-kind: vocabulary
@@ -11329,7 +11532,6 @@ components:
           type: string
           x-bound-controls:
           - BCP-05
-          - BCP-09
     ops:
       type: object
       x-kind: vocabulary
@@ -11350,6 +11552,7 @@ components:
           type: string
           x-bound-controls:
           - BSA-01
+          - BSA-02
     overdraft:
       type: object
       x-kind: vocabulary
@@ -11361,39 +11564,38 @@ components:
         days_outstanding:
           type: string
           x-bound-controls:
-          - CL-10
+          - COL-10
         fee_assessed:
           type: string
           x-bound-controls:
-          - TIS-08
+          - TIS-05
         fee_schedule:
           type: string
           x-bound-controls:
-          - CL-10
+          - COL-10
           - TIS-08
         occurrence_count:
           type: integer
           x-bound-controls:
-          - CL-10
-          - TIS-08
+          - COL-10
         payroll_coverage_flag:
           type: boolean
           x-bound-controls:
-          - CL-10
-          - RP-03
+          - COL-10
         waiver_reason:
           type: string
           x-bound-controls:
-          - CL-10
+          - COL-10
         amount:
           type: integer
           x-bound-controls:
-          - CL-10
+          - COL-10
+          - TIS-08
         review_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - CL-10
+          - COL-10
     override:
       type: object
       x-kind: vocabulary
@@ -11406,16 +11608,17 @@ components:
           type: string
           x-bound-controls:
           - IC-06
+          - LN-08
         rationale:
           type: string
           x-bound-controls:
           - IC-06
-          - LD-11
+          - LN-08
         senior_approver_id:
           type: string
           x-bound-controls:
           - IC-06
-          - LD-11
+          - LN-08
         analytics_due:
           type: string
           format: date
@@ -11519,49 +11722,43 @@ components:
         change_rationale:
           type: string
           x-bound-controls:
-          - CL-01
-          - CMP-10
-          - IP-18
-          - LP-01
+          - LIQ-01
         document_id:
           type: string
           x-bound-controls:
+          - AU-01
+          - BCP-01
           - BSA-01
           - CC-01
-          - CMP-01
-          - EC-13
+          - COL-01
+          - CP-09
           - IP-01
-          - IS-01
-          - LP-01
+          - LIQ-01
+          - LN-01
         document_version:
           type: string
           x-bound-controls:
           - AU-01
-          - BSA-01
+          - BCP-01
           - CC-01
-          - CL-01
-          - CMP-10
-          - EC-13
-          - FD-01
+          - COL-01
+          - CP-09
           - FD-10
           - IP-01
-          - IP-02
-          - IP-18
           - IS-01
-          - LD-01
-          - LP-01
+          - LIQ-01
+          - LN-01
           - RR-04
         draft_id:
           type: string
         draft_redline:
           type: string
           x-bound-controls:
-          - CMP-10
-          - IP-18
+          - IP-01
         effective_date:
           type: string
           x-bound-controls:
-          - CDA-01
+          - CP-09
           - IP-01
         exception_threshold:
           type: string
@@ -11575,53 +11772,58 @@ components:
           type: object
           x-bound-controls:
           - CC-01
-          - LP-01
-          - LP-03
-          - LP-04
-          - LP-05
-          - LP-06
-          - LP-14
+          - IP-01
+          - LIQ-01
+          - LIQ-03
+          - LIQ-04
+          - LIQ-05
+          - LIQ-06
+          - LIQ-14
         materiality_threshold:
           type: string
           x-bound-controls:
-          - BSA-01
-          - IP-05
+          - IP-11
+          - LIQ-01
         minutes_reference:
           type: string
           x-bound-controls:
-          - IP-18
-          - LP-01
+          - CP-09
+          - IP-01
         next_review_date:
           type: string
           x-bound-controls:
-          - BCP-01
-          - CMP-10
+          - CP-09
           - IP-01
+          - LIQ-01
         owner_ref:
           type: object
           x-bound-controls:
           - BCP-01
-          - LD-01
-          - LP-01
-          - RP-10
+          - BSA-01
         proposed_limit:
           type: string
+          x-bound-controls:
+          - LIQ-01
         review_due_soon:
           type: string
+          x-bound-controls:
+          - CP-09
         review_lapsed:
           type: string
           x-bound-controls:
           - AU-01
           - BCP-01
           - CC-01
+          - CP-09
           - IP-01
-          - IS-01
         review_warning_at:
           type: string
           x-bound-controls:
+          - AU-01
           - BCP-01
-          - CMP-10
           - IP-01
+          - LIQ-01
+          - LN-01
         training_completion_record:
           type: object
         violation_description:
@@ -11632,50 +11834,57 @@ components:
           type: string
           x-bound-controls:
           - BSA-01
+          - COL-01
+          - CP-09
+          - LIQ-01
         next_review_at:
           type: string
           format: date-time
           x-bound-controls:
-          - CMP-10
+          - AU-01
+          - BCP-01
           - IP-01
-          - IP-18
+          - LN-01
         raci_registry:
           type: string
           x-bound-controls:
-          - CL-01
-          - IC-01
-          - LD-01
+          - CC-01
+          - COL-01
+          - RP-10
         acknowledgment_due_at:
           type: string
           format: date-time
           x-bound-controls:
           - FD-10
-          - IS-15
         board_approval_due_at:
           type: string
           format: date-time
           x-bound-controls:
           - AU-01
           - BCP-01
+          - BSA-01
+          - CAP-01
+          - CAP-04
           - CC-01
-          - CMP-10
-          - EC-13
+          - CP-09
+          - IP-01
           - IP-02
           - IS-01
-          - LP-01
         review_due:
           type: string
           format: date
           x-bound-controls:
-          - IP-18
+          - LN-01
         review_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - BSA-01
-          - EC-01
-          - FL-01
-          - LP-01
+          - BCP-01
+          - CP-09
+          - IP-01
+          - LIQ-01
+        approver_id:
+          type: string
     portfolio:
       type: object
       x-kind: vocabulary
@@ -11683,19 +11892,17 @@ components:
         gain_loss_summary:
           type: object
           x-bound-controls:
-          - IP-02
           - IP-12
         performance_metrics:
           type: object
           x-bound-controls:
-          - IP-02
           - IP-12
           - IP-13
-          - LD-08
         board_report_due:
           type: string
           format: date
           x-bound-controls:
+          - IP-02
           - IP-12
         board_report_due_at:
           type: string
@@ -11736,9 +11943,7 @@ components:
         book_value:
           type: string
           x-bound-controls:
-          - IP-08
           - IP-10
-          - LP-03
         convexity:
           type: string
           x-bound-controls:
@@ -11752,8 +11957,6 @@ components:
           x-bound-controls:
           - IP-01
           - IP-05
-          - IP-08
-          - IP-11
         days_to_liquidate:
           type: string
           x-bound-controls:
@@ -11767,13 +11970,10 @@ components:
           x-bound-controls:
           - IP-04
           - IP-10
-          - IP-11
-          - IP-12
         liquidity_bucket:
           type: string
           x-bound-controls:
           - IP-06
-          - IP-17
         policy_tagged:
           type: string
           x-bound-controls:
@@ -11786,13 +11986,14 @@ components:
           type: string
           x-bound-controls:
           - IP-01
-          - IP-03
-          - IP-05
         liquidity_classification_due:
           type: string
           format: date
           x-bound-controls:
           - IP-06
+        analytics_update_due:
+          type: string
+          format: date
     pricing:
       type: object
       x-kind: vocabulary
@@ -11804,21 +12005,18 @@ components:
         exception_approver:
           type: string
           x-bound-controls:
-          - FL-03
           - IP-10
-          - LD-10
         exception_demographics_summary:
           type: object
           x-bound-controls:
           - FL-03
-          - LD-10
         exception_raised:
           type: string
         exception_rationale:
           type: string
           x-bound-controls:
           - FL-03
-          - LD-10
+          - LN-10
         override_rationale:
           type: string
           x-bound-controls:
@@ -11827,12 +12025,13 @@ components:
           type: string
           x-bound-controls:
           - FL-03
-          - LD-10
+          - IP-10
+          - LN-10
         sheet_price:
           type: string
           x-bound-controls:
           - FL-03
-          - LD-10
+          - LN-10
         source:
           type: string
           x-bound-controls:
@@ -11842,7 +12041,7 @@ components:
           format: date-time
           x-bound-controls:
           - FL-03
-          - LD-10
+          - LN-10
     privacy:
       type: object
       x-kind: vocabulary
@@ -11869,8 +12068,8 @@ components:
         data_classification:
           type: string
           x-bound-controls:
+          - PR-01
           - PR-12
-          - PR-17
         esign_access_confirmation:
           type: string
           x-bound-controls:
@@ -11890,7 +12089,6 @@ components:
         optout_channel:
           type: string
           x-bound-controls:
-          - MEM-08
           - PR-02
         optout_enforced:
           type: string
@@ -11905,10 +12103,8 @@ components:
         optout_scope:
           type: string
           x-bound-controls:
-          - MEM-08
           - PR-02
           - PR-12
-          - PR-15
         revocation_artifact_id:
           type: string
           x-bound-controls:
@@ -11931,6 +12127,8 @@ components:
           - PR-12
         vt_optin_status:
           type: string
+          x-bound-controls:
+          - PR-12
         annual_notice_due_at:
           type: string
           format: date-time
@@ -11951,13 +12149,14 @@ components:
           type: string
           format: date-time
           x-bound-controls:
-          - MEM-08
           - PR-02
         state_request_due_at:
           type: string
           format: date-time
           x-bound-controls:
           - PR-12
+        notice_template_id:
+          type: string
     product:
       type: object
       x-kind: vocabulary
@@ -11967,8 +12166,6 @@ components:
           x-bound-controls:
           - TIS-01
           - TIS-02
-          - TIS-05
-          - TIS-06
           - TIS-07
         balance_method:
           type: string
@@ -11987,7 +12184,6 @@ components:
           x-bound-controls:
           - TIS-01
           - TIS-02
-          - TIS-06
           - TIS-07
         launched:
           type: string
@@ -12000,15 +12196,15 @@ components:
         diff:
           type: string
           x-bound-controls:
-          - FL-08
-          - LD-12
+          - LN-12
         outcome_metrics:
           type: object
           x-bound-controls:
-          - FL-08
-          - LD-12
+          - LN-12
         steering_review:
           type: string
+          x-bound-controls:
+          - LN-12
     rate_sheet:
       type: object
       x-kind: vocabulary
@@ -12016,18 +12212,21 @@ components:
         apor_values:
           type: string
           x-bound-controls:
-          - LD-10
+          - FL-03
+          - LN-10
         refresh_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - LD-10
+          - LN-10
     recon:
       type: object
       x-kind: vocabulary
       properties:
         daily_timer:
           type: string
+          x-bound-controls:
+          - IC-04
         item:
           type: string
           x-bound-controls:
@@ -12051,10 +12250,13 @@ components:
           - IC-04
         monthly_timer:
           type: string
+          x-bound-controls:
+          - IC-04
         research_notes:
           type: string
           x-bound-controls:
           - CC-06
+          - IC-04
         daily_due:
           type: string
           format: date
@@ -12073,12 +12275,12 @@ components:
         access_purpose:
           type: string
           x-bound-controls:
-          - MEM-08
+          - MB-08
         actor_id:
           type: string
           x-bound-controls:
           - IC-08
-          - MEM-08
+          - MB-08
           - RR-05
         actor_role:
           type: string
@@ -12090,15 +12292,19 @@ components:
         artifact:
           type: string
           x-bound-controls:
-          - IC-08
+          - CC-12
+          - TIS-09
         audit_entry_written:
           type: string
         blob:
           type: string
           x-bound-controls:
-          - LP-21
+          - EC-07
+          - LIQ-21
         class:
           type: string
+          x-bound-controls:
+          - MB-08
         destruction_cycle:
           type: string
         destruction_date:
@@ -12110,17 +12316,18 @@ components:
           x-bound-controls:
           - FL-12
           - IC-08
-          - IP-15
-          - IS-07
           - IS-18
-          - RR-05
+          - LIQ-21
+          - MB-08
+          - PR-08
+          - RII-09
         disposal_method:
           type: string
           x-bound-controls:
           - AU-10
-          - IS-07
-          - LP-21
-          - RR-05
+          - BSA-12
+          - PR-08
+          - RII-09
         dispositioned:
           type: string
         export_approved_by:
@@ -12134,16 +12341,16 @@ components:
         hold_authorizer:
           type: string
           x-bound-controls:
-          - RII-09
+          - BSA-12
+          - IC-08
           - RR-07
         hold_matter:
           type: string
         hold_matter_id:
           type: string
           x-bound-controls:
-          - LP-21
-          - PR-08
-          - RR-07
+          - IC-08
+          - LIQ-21
         hold_registry:
           type: object
         hold_release_auth:
@@ -12154,12 +12361,11 @@ components:
         hold_status:
           type: string
           x-bound-controls:
+          - BSA-12
+          - FL-12
           - IC-08
-          - IS-07
+          - IP-15
           - IS-18
-          - LP-21
-          - MEM-08
-          - PR-08
           - RR-05
         indexed:
           type: string
@@ -12173,38 +12379,36 @@ components:
         media_type:
           type: string
           x-bound-controls:
-          - PR-08
           - RR-03
         metadata:
           type: string
           x-bound-controls:
-          - LP-21
-          - RR-02
+          - LIQ-21
+          - RR-03
+          - RR-08
         reproduction_result:
           type: string
           x-bound-controls:
           - RR-03
-          - RR-08
         retained:
           type: string
         retention_class:
           type: string
           x-bound-controls:
-          - BCP-03
-          - FD-09
+          - AU-10
+          - BSA-12
+          - BSA-21
+          - CC-12
           - FL-12
           - IC-08
           - IP-15
           - IS-18
-          - LD-09
-          - LP-21
-          - MEM-08
+          - LIQ-21
+          - LN-09
+          - MB-08
           - PR-08
           - RII-09
           - RR-02
-          - RR-03
-          - RR-04
-          - RR-08
           - TIS-09
         retention_inventory:
           type: object
@@ -12216,20 +12420,24 @@ components:
           - TIS-09
         sensitive_access:
           type: string
+          x-bound-controls:
+          - MB-08
         storage_medium:
           type: string
           x-bound-controls:
-          - RR-02
           - RR-03
         hold_scope:
           type: string
           x-bound-controls:
-          - LP-21
-          - RII-09
+          - BSA-12
+          - IC-08
+          - LIQ-21
           - RR-07
         legal_hold_flag:
           type: string
           x-bound-controls:
+          - MB-08
+          - PR-08
           - RII-09
         matter_id:
           type: string
@@ -12238,31 +12446,39 @@ components:
         retention_anchor:
           type: string
           x-bound-controls:
+          - BSA-03
+          - BSA-12
+          - BSA-21
+          - CC-12
           - FL-12
-          - LD-09
+          - IP-15
+          - LN-09
+          - RII-09
+          - RR-02
+          - TIS-09
         destruction_cycle_due_at:
           type: string
           format: date-time
           x-bound-controls:
           - IS-18
+          - RR-05
         destruction_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - AU-10
-          - IC-08
-          - PR-08
           - RR-05
         disposal_due_at:
           type: string
           format: date-time
           x-bound-controls:
           - IS-07
+          - PR-08
+          - RII-09
         index_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - LP-21
+          - LIQ-21
         integrity_test_due:
           type: string
           format: date
@@ -12274,17 +12490,19 @@ components:
           format: date-time
           x-bound-controls:
           - BSA-03
-          - BSA-17
-          - CL-02
-          - FD-09
+          - BSA-12
+          - BSA-21
+          - CC-12
           - FL-12
+          - IC-08
           - IP-15
-          - IS-18
-          - LD-09
-          - LP-21
-          - MEM-08
+          - LIQ-21
+          - MB-08
           - RII-09
+          - RR-05
           - TIS-09
+        id:
+          type: string
     record_class:
       type: object
       x-kind: vocabulary
@@ -12311,12 +12529,15 @@ components:
           - RR-01
         retention.class:
           type: string
+          x-bound-controls:
+          - RR-04
         retention_expiry_at:
           type: string
         annual_review_due_at:
           type: string
           format: date-time
           x-bound-controls:
+          - RR-02
           - RR-04
         board_report_due_at:
           type: string
@@ -12330,11 +12551,11 @@ components:
         artifact_id:
           type: string
           x-bound-controls:
-          - RP-07
           - RP-08
         checksum_chain:
           type: string
           x-bound-controls:
+          - IC-08
           - RP-08
         failure_reason:
           type: string
@@ -12353,7 +12574,6 @@ components:
         snapshot_as_of:
           type: string
           x-bound-controls:
-          - RP-06
           - RP-08
         snapshot_id:
           type: string
@@ -12361,6 +12581,8 @@ components:
           - RP-08
         snapshot_schedule:
           type: string
+          x-bound-controls:
+          - RP-08
         complete_due_at:
           type: string
           format: date-time
@@ -12384,7 +12606,7 @@ components:
           type: boolean
           x-bound-controls:
           - IS-10
-          - MEM-02
+          - MB-02
         case_stats:
           type: string
           x-bound-controls:
@@ -12397,7 +12619,7 @@ components:
           type: boolean
           x-bound-controls:
           - IS-10
-          - MEM-02
+          - MB-02
         type:
           type: string
           x-bound-controls:
@@ -12414,15 +12636,14 @@ components:
         citation:
           type: string
           x-bound-controls:
-          - CMP-02
-          - CMP-08
+          - CP-02
+          - IP-03
           - RR-04
-          - TPR-05
         inventory_review_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - CMP-02
+          - CP-02
           - RR-04
     regulator:
       type: object
@@ -12432,11 +12653,14 @@ components:
           type: string
           x-bound-controls:
           - BCP-11
-          - LP-10
-          - LP-19
-          - RP-05
+          - BSA-13
+          - LIQ-10
+          - LIQ-19
         notice_criteria_met:
           type: string
+          x-bound-controls:
+          - BCP-11
+          - BSA-13
         notified:
           type: string
         report_timer:
@@ -12445,8 +12669,7 @@ components:
           type: object
           x-bound-controls:
           - BSA-11
-          - BSA-17
-          - LP-19
+          - LIQ-19
         request_routed:
           type: string
           x-bound-controls:
@@ -12456,13 +12679,15 @@ components:
           format: date-time
           x-bound-controls:
           - BSA-11
-          - BSA-17
-          - LP-19
+          - LIQ-19
         verification_due_at:
           type: string
           format: date-time
           x-bound-controls:
           - LP-19
+        contact_verification_due:
+          type: string
+          format: date
     regulatory:
       type: object
       x-kind: vocabulary
@@ -12470,29 +12695,34 @@ components:
         change_identified:
           type: string
           x-bound-controls:
-          - CMP-02
+          - BSA-21
+          - CP-01
+          - CP-08
           - RR-04
         change_implemented:
           type: string
           x-bound-controls:
-          - CMP-08
+          - BSA-21
         change_required:
           type: boolean
           x-bound-controls:
-          - CMP-08
-          - IP-18
+          - BSA-21
+          - CP-08
+          - IP-03
         source_doc:
           type: string
           x-bound-controls:
-          - CMP-02
-          - CMP-08
+          - BSA-21
+          - CP-02
+          - CP-08
           - IP-03
-          - IP-18
         analysis_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - CMP-08
+          - BSA-21
+          - CP-08
+          - IP-03
     repo:
       type: object
       x-kind: vocabulary
@@ -12507,6 +12737,8 @@ components:
           - IP-09
         collateral_marked:
           type: string
+          x-bound-controls:
+          - IP-09
         counterparty_id:
           type: string
           x-bound-controls:
@@ -12548,22 +12780,22 @@ components:
         weekly_deltas:
           type: string
           x-bound-controls:
-          - LP-09
+          - LIQ-09
         board_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - LP-09
+          - LIQ-09
         daily_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - LP-09
+          - LIQ-09
         weekly_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - LP-09
+          - LIQ-09
     reporting:
       type: object
       x-kind: vocabulary
@@ -12590,8 +12822,7 @@ components:
           type: string
           format: date
           x-bound-controls:
-          - IP-02
-          - IS-01
+          - BSA-01
         quarterly_due:
           type: string
           format: date
@@ -12641,6 +12872,8 @@ components:
       properties:
         finding_id:
           type: string
+          x-bound-controls:
+          - RP-09
         finding_severity:
           type: string
           x-bound-controls:
@@ -12679,14 +12912,17 @@ components:
           type: string
           x-bound-controls:
           - BCP-07
+          - IS-08
         rto_timer:
           type: string
           x-bound-controls:
           - BCP-07
+          - BCP-09
         test_env:
           type: string
           x-bound-controls:
           - BCP-07
+          - IS-08
     restriction:
       type: object
       x-kind: vocabulary
@@ -12694,11 +12930,11 @@ components:
         approved_by:
           type: string
           x-bound-controls:
-          - MEM-05
+          - MB-05
         grounds:
           type: string
           x-bound-controls:
-          - MEM-05
+          - MB-05
     risk:
       type: object
       x-kind: vocabulary
@@ -12707,36 +12943,31 @@ components:
           type: object
           x-bound-controls:
           - AU-04
-          - BSA-02
-          - CMP-04
-          - EC-13
-          - ERM-04
+          - CP-04
           - TPR-03
         assessment_scored:
           type: string
         impact_score:
           type: number
           x-bound-controls:
-          - BCP-02
+          - BSA-02
           - ERM-03
+          - IS-02
         inherent_rating:
           type: string
           x-bound-controls:
-          - BCP-02
-          - BSA-02
-          - CMP-04
+          - ERM-03
           - ERM-04
-          - IS-02
         last_assessed_at:
           type: string
           x-bound-controls:
           - ERM-04
-          - IS-02
         likelihood_score:
           type: number
           x-bound-controls:
-          - BCP-02
+          - BSA-02
           - ERM-03
+          - IS-02
         poam_cycle:
           type: string
         poam_status:
@@ -12748,8 +12979,6 @@ components:
         register_snapshot:
           type: object
           x-bound-controls:
-          - CMP-04
-          - EC-13
           - ERM-08
         registered:
           type: string
@@ -12761,62 +12990,63 @@ components:
           type: string
           x-bound-controls:
           - BSA-02
-          - CMP-04
+          - EC-01
+          - ERM-03
           - ERM-04
           - IS-02
         review_overdue:
           type: string
           x-bound-controls:
-          - BCP-02
           - ERM-04
           - IS-02
         threat_catalog:
           type: object
           x-bound-controls:
           - BCP-02
-          - EC-13
           - IS-02
         candidate_profile:
           type: string
           x-bound-controls:
-          - BSA-02
+          - CP-04
+          - EC-01
           - IS-02
+          - TPR-03
         description:
           type: string
           x-bound-controls:
+          - BSA-02
           - ERM-04
         geography_factors:
           type: string
           x-bound-controls:
           - BCP-02
-          - BSA-02
+          - TPR-03
         id:
           type: string
           x-bound-controls:
+          - ERM-02
           - ERM-04
-          - ERM-06
-          - ERM-07
+          - IS-02
         inherent_score:
           type: number
           x-bound-controls:
           - BSA-02
-          - EPS-01
+          - CP-04
+          - EC-01
+          - TPR-03
         owner_id:
           type: string
           x-bound-controls:
+          - BSA-02
           - ERM-04
-          - IC-01
         partner_dependency:
           type: string
           x-bound-controls:
-          - BSA-02
-          - EPS-01
-          - IS-02
+          - TPR-03
         assessment_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - AU-09
           - BSA-02
         assessment_timer:
           type: string
@@ -12827,13 +13057,12 @@ components:
           type: string
           format: date-time
           x-bound-controls:
-          - EPS-01
           - IS-02
-          - TPR-03
         reassessment_due_at:
           type: string
           format: date-time
           x-bound-controls:
+          - BSA-02
           - ERM-04
           - IS-02
     risk_acceptance:
@@ -12867,6 +13096,7 @@ components:
         id:
           type: string
           x-bound-controls:
+          - ERM-07
           - ERM-08
         owner_id:
           type: string
@@ -12886,7 +13116,6 @@ components:
           type: string
           x-bound-controls:
           - ERM-01
-          - IP-13
         effective_date:
           type: string
           x-bound-controls:
@@ -13002,6 +13231,8 @@ components:
           format: date-time
           x-bound-controls:
           - ERM-03
+        version:
+          type: string
     role:
       type: object
       x-kind: vocabulary
@@ -13029,51 +13260,51 @@ components:
         ccf_map:
           type: string
           x-bound-controls:
-          - BA-03
-          - BA-04
+          - CAP-03
+          - CAP-04
         change_authority:
           type: string
           x-bound-controls:
-          - BA-04
+          - CAP-04
         collateral_type:
           type: string
           x-bound-controls:
-          - BA-03
-          - BA-04
+          - CAP-03
+          - CAP-04
         credit_calculated:
           type: string
           x-bound-controls:
-          - BA-03
+          - CAP-03
         exposure_category:
           type: string
           x-bound-controls:
-          - BA-03
+          - CAP-03
         market_calculated:
           type: string
           x-bound-controls:
-          - BA-03
+          - CAP-03
         operational_calculated:
           type: string
           x-bound-controls:
-          - BA-03
+          - CAP-03
         proposed_change:
           type: string
           x-bound-controls:
-          - BA-04
+          - CAP-04
         risk_weight_map:
           type: string
           x-bound-controls:
-          - BA-03
-          - BA-04
+          - CAP-03
+          - CAP-04
         schedule_version:
           type: string
           x-bound-controls:
-          - BA-03
-          - BA-04
+          - CAP-03
+          - CAP-04
         trading_threshold_crossed:
           type: string
           x-bound-controls:
-          - BA-03
+          - CAP-03
     safe_mode:
       type: object
       x-kind: vocabulary
@@ -13084,6 +13315,8 @@ components:
           - RP-03
         daily_outflow_total:
           type: integer
+          x-bound-controls:
+          - RP-03
         transaction_evaluated:
           type: string
         trigger_basis:
@@ -13119,6 +13352,8 @@ components:
       properties:
         analog_entry_id:
           type: string
+          x-bound-controls:
+          - RR-02
         entry_amended:
           type: string
           x-bound-controls:
@@ -13134,6 +13369,7 @@ components:
         version:
           type: string
           x-bound-controls:
+          - RR-02
           - RR-04
     scope_registry:
       type: object
@@ -13142,23 +13378,21 @@ components:
         change_description:
           type: string
           x-bound-controls:
+          - BCP-03
           - RP-01
         item.rpo:
           type: string
           x-bound-controls:
           - BCP-03
-          - RP-01
         item.rto:
           type: string
           x-bound-controls:
           - BCP-03
-          - BCP-08
           - RP-01
         version_id:
           type: string
           x-bound-controls:
           - RP-01
-          - RP-03
         approver_id:
           type: string
           x-bound-controls:
@@ -13189,7 +13423,6 @@ components:
         kpi_snapshot:
           type: object
           x-bound-controls:
-          - EC-01
           - IS-01
         policy_change_log:
           type: object
@@ -13198,7 +13431,6 @@ components:
         program_charter:
           type: string
           x-bound-controls:
-          - EC-01
           - IS-01
         rating_change:
           type: string
@@ -13208,7 +13440,6 @@ components:
           type: string
           format: date-time
           x-bound-controls:
-          - EC-01
           - IS-01
         downgrade_review_due_at:
           type: string
@@ -13238,32 +13469,31 @@ components:
         assigned_to:
           type: string
           x-bound-controls:
-          - FL-13
-          - MEM-09
+          - MB-09
         category:
           type: string
           x-bound-controls:
-          - MEM-09
+          - MB-09
         inquiry_id:
           type: string
           x-bound-controls:
-          - MEM-09
+          - MB-09
         launched:
           type: string
         reclassified_as_dispute:
           type: string
           x-bound-controls:
-          - MEM-09
+          - MB-09
         first_response_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - MEM-09
+          - MB-09
         resolution_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - MEM-09
+          - MB-09
     siem:
       type: object
       x-kind: vocabulary
@@ -13273,10 +13503,11 @@ components:
         alert_critical:
           type: string
           x-bound-controls:
-          - IS-14
+          - EC-09
         alert_detail:
           type: object
           x-bound-controls:
+          - BCP-05
           - EC-09
           - IS-14
         last_seen_at:
@@ -13286,7 +13517,6 @@ components:
         source_inventory:
           type: object
           x-bound-controls:
-          - EC-09
           - IS-14
         alert_review_due_at:
           type: string
@@ -13300,6 +13530,8 @@ components:
       properties:
         capacity_validated:
           type: string
+          x-bound-controls:
+          - BCP-08
         readiness_timer:
           type: string
           x-bound-controls:
@@ -13354,18 +13586,16 @@ components:
           type: string
           x-bound-controls:
           - IC-02
+          - IS-06
         compensating_control:
           type: string
           x-bound-controls:
-          - CC-02
           - IC-02
-          - IS-06
         grant_blocked:
           type: string
         matrix_version:
           type: string
           x-bound-controls:
-          - EC-02
           - IC-02
           - IP-14
           - IS-06
@@ -13373,7 +13603,6 @@ components:
           type: string
           x-bound-controls:
           - IC-02
-          - IS-06
         risk_rationale:
           type: string
           x-bound-controls:
@@ -13404,6 +13633,8 @@ components:
           - BCP-12
         review_timer:
           type: string
+          x-bound-controls:
+          - BCP-12
         split_team_plan:
           type: object
           x-bound-controls:
@@ -13453,54 +13684,60 @@ components:
         assumption_value:
           type: string
           x-bound-controls:
-          - LP-07
+          - LIQ-07
         assumption_versioned:
           type: string
           x-bound-controls:
-          - LP-07
+          - LIQ-07
         baas_shock_params:
           type: string
           x-bound-controls:
-          - LP-07
+          - IP-04
+          - LIQ-07
         behavioral_assumptions:
           type: string
           x-bound-controls:
+          - CAP-07
           - IP-04
-          - IP-12
-          - IP-17
-          - LP-07
+          - LIQ-04
+          - LIQ-07
         change_rationale:
           type: string
           x-bound-controls:
-          - LP-07
+          - LIQ-07
         intraday_profile:
           type: string
           x-bound-controls:
-          - LP-07
+          - LIQ-07
         quarter_open:
           type: string
           x-bound-controls:
-          - LP-07
+          - LIQ-04
+          - LIQ-07
         quarterly_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - LP-07
+          - LIQ-07
         rerun_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - LP-07
+          - LIQ-07
+        set:
+          type: string
     stress_test:
       type: object
       x-kind: vocabulary
       properties:
         assumptions:
           type: string
+          x-bound-controls:
+          - IP-12
         breach_detail:
           type: object
           x-bound-controls:
-          - LP-07
+          - IP-04
     survival:
       type: object
       x-kind: vocabulary
@@ -13508,29 +13745,29 @@ components:
         adhoc_computed:
           type: string
           x-bound-controls:
-          - LP-04
+          - LIQ-04
         below_threshold:
           type: string
           x-bound-controls:
-          - LP-04
-          - LP-14
+          - LIQ-04
         computed:
           type: string
           x-bound-controls:
-          - LP-04
+          - LIQ-04
         days_combined:
           type: string
           x-bound-controls:
-          - LP-04
+          - LIQ-04
+          - LIQ-09
         driver_scenario:
           type: string
           x-bound-controls:
-          - LP-04
+          - LIQ-04
         quarterly_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - LP-04
+          - LIQ-04
     taxonomy:
       type: object
       x-kind: vocabulary
@@ -13563,25 +13800,31 @@ components:
         body:
           type: string
           x-bound-controls:
-          - CL-05
+          - COL-05
         product_scope:
           type: string
           x-bound-controls:
-          - CL-05
+          - COL-05
     threat:
       type: object
       x-kind: vocabulary
       properties:
         impact:
           type: string
+          x-bound-controls:
+          - BCP-02
         likelihood:
           type: string
+          x-bound-controls:
+          - BCP-02
     threat_register:
       type: object
       x-kind: vocabulary
       properties:
         interim_update:
           type: string
+          x-bound-controls:
+          - BCP-02
         refresh_due:
           type: string
           format: date
@@ -13612,7 +13855,6 @@ components:
           type: string
           x-bound-controls:
           - EC-06
-          - IS-07
         assessment_due:
           type: string
           format: date
@@ -13657,7 +13899,6 @@ components:
         intermediary_id:
           type: string
           x-bound-controls:
-          - IP-02
           - IP-08
         intermediary_validated:
           type: string
@@ -13688,9 +13929,8 @@ components:
         ticket:
           type: string
           x-bound-controls:
-          - IP-11
+          - IP-02
           - IP-14
-          - IP-15
         valuation_support:
           type: string
           x-bound-controls:
@@ -13700,6 +13940,8 @@ components:
           format: date-time
           x-bound-controls:
           - IP-14
+        instrument_type:
+          type: string
     training:
       type: object
       x-kind: vocabulary
@@ -13708,89 +13950,88 @@ components:
           type: number
           x-bound-controls:
           - CC-11
+          - CP-05
         assignee_id:
           type: string
           x-bound-controls:
-          - BA-08
-          - BSA-19
+          - CAP-08
           - CC-11
-          - CMP-05
+          - CP-05
+          - EC-08
           - EC-12
-          - FL-11
           - IP-16
-          - IS-17
           - PR-06
           - RR-09
           - TIS-10
         completion_status:
           type: string
           x-bound-controls:
-          - BA-08
+          - CP-05
           - EC-12
-          - FL-11
+          - IP-16
           - RR-09
         content_version:
           type: string
           x-bound-controls:
-          - CMP-05
-          - EC-12
+          - BSA-14
+          - CAP-08
+          - CC-11
+          - CP-05
           - FL-11
           - IS-17
           - TIS-10
         coverage_pct:
           type: string
           x-bound-controls:
-          - CMP-05
-          - FL-11
+          - CP-01
+          - CP-05
         curriculum_id:
           type: string
           x-bound-controls:
-          - BA-08
-          - EC-12
+          - CAP-08
           - FD-10
-          - FL-11
-          - IS-17
           - PR-06
-          - RR-09
         curriculum_map:
           type: string
+          x-bound-controls:
+          - EC-12
         cycle_close_at:
           type: string
         lapsed:
           type: string
           x-bound-controls:
           - CC-11
-          - IP-16
+          - CP-05
+          - EC-12
           - RR-09
         module_id:
           type: string
+          x-bound-controls:
+          - RR-09
         proficiency.failed:
           type: string
           x-bound-controls:
           - CC-11
-          - CMP-05
+          - CP-05
         refresher_curriculum:
           type: string
           x-bound-controls:
-          - FL-11
+          - CP-05
+          - EC-12
         required_curriculum:
           type: string
           x-bound-controls:
+          - BSA-14
           - CC-11
-          - CMP-05
-          - IP-16
-          - TIS-10
+          - CP-05
+          - EC-08
+          - IS-17
+          - RR-09
         role_matrix:
           type: object
           x-bound-controls:
-          - BSA-19
-          - CC-11
-          - CMP-05
-          - CMP-08
           - EC-12
           - FL-11
-          - IS-17
-          - RR-09
         skills_inventory:
           type: object
           x-bound-controls:
@@ -13802,27 +14043,36 @@ components:
         hire_date:
           type: string
           x-bound-controls:
+          - BSA-14
           - CC-11
+          - CP-05
+          - FL-11
           - IS-17
         role_curriculum:
           type: string
           x-bound-controls:
+          - BSA-14
           - CC-11
+          - CP-05
+          - CP-08
+          - FL-11
+          - IP-16
+          - IS-17
+          - TIS-10
         annual_due:
           type: string
           format: date
           x-bound-controls:
-          - BSA-19
+          - EC-08
           - EC-12
-          - IP-16
         annual_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - BA-08
+          - BSA-14
+          - CAP-08
           - CC-11
-          - CMP-05
-          - EPS-09
+          - CP-05
           - FD-10
           - FL-11
           - IP-16
@@ -13837,7 +14087,9 @@ components:
           type: string
           format: date-time
           x-bound-controls:
+          - CP-05
           - EC-12
+          - IP-16
           - RR-09
         new_hire_timer:
           type: string
@@ -13848,16 +14100,17 @@ components:
           type: string
           format: date-time
           x-bound-controls:
+          - BSA-14
           - CC-11
-          - CMP-05
           - IS-17
-          - PR-06
         onboarding_due_at:
           type: string
           format: date-time
           x-bound-controls:
+          - CP-05
           - FL-11
           - IP-16
+          - PR-06
         privacy_due:
           type: string
           format: date
@@ -13868,6 +14121,8 @@ components:
           format: date-time
           x-bound-controls:
           - RR-09
+        board_curriculum:
+          type: string
     transaction:
       type: object
       x-kind: vocabulary
@@ -13885,21 +14140,18 @@ components:
           type: boolean
           x-bound-controls:
           - BCP-09
-          - CDA-11
           - IC-03
-          - LP-12
-          - LP-17
+          - LIQ-17
         initiated_by:
           type: string
           x-bound-controls:
-          - CDA-11
-          - EC-07
           - IC-03
+          - IP-14
         amount:
           type: integer
           x-bound-controls:
-          - IC-03
           - RP-03
+          - RP-04
     treasury:
       type: object
       x-kind: vocabulary
@@ -13916,11 +14168,15 @@ components:
           type: object
           x-bound-controls:
           - FL-04
+          - LN-06
         rov_due_at:
           type: string
           format: date-time
           x-bound-controls:
           - FL-04
+          - LN-06
+        report:
+          type: string
     vendor:
       type: object
       x-kind: vocabulary
@@ -13928,19 +14184,22 @@ components:
         affected_scope:
           type: string
           x-bound-controls:
+          - BCP-14
           - FL-09
           - IS-11
-          - TPR-08
         attestation_request:
           type: string
         breach_detail:
           type: object
           x-bound-controls:
+          - BCP-14
           - FL-09
           - IS-11
+          - TPR-08
         bsa_function_scope:
           type: string
           x-bound-controls:
+          - FL-09
           - TPR-04
         bsa_responsibility_split:
           type: string
@@ -13949,7 +14208,7 @@ components:
         bsa_role_flag:
           type: boolean
           x-bound-controls:
-          - BSA-18
+          - BSA-19
           - TPR-02
         business_case:
           type: string
@@ -13958,7 +14217,7 @@ components:
         clause_id:
           type: string
           x-bound-controls:
-          - PR-03
+          - PR-07
           - TPR-05
         clause_library_version:
           type: string
@@ -13970,6 +14229,8 @@ components:
           - TPR-02
         concentration_assessed:
           type: string
+          x-bound-controls:
+          - BCP-14
         contract_blocked_raci:
           type: string
           x-bound-controls:
@@ -13980,6 +14241,8 @@ components:
           - TPR-05
         contract_id:
           type: string
+          x-bound-controls:
+          - TPR-10
         core_function_flag:
           type: boolean
           x-bound-controls:
@@ -13993,10 +14256,10 @@ components:
         criticality_tier:
           type: string
           x-bound-controls:
+          - IS-11
           - TPR-02
           - TPR-06
           - TPR-07
-          - TPR-09
           - TPR-10
         data_deletion_attestation:
           type: string
@@ -14010,6 +14273,7 @@ components:
         dependency_map:
           type: string
           x-bound-controls:
+          - BCP-14
           - TPR-02
         destruction_certificate:
           type: string
@@ -14025,9 +14289,11 @@ components:
           type: object
           x-bound-controls:
           - BCP-14
+          - EC-11
         due_diligence_artifact_id:
           type: string
           x-bound-controls:
+          - FL-09
           - TPR-04
         edd_refreshed:
           type: string
@@ -14048,6 +14314,7 @@ components:
           type: string
           x-bound-controls:
           - BCP-14
+          - TPR-09
         exit_plan_refreshed:
           type: string
           x-bound-controls:
@@ -14066,7 +14333,6 @@ components:
           type: string
           x-bound-controls:
           - TPR-04
-          - TPR-06
         glba_addendum_id:
           type: string
           x-bound-controls:
@@ -14092,7 +14358,6 @@ components:
         incident_scope:
           type: string
           x-bound-controls:
-          - BCP-14
           - TPR-08
         incident_tracks_dispatched:
           type: string
@@ -14103,8 +14368,8 @@ components:
         inherent_risk:
           type: string
           x-bound-controls:
-          - TPR-02
-          - TPR-03
+          - IS-11
+          - TPR-07
         inventory_id:
           type: string
           x-bound-controls:
@@ -14131,14 +14396,13 @@ components:
           type: object
           x-bound-controls:
           - FL-09
+          - TPR-06
           - TPR-07
         mi_trends:
           type: string
           x-bound-controls:
-          - BSA-18
+          - BSA-19
           - FL-09
-          - TPR-01
-          - TPR-06
           - TPR-07
         migration_evidence:
           type: object
@@ -14146,6 +14410,9 @@ components:
           - TPR-09
         monitoring_alert:
           type: string
+          x-bound-controls:
+          - IS-11
+          - PR-07
         network_access_flag:
           type: boolean
           x-bound-controls:
@@ -14186,14 +14453,12 @@ components:
         service_description:
           type: string
           x-bound-controls:
-          - FL-09
           - TPR-02
         soc_report:
           type: string
           x-bound-controls:
           - IS-11
           - TPR-04
-          - TPR-06
           - TPR-07
         subprocessor_attestation:
           type: string
@@ -14202,7 +14467,8 @@ components:
         data_scope:
           type: string
           x-bound-controls:
-          - PR-03
+          - TPR-02
+          - TPR-03
         dd_package:
           type: integer
           x-bound-controls:
@@ -14216,12 +14482,12 @@ components:
           type: string
           format: date
           x-bound-controls:
-          - BSA-18
           - PR-07
         annual_review_due_at:
           type: string
           format: date-time
           x-bound-controls:
+          - BSA-19
           - IS-11
           - PR-07
         bcp_evidence_due:
@@ -14277,6 +14543,8 @@ components:
           format: date
           x-bound-controls:
           - BCP-14
+          - BSA-19
+          - FL-09
           - IS-11
           - TPR-08
         inventory_reconciliation_due:
@@ -14319,6 +14587,9 @@ components:
           format: date-time
           x-bound-controls:
           - IS-11
+        concentration_review_due:
+          type: string
+          format: date
     vuln:
       type: object
       x-kind: vocabulary
@@ -14326,15 +14597,18 @@ components:
         remediation_plan:
           type: object
           x-bound-controls:
+          - EC-09
           - IS-05
         detail:
           type: string
           x-bound-controls:
+          - AU-05
           - EC-09
           - IS-05
         severity:
           type: string
           x-bound-controls:
+          - AU-05
           - EC-09
           - IS-05
         remediation_due_at:
@@ -14343,12 +14617,11 @@ components:
           x-bound-controls:
           - EC-09
           - IS-05
-          - IS-07
-          - IS-13
         triage_due_at:
           type: string
           format: date-time
           x-bound-controls:
+          - EC-09
           - IS-05
     web:
       type: object
@@ -14377,7 +14650,7 @@ components:
         visitor_id:
           type: string
           x-bound-controls:
-          - PR-17
+          - PR-14
         visitor_jurisdiction:
           type: string
           x-bound-controls:
@@ -14391,45 +14664,46 @@ components:
         exposure_history:
           type: string
           x-bound-controls:
-          - LP-13
+          - LIQ-06
+          - LIQ-13
         listing_decisioned:
           type: string
           x-bound-controls:
-          - LP-13
+          - LIQ-13
         maturity_calendar:
           type: string
           x-bound-controls:
-          - LP-13
+          - LIQ-13
         pricing_authority_id:
           type: string
           x-bound-controls:
-          - LP-13
+          - LIQ-13
         rate:
           type: string
           x-bound-controls:
-          - LP-13
+          - LIQ-13
         service_id:
           type: string
           x-bound-controls:
-          - LP-13
+          - LIQ-13
         tenor:
           type: string
           x-bound-controls:
-          - LP-13
+          - LIQ-13
         tenor_ladder:
           type: string
           x-bound-controls:
-          - LP-13
+          - LIQ-13
         compute_due_at:
           type: string
           format: date-time
           x-bound-controls:
-          - LP-13
+          - LIQ-13
         monthly_review_due:
           type: string
           format: date
           x-bound-controls:
-          - LP-13
+          - LIQ-13
     workforce:
       type: object
       x-kind: vocabulary
@@ -14535,8 +14809,7 @@ components:
           type: string
           format: date-time
           x-bound-controls:
-          - FL-05
-          - LD-03
+          - LN-03
     cdd:
       type: object
       x-kind: vocabulary
@@ -14567,6 +14840,8 @@ components:
           format: date
           x-bound-controls:
           - BSA-04
+        profile:
+          type: string
     courier:
       type: object
       x-kind: vocabulary
@@ -14627,34 +14902,34 @@ components:
           type: string
           x-bound-controls:
           - BSA-04
-          - BSA-15
           - BSA-16
+          - BSA-20
         category_checklist:
           type: string
           x-bound-controls:
           - BSA-04
-          - BSA-15
+          - BSA-16
         msb_registration_number:
           type: integer
           x-bound-controls:
-          - BSA-15
+          - BSA-16
         site_visit_report:
           type: string
           x-bound-controls:
-          - BSA-15
+          - BSA-16
         source_of_wealth:
           type: string
           x-bound-controls:
           - BSA-04
-          - BSA-15
           - BSA-16
+          - BSA-20
         refresh_due:
           type: string
           format: date
           x-bound-controls:
           - BSA-04
-          - BSA-15
           - BSA-16
+          - BSA-20
     engagement:
       type: object
       x-kind: vocabulary
@@ -14677,27 +14952,34 @@ components:
         facts:
           type: string
           x-bound-controls:
+          - BSA-13
           - FL-01
           - FL-13
         reporter_id:
           type: string
           x-bound-controls:
+          - AU-03
+          - BSA-13
           - FL-01
         severity:
           type: string
           x-bound-controls:
+          - BSA-13
           - FL-01
           - FL-13
         ack_timer:
           type: string
           description: Timer/SLA marker.
           x-bound-controls:
-          - BSA-12
+          - AU-03
+          - AU-10
+          - BSA-13
+          - FL-01
         plan_timer:
           type: string
           description: Timer/SLA marker.
           x-bound-controls:
-          - BSA-12
+          - BSA-13
     flow:
       type: object
       x-kind: vocabulary
@@ -14706,13 +14988,11 @@ components:
         amount:
           type: integer
           x-bound-controls:
-          - IP-06
-          - LP-03
+          - LIQ-03
         direction:
           type: string
           x-bound-controls:
-          - IP-06
-          - LP-03
+          - LIQ-03
     governance:
       type: object
       x-kind: vocabulary
@@ -14722,22 +15002,26 @@ components:
           type: string
           x-bound-controls:
           - BSA-01
+          - CP-01
+          - RR-01
+          - TPR-01
         bsa_officer_id:
           type: string
           x-bound-controls:
           - BSA-01
+          - TPR-01
         raci_registry:
           type: string
           x-bound-controls:
           - BSA-01
+          - CP-01
+          - CP-03
         policy_review_due:
           type: string
           format: date
           x-bound-controls:
           - BSA-01
-          - CC-01
-          - IP-01
-          - LD-01
+          - COL-01
     insider_report:
       type: object
       x-kind: vocabulary
@@ -14746,9 +15030,7 @@ components:
         due:
           type: string
           x-bound-controls:
-          - FD-03
-          - FD-05
-          - LD-14
+          - LN-14
     intrusion:
       type: object
       x-kind: vocabulary
@@ -14773,7 +15055,6 @@ components:
           format: date-time
           x-bound-controls:
           - FL-05
-          - LD-07
     monitoring_coverage:
       type: object
       x-kind: vocabulary
@@ -14782,7 +15063,7 @@ components:
         review:
           type: string
           x-bound-controls:
-          - CMP-06
+          - CP-06
     ofac:
       type: object
       x-kind: vocabulary
@@ -14796,6 +15077,7 @@ components:
           type: string
           x-bound-controls:
           - BSA-05
+          - LN-11
         payment_instructions:
           type: string
           x-bound-controls:
@@ -14810,6 +15092,8 @@ components:
           description: Timer/SLA marker.
           x-bound-controls:
           - BSA-05
+        hotline_record:
+          type: string
     process:
       type: object
       x-kind: vocabulary
@@ -14836,7 +15120,7 @@ components:
         citation:
           type: string
           x-bound-controls:
-          - CMP-02
+          - CP-02
     resolution_review:
       type: object
       x-kind: vocabulary
@@ -14902,8 +15186,7 @@ components:
         due:
           type: string
           x-bound-controls:
-          - FL-08
-          - LD-12
+          - LN-12
     strategy:
       type: object
       x-kind: vocabulary
@@ -14937,7 +15220,7 @@ components:
           type: string
           description: Timer/SLA marker.
           x-bound-controls:
-          - BSA-13
+          - BSA-17
     email_archive:
       type: object
       x-kind: vocabulary
@@ -14967,7 +15250,7 @@ components:
           type: string
           description: Timer/SLA marker.
           x-bound-controls:
-          - BSA-14
+          - BSA-18
     firewall:
       type: object
       x-kind: vocabulary
@@ -15012,7 +15295,17 @@ components:
           type: string
           format: date
           x-bound-controls:
-          - CL-04
+          - COL-04
+        review_due_at:
+          type: string
+          format: date-time
+    property:
+      type: object
+      x-kind: vocabulary
+      description: property vocabulary (control demand).
+      properties:
+        address:
+          type: string
   parameters:
     Limit:
       name: limit

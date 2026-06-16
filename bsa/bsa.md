@@ -1,9 +1,9 @@
 ---
 title: BSA Policy (Table-First, Design-Overlay v2)
-owner: Patrick Wilson, Chief Compliance Officer (BSA Officer)
-version: v3.0
-effective: 2026-06-11
-next_review: 2027-06-11
+owner: Patrick Wilson, Chief Compliance Officer
+version: v1.0
+effective: 2026-06-16
+next_review: 2027-06-16
 approvers:
   - Patrick Wilson, Chief Compliance Officer
 tags: [Compliance, BSA, AML, CFT, OFAC, CIP, CDD, SAR, CTR]
@@ -11,361 +11,329 @@ tags: [Compliance, BSA, AML, CFT, OFAC, CIP, CDD, SAR, CTR]
 
 ## General Policy Statement
 
-Pynthia Credit Union maintains a risk-based, Board-approved integrated BSA/AML/CFT/OFAC/CIP program that meets **12 CFR § 748.2** and applicable Treasury regulations in **31 CFR Chapter X**. The program verifies member identities, performs customer due diligence (including enhanced due diligence where warranted), screens against OFAC sanctions and PEP datasets, monitors and reports suspicious activity, files all required reports (CTR, SAR, CMIR, FBAR, DOEP/Form 110, Form 105, Form 114), maintains required records, escalates breaches, and operationalizes FinCEN special measures and Geographic Targeting Orders. It applies to all members, accounts, transactions, channels, and third parties of the credit union, and consolidates the formerly separate AML/CFT, OFAC, and Customer Due Diligence programs. The Chief Compliance Officer (BSA Officer) owns the program; Compliance, BSA Operations, Vendor Management, Payments Operations, HR, and Internal Audit are required participants.
+Pynthia Credit Union maintains a risk-based, Board-approved integrated BSA/AML/CFT/OFAC/CIP program that meets 12 CFR § 748.2 and the Treasury (FinCEN) regulations at 31 CFR Chapter X. The program verifies member identities, understands the nature and purpose of member relationships, conducts customer and enhanced due diligence, monitors for and timely reports suspicious and reportable activity (SAR, CTR, CMIR, FBAR), screens against OFAC sanctions lists, identifies politically exposed persons, governs third-party AML/CFT screening vendors, and escalates breaches. It applies to all members, accounts, transactions, channels, and third parties. This policy consolidates the formerly separate AML/CFT, OFAC, and Customer Due Diligence programs and is centralized under the Chief Compliance Officer (BSA Officer).
 
-***
+---
 
 ## Timing Matrix {#timing-matrix}
 
 | Scenario | Trigger (human → event) | Deadline | Content Reference | Control |
 |---|---|---:|---|---|
-| Annual policy approval / interim review | Board approves or material change occurs (`governance.policy_approved`) | Annual; interim ≤ 30 days of material change | Approved policy + RACI | [BSA-01](#bsa-01-governance--delegation) |
-| Block account until CIP verified | Onboarding submitted (`member.application_submitted`) | Before account activation | CIP verification result | [BSA-03](#bsa-03-customer-identification-program-cip) |
-| Collect & verify beneficial ownership | Legal-entity onboarding (`cdd.profile_created`) | Before account activation | BO/CDD dossier | [BSA-04](#bsa-04-cdd--edd-including-beneficial-ownership) |
-| Screen and hold on OFAC hit | Pre-execution / onboarding screen (`ofac.hold_placed`) | Immediate hold; report ≤ 10 business days | Block/reject + OFAC report | [BSA-05](#bsa-05-ofac-screening--holds) |
-| Triage monitoring alert | Alert generated (`bsa_alert.created`) | ≤ 2 business days | Triaged case | [BSA-06](#bsa-06-transaction-monitoring--case-management) |
-| File CTR | Aggregated cash > $10,000 (`ctr.threshold_reached`) | ≤ 15 calendar days | E-filed CTR | [BSA-07](#bsa-07-ctr-filing--exemptions) |
-| File SAR (suspect known) | SAR decision to file (`sar.decision_file`) | ≤ 30 days from detection | SAR + supporting docs | [BSA-08](#bsa-08-sar-filing--confidentiality) |
-| File SAR (no suspect) | SAR decision to file (`sar.decision_file`) | ≤ 60 days from detection | SAR + supporting docs | [BSA-08](#bsa-08-sar-filing--confidentiality) |
-| Continuing SAR | Ongoing activity (`sar.continuing_filed`) | Every 90 days | Continuing SAR | [BSA-08](#bsa-08-sar-filing--confidentiality) |
-| Consolidate monetary-instrument log | $3,000–$10,000 MI purchase (`monetary_instrument.purchased`) | Central log by 15th of following month | Consolidated MI log | [BSA-09](#bsa-09-monetary-instruments-log) |
-| Validate Travel Rule data before wire release | Wire ≥ $3,000 (`wire_transfer.created`) | Before wire release | Wire with full Travel Rule record | [BSA-10](#bsa-10-travel-rule-wires-3000) |
-| Respond to 314(a) request | SISS request received (`regulator.request_received`) | ≤ 14 days | Match response + search docs | [BSA-11](#bsa-11-information-sharing-314a-314b) |
-| Escalate breach / emergent issue | Escalation created (`escalation.created`) | Ack ≤ 1 BD; action plan ≤ 5 BD | Acknowledged escalation + action plan | [BSA-12](#bsa-12-escalation-pathway) |
-| File CMIR | Reportable cross-border currency (`cmir.reportable_identified`) | ≤ 15 days after receipt | E-filed Form 105 | [BSA-13](#bsa-13-cmir-cross-border-currency) |
-| File FBAR | Reportable foreign accounts (`fbar.inventory_updated`) | April 15 (auto-ext. October 15) | E-filed Form 114 | [BSA-14](#bsa-14-fbar) |
-| PEP hit to EDD | PEP screen hit (`pep.hit`) | Before activation for high-risk PEP | EDD file w/ elevated approval | [BSA-16](#bsa-16-pep-screening--edd) |
-| Operationalize special measure / GTO | FinCEN directive received (`regulator.request_received`) | Circulate ≤ 1 BD; implement by GTO deadline | Implementation record | [BSA-17](#bsa-17-fincen-special-measures--gtos) |
+| Annual policy approval / interim review | Board cycle opens or material change declared (`org.material_change` → `governance.policy_approved`) | Annual; interim within 30 days of material change | Board-approved BSA policy | [BSA-01](#bsa-01-governance-delegation) |
+| Enterprise risk assessment refresh | Risk cycle due (`risk.assessment_due_at`) | Every 12–18 months or on material change | Inherent/residual risk catalog | [BSA-02](#bsa-02-enterprise-bsa-aml-risk-assessment) |
+| CIP before account activation | Member applies (`member.application_submitted`) | Before account activation | CIP verification record | [BSA-03](#bsa-03-customer-identification-program-cip) |
+| CDD/EDD & beneficial ownership | New legal-entity account / refresh due (`cdd.profile_created` / `cdd.refresh_due`) | Before activation; refresh per risk tier | CDD/BO dossier | [BSA-04](#bsa-04-cdd-edd-beneficial-ownership) |
+| OFAC screening & holds | Onboarding or pre-execution screen (`ofac.list_updated` / pre-execution) | Block/reject pre-execution; report within 10 BD | OFAC hit memo, blocking report | [BSA-05](#bsa-05-ofac-screening-holds) |
+| Transaction monitoring & SAR decision | Alert generated (`bsa_alert.created`) | Triage ≤ 2 BD; SAR/no-SAR ≤ 30 days of detection | Case file | [BSA-06](#bsa-06-transaction-monitoring-case-management) |
+| CTR filing | Cash aggregation threshold reached (`ctr.threshold_reached`) | E-file within 15 days | CTR | [BSA-07](#bsa-07-ctr-filing) |
+| SAR filing & continuing SAR | Case decided SAR-required (`sar.decision_file`) | 30 days (suspect) / 60 days (no suspect); continuing every 90 days | SAR + supporting docs | [BSA-08](#bsa-08-sar-filing-confidentiality) |
+| Monetary instrument log consolidation | $3,000–$10,000 instrument purchased (`monetary_instrument.purchased`) | Consolidate by 15th of following month | Central MI log | [BSA-09](#bsa-09-monetary-instruments-logs) |
+| Travel Rule on wires ≥ $3,000 | Wire created (`wire_transfer.created`) | Validate before release | Wire record with required identifiers | [BSA-10](#bsa-10-travel-rule-wires-3000) |
+| 314(a) / 314(b) information sharing | FinCEN SISS request received (`regulator.request_received`) | Respond within 14 days | Search result + certification | [BSA-11](#bsa-11-information-sharing-314a-314b) |
+| Record retention | Record created (`record.created`) | 5-year BSA baseline; 10-year OFAC | Retention-tagged record | [BSA-12](#bsa-12-record-retention) |
+| Breach / emergent escalation | One-click escalation (`escalation.created`) | Ack ≤ 1 BD; action plan ≤ 5 BD | Escalation + action plan | [BSA-13](#bsa-13-escalation-pathway) |
+| BSA training | Hire or annual cycle (`employee.hired` / `training.annual_cycle_opened`) | Within 30 days of hire; annually by anniversary | Training completion record | [BSA-14](#bsa-14-training) |
+| Independent testing | Testing cycle due (`audit.cycle_timer`) | Every 12–18 months | Test report + remediation tracking | [BSA-15](#bsa-15-independent-testing) |
+| High-risk category EDD | High-risk category onboarded (`edd.category_approved`) | EDD before activation; refresh ≥ annually | Category checklist + EDD file | [BSA-16](#bsa-16-high-risk-categories-msb-correspondent-private-banking) |
+| CMIR cross-border currency | Reportable shipment identified (`cmir.reportable_identified`) | File Form 105 within 15 days of receipt | CMIR (Form 105) | [BSA-17](#bsa-17-cmir-cross-border-currency) |
+| FBAR foreign accounts | Foreign account inventoried (`fbar.inventory_updated`) | April 15 (auto-extension to Oct 15) | FBAR (Form 114) | [BSA-18](#bsa-18-fbar) |
+| Prepaid access & third-party vendors | Vendor onboarded / critical alert (`vendor.due_diligence_initiated` / `vendor.critical_alert`) | Annual review; real-time critical alerting | Vendor DD package + review | [BSA-19](#bsa-19-prepaid-access-third-parties) |
+| PEP screening & EDD | PEP hit at onboarding/refresh (`pep.hit`) | EDD before activation for high-risk PEPs | PEP EDD file | [BSA-20](#bsa-20-pep-screening-edd) |
+| Special Measures / GTO intake | FinCEN order received (`regulatory.correspondence_received`) | Circulate ≤ 1 BD; implement by order deadline | Implementation + retention record | [BSA-21](#bsa-21-fincen-special-measures-gtos) |
 
-***
+---
 
-## BSA-01 — Governance & Delegation {#bsa-01-governance--delegation}
+## Control Overlays (Design Overlay v3)
 
-- **WHY (Reg cite):** Federally insured credit unions must maintain a written, Board-approved BSA program with internal controls, independent testing, a designated BSA Officer, and training. [12 CFR §748.2](https://www.ecfr.gov/current/title-12/part-748#p-748.2); AML program rule [31 CFR §1020.210](https://www.ecfr.gov/current/title-31/part-1020#p-1020.210).
-- **SYSTEM BEHAVIOR:** The system maintains the policy artifact with a designated BSA Officer and a RACI registry, requires Board approval at least annually, and forces an interim review when a material change is flagged (an interim review is required within 30 days of any material change, not the next annual cycle). Monthly Board summaries of BSA/OFAC metrics are compiled and delivered. Policy publication and the BSA Officer designation are write-restricted to the Chief Compliance Officer; the Board holds read/approve rights.
-- **EVENTS:**
+## BSA-01 — Governance & Delegation {#bsa-01-governance-delegation}
 
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | Board approves the BSA policy (`governance.policy_approved`) | Policy document + version (`policy.document_id`, `policy.document_version`), BSA Officer (`governance.bsa_officer_id`), RACI registry (`governance.raci_registry`) | Approved policy + Board minutes (`policy.board_approved`) | Annual (enforced by `governance.policy_review_due`) |
-  | Material change declared (`org.material_change`) | Change summary (`policy.change_summary`), materiality threshold (`policy.materiality_threshold`) | Interim review record (`policy.amendment_proposed`) | 30 days (enforced by `policy.review_due_at`) |
-  | BSA Officer designated (`governance.bsa_officer_designated`) | Designated officer (`governance.bsa_officer_id`), authority statement (`governance.authority_statement`) | Designation record (`governance.designation_recorded`) | At designation (no timer) |
-  | Monthly Board summary compiled (`board.cash_summary.delivered`) | BSA metrics (`reporting.bsa_metrics`), OFAC metrics (`reporting.ofac_metrics`), SAR count (`reporting.sar_count`), training metrics (`reporting.training_metrics`) | Board pack + delivery log (`governance.board_report_delivered`) | Monthly (enforced by `compliance.board_report_due_at`) |
-
-- **ALERTS/METRICS:** Policy age vs. annual deadline; days-to-interim-review aging after a material change (target zero overdue); monthly Board-pack on-time delivery rate.
-
-***
-
-## BSA-02 — Enterprise BSA/AML Risk Assessment {#bsa-02-enterprise-bsaaml-risk-assessment}
-
-- **WHY (Reg cite):** A risk-based AML program requires identifying products, customers, channels, and geographies more vulnerable to abuse and tailoring controls accordingly. [31 CFR §1020.210](https://www.ecfr.gov/current/title-31/part-1020#p-1020.210); [12 CFR §748.2](https://www.ecfr.gov/current/title-12/part-748#p-748.2).
-- **SYSTEM BEHAVIOR:** The system maintains a product/partner/channel/geography risk catalog, computes inherent and residual risk scores, and registers EDD triggers derived from the catalog. The assessment is reviewed at least every 12–18 months or on material change (an out-of-cycle reassessment is forced when a material change is declared). Risk-catalog edits and score approvals are write-restricted to Compliance.
-- **EVENTS:**
+- **WHY (Reg cite):** The Board must establish and maintain a written BSA program with internal controls, a designated BSA Officer, training, and independent testing under [12 CFR § 748.2](https://www.ecfr.gov/current/title-12/part-748#p-748.2), implementing the AML program requirement of [31 CFR § 1020.210](https://www.ecfr.gov/current/title-31/part-1020#p-1020.210).
+- **SYSTEM BEHAVIOR:** The Board approves the policy at least annually and within 30 days of a material change; the system tracks the policy version, BSA Officer designation, and a RACI registry defining segregation of duties. Board review cycles open on schedule and a material-change declaration forces an interim review. Quarterly BSA/OFAC metrics packs route to the Board. Policy publication and BSA Officer designation are write-restricted to the Chief Compliance Officer (BSA Officer).
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Risk-catalog entry created (`risk.catalog_entry_created`) | Candidate profile (`risk.candidate_profile`), geography factors (`risk.geography_factors`), partner dependency (`risk.partner_dependency`), inherent score (`risk.inherent_score`) | Catalog entry + risk register snapshot (`risk.created`) | At creation (no deadline) |
-  | Periodic or event-driven assessment due (`risk.assessment_completed`) | Inherent/residual ratings (`risk.inherent_rating`, `risk.residual_rating`), assessment results (`risk.assessment_results`) | Published risk assessment (`risk.assessment_published`) | 12–18 months (enforced by `risk.assessment_due_at`) |
+  | Board review cycle opens (`governance.board_cycle_opened`) | Policy document (`policy.document_id`), BSA Officer id (`governance.bsa_officer_id`), RACI registry (`governance.raci_registry`) | Approved policy version (`governance.policy_approved`) | Annual (enforced by `policy.board_approval_due_at`) |
+  | Material change declared (`org.material_change`) | Change summary (`policy.change_summary`), review owner (`policy.owner_ref`) | Interim review record (`policy.board_review_started`) | 30 days (enforced by `governance.policy_review_due`) |
+  | BSA Officer appointed/changed (`governance.bsa_officer_designated`) | Designation record (`governance.bsa_officer_id`), authority statement (`governance.authority_statement`) | Designation logged (`governance.designation_recorded`) | — |
+  | Quarterly metrics pack assembled (`reporting.board_pack_submitted`) | BSA/OFAC/SAR/training metrics (`board_pack.bsa_metrics`, `board_pack.ofac_metrics`, `board_pack.sar_count`, `board_pack.training_metrics`) | Board report delivered (`governance.board_report_delivered`) | Quarterly (enforced by `reporting.board_pack_due`) |
 
-- **ALERTS/METRICS:** Risk-assessment age vs. 12–18 month window; count of EDD triggers without a mapped control (target zero); residual-score distribution drift between cycles.
+- **ALERTS/METRICS:** Policy age vs. review due; target zero overdue board approvals; interim-review latency after material change; quarterly pack on-time rate.
 
-***
+## BSA-02 — Enterprise BSA/AML Risk Assessment {#bsa-02-enterprise-bsa-aml-risk-assessment}
+
+- **WHY (Reg cite):** A risk-based AML program tailored to the institution's products, customers, and geographies is required by [31 CFR § 1020.210](https://www.ecfr.gov/current/title-31/part-1020#p-1020.210) and the BSA program rule at [12 CFR § 748.2](https://www.ecfr.gov/current/title-12/part-748#p-748.2).
+- **SYSTEM BEHAVIOR:** The system maintains a product/partner/channel/geography risk catalog, computes inherent-to-residual scores, and sets EDD triggers. Reassessment runs every 12–18 months or on material change. Approval of the published assessment is write-restricted to Compliance.
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | Risk assessment cycle due (`risk.assessment_due_at`) | Candidate profiles (`risk_catalog_entry.candidate_profile`), geography factors (`risk_catalog_entry.geography_factors`), partner dependency (`risk_catalog_entry.partner_dependency`) | Catalog entry created (`risk.catalog_entry_created`) | 12–18 months (enforced by `risk.assessment_due_at`) |
+  | Scoring run executed (`risk.assessment_completed`) | Inherent score (`risk.inherent_score`), impact/likelihood (`risk.impact_score`, `risk.likelihood_score`), residual rating (`risk.residual_rating`) | Assessment published (`risk.assessment_published`) | — |
+  | Material change detected (`org.material_change`) | Reassessment scope (`risk.description`), owner (`risk.owner_id`) | Reassessment recorded (`risk.rating_recorded`) | On change (enforced by `risk.reassessment_due_at`) |
+
+- **ALERTS/METRICS:** Assessment age vs. 18-month ceiling; count of residual-high catalog entries without an EDD trigger mapped; reassessment latency after material change.
 
 ## BSA-03 — Customer Identification Program (CIP) {#bsa-03-customer-identification-program-cip}
 
-- **WHY (Reg cite):** The CIP must collect required identifying information, verify identity by documentary or non-documentary means, and retain records. [31 CFR §1020.220](https://www.ecfr.gov/current/title-31/part-1020#p-1020.220).
-- **SYSTEM BEHAVIOR:** The system enforces collection of legal name, DOB, address, and TIN, supports documentary and non-documentary verification, and blocks account activation until verification passes (activation is hard-gated on a passing verification result). Identity information is retained 5 years after account closure and verification records 5 years after they are made. Override of a vendor verification outcome is write-restricted to trained Compliance reviewers.
-- **EVENTS:**
+- **WHY (Reg cite):** CIP requires collecting and verifying identifying information and retaining records under [31 CFR § 1020.220](https://www.ecfr.gov/current/title-31/part-1020#p-1020.220), incorporated into the credit-union BSA program by [12 CFR § 748.2](https://www.ecfr.gov/current/title-12/part-748#p-748.2).
+- **SYSTEM BEHAVIOR:** The system enforces required identity data (legal name, DOB, address, TIN), supports documentary and non-documentary verification, and blocks account activation until verification passes. Identity information is retained 5 years after account closure and verification records 5 years after made. Override of a vendor verification outcome is write-restricted to trained Compliance reviewers.
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Member onboarding submitted (`member.application_submitted`) | Legal name (`entity.name`), DOB (`entity.date_of_birth`), address (`entity.address`), TIN (`entity.tin`) | Verification record created (`verification.created`) | Before activation (no separate timer) |
-  | Identity verification completed (`verification.completed`) | Provider result (`verification.provider_result`), match status (`verification.match_status`), trust level (`verification.trust_level`) | Pass/deny decision + activation gate cleared (`member.activated`) | Before account activation (no timer) |
-  | Verification denied (`verification.denied`) | Provider result (`verification.provider_result`), alt-path availability (`verification.alt_path_available`) | Denied record + retained CIP evidence (`document.required_set`) | At decision; retain 5 yrs (enforced by `record.retention_expires_at`) |
+  | Member application submitted (`member.application_submitted`) | Legal name (`entity.name`), DOB (`entity.date_of_birth`), address (`entity.address`), TIN (`entity.tin`) | Verification created (`verification.created`) | Before activation |
+  | Verification result returned (`verification.provider_result.identity_verified`) | Provider result (`verification.provider_result`), match status (`verification.match_status`), trust level (`verification.trust_level`) | Verification completed or denied (`verification.completed` / `verification.denied`) | Before activation |
+  | Account activation gated (`entity.activated`) | Verification status (`verification.status`), retention anchor (`record.retention_anchor`) | Retention clock set (`record.retention_clock_set`) | Identity 5y after closure; verification records 5y after made (enforced by `record.retention_expires_at`) |
 
-- **ALERTS/METRICS:** Activations attempted without passing verification (target zero); manual-review queue aging; CIP-record retention-timer coverage gaps.
+- **ALERTS/METRICS:** Manual-review queue aging; verification pass/fail and false-positive rates; target zero activations without a passing CIP record.
 
-***
+## BSA-04 — CDD / EDD (incl. Beneficial Ownership) {#bsa-04-cdd-edd-beneficial-ownership}
 
-## BSA-04 — CDD / EDD (incl. Beneficial Ownership) {#bsa-04-cdd--edd-including-beneficial-ownership}
-
-- **WHY (Reg cite):** Understand the nature and purpose of relationships, collect/verify beneficial owners (≥25% plus one control person), and conduct ongoing risk-based due diligence. [31 CFR §1010.230](https://www.ecfr.gov/current/title-31/part-1010#p-1010.230); [31 CFR §1020.210](https://www.ecfr.gov/current/title-31/part-1020#p-1020.210).
-- **SYSTEM BEHAVIOR:** The system collects expected activity and source of funds/wealth, captures beneficial-ownership data (each owner ≥25% plus one control person), assigns a risk tier, and applies high-risk playbooks. Profiles refresh per risk tier and on event-driven changes (an ownership-change event forces an out-of-cycle refresh). EDD files are opened on registered triggers and require senior approval. Beneficial-ownership and EDD data are write-restricted to Compliance on a need-to-know basis.
-- **EVENTS:**
+- **WHY (Reg cite):** Ongoing CDD (nature/purpose, risk profile, monitoring) is required under [31 CFR § 1020.210](https://www.ecfr.gov/current/title-31/part-1020#p-1020.210); beneficial-ownership collection (≥25% owners plus one control person) is required under [31 CFR § 1010.230](https://www.ecfr.gov/current/title-31/part-1010#p-1010.230).
+- **SYSTEM BEHAVIOR:** The system collects expected activity, source of funds/wealth, and beneficial-ownership data for legal entities, assigns a risk tier, applies high-risk playbooks, and refreshes per tier and on event-driven changes. EDD escalation is triggered automatically when high-risk signals fire. Approval of EDD files is write-restricted to senior Compliance.
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Legal-entity CDD profile created (`cdd.profile_created`) | Expected activity (`cdd.expected_activity`), source of funds (`cdd.source_of_funds`), control person (`cdd.control_person`), industry code (`cdd.industry_code`), risk tier (`cdd.risk_tier`) | CDD profile + BO certification (`cdd.bo_certified`) | Before account activation (no timer) |
-  | EDD trigger fires (`risk.trigger_edd`) | Source of wealth (`edd.source_of_wealth`), category checklist (`edd.category_checklist`), approver (`edd.approver_id`) | EDD file + approval (`edd.completed`) | Per risk tier (enforced by `edd.refresh_due`) |
-  | Risk-tier or event-driven refresh due (`cdd.profile_refreshed`) | Risk tier (`cdd.risk_tier`), updated expected activity (`cdd.expected_activity`) | Refreshed CDD profile (`cdd.profile_refreshed`) | Per tier (enforced by `cdd.refresh_due`) |
+  | New CDD profile opened (`cdd.profile_created`) | Expected activity (`cdd.expected_activity`), source of funds (`cdd.source_of_funds`), industry code (`cdd.industry_code`), control person (`cdd.control_person`) | Profile created + risk tier (`cdd.profile_created`, `cdd.risk_tier`) | Before activation |
+  | Beneficial ownership certified (`cdd.bo_certified`) | BO list and ownership %, control person (`cdd.control_person`) | BO certification (`cdd.bo_certified`) | Before activation |
+  | EDD trigger fires (`risk.trigger_edd`) | Source of wealth (`edd.source_of_wealth`), category checklist (`edd.category_checklist`), approver (`edd.approver_id`) | EDD completed (`edd.completed`) | Per tier (enforced by `edd.refresh_due`) |
+  | Refresh due or event-driven change (`cdd.refresh_due`) | Updated profile (`cdd.profile`), risk tier (`cdd.risk_tier`) | Profile refreshed (`cdd.profile_refreshed`) | Per risk tier (enforced by `cdd.refresh_due`) |
 
-- **ALERTS/METRICS:** % legal-entity files with all BO certified; EDD-completed-on-time rate; CDD refresh-overdue count by risk tier.
+- **ALERTS/METRICS:** % entities with verified BO; EDD timely-completion rate; refresh compliance % by tier; target zero legal-entity activations without certified BO.
 
-***
+## BSA-05 — OFAC Screening & Holds {#bsa-05-ofac-screening-holds}
 
-## BSA-05 — OFAC Screening & Holds {#bsa-05-ofac-screening--holds}
-
-- **WHY (Reg cite):** Screen parties and payments, block or reject prohibited transactions, apply the 50% rule, manage licenses, and report. [31 CFR Part 501](https://www.ecfr.gov/current/title-31/part-501); [31 CFR Part 594](https://www.ecfr.gov/current/title-31/part-594).
-- **SYSTEM BEHAVIOR:** The system screens members, counterparties, and payments at onboarding and pre-execution against the current OFAC list version, auto-holds potential matches, and routes them for adjudication including the 50%-rule analysis and false-positive disposition. Confirmed hits are blocked or rejected per program and reported to OFAC within 10 business days; blocked-property annual reports are filed by September 30. OFAC records are retained 10 years (effective March 12, 2025). Block/reject decisions and license handling are write-restricted to the BSA Officer/Compliance.
-- **EVENTS:**
+- **WHY (Reg cite):** OFAC sanctions compliance requires screening, blocking/rejecting, reporting, and recordkeeping under [31 CFR Part 501](https://www.ecfr.gov/current/title-31/part-501) and the substantive prohibitions at [31 CFR Part 594](https://www.ecfr.gov/current/title-31/part-594).
+- **SYSTEM BEHAVIOR:** The system screens members, counterparties, and payments at onboarding and pre-execution, applies the 50% rule, and blocks or rejects per program. False positives are adjudicated and licenses managed; blocked/rejected items are reported within 10 business days and an annual blocked-property report is filed. OFAC records are retained 10 years (effective March 12, 2025). Adjudication and report filing are write-restricted to Compliance/OFAC analysts.
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Screening hold placed (`ofac.hold_placed`) | Subject identifiers (`control_result.subject_ref`), matched lists (`ofac_result.matched_lists`), match score (`ofac_result.match_score`), list version (`ofac.list_version`) | Adjudication case + hotline record (`ofac.cleared` or `ofac.blocked`) | Immediate hold (no timer) |
-  | Block/reject confirmed (`ofac.blocked` / `ofac.rejected`) | Blocked property (`ofac.blocked_property`), payment instructions (`ofac.payment_instructions`) | OFAC report filed (`ofac.report_filed`) | 10 business days (enforced by `ofac.report_timer`) |
-  | Annual blocked-property report due (`ofac.annual_report_filed`) | Blocked property inventory (`ofac.blocked_property`), list version (`ofac.list_version`) | Annual OFAC report (`ofac.annual_report_filed`) | By Sept 30 (enforced by `ofac.annual_report_due`) |
+  | List updated or subject screened (`ofac.list_updated`) | Subject identifiers (`control_result.subject_ref`), list version (`ofac.list_version`), matched lists (`ofac_result.matched_lists`) | Hold placed or cleared (`ofac.hold_placed` / `ofac.cleared`) | Pre-execution |
+  | Potential match confirmed (`ofac.blocked`) | Match score/status (`ofac_result.match_score`, `ofac_result.match_status`), hotline record (`ofac_control_context.hotline_record`) | Block/reject + report (`ofac.blocked` / `ofac.rejected`, `ofac.report_filed`) | Report within 10 BD (enforced by `ofac.report_timer`) |
+  | Annual blocked-property cycle due (`ofac.annual_report_due`) | Blocked property (`ofac_report_data.blocked_property`), payment instructions (`ofac_report_data.payment_instructions`) | Annual report filed (`ofac.annual_report_filed`) | By Sept 30 (enforced by `ofac.annual_report_due`) |
 
-- **ALERTS/METRICS:** Potential-match adjudication latency; blocked/rejected reports filed within 10 BD (target 100%); OFAC 10-year retention-timer coverage.
+- **ALERTS/METRICS:** Average time-to-disposition on potential matches; blocked/rejected report on-time rate; target zero payments executed before screening clears.
 
-***
+## BSA-06 — Transaction Monitoring & Case Management {#bsa-06-transaction-monitoring-case-management}
 
-## BSA-06 — Transaction Monitoring & Case Management {#bsa-06-transaction-monitoring--case-management}
-
-- **WHY (Reg cite):** Ongoing monitoring must detect and surface suspicious activity for case investigation and SAR decisioning. [31 CFR §1020.210](https://www.ecfr.gov/current/title-31/part-1020#p-1020.210); SAR basis at [31 CFR §1020.320](https://www.ecfr.gov/current/title-31/part-1020#p-1020.320).
-- **SYSTEM BEHAVIOR:** The system generates alerts from rules/models, triages each alert within 2 business days, manages investigations as cases, and routes warranted cases to a SAR/no-SAR decision within 30 days of detection. Critical real-time vendor alerts feed directly into monitoring. Case dispositions and SAR-decision authority are write-restricted to the Investigations/Compliance role.
-- **EVENTS:**
+- **WHY (Reg cite):** Ongoing monitoring to identify and report suspicious transactions is required under [31 CFR § 1020.210](https://www.ecfr.gov/current/title-31/part-1020#p-1020.210), with SAR timing anchored to [31 CFR § 1020.320](https://www.ecfr.gov/current/title-31/part-1020#p-1020.320).
+- **SYSTEM BEHAVIOR:** The system generates alerts from rules/models, triages them within 2 business days, manages cases through an investigation workflow, and forces a SAR/no-SAR decision within 30 days of detection where warranted. Case ownership and SAR decisions are write-restricted to Investigations/Compliance.
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Monitoring alert generated (`bsa_alert.created`) | Alert type (`bsa_alert.alert_type`), entity hash (`bsa_alert.entity_hash`), lookback flag (`bsa_alert.requires_lookback`) | Triaged alert + case opened (`case.opened`) | 2 business days (enforced by `bsa_alert.triage_timer`) |
-  | Investigation completed (`case.investigation_complete`) | Case summary (`case.summary`), evidence (`case.evidence`), owner (`case.owner_id`) | SAR/no-SAR decision (`sar.decision_file` / `sar.decision_no_file`) | 30 days from detection (enforced by `case.sar_decision_timer`) |
+  | Monitoring alert generated (`bsa_alert.created`) | Alert type (`bsa_alert.alert_type`), entity hash (`bsa_alert.entity_hash`), details (`bsa_alert.details`) | Alert triaged (`case.opened`) | 2 BD (enforced by `bsa_alert.triage_timer`) |
+  | Case opened for investigation (`case.opened`) | Evidence (`case.evidence`), summary (`case.summary`), owner (`case.owner_id`) | Investigation complete (`case.investigation_complete`) | — |
+  | SAR/no-SAR decision required (`sar.decision_file` / `sar.decision_no_file`) | Case file (`case.id`), narrative (`sar_data.narrative`) | SAR decision recorded (`sar.decision_file` / `sar.decision_no_file`) | 30 days of detection (enforced by `case.sar_decision_timer`) |
 
-- **ALERTS/METRICS:** Alert triage SLA breaches (target zero past 2 BD); alert-to-SAR conversion rate; open-case aging distribution.
+- **ALERTS/METRICS:** Alert triage SLA breaches; alert-to-SAR conversion rate; case aging distribution; target zero cases past the 30-day decision clock.
 
-***
+## BSA-07 — CTR Filing {#bsa-07-ctr-filing}
 
-## BSA-07 — CTR Filing & Exemptions {#bsa-07-ctr-filing--exemptions}
-
-- **WHY (Reg cite):** Report currency transactions exceeding $10,000 and administer Phase I/II exemptions via Designation of Exempt Person. [31 CFR §1010.311](https://www.ecfr.gov/current/title-31/part-1010#p-1010.311); [31 CFR §1010.306](https://www.ecfr.gov/current/title-31/part-1010#p-1010.306).
-- **SYSTEM BEHAVIOR:** The system auto-aggregates cash in/out per person per business day, files CTRs electronically within 15 days of the transaction, and manages Phase I/II exemptions through a DEP list. It files a FinCEN Form 110 (Designation of Exempt Person) for each exempted entity and renews annually, and conducts annual exemption eligibility reviews (an exempt person failing the annual review has its exemption revoked and reverts to standard CTR filing). Exemption designations and revocations are write-restricted to the BSA Officer/Compliance.
-- **EVENTS:**
+- **WHY (Reg cite):** Currency transactions exceeding $10,000 must be reported under [31 CFR § 1010.311](https://www.ecfr.gov/current/title-31/part-1010#p-1010.311) with aggregation under [31 CFR § 1010.313](https://www.ecfr.gov/current/title-31/part-1010#p-1010.313); exemptions are governed by [31 CFR § 1020.315](https://www.ecfr.gov/current/title-31/part-1020#p-1020.315).
+- **SYSTEM BEHAVIOR:** The system auto-aggregates cash in/out per person per business day, manages Phase I/II exemptions via the DEP list, e-files CTRs within 15 days, conducts annual exemption reviews, and files FinCEN Form 110 (Designation of Exempt Person) for each exempted entity with annual renewal. Exemption designation and CTR filing are write-restricted to BSA Operations/Compliance.
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Aggregated cash exceeds threshold (`ctr.threshold_reached`) | Cash-in total (`ctr.cash_in_total`), cash-out total (`ctr.cash_out_total`), exemption basis (`ctr.exemption_basis`) | E-filed CTR (`ctr.filed`) | 15 calendar days (enforced by `ctr.filing_timer`) |
-  | Exemption designated (`ctr.exemption_designated`) | Exemption basis (`ctr.exemption_basis`), entity ref (`control_result.subject_ref`) | Form 110 DOEP filed (`ctr.doep_filed`) | At designation; renew annually (enforced by `ctr.exemption_review_timer`) |
-  | Annual exemption review due (`ctr.exemption_reviewed`) | Exemption basis (`ctr.exemption_basis`), prior designation (`filing.filing_id`) | Reviewed exemption + renewal/revocation (`ctr.exemption_reviewed`) | Annual (enforced by `ctr.exemption_review_due`) |
+  | Aggregation threshold reached (`ctr.threshold_reached`) | Cash-in total (`ctr.cash_in_total`), cash-out total (`ctr.cash_out_total`), exemption basis (`ctr.exemption_basis`) | CTR filed (`ctr.filed`) | 15 days (enforced by `ctr.filing_timer`) |
+  | Exempt person designated (`ctr.exemption_designated`) | Exemption basis (`ctr.exemption_basis`) | DOEP filed (`ctr.doep_filed`) | 30 days after first exempted transaction |
+  | Annual exemption review due (`ctr.exemption_reviewed`) | Exemption review record (`ctr.exemption_review_due`) | Exemption reviewed (`ctr.exemption_reviewed`) | Annual (enforced by `ctr.exemption_review_timer`) |
 
-- **ALERTS/METRICS:** CTRs filed within 15 days (target 100%); exemption annual-review-overdue count; DOEP renewal lapses (target zero).
+- **ALERTS/METRICS:** CTR filing on-time rate; target zero late CTRs (avoid $10k/day penalty exposure); exemption-review completion %.
 
-***
+## BSA-08 — SAR Filing & Confidentiality {#bsa-08-sar-filing-confidentiality}
 
-## BSA-08 — SAR Filing & Confidentiality {#bsa-08-sar-filing--confidentiality}
-
-- **WHY (Reg cite):** File SARs within 30 days (60 if no suspect), file continuing SARs every 90 days, retain SARs and supporting documents 5 years, and maintain SAR confidentiality. [31 CFR §1020.320](https://www.ecfr.gov/current/title-31/part-1020#p-1020.320).
-- **SYSTEM BEHAVIOR:** The system manages the SAR decision workflow, files within 30 days when a suspect is known and 60 days when no suspect is identified, and files continuing SARs on a 90-day cadence. It retains SARs and supporting documents 5 years, restricts SAR visibility, provides monthly Board summaries, and declines subpoenas for SARs while notifying FinCEN/NCUA (a subpoena or disclosure request other than from FinCEN or an appropriate law-enforcement/regulatory agency is auto-declined). SAR records and narratives are write-restricted to the SAR review function on a strict need-to-know basis.
-- **EVENTS:**
+- **WHY (Reg cite):** SAR filing timing, continuing-activity cadence, retention, and confidentiality are governed by [31 CFR § 1020.320](https://www.ecfr.gov/current/title-31/part-1020#p-1020.320).
+- **SYSTEM BEHAVIOR:** The system manages the SAR decision workflow, files within 30 days (suspect known) or 60 days (no suspect) with a 90-day continuing-SAR cadence, retains SARs and supporting documents 5 years, restricts SAR visibility, and provides monthly Board summaries. The system declines subpoenas for SARs and routes a notification to FinCEN/NCUA; a subpoena disclosure request never produces the SAR. SAR records and visibility are write-restricted to the BSA Officer and designated Investigations staff.
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | SAR decision to file — suspect known (`sar.decision_file`) | Narrative (`sar.narrative`), case ref (`case.id`) | Filed SAR + supporting docs (`sar.filed`) | 30 days (enforced by `sar.filing_timer`) |
-  | SAR decision to file — no suspect (`sar.decision_file`) | Narrative (`sar.narrative`), case ref (`case.id`) | Filed SAR + supporting docs (`sar.filed`) | 60 days (enforced by `sar.filing_timer`) |
-  | Continuing activity review due (`sar.continuing_filed`) | Prior filing ID (`sar.prior_filing_id`), updated narrative (`sar.narrative`) | Continuing SAR (`sar.continuing_filed`) | Every 90 days (enforced by `sar.continuing_timer`) |
-  | SAR disclosure request received (`sar.disclosure_request_received`) | Requester (`disclosure_detail.requester`), request doc (`disclosure_detail.request_doc`) | Declination + FinCEN/NCUA notice (`sar.disclosure_declined`) | Promptly on receipt (no timer) |
+  | SAR decision to file (`sar.decision_file`) | Narrative (`sar_data.narrative`), prior filing id (`sar_data.prior_filing_id`) | SAR filed (`sar.filed`) | 30 days suspect / 60 days no suspect (enforced by `sar.filing_timer`) |
+  | Continuing activity review due (`sar.continuing_filed`) | Prior SAR (`sar_data.prior_filing_id`), updated narrative (`sar_data.narrative`) | Continuing SAR filed (`sar.continuing_filed`) | Every 90 days (enforced by `sar.continuing_timer`) |
+  | SAR disclosure/subpoena received (`sar.disclosure_request_received`) | Request doc (`disclosure_detail.request_doc`), requester (`disclosure_detail.requester`) | Disclosure declined + FinCEN/NCUA notice (`sar.disclosure_declined`, `regulator.ncua_notified`) | Promptly on receipt |
 
-- **ALERTS/METRICS:** SARs filed within deadline by suspect/no-suspect path (target 100%); continuing-SAR cadence adherence; unauthorized SAR-access attempts (target zero).
+- **ALERTS/METRICS:** SAR filing on-time rate; continuing-SAR cadence adherence; target zero unauthorized SAR disclosures; monthly Board-summary completeness.
 
-***
+## BSA-09 — Monetary Instruments Logs {#bsa-09-monetary-instruments-logs}
 
-## BSA-09 — Monetary Instruments Log {#bsa-09-monetary-instruments-log}
-
-- **WHY (Reg cite):** Record purchaser identity, instrument, and serials for monetary-instrument purchases of $3,000–$10,000 in currency and retain the records. [31 CFR §1010.415](https://www.ecfr.gov/current/title-31/part-1010#p-1010.415).
-- **SYSTEM BEHAVIOR:** The system captures purchaser identity, instrument type, and serial numbers for currency purchases of monetary instruments between $3,000 and $10,000 inclusive, and consolidates entries to the central log by the 15th of the following month (aggregated same-day purchases totaling $3,000 or more are treated as one reportable purchase). Records are retained 5 years. The central MI log is write-restricted to BSA Operations.
-- **EVENTS:**
+- **WHY (Reg cite):** Recordkeeping for monetary-instrument purchases of $3,000–$10,000 in currency is required under [31 CFR § 1010.415](https://www.ecfr.gov/current/title-31/part-1010#p-1010.415).
+- **SYSTEM BEHAVIOR:** The system captures purchaser identity, instrument type, and serial numbers for $3,000–$10,000 purchases, consolidates entries to the central log by the 15th of the following month, and retains records 5 years. Aggregated same-day purchases totaling $3,000+ are treated as one purchase. The central log is write-restricted to BSA Operations.
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Monetary instrument purchased in currency (`monetary_instrument.purchased`) | Purchaser ID number (`mi_central_log.purchaser_id_number`), instrument type (`mi_central_log.instrument_type`), amount (`mi_central_log.amount`) | MI log entry (`mi.log_entry_created`) | At purchase (no timer) |
-  | Monthly consolidation due (`mi.central_log_updated`) | Log entries (`mi_central_log.amount`), instrument types (`mi_central_log.instrument_type`) | Consolidated central MI log (`mi.central_log_updated`) | By 15th of following month (enforced by `mi.consolidation_timer`) |
+  | Monetary instrument purchased (`monetary_instrument.purchased`) | Purchaser id number (`mi_central_log.purchaser_id_number`), instrument type (`mi_central_log.instrument_type`), amount (`mi_central_log.amount`) | Log entry created (`mi.log_entry_created`) | At purchase |
+  | Monthly consolidation due (`mi.central_log_updated`) | Log entries (`mi_central_log.amount`, `mi_central_log.instrument_type`) | Central log updated (`mi.central_log_updated`) | By 15th of following month (enforced by `mi.consolidation_timer`) |
 
-- **ALERTS/METRICS:** MI log consolidation completed by the 15th (target 100%); count of MI purchases captured without serials/identity (target zero); 5-year retention-timer coverage.
+- **ALERTS/METRICS:** Consolidation on-time rate; count of incomplete MI entries (missing serials/ID); target zero unlogged in-range purchases.
 
-***
+## BSA-10 — Travel Rule (Wires ≥ $3,000) {#bsa-10-travel-rule-wires-3000}
 
-## BSA-10 — Travel Rule (Wires ≥$3,000) {#bsa-10-travel-rule-wires-3000}
-
-- **WHY (Reg cite):** Collect, retain, and transmit originator, beneficiary, and financial-institution identifiers for funds transfers of $3,000 or more. [31 CFR §1010.410](https://www.ecfr.gov/current/title-31/part-1010#p-1010.410).
-- **SYSTEM BEHAVIOR:** The system requires and stores originator, beneficiary, and financial-institution identifiers and validates the complete Travel Rule record before a wire is released (a wire missing required originator/beneficiary/FI identifiers is blocked from release). Wire records are retained per the BSA baseline. Release authority is write-restricted to Payments Operations with second-approval controls.
-- **EVENTS:**
+- **WHY (Reg cite):** The Funds Transfer recordkeeping and "Travel Rule" requirements for transmittals of $3,000 or more are at [31 CFR § 1010.410(e),(f)](https://www.ecfr.gov/current/title-31/part-1010#p-1010.410).
+- **SYSTEM BEHAVIOR:** The system requires and stores originator, beneficiary, and financial-institution identifiers and validates their presence before wire release. A wire missing required identifiers cannot be released. Wire records are retained per BSA retention and the release gate is write-restricted to Payments Operations.
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Wire ≥ $3,000 created (`wire_transfer.created`) | Originator (`originator.name`, `originator.routing_number`), beneficiary (`beneficiary.name`, `beneficiary.account_number`, `beneficiary.bank_name`), amount (`wire_transfer.amount`), purpose (`wire_transfer.purpose`) | Validated wire record (`wire_transfer.record_retained`) | Before release (no timer) |
-  | Wire submitted for release (`wire_transfer.submitted`) | IMAD (`wire_transfer.imad`), control results (`wire_transfer.control_results`) | Released wire + retained record (`wire_transfer.record_retained`) | Before release (no timer) |
+  | Wire created (`wire_transfer.created`) | Originator (`wire_transfer.amount`, `originator.name`, `originator.routing_number`), beneficiary (`beneficiary.name`, `beneficiary.account_number`), purpose (`wire_transfer.purpose`) | Wire validated/submitted (`wire_transfer.submitted`) | Before release |
+  | Required identifiers validated (`wire_transfer.submitted`) | Transmittal identifiers (`wire_transfer.beneficiary`, `wire_transfer.imad`) | Record retained (`wire_transfer.record_retained`) | At release; retain 5 years |
 
-- **ALERTS/METRICS:** Wires released with incomplete Travel Rule data (target zero); pre-release validation failure rate; wire-record retention completeness.
-
-***
+- **ALERTS/METRICS:** % wires released with complete Travel Rule data; target zero releases missing required identifiers; retention completeness on wire records.
 
 ## BSA-11 — Information Sharing (314(a)/(b)) {#bsa-11-information-sharing-314a-314b}
 
-- **WHY (Reg cite):** Respond to FinCEN 314(a) requests via SISS, search across specified lookback windows, and maintain 314(b) certification for voluntary FI-to-FI sharing. [31 CFR §1010.520](https://www.ecfr.gov/current/title-31/part-1010#p-1010.520); [31 CFR §1010.540](https://www.ecfr.gov/current/title-31/part-1010#p-1010.540).
-- **SYSTEM BEHAVIOR:** The system intakes FinCEN SISS requests, searches member records across the specified lookback windows, and responds with any match within 14 days (a negative response is not required, so only matches are reported). It maintains 314(b) certification and verifies counterpart registration before any voluntary information sharing. 314(a) request files and match responses are write-restricted to the BSA Officer/designated recipients.
-- **EVENTS:**
+- **WHY (Reg cite):** FinCEN 314(a) mandatory searches are governed by [31 CFR § 1010.520](https://www.ecfr.gov/current/title-31/part-1010#p-1010.520); voluntary FI-to-FI sharing under 314(b) is at [31 CFR § 1010.540](https://www.ecfr.gov/current/title-31/part-1010#p-1010.540).
+- **SYSTEM BEHAVIOR:** The system intakes FinCEN SISS requests, searches deposit/funds-transfer/loan/safe-deposit records across the specified lookback windows, and responds within 14 days; positive matches are reported and negatives are not required. The system maintains 314(b) certification and verifies counterpart registration before sharing. 314(a) request files and responses are write-restricted to the BSA Officer and approved designees.
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | SISS 314(a) request received (`regulator.request_received`) | Request scope (`fincen314a_data.request_scope`), request detail (`regulator.request_detail`) | Match response + search documentation (`regulator.response_sent`) | 14 days (enforced by `regulator.response_due_at`) |
-  | 314(b) sharing initiated (`vendor.data_sharing_requested`) | Counterpart registration (`fincen314a_data.counterpart_registration`), request scope (`fincen314a_data.request_scope`) | Verified-counterpart sharing record (`vendor.data_sharing_authorized`) | At sharing (no timer) |
+  | FinCEN 314(a) request received (`regulator.request_received`) | Request scope (`fincen314a_data.request_scope`), search subjects (`regulator.request_detail`) | Match response filed (`regulator.response_sent`) | 14 days (enforced by `regulator.response_due_at`) |
+  | 314(b) sharing initiated (`vendor.data_sharing_requested`) | Counterpart registration (`fincen314a_data.counterpart_registration`) | Sharing authorized (`vendor.data_sharing_authorized`) | Before sharing |
 
-- **ALERTS/METRICS:** 314(a) responses within 14 days (target 100%); 314(b) certification currency; count of shares attempted without verified counterpart registration (target zero).
+- **ALERTS/METRICS:** 314(a) response on-time rate; target zero missed 14-day deadlines; 314(b) certification currency.
 
-***
+## BSA-12 — Record Retention {#bsa-12-record-retention}
 
-## BSA-12 — Escalation Pathway {#bsa-12-escalation-pathway}
-
-- **WHY (Reg cite):** A risk-based program requires timely internal escalation and remediation of breaches and emergent issues, with regulator notification where applicable. [12 CFR §748.2](https://www.ecfr.gov/current/title-12/part-748#p-748.2); [31 CFR §1020.210](https://www.ecfr.gov/current/title-31/part-1020#p-1020.210).
-- **SYSTEM BEHAVIOR:** The system provides one-click breach/emergent-issue escalation to the BSA Officer/General Counsel, acknowledges internally within 1 business day, and produces an action plan within 5 business days, including regulator notifications where applicable (an escalation assessed as meeting regulator-notice criteria triggers an NCUA notification track). Escalation routing and action-plan publication are write-restricted to the BSA Officer/General Counsel.
-- **EVENTS:**
+- **WHY (Reg cite):** BSA records must be retained for the periods specified in [31 CFR § 1010.430](https://www.ecfr.gov/current/title-31/part-1010#p-1010.430) (5-year baseline); OFAC records retain 10 years under [31 CFR Part 501](https://www.ecfr.gov/current/title-31/part-501).
+- **SYSTEM BEHAVIOR:** The system applies retention schedules by record type (5-year BSA baseline; 10-year OFAC), honors legal holds, and purges with audit logs. A record under legal hold is not purged until the hold is released. Hold placement/release is write-restricted to Legal/Compliance.
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Breach/issue escalated (`escalation.created`) | Description (`escalation_detail.description`), facts (`escalation_detail.facts`), severity (`escalation_detail.severity`), reporter (`escalation_detail.reporter_id`) | Routed + acknowledged escalation (`escalation.acknowledged`) | 1 business day (enforced by `escalation.ack_timer`) |
-  | Action plan due (`escalation.action_plan_published`) | Regulatory assessment (`escalation_detail.regulatory_assessment`), severity (`escalation_detail.severity`) | Published action plan + regulator notice if applicable (`escalation.action_plan_published`) | 5 business days (enforced by `escalation.plan_timer`) |
+  | Record created (`record.created`) | Record class (`record.retention_class`), retention anchor (`record.retention_anchor`) | Retention clock set (`record.retention_clock_set`) | At creation |
+  | Legal hold placed/released (`record.hold_placed` / `record.hold_released`) | Hold scope (`record.hold_scope`), authorizer (`record.hold_authorizer`) | Hold applied/lifted (`record.hold_applied` / `record.hold_lifted`) | On legal direction |
+  | Retention expires (`record.retention_expired`) | Disposal method (`record.disposal_method`), hold status (`record.hold_status`) | Record disposed (`record.destroyed`) | Per schedule (enforced by `record.retention_expires_at`) |
 
-- **ALERTS/METRICS:** Escalation acknowledgement within 1 BD (target 100%); action-plan delivery within 5 BD; count of regulator-notice-eligible escalations not routed (target zero).
+- **ALERTS/METRICS:** Retrieval success rate; target zero purges of held records; OFAC 10-year retention coverage; stale records without index.
 
-***
+## BSA-13 — Escalation Pathway {#bsa-13-escalation-pathway}
 
-## BSA-13 — CMIR (Cross-Border Currency) {#bsa-13-cmir-cross-border-currency}
-
-- **WHY (Reg cite):** Report international transportation of currency or monetary instruments exceeding $10,000 on FinCEN Form 105. [31 CFR §1010.340](https://www.ecfr.gov/current/title-31/part-1010#p-1010.340).
-- **SYSTEM BEHAVIOR:** The system identifies reportable cross-border shipments/receipts exceeding $10,000 and files Form 105 within 15 days after receipt (or by the mailing/shipping date when the currency does not accompany a person), storing confirmations. CMIR filings are write-restricted to BSA Operations.
-- **EVENTS:**
+- **WHY (Reg cite):** Internal controls and timely escalation/reporting of compliance breaches are required by the BSA program rule at [12 CFR § 748.2](https://www.ecfr.gov/current/title-12/part-748#p-748.2) and the AML program standard at [31 CFR § 1020.210](https://www.ecfr.gov/current/title-31/part-1020#p-1020.210).
+- **SYSTEM BEHAVIOR:** The system provides one-click breach/emergent-issue escalation to the BSA Officer/General Counsel, acknowledges internally within 1 business day, and produces an action plan within 5 business days, including regulator notifications where applicable. Escalation routing and action-plan sign-off are write-restricted to the BSA Officer/General Counsel.
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Reportable cross-border movement identified (`cmir.reportable_identified`) | Amount (`cmir_data.amount`), direction (`cmir_data.direction`), counterparty (`cmir_data.counterparty`), manifest (`cmir_data.shipment_manifest`) | E-filed Form 105 + confirmation (`cmir.filed`) | 15 days after receipt (enforced by `cmir.filing_timer`) |
+  | Breach escalation raised (`escalation.created`) | Facts (`escalation.facts`), severity (`escalation.severity`), reporter (`escalation.reporter_id`) | Escalation routed + acknowledged (`escalation.routed`, `escalation.acknowledged`) | Ack ≤ 1 BD (enforced by `escalation.ack_timer`) |
+  | Action plan required (`escalation.acknowledged`) | Regulatory assessment (`escalation_detail.regulatory_assessment`) | Action plan published (`escalation.action_plan_published`) | 5 BD (enforced by `escalation.plan_timer`) |
+  | Regulator notification warranted (`escalation.action_plan_published`) | Notice criteria (`regulator.notice_criteria_met`), contacts (`regulator.contacts`) | NCUA/regulator notified (`regulator.ncua_notified`) | Per applicable rule |
 
-- **ALERTS/METRICS:** CMIRs filed within 15 days (target 100%); count of identified shipments missing manifest data (target zero); confirmation-storage completeness.
+- **ALERTS/METRICS:** Acknowledgement and action-plan SLA breaches; target zero escalations past 5-BD action-plan clock; regulator-notification completeness.
 
-***
+## BSA-14 — Training {#bsa-14-training}
 
-## BSA-14 — FBAR {#bsa-14-fbar}
-
-- **WHY (Reg cite):** Report foreign financial accounts with aggregate value exceeding $10,000 on FinCEN Form 114. [31 CFR §1010.350](https://www.ecfr.gov/current/title-31/part-1010#p-1010.350).
-- **SYSTEM BEHAVIOR:** The system inventories foreign accounts, calendars the April 15 deadline with the automatic extension to October 15, and e-files Form 114 via the BSA system (a year with no reportable foreign accounts is recorded as a nil determination rather than a filing). FBAR filings are write-restricted to BSA Operations.
-- **EVENTS:**
-
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | Foreign-account inventory updated (`fbar.inventory_updated`) | Account record (`fbar_data.account_record`), authority type (`fbar_data.authority_type`) | E-filed Form 114 or nil determination (`fbar.filed` / `fbar.nil_determined`) | April 15 (auto-ext. Oct 15) (enforced by `fbar.filing_timer`) |
-
-- **ALERTS/METRICS:** FBARs filed by deadline (target 100%); days-to-deadline aging on open foreign-account inventory; nil-determination documentation completeness.
-
-***
-
-## BSA-15 — High-Risk Categories (MSB, Correspondent, Private Banking) {#bsa-15-high-risk-categories-msb-correspondent-private-banking}
-
-- **WHY (Reg cite):** Higher-risk customer categories require category-specific EDD, registration/licensing verification, and periodic refresh. [31 CFR §1010.230](https://www.ecfr.gov/current/title-31/part-1010#p-1010.230); [31 CFR §1020.210](https://www.ecfr.gov/current/title-31/part-1020#p-1020.210).
-- **SYSTEM BEHAVIOR:** The system applies category checklists for MSB, correspondent, and private-banking relationships, verifies FinCEN MSB registration and applicable state licenses, captures site visits, and refreshes EDD at least annually (an MSB whose FinCEN registration cannot be confirmed is routed to escalation and held from activation). Category-EDD approvals are write-restricted to senior Compliance.
-- **EVENTS:**
+- **WHY (Reg cite):** Risk-based training for appropriate personnel is a mandatory BSA program element under [12 CFR § 748.2](https://www.ecfr.gov/current/title-12/part-748#p-748.2) and [31 CFR § 1020.210](https://www.ecfr.gov/current/title-31/part-1020#p-1020.210).
+- **SYSTEM BEHAVIOR:** The system assigns role-based curricula, requires completion within 30 days of hire and annually by policy anniversary, and tracks Board/committee training separately. Curriculum assignment and completion records are write-restricted to HR/Compliance.
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | High-risk category EDD opened (`edd.category_approved`) | Category checklist (`edd.category_checklist`), MSB registration number (`edd.msb_registration_number`), approver (`edd.approver_id`) | Category EDD file (`edd.category_approved`) | Before activation (no timer) |
-  | Site visit logged (`edd.site_visit_logged`) | Site-visit report (`edd.site_visit_report`), source of wealth (`edd.source_of_wealth`) | Site-visit record (`edd.site_visit_completed`) | At visit (no timer) |
-  | Annual EDD refresh due (`edd.refresh_completed`) | Category checklist (`edd.category_checklist`), registration evidence (`edd.msb_registration_number`) | Refreshed category EDD (`edd.refresh_completed`) | At least annually (enforced by `edd.refresh_due`) |
+  | New hire onboarded (`employee.hired`) | Hire date (`training.hire_date`), role curriculum (`training.role_curriculum`) | Onboarding training completed (`training.onboarding_completed`) | 30 days of hire (enforced by `training.newhire_due_at`) |
+  | Annual cycle opens (`training.annual_cycle_opened`) | Required curriculum (`training.required_curriculum`), content version (`training.content_version`) | Annual training completed (`training.completed`) | By policy anniversary (enforced by `training.annual_due_at`) |
+  | Board training session scheduled (`training.board_session_scheduled`) | Board curriculum (`training.board_curriculum`) | Board training completed (`training.board_completed`) | Annual |
 
-- **ALERTS/METRICS:** High-risk relationships with current EDD (target 100%); MSB registrations unverified at activation (target zero); annual-refresh-overdue count by category.
+- **ALERTS/METRICS:** New-hire 30-day completion rate; annual coverage %; target zero overdue role-curriculum assignments.
 
-***
+## BSA-15 — Independent Testing {#bsa-15-independent-testing}
 
-## BSA-16 — PEP Screening & EDD {#bsa-16-pep-screening--edd}
-
-- **WHY (Reg cite):** PEP relationships warrant risk-based enhanced due diligence (no categorical prohibition) consistent with FFIEC supervisory expectations and the AML program rule. [31 CFR §1020.210](https://www.ecfr.gov/current/title-31/part-1020#p-1020.210); FFIEC BSA/AML Examination Manual (supervisory guidance).
-- **SYSTEM BEHAVIOR:** The system screens applicants, beneficial owners, and signers against PEP datasets at onboarding and on refresh, routes hits to EDD with elevated approval and adjusted monitoring, and completes EDD before activation for high-risk PEPs (a high-risk PEP is hard-gated from activation until EDD is complete). PEP designation and EDD approval are write-restricted to senior Compliance.
-- **EVENTS:**
+- **WHY (Reg cite):** Independent testing of the BSA program is required under [12 CFR § 748.2](https://www.ecfr.gov/current/title-12/part-748#p-748.2) and [31 CFR § 1020.210](https://www.ecfr.gov/current/title-31/part-1020#p-1020.210).
+- **SYSTEM BEHAVIOR:** The system schedules independent program testing every 12–18 months, maps scope to controls, and tracks remediation to closure. Findings route to the Board and remediation owners are assigned. Test scheduling and report issuance are write-restricted to Internal Audit.
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | PEP screen hit (`pep.hit`) | PEP status (`pep_status.status`), subject role (`pep_status.subject_role`) | PEP-designated subject routed to EDD (`pep.designated`) | At screen (no timer) |
-  | PEP EDD opened (`edd.pep_opened`) | Source of wealth (`edd.source_of_wealth`), approver (`edd.approver_id`) | PEP EDD file (`edd.pep_completed`) | Before activation for high-risk PEP (no timer) |
-  | PEP refresh due (`pep.refresh_completed`) | PEP status (`pep_status.status`), subject role (`pep_status.subject_role`) | Refreshed PEP screen (`pep.refresh_completed`) | Per risk tier (enforced by `edd.refresh_due`) |
+  | Testing cycle due (`audit.cycle_timer`) | Engagement scope (`audit.engagement_scope`), control mapping (`audit.annual_plan_id`) | Engagement started (`audit.engagement_started`) | 12–18 months (enforced by `audit.cycle_timer`) |
+  | Test report finalized (`audit.report_issued`) | Findings (`finding.description`), overall rating (`audit.overall_rating`) | Report issued + findings opened (`audit.report_issued`, `finding.opened`) | — |
+  | Finding remediation tracked (`finding.remediation_reported`) | Remediation evidence (`finding.remediation_evidence`), owner (`finding.owner`) | Finding closed (`finding.closed`) | Per plan (enforced by `audit.remediation_timer`) |
 
-- **ALERTS/METRICS:** High-risk PEP activations before EDD completion (target zero); PEP-hit-to-EDD routing latency; PEP refresh-overdue count.
+- **ALERTS/METRICS:** Testing cycle adherence; finding aging vs. due; target zero overdue critical findings; remediation closure rate.
 
-***
+## BSA-16 — High-Risk Categories (MSB, Correspondent, Private Banking) {#bsa-16-high-risk-categories-msb-correspondent-private-banking}
 
-## BSA-17 — FinCEN Special Measures & GTOs {#bsa-17-fincen-special-measures--gtos}
-
-- **WHY (Reg cite):** Maintain a documented process to receive, assess, and operationalize FinCEN special measures and Geographic Targeting Orders, with required recordkeeping/reporting. [31 USC §5318A (USA PATRIOT Act §311)](https://www.law.cornell.edu/uscode/text/31/5318A); GTO authority [31 USC §5326](https://www.law.cornell.edu/uscode/text/31/5326).
-- **SYSTEM BEHAVIOR:** The system assigns intake ownership of FinCEN special measures and GTOs to the BSA Officer, circulates received directives to affected business lines within 1 business day of receipt, and implements required recordkeeping or reporting within the GTO-specified deadline (a directive whose deadline cannot be met within current capacity is escalated under BSA-12). GTO compliance records are retained 5 years. Directive intake and operationalization decisions are write-restricted to the BSA Officer.
-- **EVENTS:**
+- **WHY (Reg cite):** Enhanced due diligence for higher-risk relationships is required under the risk-based AML program at [31 CFR § 1020.210](https://www.ecfr.gov/current/title-31/part-1020#p-1020.210); MSB registration verification ties to [31 CFR § 1022.380](https://www.ecfr.gov/current/title-31/part-1022#p-1022.380).
+- **SYSTEM BEHAVIOR:** The system applies category checklists, verifies FinCEN MSB registration and state licenses, captures site visits, and refreshes EDD at least annually. Category approval and EDD files are write-restricted to senior Compliance.
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | FinCEN directive / GTO received (`regulator.request_received`) | Request scope (`fincen314a_data.request_scope`), request detail (`regulator.request_detail`) | Circulated directive + intake record (`regulator.request_routed`) | 1 business day to circulate (enforced by `regulator.response_due_at`) |
-  | Directive operationalized (`regulator.memo_filed`) | Implementation memo (`regulator.request_detail`), retention class (`retention.record_type`) | Implementation record + retained GTO file (`regulator.memo_filed`) | GTO-specified deadline; retain 5 yrs (enforced by `record.retention_expires_at`) |
+  | High-risk category onboarded (`edd.category_approved`) | Category checklist (`edd.category_checklist`), MSB registration number (`edd.msb_registration_number`), approver (`edd.approver_id`) | Category approved (`edd.category_approved`) | Before activation |
+  | Site visit conducted (`edd.site_visit_completed`) | Site visit report (`edd.site_visit_report`) | Site visit logged (`edd.site_visit_logged`) | — |
+  | Annual EDD refresh due (`edd.refresh_completed`) | Source of wealth (`edd.source_of_wealth`), refresh record (`edd.refresh_due`) | EDD refresh completed (`edd.refresh_completed`) | At least annually (enforced by `edd.refresh_due`) |
 
-- **ALERTS/METRICS:** Directives circulated within 1 BD (target 100%); implementation completed by GTO deadline; GTO-record 5-year retention-timer coverage.
+- **ALERTS/METRICS:** % high-risk relationships with current EDD; MSB registration verification coverage; target zero high-risk activations without a completed checklist.
 
-***
+## BSA-17 — CMIR (Cross-Border Currency) {#bsa-17-cmir-cross-border-currency}
 
-## BSA-18 — Prepaid Access & Third-Party Oversight {#bsa-18-prepaid-access--third-party-oversight}
-
-- **WHY (Reg cite):** The credit union retains accountability for outsourced BSA/AML screening; vendor due diligence, contractual data/audit/sanctions rights, and ongoing oversight are required. [12 CFR §748.2](https://www.ecfr.gov/current/title-12/part-748#p-748.2); [31 CFR §1020.210](https://www.ecfr.gov/current/title-31/part-1020#p-1020.210).
-- **SYSTEM BEHAVIOR:** The system requires a vendor due-diligence package, contract clauses for data access/audit/sanctions, and system program limits for prepaid access, performs an annual vendor review, and ingests real-time critical vendor alerts directly into transaction monitoring (a critical vendor alert is routed into monitoring as a same-flow input rather than a deferred review item). Vendor classification and BSA-role flagging are write-restricted to Vendor Management with Compliance approval.
-- **EVENTS:**
+- **WHY (Reg cite):** Reports of international transportation of currency or monetary instruments exceeding $10,000 (Form 105) are required under [31 CFR § 1010.340](https://www.ecfr.gov/current/title-31/part-1010#p-1010.340).
+- **SYSTEM BEHAVIOR:** The system identifies reportable shipments/receipts, files Form 105 within 15 days after receipt (or by mailing/shipping date if not accompanying a person), and stores confirmations. Filing is write-restricted to BSA Operations/Compliance.
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | BSA vendor onboarded (`vendor.onboarding_started`) | DD package (`vendor_review.dd_package`), contract terms (`vendor_review.contract_terms`), BSA role flag (`vendor.bsa_role_flag`) | Approved vendor + BSA-role flag (`vendor.fl_dd_completed`) | Before go-live (no timer) |
-  | Annual vendor review due (`vendor.monitoring_review_completed`) | Efficacy results (`vendor_review.efficacy_results`), MI trends (`vendor.mi_trends`) | Vendor scorecard (`vendor.monitoring_review_completed`) | Annual (enforced by `vendor.annual_review_due`) |
-  | Critical vendor alert received (`vendor.critical_alert`) | Alert details (`vendor_alert.alert_details`), impact scope (`vendor_alert.impact_scope`) | Monitoring case + logged alert (`bsa_alert.created`) | Real-time (no timer) |
+  | Reportable shipment identified (`cmir.reportable_identified`) | Amount (`cmir_data.amount`), direction (`cmir_data.direction`), shipment manifest (`cmir_data.shipment_manifest`) | CMIR filed (`cmir.filed`) | 15 days after receipt (enforced by `cmir.filing_timer`) |
 
-- **ALERTS/METRICS:** Vendor annual reviews on time (target 100%); critical-alert-to-monitoring latency; BSA vendors operating without verified DD package (target zero).
+- **ALERTS/METRICS:** CMIR filing on-time rate; target zero unfiled reportable shipments; confirmation-storage completeness.
 
-***
+## BSA-18 — FBAR {#bsa-18-fbar}
 
-## BSA-19 — Training {#bsa-19-training}
-
-- **WHY (Reg cite):** A BSA program must provide training to appropriate personnel tailored to their responsibilities, with Board/committee training tracked. [12 CFR §748.2](https://www.ecfr.gov/current/title-12/part-748#p-748.2).
-- **SYSTEM BEHAVIOR:** The system assigns role-based curricula, requires completion within 30 days of hire and annually by policy anniversary, and tracks Board/committee training separately (a new hire in a covered role who does not complete training within 30 days is flagged as lapsed). Curriculum assignment and completion records are write-restricted to HR/Compliance.
-- **EVENTS:**
+- **WHY (Reg cite):** Reports of Foreign Bank and Financial Accounts exceeding $10,000 aggregate (FinCEN Form 114) are required under [31 CFR § 1010.350](https://www.ecfr.gov/current/title-31/part-1010#p-1010.350).
+- **SYSTEM BEHAVIOR:** The system inventories foreign accounts, calendars the April 15 deadline (automatic extension to October 15), and e-files via the BSA system. A nil determination is recorded when no reportable account exists. FBAR filing is write-restricted to Compliance.
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Covered-role hire (`hr.user.hired_covered_role`) | Hire date (`training_detail.hire_date`), role curriculum (`curriculum.role_curriculum`) | New-hire assignment (`training.assigned`) | 30 days of hire (enforced by `training.new_hire_timer`) |
-  | Annual training cycle opened (`training.annual_cycle_opened`) | Role matrix (`training.role_matrix`), curriculum version (`curriculum.curriculum_version`) | Annual completion record (`training.completed`) | Annually by anniversary (enforced by `training.annual_timer`) |
-  | Board session scheduled (`training.board_session_scheduled`) | Board curriculum (`curriculum.board_curriculum`), assignee (`training.assignee_id`) | Board training completion (`training.board_completed`) | Annual (enforced by `training.annual_due`) |
+  | Foreign account inventoried (`fbar.inventory_updated`) | Account record (`fbar_data.account_record`), authority type (`fbar_data.authority_type`) | Account added (`fbar.account_added`) | At identification |
+  | Annual filing due (`fbar.filed`) | Inventory (`fbar_data.account_record`) | FBAR filed (`fbar.filed`) | April 15; auto-extension to Oct 15 (enforced by `fbar.filing_timer`) |
+  | No reportable account (`fbar.nil_determined`) | Inventory review (`fbar_data.account_record`) | Nil determination recorded (`fbar.nil_determined`) | By deadline |
 
-- **ALERTS/METRICS:** New-hire training within 30 days (target 100%); annual completion coverage %; Board-training completion tracked separately (target 100%).
+- **ALERTS/METRICS:** FBAR filing on-time rate; target zero missed October 15 extended deadlines; inventory currency.
 
-***
+## BSA-19 — Prepaid Access & Third Parties {#bsa-19-prepaid-access-third-parties}
 
-## BSA-20 — Independent Testing {#bsa-20-independent-testing}
-
-- **WHY (Reg cite):** Independent, risk-based testing of the BSA program is required, with scope mapped to controls and remediation tracked to closure. [12 CFR §748.2](https://www.ecfr.gov/current/title-12/part-748#p-748.2).
-- **SYSTEM BEHAVIOR:** The system schedules independent program testing every 12–18 months, maps test scope to controls, and tracks each finding's remediation to closure (a finding past its remediation-aging threshold is escalated). Independent-test scheduling and finding closure verification are write-restricted to Internal Audit.
-- **EVENTS:**
+- **WHY (Reg cite):** The credit union retains accountability for outsourced AML/CFT screening under [12 CFR § 748.2](https://www.ecfr.gov/current/title-12/part-748#p-748.2); program limits and recordkeeping for prepaid access tie to the AML program at [31 CFR § 1020.210](https://www.ecfr.gov/current/title-31/part-1020#p-1020.210).
+- **SYSTEM BEHAVIOR:** The system requires a vendor due-diligence package, enforces contract clauses for data access/audit/sanctions, applies system program limits, and conducts annual vendor review with real-time critical alerting routed into transaction monitoring. Vendors flagged with a BSA role are tracked separately. Vendor approval and contract-clause verification are write-restricted to Vendor Management/Compliance.
 
   | When | What's needed | Produced (and logged) | Within |
   |---|---|---|---|
-  | Independent test cycle due (`audit.engagement_started`) | Engagement scope (`audit.engagement_scope`), assessment type (`audit.assessment_type`) | Independent test report (`audit.report_issued`) | 12–18 months (enforced by `audit.cycle_timer`) |
-  | Finding opened (`finding.opened`) | Finding description (`finding.description`), severity (`finding.severity`), owner (`finding.owner`) | Tracked finding + remediation plan (`finding.remediation_reported`) | Per plan (enforced by `audit.remediation_timer`) |
-  | Finding closure submitted (`finding.closure_logged`) | Closure evidence (`finding.closure_evidence`), management response (`finding.management_response`) | Verified closure (`finding.closure_verified`) | At verification (no timer) |
+  | Vendor due diligence initiated (`vendor.due_diligence_initiated`) | DD package (`vendor_review.dd_package`), BSA role flag (`vendor.bsa_role_flag`), contract terms (`vendor_review.contract_terms`) | Due diligence completed (`vendor.fl_dd_completed`) | Before engagement |
+  | Annual vendor review due (`vendor.annual_review_due_at`) | Efficacy results (`vendor_review.efficacy_results`), MI trends (`vendor.mi_trends`) | Review completed (`vendor.monitoring_review_completed`) | Annual (enforced by `vendor.annual_review_due_at`) |
+  | Critical vendor alert raised (`vendor.critical_alert`) | Alert details (`vendor_alert.alert_details`), impact scope (`vendor_alert.impact_scope`) | Alert logged into monitoring (`vendor.incident_logged`) | Real-time (enforced by `vendor.incident_triage_due`) |
 
-- **ALERTS/METRICS:** Independent test completed within 12–18 months (target 100%); finding-remediation aging past threshold (target zero); % findings closed on time.
+- **ALERTS/METRICS:** Annual review on-time rate; critical-alert ingestion latency into monitoring; target zero active BSA-role vendors without a current DD package.
 
-***
+## BSA-20 — PEP Screening & EDD {#bsa-20-pep-screening-edd}
+
+- **WHY (Reg cite):** Risk-based EDD for politically exposed persons is an expectation under the AML program at [31 CFR § 1020.210](https://www.ecfr.gov/current/title-31/part-1020#p-1020.210) and the FFIEC BSA/AML Examination Manual (PEP guidance — no categorical prohibition).
+- **SYSTEM BEHAVIOR:** The system screens applicants, beneficial owners, and signers against PEP datasets at onboarding and refresh, routes hits to EDD with elevated approval and adjusted monitoring, and completes EDD before activation for high-risk PEPs. PEP designation and EDD approval are write-restricted to senior Compliance.
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | PEP screen returns a hit (`pep.hit`) | Subject role (`pep_status.subject_role`), status (`pep_status.status`) | PEP designated (`pep.designated`) | At onboarding/refresh |
+  | High-risk PEP EDD required (`edd.pep_opened`) | Source of wealth (`edd.source_of_wealth`), approver (`edd.approver_id`) | PEP EDD completed (`edd.pep_completed`) | Before activation (enforced by `edd.refresh_due`) |
+  | PEP refresh due (`pep.refresh_completed`) | Updated PEP status (`pep_status.status`) | Refresh completed (`pep.refresh_completed`) | Per risk tier (enforced by `edd.refresh_due`) |
+
+- **ALERTS/METRICS:** PEP screening coverage of applicants/BOs/signers; target zero high-risk PEP activations without completed EDD; refresh compliance %.
+
+## BSA-21 — FinCEN Special Measures & GTOs {#bsa-21-fincen-special-measures-gtos}
+
+- **WHY (Reg cite):** Special measures under USA PATRIOT Act § 311 are implemented through [31 CFR § 1010.651–1010.661](https://www.ecfr.gov/current/title-31/part-1010); Geographic Targeting Orders are authorized under [31 CFR § 1010.370](https://www.ecfr.gov/current/title-31/part-1010#p-1010.370).
+- **SYSTEM BEHAVIOR:** The system maintains a documented process to receive, assess, and operationalize FinCEN special measures and any Geographic Targeting Orders directed at the credit union or its sector. Intake ownership is assigned to the BSA Officer; the order circulates to affected business lines within 1 business day of receipt; required recordkeeping or reporting is implemented within the GTO-specified deadline; and GTO compliance records are retained 5 years. Intake assessment and implementation sign-off are write-restricted to the BSA Officer.
+
+  | When | What's needed | Produced (and logged) | Within |
+  |---|---|---|---|
+  | FinCEN order received (`regulatory.correspondence_received`) | Source document (`regulatory.source_doc`), change identified (`regulatory.change_identified`) | Change analysis logged + circulated (`regulatory.change_analysis_logged`) | Circulate ≤ 1 BD (enforced by `regulatory.analysis_due_at`) |
+  | Required controls implemented (`regulatory.change_analysis_logged`) | Change required flag (`regulatory.change_required`), implementation record (`regulatory.change_implemented`) | Implementation recorded (`record.created`) | By order-specified deadline |
+  | GTO compliance records retained (`record.created`) | Retention class (`record.retention_class`), anchor (`record.retention_anchor`) | Retention clock set (`record.retention_clock_set`) | 5 years (enforced by `record.retention_expires_at`) |
+
+- **ALERTS/METRICS:** Circulation latency vs. 1-BD target; implementation on-time rate vs. order deadline; target zero GTO records outside the 5-year retention schedule.
+
+---
 
 ## Governance & Sign-Off {#governance}
 
 - **Owner:** Patrick Wilson, Chief Compliance Officer (BSA Officer)
 - **Approvals:** Patrick Wilson, Chief Compliance Officer
-- **Review Cadence:** Board approval at least annually; interim review within 30 days of any material change ([BSA-01](#bsa-01-governance--delegation)).
-- **Reporting:** Monthly BSA/OFAC/SAR/training summaries to the Board ([BSA-01](#bsa-01-governance--delegation)); enterprise risk assessment refreshed every 12–18 months ([BSA-02](#bsa-02-enterprise-bsaaml-risk-assessment)); independent testing every 12–18 months ([BSA-20](#bsa-20-independent-testing)).
-- **Cross-Refs (out of scope here):** Information Security Policy (information-system safeguards and cyber incident response); Third-Party Risk Policy (general vendor onboarding/oversight); Privacy Policy (member privacy/data handling); Record Retention Policy (non-BSA records); Electronic Payment Systems Policy (operational detection within payment rails). IRS/FinCEN Form 8300 is not applicable to Pynthia as a financial institution; CTR obligations under 31 CFR §1010.311 govern equivalent cash reporting ([BSA-07](#bsa-07-ctr-filing--exemptions)).
+- **Required Participants:** Compliance, BSA Operations, Vendor Management, Payments Operations, HR, Internal Audit
+- **Review Cadence:** Board approval at least annually; interim review within 30 days of a material change (see [BSA-01](#bsa-01-governance-delegation)).
+- **Reporting:** Quarterly BSA/OFAC metrics to the Board; monthly SAR summaries (see [BSA-08](#bsa-08-sar-filing-confidentiality)).
+- **Cross-Refs (out of scope here):** Information Security Policy (system safeguards, cyber incident response); Third-Party Risk Policy (general vendor onboarding/oversight); Privacy Policy (member data handling); Record Retention Policy (non-BSA schedules); Electronic Payment Systems Policy (operational detection within payment rails). Form 8300 is not applicable to the credit union; cash reporting is governed by CTR obligations in [BSA-07](#bsa-07-ctr-filing).
 
-***
+---
 
 ## Assumptions & Gaps {#assumptions}
 
-- **Engineering vocabulary is provisional.** Several BSA-side fields and events referenced in the EVENTS tables are registered in the parsed `core-vocabulary.json` (e.g., `ctr.threshold_reached`, `sar.filing_timer`, `ofac.report_timer`, `cmir.filing_timer`, `fbar.filing_timer`, `cdd.profile_created`, `pep.hit`), while others are drawn from the agreed **Provisional codes** list (e.g., `cdd.expected_activity`, `cdd.source_of_funds`, `cdd.control_person`, `edd.source_of_wealth`, `edd.category_checklist`, `edd.msb_registration_number`, `mi.purchaser_id_number`, `mi.central_log`, `ofac.list_version`, `ofac.blocked_property`, `cmir.amount`, `fbar.account_record`, `sar.narrative`, `escalation.*`, `reporting.bsa_metrics`). These provisional spellings are used verbatim and must be registered by engineering before the next review.
-- **No dedicated special-measures/GTO subject exists.** No registered or provisional subject captures FinCEN §311 special measures or GTOs directly; [BSA-17](#bsa-17-fincen-special-measures--gtos) reuses the `regulator` subject (`regulator.request_received`, `regulator.request_routed`, `regulator.memo_filed`) and the generic retention timer. A dedicated subject (e.g., `gto`/`special_measure`) is a vocabulary gap to confirm with engineering.
-- **314(b) sharing modeled on vendor data-sharing events.** [BSA-11](#bsa-11-information-sharing-314a-314b) reuses `vendor.data_sharing_requested`/`vendor.data_sharing_authorized` for FI-to-FI sharing because no FI-to-FI sharing subject is registered; confirm whether a `fincen314b`-specific event set should be coined.
-- **Prepaid-access program limits** are operationalized through the vendor-oversight and transaction-monitoring vocabulary ([BSA-18](#bsa-18-prepaid-access--third-party-oversight)); no prepaid-specific subject/field exists in the vocabulary and is flagged for confirmation.
-- **Charter applicability confirmed.** Pynthia is treated as a federally insured credit union subject to **12 CFR §748.2**; 314(b) certification status, HMDA reporter status, and any state MSB-licensing nuances are assumed standard and to be confirmed.
-- **OFAC 10-year retention effective date.** [BSA-05](#bsa-05-ofac-screening--holds) applies the 10-year OFAC retention baseline effective March 12, 2025; pre-effective-date records are assumed to follow the prior schedule unless Counsel directs otherwise.
-- **Out-of-scope detection in payment rails.** Operational suspicious-activity detection within payment rails is delegated to the Electronic Payment Systems Policy; [BSA-06](#bsa-06-transaction-monitoring--case-management) assumes those signals feed BSA monitoring but does not define the rail-level detection logic.
+- **Engineering vocabulary is partially provisional.** Most BSA-side resources, fields, events, and timers referenced in the control overlays are registered in `core-vocabulary.json`. Where a control needed a concept registered only under "Provisional codes" — notably `cmir.amount`, `cmir.counterparty`, `cmir.direction`, `cmir.shipment_manifest`, `mi.amount`, `mi.central_log`, `mi.instrument_type`, `mi.purchaser_id_number`, `fbar.account_record`, `fbar.authority_type`, `pep.status`, `pep.subject_role`, `fincen.counterpart_registration`, `fincen.request_scope`, and `ofac.hotline_record` — the exact provisional spelling was used and will be confirmed by engineering before the next review.
+- **No registered subject for "special measures / GTO."** BSA-21 reuses the `regulatory` subject (`regulatory.correspondence_received`, `regulatory.change_analysis_logged`, `regulatory.change_implemented`) plus generic `record` retention codes because no § 311/GTO-specific subject exists in the registry. Confirm whether a dedicated subject should be minted.
+- **SAR subpoena-decline notification path.** BSA-08 routes the FinCEN/NCUA notice via `regulator.ncua_notified`; confirm whether a distinct FinCEN-notification event is required versus reusing the NCUA notification path.
+- **OFAC 10-year retention effective date.** Retention schedules assume the 10-year OFAC retention requirement effective March 12, 2025 is applied prospectively and retroactively per program; confirm scope of legacy records.
+- **HMDA / charter applicability.** This policy assumes Pynthia is a federally insured credit union subject to 12 CFR § 748.2; HMDA reporter status and any NCUA Part 701.31 applicability are out of scope for the BSA program and handled in their own policies.
+- **CTR exemption (Phase I/II) DEP list source of truth.** BSA-07 assumes the DEP list and FinCEN Form 110 renewals are maintained within the CTR exemption workflow; confirm the system of record and annual-renewal automation.
+- **Travel Rule intermediary role.** BSA-10 assumes Pynthia acts as originator/beneficiary institution; if it acts as a receiving intermediary, confirm pass-through identifier obligations are wired into the same release gate.
