@@ -1,14 +1,14 @@
 {
   "meta": {
     "generator": "scripts/extract_controls.py",
-    "generated_at": "2026-06-16T01:29:24+00:00",
+    "generated_at": "2026-06-16T01:39:42+00:00",
     "repo_root": "pynthia-policies-and-procedures",
     "api_model": {
       "spec_title": "Cassandra Banking Core API (Minimal)",
       "spec_version": "2.2.0",
-      "events": 1254,
-      "fields": 2303,
-      "entities": 312
+      "events": 1222,
+      "fields": 2161,
+      "entities": 297
     }
   },
   "stats": {

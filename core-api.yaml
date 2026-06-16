@@ -5267,7 +5267,6 @@ components:
         description:
           type: string
           x-bound-controls:
-          - LC-08
           - MEM-04
         detail:
           type: object
@@ -5362,7 +5361,6 @@ components:
         scope:
           type: string
           x-bound-controls:
-          - LC-08
           - PR-09
         scope_initial:
           type: string
@@ -5397,39 +5395,6 @@ components:
           - BCP-13
         triaged:
           type: string
-        data_types_impacted:
-          type: string
-          x-bound-controls:
-          - LC-08
-        detected_at:
-          type: string
-          format: date-time
-          x-bound-controls:
-          - LC-08
-        logged:
-          type: string
-          x-bound-controls:
-          - LC-08
-        ncua_report_timestamp:
-          type: string
-          x-bound-controls:
-          - LC-08
-        regulatory_reported_flag:
-          type: string
-          x-bound-controls:
-          - LC-08
-        sensitive_data_flag:
-          type: string
-          x-bound-controls:
-          - LC-08
-        systems_impacted:
-          type: string
-          x-bound-controls:
-          - LC-08
-        type:
-          type: string
-          x-bound-controls:
-          - LC-08
         ncua_notice_due_at:
           type: string
           format: date-time
@@ -5600,7 +5565,6 @@ components:
           x-bound-controls:
           - CL-02
           - CL-03
-          - LC-03
         proposed_modification:
           type: string
           x-bound-controls:
@@ -5616,7 +5580,6 @@ components:
           x-bound-controls:
           - CL-01
           - CL-09
-          - LC-09
         well_secured_documented:
           type: string
           x-bound-controls:
@@ -5625,175 +5588,6 @@ components:
           type: string
           x-bound-controls:
           - CL-02
-        bankruptcy.notice_received:
-          type: string
-          x-bound-controls:
-          - LC-03
-        bankruptcy.status:
-          type: string
-          x-bound-controls:
-          - LC-03
-          - LC-05
-        classification:
-          type: string
-          x-bound-controls:
-          - LC-03
-        classification.changed:
-          type: string
-          x-bound-controls:
-          - LC-03
-        collections.case_assigned:
-          type: string
-          x-bound-controls:
-          - LC-02
-        delinquency.bucket:
-          type: string
-          x-bound-controls:
-          - LC-02
-        delinquency.bucket_changed:
-          type: string
-          x-bound-controls:
-          - LC-02
-        delinquency.grace_expired:
-          type: string
-          x-bound-controls:
-          - LC-02
-        delinquency.manual_adjustment:
-          type: string
-          x-bound-controls:
-          - LC-02
-        delinquency.override_reason:
-          type: string
-          x-bound-controls:
-          - LC-02
-        delinquency.threshold_reached:
-          type: string
-          x-bound-controls:
-          - LC-03
-        foreclosure.initiated:
-          type: string
-          x-bound-controls:
-          - LC-09
-        foreclosure.recommended:
-          type: string
-          x-bound-controls:
-          - LC-09
-        fraud.confirmed:
-          type: string
-          x-bound-controls:
-          - LC-03
-        fraud.flag:
-          type: string
-          x-bound-controls:
-          - LC-03
-        hardship.description:
-          type: string
-          x-bound-controls:
-          - LC-04
-        hardship.flag:
-          type: string
-          x-bound-controls:
-          - LC-04
-        hardship.requested:
-          type: string
-          x-bound-controls:
-          - LC-04
-        hardship.type:
-          type: string
-          x-bound-controls:
-          - LC-04
-        ltv.current:
-          type: string
-          x-bound-controls:
-          - LC-03
-        modification.count_life:
-          type: integer
-          x-bound-controls:
-          - LC-04
-        modification.count_past_12m:
-          type: integer
-          x-bound-controls:
-          - LC-04
-        modification.interest_capitalization_flag:
-          type: string
-          x-bound-controls:
-          - LC-04
-        modification.interest_reduction:
-          type: string
-          x-bound-controls:
-          - LC-04
-        modification.new_maturity_date:
-          type: string
-          x-bound-controls:
-          - LC-04
-        modification.new_payment:
-          type: string
-          x-bound-controls:
-          - LC-04
-        modification.new_rate:
-          type: number
-          x-bound-controls:
-          - LC-04
-        modification.principal_reduction:
-          type: integer
-          x-bound-controls:
-          - LC-04
-        nonaccrual.status:
-          type: string
-          x-bound-controls:
-          - LC-09
-        nonaccrual.status_changed:
-          type: string
-          x-bound-controls:
-          - LC-09
-        open_end_flag:
-          type: string
-          x-bound-controls:
-          - LC-03
-        payment.allocation_method:
-          type: string
-          x-bound-controls:
-          - LC-02
-        recovery.amount:
-          type: integer
-          x-bound-controls:
-          - LC-03
-        risk_rating.changed:
-          type: string
-          x-bound-controls:
-          - LC-09
-        risk_rating.rationale:
-          type: number
-          x-bound-controls:
-          - LC-09
-        schedule.due_dates:
-          type: string
-          x-bound-controls:
-          - LC-02
-        tdr.flag:
-          type: string
-          x-bound-controls:
-          - LC-04
-        workout.defaulted:
-          type: string
-          x-bound-controls:
-          - LC-04
-        workout.modified_terms_applied:
-          type: string
-          x-bound-controls:
-          - LC-04
-        workout.plan_id:
-          type: string
-          x-bound-controls:
-          - LC-04
-        workout.proposed:
-          type: string
-          x-bound-controls:
-          - LC-04
-        workout.restructured:
-          type: string
-          x-bound-controls:
-          - LC-03
         bankruptcy_chargeoff_due_at:
           type: string
           format: date-time
@@ -5814,9 +5608,6 @@ components:
           format: date
           x-bound-controls:
           - CL-02
-          - LC-02
-          - LC-03
-          - LC-04
         fraud_chargeoff_due_at:
           type: string
           format: date-time
@@ -6696,10 +6487,6 @@ components:
           type: string
           x-bound-controls:
           - LP-13
-        issued.risk_threshold:
-          type: string
-          x-bound-controls:
-          - RZ-01
     aml:
       type: object
       x-kind: vocabulary
@@ -8513,7 +8300,6 @@ components:
           type: string
           x-bound-controls:
           - CL-03
-          - LC-03
         counterparty_id:
           type: string
           x-bound-controls:
@@ -8527,8 +8313,6 @@ components:
           x-bound-controls:
           - CL-03
           - IP-09
-          - LC-03
-          - LC-09
           - LP-12
         headroom_computed:
           type: string
@@ -8559,18 +8343,6 @@ components:
           type: string
           x-bound-controls:
           - LP-11
-        costs_to_sell:
-          type: integer
-          x-bound-controls:
-          - LC-09
-        liquidation_rate:
-          type: number
-          x-bound-controls:
-          - LC-09
-        type:
-          type: string
-          x-bound-controls:
-          - LC-03
         compute_due_at:
           type: string
           format: date-time
@@ -8616,58 +8388,6 @@ components:
           - CL-01
         policy_breach_identified:
           type: string
-        breach.root_cause:
-          type: string
-          x-bound-controls:
-          - LC-01
-        breach.severity:
-          type: string
-          x-bound-controls:
-          - LC-01
-        breach.type:
-          type: string
-          x-bound-controls:
-          - LC-01
-        contact.channel:
-          type: string
-          x-bound-controls:
-          - LC-02
-        contact.date_time:
-          type: string
-          x-bound-controls:
-          - LC-02
-        contact.initiated:
-          type: string
-          x-bound-controls:
-          - LC-05
-        contact.note_text:
-          type: string
-          x-bound-controls:
-          - LC-02
-        contact.scheduled:
-          type: string
-          x-bound-controls:
-          - LC-05
-        contact_attempt_logged:
-          type: string
-          x-bound-controls:
-          - LC-02
-        policy.config:
-          type: string
-          x-bound-controls:
-          - LC-01
-        policy.snapshot:
-          type: string
-          x-bound-controls:
-          - LC-01
-        queue.id:
-          type: string
-          x-bound-controls:
-          - LC-02
-        queue.priority:
-          type: string
-          x-bound-controls:
-          - LC-02
         annual_review_due_at:
           type: string
           format: date-time
@@ -8792,56 +8512,15 @@ components:
           x-bound-controls:
           - CL-06
           - CMP-09
-          - LC-06
-        alleged_harm:
-          type: string
-          x-bound-controls:
-          - LC-06
-        assigned:
-          type: string
-          x-bound-controls:
-          - LC-06
         channel:
           type: string
           x-bound-controls:
           - CL-06
           - FL-13
-        issue:
-          type: string
-          x-bound-controls:
-          - LC-06
         narrative:
           type: string
           x-bound-controls:
           - CL-06
-        product:
-          type: string
-          x-bound-controls:
-          - LC-06
-        response_due_date_final:
-          type: string
-          x-bound-controls:
-          - LC-06
-        response_due_date_initial:
-          type: string
-          x-bound-controls:
-          - LC-06
-        root_cause:
-          type: string
-          x-bound-controls:
-          - LC-06
-        severity:
-          type: string
-          x-bound-controls:
-          - LC-06
-        source:
-          type: string
-          x-bound-controls:
-          - LC-06
-        status_changed:
-          type: string
-          x-bound-controls:
-          - LC-06
         ack_due_at:
           type: string
           format: date-time
@@ -9465,30 +9144,6 @@ components:
           type: string
           x-bound-controls:
           - MEM-04
-        description:
-          type: string
-          x-bound-controls:
-          - LC-07
-        investigation.summary:
-          type: string
-          x-bound-controls:
-          - LC-07
-        reason_code:
-          type: string
-          x-bound-controls:
-          - LC-07
-        received:
-          type: string
-          x-bound-controls:
-          - LC-07
-        resolution_recorded:
-          type: string
-          x-bound-controls:
-          - LC-07
-        supporting_docs:
-          type: string
-          x-bound-controls:
-          - LC-07
         investigation_due_at:
           type: string
           format: date-time
@@ -11430,63 +11085,10 @@ components:
           type: string
           x-bound-controls:
           - CL-05
-        cash_flow:
-          type: string
-          x-bound-controls:
-          - LC-04
-        contact.cease_communication:
-          type: string
-          x-bound-controls:
-          - LC-05
-        contact.channels_allowed:
-          type: string
-          x-bound-controls:
-          - LC-05
-        contact.do_not_call:
-          type: string
-          x-bound-controls:
-          - LC-05
-        contact.do_not_call_flags:
-          type: string
-          x-bound-controls:
-          - LC-02
-        contact.email_opt_in:
-          type: string
-          x-bound-controls:
-          - LC-05
-        contact.preference:
-          type: string
-          x-bound-controls:
-          - LC-02
-        deceased_flag:
-          type: string
-          x-bound-controls:
-          - LC-03
-        expense_ratio:
-          type: number
-          x-bound-controls:
-          - LC-04
         id:
           type: string
           x-bound-controls:
           - IS-10
-          - LC-06
-        income:
-          type: string
-          x-bound-controls:
-          - LC-04
-        represented_by_attorney:
-          type: string
-          x-bound-controls:
-          - LC-05
-        status.deceased_recorded:
-          type: string
-          x-bound-controls:
-          - LC-03
-        time_zone:
-          type: string
-          x-bound-controls:
-          - LC-05
         address_hold_expires_at:
           type: string
           format: date-time
@@ -11689,10 +11291,6 @@ components:
       properties:
         sent_at:
           type: string
-        sent.member:
-          type: string
-          x-bound-controls:
-          - RZ-04
     officer:
       type: object
       x-kind: vocabulary
@@ -11752,10 +11350,6 @@ components:
           type: string
           x-bound-controls:
           - BSA-01
-        freeze.enabled:
-          type: string
-          x-bound-controls:
-          - RZ-04
     overdraft:
       type: object
       x-kind: vocabulary
@@ -11795,48 +11389,6 @@ components:
           type: integer
           x-bound-controls:
           - CL-10
-          - LC-10
-        approved_by_officer_id:
-          type: string
-          x-bound-controls:
-          - LC-10
-        daily_report_id:
-          type: string
-          x-bound-controls:
-          - LC-10
-        escalated_to_collections:
-          type: string
-          x-bound-controls:
-          - LC-10
-        fee_waiver.applied:
-          type: string
-          x-bound-controls:
-          - LC-10
-        fee_waiver.approved_by_id:
-          type: string
-          x-bound-controls:
-          - LC-10
-        fee_waiver.reason:
-          type: string
-          x-bound-controls:
-          - LC-10
-        fee_waiver.requested:
-          type: string
-          x-bound-controls:
-          - LC-10
-        id:
-          type: string
-          x-bound-controls:
-          - LC-06
-        posted_at:
-          type: string
-          format: date-time
-          x-bound-controls:
-          - LC-10
-        report.generated:
-          type: number
-          x-bound-controls:
-          - LC-10
         review_due_at:
           type: string
           format: date-time
@@ -12080,14 +11632,6 @@ components:
           type: string
           x-bound-controls:
           - BSA-01
-        collections.breach_logged:
-          type: string
-          x-bound-controls:
-          - LC-01
-        collections.review_due_approaching:
-          type: string
-          x-bound-controls:
-          - LC-01
         next_review_at:
           type: string
           format: date-time
@@ -12101,10 +11645,6 @@ components:
           - CL-01
           - IC-01
           - LD-01
-        version_id:
-          type: string
-          x-bound-controls:
-          - LC-01
         acknowledgment_due_at:
           type: string
           format: date-time
@@ -12453,14 +11993,6 @@ components:
           type: string
         volume_stats:
           type: string
-        catalog.collections_scope_flag:
-          type: string
-          x-bound-controls:
-          - LC-01
-        type:
-          type: string
-          x-bound-controls:
-          - LC-01
     product_menu:
       type: object
       x-kind: vocabulary
@@ -13280,10 +12812,6 @@ components:
           - BSA-02
           - EPS-01
           - IS-02
-        posture.changed:
-          type: string
-          x-bound-controls:
-          - RZ-01
         assessment_due_at:
           type: string
           format: date-time
@@ -13486,22 +13014,6 @@ components:
           type: string
           x-bound-controls:
           - CMP-03
-        audit.owner_id:
-          type: string
-          x-bound-controls:
-          - LC-01
-        collections.owner_id:
-          type: string
-          x-bound-controls:
-          - LC-01
-        compliance.owner_id:
-          type: string
-          x-bound-controls:
-          - LC-01
-        credit.owner_id:
-          type: string
-          x-bound-controls:
-          - LC-01
     rule:
       type: object
       x-kind: vocabulary
@@ -14056,18 +13568,6 @@ components:
           type: string
           x-bound-controls:
           - CL-05
-        fdcpadisclosure_required:
-          type: string
-          x-bound-controls:
-          - LC-05
-        id:
-          type: string
-          x-bound-controls:
-          - LC-05
-        version:
-          type: string
-          x-bound-controls:
-          - LC-05
     threat:
       type: object
       x-kind: vocabulary
@@ -15037,15 +14537,6 @@ components:
           x-bound-controls:
           - FL-05
           - LD-03
-    borrower:
-      type: object
-      x-kind: vocabulary
-      description: borrower vocabulary (control demand).
-      properties:
-        total_exposure:
-          type: integer
-          x-bound-controls:
-          - LC-10
     cdd:
       type: object
       x-kind: vocabulary
@@ -15076,15 +14567,6 @@ components:
           format: date
           x-bound-controls:
           - BSA-04
-    content:
-      type: object
-      x-kind: vocabulary
-      description: content vocabulary (control demand).
-      properties:
-        published.claims:
-          type: string
-          x-bound-controls:
-          - RZ-05
     courier:
       type: object
       x-kind: vocabulary
@@ -15216,24 +14698,6 @@ components:
           description: Timer/SLA marker.
           x-bound-controls:
           - BSA-12
-    escrow:
-      type: object
-      x-kind: vocabulary
-      description: escrow vocabulary (control demand).
-      properties:
-        link.shared:
-          type: string
-          x-bound-controls:
-          - RZ-06
-    fix:
-      type: object
-      x-kind: vocabulary
-      description: fix vocabulary (control demand).
-      properties:
-        deployed:
-          type: string
-          x-bound-controls:
-          - RZ-08
     flow:
       type: object
       x-kind: vocabulary
@@ -15249,53 +14713,6 @@ components:
           x-bound-controls:
           - IP-06
           - LP-03
-    foreclosure:
-      type: object
-      x-kind: vocabulary
-      description: foreclosure vocabulary (control demand).
-      properties:
-        expected_loss:
-          type: string
-          x-bound-controls:
-          - LC-09
-    freeze:
-      type: object
-      x-kind: vocabulary
-      description: freeze vocabulary (control demand).
-      properties:
-        applied:
-          type: string
-          x-bound-controls:
-          - RZ-03
-        exception.added:
-          type: string
-          x-bound-controls:
-          - RZ-03
-        removed:
-          type: string
-          x-bound-controls:
-          - RZ-03
-    furnisher:
-      type: object
-      x-kind: vocabulary
-      description: furnisher vocabulary (control demand).
-      properties:
-        batch.generated:
-          type: number
-          x-bound-controls:
-          - LC-07
-        batch.transmitted:
-          type: string
-          x-bound-controls:
-          - LC-07
-        report.history:
-          type: string
-          x-bound-controls:
-          - LC-07
-        tradeline.snapshot:
-          type: string
-          x-bound-controls:
-          - LC-07
     governance:
       type: object
       x-kind: vocabulary
@@ -15342,15 +14759,6 @@ components:
           x-bound-controls:
           - EC-09
           - IS-14
-    limit:
-      type: object
-      x-kind: vocabulary
-      description: limit vocabulary (control demand).
-      properties:
-        changed:
-          type: string
-          x-bound-controls:
-          - RZ-02
     loan_account:
       type: object
       x-kind: vocabulary
@@ -15366,15 +14774,6 @@ components:
           x-bound-controls:
           - FL-05
           - LD-07
-    mode:
-      type: object
-      x-kind: vocabulary
-      description: mode vocabulary (control demand).
-      properties:
-        safe.enable:
-          type: string
-          x-bound-controls:
-          - RZ-02
     monitoring_coverage:
       type: object
       x-kind: vocabulary
@@ -15411,37 +14810,6 @@ components:
           description: Timer/SLA marker.
           x-bound-controls:
           - BSA-05
-    oreo:
-      type: object
-      x-kind: vocabulary
-      description: oreo vocabulary (control demand).
-      properties:
-        asset.recorded:
-          type: string
-          x-bound-controls:
-          - LC-09
-        asset.value_at_recording:
-          type: string
-          x-bound-controls:
-          - LC-09
-    packet:
-      type: object
-      x-kind: vocabulary
-      description: packet vocabulary (control demand).
-      properties:
-        delivered:
-          type: string
-          x-bound-controls:
-          - RZ-06
-    portal:
-      type: object
-      x-kind: vocabulary
-      description: portal vocabulary (control demand).
-      properties:
-        state.readonly:
-          type: string
-          x-bound-controls:
-          - RZ-05
     process:
       type: object
       x-kind: vocabulary
@@ -15460,15 +14828,6 @@ components:
           type: string
           x-bound-controls:
           - EPS-01
-    reg:
-      type: object
-      x-kind: vocabulary
-      description: reg vocabulary (control demand).
-      properties:
-        notice.ack:
-          type: string
-          x-bound-controls:
-          - RZ-04
     regulation_inventory:
       type: object
       x-kind: vocabulary
@@ -15554,24 +14913,6 @@ components:
           type: string
           x-bound-controls:
           - ERM-01
-    thirdparty:
-      type: object
-      x-kind: vocabulary
-      description: thirdparty vocabulary (control demand).
-      properties:
-        collector.sync_performed:
-          type: string
-          x-bound-controls:
-          - LC-05
-    trustee:
-      type: object
-      x-kind: vocabulary
-      description: trustee vocabulary (control demand).
-      properties:
-        account.provisioned:
-          type: string
-          x-bound-controls:
-          - RZ-06
     alm:
       type: object
       x-kind: vocabulary
