@@ -109,10 +109,18 @@ def main() -> int:
     xet = set(doc.get("x-event-types") or [])
     added_events = new_verbs = 0
     for code, rec in (overlay.get("events") or {}).items():
-        if code not in mig["migration"]:
+        # force event registration even if a stray as:field token already claims this code
+        # (an event code marked as a field registers as neither — it has no backing property).
+        if mig["migration"].get(code, {}).get("as") != "event":
             mig["migration"][code] = rec; added_events += 1
         if rec["type"] not in xet:
             xet.add(rec["type"]); new_verbs += 1
+    # consistency: every verb any migration event token references must be a known event type,
+    # else the token dangles (registers by name but points at a missing type). Also repairs verbs
+    # an over-eager inner-loop delete_event_type orphaned (the move ignored migration usage).
+    for entry in mig["migration"].values():
+        if entry.get("as") == "event" and entry.get("type") and entry["type"] not in xet:
+            xet.add(entry["type"]); new_verbs += 1
     if new_verbs:
         doc["x-event-types"] = sorted(xet)
         open(SPEC, "w").write(yaml.safe_dump(doc, **DUMP))

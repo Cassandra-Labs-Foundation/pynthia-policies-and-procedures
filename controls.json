@@ -1,14 +1,14 @@
 {
   "meta": {
     "generator": "scripts/extract_controls.py",
-    "generated_at": "2026-06-16T00:59:00+00:00",
+    "generated_at": "2026-06-16T01:06:57+00:00",
     "repo_root": "pynthia-policies-and-procedures",
     "api_model": {
       "spec_title": "Cassandra Banking Core API (Minimal)",
       "spec_version": "2.2.0",
-      "events": 1253,
-      "fields": 1974,
-      "entities": 303
+      "events": 1254,
+      "fields": 2303,
+      "entities": 312
     }
   },
   "stats": {
@@ -16,9 +16,9 @@
     "controls": 368,
     "event_rows": 626,
     "unique_api_codes": 2994,
-    "registered_event_codes": 1092,
-    "registered_field_codes": 1572,
-    "unregistered_codes": 330
+    "registered_event_codes": 1093,
+    "registered_field_codes": 1901,
+    "unregistered_codes": 0
   },
   "controls": [
     {
@@ -115,6 +115,7 @@
           "collections.queue.id",
           "collections.queue.priority",
           "loan.collections.case_assigned",
+          "loan.days_past_due",
           "loan.delinquency.bucket",
           "loan.delinquency.bucket_changed",
           "loan.delinquency.grace_expired",
@@ -125,9 +126,7 @@
           "member.contact.do_not_call_flags",
           "member.contact.preference"
         ],
-        "unregistered": [
-          "loan.days_past_due"
-        ],
+        "unregistered": [],
         "all": [
           "collections.contact.channel",
           "collections.contact.date_time",
@@ -182,6 +181,7 @@
           "loan.bankruptcy.status",
           "loan.classification",
           "loan.classification.changed",
+          "loan.days_past_due",
           "loan.delinquency.threshold_reached",
           "loan.fraud.confirmed",
           "loan.fraud.flag",
@@ -193,9 +193,7 @@
           "member.deceased_flag",
           "member.status.deceased_recorded"
         ],
-        "unregistered": [
-          "loan.days_past_due"
-        ],
+        "unregistered": [],
         "all": [
           "collateral.cost_to_sell",
           "collateral.fair_value",
@@ -244,6 +242,7 @@
           "loan.workout.completed"
         ],
         "fields": [
+          "loan.days_past_due",
           "loan.hardship.description",
           "loan.hardship.flag",
           "loan.hardship.requested",
@@ -265,9 +264,7 @@
           "member.expense_ratio",
           "member.income"
         ],
-        "unregistered": [
-          "loan.days_past_due"
-        ],
+        "unregistered": [],
         "all": [
           "loan.days_past_due",
           "loan.hardship.description",
@@ -1744,12 +1741,11 @@
           "audit.resource_assessment",
           "board.meeting_held",
           "board.resolution_id",
+          "policy.board_approval_due_at",
           "policy.document_version",
           "policy.review_lapsed"
         ],
-        "unregistered": [
-          "policy.board_approval_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "audit.annual_results_summary",
           "audit.resource_assessment",
@@ -1911,6 +1907,7 @@
         ],
         "fields": [
           "audit.annual_plan_id",
+          "audit.assessment_annual_due_at",
           "audit.engagement_scope",
           "audit.frequency_increased",
           "audit.overall_rating",
@@ -1918,9 +1915,7 @@
           "audit.tentative_schedule",
           "risk.assessment_results"
         ],
-        "unregistered": [
-          "audit.assessment_annual_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "audit.annual_plan_approved",
           "audit.annual_plan_id",
@@ -1971,16 +1966,15 @@
           "pentest.report_received"
         ],
         "fields": [
+          "audit.assessment_annual_due_at",
           "audit.assessment_type",
           "audit.engagement_scope",
           "audit.overall_rating",
+          "pentest.engagement_due",
           "pentest.independence",
           "pentest.scope"
         ],
-        "unregistered": [
-          "audit.assessment_annual_due_at",
-          "pentest.engagement_due"
-        ],
+        "unregistered": [],
         "all": [
           "audit.assessment_annual_due_at",
           "audit.assessment_completed",
@@ -2093,18 +2087,17 @@
         "fields": [
           "deficiency.source",
           "finding.department",
+          "finding.escalation_due_at",
           "finding.identified",
+          "finding.monthly_review_due",
           "finding.open_report",
           "finding.owner",
+          "finding.quarterly_report_due",
           "finding.remediation_status",
           "finding.risk_rating",
           "finding.tracked"
         ],
-        "unregistered": [
-          "finding.escalation_due_at",
-          "finding.monthly_review_due",
-          "finding.quarterly_report_due"
-        ],
+        "unregistered": [],
         "all": [
           "deficiency.source",
           "finding.aging_threshold_breached",
@@ -2161,14 +2154,13 @@
         "fields": [
           "finding.implementation_date",
           "finding.owner",
+          "finding.response_due_at",
           "finding.responsible_party",
           "finding.risk_acceptance_package",
-          "finding.risk_acceptance_rationale"
-        ],
-        "unregistered": [
-          "finding.response_due_at",
+          "finding.risk_acceptance_rationale",
           "risk_acceptance.decision_due_at"
         ],
+        "unregistered": [],
         "all": [
           "audit.report_issued",
           "finding.implementation_date",
@@ -2222,11 +2214,10 @@
           "audit.engagement_scope",
           "audit.overall_rating",
           "finding.closure_evidence",
-          "finding.remediation_evidence"
-        ],
-        "unregistered": [
+          "finding.remediation_evidence",
           "risk.assessment_due_at"
         ],
+        "unregistered": [],
         "all": [
           "audit.cae_action_recorded",
           "audit.engagement_scope",
@@ -2278,17 +2269,16 @@
         "fields": [
           "audit.access_request_detail",
           "audit.legal_hold_status",
+          "audit.retention_expires_at",
           "disclosure_detail.request_doc",
           "disclosure_detail.requester",
+          "record.destruction_due_at",
           "record.disposal_method",
           "retention.anchor_date",
           "retention.record_type",
           "retention.schedule"
         ],
-        "unregistered": [
-          "audit.retention_expires_at",
-          "record.destruction_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "audit.access_request_detail",
           "audit.legal_hold_status",
@@ -2516,8 +2506,12 @@
           "capital.action_type",
           "capital.breached_trigger",
           "capital.contingency_action_id",
+          "capital.contingency_due_at",
+          "capital.contingency_memo_due_at",
           "capital.expected_capital_impact",
           "capital.ratio_below_target",
+          "capital.ratio_calc_due_at",
+          "capital.ratio_computation_due_at",
           "capital.ratio_tier1_leverage",
           "capital.ratio_tier1_rwa",
           "capital.ratio_total_rbc",
@@ -2532,12 +2526,7 @@
           "capital.trigger_schedule",
           "gl.total_assets"
         ],
-        "unregistered": [
-          "capital.contingency_due_at",
-          "capital.contingency_memo_due_at",
-          "capital.ratio_calc_due_at",
-          "capital.ratio_computation_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "capital.action_type",
           "capital.breached_trigger",
@@ -2726,6 +2715,7 @@
           "capital.instrument_terms",
           "capital.perpetual_preferred",
           "capital.proposed_tier",
+          "capital.ratio_computation_due_at",
           "capital.retained_earnings",
           "capital.revaluation_reserves",
           "capital.subordinated_debt",
@@ -2733,9 +2723,7 @@
           "capital.tier2_total",
           "capital.undivided_earnings"
         ],
-        "unregistered": [
-          "capital.ratio_computation_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "capital.allowance_balance",
           "capital.classification_approved",
@@ -2899,6 +2887,7 @@
           "rwa.weights_applied"
         ],
         "fields": [
+          "capital.ratio_computation_due_at",
           "capital.rwa_total",
           "gl.total_assets",
           "rwa.ccf_map",
@@ -2911,9 +2900,7 @@
           "rwa.schedule_version",
           "rwa.trading_threshold_crossed"
         ],
-        "unregistered": [
-          "capital.ratio_computation_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "capital.ratio_computation_due_at",
           "capital.rwa_total",
@@ -3214,18 +3201,17 @@
           "cfp.execution_plan_documented",
           "cfp.liquidation_hierarchy",
           "liquidity.asf_total",
+          "liquidity.cfp_activation_due_at",
           "liquidity.clf_capacity",
           "liquidity.hqla_balance",
           "liquidity.liquid_assets",
           "liquidity.net_outflows_30d",
           "liquidity.ratio_to_shares",
+          "liquidity.report_due_at",
           "liquidity.rsf_total",
           "liquidity.system_balances"
         ],
-        "unregistered": [
-          "liquidity.cfp_activation_due_at",
-          "liquidity.report_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "cfp.execution_plan_documented",
           "cfp.liquidation_hierarchy",
@@ -3398,13 +3384,12 @@
           "capital.credit_growth_threshold_crossed",
           "capital.eligible_retained_income",
           "capital.max_payout_ratio",
+          "capital.payout_restriction_due_at",
           "capital.proposed_ccyb_level",
+          "capital.ratio_computation_due_at",
           "gl.loan_growth_yoy"
         ],
-        "unregistered": [
-          "capital.payout_restriction_due_at",
-          "capital.ratio_computation_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "capital.buffer_breached",
           "capital.buffer_requirement",
@@ -3578,20 +3563,19 @@
         "fields": [
           "capital.failing_scenario",
           "capital.icaap_cco_signoff",
+          "capital.icaap_due_at",
           "capital.proforma_ratios",
           "capital.projected_shortfall",
           "capital.projection_below_well_capitalized",
           "capital.recovery_plan_draft",
+          "capital.remediation_plan_due_at",
           "capital.stress_assumptions",
+          "capital.stress_report_due_at",
           "icaap.capital_projections",
           "icaap.irr_measures",
           "icaap.material_risk_identified"
         ],
-        "unregistered": [
-          "capital.icaap_due_at",
-          "capital.remediation_plan_due_at",
-          "capital.stress_report_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "capital.failing_scenario",
           "capital.icaap_cco_signoff",
@@ -3854,27 +3838,26 @@
           "training.capital_cycle_started"
         ],
         "fields": [
+          "board.notification_due_at",
           "capital.pca_category",
           "capital.pca_mandatory_actions",
           "capital.prior_ratios",
+          "capital.quarterly_report_due_at",
           "capital.quarterly_report_id",
           "capital.ratio_below_target",
           "capital.recovery_plan_draft",
           "capital.regulatory_minima",
+          "capital.remediation_plan_due_at",
           "capital.rwa_total",
+          "disclosure.pillar3_due_at",
           "disclosure.template_id",
+          "ncua.notification_due_at",
+          "training.annual_due_at",
           "training.assignee_id",
           "training.completion_status",
           "training.curriculum_id"
         ],
-        "unregistered": [
-          "board.notification_due_at",
-          "capital.quarterly_report_due_at",
-          "capital.remediation_plan_due_at",
-          "disclosure.pillar3_due_at",
-          "ncua.notification_due_at",
-          "training.annual_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "alco.ratio_review_logged",
           "board.notification_due_at",
@@ -4095,24 +4078,23 @@
           "policy.board_approved"
         ],
         "fields": [
+          "compliance.board_report_due_at",
           "governance.authority_statement",
           "governance.bsa_officer_id",
+          "governance.policy_review_due",
           "governance.raci_registry",
           "org.material_change",
           "policy.change_summary",
           "policy.document_id",
           "policy.document_version",
           "policy.materiality_threshold",
+          "policy.review_due_at",
           "reporting.bsa_metrics",
           "reporting.ofac_metrics",
           "reporting.sar_count",
           "reporting.training_metrics"
         ],
-        "unregistered": [
-          "compliance.board_report_due_at",
-          "governance.policy_review_due",
-          "policy.review_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "board.cash_summary.delivered",
           "compliance.board_report_due_at",
@@ -4248,6 +4230,7 @@
           "risk.created"
         ],
         "fields": [
+          "risk.assessment_due_at",
           "risk.assessment_results",
           "risk.candidate_profile",
           "risk.geography_factors",
@@ -4256,9 +4239,7 @@
           "risk.partner_dependency",
           "risk.residual_rating"
         ],
-        "unregistered": [
-          "risk.assessment_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "risk.assessment_completed",
           "risk.assessment_due_at",
@@ -4419,14 +4400,13 @@
           "entity.date_of_birth",
           "entity.name",
           "entity.tin",
+          "record.retention_expires_at",
           "verification.alt_path_available",
           "verification.match_status",
           "verification.provider_result",
           "verification.trust_level"
         ],
-        "unregistered": [
-          "record.retention_expires_at"
-        ],
+        "unregistered": [],
         "all": [
           "document.required_set",
           "entity.address",
@@ -4596,16 +4576,15 @@
           "cdd.control_person",
           "cdd.expected_activity",
           "cdd.industry_code",
+          "cdd.refresh_due",
           "cdd.risk_tier",
           "cdd.source_of_funds",
           "edd.approver_id",
           "edd.category_checklist",
+          "edd.refresh_due",
           "edd.source_of_wealth"
         ],
-        "unregistered": [
-          "cdd.refresh_due",
-          "edd.refresh_due"
-        ],
+        "unregistered": [],
         "all": [
           "cdd.bo_certified",
           "cdd.control_person",
@@ -4773,16 +4752,15 @@
         ],
         "fields": [
           "control_result.subject_ref",
+          "ofac.annual_report_due",
           "ofac.blocked_property",
           "ofac.list_version",
           "ofac.payment_instructions",
+          "ofac.report_timer",
           "ofac_result.match_score",
           "ofac_result.matched_lists"
         ],
-        "unregistered": [
-          "ofac.annual_report_due",
-          "ofac.report_timer"
-        ],
+        "unregistered": [],
         "all": [
           "control_result.subject_ref",
           "ofac.annual_report_due",
@@ -4920,11 +4898,10 @@
           "bsa_alert.triage_timer",
           "case.evidence",
           "case.owner_id",
+          "case.sar_decision_timer",
           "case.summary"
         ],
-        "unregistered": [
-          "case.sar_decision_timer"
-        ],
+        "unregistered": [],
         "all": [
           "bsa_alert.alert_type",
           "bsa_alert.created",
@@ -5090,13 +5067,12 @@
           "ctr.cash_in_total",
           "ctr.cash_out_total",
           "ctr.exemption_basis",
-          "filing.filing_id"
-        ],
-        "unregistered": [
           "ctr.exemption_review_due",
           "ctr.exemption_review_timer",
-          "ctr.filing_timer"
+          "ctr.filing_timer",
+          "filing.filing_id"
         ],
+        "unregistered": [],
         "all": [
           "control_result.subject_ref",
           "ctr.cash_in_total",
@@ -5288,13 +5264,12 @@
           "case.id",
           "disclosure_detail.request_doc",
           "disclosure_detail.requester",
+          "sar.continuing_timer",
+          "sar.filing_timer",
           "sar.narrative",
           "sar.prior_filing_id"
         ],
-        "unregistered": [
-          "sar.continuing_timer",
-          "sar.filing_timer"
-        ],
+        "unregistered": [],
         "all": [
           "case.id",
           "disclosure_detail.request_doc",
@@ -5410,13 +5385,12 @@
           "monetary_instrument.purchased"
         ],
         "fields": [
+          "mi.consolidation_timer",
           "mi_central_log.amount",
           "mi_central_log.instrument_type",
           "mi_central_log.purchaser_id_number"
         ],
-        "unregistered": [
-          "mi.consolidation_timer"
-        ],
+        "unregistered": [],
         "all": [
           "mi.central_log_updated",
           "mi.consolidation_timer",
@@ -5665,11 +5639,10 @@
         "fields": [
           "fincen314a_data.counterpart_registration",
           "fincen314a_data.request_scope",
-          "regulator.request_detail"
-        ],
-        "unregistered": [
+          "regulator.request_detail",
           "regulator.response_due_at"
         ],
+        "unregistered": [],
         "all": [
           "fincen314a_data.counterpart_registration",
           "fincen314a_data.request_scope",
@@ -5790,16 +5763,15 @@
           "escalation.created"
         ],
         "fields": [
+          "escalation.ack_timer",
+          "escalation.plan_timer",
           "escalation_detail.description",
           "escalation_detail.facts",
           "escalation_detail.regulatory_assessment",
           "escalation_detail.reporter_id",
           "escalation_detail.severity"
         ],
-        "unregistered": [
-          "escalation.ack_timer",
-          "escalation.plan_timer"
-        ],
+        "unregistered": [],
         "all": [
           "escalation.ack_timer",
           "escalation.acknowledged",
@@ -5882,14 +5854,13 @@
           "cmir.reportable_identified"
         ],
         "fields": [
+          "cmir.filing_timer",
           "cmir_data.amount",
           "cmir_data.counterparty",
           "cmir_data.direction",
           "cmir_data.shipment_manifest"
         ],
-        "unregistered": [
-          "cmir.filing_timer"
-        ],
+        "unregistered": [],
         "all": [
           "cmir.filed",
           "cmir.filing_timer",
@@ -5968,12 +5939,11 @@
           "fbar.nil_determined"
         ],
         "fields": [
+          "fbar.filing_timer",
           "fbar_data.account_record",
           "fbar_data.authority_type"
         ],
-        "unregistered": [
-          "fbar.filing_timer"
-        ],
+        "unregistered": [],
         "all": [
           "fbar.filed",
           "fbar.filing_timer",
@@ -6123,12 +6093,11 @@
           "edd.approver_id",
           "edd.category_checklist",
           "edd.msb_registration_number",
+          "edd.refresh_due",
           "edd.site_visit_report",
           "edd.source_of_wealth"
         ],
-        "unregistered": [
-          "edd.refresh_due"
-        ],
+        "unregistered": [],
         "all": [
           "edd.approver_id",
           "edd.category_approved",
@@ -6276,13 +6245,12 @@
         ],
         "fields": [
           "edd.approver_id",
+          "edd.refresh_due",
           "edd.source_of_wealth",
           "pep_status.status",
           "pep_status.subject_role"
         ],
-        "unregistered": [
-          "edd.refresh_due"
-        ],
+        "unregistered": [],
         "all": [
           "edd.approver_id",
           "edd.pep_completed",
@@ -6401,14 +6369,13 @@
         ],
         "fields": [
           "fincen314a_data.request_scope",
+          "record.retention_expires_at",
           "regulator.request_detail",
           "regulator.request_routed",
+          "regulator.response_due_at",
           "retention.record_type"
         ],
-        "unregistered": [
-          "record.retention_expires_at",
-          "regulator.response_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "fincen314a_data.request_scope",
           "record.retention_expires_at",
@@ -6559,6 +6526,7 @@
           "vendor.onboarding_started"
         ],
         "fields": [
+          "vendor.annual_review_due",
           "vendor.bsa_role_flag",
           "vendor.mi_trends",
           "vendor_alert.alert_details",
@@ -6567,9 +6535,7 @@
           "vendor_review.dd_package",
           "vendor_review.efficacy_results"
         ],
-        "unregistered": [
-          "vendor.annual_review_due"
-        ],
+        "unregistered": [],
         "all": [
           "bsa_alert.created",
           "vendor.annual_review_due",
@@ -6730,15 +6696,14 @@
           "curriculum.curriculum_version",
           "curriculum.role_curriculum",
           "hr.user.hired_covered_role",
+          "training.annual_due",
+          "training.annual_timer",
           "training.assignee_id",
+          "training.new_hire_timer",
           "training.role_matrix",
           "training_detail.hire_date"
         ],
-        "unregistered": [
-          "training.annual_due",
-          "training.annual_timer",
-          "training.new_hire_timer"
-        ],
+        "unregistered": [],
         "all": [
           "curriculum.board_curriculum",
           "curriculum.curriculum_version",
@@ -6898,17 +6863,16 @@
         ],
         "fields": [
           "audit.assessment_type",
+          "audit.cycle_timer",
           "audit.engagement_scope",
+          "audit.remediation_timer",
           "finding.closure_evidence",
           "finding.description",
           "finding.management_response",
           "finding.owner",
           "finding.severity"
         ],
-        "unregistered": [
-          "audit.cycle_timer",
-          "audit.remediation_timer"
-        ],
+        "unregistered": [],
         "all": [
           "audit.assessment_type",
           "audit.cycle_timer",
@@ -6962,21 +6926,20 @@
           "policy.board_review_started"
         ],
         "fields": [
+          "bcp.annual_review_due",
           "bcp.plan_version",
           "board.resolution_id",
           "crisis.roster",
           "crisis.succession_matrix",
+          "imt.roster_review_due",
+          "policy.board_approval_due_at",
           "policy.board_approved_at",
           "policy.next_review_date",
           "policy.owner_ref",
           "policy.review_lapsed",
           "policy.review_warning_at"
         ],
-        "unregistered": [
-          "bcp.annual_review_due",
-          "imt.roster_review_due",
-          "policy.board_approval_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "bcp.annual_review_due",
           "bcp.board_approved",
@@ -7035,11 +6998,10 @@
           "risk.inherent_rating",
           "risk.likelihood_score",
           "risk.review_overdue",
-          "risk.threat_catalog"
-        ],
-        "unregistered": [
+          "risk.threat_catalog",
           "threat_register.refresh_due"
         ],
+        "unregistered": [],
         "all": [
           "hazard.feed_detail",
           "risk.assessment_completed",
@@ -7083,6 +7045,8 @@
           "scope_registry.version_approved"
         ],
         "fields": [
+          "bia.annual_update_due",
+          "bia.certification_due",
           "bia.criticality",
           "bia.member_impact",
           "bia.reg_dependency",
@@ -7090,10 +7054,7 @@
           "scope_registry.item.rpo",
           "scope_registry.item.rto"
         ],
-        "unregistered": [
-          "bia.annual_update_due",
-          "bia.certification_due"
-        ],
+        "unregistered": [],
         "all": [
           "bia.annual_update_due",
           "bia.certification_due",
@@ -7147,14 +7108,13 @@
           "drill.affected_capability",
           "drill.failure_detail",
           "drill.objectives",
+          "drill.remediation_due",
           "drill.remediation_item",
           "drill.remediation_owner",
-          "drill.roster"
-        ],
-        "unregistered": [
-          "drill.remediation_due",
+          "drill.roster",
           "exercise.board_report_due"
         ],
+        "unregistered": [],
         "all": [
           "drill.aar_published",
           "drill.affected_capability",
@@ -7206,16 +7166,15 @@
           "incident.signal_received"
         ],
         "fields": [
+          "comms.same_day_due_at",
           "incident.comms_plan",
           "incident.detection_source",
           "incident.severity",
+          "incident.triage_due_at",
           "monitor.source",
           "oncall.ic_rotation"
         ],
-        "unregistered": [
-          "comms.same_day_due_at",
-          "incident.triage_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "comms.internal_alert_issued",
           "comms.same_day_due_at",
@@ -7271,12 +7230,11 @@
           "incident.scope_initial",
           "incident.severity",
           "incident.timeline",
+          "incident.triage_due_at",
           "sitrep.cadence_timer",
           "sitrep.v1_timer"
         ],
-        "unregistered": [
-          "incident.triage_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "incident.checklist_first_hour",
           "incident.comms_plan",
@@ -7330,16 +7288,15 @@
           "restore.test_completed"
         ],
         "fields": [
+          "backup.restore_test_due",
           "backup.rpo_monitor",
           "backup.tier_config",
+          "backup.verify_due",
           "restore.point_validated",
           "restore.rto_timer",
           "restore.test_env"
         ],
-        "unregistered": [
-          "backup.restore_test_due",
-          "backup.verify_due"
-        ],
+        "unregistered": [],
         "all": [
           "backup.cycle_completed",
           "backup.job_failed",
@@ -7394,12 +7351,11 @@
           "ops.critical_resumed",
           "ops.resumption_timer",
           "scope_registry.item.rto",
+          "site.capacity_test_due",
           "site.readiness_timer",
           "staffing.split_team_plan"
         ],
-        "unregistered": [
-          "site.capacity_test_due"
-        ],
+        "unregistered": [],
         "all": [
           "access.capacity_targets",
           "access.remote_config",
@@ -7452,15 +7408,14 @@
         "fields": [
           "bia.criticality",
           "change.backout_plan",
+          "incident.triage_due_at",
           "it.blast_radius_isolated",
           "it.outage_runbook",
           "oncall.ic_rotation",
           "transaction.approval_timer",
           "transaction.dual_control_required"
         ],
-        "unregistered": [
-          "incident.triage_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "bia.criticality",
           "change.backout_plan",
@@ -7515,14 +7470,13 @@
           "incident.legal_review",
           "incident.member_notice_template",
           "incident.misuse_likelihood",
+          "incident.notification_due_at",
           "incident.reportability_assessment",
+          "incident.triage_due_at",
           "legal.consult_timer",
           "legal.consulted"
         ],
-        "unregistered": [
-          "incident.notification_due_at",
-          "incident.triage_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "incident.containment_started",
           "incident.containment_timer",
@@ -7581,12 +7535,11 @@
           "comms.initial_timer",
           "comms.stakeholder_matrix",
           "comms.statuspage_playbook",
+          "incident.ncua_notice_due_at",
           "ncua.metrics_snapshot",
           "regulator.contacts"
         ],
-        "unregistered": [
-          "incident.ncua_notice_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "comms.backup_activated",
           "comms.contact_tree",
@@ -7640,13 +7593,12 @@
           "eps.staffing.backup_map",
           "eps.staffing.critical_roles",
           "staffing.activation_timer",
+          "staffing.readiness_review_due",
           "staffing.split_team_plan",
           "workforce.absenteeism_threshold",
           "workforce.availability"
         ],
-        "unregistered": [
-          "staffing.readiness_review_due"
-        ],
+        "unregistered": [],
         "all": [
           "eps.staffing.backup_map",
           "eps.staffing.critical_roles",
@@ -7759,20 +7711,19 @@
           "vendor.outage_detected"
         ],
         "fields": [
+          "vendor.bcp_evidence_due",
+          "vendor.dr_attestation_due",
           "vendor.dr_plan",
           "vendor.dr_test_results",
           "vendor.evidence_refreshed",
+          "vendor.exit_plan_due",
           "vendor.exit_plan_id",
           "vendor.failover_criteria",
           "vendor.incident_scope",
+          "vendor.incident_triage_due",
           "vendor.rto_rpo"
         ],
-        "unregistered": [
-          "vendor.bcp_evidence_due",
-          "vendor.dr_attestation_due",
-          "vendor.exit_plan_due",
-          "vendor.incident_triage_due"
-        ],
+        "unregistered": [],
         "all": [
           "vendor.bcp_evidence_due",
           "vendor.critical_alert",
@@ -7940,6 +7891,8 @@
         ],
         "fields": [
           "capital.general_reserves",
+          "capital.ratio_calc_due_at",
+          "capital.ratio_computation_due_at",
           "capital.regulatory_minima",
           "capital.retained_earnings",
           "capital.target_tier1_leverage",
@@ -7947,10 +7900,7 @@
           "gl.total_assets",
           "insurance.dfpi_minimum"
         ],
-        "unregistered": [
-          "capital.ratio_calc_due_at",
-          "capital.ratio_computation_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "capital.components_classified",
           "capital.general_reserves",
@@ -8106,11 +8056,10 @@
           "capital.pca_category",
           "capital.pca_mandatory_actions",
           "capital.regulatory_minima",
-          "capital.trigger_schedule"
-        ],
-        "unregistered": [
+          "capital.trigger_schedule",
           "ncua.notification_due_at"
         ],
+        "unregistered": [],
         "all": [
           "capital.breached_trigger",
           "capital.internal_trigger_breached",
@@ -8265,12 +8214,11 @@
           "capital.buffer_shortfall",
           "capital.eligible_retained_income",
           "capital.max_payout_ratio",
+          "capital.payout_restriction_due_at",
           "capital.payout_restriction_schedule",
           "capital.proposed_distribution_amount"
         ],
-        "unregistered": [
-          "capital.payout_restriction_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "capital.buffer_breached",
           "capital.buffer_requirement",
@@ -8424,6 +8372,7 @@
         ],
         "fields": [
           "capital.budget_assumptions",
+          "capital.plan_due_at",
           "capital.plan_id",
           "capital.prior_plan_id",
           "capital.prior_ratios",
@@ -8431,9 +8380,7 @@
           "capital.projected_shortfall",
           "capital.regulatory_minima"
         ],
-        "unregistered": [
-          "capital.plan_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "capital.budget_assumptions",
           "capital.plan_due_at",
@@ -8586,11 +8533,10 @@
           "capital.proforma_ratios",
           "capital.projected_shortfall",
           "capital.stress_assumptions",
+          "capital.stress_report_due_at",
           "capital.stress_report_id"
         ],
-        "unregistered": [
-          "capital.stress_report_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "capital.failing_scenario",
           "capital.proforma_ratios",
@@ -8743,17 +8689,16 @@
           "capital.target_breach_notified"
         ],
         "fields": [
+          "board.notification_due_at",
           "capital.buffer_assessed",
           "capital.projected_shortfall",
+          "capital.quarterly_report_due_at",
           "capital.quarterly_report_id",
           "capital.ratio_below_target",
           "capital.ratio_record_id",
           "capital.ratios_computed"
         ],
-        "unregistered": [
-          "board.notification_due_at",
-          "capital.quarterly_report_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "board.notification_due_at",
           "board.shortfall_notified",
@@ -8915,17 +8860,16 @@
           "capital.action_amount",
           "capital.action_type",
           "capital.contingency_action_id",
+          "capital.contingency_due_at",
+          "capital.contingency_memo_due_at",
           "capital.expected_capital_impact",
           "capital.projected_shortfall",
           "capital.projection_below_target",
           "capital.projection_below_well_capitalized",
-          "capital.recovery_plan_draft"
-        ],
-        "unregistered": [
-          "capital.contingency_due_at",
-          "capital.contingency_memo_due_at",
+          "capital.recovery_plan_draft",
           "capital.remediation_plan_due_at"
         ],
+        "unregistered": [],
         "all": [
           "capital.action_amount",
           "capital.action_type",
@@ -9246,14 +9190,13 @@
         "fields": [
           "capital.concentration_exposures",
           "capital.icaap_cco_signoff",
+          "capital.icaap_due_at",
           "capital.icaap_report_id",
           "capital.irr_measures",
           "icaap.material_risk_identified",
           "icaap.new_risk_assessment"
         ],
-        "unregistered": [
-          "capital.icaap_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "capital.concentration_exposures",
           "capital.icaap_cco_signoff",
@@ -9428,20 +9371,19 @@
         ],
         "fields": [
           "cash.exception_register.summary",
+          "cash.kri.publish_due_at",
           "cash.kri.trend",
+          "governance.policy_review_due",
           "kri.thresholds",
           "kri.value",
+          "policy.board_approval_due_at",
           "policy.board_approved_at",
           "policy.document_id",
           "policy.document_version",
           "policy.limit_registry",
           "policy.review_lapsed"
         ],
-        "unregistered": [
-          "cash.kri.publish_due_at",
-          "governance.policy_review_due",
-          "policy.board_approval_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "aml.dashboard.cash_kri_posted",
           "board.cash_summary.delivered",
@@ -9568,13 +9510,12 @@
         ],
         "fields": [
           "cash.asset.descriptor",
+          "cash.coverage.attestation_due_at",
           "cash.coverage.registry",
           "cash.custodian.user_id",
           "sod.compensating_control"
         ],
-        "unregistered": [
-          "cash.coverage.attestation_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "cash.asset.descriptor",
           "cash.coverage.attestation_due_at",
@@ -9696,6 +9637,7 @@
         ],
         "fields": [
           "cash.enterprise_limit.pct",
+          "cash.enterprise_limit.remediation_due_at",
           "cash.enterprise_limit.warning",
           "cash.enterprise_position.computed",
           "cash.enterprise_position.excess",
@@ -9704,9 +9646,7 @@
           "gl.total_assets",
           "treasury.invest_excess.notified"
         ],
-        "unregistered": [
-          "cash.enterprise_limit.remediation_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "cash.enterprise_limit.breached",
           "cash.enterprise_limit.pct",
@@ -9991,11 +9931,10 @@
           "cash.custodian.user_id",
           "cash.custody.revoked",
           "cash.custody.rotated",
+          "cash.custody.rotation_due_at",
           "cash.keybox.reason"
         ],
-        "unregistered": [
-          "cash.custody.rotation_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "cash.coverage.registry",
           "cash.custodian.user_id",
@@ -10125,12 +10064,11 @@
           "gl.balances",
           "gl.cash_suspense.aging_timer",
           "gl.cash_suspense.item",
+          "recon.daily_due",
           "recon.item_age_days",
           "recon.research_notes"
         ],
-        "unregistered": [
-          "recon.daily_due"
-        ],
+        "unregistered": [],
         "all": [
           "cash.asset.balance",
           "cash.recon.completed",
@@ -10293,18 +10231,17 @@
         ],
         "fields": [
           "aml.case.referred",
+          "cash.kri.publish_due_at",
           "cash.overshort.amount",
           "cash.overshort.cumulative",
+          "cash.overshort.investigation_due_at",
           "cash.overshort.monthly_summary",
           "cash.overshort.pattern",
           "cash.overshort.research_notes",
           "cash.overshort.threshold_crossed",
           "cash.overshort.thresholds"
         ],
-        "unregistered": [
-          "cash.kri.publish_due_at",
-          "cash.overshort.investigation_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "aml.case.referred",
           "cash.kri.month_closed",
@@ -10479,12 +10416,11 @@
           "cash.seal.found",
           "cash.seal.mismatch",
           "cash.shipment.amount",
+          "cash.shipment.verification_due_at",
           "courier.receipt.id",
           "gl.cash_in_transit.entry"
         ],
-        "unregistered": [
-          "cash.shipment.verification_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "cash.asset.id",
           "cash.custodian.user_id",
@@ -10923,19 +10859,18 @@
           "training.remedial_assigned"
         ],
         "fields": [
+          "training.annual_due_at",
           "training.assessment_score",
           "training.assignee_id",
           "training.hire_date",
           "training.lapsed",
+          "training.newhire_due_at",
           "training.proficiency.failed",
           "training.required_curriculum",
           "training.role_curriculum",
           "training.role_matrix"
         ],
-        "unregistered": [
-          "training.annual_due_at",
-          "training.newhire_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "employee.hired",
           "training.annual_cycle_opened",
@@ -11101,14 +11036,13 @@
           "cash.evidence.retained",
           "cash.exception_register",
           "cash.exception_register.summary",
+          "cash.kri.publish_due_at",
           "exam.export.requested",
           "exam.export.scope",
           "kri.thresholds",
           "kri.value"
         ],
-        "unregistered": [
-          "cash.kri.publish_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "cash.evidence.created",
           "cash.evidence.retained",
@@ -11312,9 +11246,11 @@
           "cda.actions_blocked",
           "cda.aggregate_book_value",
           "cda.audit_finding",
+          "cda.board_packet_due_at",
           "cda.net_worth",
           "cda.policy_expiry_at",
           "cda.policy_readopted",
+          "cda.policy_review_due",
           "cda.policy_version",
           "cda.portfolio_performance",
           "cda.proposal_packet",
@@ -11325,10 +11261,7 @@
           "policy.board_approved_at",
           "policy.effective_date"
         ],
-        "unregistered": [
-          "cda.board_packet_due_at",
-          "cda.policy_review_due"
-        ],
+        "unregistered": [],
         "all": [
           "cda.actions_blocked",
           "cda.aggregate_book_value",
@@ -11687,18 +11620,17 @@
           "cda.vendor_review_completed"
         ],
         "fields": [
+          "cda.conflict_escalation_due_at",
           "cda.vendor_issue_details",
           "cda.vendor_qualified",
           "cda.vendor_registration_evidence",
           "cda.vendor_registration_lapsed",
           "cda.vendor_registration_status",
           "cda.vendor_regulator",
-          "cda.vendor_revalidated"
-        ],
-        "unregistered": [
-          "cda.conflict_escalation_due_at",
+          "cda.vendor_revalidated",
           "cda.vendor_review_due"
         ],
+        "unregistered": [],
         "all": [
           "cda.board_escalation_issued",
           "cda.conflict_escalation_due_at",
@@ -11871,11 +11803,10 @@
           "cda.funding_amount",
           "cda.funding_first_line",
           "cda.funding_gate_evaluated",
-          "cda.structure_selected"
-        ],
-        "unregistered": [
+          "cda.structure_selected",
           "funding.first_line_due_at"
         ],
+        "unregistered": [],
         "all": [
           "cda.agreement_amendment_proposed",
           "cda.agreement_distribution_clause",
@@ -12039,16 +11970,15 @@
         "fields": [
           "cda.aggregate_book_value",
           "cda.cap_buffer_pct",
+          "cda.cap_cure_due_at",
           "cda.cap_excess_amount",
+          "cda.cap_test_due_at",
           "cda.cure_plan",
           "cda.funding_gate_evaluated",
           "cda.net_worth",
           "cda.remediation_owner"
         ],
-        "unregistered": [
-          "cda.cap_cure_due_at",
-          "cda.cap_test_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "cda.aggregate_book_value",
           "cda.cap_breached",
@@ -12210,13 +12140,12 @@
         "fields": [
           "cda.overlay_limits",
           "cda.portfolio_composition",
+          "cda.posttrade_due_at",
           "cda.risk_assessment",
           "cda.strategy_limits",
           "cda.trade_details"
         ],
-        "unregistered": [
-          "cda.posttrade_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "cda.board_approval_requested",
           "cda.overlay_change_proposed",
@@ -12377,6 +12306,7 @@
         ],
         "fields": [
           "cda.distribution_amount",
+          "cda.distribution_due_at",
           "cda.distribution_shortfall",
           "cda.distributions_cumulative",
           "cda.donee_ein",
@@ -12386,9 +12316,7 @@
           "cda.window_close_at",
           "cda.window_coverage_pct"
         ],
-        "unregistered": [
-          "cda.distribution_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "cda.distribution_amount",
           "cda.distribution_cycle_opened",
@@ -12549,16 +12477,15 @@
         "fields": [
           "cda.account_789h_mapping",
           "cda.aggregate_book_value",
+          "cda.board_packet_due_at",
           "cda.custodian_statement",
           "cda.gl_balances",
           "cda.portfolio_performance",
           "cda.preparer_id",
+          "cda.reconciliation_due_at",
           "cda.total_return_cumulative"
         ],
-        "unregistered": [
-          "cda.board_packet_due_at",
-          "cda.reconciliation_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "cda.account_789h_mapping",
           "cda.aggregate_book_value",
@@ -12718,6 +12645,7 @@
           "cda.vendor_issue_flagged"
         ],
         "fields": [
+          "cda.conflict_escalation_due_at",
           "cda.contract_termination_clause",
           "cda.contract_transfer_steps",
           "cda.vendor_bcp_dr",
@@ -12727,12 +12655,10 @@
           "cda.vendor_financials",
           "cda.vendor_issue_details",
           "cda.vendor_registration_lapsed",
+          "cda.vendor_review_due",
           "cda.vendor_soc_iso"
         ],
-        "unregistered": [
-          "cda.conflict_escalation_due_at",
-          "cda.vendor_review_due"
-        ],
+        "unregistered": [],
         "all": [
           "cda.board_escalation_issued",
           "cda.conflict_escalation_due_at",
@@ -12933,19 +12859,18 @@
         "fields": [
           "audit.engagement_scope",
           "cda.asset_details",
+          "cda.audit_due_at",
           "cda.audit_finding",
           "cda.distribution_amount",
           "cda.independent_pricing",
           "cda.portfolio_composition",
+          "cda.posttrade_due_at",
+          "cda.remediation_due_at",
           "cda.remediation_owner",
           "transaction.dual_control_required",
           "transaction.initiated_by"
         ],
-        "unregistered": [
-          "cda.audit_due_at",
-          "cda.posttrade_due_at",
-          "cda.remediation_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "audit.engagement_scope",
           "cda.asset_details",
@@ -13115,11 +13040,10 @@
           "cda.gl_balances",
           "cda.inkind_transfer_evaluated",
           "cda.permissibility_determination",
+          "cda.termination_report_due_at",
           "cda.total_return_cumulative"
         ],
-        "unregistered": [
-          "cda.termination_report_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "cda.account_closed",
           "cda.asset_details",
@@ -13275,13 +13199,12 @@
         "fields": [
           "affiliate.list",
           "cda.conflict_details",
+          "cda.conflict_escalation_due_at",
           "cda.fee_amount",
           "cda.fee_payee",
           "fee.ytd_total"
         ],
-        "unregistered": [
-          "cda.conflict_escalation_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "affiliate.list",
           "cda.conflict_details",
@@ -13599,6 +13522,9 @@
           "breach.description",
           "breach.owner",
           "collateral.inventory",
+          "collections.annual_review_due_at",
+          "collections.board_report_due_at",
+          "collections.breach_log_due_at",
           "collections.policy_bound",
           "loan.dpd",
           "loan.nonaccrual_placed",
@@ -13607,11 +13533,7 @@
           "policy.document_version",
           "policy.raci_registry"
         ],
-        "unregistered": [
-          "collections.annual_review_due_at",
-          "collections.board_report_due_at",
-          "collections.breach_log_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "breach.control_id",
           "breach.description",
@@ -13901,23 +13823,22 @@
           "collections.past_due_note_retained",
           "legal.cure_parameters",
           "loan.collectibility_assessment",
+          "loan.courtesy_notice_due_at",
+          "loan.days_past_due",
           "loan.dpd",
           "loan.grace_period_days",
           "loan.last_payment_date",
           "loan.past_due_amount",
           "loan.product_type",
-          "loan.workout_alternatives",
-          "member.contact_preferences",
-          "retention.anchor_date"
-        ],
-        "unregistered": [
-          "loan.courtesy_notice_due_at",
-          "loan.days_past_due",
           "loan.right_to_cure_due_at",
           "loan.second_reminder_due_at",
           "loan.status_memo_due_at",
-          "record.retention_expires_at"
+          "loan.workout_alternatives",
+          "member.contact_preferences",
+          "record.retention_expires_at",
+          "retention.anchor_date"
         ],
+        "unregistered": [],
         "all": [
           "collections.contact_logged",
           "collections.contact_outcome",
@@ -14243,23 +14164,22 @@
           "fraud.investigation_id",
           "loan.balance",
           "loan.bankruptcy_case_id",
+          "loan.bankruptcy_chargeoff_due_at",
           "loan.chargeoff_due_closed_end",
           "loan.chargeoff_due_open_end",
           "loan.chargeoff_month_end_at",
+          "loan.classification_due_at",
           "loan.death_loss_estimable",
           "loan.dpd",
           "loan.estate_claim_status",
+          "loan.fraud_chargeoff_due_at",
           "loan.ltv",
           "loan.product_type",
+          "loan.re_valuation_due",
           "loan.repayment_evidence",
           "loan.well_secured_documented"
         ],
-        "unregistered": [
-          "loan.bankruptcy_chargeoff_due_at",
-          "loan.classification_due_at",
-          "loan.fraud_chargeoff_due_at",
-          "loan.re_valuation_due"
-        ],
+        "unregistered": [],
         "all": [
           "collateral.cost_to_sell",
           "collateral.fair_value",
@@ -14474,11 +14394,10 @@
           "loan.proposed_modification",
           "loan.repayment_evidence",
           "member.hardship_evidence",
-          "member.repayment_capacity"
-        ],
-        "unregistered": [
+          "member.repayment_capacity",
           "tdr.quarterly_review_due"
         ],
+        "unregistered": [],
         "all": [
           "elc.approval_packet",
           "elc.modification_approved",
@@ -14677,7 +14596,9 @@
           "member.cease_flag_set"
         ],
         "fields": [
+          "collections.attorney_flag_due_at",
           "collections.attorney_identified",
+          "collections.cease_flag_due_at",
           "collections.contact_channel",
           "collections.contact_frequency_7d",
           "complaint.member_id",
@@ -14687,10 +14608,7 @@
           "template.body",
           "template.product_scope"
         ],
-        "unregistered": [
-          "collections.attorney_flag_due_at",
-          "collections.cease_flag_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "collections.attorney_flag_due_at",
           "collections.attorney_identified",
@@ -14937,23 +14855,22 @@
           "complaint.trend_reported"
         ],
         "fields": [
+          "complaint.ack_due_at",
           "complaint.category",
           "complaint.channel",
+          "complaint.final_response_due_at",
           "complaint.final_response_pending",
+          "complaint.initial_response_due_at",
           "complaint.investigation_notes",
           "complaint.member_id",
           "complaint.narrative",
+          "complaint.resolution_due_at",
           "complaint.root_cause_tag",
+          "complaint.trend_review_due",
           "complaint.trend_summary",
           "complaint.udaap_flag"
         ],
-        "unregistered": [
-          "complaint.ack_due_at",
-          "complaint.final_response_due_at",
-          "complaint.initial_response_due_at",
-          "complaint.resolution_due_at",
-          "complaint.trend_review_due"
-        ],
+        "unregistered": [],
         "all": [
           "complaint.ack_due_at",
           "complaint.acknowledged",
@@ -15167,13 +15084,12 @@
           "dispute.correction_amount",
           "dispute.idtheft_report",
           "furnishing.correction_identified",
+          "furnishing.cycle_due_at",
+          "furnishing.dispute_due_at",
           "furnishing.disputed_account",
           "furnishing.file_transmitted"
         ],
-        "unregistered": [
-          "furnishing.cycle_due_at",
-          "furnishing.dispute_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "correction.evidence_artifact_id",
           "dispute.basis",
@@ -15346,17 +15262,16 @@
           "incident.detection_source",
           "incident.member_notice_template",
           "incident.misuse_likelihood",
+          "incident.ncua_notice_due_at",
           "incident.notice_content",
+          "incident.notification_due_at",
           "incident.reportability_determination",
           "incident.severity",
+          "incident.triage_due_at",
           "ncua.metrics_snapshot",
           "ncua.trigger_condition"
         ],
-        "unregistered": [
-          "incident.ncua_notice_due_at",
-          "incident.notification_due_at",
-          "incident.triage_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "incident.classified",
           "incident.collections_logged",
@@ -15567,13 +15482,12 @@
           "loan.collectibility_assessment",
           "loan.dpd",
           "loan.foreclosure_impact_eval",
+          "loan.nonaccrual_due_at",
+          "loan.rating_review_due_at",
           "loan.repayment_evidence",
           "loan.risk_rating"
         ],
-        "unregistered": [
-          "loan.nonaccrual_due_at",
-          "loan.rating_review_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "legal.foreclosure_checklist",
           "loan.accrual_restored",
@@ -15777,11 +15691,10 @@
           "overdraft.fee_schedule",
           "overdraft.occurrence_count",
           "overdraft.payroll_coverage_flag",
+          "overdraft.review_due_at",
           "overdraft.waiver_reason"
         ],
-        "unregistered": [
-          "overdraft.review_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "officer.lending_authority",
           "overdraft.amount",
@@ -15916,12 +15829,11 @@
           "audit_detail.corrective_action",
           "board.meeting_date",
           "board_pack.training_metrics",
+          "compliance.board_report_due_at",
           "compliance.board_report_id",
           "policy.document_id"
         ],
-        "unregistered": [
-          "compliance.board_report_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "audit_detail.corrective_action",
           "board.meeting_date",
@@ -16070,13 +15982,12 @@
         ],
         "fields": [
           "regulation.citation",
+          "regulation.inventory_review_due_at",
           "regulation_inventory.citation",
           "regulatory.change_identified",
           "regulatory.source_doc"
         ],
-        "unregistered": [
-          "regulation.inventory_review_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "regulation.citation",
           "regulation.inventory_review_due_at",
@@ -16275,14 +16186,13 @@
           "compliance.risk_assessment_completed"
         ],
         "fields": [
+          "compliance.risk_assessment_due_at",
           "risk.assessment_results",
           "risk.inherent_rating",
           "risk.register_snapshot",
           "risk.residual_rating"
         ],
-        "unregistered": [
-          "compliance.risk_assessment_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "compliance.risk_assessment_completed",
           "compliance.risk_assessment_due_at",
@@ -16436,18 +16346,17 @@
           "training.remedial_assigned"
         ],
         "fields": [
+          "training.annual_due_at",
           "training.assignee_id",
           "training.content_version",
           "training.coverage_pct",
+          "training.newhire_due_at",
           "training.proficiency.failed",
           "training.required_curriculum",
           "training.role_matrix",
           "training_detail.hire_date"
         ],
-        "unregistered": [
-          "training.annual_due_at",
-          "training.newhire_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "employee.hired",
           "training.annual_cycle_opened",
@@ -16616,16 +16525,15 @@
           "finding.description",
           "finding.management_response",
           "finding.owner",
+          "finding.response_due_at",
+          "monitoring.coverage_review_due",
+          "monitoring.review_due_at",
           "monitoring.sample_drawn",
           "monitoring.sample_spec",
           "monitoring.scope",
           "monitoring_coverage.review"
         ],
-        "unregistered": [
-          "finding.response_due_at",
-          "monitoring.coverage_review_due",
-          "monitoring.review_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "finding.closed",
           "finding.department",
@@ -16785,8 +16693,10 @@
           "finding.opened"
         ],
         "fields": [
+          "audit.compliance_audit_due_at",
           "audit.engagement_scope",
           "audit.findings_routed_to_board",
+          "audit.remediation_due",
           "audit_detail.corrective_action",
           "auditor.independence_attestation",
           "finding.description",
@@ -16794,10 +16704,7 @@
           "finding.owner",
           "finding.remediation_evidence"
         ],
-        "unregistered": [
-          "audit.compliance_audit_due_at",
-          "audit.remediation_due"
-        ],
+        "unregistered": [],
         "all": [
           "audit.compliance_audit_due_at",
           "audit.engagement_completed",
@@ -16927,14 +16834,13 @@
         ],
         "fields": [
           "regulation.citation",
+          "regulatory.analysis_due_at",
           "regulatory.change_implemented",
           "regulatory.change_required",
           "regulatory.source_doc",
           "training.role_matrix"
         ],
-        "unregistered": [
-          "regulatory.analysis_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "procedure.change_set",
           "regulation.citation",
@@ -17056,12 +16962,11 @@
           "complaint.category",
           "complaint.member_id",
           "complaint.root_cause_tag",
+          "complaint.trend_review_due",
           "complaint.trend_summary",
           "complaint.udaap_flag"
         ],
-        "unregistered": [
-          "complaint.trend_review_due"
-        ],
+        "unregistered": [],
         "all": [
           "complaint.category",
           "complaint.logged",
@@ -17179,6 +17084,7 @@
           "policy.revision_published"
         ],
         "fields": [
+          "policy.board_approval_due_at",
           "policy.change_description",
           "policy.change_rationale",
           "policy.document_version",
@@ -17187,9 +17093,7 @@
           "policy.next_review_date",
           "policy.review_warning_at"
         ],
-        "unregistered": [
-          "policy.board_approval_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "policy.board_approval_due_at",
           "policy.board_approved",
@@ -17568,8 +17472,10 @@
           "coi.adhoc_form",
           "coi.attestation_date",
           "coi.attestation_signature",
+          "coi.certification_due",
           "coi.conflict_identified",
           "coi.interest_description",
+          "coi.questionnaire_due_at",
           "coi.questionnaire_responses",
           "coi.questionnaire_version",
           "coi.related_party",
@@ -17578,10 +17484,7 @@
           "insider.record_prior",
           "insider_report.due"
         ],
-        "unregistered": [
-          "coi.certification_due",
-          "coi.questionnaire_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "coi.adhoc_disclosure_filed",
           "coi.adhoc_form",
@@ -17947,15 +17850,14 @@
           "insider.credit_threshold_exceeded",
           "insider.funded_terms",
           "insider.limits_recomputed",
+          "insider.loc_approval_expires_at",
           "insider.officer_financial_statement",
           "insider.proposed_terms",
           "insider.record_compiled",
           "insider.record_prior",
           "insider_report.due"
         ],
-        "unregistered": [
-          "insider.loc_approval_expires_at"
-        ],
+        "unregistered": [],
         "all": [
           "board.disinterested_quorum",
           "insider.aggregate_credit_amount",
@@ -18191,11 +18093,10 @@
           "affiliate.transaction_amount",
           "affiliate.transaction_file_archived",
           "affiliate.transaction_type",
+          "concentration.compute_due_at",
           "cu.unimpaired_capital_surplus"
         ],
-        "unregistered": [
-          "concentration.compute_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "affiliate.asset_purchase_proposed",
           "affiliate.asset_quality_classification",
@@ -18653,14 +18554,13 @@
           "disclosure_detail.request_doc",
           "disclosure_detail.requester",
           "insider.correspondent_credit_data",
+          "insider.public_request_retention_expires_at",
           "record.retention_class",
+          "record.retention_expires_at",
           "record.retention_timer",
           "retention_spec.anchor_date"
         ],
-        "unregistered": [
-          "insider.public_request_retention_expires_at",
-          "record.retention_expires_at"
-        ],
+        "unregistered": [],
         "all": [
           "disclosure_detail.request_doc",
           "disclosure_detail.requester",
@@ -18863,17 +18763,16 @@
         ],
         "fields": [
           "covered_person.id",
+          "finding.escalation_due_at",
+          "policy.acknowledgment_due_at",
           "policy.acknowledgment_record",
           "policy.document_version",
           "policy.investigation_file",
           "policy.violation_description",
+          "training.annual_due_at",
           "training.curriculum_id"
         ],
-        "unregistered": [
-          "finding.escalation_due_at",
-          "policy.acknowledgment_due_at",
-          "training.annual_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "covered_person.id",
           "employee.hired",
@@ -19001,14 +18900,13 @@
           "security.policy_review_opened"
         ],
         "fields": [
+          "policy.review_due_at",
+          "security.board_report_due_at",
           "security.kpi_snapshot",
           "security.policy_change_log",
           "security.program_charter"
         ],
-        "unregistered": [
-          "policy.review_due_at",
-          "security.board_report_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "policy.review_due_at",
           "security.board_report_due_at",
@@ -19164,6 +19062,7 @@
         "fields": [
           "access.last_reviewed_at",
           "access.manager_approval",
+          "access.review_due",
           "access.reviewer_roster",
           "access.role_entitlements",
           "access.role_id",
@@ -19171,9 +19070,7 @@
           "sod.matrix_version",
           "sod.violation_attempted"
         ],
-        "unregistered": [
-          "access.review_due"
-        ],
+        "unregistered": [],
         "all": [
           "access.entitlement_requested",
           "access.last_reviewed_at",
@@ -19525,6 +19422,7 @@
           "member_credential.temp_password_issued"
         ],
         "fields": [
+          "member_credential.expiry_due",
           "member_credential.failed_attempts",
           "member_credential.is_temporary",
           "member_credential.login_id",
@@ -19533,9 +19431,7 @@
           "member_credential.password_set_at",
           "member_credential.temp_password"
         ],
-        "unregistered": [
-          "member_credential.expiry_due"
-        ],
+        "unregistered": [],
         "all": [
           "ecommerce.credential_locked",
           "ecommerce.login_failed",
@@ -19655,12 +19551,11 @@
           "config.baseline_id",
           "config.drift_detail",
           "engagement.provider",
-          "engagement.scope"
-        ],
-        "unregistered": [
+          "engagement.scope",
           "firewall.independent_review_due",
           "firewall.review_due"
         ],
+        "unregistered": [],
         "all": [
           "config.baseline_id",
           "config.drift_detail",
@@ -19776,14 +19671,13 @@
           "tls.certificate_renewed"
         ],
         "fields": [
+          "tls.assessment_due",
+          "tls.certificate_expires_at",
+          "tls.certificate_expiry_due",
           "tls.cipher_suite",
           "tls.test_rating"
         ],
-        "unregistered": [
-          "tls.assessment_due",
-          "tls.certificate_expires_at",
-          "tls.certificate_expiry_due"
-        ],
+        "unregistered": [],
         "all": [
           "tls.assessment_completed",
           "tls.assessment_due",
@@ -19898,12 +19792,11 @@
           "ecommerce.transaction_initiated"
         ],
         "fields": [
+          "dispute.investigation_due_at",
           "ecommerce.session_authenticated",
           "transaction.initiated_by"
         ],
-        "unregistered": [
-          "dispute.investigation_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "dispute.investigation_due_at",
           "ecommerce.audit_trail_recorded",
@@ -20012,11 +19905,10 @@
         "fields": [
           "antivirus.definitions_version",
           "antivirus.detection",
+          "antivirus.log_review_due",
           "antivirus.signature"
         ],
-        "unregistered": [
-          "antivirus.log_review_due"
-        ],
+        "unregistered": [],
         "all": [
           "antivirus.definitions_version",
           "antivirus.detection",
@@ -20204,18 +20096,17 @@
         "fields": [
           "connection.access_log_id",
           "intrusion.severity",
+          "pentest.engagement_due",
           "pentest.independence",
           "pentest.scope",
           "siem.alert_detail",
+          "siem.alert_review_due_at",
           "siem.source_inventory",
           "vuln.detail",
+          "vuln.remediation_due_at",
           "vuln.severity"
         ],
-        "unregistered": [
-          "pentest.engagement_due",
-          "siem.alert_review_due_at",
-          "vuln.remediation_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "connection.access_log_id",
           "intrusion.detected",
@@ -20455,24 +20346,23 @@
         ],
         "fields": [
           "comms.ceo_approval",
+          "comms.same_day_due_at",
           "incident.comms_plan",
           "incident.data_scope",
           "incident.detection_source",
           "incident.legal_review",
           "incident.member_notice_template",
           "incident.misuse_likelihood",
+          "incident.ncua_notice_due_at",
           "incident.notice_content",
+          "incident.notification_due_at",
           "incident.reportability_determination",
           "incident.scope_initial",
           "incident.severity",
+          "incident.triage_due_at",
           "ncua.metrics_snapshot"
         ],
-        "unregistered": [
-          "comms.same_day_due_at",
-          "incident.ncua_notice_due_at",
-          "incident.notification_due_at",
-          "incident.triage_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "comms.ceo_approval",
           "comms.same_day_due_at",
@@ -20605,13 +20495,12 @@
           "bia.criticality",
           "bia.member_impact",
           "bia.reg_dependency",
+          "bia.review_due",
+          "vendor.dr_attestation_due",
           "vendor.dr_plan",
           "vendor.rto_rpo"
         ],
-        "unregistered": [
-          "bia.review_due",
-          "vendor.dr_attestation_due"
-        ],
+        "unregistered": [],
         "all": [
           "bia.certified",
           "bia.completed",
@@ -20732,17 +20621,16 @@
           "training.completion_recorded"
         ],
         "fields": [
+          "training.annual_due",
           "training.assignee_id",
+          "training.completion_due_at",
           "training.completion_status",
           "training.content_version",
           "training.curriculum_id",
           "training.role_matrix",
           "training.skills_inventory"
         ],
-        "unregistered": [
-          "training.annual_due",
-          "training.completion_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "training.annual_assigned",
           "training.annual_cycle_opened",
@@ -20863,16 +20751,15 @@
           "policy.board_review_started"
         ],
         "fields": [
+          "ecommerce.risk_assessment_due",
+          "policy.board_approval_due_at",
           "policy.document_id",
           "policy.document_version",
           "risk.assessment_results",
           "risk.register_snapshot",
           "risk.threat_catalog"
         ],
-        "unregistered": [
-          "ecommerce.risk_assessment_due",
-          "policy.board_approval_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "ecommerce.risk_assessment_completed",
           "ecommerce.risk_assessment_due",
@@ -21070,11 +20957,10 @@
           "eps.service.id",
           "product_risk.candidate_profile",
           "risk.inherent_score",
-          "risk.partner_dependency"
-        ],
-        "unregistered": [
+          "risk.partner_dependency",
           "risk.product_assessment_due_at"
         ],
+        "unregistered": [],
         "all": [
           "eps.erm_review.convened",
           "eps.erm_review.decided",
@@ -21250,14 +21136,13 @@
           "eps.bcp_test.scenario",
           "eps.incident.id",
           "eps.incident.impact",
+          "eps.incident.ncua_due_at",
           "eps.incident.reportable_determined",
           "eps.incident.severity",
-          "eps.incident.vendor_linked"
-        ],
-        "unregistered": [
-          "eps.incident.ncua_due_at",
+          "eps.incident.vendor_linked",
           "incident.triage_due_at"
         ],
+        "unregistered": [],
         "all": [
           "eps.bcp_test.completed",
           "eps.bcp_test.due_at",
@@ -21420,11 +21305,10 @@
           "eps.control_review.prior_findings",
           "eps.deficiency.description",
           "eps.deficiency.open_list",
-          "eps.deficiency.rating"
-        ],
-        "unregistered": [
+          "eps.deficiency.rating",
           "eps.deficiency.remediation_due_at"
         ],
+        "unregistered": [],
         "all": [
           "eps.control_review.checklist",
           "eps.control_review.completed",
@@ -22075,12 +21959,11 @@
           "eps.card.institution_limits",
           "eps.fraud.industry_alerts",
           "eps.fraud.loss_data",
+          "eps.pospay.decision_due_at",
           "eps.pospay.issue_file",
           "eps.pospay.presented_item"
         ],
-        "unregistered": [
-          "eps.pospay.decision_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "eps.card.fraud_score",
           "eps.card.institution_limits",
@@ -22237,18 +22120,17 @@
         ],
         "fields": [
           "eps.vendor.cuec_list",
+          "eps.vendor.dd_due_at",
           "eps.vendor.dd_summary",
           "eps.vendor.encryption_reqs",
           "eps.vendor.id",
           "eps.vendor.issue_description",
           "eps.vendor.issue_identified",
           "eps.vendor.issue_severity",
+          "eps.vendor.soc1_due_at",
           "eps.vendor.soc1_report"
         ],
-        "unregistered": [
-          "eps.vendor.dd_due_at",
-          "eps.vendor.soc1_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "eps.vendor.cuec_list",
           "eps.vendor.dd_completed",
@@ -22415,12 +22297,11 @@
           "eps.staffing.critical_roles",
           "eps.training.employee_plan",
           "eps.training.guide_version",
-          "eps.training.self_cert_form"
-        ],
-        "unregistered": [
           "eps.training.self_cert_due_at",
+          "eps.training.self_cert_form",
           "training.annual_due_at"
         ],
+        "unregistered": [],
         "all": [
           "eps.client.education_applicable",
           "eps.staffing.backup_map",
@@ -22581,13 +22462,12 @@
           "eps.test.defects",
           "eps.test.interop_scope",
           "eps.test.plan",
+          "eps.test.retro_due_at",
           "eps.test.risk_acceptance",
           "eps.test.signed_off",
           "eps.vendor.test_participation"
         ],
-        "unregistered": [
-          "eps.test.retro_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "eps.change.rollback_plan",
           "eps.deployment.emergency_exception",
@@ -22638,13 +22518,12 @@
           "risk_appetite.document",
           "risk_appetite.effective_date",
           "risk_appetite.next_review_date",
+          "risk_appetite.rereview_due_at",
+          "risk_appetite.review_due_at",
           "risk_appetite.version",
           "strategy.change_summary"
         ],
-        "unregistered": [
-          "risk_appetite.rereview_due_at",
-          "risk_appetite.review_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "risk_appetite.approved",
           "risk_appetite.document",
@@ -22694,11 +22573,10 @@
           "taxonomy.active_version",
           "taxonomy.category_code",
           "taxonomy.change_request",
+          "taxonomy.review_due_at",
           "taxonomy.subcategory_code"
         ],
-        "unregistered": [
-          "taxonomy.review_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "risk.category_assigned",
           "taxonomy.active_version",
@@ -22751,11 +22629,10 @@
           "risk_scale.alternative_method",
           "risk_scale.definition",
           "risk_scale.exemption_rationale",
+          "risk_scale.review_due_at",
           "risk_scale.usage_stats"
         ],
-        "unregistered": [
-          "risk_scale.review_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "risk.assessment_completed",
           "risk.impact_score",
@@ -22809,12 +22686,11 @@
           "risk.inherent_rating",
           "risk.last_assessed_at",
           "risk.owner_id",
+          "risk.reassessment_due_at",
           "risk.residual_rating",
           "risk.review_overdue"
         ],
-        "unregistered": [
-          "risk.reassessment_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "risk.assessment_completed",
           "risk.assessment_results",
@@ -22923,19 +22799,18 @@
         "fields": [
           "breach.owner",
           "risk.id",
+          "risk_breach.committee_due_at",
           "risk_breach.current_excursion",
           "risk_breach.excursion_size",
           "risk_breach.id",
           "risk_breach.impact_summary",
           "risk_breach.remediation_plan",
           "risk_breach.remediation_status",
-          "risk_breach.severity"
-        ],
-        "unregistered": [
-          "risk_breach.committee_due_at",
           "risk_breach.review_due_at",
+          "risk_breach.severity",
           "risk_breach.triage_due_at"
         ],
+        "unregistered": [],
         "all": [
           "breach.owner",
           "risk.id",
@@ -22987,6 +22862,7 @@
         "fields": [
           "exception.risk_acceptance",
           "risk.id",
+          "risk_acceptance.decision_due_at",
           "risk_acceptance.expiry_alert_at",
           "risk_acceptance.expiry_alerted",
           "risk_acceptance.expiry_date",
@@ -22995,9 +22871,7 @@
           "risk_acceptance.rationale",
           "risk_acceptance.requested"
         ],
-        "unregistered": [
-          "risk_acceptance.decision_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "exception.risk_acceptance",
           "risk.id",
@@ -23048,12 +22922,11 @@
           "risk.register_snapshot",
           "risk_acceptance.id",
           "risk_breach.id",
+          "risk_report.board_due_at",
+          "risk_report.management_due_at",
           "risk_report.reconciliation_record"
         ],
-        "unregistered": [
-          "risk_report.board_due_at",
-          "risk_report.management_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "kri.value",
           "risk.register_snapshot",
@@ -23246,17 +23119,16 @@
         ],
         "fields": [
           "analytics.cohort_threshold",
+          "compliance.board_report_due_at",
           "compliance.board_report_id",
           "compliance.change_rationale",
           "escalation.facts",
           "escalation.reporter_id",
           "escalation.severity",
-          "loan_application.data"
-        ],
-        "unregistered": [
-          "compliance.board_report_due_at",
+          "loan_application.data",
           "policy.review_due_at"
         ],
+        "unregistered": [],
         "all": [
           "analytics.cohort_threshold",
           "application.inquiry_check_completed",
@@ -23597,12 +23469,11 @@
           "pricing.exception_approver",
           "pricing.exception_demographics_summary",
           "pricing.exception_rationale",
+          "pricing.exception_review_due_at",
           "pricing.proposed_price",
           "pricing.sheet_price"
         ],
-        "unregistered": [
-          "pricing.exception_review_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "credit_config.approval_id",
           "credit_config.changed",
@@ -23762,17 +23633,16 @@
           "valuation.rov_requested"
         ],
         "fields": [
+          "appraisal.delivery_due_at",
           "appraisal.document",
           "appraisal.value",
           "disclosure.requested",
           "enrollment.applicant_identity",
           "loan_application.atr_qm_result",
-          "valuation.bias_screen_rules"
-        ],
-        "unregistered": [
-          "appraisal.delivery_due_at",
+          "valuation.bias_screen_rules",
           "valuation.rov_due_at"
         ],
+        "unregistered": [],
         "all": [
           "appraisal.delivery_due_at",
           "appraisal.document",
@@ -24007,20 +23877,19 @@
         ],
         "fields": [
           "applicant.business_revenue_tier",
+          "application.notice_due_at",
           "decision.score_block",
           "enrollment.applicant_identity",
+          "loan_account.aan_due_at",
           "loan_account.action_basis",
+          "loan_application.aan_due_at",
           "loan_application.action_basis",
+          "loan_application.counteroffer_aan_due_at",
           "loan_application.counteroffer_status",
           "loan_application.counteroffer_terms",
           "loan_application.oral_statement"
         ],
-        "unregistered": [
-          "application.notice_due_at",
-          "loan_account.aan_due_at",
-          "loan_application.aan_due_at",
-          "loan_application.counteroffer_aan_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "aan.issued",
           "applicant.business_revenue_tier",
@@ -24219,15 +24088,14 @@
           "applicant.gmi_responses",
           "dq.variance_amount",
           "hmda.hmda_lar",
+          "hmda.lar_qc_due_at",
+          "hmda.submission_due_at",
           "hmda.submission_window_open",
           "lar.value",
           "loan_application.final_action",
           "loan_application.gmi"
         ],
-        "unregistered": [
-          "hmda.lar_qc_due_at",
-          "hmda.submission_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "applicant.gmi_responses",
           "application.hmda_covered_created",
@@ -24466,15 +24334,14 @@
           "advertising.approval_id",
           "advertising.asset_id",
           "advertising.medium",
+          "advertising.reach_review_due",
           "analytics.assessment_area",
           "analytics.geo_lending_dataset",
           "cda.wcag_checklist",
           "intermediary.approved_list",
           "privacy.ada_validation_id"
         ],
-        "unregistered": [
-          "advertising.reach_review_due"
-        ],
+        "unregistered": [],
         "all": [
           "accessibility.accommodation_provided",
           "ad.accessibility_check",
@@ -24828,13 +24695,12 @@
           "vendor.affected_scope",
           "vendor.breach_detail",
           "vendor.dd_package",
+          "vendor.mi_due_at",
           "vendor.mi_pack",
           "vendor.mi_trends",
           "vendor.service_description"
         ],
-        "unregistered": [
-          "vendor.mi_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "vendor.affected_scope",
           "vendor.breach_detail",
@@ -25033,16 +24899,15 @@
           "analytics.assessment_area",
           "analytics.breach_detail",
           "analytics.cohort_threshold",
+          "analytics.disparity_due_at",
           "analytics.geo_lending_dataset",
           "analytics.group_estimators",
           "analytics.lending_dataset",
+          "analytics.method_review_due",
+          "analytics.redlining_due_at",
           "compliance.disparity_thresholds"
         ],
-        "unregistered": [
-          "analytics.disparity_due_at",
-          "analytics.method_review_due",
-          "analytics.redlining_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "analytics.assessment_area",
           "analytics.breach_detail",
@@ -25241,20 +25106,19 @@
           "training.refresh_issued"
         ],
         "fields": [
+          "training.annual_due_at",
           "training.assignee_id",
           "training.change_summary",
           "training.completion_status",
           "training.content_version",
           "training.coverage_pct",
           "training.curriculum_id",
+          "training.onboarding_due_at",
           "training.refresher_curriculum",
           "training.role_matrix",
           "training_detail.hire_date"
         ],
-        "unregistered": [
-          "training.annual_due_at",
-          "training.onboarding_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "employee.hired",
           "training.annual_assigned",
@@ -25427,11 +25291,10 @@
           "record.disposal_eligible",
           "record.retention_anchor",
           "record.retention_class",
+          "record.retention_expires_at",
           "retention_spec.anchor_date"
         ],
-        "unregistered": [
-          "record.retention_expires_at"
-        ],
+        "unregistered": [],
         "all": [
           "disposal.certificate_recorded",
           "legal_hold.created",
@@ -25799,29 +25662,28 @@
           "analytics.cohort_threshold",
           "cap.approval_timer",
           "cap.retest_plan",
+          "complaint.ack_due_at",
           "complaint.category",
           "complaint.channel",
+          "complaint.initial_response_due_at",
           "complaint.investigation_notes",
           "complaint.member_id",
+          "complaint.trend_review_due",
           "complaint.trend_summary",
+          "compliance.board_report_due_at",
           "compliance.board_report_id",
           "dispute.correction_amount",
           "escalation.facts",
           "escalation.severity",
+          "fair_lending.remediation_due_at",
+          "finding.escalation_due_at",
           "finding.responsible_party",
           "incident.reportability_determination",
           "legal.consulted",
           "loan_application.product_type",
           "service.assigned_to"
         ],
-        "unregistered": [
-          "complaint.ack_due_at",
-          "complaint.initial_response_due_at",
-          "complaint.trend_review_due",
-          "compliance.board_report_due_at",
-          "fair_lending.remediation_due_at",
-          "finding.escalation_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "analytics.cap_opened",
           "analytics.cohort_threshold",
@@ -25906,17 +25768,16 @@
         "fields": [
           "alert.policy_review_aging",
           "board.meeting_date",
+          "policy.board_approval_due_at",
           "policy.document_id",
           "policy.document_version",
           "policy.review_lapsed",
+          "reporting.board_pack_due",
+          "security.board_report_due_at",
           "security.kpi_snapshot",
           "security.program_charter"
         ],
-        "unregistered": [
-          "policy.board_approval_due_at",
-          "reporting.board_pack_due",
-          "security.board_report_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "alert.policy_review_aging",
           "board.meeting_date",
@@ -25972,21 +25833,20 @@
           "risk.product_assessment_completed"
         ],
         "fields": [
+          "risk.assessment_timer",
           "risk.candidate_profile",
           "risk.inherent_rating",
           "risk.last_assessed_at",
           "risk.partner_dependency",
           "risk.poam_status",
+          "risk.product_assessment_due_at",
+          "risk.reassessment_due_at",
           "risk.remediation_evidence",
           "risk.residual_rating",
           "risk.review_overdue",
           "risk.threat_catalog"
         ],
-        "unregistered": [
-          "risk.assessment_timer",
-          "risk.product_assessment_due_at",
-          "risk.reassessment_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "product.initiated",
           "risk.assessment_completed",
@@ -26042,12 +25902,11 @@
         "fields": [
           "asset.classification",
           "asset.cmdb_snapshot",
+          "asset.cmdb_update_due_at",
           "asset.owner",
           "asset.owner_roster"
         ],
-        "unregistered": [
-          "asset.cmdb_update_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "asset.attestation_completed",
           "asset.changed",
@@ -26097,17 +25956,16 @@
         "fields": [
           "change.approver_id",
           "change.backout_plan",
+          "change.cab_review_due_at",
           "change.emergency_justification",
+          "change.post_review_due_at",
           "change.risk_rating",
           "change.rollback_plan",
           "change.test_evidence",
           "config.baseline_id",
           "config.drift_detail"
         ],
-        "unregistered": [
-          "change.cab_review_due_at",
-          "change.post_review_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "change.approver_id",
           "change.backout_plan",
@@ -26163,17 +26021,16 @@
           "vuln.triage_completed"
         ],
         "fields": [
+          "pentest.engagement_due",
           "pentest.independence",
           "pentest.scope",
           "vuln.detail",
-          "vuln.remediation_plan",
-          "vuln.severity"
-        ],
-        "unregistered": [
-          "pentest.engagement_due",
           "vuln.remediation_due_at",
+          "vuln.remediation_plan",
+          "vuln.severity",
           "vuln.triage_due_at"
         ],
+        "unregistered": [],
         "all": [
           "pentest.engagement_due",
           "pentest.independence",
@@ -26229,6 +26086,9 @@
         "fields": [
           "access.breakglass_id",
           "access.breakglass_justification",
+          "access.deprovision_due_at",
+          "access.review_due",
+          "access.review_due_at",
           "access.reviewer_roster",
           "access.role_entitlements",
           "sod.compensating_control",
@@ -26238,11 +26098,7 @@
           "user.id",
           "user.role"
         ],
-        "unregistered": [
-          "access.deprovision_due_at",
-          "access.review_due",
-          "access.review_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "access.breakglass_id",
           "access.breakglass_justification",
@@ -26302,17 +26158,16 @@
         ],
         "fields": [
           "dlp.violation_detail",
+          "record.disposal_due_at",
           "record.disposal_eligible",
           "record.disposal_method",
           "record.hold_status",
-          "tls.cipher_suite",
-          "tls.test_rating"
-        ],
-        "unregistered": [
-          "record.disposal_due_at",
           "tls.assessment_due",
+          "tls.cipher_suite",
+          "tls.test_rating",
           "vuln.remediation_due_at"
         ],
+        "unregistered": [],
         "all": [
           "crypto.verified",
           "disposal.executed",
@@ -26368,15 +26223,14 @@
         "fields": [
           "backup.catalog",
           "backup.job_detail",
+          "backup.restore_test_due",
           "backup.rpo_monitor",
+          "backup.verify_due_at",
+          "dr.exercise_due_at",
           "dr.plan",
           "dr.rto_rpo_matrix"
         ],
-        "unregistered": [
-          "backup.restore_test_due",
-          "backup.verify_due_at",
-          "dr.exercise_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "backup.catalog",
           "backup.cycle_completed",
@@ -26433,16 +26287,15 @@
           "incident.detection_source",
           "incident.member_notice_template",
           "incident.misuse_likelihood",
+          "incident.ncua_notice_due_at",
+          "incident.notification_due_at",
           "incident.reportability_determination",
           "incident.scope_initial",
           "incident.severity",
+          "incident.triage_due_at",
           "ncua.metrics_snapshot"
         ],
-        "unregistered": [
-          "incident.ncua_notice_due_at",
-          "incident.notification_due_at",
-          "incident.triage_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "alert.ncua_notification_aging",
           "incident.assessment_completed",
@@ -26497,17 +26350,16 @@
           "redflag.stepup_completed"
         ],
         "fields": [
+          "member.address_hold_expires_at",
           "member.id",
           "redflag.address_reissue_match",
           "redflag.case_stats",
           "redflag.pattern_updates",
+          "redflag.review_due_at",
           "redflag.stepup_required",
           "redflag.type"
         ],
-        "unregistered": [
-          "member.address_hold_expires_at",
-          "redflag.review_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "member.address_hold_expires_at",
           "member.id",
@@ -26559,18 +26411,17 @@
         ],
         "fields": [
           "vendor.affected_scope",
+          "vendor.annual_review_due_at",
           "vendor.breach_detail",
           "vendor.evidence_refreshed",
           "vendor.glba_addendum_id",
+          "vendor.incident_triage_due",
           "vendor.npi_access_flag",
+          "vendor.review_due_at",
           "vendor.security_questionnaire",
           "vendor.soc_report"
         ],
-        "unregistered": [
-          "vendor.annual_review_due_at",
-          "vendor.incident_triage_due",
-          "vendor.review_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "vendor.affected_scope",
           "vendor.annual_review_due_at",
@@ -26626,16 +26477,15 @@
         "fields": [
           "employee.id",
           "facility.access_approval",
+          "facility.badge_deactivation_due_at",
           "facility.badge_id",
           "facility.cctv_ref",
+          "facility.test_due_at",
           "facility.visit_purpose",
           "facility.visitor_identity",
           "facility.zone"
         ],
-        "unregistered": [
-          "facility.badge_deactivation_due_at",
-          "facility.test_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "employee.id",
           "employee.separated",
@@ -26693,14 +26543,13 @@
           "ai.disclosure_channel",
           "ai.disclosure_text",
           "ai.dpia_ref",
+          "ai.register_update_due_at",
           "ai.use_case",
           "asset.classification",
-          "dlp.violation_detail"
-        ],
-        "unregistered": [
-          "ai.register_update_due_at",
+          "dlp.violation_detail",
           "vuln.remediation_due_at"
         ],
+        "unregistered": [],
         "all": [
           "ai.approval_record",
           "ai.disclosure_channel",
@@ -26754,16 +26603,15 @@
           "siem.source_silent"
         ],
         "fields": [
+          "incident.triage_due_at",
           "intrusion.severity",
           "siem.alert_critical",
           "siem.alert_detail",
+          "siem.alert_review_due_at",
           "siem.last_seen_at",
           "siem.source_inventory"
         ],
-        "unregistered": [
-          "incident.triage_due_at",
-          "siem.alert_review_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "incident.triage_due_at",
           "intrusion.detected",
@@ -26818,12 +26666,11 @@
           "aup.revision_summary",
           "byod.encryption_status",
           "byod.mdm_status",
+          "policy.acknowledgment_due_at",
           "user.id",
           "user.role"
         ],
-        "unregistered": [
-          "policy.acknowledgment_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "aup.acknowledged",
           "aup.reacknowledged",
@@ -26878,11 +26725,10 @@
           "socialmedia.approver",
           "socialmedia.evidence",
           "socialmedia.impersonation_detail",
-          "socialmedia.post_content"
-        ],
-        "unregistered": [
+          "socialmedia.post_content",
           "socialmedia.takedown_due_at"
         ],
+        "unregistered": [],
         "all": [
           "socialmedia.approver",
           "socialmedia.disclosure_detected",
@@ -26935,16 +26781,15 @@
         "fields": [
           "phishing.failure_history",
           "phishing.scenario",
+          "training.annual_due_at",
           "training.assignee_id",
           "training.content_version",
           "training.curriculum_id",
           "training.hire_date",
+          "training.newhire_due_at",
           "training.role_matrix"
         ],
-        "unregistered": [
-          "training.annual_due_at",
-          "training.newhire_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "employee.hired",
           "phishing.failure_history",
@@ -27000,15 +26845,14 @@
         "fields": [
           "legal.hold_scope",
           "legal.matter_id",
+          "record.destruction_cycle_due_at",
           "record.disposal_eligible",
           "record.hold_release_auth",
           "record.hold_status",
-          "record.retention_class"
-        ],
-        "unregistered": [
-          "record.destruction_cycle_due_at",
+          "record.retention_class",
           "record.retention_expires_at"
         ],
+        "unregistered": [],
         "all": [
           "legal.hold_placed",
           "legal.hold_released",
@@ -27206,6 +27050,7 @@
         "fields": [
           "board.meeting_date",
           "board.package_distributed",
+          "control.framework_review_due_at",
           "control.owner_vacancy_timer",
           "control.owner_vacated",
           "control.register",
@@ -27215,9 +27060,7 @@
           "process.id",
           "risk.owner_id"
         ],
-        "unregistered": [
-          "control.framework_review_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "board.audit_review_recorded",
           "board.meeting_date",
@@ -27796,16 +27639,15 @@
           "gl.cash_suspense.aging_timer",
           "gl.cash_suspense.item",
           "gl.trial_balance",
+          "recon.daily_due",
           "recon.item",
           "recon.item_age_days",
           "recon.item_aged",
           "recon.item_aging_timer",
-          "recon.item_owner"
-        ],
-        "unregistered": [
-          "recon.daily_due",
+          "recon.item_owner",
           "recon.monthly_due"
         ],
+        "unregistered": [],
         "all": [
           "cash.recon.research_notes",
           "cash.recon.variance",
@@ -28048,25 +27890,24 @@
           "employee.role_changed"
         ],
         "fields": [
+          "access.deprovision_due_at",
           "access.justification",
           "access.manager_approval",
+          "access.review_due",
           "access.review_timer",
           "access.reviewer_roster",
           "access.role_id",
           "access.user_roster",
           "change.backout_plan",
+          "change.cab_review_due_at",
           "change.emergency_justification",
+          "change.post_review_due_at",
           "change.requested",
           "change.rollback_plan",
           "change.test_evidence",
           "user.employment_status"
         ],
-        "unregistered": [
-          "access.deprovision_due_at",
-          "access.review_due",
-          "change.cab_review_due_at",
-          "change.post_review_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "access.deprovision_due_at",
           "access.deprovisioned",
@@ -28275,14 +28116,13 @@
           "exception.registered",
           "exception.reverted",
           "exception.risk_acceptance",
+          "override.analytics_due",
           "override.escalation_required",
           "override.escalation_timer",
           "override.rationale",
           "override.senior_approver_id"
         ],
-        "unregistered": [
-          "override.analytics_due"
-        ],
+        "unregistered": [],
         "all": [
           "control.override_invoked",
           "exception.expiry_timer",
@@ -28495,11 +28335,10 @@
           "deficiency.retest_result",
           "deficiency.severity",
           "deficiency.source",
-          "monitoring.sample_spec"
-        ],
-        "unregistered": [
+          "monitoring.sample_spec",
           "reporting.quarterly_due"
         ],
+        "unregistered": [],
         "all": [
           "csa.completed",
           "csa.cycle_opened",
@@ -28708,16 +28547,15 @@
           "record.actor_id",
           "record.actor_role",
           "record.artifact",
+          "record.destruction_due_at",
           "record.disposal_eligible",
           "record.hold_status",
+          "record.integrity_test_due",
           "record.legal_hold_placed",
           "record.retention_class",
           "record.retention_timer"
         ],
-        "unregistered": [
-          "record.destruction_due_at",
-          "record.integrity_test_due"
-        ],
+        "unregistered": [],
         "all": [
           "audit.assessment_type",
           "record.access_logged",
@@ -28774,6 +28612,7 @@
         ],
         "fields": [
           "alert.policy_review_aging",
+          "governance.policy_review_due",
           "policy.document_id",
           "policy.document_version",
           "policy.effective_date",
@@ -28785,9 +28624,7 @@
           "position.instrument_type",
           "position.policy_tagged"
         ],
-        "unregistered": [
-          "governance.policy_review_due"
-        ],
+        "unregistered": [],
         "all": [
           "alert.policy_review_aging",
           "governance.policy_review_due",
@@ -28856,16 +28693,15 @@
           "authority.matrix_entry",
           "authority_matrix.role_limits",
           "board.resolution_id",
+          "policy.board_approval_due_at",
           "policy.document_version",
+          "portfolio.board_report_due_at",
           "portfolio.gain_loss_summary",
           "portfolio.performance_metrics",
+          "reporting.board_pack_due",
           "trade.intermediary_id"
         ],
-        "unregistered": [
-          "policy.board_approval_due_at",
-          "portfolio.board_report_due_at",
-          "reporting.board_pack_due"
-        ],
+        "unregistered": [],
         "all": [
           "alco.ratio_review_logged",
           "alert.policy_review_aging",
@@ -28933,15 +28769,14 @@
         "fields": [
           "alert.policy_review_aging",
           "instrument_list.part703_category",
+          "instrument_list.review_due",
+          "instrument_list.review_due_at",
           "instrument_list.version",
           "position.instrument_type",
           "regulatory.source_doc",
           "trade.blocked_prohibited"
         ],
-        "unregistered": [
-          "instrument_list.review_due",
-          "instrument_list.review_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "alert.policy_review_aging",
           "instrument_list.part703_category",
@@ -28988,21 +28823,20 @@
           "stress.adhoc_rerun_issued"
         ],
         "fields": [
+          "alm.irr_simulation_due",
+          "alm.irr_simulation_due_at",
           "analytics.breach_detail",
           "capital.tier1_total",
           "cda.net_worth",
           "market.yield_curve",
+          "portfolio.stress_test_due",
+          "portfolio.stress_test_due_at",
           "position.convexity",
           "position.effective_duration",
           "position.fair_value",
           "stress.behavioral_assumptions"
         ],
-        "unregistered": [
-          "alm.irr_simulation_due",
-          "alm.irr_simulation_due_at",
-          "portfolio.stress_test_due",
-          "portfolio.stress_test_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "alm.irr_simulation_completed",
           "alm.irr_simulation_due",
@@ -29060,17 +28894,16 @@
         "fields": [
           "credit_file.internal_rating",
           "credit_file.issuer_analysis",
+          "credit_file.reanalysis_due",
+          "credit_file.reanalysis_due_at",
           "policy.materiality_threshold",
           "position.cusip",
           "position.instrument_type",
+          "security.downgrade_review_due_at",
           "security.rating_change",
           "trade.entered"
         ],
-        "unregistered": [
-          "credit_file.reanalysis_due",
-          "credit_file.reanalysis_due_at",
-          "security.downgrade_review_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "credit_file.approved",
           "credit_file.internal_rating",
@@ -29129,16 +28962,15 @@
           "liquidity.haircut_table",
           "liquidity.hqla_balance",
           "liquidity.net_outflows_30d",
+          "liquidity.report_due",
+          "liquidity.report_due_at",
           "market.depth_indicator",
           "position.days_to_liquidate",
           "position.liquidity_bucket",
+          "position.liquidity_classification_due",
           "position.stress_haircut"
         ],
-        "unregistered": [
-          "liquidity.report_due",
-          "liquidity.report_due_at",
-          "position.liquidity_classification_due"
-        ],
+        "unregistered": [],
         "all": [
           "alert.headroom_low",
           "alert.survival_low",
@@ -29205,12 +29037,11 @@
           "exposure.by_issuer",
           "exposure.by_sector",
           "limit_set.parameters",
+          "limit_set.review_due",
+          "limit_set.review_due_at",
           "trade.limit_blocked"
         ],
-        "unregistered": [
-          "limit_set.review_due",
-          "limit_set.review_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "alert.concentration_breach",
           "concentration.computed",
@@ -29272,18 +29103,17 @@
         "fields": [
           "intermediary.approved_list",
           "intermediary.due_diligence_file",
+          "intermediary.review_due",
+          "intermediary.review_due_at",
           "position.book_value",
           "position.cusip",
+          "safekeeping.reconciliation_due_at",
           "safekeeping.statement",
           "trade.entered",
           "trade.intermediary_blocked",
           "trade.intermediary_id"
         ],
-        "unregistered": [
-          "intermediary.review_due",
-          "intermediary.review_due_at",
-          "safekeeping.reconciliation_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "intermediary.approved_list",
           "intermediary.due_diligence_file",
@@ -29340,6 +29170,8 @@
           "collateral.fair_value",
           "repo.blocked_rule_violation",
           "repo.collateral_cusip",
+          "repo.collateral_revaluation_due",
+          "repo.collateral_revaluation_due_at",
           "repo.counterparty_id",
           "repo.entered",
           "repo.haircut",
@@ -29347,10 +29179,7 @@
           "repo.maturity_mismatch_days",
           "repo.required_margin"
         ],
-        "unregistered": [
-          "repo.collateral_revaluation_due",
-          "repo.collateral_revaluation_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "alert.mismatch_breach",
           "collateral.fair_value",
@@ -29409,12 +29238,11 @@
           "pricing.exception_approver",
           "pricing.override_rationale",
           "pricing.source",
+          "security.fair_value_update_due",
+          "security.fair_value_update_due_at",
           "security.impairment_indicator_raised"
         ],
-        "unregistered": [
-          "security.fair_value_update_due",
-          "security.fair_value_update_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "cda.independent_pricing",
           "position.amortized_cost",
@@ -29539,19 +29367,18 @@
         ],
         "fields": [
           "cda.net_worth",
-          "portfolio.gain_loss_summary",
-          "portfolio.performance_metrics",
-          "position.fair_value",
-          "stress.behavioral_assumptions"
-        ],
-        "unregistered": [
           "portfolio.board_report_due",
           "portfolio.board_report_due_at",
+          "portfolio.gain_loss_summary",
+          "portfolio.performance_metrics",
           "portfolio.report_due",
           "portfolio.report_due_at",
           "portfolio.stress_test_due",
-          "portfolio.stress_test_due_at"
+          "portfolio.stress_test_due_at",
+          "position.fair_value",
+          "stress.behavioral_assumptions"
         ],
+        "unregistered": [],
         "all": [
           "cda.net_worth",
           "portfolio.board_report_due",
@@ -29603,14 +29430,13 @@
         ],
         "fields": [
           "limit_set.parameters",
+          "performance.attribution_due",
+          "performance.attribution_due_at",
           "performance.targets",
           "portfolio.performance_metrics",
           "risk_appetite.document"
         ],
-        "unregistered": [
-          "performance.attribution_due",
-          "performance.attribution_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "limit_set.parameters",
           "performance.attribution_completed",
@@ -29659,6 +29485,7 @@
         "fields": [
           "confirmation.terms",
           "sod.matrix_version",
+          "trade.reconciliation_due_at",
           "trade.settlement_amount",
           "trade.settlement_date",
           "trade.sod_blocked",
@@ -29666,9 +29493,7 @@
           "trade.ticket",
           "user.role"
         ],
-        "unregistered": [
-          "trade.reconciliation_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "confirmation.terms",
           "sod.matrix_version",
@@ -29719,19 +29544,18 @@
           "trade.booked"
         ],
         "fields": [
+          "document.attachment_due_at",
           "document.retention_anchor",
           "document.retention_schedule",
           "document.subject_ref",
           "document.type",
           "record.disposal_eligible",
           "record.retention_class",
+          "record.retention_expires_at",
+          "retention.purge_due",
           "trade.ticket"
         ],
-        "unregistered": [
-          "document.attachment_due_at",
-          "record.retention_expires_at",
-          "retention.purge_due"
-        ],
+        "unregistered": [],
         "all": [
           "document.attachment_due_at",
           "document.disposition_recorded",
@@ -29785,22 +29609,21 @@
         ],
         "fields": [
           "access.role_id",
+          "coi.certification_due",
           "coi.conflict_identified",
+          "coi.questionnaire_due_at",
           "coi.questionnaire_responses",
           "covered_person.designated",
           "hr.user.hired_covered_role",
+          "training.annual_due",
+          "training.annual_due_at",
           "training.assignee_id",
           "training.lapsed",
+          "training.onboarding_due_at",
           "training.required_curriculum",
           "user.role"
         ],
-        "unregistered": [
-          "coi.certification_due",
-          "coi.questionnaire_due_at",
-          "training.annual_due",
-          "training.annual_due_at",
-          "training.onboarding_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "access.deprovisioned",
           "access.role_id",
@@ -29858,16 +29681,15 @@
         "fields": [
           "alert.survival_low",
           "cfp.execution_plan_documented",
+          "cfp.execution_plan_due_at",
+          "cfp.investment_test_due",
+          "cfp.investment_test_due_at",
           "cfp.liquidation_hierarchy",
           "liquidity.behavioral_assumptions",
           "position.liquidity_bucket",
           "stress.behavioral_assumptions"
         ],
-        "unregistered": [
-          "cfp.execution_plan_due_at",
-          "cfp.investment_test_due",
-          "cfp.investment_test_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "alert.survival_low",
           "cfp.execution_plan_documented",
@@ -29926,12 +29748,11 @@
           "policy.draft_redline",
           "policy.minutes_reference",
           "policy.next_review_at",
+          "policy.review_due",
           "regulatory.change_required",
           "regulatory.source_doc"
         ],
-        "unregistered": [
-          "policy.review_due"
-        ],
+        "unregistered": [],
         "all": [
           "alert.policy_review_aging",
           "policy.amendment_proposed",
@@ -30109,17 +29930,16 @@
           "alert.policy_review_aging",
           "credit_config.approval_id",
           "credit_config.diff",
+          "governance.policy_review_due",
           "lending_program.channel",
+          "lending_program.governance_due_at",
           "lending_program.id",
           "lending_program.partner_id",
           "policy.document_version",
           "policy.owner_ref",
           "policy.raci_registry"
         ],
-        "unregistered": [
-          "governance.policy_review_due",
-          "lending_program.governance_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "alert.policy_review_aging",
           "credit_config.approval_id",
@@ -30244,13 +30064,12 @@
         ],
         "fields": [
           "credit_box.definition",
+          "credit_box.review_due",
           "credit_box.version",
           "loan_application.product_code",
           "loan_application.product_type"
         ],
-        "unregistered": [
-          "credit_box.review_due"
-        ],
+        "unregistered": [],
         "all": [
           "credit_box.definition",
           "credit_box.review_completed",
@@ -30382,16 +30201,15 @@
         ],
         "fields": [
           "applicant.contact",
+          "application.notice_due_at",
           "loan_application.action_basis",
           "loan_application.credit_structure",
           "loan_application.data",
+          "loan_application.decision_due_at",
           "loan_application.dti",
           "loan_application.income_assets"
         ],
-        "unregistered": [
-          "application.notice_due_at",
-          "loan_application.decision_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "applicant.contact",
           "application.notice_due_at",
@@ -30811,15 +30629,14 @@
         ],
         "fields": [
           "applicant.contact",
+          "appraisal.delivery_due_at",
           "appraisal.document",
           "appraisal.value",
           "credit_config.ltv_matrix",
           "loan.collateral_value",
           "loan.ltv"
         ],
-        "unregistered": [
-          "appraisal.delivery_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "applicant.contact",
           "appraisal.completed",
@@ -31015,18 +30832,17 @@
         "fields": [
           "credit_report.score_disclosure",
           "loan.action_basis",
+          "loan_account.aan_due_at",
+          "loan_application.aan_due_at",
           "loan_application.action_basis",
           "loan_application.applicant",
+          "loan_application.counteroffer_aan_due_at",
           "loan_application.counteroffer_status",
           "loan_application.counteroffer_terms",
           "loan_application.gmi",
           "loan_party.identity"
         ],
-        "unregistered": [
-          "loan_account.aan_due_at",
-          "loan_application.aan_due_at",
-          "loan_application.counteroffer_aan_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "aan.issued",
           "aan.queued",
@@ -31189,15 +31005,14 @@
         "fields": [
           "exception.rationale",
           "exception.registered",
+          "loan_exception.analytics_due",
           "loan_exception.approval_tier",
           "loan_exception.closing_block_state",
           "loan_exception.observed_value",
           "loan_exception.rule",
           "portfolio.performance_metrics"
         ],
-        "unregistered": [
-          "loan_exception.analytics_due"
-        ],
+        "unregistered": [],
         "all": [
           "exception.rationale",
           "exception.registered",
@@ -31322,16 +31137,15 @@
           "record.retention_clock_set"
         ],
         "fields": [
+          "credit_package.retention_expires_at",
           "credit_package.schema",
           "loan_application.doc_block_state",
           "record.retention_anchor",
           "record.retention_class",
+          "record.retention_expires_at",
           "retention_spec.anchor_date"
         ],
-        "unregistered": [
-          "credit_package.retention_expires_at",
-          "record.retention_expires_at"
-        ],
+        "unregistered": [],
         "all": [
           "credit_package.retention_expires_at",
           "credit_package.retention_started",
@@ -31506,14 +31320,13 @@
           "pricing.exception_approver",
           "pricing.exception_demographics_summary",
           "pricing.exception_rationale",
+          "pricing.exception_review_due_at",
           "pricing.proposed_price",
           "pricing.sheet_price",
-          "rate_sheet.apor_values"
-        ],
-        "unregistered": [
-          "pricing.exception_review_due_at",
+          "rate_sheet.apor_values",
           "rate_sheet.refresh_due_at"
         ],
+        "unregistered": [],
         "all": [
           "credit_config.margins",
           "loan_application.doc_block_state",
@@ -31990,17 +31803,16 @@
           "analytics.lending_dataset",
           "applicant.gmi_responses",
           "compliance.disparity_thresholds",
+          "fair_lending.assessment_due",
           "fair_lending.dataset_version",
           "fair_lending.finding_id",
+          "fair_lending.remediation_due_at",
           "loan_application.channel",
           "loan_application.geography",
           "loan_application.gmi",
           "loan_application.product_type"
         ],
-        "unregistered": [
-          "fair_lending.assessment_due",
-          "fair_lending.remediation_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "analytics.cohort_threshold",
           "analytics.lending_dataset",
@@ -32296,17 +32108,16 @@
           "strategy.material_change_declared"
         ],
         "fields": [
+          "policy.board_approval_due_at",
           "policy.change_rationale",
           "policy.document_id",
           "policy.document_version",
           "policy.limit_registry",
           "policy.minutes_reference",
-          "policy.owner_ref"
-        ],
-        "unregistered": [
-          "policy.board_approval_due_at",
+          "policy.owner_ref",
           "policy.review_due_at"
         ],
+        "unregistered": [],
         "all": [
           "policy.board_approval_due_at",
           "policy.board_approved",
@@ -32466,12 +32277,11 @@
           "catalogue.formula",
           "catalogue.lineage",
           "catalogue.metrics_flagged_provisional",
+          "catalogue.sync_due_at",
           "gl.coa_map",
           "gl.trial_balance"
         ],
-        "unregistered": [
-          "catalogue.sync_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "alert.catalogue_sync_failed",
           "catalogue.approver_id",
@@ -32631,15 +32441,14 @@
           "gl.balances",
           "mismatch.breach_magnitude",
           "mismatch.breached_bucket",
+          "mismatch.compute_due_at",
           "mismatch.current_gaps",
           "mismatch.gap_computed",
           "mismatch.intraday_recomputed",
           "policy.limit_registry",
           "position.book_value"
         ],
-        "unregistered": [
-          "mismatch.compute_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "alert.mismatch_breach",
           "flow.amount",
@@ -32798,11 +32607,10 @@
           "survival.below_threshold",
           "survival.computed",
           "survival.days_combined",
-          "survival.driver_scenario"
-        ],
-        "unregistered": [
+          "survival.driver_scenario",
           "survival.quarterly_due_at"
         ],
+        "unregistered": [],
         "all": [
           "alert.survival_low",
           "ewi.spike_flagged",
@@ -32954,18 +32762,17 @@
         ],
         "fields": [
           "alert.lar_band_change",
+          "lar.compute_due_at",
           "lar.computed",
           "lar.current_band",
           "lar.prior_band",
           "lar.value",
           "liquidity.liquid_assets",
           "liquidity.total_assets",
+          "ncua.notification_due_at",
           "policy.limit_registry"
         ],
-        "unregistered": [
-          "lar.compute_due_at",
-          "ncua.notification_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "alert.lar_band_change",
           "lar.band_alert_issued",
@@ -33121,18 +32928,17 @@
         ],
         "fields": [
           "alert.concentration_breach",
+          "concentration.compute_due_at",
           "concentration.computed",
           "concentration.excess_amount",
           "concentration.position_id",
           "concentration.reviewer_id",
           "concentration.top10",
+          "concentration.waiver_due_at",
           "concentration.waiver_terms",
           "policy.limit_registry"
         ],
-        "unregistered": [
-          "concentration.compute_due_at",
-          "concentration.waiver_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "alert.concentration_breach",
           "concentration.compute_due_at",
@@ -33297,12 +33103,11 @@
           "stress.change_rationale",
           "stress.intraday_profile",
           "stress.quarter_open",
+          "stress.quarterly_due_at",
+          "stress.rerun_due_at",
           "stress_test.breach_detail"
         ],
-        "unregistered": [
-          "stress.quarterly_due_at",
-          "stress.rerun_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "ewi.major_event_flagged",
           "stress.adhoc_rerun_issued",
@@ -33455,15 +33260,14 @@
         "fields": [
           "alert.dq_variance",
           "catalogue.formula",
+          "dq.tieout_due_at",
           "dq.variance_amount",
           "gl.balances",
           "model.builder_roster",
+          "model.review_due_at",
           "model.reviewer_id"
         ],
-        "unregistered": [
-          "dq.tieout_due_at",
-          "model.review_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "alert.dq_variance",
           "catalogue.formula",
@@ -33622,13 +33426,12 @@
           "concentration.top10",
           "lar.value",
           "mismatch.current_gaps",
-          "report.weekly_deltas"
-        ],
-        "unregistered": [
           "report.board_due_at",
           "report.daily_due_at",
+          "report.weekly_deltas",
           "report.weekly_due_at"
         ],
+        "unregistered": [],
         "all": [
           "alert.policy_review_aging",
           "analytics.board_pack_inputs",
@@ -33748,13 +33551,12 @@
           "alert.ncua_notification_aging",
           "ncua.ack_detail",
           "ncua.metrics_snapshot",
+          "ncua.notification_due_at",
           "ncua.notification_required",
           "ncua.trigger_condition",
           "regulator.contacts"
         ],
-        "unregistered": [
-          "ncua.notification_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "alert.ncua_notification_aging",
           "ncua.ack_detail",
@@ -33877,15 +33679,14 @@
         ],
         "fields": [
           "alert.facility_readiness_aging",
+          "cfp.investment_test_due",
           "collateral.eligibility_rules",
           "collateral.unencumbered_balance",
           "facility.collateral_schedule",
           "facility.contacts",
           "facility.test_script"
         ],
-        "unregistered": [
-          "cfp.investment_test_due"
-        ],
+        "unregistered": [],
         "all": [
           "alert.facility_readiness_aging",
           "cfp.investment_test_completed",
@@ -34035,6 +33836,7 @@
         ],
         "fields": [
           "alert.headroom_low",
+          "collateral.compute_due_at",
           "collateral.counterparty_id",
           "collateral.fair_value",
           "collateral.headroom_computed",
@@ -34045,9 +33847,7 @@
           "liquidity.haircut_table",
           "transaction.dual_control_required"
         ],
-        "unregistered": [
-          "collateral.compute_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "alert.headroom_low",
           "collateral.compute_due_at",
@@ -34200,19 +34000,18 @@
         ],
         "fields": [
           "alert.wholesale_pricing_violation",
+          "wholesale.compute_due_at",
           "wholesale.exposure_history",
           "wholesale.listing_decisioned",
           "wholesale.maturity_calendar",
+          "wholesale.monthly_review_due",
           "wholesale.pricing_authority_id",
           "wholesale.rate",
           "wholesale.service_id",
           "wholesale.tenor",
           "wholesale.tenor_ladder"
         ],
-        "unregistered": [
-          "wholesale.compute_due_at",
-          "wholesale.monthly_review_due"
-        ],
+        "unregistered": [],
         "all": [
           "alert.wholesale_pricing_violation",
           "wholesale.compute_due_at",
@@ -34361,16 +34160,15 @@
         ],
         "fields": [
           "cfp.execution_plan_documented",
+          "cfp.transition_due_at",
           "lar.current_band",
+          "liquidity.cfp_activation_due_at",
           "playbook.spec",
           "policy.limit_registry",
           "survival.below_threshold",
           "task.type"
         ],
-        "unregistered": [
-          "cfp.transition_due_at",
-          "liquidity.cfp_activation_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "cfp.deactivated",
           "cfp.execution_plan_documented",
@@ -34522,14 +34320,13 @@
         "fields": [
           "ewi.history",
           "ewi.indicator_id",
+          "ewi.summary_due_at",
+          "ewi.sweep_due_at",
           "ewi.thresholds",
           "ewi.trend",
           "ewi.value"
         ],
-        "unregistered": [
-          "ewi.summary_due_at",
-          "ewi.sweep_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "ewi.ceo_summary_sent",
           "ewi.history",
@@ -34680,15 +34477,14 @@
         "fields": [
           "crisis.authority_basis",
           "crisis.board_quorum",
+          "crisis.convene_due_at",
           "crisis.decider_id",
           "crisis.decision_detail",
           "crisis.roster",
           "crisis.succession_matrix",
           "crisis.team_convened"
         ],
-        "unregistered": [
-          "crisis.convene_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "cfp.level_changed",
           "crisis.authority_basis",
@@ -34848,15 +34644,14 @@
         "fields": [
           "funding.draw_amount",
           "funding.draw_order_deviated",
+          "funding.first_line_due_at",
           "funding.next_source",
           "funding.shortfall_estimate",
           "funding.source_unavailable",
           "funding.unavailability_reason",
           "transaction.dual_control_required"
         ],
-        "unregistered": [
-          "funding.first_line_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "funding.draw_amount",
           "funding.draw_executed",
@@ -34978,11 +34773,10 @@
           "comms.draft_script",
           "comms.holding_statement",
           "comms.inquiry_detail",
+          "comms.same_day_due_at",
           "comms.stakeholder_matrix"
         ],
-        "unregistered": [
-          "comms.same_day_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "cfp.level_changed",
           "comms.ceo_approval",
@@ -35097,12 +34891,11 @@
         "fields": [
           "alert.regulator_request_aging",
           "regulator.contacts",
-          "regulator.request_detail"
-        ],
-        "unregistered": [
+          "regulator.request_detail",
           "regulator.response_due_at",
           "regulator.verification_due_at"
         ],
+        "unregistered": [],
         "all": [
           "alert.regulator_request_aging",
           "regulator.contacts",
@@ -35221,15 +35014,14 @@
           "drill.element_failed"
         ],
         "fields": [
+          "drill.aar_due_at",
           "drill.affected_capability",
           "drill.failure_detail",
           "drill.objectives",
+          "drill.remediation_due_at",
           "drill.roster"
         ],
-        "unregistered": [
-          "drill.aar_due_at",
-          "drill.remediation_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "drill.aar_due_at",
           "drill.aar_published",
@@ -35388,13 +35180,12 @@
           "record.hold_matter_id",
           "record.hold_scope",
           "record.hold_status",
-          "record.metadata",
-          "record.retention_class"
-        ],
-        "unregistered": [
           "record.index_due_at",
+          "record.metadata",
+          "record.retention_class",
           "record.retention_expires_at"
         ],
+        "unregistered": [],
         "all": [
           "record.blob",
           "record.created",
@@ -35722,13 +35513,12 @@
           "bureau.discrepancy_artifact_id",
           "entity.address_new",
           "entity.address_previous",
+          "member.address_hold_expires_at",
           "member.identity_check_method",
           "redflag.address_reissue_match",
           "redflag.stepup_required"
         ],
-        "unregistered": [
-          "member.address_hold_expires_at"
-        ],
+        "unregistered": [],
         "all": [
           "address.ncoa_candidate",
           "address.ncoa_mismatch_detected",
@@ -36085,22 +35875,21 @@
           "escalation.routed"
         ],
         "fields": [
+          "complaint.ack_due_at",
           "complaint.category",
+          "complaint.final_response_due_at",
+          "complaint.initial_response_due_at",
           "complaint.investigation_notes",
           "complaint.member_id",
           "complaint.root_cause_tag",
           "dispute.basis",
           "dispute.category",
+          "dispute.investigation_due_at",
           "dispute.regulator_case_id",
           "dispute.regulator_routed",
           "incident.description"
         ],
-        "unregistered": [
-          "complaint.ack_due_at",
-          "complaint.final_response_due_at",
-          "complaint.initial_response_due_at",
-          "dispute.investigation_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "complaint.ack_due_at",
           "complaint.acknowledged",
@@ -36264,14 +36053,13 @@
         ],
         "fields": [
           "account.balance",
+          "account.closure_payout_due_at",
           "account.lock_type",
           "member.amounts_owed",
           "restriction.approved_by",
           "restriction.grounds"
         ],
-        "unregistered": [
-          "account.closure_payout_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "account.balance",
           "account.closed",
@@ -36457,6 +36245,7 @@
         ],
         "fields": [
           "account.balance",
+          "account.closure_payout_due_at",
           "expulsion.decided_by",
           "expulsion.grounds",
           "expulsion.meeting_date",
@@ -36464,9 +36253,7 @@
           "member.amounts_owed",
           "member.expelled"
         ],
-        "unregistered": [
-          "account.closure_payout_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "account.balance",
           "account.closure_payout_due_at",
@@ -36657,11 +36444,10 @@
           "estate.claim_form_ref",
           "estate.claimant_verification_id",
           "estate.date_of_death",
-          "estate.death_certificate_ref"
-        ],
-        "unregistered": [
+          "estate.death_certificate_ref",
           "estate.payout_due_at"
         ],
+        "unregistered": [],
         "all": [
           "account.balance",
           "account.death_flag_applied",
@@ -36816,17 +36602,16 @@
         ],
         "fields": [
           "privacy.optout_channel",
+          "privacy.optout_propagation_due_at",
           "privacy.optout_scope",
           "record.access_purpose",
           "record.actor_id",
           "record.actor_role",
           "record.hold_status",
-          "record.retention_class"
-        ],
-        "unregistered": [
-          "privacy.optout_propagation_due_at",
+          "record.retention_class",
           "record.retention_expires_at"
         ],
+        "unregistered": [],
         "all": [
           "privacy.optout_channel",
           "privacy.optout_propagation_due_at",
@@ -36948,13 +36733,12 @@
         "fields": [
           "service.assigned_to",
           "service.category",
-          "service.inquiry_id",
-          "service.reclassified_as_dispute"
-        ],
-        "unregistered": [
           "service.first_response_due_at",
+          "service.inquiry_id",
+          "service.reclassified_as_dispute",
           "service.resolution_due_at"
         ],
+        "unregistered": [],
         "all": [
           "service.assigned_to",
           "service.category",
@@ -37013,12 +36797,11 @@
           "entity.id",
           "member.delivery_channel",
           "privacy.annual_exemption_status",
+          "privacy.annual_notice_due_at",
           "privacy.sharing_blocked",
           "privacy.sharing_change_basis"
         ],
-        "unregistered": [
-          "privacy.annual_notice_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "disclosure.template_id",
           "entity.created",
@@ -37065,13 +36848,12 @@
           "privacy.optout_channel",
           "privacy.optout_enforced",
           "privacy.optout_propagated",
+          "privacy.optout_propagation_due_at",
           "privacy.optout_scope",
           "privacy.revocation_artifact_id",
           "vendor.id"
         ],
-        "unregistered": [
-          "privacy.optout_propagation_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "entity.id",
           "privacy.optout_channel",
@@ -37187,11 +36969,10 @@
           "access.authenticated",
           "access.poa_artifact_id",
           "disclosure.template_id",
-          "entity.id"
-        ],
-        "unregistered": [
+          "entity.id",
           "privacy.notice_copy_due_at"
         ],
+        "unregistered": [],
         "all": [
           "access.agent_identity",
           "access.authenticated",
@@ -37246,13 +37027,12 @@
           "address.ncoa_candidate",
           "correction.evidence_artifact_id",
           "correction.propagated",
+          "correction.propagation_due_at",
           "entity.id",
           "furnishing.correction_identified",
           "furnishing.disputed_account"
         ],
-        "unregistered": [
-          "correction.propagation_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "address.ncoa_candidate",
           "address.ncoa_mismatch_detected",
@@ -37297,20 +37077,19 @@
           "training.onboarding_completed"
         ],
         "fields": [
+          "access.deprovision_due_at",
+          "access.review_due",
           "access.reviewer_roster",
           "access.role_entitlements",
           "training.assignee_id",
           "training.curriculum_id",
+          "training.newhire_due_at",
+          "training.privacy_due",
           "user.employment_status",
           "user.id",
           "user.role"
         ],
-        "unregistered": [
-          "access.deprovision_due_at",
-          "access.review_due",
-          "training.newhire_due_at",
-          "training.privacy_due"
-        ],
+        "unregistered": [],
         "all": [
           "access.deprovision_due_at",
           "access.deprovisioned",
@@ -37363,6 +37142,8 @@
           "vendor.privacy_approved"
         ],
         "fields": [
+          "vendor.annual_review_due",
+          "vendor.annual_review_due_at",
           "vendor.data_map_id",
           "vendor.evidence_refreshed",
           "vendor.glba_addendum_id",
@@ -37370,10 +37151,7 @@
           "vendor.privacy_blocked",
           "vendor.subprocessor_attestation"
         ],
-        "unregistered": [
-          "vendor.annual_review_due",
-          "vendor.annual_review_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "vendor.annual_review_due",
           "vendor.annual_review_due_at",
@@ -37423,15 +37201,14 @@
         ],
         "fields": [
           "disposal.clock_resumed",
+          "record.destruction_due_at",
           "record.hold_matter_id",
           "record.hold_release_auth",
           "record.hold_status",
           "record.media_type",
           "record.retention_class"
         ],
-        "unregistered": [
-          "record.destruction_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "disposal.certificate_recorded",
           "disposal.clock_resumed",
@@ -37489,18 +37266,17 @@
           "incident.data_scope",
           "incident.detection_source",
           "incident.member_notice_template",
+          "incident.ncua_notice_due_at",
           "incident.notice_content",
+          "incident.notification_due_at",
           "incident.reportability_determination",
           "incident.sar_referred",
           "incident.scope",
           "incident.severity",
+          "incident.triage_due_at",
           "ncua.metrics_snapshot"
         ],
-        "unregistered": [
-          "incident.ncua_notice_due_at",
-          "incident.notification_due_at",
-          "incident.triage_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "incident.bsa_referral_id",
           "incident.classified",
@@ -37562,14 +37338,13 @@
           "complaint.category",
           "complaint.investigation_notes",
           "complaint.member_id",
+          "complaint.resolution_due_at",
           "incident.impact_summary",
           "ncua.metrics_snapshot",
+          "privacy.board_report_due_at",
           "privacy.metrics_package_id"
         ],
-        "unregistered": [
-          "complaint.resolution_due_at",
-          "privacy.board_report_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "board_pack.training_metrics",
           "complaint.category",
@@ -37629,11 +37404,10 @@
           "member.delivery_channel",
           "member.esign_consent_evidence",
           "privacy.ada_validation_id",
-          "privacy.esign_access_confirmation"
-        ],
-        "unregistered": [
+          "privacy.esign_access_confirmation",
           "privacy.notice_copy_due_at"
         ],
+        "unregistered": [],
         "all": [
           "disclosure.template_id",
           "entity.id",
@@ -37682,12 +37456,11 @@
           "privacy.data_classification",
           "privacy.nv_optout_enforced",
           "privacy.optout_scope",
+          "privacy.state_request_due_at",
           "privacy.state_request_fulfilled",
           "privacy.state_request_type"
         ],
-        "unregistered": [
-          "privacy.state_request_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "entity.id",
           "privacy.data_classification",
@@ -37731,13 +37504,12 @@
         "fields": [
           "analytics.cohort_threshold",
           "analytics.deid_method_id",
+          "analytics.method_review_due",
+          "analytics.method_review_due_at",
           "analytics.reid_risk_assessment",
           "analytics.source_scope"
         ],
-        "unregistered": [
-          "analytics.method_review_due",
-          "analytics.method_review_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "analytics.cohort_threshold",
           "analytics.dataset_approved",
@@ -37892,12 +37664,11 @@
           "verification.alt_path_available",
           "verification.biometric_consent_id",
           "verification.biometric_declined",
+          "verification.biometric_purge_due_at",
           "verification.biometric_purged",
           "verification.provider"
         ],
-        "unregistered": [
-          "verification.biometric_purge_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "verification.alt_path_available",
           "verification.alt_path_started",
@@ -37989,13 +37760,12 @@
           "covered_person.designated",
           "covered_person.effective_date",
           "department.id",
+          "records.board_report_due_at",
           "records.contact_name",
           "records.contact_vacated",
           "records.exception_count"
         ],
-        "unregistered": [
-          "records.board_report_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "covered_person.designated",
           "covered_person.effective_date",
@@ -38113,14 +37883,13 @@
           "record.integrity_test_completed"
         ],
         "fields": [
+          "record.integrity_test_due",
           "record.media_type",
           "record.reproduction_result",
           "record.retention_class",
           "record.storage_medium"
         ],
-        "unregistered": [
-          "record.integrity_test_due"
-        ],
+        "unregistered": [],
         "all": [
           "record.conversion_certified",
           "record.conversion_verified",
@@ -38167,14 +37936,13 @@
         "fields": [
           "policy.document_version",
           "record.retention_class",
+          "records.annual_review_due_at",
           "regulation.citation",
+          "regulation.inventory_review_due_at",
           "regulatory.change_identified",
           "schedule_a.version"
         ],
-        "unregistered": [
-          "records.annual_review_due_at",
-          "regulation.inventory_review_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "policy.document_version",
           "record.retention_class",
@@ -38235,14 +38003,13 @@
           "disposal.batch_manifest_id",
           "record.actor_id",
           "record.destruction_date",
+          "record.destruction_due_at",
           "record.disposal_eligible",
           "record.disposal_method",
           "record.hold_status",
           "vendor.destruction_certificate"
         ],
-        "unregistered": [
-          "record.destruction_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "disposal.batch_manifest_id",
           "disposal.certificate_recorded",
@@ -38408,15 +38175,14 @@
           "email_archive.test_completed"
         ],
         "fields": [
+          "core_archive.confirmation_due",
           "core_archive.retention_config",
           "department.id",
+          "email_archive.test_due",
           "record.reproduction_result",
           "record.retention_class"
         ],
-        "unregistered": [
-          "core_archive.confirmation_due",
-          "email_archive.test_due"
-        ],
+        "unregistered": [],
         "all": [
           "core_archive.confirmation_due",
           "core_archive.retention_config",
@@ -38464,15 +38230,14 @@
         ],
         "fields": [
           "training.assignee_id",
+          "training.completion_due_at",
           "training.completion_status",
           "training.curriculum_id",
           "training.lapsed",
+          "training.retention_due_at",
           "training.role_matrix"
         ],
-        "unregistered": [
-          "training.completion_due_at",
-          "training.retention_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "training.assigned",
           "training.assignee_id",
@@ -38528,18 +38293,17 @@
           "expense.amount",
           "expense.category",
           "expense.estimated_amount",
+          "expense.preapproval_due_at",
           "expense.preapproval_id",
           "expense.purpose",
           "expense.report_id",
+          "expense.review_due_at",
           "official.expense_preapproval.requested",
           "official.id",
           "official.payment_account",
           "official.reimbursement.disbursed"
         ],
-        "unregistered": [
-          "expense.preapproval_due_at",
-          "expense.review_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "expense.amount",
           "expense.category",
@@ -38594,11 +38358,10 @@
           "insurance.fidelity_bond.deficient",
           "insurance.fidelity_bond_terms",
           "insurance.policy.bound",
-          "insurance.policy_terms"
-        ],
-        "unregistered": [
+          "insurance.policy_terms",
           "insurance.review_due_at"
         ],
+        "unregistered": [],
         "all": [
           "insurance.bond.adjustment",
           "insurance.coverage_schedule",
@@ -38646,14 +38409,13 @@
           "indemnification.request.received"
         ],
         "fields": [
+          "indemnification.determination_due_at",
           "indemnification.disposition_record",
           "indemnification.expense_statement",
           "indemnification.matter.resolved_favorably",
           "indemnification.request"
         ],
-        "unregistered": [
-          "indemnification.determination_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "indemnification.determination_due_at",
           "indemnification.disposition_record",
@@ -38694,17 +38456,16 @@
           "indemnification.conduct_record",
           "indemnification.counsel_opinion",
           "indemnification.decision_body",
+          "indemnification.determination_due_at",
           "indemnification.disposition_record",
           "indemnification.federal_screen_result",
           "indemnification.liability_terms",
           "indemnification.payment.disbursed",
+          "indemnification.payment_due_at",
           "indemnification.request.routed",
           "indemnification.standard_determination.made"
         ],
-        "unregistered": [
-          "indemnification.determination_due_at",
-          "indemnification.payment_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "indemnification.conduct_record",
           "indemnification.counsel_opinion",
@@ -38751,18 +38512,17 @@
           "indemnification.advance.disbursed",
           "indemnification.advance.requested",
           "indemnification.advance_balance",
+          "indemnification.advance_due_at",
           "indemnification.defense_budget",
           "indemnification.defense_invoice",
           "indemnification.disposition_record",
           "indemnification.enforcement_status",
           "indemnification.federal_screen_result",
+          "indemnification.payment_due_at",
           "indemnification.repayment.demanded",
           "indemnification.undertaking"
         ],
-        "unregistered": [
-          "indemnification.advance_due_at",
-          "indemnification.payment_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "indemnification.advance.decided",
           "indemnification.advance.disbursed",
@@ -38818,14 +38578,13 @@
         ],
         "fields": [
           "indemnification.conduct_record",
+          "indemnification.determination_due_at",
           "indemnification.federal_screen_result",
           "indemnification.legal_review",
           "indemnification.liability_terms",
           "indemnification.payment.blocked"
         ],
-        "unregistered": [
-          "indemnification.determination_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "indemnification.conduct_record",
           "indemnification.determination_due_at",
@@ -38874,12 +38633,11 @@
           "coi.recusal_record",
           "indemnification.counsel_opinion",
           "indemnification.decision_body.selected",
+          "indemnification.determination_due_at",
           "indemnification.recusal_record",
           "indemnification.request.routed"
         ],
-        "unregistered": [
-          "indemnification.determination_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "board.agenda_item_flagged_conflicted",
           "board.disinterested_quorum",
@@ -38928,6 +38686,7 @@
           "legal_hold.created"
         ],
         "fields": [
+          "claim.carrier_notice_due_at",
           "claim.record_scope",
           "claim.resolution_record",
           "indemnification.claim.notified",
@@ -38936,9 +38695,7 @@
           "legal.hold_scope",
           "legal.matter_id"
         ],
-        "unregistered": [
-          "claim.carrier_notice_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "claim.carrier_notice_due_at",
           "claim.litigation_hold.issued",
@@ -38991,11 +38748,10 @@
           "record.legal_hold_flag",
           "record.matter_id",
           "record.retention_class",
+          "record.retention_expires_at",
           "retention.anchor_date"
         ],
-        "unregistered": [
-          "record.retention_expires_at"
-        ],
+        "unregistered": [],
         "all": [
           "record.hold_applied",
           "record.hold_authorizer",
@@ -39156,16 +38912,15 @@
         ],
         "fields": [
           "scope_registry.approver_id",
+          "scope_registry.attestation_due",
           "scope_registry.change_description",
           "scope_registry.item.rpo",
           "scope_registry.item.rto",
+          "scope_registry.publish_due_at",
+          "scope_registry.update_due_at",
           "scope_registry.version_id"
         ],
-        "unregistered": [
-          "scope_registry.attestation_due",
-          "scope_registry.publish_due_at",
-          "scope_registry.update_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "scope_registry.approver_id",
           "scope_registry.attestation_due",
@@ -39303,13 +39058,12 @@
           "ewi.history",
           "ewi.indicator_id",
           "ewi.prior_breach_state",
+          "ewi.summary_due_at",
+          "ewi.sweep_due_at",
           "ewi.trend",
           "ewi.value"
         ],
-        "unregistered": [
-          "ewi.summary_due_at",
-          "ewi.sweep_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "ewi.ceo_summary_sent",
           "ewi.evaluated",
@@ -39508,17 +39262,16 @@
           "access.agent_identity",
           "cash.limits_whitelist.entry",
           "overdraft.payroll_coverage_flag",
+          "safe_mode.activation_due_at",
           "safe_mode.cap_profile_id",
+          "safe_mode.propagation_due_at",
           "safe_mode.trigger_basis",
           "scope_registry.version_id",
           "spend_controls.daily_limit",
           "spend_controls.per_transaction_limit",
           "transaction.amount"
         ],
-        "unregistered": [
-          "safe_mode.activation_due_at",
-          "safe_mode.propagation_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "access.agent_identity",
           "cash.limits_whitelist.entry",
@@ -39711,21 +39464,20 @@
           "account_freeze.credit_presented",
           "account_freeze.legal_conflict_detected",
           "account_freeze.precedence_resolved",
-          "account_freeze.release_approved"
+          "account_freeze.release_approved",
+          "account_freeze.released"
         ],
         "fields": [
           "access.agent_identity",
           "account.id",
+          "account_freeze.application_due_at",
           "account_freeze.legal_process_reference",
           "account_freeze.order_reference",
           "account_freeze.release_reference",
           "inbound_payment.amount",
           "loan_party.identity"
         ],
-        "unregistered": [
-          "account_freeze.application_due_at",
-          "account_freeze.released"
-        ],
+        "unregistered": [],
         "all": [
           "access.agent_identity",
           "account.id",
@@ -39922,15 +39674,14 @@
         "fields": [
           "balances.inflight_balance",
           "comms.contact_tree",
+          "institution_freeze.activation_due_at",
           "institution_freeze.activation_evidence",
+          "institution_freeze.notice_due_at",
           "institution_freeze.notice_record",
           "institution_freeze.order_reference",
           "regulator.contacts"
         ],
-        "unregistered": [
-          "institution_freeze.activation_due_at",
-          "institution_freeze.notice_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "balances.inflight_balance",
           "comms.contact_tree",
@@ -40088,12 +39839,11 @@
           "member.identity_check_method",
           "member_portal.claims_template_id",
           "member_portal.core_unavailable",
+          "member_portal.readonly_due_at",
           "member_portal.snapshot_served",
           "records_package.snapshot_as_of"
         ],
-        "unregistered": [
-          "member_portal.readonly_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "account.id",
           "balance.disclosed",
@@ -40289,8 +40039,11 @@
           "handover.trustee_action_logged"
         ],
         "fields": [
+          "handover.access_expiry_due",
           "handover.access_scope",
           "handover.appointment_reference",
+          "handover.full_due_at",
+          "handover.initial_due_at",
           "handover.personnel_roster",
           "handover.trustee_access_grant_id",
           "handover.trustee_access_provisioned",
@@ -40299,11 +40052,7 @@
           "handover.trustee_identity",
           "records_package.artifact_id"
         ],
-        "unregistered": [
-          "handover.access_expiry_due",
-          "handover.full_due_at",
-          "handover.initial_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "handover.access_expiry_due",
           "handover.access_scope",
@@ -40509,17 +40258,16 @@
           "gl.balances",
           "records_package.artifact_id",
           "records_package.checksum_chain",
+          "records_package.complete_due_at",
           "records_package.failure_reason",
           "records_package.manifest_id",
           "records_package.rebuilt",
           "records_package.snapshot_as_of",
-          "records_package.snapshot_id"
-        ],
-        "unregistered": [
-          "records_package.complete_due_at",
           "records_package.snapshot_due",
+          "records_package.snapshot_id",
           "records_package.start_due_at"
         ],
+        "unregistered": [],
         "all": [
           "bsa_alert.id",
           "gl.balances",
@@ -40652,14 +40400,13 @@
         "fields": [
           "resolution_test.finding_severity",
           "resolution_test.plan_id",
+          "resolution_test.remediation_due_at",
           "resolution_test.remediation_owner",
+          "resolution_test.report_due_at",
           "resolution_test.sandbox_baseline",
           "resolution_test.type"
         ],
-        "unregistered": [
-          "resolution_test.remediation_due_at",
-          "resolution_test.report_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "resolution_test.completed",
           "resolution_test.finding_closed",
@@ -40820,14 +40567,13 @@
         "fields": [
           "policy.owner_ref",
           "resolution_exception.description",
+          "resolution_exception.expires_at",
           "resolution_exception.requested",
           "resolution_policy.change_description",
+          "resolution_policy.update_due_at",
           "resolution_review.due"
         ],
-        "unregistered": [
-          "resolution_exception.expires_at",
-          "resolution_policy.update_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "governance.board_cycle_opened",
           "policy.owner_ref",
@@ -41000,15 +40746,14 @@
           "audit.engagement_scope",
           "board.package_distributed",
           "finding.open_report",
-          "vendor.governance_map",
-          "vendor.materiality_flag",
-          "vendor.mi_trends"
-        ],
-        "unregistered": [
           "vendor.board_report_due",
+          "vendor.governance_map",
           "vendor.governance_review_due",
+          "vendor.materiality_flag",
+          "vendor.mi_trends",
           "vendor.program_audit_due"
         ],
+        "unregistered": [],
         "all": [
           "audit.assessment_scheduled",
           "audit.engagement_scope",
@@ -41181,14 +40926,13 @@
           "vendor.dependency_map",
           "vendor.inherent_risk",
           "vendor.inventory_id",
+          "vendor.inventory_reconciliation_due",
           "vendor.legal_name",
           "vendor.network_access_flag",
           "vendor.npi_access_flag",
           "vendor.service_description"
         ],
-        "unregistered": [
-          "vendor.inventory_reconciliation_due"
-        ],
+        "unregistered": [],
         "all": [
           "vendor.bsa_role_flag",
           "vendor.classification_recorded",
@@ -41356,14 +41100,13 @@
         ],
         "fields": [
           "risk.assessment_results",
+          "risk.product_assessment_due_at",
           "vendor.business_case",
           "vendor.inherent_risk",
-          "vendor.provisional_justification"
-        ],
-        "unregistered": [
-          "risk.product_assessment_due_at",
+          "vendor.provisional_justification",
           "vendor.provisional_review_due"
         ],
+        "unregistered": [],
         "all": [
           "risk.assessment_results",
           "risk.product_assessment_due_at",
@@ -41560,15 +41303,14 @@
           "vendor.bsa_responsibility_split",
           "vendor.data_map_id",
           "vendor.due_diligence_artifact_id",
+          "vendor.edd_refresh_due",
           "vendor.edd_refreshed",
           "vendor.evidence_refreshed",
           "vendor.financial_review",
           "vendor.npi_access_flag",
           "vendor.soc_report"
         ],
-        "unregistered": [
-          "vendor.edd_refresh_due"
-        ],
+        "unregistered": [],
         "all": [
           "vendor.bsa_function_scope",
           "vendor.bsa_responsibility_split",
@@ -41736,14 +41478,13 @@
         "fields": [
           "regulation.citation",
           "vendor.clause_id",
+          "vendor.clause_library_review_due",
           "vendor.clause_library_version",
           "vendor.contract_draft",
           "vendor.exception_rationale",
           "vendor.glba_addendum_id"
         ],
-        "unregistered": [
-          "vendor.clause_library_review_due"
-        ],
+        "unregistered": [],
         "all": [
           "regulation.citation",
           "vendor.clause_exception_logged",
@@ -41905,17 +41646,16 @@
         ],
         "fields": [
           "vendor.core_function_scope",
+          "vendor.core_review_due",
           "vendor.criticality_tier",
+          "vendor.exit_test_due",
           "vendor.exit_test_scenario",
           "vendor.failover_criteria",
           "vendor.financial_review",
           "vendor.mi_trends",
           "vendor.soc_report"
         ],
-        "unregistered": [
-          "vendor.core_review_due",
-          "vendor.exit_test_due"
-        ],
+        "unregistered": [],
         "all": [
           "vendor.core_function_flagged",
           "vendor.core_function_scope",
@@ -42079,19 +41819,18 @@
           "vendor.monitoring_review_completed"
         ],
         "fields": [
+          "vendor.board_report_due",
           "vendor.criticality_tier",
           "vendor.issue_detail",
           "vendor.issue_severity",
           "vendor.mi_pack",
           "vendor.mi_trends",
+          "vendor.monitoring_review_due",
+          "vendor.remediation_due",
           "vendor.remediation_plan_accepted",
           "vendor.soc_report"
         ],
-        "unregistered": [
-          "vendor.board_report_due",
-          "vendor.monitoring_review_due",
-          "vendor.remediation_due"
-        ],
+        "unregistered": [],
         "all": [
           "vendor.board_report_delivered",
           "vendor.board_report_due",
@@ -42277,18 +42016,17 @@
           "incident.data_scope",
           "incident.detection_source",
           "incident.misuse_likelihood",
+          "incident.ncua_notice_due_at",
           "incident.reportability_rationale",
           "incident.severity",
+          "incident.triage_due_at",
           "vendor.affected_scope",
           "vendor.incident_member_count",
           "vendor.incident_scope",
+          "vendor.incident_triage_due",
           "vendor.incident_triaged"
         ],
-        "unregistered": [
-          "incident.ncua_notice_due_at",
-          "incident.triage_due_at",
-          "vendor.incident_triage_due"
-        ],
+        "unregistered": [],
         "all": [
           "incident.assessment_completed",
           "incident.bsa_referral_id",
@@ -42460,15 +42198,14 @@
           "vendor.criticality_tier",
           "vendor.data_deletion_attestation",
           "vendor.destruction_certificate",
+          "vendor.exit_plan_due",
           "vendor.exit_plan_refreshed",
           "vendor.failover_criteria",
           "vendor.migration_evidence",
           "vendor.onboarded",
           "vendor.rto_rpo"
         ],
-        "unregistered": [
-          "vendor.exit_plan_due"
-        ],
+        "unregistered": [],
         "all": [
           "vendor.criticality_tier",
           "vendor.data_deletion_attestation",
@@ -42617,11 +42354,10 @@
         "fields": [
           "vendor.contract_blocked_raci",
           "vendor.criticality_tier",
-          "vendor.governance_map"
-        ],
-        "unregistered": [
+          "vendor.governance_map",
           "vendor.raci_review_due"
         ],
+        "unregistered": [],
         "all": [
           "vendor.contract_blocked_raci",
           "vendor.contract_submitted",
@@ -42837,15 +42573,14 @@
         "fields": [
           "account.account_type",
           "account.opening_channel",
+          "disclosure.account_opening_due_at",
           "entity.esign_consent",
           "member.delivery_channel",
           "product.apy",
           "product.balance_method",
           "product.interest_rate"
         ],
-        "unregistered": [
-          "disclosure.account_opening_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "account.account_type",
           "account.created",
@@ -42962,11 +42697,10 @@
           "disclosure.change_description",
           "disclosure.change_effective_date",
           "disclosure.change_in_terms.classified_nonadverse",
+          "disclosure.change_in_terms_due_at",
           "disclosure.classification_basis"
         ],
-        "unregistered": [
-          "disclosure.change_in_terms_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "disclosure.change_description",
           "disclosure.change_effective_date",
@@ -43047,11 +42781,10 @@
         "fields": [
           "account.account_type",
           "account.maturity_date",
-          "account.maturity_disposition"
-        ],
-        "unregistered": [
+          "account.maturity_disposition",
           "account.maturity_notice_due_at"
         ],
+        "unregistered": [],
         "all": [
           "account.account_type",
           "account.maturity_date",
@@ -43249,13 +42982,12 @@
         ],
         "fields": [
           "interest.accrued_balance",
+          "interest.crediting_due_at",
           "product.apy",
           "product.balance_method",
           "product.interest_rate"
         ],
-        "unregistered": [
-          "interest.crediting_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "interest.accrual_run.completed",
           "interest.accrued_balance",
@@ -43582,11 +43314,10 @@
         "fields": [
           "record.legal_hold_placed",
           "record.retention_class",
+          "record.retention_expires_at",
           "record.retention_timer"
         ],
-        "unregistered": [
-          "record.retention_expires_at"
-        ],
+        "unregistered": [],
         "all": [
           "record.created",
           "record.legal_hold_placed",
@@ -43744,17 +43475,16 @@
           "advertising.asset_id",
           "disclosure.artifact_id",
           "disclosure.error_description",
+          "disclosure.error_escalation_due_at",
           "disclosure.error_root_cause",
+          "monitoring.review_due_at",
           "monitoring.sample_spec",
+          "training.annual_due_at",
           "training.assignee_id",
           "training.content_version",
           "training.required_curriculum"
         ],
-        "unregistered": [
-          "disclosure.error_escalation_due_at",
-          "monitoring.review_due_at",
-          "training.annual_due_at"
-        ],
+        "unregistered": [],
         "all": [
           "advertising.asset_id",
           "disclosure.artifact_id",

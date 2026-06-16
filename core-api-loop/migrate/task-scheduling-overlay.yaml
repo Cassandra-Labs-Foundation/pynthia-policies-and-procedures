@@ -1,0 +1,479 @@
+_note: Task-scheduling code family (Lever A), bootstrapped from the unregistered scheduling demand. Each is a task deadline/SLA
+  marker registered as a namespace property. Reviewable source of truth.
+_grounding: 283/329 validated against vocab-migration task_map
+fields:
+  access:
+    deprovision_due_at: string
+    review_due: string
+    review_due_at: string
+  account:
+    closure_payout_due_at: string
+    maturity_notice_due_at: string
+  account_freeze:
+    application_due_at: string
+  advertising:
+    reach_review_due: string
+  ai:
+    register_update_due_at: string
+  alm:
+    irr_simulation_due: string
+    irr_simulation_due_at: string
+  analytics:
+    disparity_due_at: string
+    method_review_due: string
+    method_review_due_at: string
+    redlining_due_at: string
+  antivirus:
+    log_review_due: string
+  application:
+    notice_due_at: string
+  appraisal:
+    delivery_due_at: string
+  asset:
+    cmdb_update_due_at: string
+  audit:
+    assessment_annual_due_at: string
+    compliance_audit_due_at: string
+    cycle_timer: string
+    remediation_due: string
+    remediation_timer: string
+    retention_expires_at: string
+  backup:
+    restore_test_due: string
+    verify_due: string
+    verify_due_at: string
+  bcp:
+    annual_review_due: string
+  bia:
+    annual_update_due: string
+    certification_due: string
+    review_due: string
+  board:
+    notification_due_at: string
+  capital:
+    contingency_due_at: string
+    contingency_memo_due_at: string
+    icaap_due_at: string
+    payout_restriction_due_at: string
+    plan_due_at: string
+    quarterly_report_due_at: string
+    ratio_calc_due_at: string
+    ratio_computation_due_at: string
+    remediation_plan_due_at: string
+    stress_report_due_at: string
+  case:
+    sar_decision_timer: string
+  cash:
+    coverage.attestation_due_at: string
+    custody.rotation_due_at: string
+    enterprise_limit.remediation_due_at: string
+    kri.publish_due_at: string
+    overshort.investigation_due_at: string
+    shipment.verification_due_at: string
+  catalogue:
+    sync_due_at: string
+  cda:
+    audit_due_at: string
+    board_packet_due_at: string
+    cap_cure_due_at: string
+    cap_test_due_at: string
+    conflict_escalation_due_at: string
+    distribution_due_at: string
+    policy_review_due: string
+    posttrade_due_at: string
+    reconciliation_due_at: string
+    remediation_due_at: string
+    termination_report_due_at: string
+    vendor_review_due: string
+  cdd:
+    refresh_due: string
+  cfp:
+    execution_plan_due_at: string
+    investment_test_due: string
+    investment_test_due_at: string
+    transition_due_at: string
+  change:
+    cab_review_due_at: string
+    post_review_due_at: string
+  claim:
+    carrier_notice_due_at: string
+  cmir:
+    filing_timer: string
+  coi:
+    certification_due: string
+    questionnaire_due_at: string
+  collateral:
+    compute_due_at: string
+  collections:
+    annual_review_due_at: string
+    attorney_flag_due_at: string
+    board_report_due_at: string
+    breach_log_due_at: string
+    cease_flag_due_at: string
+  comms:
+    same_day_due_at: string
+  complaint:
+    ack_due_at: string
+    final_response_due_at: string
+    initial_response_due_at: string
+    resolution_due_at: string
+    trend_review_due: string
+  compliance:
+    board_report_due_at: string
+    risk_assessment_due_at: string
+  concentration:
+    compute_due_at: string
+    waiver_due_at: string
+  control:
+    framework_review_due_at: string
+  core_archive:
+    confirmation_due: string
+  correction:
+    propagation_due_at: string
+  credit_box:
+    review_due: string
+  credit_file:
+    reanalysis_due: string
+    reanalysis_due_at: string
+  credit_package:
+    retention_expires_at: string
+  crisis:
+    convene_due_at: string
+  ctr:
+    exemption_review_due: string
+    exemption_review_timer: string
+    filing_timer: string
+  disclosure:
+    account_opening_due_at: string
+    change_in_terms_due_at: string
+    error_escalation_due_at: string
+    pillar3_due_at: string
+  dispute:
+    investigation_due_at: string
+  document:
+    attachment_due_at: string
+  dq:
+    tieout_due_at: string
+  dr:
+    exercise_due_at: string
+  drill:
+    aar_due_at: string
+    remediation_due: string
+    remediation_due_at: string
+  ecommerce:
+    risk_assessment_due: string
+  edd:
+    refresh_due: string
+  email_archive:
+    test_due: string
+  eps:
+    deficiency.remediation_due_at: string
+    incident.ncua_due_at: string
+    pospay.decision_due_at: string
+    test.retro_due_at: string
+    training.self_cert_due_at: string
+    vendor.dd_due_at: string
+    vendor.soc1_due_at: string
+  escalation:
+    ack_timer: string
+    plan_timer: string
+  estate:
+    payout_due_at: string
+  ewi:
+    summary_due_at: string
+    sweep_due_at: string
+  exercise:
+    board_report_due: string
+  expense:
+    preapproval_due_at: string
+    review_due_at: string
+  facility:
+    badge_deactivation_due_at: string
+    test_due_at: string
+  fair_lending:
+    assessment_due: string
+    remediation_due_at: string
+  fbar:
+    filing_timer: string
+  finding:
+    escalation_due_at: string
+    monthly_review_due: string
+    quarterly_report_due: string
+    response_due_at: string
+  firewall:
+    independent_review_due: string
+    review_due: string
+  funding:
+    first_line_due_at: string
+  furnishing:
+    cycle_due_at: string
+    dispute_due_at: string
+  governance:
+    policy_review_due: string
+  handover:
+    access_expiry_due: string
+    full_due_at: string
+    initial_due_at: string
+  hmda:
+    lar_qc_due_at: string
+    submission_due_at: string
+  imt:
+    roster_review_due: string
+  incident:
+    ncua_notice_due_at: string
+    notification_due_at: string
+    triage_due_at: string
+  indemnification:
+    advance_due_at: string
+    determination_due_at: string
+    payment_due_at: string
+  insider:
+    loc_approval_expires_at: string
+    public_request_retention_expires_at: string
+  institution_freeze:
+    activation_due_at: string
+    notice_due_at: string
+  instrument_list:
+    review_due: string
+    review_due_at: string
+  insurance:
+    review_due_at: string
+  interest:
+    crediting_due_at: string
+  intermediary:
+    review_due: string
+    review_due_at: string
+  lar:
+    compute_due_at: string
+  lending_program:
+    governance_due_at: string
+  limit_set:
+    review_due: string
+    review_due_at: string
+  liquidity:
+    cfp_activation_due_at: string
+    report_due: string
+    report_due_at: string
+  loan:
+    bankruptcy_chargeoff_due_at: string
+    classification_due_at: string
+    courtesy_notice_due_at: string
+    days_past_due: string
+    fraud_chargeoff_due_at: string
+    nonaccrual_due_at: string
+    rating_review_due_at: string
+    re_valuation_due: string
+    right_to_cure_due_at: string
+    second_reminder_due_at: string
+    status_memo_due_at: string
+  loan_account:
+    aan_due_at: string
+  loan_application:
+    aan_due_at: string
+    counteroffer_aan_due_at: string
+    decision_due_at: string
+  loan_exception:
+    analytics_due: string
+  member:
+    address_hold_expires_at: string
+  member_credential:
+    expiry_due: string
+  member_portal:
+    readonly_due_at: string
+  mi:
+    consolidation_timer: string
+  mismatch:
+    compute_due_at: string
+  model:
+    review_due_at: string
+  monitoring:
+    coverage_review_due: string
+    review_due_at: string
+  ncua:
+    notification_due_at: string
+  ofac:
+    annual_report_due: string
+    report_timer: string
+  overdraft:
+    review_due_at: string
+  override:
+    analytics_due: string
+  pentest:
+    engagement_due: string
+  performance:
+    attribution_due: string
+    attribution_due_at: string
+  policy:
+    acknowledgment_due_at: string
+    board_approval_due_at: string
+    review_due: string
+    review_due_at: string
+  portfolio:
+    board_report_due: string
+    board_report_due_at: string
+    report_due: string
+    report_due_at: string
+    stress_test_due: string
+    stress_test_due_at: string
+  position:
+    liquidity_classification_due: string
+  pricing:
+    exception_review_due_at: string
+  privacy:
+    annual_notice_due_at: string
+    board_report_due_at: string
+    notice_copy_due_at: string
+    optout_propagation_due_at: string
+    state_request_due_at: string
+  rate_sheet:
+    refresh_due_at: string
+  recon:
+    daily_due: string
+    monthly_due: string
+  record:
+    destruction_cycle_due_at: string
+    destruction_due_at: string
+    disposal_due_at: string
+    index_due_at: string
+    integrity_test_due: string
+    retention_expires_at: string
+  records:
+    annual_review_due_at: string
+    board_report_due_at: string
+  records_package:
+    complete_due_at: string
+    snapshot_due: string
+    start_due_at: string
+  redflag:
+    review_due_at: string
+  regulation:
+    inventory_review_due_at: string
+  regulator:
+    response_due_at: string
+    verification_due_at: string
+  regulatory:
+    analysis_due_at: string
+  repo:
+    collateral_revaluation_due: string
+    collateral_revaluation_due_at: string
+  report:
+    board_due_at: string
+    daily_due_at: string
+    weekly_due_at: string
+  reporting:
+    board_pack_due: string
+    quarterly_due: string
+  resolution_exception:
+    expires_at: string
+  resolution_policy:
+    update_due_at: string
+  resolution_test:
+    remediation_due_at: string
+    report_due_at: string
+  retention:
+    purge_due: string
+  risk:
+    assessment_due_at: string
+    assessment_timer: string
+    product_assessment_due_at: string
+    reassessment_due_at: string
+  risk_acceptance:
+    decision_due_at: string
+  risk_appetite:
+    rereview_due_at: string
+    review_due_at: string
+  risk_breach:
+    committee_due_at: string
+    review_due_at: string
+    triage_due_at: string
+  risk_report:
+    board_due_at: string
+    management_due_at: string
+  risk_scale:
+    review_due_at: string
+  safe_mode:
+    activation_due_at: string
+    propagation_due_at: string
+  safekeeping:
+    reconciliation_due_at: string
+  sar:
+    continuing_timer: string
+    filing_timer: string
+  scope_registry:
+    attestation_due: string
+    publish_due_at: string
+    update_due_at: string
+  security:
+    board_report_due_at: string
+    downgrade_review_due_at: string
+    fair_value_update_due: string
+    fair_value_update_due_at: string
+  service:
+    first_response_due_at: string
+    resolution_due_at: string
+  siem:
+    alert_review_due_at: string
+  site:
+    capacity_test_due: string
+  socialmedia:
+    takedown_due_at: string
+  staffing:
+    readiness_review_due: string
+  stress:
+    quarterly_due_at: string
+    rerun_due_at: string
+  survival:
+    quarterly_due_at: string
+  taxonomy:
+    review_due_at: string
+  tdr:
+    quarterly_review_due: string
+  threat_register:
+    refresh_due: string
+  tls:
+    assessment_due: string
+    certificate_expires_at: string
+    certificate_expiry_due: string
+  trade:
+    reconciliation_due_at: string
+  training:
+    annual_due: string
+    annual_due_at: string
+    annual_timer: string
+    completion_due_at: string
+    new_hire_timer: string
+    newhire_due_at: string
+    onboarding_due_at: string
+    privacy_due: string
+    retention_due_at: string
+  valuation:
+    rov_due_at: string
+  vendor:
+    annual_review_due: string
+    annual_review_due_at: string
+    bcp_evidence_due: string
+    board_report_due: string
+    clause_library_review_due: string
+    core_review_due: string
+    dr_attestation_due: string
+    edd_refresh_due: string
+    exit_plan_due: string
+    exit_test_due: string
+    governance_review_due: string
+    incident_triage_due: string
+    inventory_reconciliation_due: string
+    mi_due_at: string
+    monitoring_review_due: string
+    program_audit_due: string
+    provisional_review_due: string
+    raci_review_due: string
+    remediation_due: string
+    review_due_at: string
+  verification:
+    biometric_purge_due_at: string
+  vuln:
+    remediation_due_at: string
+    triage_due_at: string
+  wholesale:
+    compute_due_at: string
+    monthly_review_due: string

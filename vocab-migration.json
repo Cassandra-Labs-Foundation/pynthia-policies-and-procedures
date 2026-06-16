@@ -1724,8 +1724,9 @@
       "ref": "account_freeze.release_reference"
     },
     "account_freeze.released": {
-      "as": "field",
-      "ref": "account_freeze.released"
+      "as": "event",
+      "type": "released",
+      "subject": "account_freeze"
     },
     "ach_transfer.amount": {
       "as": "field",
