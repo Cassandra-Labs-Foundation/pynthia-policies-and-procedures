@@ -84,6 +84,26 @@ def _is_referenced(doc: dict, schema_key: str) -> bool:
     return f'"#/components/schemas/{schema_key}"' in json.dumps(doc)
 
 
+def _migration() -> dict:
+    try:
+        return json.load(open(MIGRATION))
+    except Exception:  # noqa: BLE001 — missing/unreadable migration just means "no refs known"
+        return {}
+
+
+def _event_verbs_in_use() -> set:
+    """Verbs referenced by any migration as:event token. Deleting such a verb is the blind-spot
+    move: the event tokens keep registering by NAME (so coverage/score is unchanged), but their
+    canonical type now dangles — a false complexity 'win' the scorer cannot see. Refuse it here."""
+    return {e.get("type") for e in (_migration().get("migration") or {}).values()
+            if e.get("as") == "event" and e.get("type")}
+
+
+def _task_types_in_use() -> set:
+    """Task verbs referenced by any migration task_map entry — same blind spot for delete_task_type."""
+    return {t.get("type") for t in (_migration().get("task_map") or {}).values() if t.get("type")}
+
+
 def apply_op(op: dict) -> bool:
     """Apply one edit op to the OpenAPI core-api.yaml in place. Returns True iff it changed.
 
@@ -133,14 +153,16 @@ def apply_op(op: dict) -> bool:
             changed = True
 
     elif kind == "delete_event_type" and name:
+        # refuse if a migration event token still references this verb — the deletion would dangle
+        # those (cited) events without the scorer noticing (they register by name). Not an orphan.
         lst = doc.get("x-event-types") or []
-        if name in lst:
+        if name in lst and name not in _event_verbs_in_use():
             lst.remove(name)
             changed = True
 
     elif kind == "delete_task_type" and name:
         lst = doc.get("x-task-types") or []
-        if name in lst:
+        if name in lst and name not in _task_types_in_use():
             lst.remove(name)
             changed = True
 
@@ -296,7 +318,9 @@ def build_llm_prompt(demand, vocab, result) -> str:
         "gap: register a high-ref unregistered code (add_field, or add_event_type if it is a verb), "
         "or delete an orphan that opens no gap. Once feasible, delete/merge orphans to cut "
         "complexity (concepts are weighted heaviest). Never delete an element the architecture "
-        "requires. If nothing helps, emit noop.\n\n"
+        "requires. Do NOT delete_event_type / delete_task_type for a verb still referenced by event "
+        "or task data — those codes register by NAME so the score won't drop, the move is refused, "
+        "and you've wasted the turn. If nothing helps, emit noop.\n\n"
         "=== OUTPUT ===\n" + schema +
         "\nThink briefly, then output the single-line JSON op as the final line."
     )
