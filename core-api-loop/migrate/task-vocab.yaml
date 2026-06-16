@@ -1,0 +1,154 @@
+# task-vocab.yaml — curated vocabulary for factoring Task.type into (type=verb, subject=noun).
+#
+# The legacy Task.type was a 337-value enum of <subject>_<verb> cross-products (task-types-legacy.json).
+# factor_task_types.py decomposes each into a generic VERB (the bounded enum that survives as Task.type)
+# and a free-form SUBJECT (the noun, carried in the new Task.subject string). This file is the only
+# judgment-bearing input — the algorithm is deterministic given it. Review THIS, not 337 rows.
+#
+# Algorithm (see factor_task_types.py): tokenize on _ and . ; the verb is the RIGHTMOST token whose
+# canonical form (via aliases) is in `verbs`; cadence/modifier tokens are dropped; the remaining tokens
+# are the subject (empty -> "general"). Codes with no verb token are reported as unmapped, never forced.
+
+# Canonical generic verbs — the action vocabulary. Kept deliberately small and noun-free.
+verbs:
+  - acknowledgement
+  - activation
+  - analysis
+  - approval
+  - assessment
+  - attestation
+  - audit
+  - certification
+  - chargeoff
+  - check
+  - classification
+  - completion
+  - compute
+  - consolidation
+  - decision
+  - delivery
+  - deprovision
+  - disposal
+  - distribution
+  - escalation
+  - exercise
+  - expiry
+  - filing
+  - flag
+  - hold
+  - investigation
+  - issuance
+  - notice
+  - onboarding
+  - payment
+  - plan
+  - propagation
+  - publish
+  - purge
+  - reconciliation
+  - refresh
+  - remediation
+  - renewal
+  - report
+  - resolution
+  - response
+  - retention
+  - review
+  - revocation
+  - simulation
+  - submission
+  - sweep
+  - test
+  - training
+  - transition
+  - triage
+  - update
+  - valuation
+  - verification
+
+# Synonym map: raw token -> canonical verb. Lets distinct surface forms collapse to one generic verb
+# (e.g. calc/computation -> compute), shrinking the enum without losing meaning.
+aliases:
+  ack: acknowledgement
+  acknowledgment: acknowledgement
+  reanalysis: analysis
+  preapproval: approval
+  reassessment: assessment
+  rereview: review
+  certificate: certification
+  cert: certification
+  complete: completion
+  computation: compute
+  calc: compute
+  recon: reconciliation
+  tieout: reconciliation
+  refresher: refresh
+  cure: remediation
+  reporting: report
+  summary: report
+  digest: report
+  pack: report
+  packet: report
+  deck: report
+  memo: report
+  management: report
+  presentation: report
+  verify: verification
+  qc: verification
+  payout: payment
+  crediting: payment
+  advance: payment
+  notification: notice
+  reminder: notice
+  newhire: onboarding
+  rerun: simulation
+  revaluation: valuation
+  takedown: deprovision
+  deactivation: deprovision
+  schedule: plan
+  destruction: disposal
+  # NOTE: never alias an original x-task-types verb (e.g. purge) — the spec's task tokens
+  # reference them directly, so removing one from the canonical set orphans those tokens.
+  index: update
+  correction: update
+  sync: update
+  credit: payment
+  rotation: refresh
+  opening: onboarding
+  application: submission
+  request: submission
+  evaluation: assessment
+  analytics: analysis
+  attribution: analysis
+  determination: decision
+  waiver: approval
+  confirmation: acknowledgement
+  aar: report
+  log: report
+  snapshot: report
+  evidence: attestation
+  contingency: plan
+  handover: transition
+  engagement: test
+  questionnaire: assessment
+  dispute: investigation
+  convene: escalation
+
+# Cadence / modifier tokens — never a verb; dropped (not part of subject) so "report_quarterly"
+# factors to {report, general} rather than carrying a spurious "quarterly" subject token.
+cadence:
+  - daily
+  - weekly
+  - monthly
+  - quarterly
+  - annual
+  - annually
+  - due
+  - first
+  - second
+  - initial
+  - final
+  - self
+  - same
+  - day
+  - retro
