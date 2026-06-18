@@ -52,10 +52,28 @@ jobs:
             slugs="$(echo "$changed" | sed -n 's#\(.*\)/prompt.md$#\1#p' | xargs -n1 basename 2>/dev/null | sort -u | tr '\n' ' ' || true)"
           fi
           slugs="$(echo "$slugs" | xargs || true)"   # trim
+
+          # Gate against manifest.yaml: only regenerate policies marked
+          # enabled: true. Paused (enabled: false) or unlisted folders are
+          # skipped even if their prompt.md changed. Parsed with awk to avoid
+          # any pip dependency this early in the job.
+          enabled="$(awk '
+            /^[[:space:]]*-[[:space:]]*folder:/ {f=$NF}
+            /^[[:space:]]*enabled:[[:space:]]*true/ {print f}
+          ' manifest.yaml | tr "\n" " ")"
+          kept=""
+          for s in $slugs; do
+            case " $enabled " in
+              *" $s "*) kept="$kept $s" ;;
+              *) echo "Skip $s — disabled or absent in manifest." ;;
+            esac
+          done
+          slugs="$(echo "$kept" | xargs || true)"
+
           echo "slugs=$slugs" >> "$GITHUB_OUTPUT"
           if [ -z "$slugs" ]; then
             echo "count=0" >> "$GITHUB_OUTPUT"
-            echo "No changed prompt.md -> nothing to regenerate."
+            echo "No enabled policy changed -> nothing to regenerate."
           else
             echo "count=1" >> "$GITHUB_OUTPUT"
             echo "Will regenerate: $slugs"
