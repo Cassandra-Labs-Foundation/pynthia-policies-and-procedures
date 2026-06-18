@@ -80,30 +80,22 @@ def inputs_block(meta_prompt: str, inputs, reference_policy: str) -> str:
     return tail.lstrip("\n")
 
 
-def stamp_status(status_path: Path, *, policy_name: str, slug: str,
-                 design_notes_source: str, skipped: str, ts: str) -> None:
-    """Update ONLY this slug's row in STATUS.md (insert if missing). The shared
-    header / 'Last run' lines are deliberately left untouched so concurrent
-    per-policy PRs never conflict on them."""
-    row = (f"| {policy_name or slug} | {slug} | ✅ regenerated | {ts} | "
-           f"{design_notes_source} | {skipped or '—'} | — |")
-    if not status_path.exists():
-        log(f"    STATUS.md absent at {status_path}; skipping stamp.")
-        return
-    lines = status_path.read_text().splitlines()
-    needle = f"| {slug} |"
-    for i, line in enumerate(lines):
-        if needle in line and not line.lstrip().startswith("| Policy "):
-            lines[i] = row
-            break
-    else:
-        # No existing row: append after the last table row, else at EOF.
-        insert_at = len(lines)
-        for i, line in enumerate(lines):
-            if line.lstrip().startswith("|"):
-                insert_at = i + 1
-        lines.insert(insert_at, row)
-    status_path.write_text("\n".join(lines) + "\n")
+def write_status(status_path: Path, *, policy_name: str, slug: str, model: str,
+                 design_notes_source: str, skipped: str, ref_stats: dict,
+                 ts: str) -> None:
+    """Write this policy's own status file (<slug>/<slug>.status.md). Per-policy
+    so parallel per-policy PRs never share a file and cannot conflict."""
+    status_path.write_text(
+        f"# {policy_name or slug} — Regeneration Status\n\n"
+        f"- **Slug:** {slug}\n"
+        f"- **Status:** ✅ regenerated\n"
+        f"- **Last regenerated:** {ts}\n"
+        f"- **Model:** {model}\n"
+        f"- **DESIGN_NOTES source:** {design_notes_source}\n"
+        f"- **References:** {ref_stats['extracted']} extracted "
+        f"({ref_stats['cache_hits']} cached, {ref_stats['converted']} converted)\n"
+        f"- **Skipped references:** {skipped or '—'}\n"
+    )
 
 
 def main() -> int:
@@ -164,13 +156,14 @@ def main() -> int:
     (folder / f"{slug}.md").write_text(structured.rstrip() + "\n")
     log(f"[{slug}] wrote {slug}/{slug}.md ({len(structured)} chars)")
 
-    # --- 3. STATUS.md (this row only) -----------------------------------------
+    # --- 3. Per-policy status file --------------------------------------------
     skipped_parts = ref_stats["skipped"] + [f["file"] for f in ref_stats["failed"]]
     ts = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    stamp_status(
-        root / "STATUS.md", policy_name=inputs.policy_name, slug=slug,
-        design_notes_source=inputs.design_notes_source,
-        skipped=", ".join(skipped_parts), ts=ts)
+    write_status(
+        folder / f"{slug}.status.md", policy_name=inputs.policy_name, slug=slug,
+        model=args.model, design_notes_source=inputs.design_notes_source,
+        skipped=", ".join(skipped_parts), ref_stats=ref_stats, ts=ts)
+    log(f"[{slug}] wrote {slug}/{slug}.status.md")
     log(f"[{slug}] done.")
 
     print(json.dumps({
