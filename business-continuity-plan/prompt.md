@@ -22,7 +22,7 @@
 
 ## 1. Purpose and Scope
 
-Pynthia Credit Union maintains a risk-based, Board-approved Business Continuity & Disaster Recovery (BCP/DR) program to withstand, respond to, and recover from disruptive events affecting facilities, systems, vendors, data, and people. It covers internal operations and external member-facing services across all channels and partners, prioritizing human safety, continuity of critical services, prudent recovery, and post-incident learning. The program aligns with NCUA requirements for records preservation and GLBA-style safeguards and incident response applicable to federally insured credit unions.
+Pynthia Credit Union is a federally insured credit union chartered in California, operating nationwide across member-facing digital channels and with operational personnel located in California, South Carolina, Texas, and Porto, Portugal. The credit union maintains a risk-based, Board-approved Business Continuity & Disaster Recovery (BCP/DR) program to withstand, respond to, and recover from disruptive events affecting facilities, systems, vendors, data, and people. It covers internal operations and external member-facing services across all channels and partners, prioritizing human safety, continuity of critical services, prudent recovery, and post-incident learning. The program aligns with NCUA requirements for records preservation and GLBA-style safeguards and incident response applicable to federally insured credit unions. California serves as the primary regulatory jurisdiction; the program accounts for applicable law and hazard profiles across all operational locations, including cross-border data and employment considerations for the Portugal office.
 
 ## 2. Key Regulatory Authorities
 
@@ -39,7 +39,7 @@ The policy must establish the following controls:
 
 **(a) Governance & Roles.** The Board approves and oversees the continuity program; management maintains a living BCP/DR plan with named owners and an Incident Management Team (IMT). Review the plan at least annually and verify the IMT roster quarterly.
 
-**(b) Risk Assessment (Hazards by Region).** Maintain a threat register scoring hazards by likelihood and impact by geography (wildfire/smoke, earthquake, tornado, flood, grid outage, cyber, pandemic), refreshed annually or after major change.
+**(b) Risk Assessment (Hazards by Region).** Maintain a threat register scoring hazards by likelihood and impact by geography, refreshed annually or after major change. Hazard profiles by operational location: California (wildfire/smoke, earthquake, grid outage/PSPS, drought); South Carolina (hurricane/tropical storm, flood, tornado); Texas (tornado, severe storm, extreme heat, winter storm/grid outage); Porto, Portugal (flood, earthquake/seismic, extreme heat, European regulatory disruption). All locations share cyber, pandemic, and key-person risk. The Portugal office also requires assessment of cross-border data transfer constraints (GDPR/Schrems II) and local labor-law implications for continuity activation.
 
 **(c) Business Impact Analysis (BIA).** Catalog services, rank by member impact and regulatory dependency, identify vital records, and set RTO/RPO and recovery sequence; update annually and certify quarterly for changes. Electronic payment channels (ACH origination, wire transfer, debit/ATM card, mobile/remote deposit capture, Zelle) must be treated as highest-priority critical services given their direct member impact and regulatory dependency (see Electronic Payment Systems Policy).
 
