@@ -1,9 +1,10 @@
 name: Regenerate policy on prompt change
 
-# Fires whenever any policy's prompt.md changes. For each changed prompt,
-# runs the deterministic prep (policy-prep) then has Claude regenerate the
-# structured policy ({slug}.md) and its narrative sibling ({slug}-narrative.md),
-# and opens a PR with the result for human review.
+# Fires whenever any policy's prompt.md changes. The `detect` job lists the
+# enabled, changed policies; the `regenerate` job fans out one runner PER
+# policy (matrix) so they regenerate in parallel. Each runner prepares its
+# composite prompt, has Claude regenerate the structured policy ({slug}.md)
+# and its narrative sibling ({slug}-narrative.md), then opens its own PR.
 
 on:
   push:
@@ -16,18 +17,19 @@ on:
         required: false
         default: ""
 
-concurrency:
-  group: regenerate-policy-${{ github.ref }}
-  cancel-in-progress: false
-
 permissions:
   contents: write
   pull-requests: write
-  id-token: write
 
 jobs:
-  regenerate:
+  # ---------------------------------------------------------------------------
+  # 1. Detect which enabled policies changed -> emit a JSON array for the matrix.
+  # ---------------------------------------------------------------------------
+  detect:
     runs-on: ubuntu-latest
+    outputs:
+      slugs: ${{ steps.detect.outputs.slugs }}   # JSON array, e.g. ["cash","audit"]
+      any: ${{ steps.detect.outputs.any }}        # "true" | "false"
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -55,8 +57,7 @@ jobs:
 
           # Gate against manifest.yaml: only regenerate policies marked
           # enabled: true. Paused (enabled: false) or unlisted folders are
-          # skipped even if their prompt.md changed. Parsed with awk to avoid
-          # any pip dependency this early in the job.
+          # skipped even if their prompt.md changed. awk parse -> no pip dep.
           enabled="$(awk '
             /^[[:space:]]*-[[:space:]]*folder:/ {f=$NF}
             /^[[:space:]]*enabled:[[:space:]]*true/ {print f}
@@ -70,23 +71,43 @@ jobs:
           done
           slugs="$(echo "$kept" | xargs || true)"
 
-          echo "slugs=$slugs" >> "$GITHUB_OUTPUT"
           if [ -z "$slugs" ]; then
-            echo "count=0" >> "$GITHUB_OUTPUT"
+            echo "slugs=[]" >> "$GITHUB_OUTPUT"
+            echo "any=false" >> "$GITHUB_OUTPUT"
             echo "No enabled policy changed -> nothing to regenerate."
           else
-            echo "count=1" >> "$GITHUB_OUTPUT"
-            echo "Will regenerate: $slugs"
+            json="$(printf '%s\n' $slugs | jq -R . | jq -sc .)"
+            echo "slugs=$json" >> "$GITHUB_OUTPUT"
+            echo "any=true" >> "$GITHUB_OUTPUT"
+            echo "Will regenerate (parallel): $json"
           fi
 
+  # ---------------------------------------------------------------------------
+  # 2. Regenerate each policy in parallel — one matrix job per slug.
+  # ---------------------------------------------------------------------------
+  regenerate:
+    needs: detect
+    if: needs.detect.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false   # one policy failing must not cancel the others
+      max-parallel: 6    # cap concurrent runners (raise/lower to taste)
+      matrix:
+        slug: ${{ fromJson(needs.detect.outputs.slugs) }}
+    concurrency:
+      # Serialize repeat runs for the same policy; different policies run free.
+      group: regen-${{ matrix.slug }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
       - name: Set up Python
-        if: steps.detect.outputs.count != '0'
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Install light conversion tools (pdf + docx)
-        if: steps.detect.outputs.count != '0'
         shell: bash
         run: |
           set -euo pipefail
@@ -99,117 +120,99 @@ jobs:
 
       - name: Decide if libreoffice is needed (.doc conversion)
         id: libre
-        if: steps.detect.outputs.count != '0'
         shell: bash
         run: |
           set -euo pipefail
-          # libreoffice is the only heavy install (~90s) and is needed ONLY to
-          # convert a .doc source whose committed .md sidecar is missing or stale.
-          # On a normal prompt.md-triggered run nothing under references/ changed,
-          # so every sidecar is fresh and we skip the install entirely.
+          # libreoffice (~90s install) is needed ONLY to convert a .doc source
+          # whose committed .md sidecar is missing or stale. On a normal
+          # prompt.md-triggered run references/ is untouched, so we skip it.
           need=0
-          for slug in ${{ steps.detect.outputs.slugs }}; do
-            for doc in "$slug"/references/*.doc; do
-              [ -e "$doc" ] || continue
-              sc="$doc.md"
-              if [ ! -f "$sc" ]; then need=1; break; fi
-              rec="$(sed -n '1{s/.*source-sha256="\([0-9a-f]\{64\}\)".*/\1/p;}' "$sc")"
-              cur="$(sha256sum "$doc" | cut -d' ' -f1)"
-              [ "$rec" = "$cur" ] || { need=1; break; }
-            done
-            [ "$need" = 1 ] && break
+          for doc in "${{ matrix.slug }}"/references/*.doc; do
+            [ -e "$doc" ] || continue
+            sc="$doc.md"
+            if [ ! -f "$sc" ]; then need=1; break; fi
+            rec="$(sed -n '1{s/.*source-sha256="\([0-9a-f]\{64\}\)".*/\1/p;}' "$sc")"
+            cur="$(sha256sum "$doc" | cut -d' ' -f1)"
+            [ "$rec" = "$cur" ] || { need=1; break; }
           done
           echo "need=$need" >> "$GITHUB_OUTPUT"
           [ "$need" = 1 ] && echo "Stale/new .doc found -> will install libreoffice." \
                           || echo "All .doc sidecars fresh -> skipping libreoffice."
 
       - name: Install libreoffice (only when a .doc must be converted)
-        if: steps.detect.outputs.count != '0' && steps.libre.outputs.need == '1'
+        if: steps.libre.outputs.need == '1'
         shell: bash
         run: |
           set -euo pipefail
           sudo apt-get install -y libreoffice-writer
 
-      - name: Prepare composite prompts (policy-prep)
-        if: steps.detect.outputs.count != '0'
+      - name: Prepare composite prompt (policy-prep)
         shell: bash
         run: |
           set -euo pipefail
-          for slug in ${{ steps.detect.outputs.slugs }}; do
-            echo "::group::prep $slug"
-            python3 .skills/policy-prep/scripts/prepare_policy.py "$slug"
-            echo "::endgroup::"
-          done
+          python3 .skills/policy-prep/scripts/prepare_policy.py "${{ matrix.slug }}"
 
       - name: Install Claude Code CLI
-        if: steps.detect.outputs.count != '0'
         shell: bash
         run: npm install -g @anthropic-ai/claude-code
 
-      - name: Regenerate policies with Claude
-        if: steps.detect.outputs.count != '0'
+      - name: Regenerate policy with Claude
         shell: bash
         env:
-          # Uses your Claude Max subscription quota (no API billing).
-          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Direct Anthropic API (pay-per-token) for full throughput on large
+          # regenerations. --bare requires API-key auth (it skips OAuth).
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           set -euo pipefail
+          SLUG="${{ matrix.slug }}"
           cat > /tmp/regen-prompt.txt <<EOF
-          You are running headless in CI to regenerate compliance policies.
-          The deterministic prep has already produced a composite prompt for
-          each policy at \`.cache/prep/<slug>.composite-prompt.txt\`.
+          You are running headless in CI to regenerate ONE compliance policy: ${SLUG}.
+          The deterministic prep already wrote its composite prompt to
+          \`.cache/prep/${SLUG}.composite-prompt.txt\`.
 
-          Regenerate these policies, one at a time: ${{ steps.detect.outputs.slugs }}
-
-          For EACH <slug> in that list:
-            1. Read \`.cache/prep/<slug>.composite-prompt.txt\` in full and
-               generate the structured policy exactly as that composite prompt
-               instructs. Write the result to \`<slug>/<slug>.md\`, overwriting it.
+          Do exactly this:
+            1. Read \`.cache/prep/${SLUG}.composite-prompt.txt\` in full and generate
+               the structured policy exactly as it instructs. Write the result to
+               \`${SLUG}/${SLUG}.md\`, overwriting it.
             2. Read \`.skills/narrative/SKILL.md\` and \`.skills/narrative/narrative-prompt.md\`
-               and follow them to produce the regulator-facing prose sibling, writing
-               it to \`<slug>/<slug>-narrative.md\`, overwriting it. It must describe
-               the SAME policy as the structured file.
-            3. Update the row for this policy in \`STATUS.md\` (last-regenerated
-               timestamp, status, DESIGN_NOTES source, skipped references). Add a
-               row if one does not exist. Update the "Last run" header line too.
+               and follow them to produce the regulator-facing prose sibling, writing it
+               to \`${SLUG}/${SLUG}-narrative.md\`, overwriting it. It must describe the
+               SAME policy as the structured file.
+            3. In \`STATUS.md\`, update ONLY this policy's row (${SLUG}) — its
+               last-regenerated timestamp, status, DESIGN_NOTES source, skipped
+               references. Add the row if absent. Do NOT modify the "Last run" /
+               "Run totals" header lines or any other policy's row (parallel jobs
+               share this file — touching shared lines causes cross-PR conflicts).
 
           Constraints:
             - Do NOT run \`git commit\`, \`git push\`, or open a pull request. Leave
               all changes in the working tree only — a later step opens the PR.
             - Do NOT modify any \`prompt.md\`, \`meta-prompt.md\`, \`manifest.yaml\`,
               or any file under \`references/\`.
-            - If a composite prompt file is missing for a slug, skip that slug and
-              note it; do not fail the whole run.
           EOF
-          # Least privilege: the regen only needs to read files (composite prompt,
-          # narrative skill template) and write/edit files (policy, narrative,
-          # STATUS.md). --permission-mode acceptEdits auto-approves those file ops
-          # and read-only tools, while any arbitrary Bash command or network call
-          # aborts the run — so we grant exactly what the regeneration needs and
-          # nothing more. (No --dangerously-skip-permissions, which would allow
-          # everything and defeat this scoping.)
-          # Pin model; bump to claude-opus-4-8 for max quality.
-          claude -p "$(cat /tmp/regen-prompt.txt)" \
+          # --bare: skip auto-discovery (hooks/skills/plugins/MCP/memory/CLAUDE.md)
+          #   for faster, deterministic startup. We read the narrative skill files
+          #   explicitly, so nothing is lost.
+          # --permission-mode acceptEdits: grant file read/write/edit only; arbitrary
+          #   Bash/network aborts. Pin model; bump to claude-opus-4-8 for max quality.
+          claude --bare -p "$(cat /tmp/regen-prompt.txt)" \
             --model claude-sonnet-4-6 \
             --permission-mode acceptEdits
 
       - name: Open pull request
-        if: steps.detect.outputs.count != '0'
         uses: peter-evans/create-pull-request@v8
         with:
-          commit-message: "policy: regenerate ${{ steps.detect.outputs.slugs }} from prompt.md change"
-          branch: regen/${{ github.run_id }}
+          commit-message: "policy: regenerate ${{ matrix.slug }} from prompt.md change"
+          branch: regen/${{ matrix.slug }}-${{ github.run_id }}
           base: ${{ github.ref_name }}
-          title: "Regenerate policy: ${{ steps.detect.outputs.slugs }}"
+          title: "Regenerate policy: ${{ matrix.slug }}"
           body: |
-            Automated regeneration triggered by a change to `prompt.md`.
+            Automated regeneration triggered by a change to `${{ matrix.slug }}/prompt.md`.
 
-            **Policies regenerated:** ${{ steps.detect.outputs.slugs }}
+            Structured `${{ matrix.slug }}/${{ matrix.slug }}.md` and narrative
+            `${{ matrix.slug }}/${{ matrix.slug }}-narrative.md` were rebuilt from the
+            current `prompt.md` + `references/` via the policy-prep pipeline and the
+            meta-prompt / narrative skills.
 
-            Each policy's structured `{slug}.md` and `{slug}-narrative.md` were
-            rebuilt from the current `prompt.md` + `references/` via the
-            policy-prep pipeline and the meta-prompt / narrative skills.
-
-            Review the diff before merging — these are regulator-facing
-            compliance documents.
+            Review the diff before merging — these are regulator-facing compliance documents.
           delete-branch: true
