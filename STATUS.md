@@ -7,3 +7,4 @@ _Run totals: 2 regenerated · 0 failed_
 |---|---|---|---|---|---|---|
 | Fair Lending | fair-lending | ✅ regenerated | 2026-06-05T19:05:00Z | dynamic via skill (ok) | — | — |
 | Cash | cash | ✅ regenerated | 2026-06-18T00:00:00Z | dynamic via skill (ok) | Cash Management Annual Review Packet.pdf (ACH/wire annual-review form — not cash-handling controls); Cash-Management-Agreement.pdf (business online banking agreement — out of scope per PATRICK_NOTES) | Merged former Cash Control and Cash Management policies; 12 controls (CA-01–CA-12); Appendix A (limits schedule) and Appendix B (retention schedule) placeholder assumptions logged |
+| Director Fiduciary Duties Policy | director-fiduciary-duties | ✅ regenerated | 2026-06-18T17:38:11Z | dynamic via skill (ok) | — | — |

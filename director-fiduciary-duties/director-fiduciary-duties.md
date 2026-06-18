@@ -1,199 +1,278 @@
+```yaml
 ---
-title: Director Fiduciary Duties Policy (Table-First, Design-Overlay v2)
+title: Director Fiduciary Duties Policy (Table-First, Design-Overlay v3)
 owner: Patrick Wilson, Chief Compliance Officer
 version: v1.0
-effective: 2026-06-16
-next_review: 2027-06-16
+effective: 2026-07-01
+next_review: 2027-07-01
 approvers:
   - Patrick Wilson, Chief Compliance Officer
-tags: [Compliance, Fiduciary Duties, Conflicts of Interest, Reg O, Reg W, Insider Transactions]
+tags: [Compliance, Fiduciary Duties, Conflicts of Interest, Insider Transactions, Affiliate Transactions, Corporate Governance]
 ---
+```
 
 ## General Policy Statement
 
-Pynthia Credit Union requires every director, executive officer, principal shareholder, and any employee or contractor with the power to direct its management or policy to discharge the full set of fiduciary duties owed to the credit union — loyalty, care, good faith, confidentiality, and the continuing obligation to disclose — and to never advance personal or related-party interests at the credit union's expense. Conflict-of-interest disclosure is the operational core of the duty of loyalty: covered persons must disclose material interests, recuse from related deliberations and votes, and observe the statutory limits on insider credit (Regulation O) and affiliate transactions (Regulation W). This policy is the umbrella over those duties; loan underwriting mechanics, general compliance governance, retention schedules, indemnification, and broader vendor risk live in their respective policies.
+Pynthia Credit Union requires every director, executive officer, principal shareholder, and any employee or contractor with decision-making authority to act at all times in the best interests of the credit union and its membership. Covered persons owe the credit union the duties of loyalty, care, good faith, confidentiality, and continuing disclosure. Conflict-of-interest identification and disclosure is the primary operational mechanism through which the duty of loyalty is enforced. Insider credit and affiliate transactions are subject to regulatory limits that apply regardless of intent. Violations of this policy expose the credit union and the individual to regulatory sanction, civil liability, and reputational harm. The Chief Compliance Officer owns this policy; the Board of Directors, Legal/General Counsel, and the Supervisory Committee are required participants in its governance.
 
-## Timing Matrix  {#timing-matrix}
+---
+
+## Timing Matrix {#timing-matrix}
 
 | Scenario | Trigger (human → event) | Deadline | Content Reference | Control |
-|---|---|---|---|---|
-| Annual disclosure questionnaire | Annual cycle opens (`coi.annual_cycle_opened`) | Returned within 30 days of issuance (internal SLA) | Exhibit A questionnaire | [FD-03](#fd-03-annual-and-continuing-disclosure) |
-| Mid-year conflict arises | Covered person identifies a conflict (`coi.conflict_identified`) | Disclose before participating in any related matter | Exhibit B ad-hoc form | [FD-02](#fd-02-conflict-identification-and-general-duties) |
-| Insider credit over threshold | Aggregate insider credit exceeds the greater of $25k/5% UCS, or $500k (`insider.credit_threshold_exceeded`) | Prior Board approval (excluding interested director) before funding | Board approval record | [FD-05](#fd-05-insider-transactions-reg-o) |
-| Insider extension funded | Insider credit funded (`affiliate.credit_transaction_funded` / `insider.board_approval_recorded`) | Reported promptly to Board (next meeting) | Insider report to Board | [FD-05](#fd-05-insider-transactions-reg-o) |
-| Affiliate covered transaction | Covered transaction proposed (`affiliate.covered_transaction_proposed`) | Limits/collateral checked before funding | Affiliate transaction record | [FD-06](#fd-06-transactions-with-affiliates-reg-w) |
-| Gift/offer beyond de minimis | Offer received beyond Exhibit C threshold (`gift.disclosure_submitted`) | Disclose promptly; reported to Board periodically | Gift disclosure + Board report | [FD-07](#fd-07-bank-bribery-gifts-and-kickbacks) |
-| Corporate opportunity presented | Opportunity identified (`corp_opportunity.identified`) | Board disposition documented before pursuit | Board disposition record | [FD-08](#fd-08-corporate-opportunity-and-tie-ins) |
-| Public insider-credit request | Written public request received (`insider.public_disclosure_requested`) | Disclosed per Reg O on request; request retained 2 years | Public disclosure response | [FD-09](#fd-09-recordkeeping-and-reporting) |
-| Annual acknowledgment & training | Annual policy/training cycle opens (`policy.training_cycle_opened`) | Signed acknowledgment + training completion within cycle | Acknowledgment + training record | [FD-10](#fd-10-training-acknowledgment-and-enforcement) |
+|---|---|---:|---|---|
+| Annual COI questionnaire cycle opens | Calendar year begins (`coi.annual_cycle_opened`) | 30 days from cycle open | Exhibit A questionnaire | [DF-03](#df-03-annual-continuing-disclosure) |
+| Ad-hoc conflict arises mid-year | Covered person identifies conflict (`coi.adhoc_disclosure_filed`) | Immediately / before next Board action | Exhibit B ad-hoc form | [DF-03](#df-03-annual-continuing-disclosure) |
+| Annual insider/related-interest record review | Calendar year begins | Annually | Insider record (`insider.record_compiled`) | [DF-03](#df-03-annual-continuing-disclosure) |
+| Conflict identified at Board meeting | Agenda item flagged (`board.agenda_item_flagged_conflicted`) | Before vote on matter | Recusal notice | [DF-04](#df-04-conflict-management-recusal) |
+| Insider credit application received | Application received (`insider.credit_application_received`) | Before commitment | Terms parity check; Board approval if threshold exceeded | [DF-05](#df-05-insider-transactions-reg-o) |
+| Board approval required for insider credit | Aggregate credit exceeds threshold | Before credit extended | Board resolution excluding interested director | [DF-05](#df-05-insider-transactions-reg-o) |
+| Insider credit reported to Board | Credit extended to insider | Promptly / next Board meeting | Board report | [DF-05](#df-05-insider-transactions-reg-o) |
+| Affiliate covered transaction proposed | Transaction proposed (`affiliate.covered_transaction_proposed`) | Before execution | Limit check; collateral; market-terms basis | [DF-06](#df-06-transactions-with-affiliates-reg-w) |
+| Affiliate list annual review | Calendar year begins | Annually | Updated affiliate list | [DF-06](#df-06-transactions-with-affiliates-reg-w) |
+| Gift/item of value offered or received | Offer or receipt occurs (`gift.record_entry_created`) | Promptly | Exhibit C threshold check; disclosure to CCO | [DF-07](#df-07-bank-bribery-gifts-kickbacks) |
+| Gift disclosures reported to Board | Periodic | Periodically | Board report (`gift.board_report_issued`) | [DF-07](#df-07-bank-bribery-gifts-kickbacks) |
+| Corporate opportunity identified | Opportunity identified (`corp_opportunity.identified`) | Before personal pursuit | Full Board presentation; rejection documented | [DF-08](#df-08-corporate-opportunity-tie-ins) |
+| Public request for insider credit disclosure | Written request received (`insider.public_disclosure_requested`) | Promptly | Disclosure of names/thresholds; retain request 2 years | [DF-09](#df-09-recordkeeping-reporting) |
+| Financial literacy deadline | Director elected or appointed | 6 months | Attainment documented; overdue flag | [DF-01](#df-01-fiduciary-duties) |
+| Annual policy acknowledgment | Policy distributed | Annually | Signed acknowledgment | [DF-10](#df-10-training-acknowledgment-enforcement) |
+| Annual training cycle | Calendar year begins | Annually | Training completion record | [DF-10](#df-10-training-acknowledgment-enforcement) |
 
-## FD-01 — The Fiduciary Duties  {#fd-01-the-fiduciary-duties}
+---
 
-**WHY (Reg cite):** The duties of loyalty, care, good faith, confidentiality, and disclosure are the foundation of fiduciary conduct codified for thrift/credit-union officials at [12 CFR §563.200](https://www.ecfr.gov/current/title-12/part-563) (conflicts of interest) and the director duty-of-care and interested-transaction standards of [Cal. Corp. Code §309](https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CORP&sectionNum=309) and [§310](https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CORP&sectionNum=310).
+## DF-01 — Fiduciary Duties {#df-01-fiduciary-duties}
 
-**SYSTEM BEHAVIOR:** The policy defines and binds each covered person to the five duties and is the umbrella under which all downstream conflict, insider, and affiliate controls operate. The covered-person roster — who is a director, executive officer, principal shareholder, or other person with power to direct management or policy — is maintained as the authoritative population that every other control in this policy screens against; an individual excluded from major policy-making by Board resolution or bylaw is recorded on the roster as out-of-scope. The roster is write-restricted to Compliance.
+**WHY (Reg cite):** [12 CFR §701.4](https://www.ecfr.gov/current/title-12/part-701/section-701.4) imposes on federal credit union directors the duties of care and loyalty (acting in good faith, in the best interests of the membership, with the care an ordinarily prudent person would use), impartiality (fair administration without discrimination in favor of or against any particular member), and financial literacy (working familiarity with basic finance and accounting within 6 months of election or appointment). General fiduciary duties of loyalty, care, good faith, and confidentiality also arise under applicable state law (see Assumptions & Gaps).
 
-**EVENTS:**
-
-| When | What's needed | Produced (and logged) | Within |
-|---|---|---|---|
-| Covered-population designated or changed (`covered_person.roster_updated`) | Person identity (`covered_person.id`), role (`covered_person.role`), effective date (`covered_person.effective_date`), designation flag (`covered_person.designated`) | Updated covered-person roster (`covered_person.roster_updated`) | — |
-
-**ALERTS/METRICS:** Alert on any covered person active in the roster without a current signed acknowledgment (see [FD-10](#fd-10-training-acknowledgment-and-enforcement)); target zero unrostered directors or executive officers.
-
-## FD-02 — Conflict Identification & General Duties  {#fd-02-conflict-identification-and-general-duties}
-
-**WHY (Reg cite):** Covered persons must not advance personal or related-party interests at the credit union's expense, must disclose all material information on any interested matter, and must not participate in the related Board discussion or vote, per [12 CFR §563.200](https://www.ecfr.gov/current/title-12/part-563) and the interested-director standard of [Cal. Corp. Code §310](https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CORP&sectionNum=310).
-
-**SYSTEM BEHAVIOR:** When a covered person flags an interest in a Board matter, the system records the disclosure, marks the agenda item conflicted, and enforces recusal — the interested party may not participate in or attempt to influence deliberations and, for directors, may not vote. A material interest disclosed mid-year through the Exhibit B ad-hoc form (see [FD-03](#fd-03-annual-and-continuing-disclosure)) feeds the same recusal pipeline. Even the appearance of a conflict triggers the disclosure obligation. Recusal records and conflict registers are write-restricted to Compliance.
+**SYSTEM BEHAVIOR:** The system maintains a roster of covered persons (`covered_person`) with their role, effective date, and — for directors — a financial-literacy attainment flag. On election or appointment, a 6-month financial-literacy deadline task is created. The system flags any director whose deadline has passed without attainment and surfaces the flag in the Board compliance dashboard. Confidentiality of non-public credit union information is enforced by role-based access controls: non-public Board materials are read-restricted to directors, executive officers, and Compliance; write access to the covered-person roster is restricted to the Chief Compliance Officer.
 
 **EVENTS:**
 
 | When | What's needed | Produced (and logged) | Within |
 |---|---|---|---|
-| Covered person identifies an interest in a Board matter (`coi.conflict_identified`) | Person identity (`covered_person.id`), interest description (`coi.interest_description`), matter reference (`coi.matter_reference`), related party (`coi.related_party`) | Conflict register entry (`coi.register_entry_created`) | Before participating in the matter (internal: same Board cycle) |
-| Conflicted agenda item reached at Board (`board.minutes_recorded`) | Agenda item flagged (`board.agenda_item_flagged_conflicted`), recusal notice (`coi.recusal_noticed`), disinterested quorum (`board.disinterested_quorum`) | Recusal executed + logged (`coi.recusal_executed`) | At the meeting (internal: recorded in minutes) |
+| Director or officer elected, appointed, or role changed (`employee.role_changed`) | Covered person identity (`covered_person.id`, `covered_person.role`, `covered_person.effective_date`); role type (director vs. officer) | Covered-person roster entry created or updated (`covered_person.roster_updated`); financial-literacy deadline task created for directors (`training.newhire_due_at`) | Roster updated immediately; financial-literacy task due within 6 months of effective date (enforced by `training.newhire_due_at`) |
+| Financial-literacy deadline reached without attainment (`training.lapsed`) | Director identity (`covered_person.id`); attainment status (`training.completion_status`) | Overdue flag raised (`training.content_trigger_detected`); escalation to CCO and Board chair (`escalation.created`) | Immediately on deadline breach |
+| Director or officer separated (`employee.separated`) | Covered person identity (`covered_person.id`) | Roster entry deactivated (`covered_person.roster_updated`); access deprovisioned (`access.deprovisioned`) | Immediately on separation |
 
-**ALERTS/METRICS:** Alert on any Board vote recorded where a flagged-conflicted member's recusal is missing (`coi.conflicted_matter_voted` true with no `coi.recusal_executed`); target zero conflicted votes without recusal.
+**ALERTS/METRICS:** Alert fires when any director's financial-literacy task reaches `overdue` status (target: zero overdue directors at any time). Dashboard metric: count of directors with attainment confirmed vs. pending, refreshed on each roster change.
 
-## FD-03 — Annual & Continuing Disclosure  {#fd-03-annual-and-continuing-disclosure}
+---
 
-**WHY (Reg cite):** The continuing duty to disclose conflicts proactively — through an annual questionnaire and ad-hoc mid-year disclosure — implements the disclosure obligation under [12 CFR §563.200](https://www.ecfr.gov/current/title-12/part-563), and the annual insider/related-interest record is required by [12 CFR §215.8](https://www.ecfr.gov/current/title-12/part-215/section-215.8).
+## DF-02 — Conflict Identification & General Duties {#df-02-conflict-identification-general-duties}
 
-**SYSTEM BEHAVIOR:** Annually the system issues the Exhibit A questionnaire to every director and officer and tracks completion; mid-year, a covered person who discovers a conflict files the Exhibit B ad-hoc form, which routes into the [FD-02](#fd-02-conflict-identification-and-general-duties) recusal pipeline. Separately, the insider and related-interest record is compiled at least annually and circulated to insiders for completeness and accuracy review. Questionnaire responses, ad-hoc disclosures, and the insider record are write-restricted to Compliance.
+**WHY (Reg cite):** [12 CFR §563.200](https://www.ecfr.gov/current/title-12/part-563/section-563.200) requires that persons owing a fiduciary duty not advance their own interests at the institution's expense, disclose all material information on matters in which they have an interest, and not participate in Board discussion or vote on such matters. [12 CFR §701.4](https://www.ecfr.gov/current/title-12/part-701/section-701.4) reinforces the duty of loyalty and care for federal credit union directors.
 
-**EVENTS:**
-
-| When | What's needed | Produced (and logged) | Within |
-|---|---|---|---|
-| Annual disclosure cycle opens (`coi.annual_cycle_opened`) | Questionnaire version (`coi.questionnaire_version`), covered-person roster (`covered_person.id`), due date (`coi.questionnaire_due_at`) | Exhibit A questionnaires issued (`coi.questionnaire_issued`) | 30 days to return (enforced by `coi.questionnaire_due_at`) |
-| Director/officer completes questionnaire (`coi.questionnaire_submitted`) | Responses (`coi.questionnaire_responses`), attestation signature (`coi.attestation_signature`), attestation date (`coi.attestation_date`) | Disclosure filed + certification (`coi.certified`) | Within annual cycle (enforced by `coi.certification_due`) |
-| Conflict arises mid-year (`coi.adhoc_disclosure_filed`) | Ad-hoc form (`coi.adhoc_form`), interest description (`coi.interest_description`), related party (`coi.related_party`) | Ad-hoc disclosure filed (`coi.adhoc_disclosure_filed`) | Before participating in the matter |
-| Annual insider/related-interest record compiled (`insider.record_updated`) | Prior record (`insider.record_prior`), new entries (`insider.record_entry`), circulation to insiders (`insider.record_circulated`) | Insider/related-interest record (`insider.record_updated`) | At least annually (enforced by `insider.survey_issued`) |
-
-**ALERTS/METRICS:** Aging alert on questionnaires unreturned past `coi.questionnaire_due_at`; target 100% annual completion before cycle close and zero insiders without a reviewed related-interest record.
-
-## FD-04 — Management of Conflicts  {#fd-04-management-of-conflicts}
-
-**WHY (Reg cite):** Recusal, abstention, independent review, and a disinterested Board determination on conflicted matters are required so the interested party cannot influence the outcome, under [12 CFR §563.200](https://www.ecfr.gov/current/title-12/part-563) and the just-and-reasonable interested-transaction standard of [Cal. Corp. Code §310](https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CORP&sectionNum=310).
-
-**SYSTEM BEHAVIOR:** Once a conflict is registered (see [FD-02](#fd-02-conflict-identification-and-general-duties)), the system requires the matter to proceed only with a disinterested quorum, optionally an independent review, and a recorded Board determination on whether and how to proceed. The interested party is blocked from the deliberation and vote and may not attempt to influence either. Determination records are write-restricted to Compliance.
+**SYSTEM BEHAVIOR:** The system monitors Board agenda items for flagged conflicts. When a covered person self-reports a conflict or the system detects a potential conflict (e.g., a vendor or counterparty matching a covered person's related-party record), the agenda item is flagged and the interested party is blocked from participating in discussion or voting on that matter. The duty to avoid even the appearance of a conflict is enforced by requiring disclosure of any relationship that a reasonable person might question, not only relationships that rise to a legal conflict. The CCO is the sole write-authorized role for conflict determinations; Board minutes are write-restricted to the Board Secretary and CCO.
 
 **EVENTS:**
 
 | When | What's needed | Produced (and logged) | Within |
 |---|---|---|---|
-| Conflicted matter brought to Board for determination (`coi.determination_logged`) | Matter reference (`coi.matter_reference`), disinterested quorum (`board.disinterested_quorum`), independent review (`coi.independent_review`), recusal record (`coi.recusal_record`) | Board determination logged (`coi.determination_logged`) | At the meeting (internal: recorded in `board.minutes_recorded`) |
+| Covered person identifies a potential conflict with a pending Board matter (`coi.adhoc_disclosure_filed`) | Covered person identity (`covered_person.id`); nature and extent of interest (`coi.interest_description`); matter reference (`coi.matter_reference`); related party (`coi.related_party`) | Ad-hoc disclosure record created (`coi.register_entry_created`); Board agenda item flagged (`board.agenda_item_flagged_conflicted`) | Before Board discussion or vote on the matter |
+| Board agenda item is flagged as conflicted (`board.agenda_item_flagged_conflicted`) | Interested party identity (`covered_person.id`); agenda item (`board.agenda_id`); disinterested quorum confirmed (`board.disinterested_quorum`) | Recusal notice issued (`coi.recusal_noticed`); recusal logged (`coi.recusal_logged`) | Before vote |
+| Conflict determination made by disinterested Board (`coi.determination_logged`) | Conflict description (`coi.interest_description`); determination outcome (`coi.determination_made`); independent review result if applicable (`coi.independent_review`) | Determination logged in COI register (`coi.determination_logged`); Board minutes updated (`board.minutes_recorded`) | At time of determination |
 
-**ALERTS/METRICS:** Alert on any conflicted determination logged without a disinterested quorum; target zero determinations lacking documented recusal and quorum.
+**ALERTS/METRICS:** Alert fires if a Board vote is recorded on a matter where a flagged conflict exists and no recusal record is present (target: zero such votes). Metric: count of open conflict disclosures awaiting determination, reviewed at each Board meeting.
 
-## FD-05 — Insider Transactions (Reg O)  {#fd-05-insider-transactions-reg-o}
+---
 
-**WHY (Reg cite):** Extensions of credit to insiders must be on substantially the same terms and underwriting as comparable non-insider transactions, require prior Board approval (excluding the interested director) above the greater of $25,000 or 5% of unimpaired capital and surplus, or $500,000, and observe the single-borrower (15% + 10% readily-marketable collateral) and aggregate insider limits, per [12 CFR §215.4](https://www.ecfr.gov/current/title-12/part-215/section-215.4) and [12 CFR §215.6](https://www.ecfr.gov/current/title-12/part-215/section-215.6); the underlying statutes are FRA §22(g)/(h) at [12 U.S.C. §375a](https://www.law.cornell.edu/uscode/text/12/375a) and [§375b](https://www.law.cornell.edu/uscode/text/12/375b).
+## DF-03 — Annual & Continuing Disclosure {#df-03-annual-continuing-disclosure}
 
-**SYSTEM BEHAVIOR:** When a loan application is flagged as insider-related, the system screens terms for parity against comparable non-insider transactions and recomputes the applicant's aggregate credit (including related interests) against the single-borrower and aggregate insider limits. If aggregate credit exceeds the greater of $25,000 or 5% of unimpaired capital and surplus, or $500,000, prior approval of a majority of the entire Board excluding the interested director is required before funding; the interested party may not participate in or influence that vote. Funded extensions are reported promptly to the Board. Loan underwriting mechanics live in the Lending Policy; this control governs the parity, limit, approval, and reporting gates only. Insider terms, approval, and limit records are write-restricted to Compliance.
+**WHY (Reg cite):** [12 CFR §563.200](https://www.ecfr.gov/current/title-12/part-563/section-563.200) and [12 CFR §215.8](https://www.ecfr.gov/current/title-12/part-215/section-215.8) require annual identification of insiders and their related interests, reviewed for completeness. The continuing obligation to disclose arises from the general fiduciary duty of loyalty and is operationalized through the ad-hoc disclosure mechanism.
 
-**EVENTS:**
-
-| When | What's needed | Produced (and logged) | Within |
-|---|---|---|---|
-| Insider credit application received (`insider.credit_application_received`) | Proposed terms (`insider.proposed_terms`), comparable terms (`insider.comparable_terms`), aggregate credit (`insider.aggregate_credit_amount`), collateral marketability (`insider.collateral_marketability`) | Terms-parity check + limit recompute (`insider.terms_parity_checked`) | Before approval/funding |
-| Aggregate insider credit exceeds threshold (`insider.credit_threshold_exceeded`) | Threshold-exceeded flag (`insider.credit_threshold_exceeded`), aggregate amount (`insider.aggregate_credit_amount`), unimpaired capital and surplus (`cu.unimpaired_capital_surplus`) | Board approval recorded, interested director excluded (`insider.board_approval_recorded`) | Prior to funding (internal: before `affiliate.credit_transaction_funded`) |
-| Insider extension funded (`insider.board_report_issued`) | Funded terms (`insider.funded_terms`), recomputed limits (`insider.limits_recomputed`) | Insider report to Board (`insider.board_report_issued`) | Promptly — next Board meeting (enforced by `insider.report_due`) |
-
-**ALERTS/METRICS:** Alert on any insider extension funded above threshold without a recorded prior Board approval, and on any single-borrower or aggregate limit breach; target zero unapproved over-threshold extensions and zero limit breaches.
-
-## FD-06 — Transactions With Affiliates (Reg W)  {#fd-06-transactions-with-affiliates-reg-w}
-
-**WHY (Reg cite):** Covered transactions with any single affiliate are capped at 10% and in the aggregate at 20% of unimpaired capital and surplus, must meet collateral and market-terms requirements, may not involve low-quality assets, and require an affiliate list updated at least annually, per [12 CFR §223.11–§223.14](https://www.ecfr.gov/current/title-12/part-223), [§223.15](https://www.ecfr.gov/current/title-12/part-223/section-223.15), and [§223.51](https://www.ecfr.gov/current/title-12/part-223/section-223.51); statutory basis is FRA §§23A/23B at [12 U.S.C. §371c](https://www.law.cornell.edu/uscode/text/12/371c) and [§371c-1](https://www.law.cornell.edu/uscode/text/12/371c-1).
-
-**SYSTEM BEHAVIOR:** When a covered transaction with an affiliate is proposed, the system checks the single-affiliate (10%) and aggregate (20%) limits against unimpaired capital and surplus, verifies collateral coverage and market terms, and screens for low-quality assets before funding; a transaction failing any gate is blocked. The affiliate list is reviewed and updated at least annually and each transaction record is archived with its limit, collateral, and market-terms basis. Enterprise affiliate/vendor risk beyond these transaction limits lives in the Third-Party Risk Policy. The affiliate list and transaction records are write-restricted to Compliance.
+**SYSTEM BEHAVIOR:** Each calendar year, the system opens an annual COI questionnaire cycle and issues Exhibit A questionnaires to all directors and executive officers. Responses are due within 30 days of cycle open. The system also compiles the annual insider/related-interest record from questionnaire responses and existing records, circulates it to insiders for completeness review, and retains the completed record. Mid-year, any covered person who becomes aware of a new or changed conflict must file Exhibit B immediately; the system accepts ad-hoc filings at any time. The CCO reviews all submissions; the annual insider record is write-restricted to the CCO and Legal.
 
 **EVENTS:**
 
 | When | What's needed | Produced (and logged) | Within |
 |---|---|---|---|
-| Covered transaction with affiliate proposed (`affiliate.covered_transaction_proposed`) | Transaction type (`affiliate.transaction_type`), amount (`affiliate.transaction_amount`), collateral type/value (`affiliate.collateral_type`, `affiliate.collateral_value`), market-terms basis (`affiliate.market_terms_basis`), asset-quality classification (`affiliate.asset_quality_classification`) | Limit/collateral/LQA check (`affiliate.limits_checked`) | Before funding |
-| Affiliate credit transaction funded (`affiliate.credit_transaction_funded`) | Limit utilization (`affiliate.limit_utilization`), required coverage ratio (`affiliate.required_coverage_ratio`), transaction archive flag (`affiliate.transaction_file_archived`) | Affiliate transaction recorded (`affiliate.transaction_recorded`) | At funding (internal: archived same day) |
-| Annual affiliate-list review opens (`affiliate.list_review_opened`) | Current list (`affiliate.list`), new/changed entries (`affiliate.list_entry`) | Affiliate list updated (`affiliate.list_updated`) | At least annually |
+| Annual cycle opens (calendar year begins) (`coi.annual_cycle_opened`) | Covered-person roster (`covered_person.id[]`); questionnaire version (`coi.questionnaire_version`) | Exhibit A questionnaires issued to all directors and officers (`coi.questionnaire_issued`) | Cycle opens at start of calendar year; responses due within 30 days (enforced by `coi.questionnaire_due_at`) |
+| Covered person submits annual questionnaire (`coi.questionnaire_submitted`) | Questionnaire responses (`coi.questionnaire_responses`); attestation signature (`coi.attestation_signature`); attestation date (`coi.attestation_date`) | Submission logged; COI register entry updated (`coi.register_entry_created`) | Within 30 days of cycle open |
+| Annual insider/related-interest record compiled (`insider.record_compiled`) | All insider identities and related interests from questionnaire responses and existing records (`insider.record_entry[]`); prior year record (`insider.record_prior`) | Record compiled and circulated to insiders for review (`insider.record_circulated`); insider survey issued (`insider.survey_issued`) | Annually; completion confirmed by `insider_report.due` |
+| Insiders review and confirm record completeness | Insider identity (`covered_person.id`); confirmation of completeness | Record confirmed; any corrections applied (`insider.record_updated`) | Annually, within the review window |
+| New or changed conflict arises mid-year (`coi.adhoc_disclosure_filed`) | Covered person identity (`covered_person.id`); conflict description (`coi.interest_description`); matter reference (`coi.matter_reference`) | Ad-hoc Exhibit B disclosure filed and logged (`coi.register_entry_created`) | Immediately upon awareness |
 
-**ALERTS/METRICS:** Alert on any covered transaction breaching the 10% single-affiliate or 20% aggregate cap, any low-quality-asset purchase, and any affiliate list older than 12 months; target zero limit breaches and zero stale affiliate lists.
+**ALERTS/METRICS:** Alert fires when any director or officer has not submitted their annual questionnaire by the 30-day deadline (target: 100% submission rate). Metric: count of outstanding questionnaires, reported to CCO weekly during the cycle window.
 
-## FD-07 — Bank Bribery, Gifts & Kickbacks  {#fd-07-bank-bribery-gifts-and-kickbacks}
+---
 
-**WHY (Reg cite):** Soliciting or receiving anything of value in connection with credit union business is prohibited except de minimis gifts and entertainment within defined thresholds, with offers beyond those thresholds disclosed and reported, per the Federal Bank Bribery Law at [18 U.S.C. §215](https://www.law.cornell.edu/uscode/text/18/215) and the Guidelines for Compliance With the Federal Bank Bribery Law, 52 Fed. Reg. 43941 (1987).
+## DF-04 — Conflict Management & Recusal {#df-04-conflict-management-recusal}
 
-**SYSTEM BEHAVIOR:** The system records gift/entertainment offers, compares each against the Exhibit C de minimis thresholds, and where an offer exceeds what is authorized requires the recipient to disclose it; permitted exceptions (family/personal-relationship gifts, reasonable business meals, customary promotional items, market-rate discounts) are logged but not escalated. Disclosed offers and their dispositions are compiled into a periodic Board report. Gift records and disclosures are write-restricted to Compliance.
+**WHY (Reg cite):** [12 CFR §563.200](https://www.ecfr.gov/current/title-12/part-563/section-563.200) prohibits interested parties from participating in Board discussion or voting on matters in which they have an interest. The Board must make an independent determination on conflicted matters using only disinterested directors.
 
-**EVENTS:**
-
-| When | What's needed | Produced (and logged) | Within |
-|---|---|---|---|
-| Gift/offer beyond de minimis received (`gift.disclosure_submitted`) | Source party (`gift.source_party`), estimated value (`gift.estimated_value`), threshold comparison (`gift.threshold_comparison`) | Gift record entry (`gift.record_entry_created`) | Promptly on receipt |
-| Periodic gift records compiled for Board (`gift.board_report_issued`) | Record entries (`gift.record_entry_id`), disposition (`gift.disposition`) | Gift Board report (`gift.board_report_issued`) | Periodically (internal: each Board reporting cycle) |
-
-**ALERTS/METRICS:** Alert on any above-threshold gift with no disclosure record; target zero undisclosed above-threshold gifts and timely periodic Board reporting.
-
-## FD-08 — Corporate Opportunity & Tie-Ins  {#fd-08-corporate-opportunity-and-tie-ins}
-
-**WHY (Reg cite):** Covered persons may not usurp corporate opportunities belonging to the credit union, and a disinterested Board may reject an opportunity as a matter of sound business judgment, per [12 CFR §563.201](https://www.ecfr.gov/current/title-12/part-563); prohibited tie-in arrangements are barred by HOLA tying at [12 U.S.C. §1464(q)](https://www.law.cornell.edu/uscode/text/12/1464) and RESPA at [12 U.S.C. §2608](https://www.law.cornell.edu/uscode/text/12/2608).
-
-**SYSTEM BEHAVIOR:** When a covered person identifies an opportunity within the credit union's corporate authority and of present or potential advantage to it, the system requires full and fair presentation to the Board and records the disposition; a disinterested-majority rejection as sound business judgment is documented so the person is not deemed to have usurped the opportunity. Prohibited tie-in conditions are flagged and logged when detected in a transaction. Opportunity dispositions and tie-in reviews are write-restricted to Compliance.
+**SYSTEM BEHAVIOR:** When a conflict is identified on a Board agenda item, the system enforces recusal by blocking the interested party from the relevant Board discussion record and vote. The disinterested Board majority independently reviews the matter, may appoint a disinterested subcommittee or independent reviewer, and records its determination. Interested parties may make a presentation before the discussion begins but must leave before deliberation and vote. The CCO documents the recusal and determination in the COI register. Board minutes for conflicted matters are write-restricted to the Board Secretary and CCO; the interested party has no write access to those minutes.
 
 **EVENTS:**
 
 | When | What's needed | Produced (and logged) | Within |
 |---|---|---|---|
-| Corporate opportunity presented to Board (`corp_opportunity.disposition_logged`) | Opportunity description (`corp_opportunity.description`), authority assessment (`corp_opportunity.authority_assessment`), presentation flag (`corp_opportunity.presented`), Board vote (`corp_opportunity.board_voted`) | Opportunity disposition logged (`corp_opportunity.disposition_logged`) | Before the person pursues it (internal: recorded in `board.minutes_recorded`) |
-| Prohibited tie-in condition detected (`tiein.flagged`) | Condition description (`tiein.condition_description`), transaction terms (`tiein.transaction_terms`) | Tie-in review logged (`tiein.review_logged`) | At detection |
+| Conflict flagged on Board agenda item (`board.agenda_item_flagged_conflicted`) | Interested party identity (`covered_person.id`); agenda item (`board.agenda_id`); nature of conflict (`coi.interest_description`) | Recusal executed and logged (`coi.recusal_executed`, `coi.recusal_logged`); interested party blocked from deliberation and vote | Before deliberation begins |
+| Disinterested Board conducts independent review (`coi.determination_logged`) | Disinterested quorum confirmed (`board.disinterested_quorum`); independent review result if applicable (`coi.independent_review`); matter details | Determination logged (`coi.determination_logged`); Board resolution recorded (`board.resolution_id`) | At time of Board action |
+| Conflicted matter voted on by disinterested Board | Vote outcome; disinterested quorum (`board.disinterested_quorum`) | Board minutes updated (`board.minutes_recorded`); COI register entry finalized (`coi.certified`) | At time of vote |
 
-**ALERTS/METRICS:** Alert on any opportunity pursued by a covered person without a documented Board disposition and on any flagged tie-in not reviewed; target zero usurped opportunities and zero unreviewed tie-in flags.
+**ALERTS/METRICS:** Alert fires if a Board resolution references a matter with an open conflict flag and no `coi.recusal_executed` record (target: zero). Metric: count of conflicted matters resolved by disinterested quorum in the current year, reported in the annual compliance report.
 
-## FD-09 — Recordkeeping & Reporting  {#fd-09-recordkeeping-and-reporting}
+---
 
-**WHY (Reg cite):** The credit union must retain affiliate-transaction records, identify insiders and their related interests, and disclose insider credit to the public on written request, per [12 CFR §215.8](https://www.ecfr.gov/current/title-12/part-215/section-215.8), [§215.11](https://www.ecfr.gov/current/title-12/part-215/section-215.11), and the affiliate-transaction recordkeeping standard at [12 CFR §223.14](https://www.ecfr.gov/current/title-12/part-223/section-223.14).
+## DF-05 — Insider Transactions (Reg O / 12 CFR §701.21(d)) {#df-05-insider-transactions-reg-o}
 
-**SYSTEM BEHAVIOR:** The system retains disclosures, insider/related-interest records (see [FD-03](#fd-03-annual-and-continuing-disclosure)), affiliate-transaction records (see [FD-06](#fd-06-transactions-with-affiliates-reg-w)), and gift disclosures (see [FD-07](#fd-07-bank-bribery-gifts-and-kickbacks)), and on receipt of a written public request discloses the names of executive officers and principal shareholders to whom correspondent-bank credit met the Reg O threshold; the request and its disposition are retained for two years. Detailed retention schedules (typically permanent for director records) live in the Record Retention Policy. Public-request records are write-restricted to Compliance.
+**WHY (Reg cite):** [12 CFR Part 215 (Regulation O)](https://www.ecfr.gov/current/title-12/part-215) requires that extensions of credit to insiders (directors, executive officers, principal shareholders, and their related interests) be made on substantially the same terms and underwriting standards as comparable non-insider transactions and not involve more than normal risk of repayment. Prior approval of a majority of the entire Board (excluding the interested director) is required when aggregate credit to an insider and related interests exceeds the greater of $25,000 or 5% of unimpaired capital and surplus, or $500,000 ([12 CFR §215.4(b)](https://www.ecfr.gov/current/title-12/part-215/section-215.4)). The single-borrower limit is 15% of unimpaired capital and surplus (plus 10% for readily marketable collateral) ([12 CFR §215.4(c)](https://www.ecfr.gov/current/title-12/part-215/section-215.4)). Aggregate insider credit must not exceed unimpaired capital and surplus ([12 CFR §215.4(d)](https://www.ecfr.gov/current/title-12/part-215/section-215.4)). No insider may knowingly receive credit not in compliance with these restrictions ([12 CFR §215.6](https://www.ecfr.gov/current/title-12/part-215/section-215.6)). Note: [12 CFR §701.21(d)](https://www.ecfr.gov/current/title-12/part-701/section-701.21) sets a Board-approval trigger at $20,000 plus pledged shares for federal credit unions; Legal must confirm the operative threshold based on Pynthia's charter type (see Assumptions & Gaps).
 
-**EVENTS:**
-
-| When | What's needed | Produced (and logged) | Within |
-|---|---|---|---|
-| Written public insider-credit request received (`insider.public_disclosure_requested`) | Public request (`insider.public_request`), correspondent credit data (`insider.correspondent_credit_data`) | Public disclosure issued (`insider.public_disclosure_issued`) | On request; request + disposition retained 2 years (enforced by `insider.public_request_retention_expires_at`) |
-
-**ALERTS/METRICS:** Alert on any public request without a recorded disposition and on any required record approaching its retention expiry without disposition; target 100% of public requests answered and retained.
-
-## FD-10 — Training, Acknowledgment & Enforcement  {#fd-10-training-acknowledgment-and-enforcement}
-
-**WHY (Reg cite):** Directors and officers must receive the policy, sign an annual acknowledgment, complete annual training, and be subject to escalation, removal, and Board sanctions for willful violations, grounded in the conflicts and corporate-opportunity standards at [12 CFR §563.200](https://www.ecfr.gov/current/title-12/part-563) and [§563.201](https://www.ecfr.gov/current/title-12/part-563), and the insider-responsibility rule at [12 CFR §215.6](https://www.ecfr.gov/current/title-12/part-215/section-215.6).
-
-**SYSTEM BEHAVIOR:** Annually the system distributes the policy to all directors and officers, opens a training cycle, and tracks signed acknowledgments and training completion; new directors and officers receive the policy on election or hire. A confirmed willful violation routes to escalation and a recorded Board sanction — which may require return of benefits received, resignation for directors, or dismissal for officers. Acknowledgment records, sanctions, and the policy version register are write-restricted to Compliance.
+**SYSTEM BEHAVIOR:** When a loan application is flagged as involving an insider (`loan_application.insider_flagged`), the system performs a terms-parity check against comparable non-insider transactions and checks aggregate credit outstanding to the insider and all related interests against the Board-approval threshold and the single-borrower limit. If the aggregate threshold is exceeded, the system blocks commitment until a Board approval record (excluding the interested director) is recorded. Board approval of a line of credit is valid for 14 months (`insider.loc_approval_expires_at`). All extensions of credit to executive officers require a current detailed financial statement on file before commitment. All insider credit extensions are reported promptly to the Board. The aggregate insider limit is monitored continuously; if the limit is approached, an alert is raised. Interested directors are write-blocked from the Board approval record for their own credit.
 
 **EVENTS:**
 
 | When | What's needed | Produced (and logged) | Within |
 |---|---|---|---|
-| Annual policy/training cycle opens (`policy.training_cycle_opened`) | Document version (`policy.document_version`), covered-person roster (`covered_person.id`), training curriculum (`training.curriculum_id`) | Policy distributed + training assigned (`policy.distribution_logged`, `training.annual_assigned`) | Within annual cycle (enforced by `policy.acknowledgment_due_at`, `training.annual_due_at`) |
-| Director/officer signs acknowledgment (`policy.acknowledgment_signed`) | Acknowledgment record (`policy.acknowledgment_record`), signer identity (`covered_person.id`) | Acknowledgment filed (`policy.acknowledgment_signed`) | Within annual cycle (enforced by `policy.acknowledgment_due_at`) |
-| Willful violation confirmed (`policy.violation_escalated`) | Violation description (`policy.violation_description`), investigation file (`policy.investigation_file`) | Board sanction recorded (`policy.sanction_recorded`) | Per Board process (internal: recorded in `board.minutes_recorded`) |
+| Loan application received from or involving an insider (`insider.credit_application_received`) | Insider identity (`covered_person.id`); proposed terms (`insider.proposed_terms`); aggregate credit outstanding to insider and related interests (`insider.aggregate_credit_amount`); unimpaired capital and surplus (`cu.unimpaired_capital_surplus`) | Insider flag applied (`loan_application.insider_flagged`); terms parity check initiated (`insider.terms_parity_checked`) | Before underwriting decision |
+| Terms parity check completed (`insider.terms_parity_checked`) | Comparable non-insider transaction terms (`insider.comparable_terms`); proposed terms (`insider.proposed_terms`); collateral marketability (`insider.collateral_marketability`) | Parity result logged; if non-parity detected, application blocked pending CCO review | Before commitment |
+| Aggregate credit threshold exceeded (`insider.credit_threshold_exceeded`) | Aggregate credit amount (`insider.aggregate_credit_amount`); threshold basis (`cu.unimpaired_capital_surplus`); insider identity (`covered_person.id`) | Board approval task created (`insider_loc_approval`); commitment blocked until approval recorded | Before credit extended; Board approval valid 14 months (`insider.loc_approval_expires_at`) |
+| Board approves insider credit (excluding interested director) (`insider.board_approval_recorded`) | Disinterested Board majority vote; interested director excluded (`board.disinterested_quorum`); credit terms (`insider.funded_terms`); Board resolution (`board.resolution_id`) | Board approval recorded (`insider.board_approval_recorded`); approval expiry set for lines of credit (`insider.loc_approval_expires_at`) | Before commitment |
+| Credit extended to insider (`insider.credit_extended`) | Funded terms (`insider.funded_terms`); executive officer financial statement if applicable (`insider.officer_financial_statement`) | Extension reported to Board promptly (`insider.board_report_issued`); aggregate limits recomputed (`insider.limits_recomputed`) | Promptly; next Board meeting at latest |
+| Public written request for insider credit disclosure received (`insider.public_disclosure_requested`) | Written request (`insider.public_request`); correspondent credit data for prior calendar year (`insider.correspondent_credit_data`) | Public disclosure issued if threshold met (`insider.public_disclosure_issued`); request and disposition retained 2 years (`insider.public_request_retention_expires_at`) | Promptly upon receipt; retention for 2 years |
 
-**ALERTS/METRICS:** Aging alert on acknowledgments or training past their due dates; target 100% annual acknowledgment and training completion before cycle close and zero open willful-violation escalations without a recorded disposition.
+**ALERTS/METRICS:** Alert fires when aggregate insider credit approaches 90% of unimpaired capital and surplus (target: never breach 100%). Alert fires when a Board approval for a line of credit is within 30 days of expiry (`insider.loc_approval_expires_at`). Metric: count of insider credit extensions reported to Board in the current year, reviewed quarterly.
 
-## Governance & Sign-Off  {#governance}
+---
 
-- **Owner:** Patrick Wilson, Chief Compliance Officer — accountable for maintenance, interpretation, and the centralized governance of all controls in this policy.
-- **Approver:** Patrick Wilson, Chief Compliance Officer.
-- **Required participants:** Board of Directors (approval of insider credit, conflict determinations, corporate-opportunity dispositions, and sanctions), Legal/General Counsel (independent review and legal determinations), and the Supervisory Committee (oversight and review).
-- **Review cadence:** At least annually (next review {{2027-06-16}}); the Board reviews and re-adopts the policy and conforms it to current law.
-- **Cross-references:** Lending Policy (insider-lending operational process), Compliance Policy (general governance, whistleblower, complaint intake), Record Retention Policy (retention schedules), Reimbursement, Insurance and Indemnification Policy (indemnification/insurance), Resolution Policy (board resolutions and bylaws), Third-Party Risk Policy (enterprise affiliate/vendor risk beyond Reg W).
-- **Internal cross-refs:** [Timing Matrix](#timing-matrix) · [FD-01](#fd-01-the-fiduciary-duties) · [FD-02](#fd-02-conflict-identification-and-general-duties) · [FD-03](#fd-03-annual-and-continuing-disclosure) · [FD-04](#fd-04-management-of-conflicts) · [FD-05](#fd-05-insider-transactions-reg-o) · [FD-06](#fd-06-transactions-with-affiliates-reg-w) · [FD-07](#fd-07-bank-bribery-gifts-and-kickbacks) · [FD-08](#fd-08-corporate-opportunity-and-tie-ins) · [FD-09](#fd-09-recordkeeping-and-reporting) · [FD-10](#fd-10-training-acknowledgment-and-enforcement)
+## DF-06 — Transactions With Affiliates (Reg W) {#df-06-transactions-with-affiliates-reg-w}
 
-## Assumptions & Gaps  {#assumptions}
+**WHY (Reg cite):** [12 USC §371c (Federal Reserve Act §23A)](https://www.law.cornell.edu/uscode/text/12/371c) and [12 CFR Part 223 (Regulation W)](https://www.ecfr.gov/current/title-12/part-223) limit covered transactions with any single affiliate to 10% of unimpaired capital and surplus and with all affiliates in the aggregate to 20%, require collateral at specified coverage ratios for credit transactions, prohibit purchase of low-quality assets from affiliates, and require that all covered transactions be on market terms ([12 USC §371c-1 (§23B)](https://www.law.cornell.edu/uscode/text/12/371c-1)). The credit union must maintain an affiliate list updated at least annually and records of all affiliate transactions. Note: Reg W applies directly to member banks; applicability to credit unions is by analogy or through NCUA safety-and-soundness authority — Legal must confirm the operative authority for Pynthia's charter type (see Assumptions & Gaps).
 
-- **Engineering vocabulary is provisional.** Most fiduciary-duty resources, fields, and events referenced in the EVENTS tables (e.g., `coi.*`, `insider.*`, `affiliate.*`, `gift.*`, `corp_opportunity.*`, `tiein.*`, `covered_person.*`) are registered in the parsed core vocabulary; a few are coined under the Composition grammar where no exact registered code fit — notably `coi.conflict_identified` (composed from the registered `coi` subject + `identified` verb) and `corp_opportunity.identified` (registered `corp_opportunity` subject + `identified` verb). These and any other composed codes will be confirmed by engineering before the next review.
-- **Charter and regulatory applicability.** The reference policy is a federal-thrift (OTS-era) document citing 12 CFR Parts 215, 223, 563 and HOLA. Pynthia is a credit union; the OTS/§563 citations are retained as the closest standing analogue for conflicts (§563.200) and corporate opportunity (§563.201), and Reg O (Part 215) and Reg W (Part 223) are applied as the governing insider/affiliate regimes. Confirm which insider-credit and affiliate-transaction rules apply to this credit union's charter (federal vs. state, and any NCUA-specific analogue) and whether the §563 provisions should be replaced with the equivalent NCUA citation.
-- **State-chartered / DFPI applicability.** California Corporations Code §§309–310 and California Financial Code duties are cited on the assumption Pynthia is a California state-chartered institution examined by DFPI. Confirm charter and state to validate or remove the California citations.
-- **Reg O thresholds and unimpaired-capital basis.** The prior-Board-approval thresholds (greater of $25,000 or 5% of unimpaired capital and surplus, or $500,000) and single-borrower limits (15% + 10% readily-marketable collateral) are taken verbatim from the reference policy. Confirm the current `cu.unimpaired_capital_surplus` source of record and that thresholds match the credit union's applicable lending-limit regime.
-- **Exhibit content not specified.** Exhibits A (annual questionnaire), B (ad-hoc disclosure), and C (gift/entertainment thresholds) are referenced by PATRICK_NOTES but their detailed field sets and de minimis dollar limits are not provided; the de minimis thresholds (`gift.threshold_comparison`) must be defined and confirmed before deployment.
-- **Affiliate definition scope.** The detailed Reg W definitions (affiliate, covered transaction, eligible affiliate activities, low-quality asset) from the reference policy are not reproduced here; the operational controls assume engineering will bind the affiliate population and covered-transaction taxonomy to the registered `affiliate` entity. Confirm the affiliate-determination source feeding `affiliate.list`.
-- **"Promptly" reporting SLA.** FD-05 reports funded insider extensions "promptly to the Board"; this is operationalized as next-Board-meeting via `insider.report_due`. Confirm whether a fixed calendar deadline is required.
+**SYSTEM BEHAVIOR:** Before any covered transaction with an affiliate is executed, the system checks the affiliate list, verifies the transaction type, computes the post-transaction aggregate exposure against the 10%/20% limits, confirms collateral coverage ratios for credit transactions, screens for low-quality asset status, and confirms market-terms basis. Transactions that would breach a limit are blocked pending CCO and Board review. The affiliate list is reviewed and updated at least annually. All affiliate transaction records are retained with the required data fields. The CCO is the sole write-authorized role for the affiliate list and transaction records; Legal must approve any exemption request.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Covered transaction with affiliate proposed (`affiliate.covered_transaction_proposed`) | Affiliate identity (`affiliate.list_entry`); transaction type (`affiliate.transaction_type`); transaction amount (`affiliate.transaction_amount`); current aggregate exposure (`affiliate.limit_utilization`); unimpaired capital and surplus (`cu.unimpaired_capital_surplus`) | Limit check performed (`affiliate.limits_checked`); result logged | Before execution |
+| Credit transaction with affiliate proposed | Collateral type (`affiliate.collateral_type`); collateral value (`affiliate.collateral_value`); required coverage ratio (`affiliate.required_coverage_ratio`); asset quality classification (`affiliate.asset_quality_classification`) | Collateral and LQA screen logged (`affiliate.lqa_screen_logged`); if collateral deficient or LQA detected, transaction blocked | Before execution |
+| Market-terms basis confirmed | Market-terms documentation (`affiliate.market_terms_basis`); independent evaluation if required (`affiliate.independent_evaluation`) | Market-terms basis recorded (`affiliate.transaction_recorded`) | Before execution |
+| Covered transaction executed (`affiliate.credit_transaction_funded`) | All required fields confirmed; limits within bounds | Transaction record archived (`affiliate.transaction_file_archived`) | At execution |
+| Annual affiliate list review opened (`affiliate.list_review_opened`) | Current affiliate list (`affiliate.list`); any new affiliates or changes | Affiliate list updated (`affiliate.list_updated`) | Annually |
+
+**ALERTS/METRICS:** Alert fires when aggregate affiliate exposure reaches 80% of the 10% single-affiliate limit or 80% of the 20% aggregate limit (target: never breach either limit). Metric: count of affiliate transactions executed in the current year by type, reported to the Board annually.
+
+---
+
+## DF-07 — Bank Bribery, Gifts & Kickbacks {#df-07-bank-bribery-gifts-kickbacks}
+
+**WHY (Reg cite):** [18 USC §215](https://www.law.cornell.edu/uscode/text/18/215) prohibits any officer, director, employee, agent, or attorney of a financial institution from soliciting or receiving anything of value in connection with any transaction or business of the institution, except for bona fide salary, wages, fees, or other compensation paid in the ordinary course of business. Violation is a criminal offense. The Federal Bank Bribery Law Guidelines (52 Fed. Reg. 43941 (1987)) identify permissible exceptions including de minimis gifts, family gifts, and business-occasion meals.
+
+**SYSTEM BEHAVIOR:** All gifts, gratuities, or items of value offered to or received by covered persons in connection with credit union business must be disclosed to the CCO and logged in the gift register. The system compares the estimated value against the de minimis threshold defined in Exhibit C. Items within the threshold and within a permissible category (family/personal relationship gifts, reasonable business-occasion meals, advertising materials, civic awards, etc.) are logged and closed. Items exceeding the threshold or outside permissible categories require CCO disposition and are reported to the Board periodically. Solicitation or receipt of anything of value outside these parameters is prohibited and triggers an escalation. The gift register is write-restricted to the CCO; Board reports are read-accessible to all directors.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Gift, gratuity, or item of value offered or received (`gift.record_entry_created`) | Covered person identity (`covered_person.id`); source party (`gift.source_party`); estimated value (`gift.estimated_value`); description (`gift.disposition`); threshold comparison (`gift.threshold_comparison`) | Gift record entry created (`gift.record_entry_created`); threshold check performed | Promptly upon offer or receipt |
+| Gift exceeds authorized threshold or is outside permissible category | Gift record entry (`gift.record_entry_id`); CCO review | CCO disposition recorded (`gift.disposition`); if prohibited, escalation created (`escalation.created`) | Promptly; CCO disposition within 5 business days |
+| Periodic Board report on gift disclosures (`gift.board_report_issued`) | All gift disclosures since last report (`gift.record_entry_id[]`); disposition outcomes | Board report issued (`gift.board_report_issued`) | Periodically (at minimum annually; more frequently if volume warrants) |
+
+**ALERTS/METRICS:** Alert fires when any gift disclosure remains without CCO disposition for more than 5 business days (target: zero unresolved disclosures beyond 5 BD). Metric: count of gift disclosures by disposition category in the current year, included in the annual compliance report.
+
+---
+
+## DF-08 — Corporate Opportunity & Tie-Ins {#df-08-corporate-opportunity-tie-ins}
+
+**WHY (Reg cite):** [12 CFR §563.201](https://www.ecfr.gov/current/title-12/part-563/section-563.201) prohibits directors, officers, and other fiduciaries from taking advantage of corporate opportunities belonging to the credit union. A corporate opportunity belongs to the credit union if it is within its corporate authority and of present or potential practical advantage. A disinterested and independent majority of the Board may reject the opportunity as a matter of sound business judgment, after full and fair presentation, to establish that no usurpation occurred. [12 USC §1464(q)](https://www.law.cornell.edu/uscode/text/12/1464) and [12 USC §2608](https://www.law.cornell.edu/uscode/text/12/2608) prohibit prohibited tie-in arrangements conditioning credit union products or services on the purchase of additional products from the credit union or its affiliates, or on the customer's use of a particular title company in a federally related mortgage transaction.
+
+**SYSTEM BEHAVIOR:** When a covered person identifies a business opportunity that may belong to the credit union, they must disclose it to the CCO and present it fully to the Board before pursuing it personally or through a related party. The Board's rejection (or acceptance) is documented as a matter of sound business judgment. If the Board rejects the opportunity, the covered person may pursue it; if the Board accepts it, the opportunity belongs to the credit union. Tie-in conditions in any credit union product, service, or pricing arrangement are prohibited; the system flags any transaction terms that condition a product on the purchase of another product from the credit union or an affiliate. The CCO and Legal are the write-authorized roles for corporate opportunity and tie-in records.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Corporate opportunity identified by covered person (`corp_opportunity.identified`) | Opportunity description (`corp_opportunity.description`); authority assessment (whether within credit union's corporate authority) (`corp_opportunity.authority_assessment`); covered person identity (`covered_person.id`) | Opportunity presented to Board (`corp_opportunity.presented`); Board vote scheduled | Before personal pursuit of the opportunity |
+| Board votes on corporate opportunity (`corp_opportunity.board_voted`) | Full and fair presentation to disinterested Board; Board vote outcome; disinterested quorum (`board.disinterested_quorum`) | Disposition logged (`corp_opportunity.disposition_logged`); Board minutes updated (`board.minutes_recorded`) | At time of Board action |
+| Tie-in condition detected in transaction terms (`tiein.flagged`) | Transaction terms (`tiein.transaction_terms`); condition description (`tiein.condition_description`) | Tie-in flagged (`tiein.flagged`); CCO review initiated; transaction blocked pending resolution | Before transaction execution |
+| Tie-in review completed (`tiein.review_logged`) | CCO determination; corrective action if applicable | Review logged (`tiein.review_logged`); transaction released or blocked | Within 5 business days of flag |
+
+**ALERTS/METRICS:** Alert fires when a corporate opportunity disclosure has been open for more than 10 business days without a Board disposition (target: zero). Alert fires on any `tiein.flagged` event (target: zero tie-in conditions in executed transactions). Metric: count of corporate opportunity disclosures and tie-in flags in the current year, reported annually.
+
+---
+
+## DF-09 — Recordkeeping & Reporting {#df-09-recordkeeping-reporting}
+
+**WHY (Reg cite):** [12 CFR §215.8](https://www.ecfr.gov/current/title-12/part-215/section-215.8) requires annual preparation of a record of all insiders and their related interests, reviewed by insiders for completeness. [12 CFR §215.11](https://www.ecfr.gov/current/title-12/part-215/section-215.11) and [12 CFR §215.23](https://www.ecfr.gov/current/title-12/part-215/section-215.23) require public disclosure of insider credit on written request, with a 2-year retention of requests and dispositions. [12 CFR Part 223](https://www.ecfr.gov/current/title-12/part-223) requires records of all affiliate transactions. [18 USC §215](https://www.law.cornell.edu/uscode/text/18/215) and the Bank Bribery Guidelines require records of gift disclosures reported to the Board. Retention schedules for these records are governed by the Record Retention Policy.
+
+**SYSTEM BEHAVIOR:** The system retains all COI disclosures, insider/related-interest records, affiliate transaction records, and gift disclosures in the compliance record store. Retention periods are governed by the Record Retention Policy (not this policy). Public requests for insider credit disclosure are logged, responded to promptly, and retained for 2 years from the date of the request (`insider.public_request_retention_expires_at`). The CCO is the write-authorized role for all compliance records under this policy; Legal has read access. Records are indexed by covered person, year, and record type to support examiner access.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Annual insider/related-interest record finalized (`insider_report.published`) | Completed insider record (`insider.record_compiled`); insider confirmations of completeness | Record published and retained (`insider_report.published`) | Annually |
+| Affiliate transaction record archived (`affiliate.transaction_file_archived`) | Transaction details: affiliate identity (`affiliate.list_entry`), transaction type (`affiliate.transaction_type`), amount (`affiliate.transaction_amount`), limit utilization (`affiliate.limit_utilization`), LQA status (`affiliate.asset_quality_classification`), collateral (`affiliate.collateral_type`, `affiliate.collateral_value`), market-terms basis (`affiliate.market_terms_basis`) | Transaction record archived (`affiliate.transaction_file_archived`) | At time of transaction execution |
+| Public written request for insider credit disclosure received (`insider.public_disclosure_requested`) | Written request document (`insider.public_request`); requester identity; prior calendar year correspondent credit data (`insider.correspondent_credit_data`) | Disclosure issued if threshold met (`insider.public_disclosure_issued`); request and disposition retained (`insider.public_request_retention_expires_at`) | Promptly; retention for 2 years from request date |
+| Gift board report compiled (`gift.board_report_issued`) | All gift disclosure records since last report | Board report issued and retained (`gift.board_report_issued`) | Periodically; at minimum annually |
+
+**ALERTS/METRICS:** Alert fires when a public insider credit disclosure request has been open for more than 10 business days without disposition (target: zero). Metric: count of affiliate transaction records archived in the current year, reconciled against executed transactions quarterly.
+
+---
+
+## DF-10 — Training, Acknowledgment & Enforcement {#df-10-training-acknowledgment-enforcement}
+
+**WHY (Reg cite):** [12 CFR §701.4](https://www.ecfr.gov/current/title-12/part-701/section-701.4) requires directors to attain financial literacy within 6 months of election or appointment (addressed in [DF-01](#df-01-fiduciary-duties)). Sound governance practice and the credit union's duty to enforce this policy require annual distribution, signed acknowledgment, and training. Enforcement authority for willful violations derives from the Board's general disciplinary authority and applicable federal law, including [18 USC §215](https://www.law.cornell.edu/uscode/text/18/215) for bribery violations.
+
+**SYSTEM BEHAVIOR:** At the start of each calendar year, the system distributes the current policy to all directors and executive officers and creates an acknowledgment task for each covered person. Signed acknowledgments are collected and retained. Annual training is assigned to all covered persons; completion is tracked and reported to the Board. New directors and officers receive the policy and must sign an acknowledgment upon election, appointment, or promotion. Willful violations are escalated to the Board for disciplinary action: directors may be required to return benefits received and resign; officers may be required to return benefits and are subject to dismissal. The CCO documents all sanctions. The CCO is the write-authorized role for acknowledgment records, training completion records, and sanction records.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Annual policy distribution and acknowledgment cycle opens (`policy.training_cycle_opened`) | Current policy version (`policy.document_version`); covered-person roster (`covered_person.id[]`) | Policy distributed to all directors and officers (`policy.distribution_logged`); acknowledgment task created for each covered person (`policy.acknowledgment_due_at`) | Start of calendar year; acknowledgments due within 30 days |
+| Covered person signs annual acknowledgment (`policy.acknowledgment.signed`) | Covered person identity (`covered_person.id`); policy version (`policy.document_version`); signature and date (`coi.attestation_signature`, `coi.attestation_date`) | Acknowledgment record retained (`policy.acknowledgment_record`) | Within 30 days of distribution |
+| New director or officer elected, appointed, or promoted (`employee.role_changed`) | Covered person identity (`covered_person.id`); policy version (`policy.document_version`) | Policy distributed (`policy.distribution_logged`); onboarding acknowledgment filed (`policy.onboarding_acknowledgment_filed`) | Upon election, appointment, or promotion |
+| Annual training cycle opens (`training.annual_cycle_opened`) | Covered-person roster (`covered_person.id[]`); training curriculum (`training.board_curriculum`) | Training assigned to all covered persons (`training.annual_assigned`); completion deadline set (`training.annual_due_at`) | Start of calendar year; completion due within 60 days |
+| Training completed by covered person (`training.completed`) | Covered person identity (`covered_person.id`); module completed (`training.module_id`); assessment score if applicable (`training.assessment_score`) | Completion recorded (`training.completion_recorded`) | Within 60 days of cycle open |
+| Willful violation identified and escalated (`policy.violation_escalated`) | Violation description (`policy.violation_description`); covered person identity (`covered_person.id`); evidence; CCO recommendation | Escalation created (`escalation.created`); Board sanction decision recorded (`policy.sanction_recorded`); benefits return demanded if applicable; resignation or dismissal actioned as appropriate | As soon as practicable after determination |
+
+**ALERTS/METRICS:** Alert fires when any covered person's acknowledgment task reaches `overdue` status (target: 100% acknowledgment within 30 days). Alert fires when any covered person's annual training task reaches `overdue` status (target: 100% completion within 60 days). Metric: acknowledgment and training completion rates reported to the Board at the first meeting following each deadline.
+
+---
+
+## Governance & Sign-Off {#governance}
+
+| Role | Responsibility |
+|---|---|
+| **Patrick Wilson, Chief Compliance Officer** | Policy owner; maintains controls DF-01 through DF-10; approves all conflict determinations, gift dispositions, and sanction records; sole write-authorized role for COI register, insider records, affiliate transaction records, and gift register |
+| **Board of Directors** | Approves this policy annually; makes all conflict determinations on matters involving covered persons; approves insider credit above thresholds (excluding interested director); receives periodic reports on insider credit, affiliate transactions, gift disclosures, and training/acknowledgment completion |
+| **Legal / General Counsel** | Confirms operative charter type and applicable regulatory thresholds (federal vs. state); reviews affiliate transaction exemption requests; approves corporate opportunity dispositions; read access to all compliance records |
+| **Supervisory Committee** | Independent oversight of compliance with this policy; reviews COI register and insider credit records at least annually |
+
+**Review cadence:** This policy is reviewed annually by the CCO and approved by the Board. Material regulatory changes trigger an off-cycle review. The next scheduled review is 2027-07-01.
+
+**Cross-references:**
+- Lending Policy — insider loan underwriting and operational process
+- Compliance Policy — general compliance governance, whistleblower, complaint intake
+- Record Retention Policy — retention schedules for disclosures and director records
+- Reimbursement, Insurance and Indemnification Policy — director/officer indemnification and insurance
+- Resolution Policy — Board resolutions, bylaws, general governance mechanics
+- Third-Party Risk Policy — enterprise affiliate/vendor risk beyond Reg W transaction limits
+
+---
+
+## Assumptions & Gaps {#assumptions}
+
+- **Charter type and operative regulatory thresholds must be confirmed by Legal.** This policy cites [12 CFR §701.4](https://www.ecfr.gov/current/title-12/part-701/section-701.4) (NCUA director duties, federal credit unions) and [12 CFR Part 215 (Regulation O)](https://www.ecfr.gov/current/title-12/part-215) as the primary authorities. If Pynthia Credit Union is a federal charter, §701.4 applies directly and the Board-approval trigger for insider credit under [12 CFR §701.21(d)](https://www.ecfr.gov/current/title-12/part-701/section-701.21) ($20,000 plus pledged shares) may be the operative threshold rather than the Reg O $25,000/5%/$500,000 thresholds. If Pynthia is a state charter, the applicable state financial code (e.g., California Financial Code, examined by DFPI) and California Corporations Code §§309 and 310 may supplement or replace federal citations. Legal must confirm and this policy must be updated accordingly before the effective date.
+
+- **Regulation W applicability to credit unions must be confirmed by Legal.** [12 CFR Part 223 (Regulation W)](https://www.ecfr.gov/current/title-12/part-223) applies directly to member banks of the Federal Reserve System. Its application to credit unions is by analogy through NCUA safety-and-soundness authority or through state law. Legal must confirm the operative authority and whether any NCUA-specific affiliate transaction rule applies to Pynthia.
+
+- **12 CFR §§563.200 and 563.201 (OTS regulations) are cited from the reference policy.** These provisions applied to federal savings associations under OTS. Their applicability to credit unions is by analogy; the NCUA equivalent authorities (§701.4 and general safety-and-soundness standards) are the primary citations. Legal should confirm whether §§563.200 and 563.201 are cited as persuasive authority or whether a direct NCUA equivalent exists.
+
+- **De minimis gift threshold (Exhibit C) is not defined in this policy.** Patrick's notes reference Exhibit C for gift/entertainment thresholds but do not specify the dollar amount. The CCO must define and approve the threshold before the effective date. A common benchmark is $25–$50 per occurrence; the threshold must be consistent with [18 USC §215](https://www.law.cornell.edu/uscode/text/18/215) and the Bank Bribery Guidelines (52 Fed. Reg. 43941 (1987)).
+
+- **Exhibits A, B, and C are referenced but not included in this policy.** Exhibit A (annual COI questionnaire), Exhibit B (ad-hoc disclosure form), and Exhibit C (gift policy and thresholds) are maintained as separate artifacts. Their content must be consistent with this policy and approved by the CCO before the effective date.
+
+- **Engineering vocabulary is provisional.** The lending-side and governance-side resources, fields, and events referenced in the EVENTS tables throughout this document (including `covered_person.*`, `coi.*`, `insider.*`, `affiliate.*`, `corp_opportunity.*`, `tiein.*`, `gift.*`, `cu.unimpaired_capital_surplus`, and related codes) are drawn from the registered core-API vocabulary where registered subjects and events exist. Codes that are not yet registered in `core-vocabulary.json` follow the Composition grammar (registered subject + registered verb) and are the target naming scheme. All such codes will be confirmed by engineering before the next review. Specifically: `cu.unimpaired_capital_surplus` is registered; `covered_person.*`, `coi.*`, `insider.*`, `affiliate.*`, `corp_opportunity.*`, `tiein.*`, and `gift.*` subjects and their fields are registered in the vocabulary and used as specified. No new subjects have been minted.
+
+- **Aggregate insider credit limit board resolution for small institutions.** [12 CFR §215.4(d)](https://www.ecfr.gov/current/title-12/part-215/section-215.4) permits the Board of an institution with deposits under $100 million to increase the aggregate insider limit to up to 2× unimpaired capital and surplus by annual resolution, subject to conditions. This policy does not pre-authorize that increase; if Pynthia wishes to use this authority, the Board must adopt a compliant annual resolution and this policy must be updated to reflect it.
+
+- **Executive officer credit — additional limits.** [12 CFR §215.4(d)](https://www.ecfr.gov/current/title-12/part-215/section-215.4) imposes purpose-specific and amount-specific limits on credit to executive officers (education, residence, permissible security, and a 2.5%/$25,000/$100,000 general limit). These limits are incorporated by reference in DF-05 but are not enumerated in detail in this policy. The Lending Policy must implement the operational controls for these limits; this policy establishes the governance framework.
+
+- **Overdraft provisions for executive officers and directors.** [12 CFR §215.4(e)](https://www.ecfr.gov/current/title-12/part-215/section-215.4) requires a written, interest-bearing, preauthorized credit plan for overdrafts of executive officers and directors, with a $1,000/$5-business-day inadvertent overdraft exception. These operational controls are delegated to the Lending Policy; this policy establishes the prohibition on non-compliant overdrafts.
+
+- **Financial literacy training content and delivery.** This policy requires attainment of financial literacy within 6 months of election or appointment but does not specify the training curriculum or delivery method. The CCO must define the curriculum (consistent with [12 CFR §701.4](https://www.ecfr.gov/current/title-12/part-701/section-701.4)) and register it in the training system before the effective date.
+
+- **Impartiality duty operational implementation.** The duty of impartiality (fair administration without discrimination in favor of or against any particular member) under [12 CFR §701.4](https://www.ecfr.gov/current/title-12/part-701/section-701.4) is stated as a fiduciary duty in DF-01 but does not have a separate operational control in this policy. Complaints alleging discriminatory treatment by directors are handled under the Compliance Policy. If a pattern of impartiality violations is identified, the CCO will escalate to the Board under DF-10.
