@@ -2,8 +2,8 @@
 title: Record Retention Policy (Table-First, Design-Overlay v2)
 owner: Patrick Wilson, Chief Compliance Officer
 version: v1.0
-effective: 2026-06-16
-next_review: 2027-06-16
+effective: 2026-06-18
+next_review: 2027-06-18
 approvers:
   - Patrick Wilson, Chief Compliance Officer
 tags: [Compliance, Record Retention, Records Management, Destruction, Legal Hold]
@@ -25,6 +25,8 @@ Pynthia Credit Union maintains a comprehensive record-retention and destruction 
 | Annual policy & Schedule A review | Annual review window opens (`records.policy_review_completed`) | Every 12 months | Updated policy + Schedule A version | [RR-04](#rr-04-annual-policy-and-schedule-review) |
 | Electronic-record integrity test | Integrity test due (`record.integrity_test_completed`) | Per test cycle | Reproduction/integrity result | [RR-03](#rr-03-retention-methods-and-electronic-record-integrity) |
 | Annual records training | Training cycle opens (`training.retention_completed`) | Every 12 months | Completion records | [RR-09](#rr-09-records-retention-training) |
+| BSA/AML 5-year retention expires → anonymization or destroy | Retention timer reaches 5-year mark (`records.bsa_retention_expired`) | At 5-year mark or per schedule | Anonymization certificate or destruction record | [RR-10](#rr-10-bsaml-anonymization-and-extended-analytical-retention) |
+| CDD record refresh due | Scheduled review or new product/service added (`cdd.refresh_triggered`) | Annually (high-risk); every 2 years (standard-risk); on new product/service | CDD refresh record; superseded record disposition | [RR-11](#rr-11-cdd-refresh-cycle-and-stale-record-disposition) |
 
 ## RR-01 — Responsibility and Administration  {#rr-01-responsibility-and-administration}
 
@@ -165,6 +167,43 @@ Pynthia Credit Union maintains a comprehensive record-retention and destruction 
 | Training lapsed or incomplete (`training.retention_completed`) | Lapse flag (`training.lapsed`), assignee (`training.assignee_id`) | Remedial training assigned (`training.remedial_assigned`) | On lapse |
 
 **ALERTS/METRICS:** Alert on overdue or lapsed assignments; target 100% completion by cycle close; track department-specific content currency against the annual policy review.
+
+## RR-10 — BSA/AML Anonymization and Extended Analytical Retention  {#rr-10-bsaml-anonymization-and-extended-analytical-retention}
+
+**WHY (Reg cite):** The [Bank Secrecy Act recordkeeping rule (31 CFR §1010.430)](https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X/part-1010/subpart-D/section-1010.430) requires 5-year retention of BSA/AML records. Beyond that period, the California Consumer Privacy Rights Act (CPRA) creates a data-minimization obligation that requires destruction or de-identification of individually identifiable personal information when the original retention purpose has expired. Retention of anonymized/aggregated BSA data for analytics must satisfy CPRA's de-identification standard.
+
+**SYSTEM BEHAVIOR:** When a BSA/AML record's 5-year retention period expires, the system flags it for a mandatory disposition decision: either destroy or anonymize to CPRA de-identification standards (reasonable measures taken to prevent re-identification; a documented public commitment not to re-identify). Anonymized and aggregated BSA/AML data — from which no individual can be identified — may be retained beyond 5 years for compliance analytics, trend analysis, and program improvement; the system records the anonymization event, the date it occurred, the method applied, and confirmation that re-identification safeguards are in place. An audit trail is generated so examiners can confirm the disposition of individually identifiable records even when older data cannot be traced to specific members. Individually identifiable records that are not anonymized must be destroyed under RR-05. The anonymization configuration and the disposition decision are write-restricted to BSA Compliance and Legal.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| BSA/AML 5-year retention period expires (`records.bsa_retention_expired`) | Record class (`record.retention_class`), expiry date (`record.retention_expires_at`), hold status (`record.hold_status`) | Disposition task created — destroy or anonymize (`disposal.scheduled`) | At 5-year expiry (enforced by `record.destruction_due_at`) |
+| Anonymization executed (`records.bsa_anonymized`) | Anonymization method (`records.anonymization_method`), de-identification confirmation (`records.reidentification_safeguards_confirmed`), data set scope (`records.bsa_dataset_scope`) | Anonymization record created; audit trail entry logged; retention clock extended for analytical data (`records.bsa_anonymized`) | At anonymization (before individually identifiable data is destroyed) |
+| Extended analytical retention — review cycle (`records.bsa_anonymous_retention_reviewed`) | Anonymized data inventory (`records.bsa_dataset_scope`), ongoing analytical purpose (`records.analytical_purpose`) | Retention justification renewed or data destroyed (`records.bsa_anonymous_retention_reviewed`) | Annual review (enforced by `records.bsa_anonymous_retention_review_due_at`) |
+
+**ALERTS/METRICS:** Alert on any BSA/AML record reaching the 5-year mark without a disposition decision; target zero individually identifiable records retained beyond 5 years without a documented anonymization or destruction action; track the count of anonymized datasets with valid de-identification certifications.
+
+---
+
+## RR-11 — CDD Refresh Cycle and Stale-Record Disposition  {#rr-11-cdd-refresh-cycle-and-stale-record-disposition}
+
+**WHY (Reg cite):** The [Bank Secrecy Act's Customer Due Diligence rule (31 CFR §1010.230)](https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X/part-1010/subpart-B/section-1010.230) requires ongoing CDD that keeps customer risk profiles current. The CPRA data-minimization principle requires systematic elimination of stale personal information that is no longer needed for the purpose for which it was collected. Combining a rolling refresh cycle with prompt disposal of superseded records satisfies both requirements.
+
+**SYSTEM BEHAVIOR:** CDD records are refreshed on a rolling basis: at minimum annually for higher-risk customers, every two years for standard-risk customers, and upon any new product or service added to a customer relationship. When a refresh is completed, superseded CDD records — information that has been updated or replaced — are evaluated and disposed of by destruction or anonymization consistent with RR-10 rather than carried forward; only current, accurate customer information is maintained. The BSA department documents the refresh date, the triggering event (scheduled review or new product/service), and the disposition of superseded records in the member file. Refresh and disposition records are write-restricted to the BSA department and Compliance.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| CDD refresh due — scheduled cycle (`cdd.refresh_triggered`) | Customer risk tier (`cdd_profile.risk_tier`), refresh trigger type (`cdd.refresh_trigger`), last refresh date (`cdd.refresh_date`) | CDD refresh task opened (`cdd.refresh_triggered`) | Annual (high-risk; enforced by `cdd.refresh_due_at`); every 2 years (standard-risk) |
+| CDD refresh due — new product or service added (`cdd.refresh_triggered`) | New product/service id (`product.id`), customer relationship id (`entity.id`) | CDD refresh task opened immediately (`cdd.refresh_triggered`) | On product/service addition |
+| CDD refresh completed (`cdd.refreshed`) | Updated CDD record (`cdd_profile.risk_tier`), refresh date (`cdd.refresh_date`), trigger (`cdd.refresh_trigger`), superseded-record scope | Refresh recorded; superseded-record disposition task created (`cdd.refreshed`) | At completion |
+| Superseded CDD records disposed (`records.bsa_anonymized` or `record.destroyed`) | Superseded record set, disposition method (destroy or anonymize per RR-10 / RR-05), authorizer (`record.hold_authorizer`) | Disposition logged; member file updated (`records.bsa_anonymized` or `record.destroyed`) | Same cycle as refresh completion |
+
+**ALERTS/METRICS:** Alert on any CDD record overdue for refresh; target zero high-risk customer profiles past their annual refresh date; track the volume of superseded CDD records disposed per cycle and confirm no superseded records carried forward.
+
+---
 
 ## Governance & Sign-Off  {#governance}
 
