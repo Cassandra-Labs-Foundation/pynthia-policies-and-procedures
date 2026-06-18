@@ -45,6 +45,13 @@ def main() -> int:
     # 1. drop stale self-count
     dropped = doc.get("info", {}).pop("x-elements", None) is not None
 
+    # 1b. info hygiene — title/version render at the top of the API reference. The spec long
+    # outgrew "(Minimal)" (301 schemas / 15k lines) and the version never moved off the pre-OpenAPI
+    # 2.2.0. Set an accurate title + an OpenAPI-era version (idempotent: fixed targets).
+    info = doc.setdefault("info", {})
+    info["title"] = "Cassandra Banking Core API"
+    info["version"] = "3.0.0"
+
     # 2. resource-qualify bare x-operation-ids
     plural_map = {_plural(_snake(k)).replace("_", "-"): _snake(k) for k, s in schemas.items()
                   if s.get("x-kind") != "vocabulary" and s.get("x-vocabulary") is not False}
