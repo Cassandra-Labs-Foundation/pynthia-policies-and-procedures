@@ -3,8 +3,8 @@ name: Regenerate policy on prompt change
 # Fires whenever any policy's prompt.md changes. The `detect` job lists the
 # enabled, changed policies; the `regenerate` job fans out one runner PER
 # policy (matrix) so they regenerate in parallel. Each runner prepares its
-# composite prompt, has Claude regenerate the structured policy ({slug}.md)
-# and its narrative sibling ({slug}-narrative.md), then opens its own PR.
+# composite prompt, regenerates the structured policy ({slug}.md) via the raw
+# Anthropic API, then opens its own PR.
 
 on:
   push:
@@ -146,58 +146,24 @@ jobs:
           set -euo pipefail
           sudo apt-get install -y libreoffice-writer
 
-      - name: Prepare composite prompt (policy-prep)
+      - name: Install Anthropic SDK
         shell: bash
-        run: |
-          set -euo pipefail
-          python3 .skills/policy-prep/scripts/prepare_policy.py "${{ matrix.slug }}"
+        run: python3 -m pip install anthropic
 
-      - name: Install Claude Code CLI
-        shell: bash
-        run: npm install -g @anthropic-ai/claude-code
-
-      - name: Regenerate policy with Claude
+      - name: Regenerate policy (raw Anthropic API)
         shell: bash
         env:
-          # Direct Anthropic API (pay-per-token) for full throughput on large
-          # regenerations. --bare requires API-key auth (it skips OAuth).
+          # Direct Anthropic API (pay-per-token) for full throughput + prompt
+          # caching on the shared meta-prompt.
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           set -euo pipefail
-          SLUG="${{ matrix.slug }}"
-          cat > /tmp/regen-prompt.txt <<EOF
-          You are running headless in CI to regenerate ONE compliance policy: ${SLUG}.
-          The deterministic prep already wrote its composite prompt to
-          \`.cache/prep/${SLUG}.composite-prompt.txt\`.
-
-          Do exactly this:
-            1. Read \`.cache/prep/${SLUG}.composite-prompt.txt\` in full and generate
-               the structured policy exactly as it instructs. Write the result to
-               \`${SLUG}/${SLUG}.md\`, overwriting it.
-            2. Read \`.skills/narrative/SKILL.md\` and \`.skills/narrative/narrative-prompt.md\`
-               and follow them to produce the regulator-facing prose sibling, writing it
-               to \`${SLUG}/${SLUG}-narrative.md\`, overwriting it. It must describe the
-               SAME policy as the structured file.
-            3. In \`STATUS.md\`, update ONLY this policy's row (${SLUG}) — its
-               last-regenerated timestamp, status, DESIGN_NOTES source, skipped
-               references. Add the row if absent. Do NOT modify the "Last run" /
-               "Run totals" header lines or any other policy's row (parallel jobs
-               share this file — touching shared lines causes cross-PR conflicts).
-
-          Constraints:
-            - Do NOT run \`git commit\`, \`git push\`, or open a pull request. Leave
-              all changes in the working tree only — a later step opens the PR.
-            - Do NOT modify any \`prompt.md\`, \`meta-prompt.md\`, \`manifest.yaml\`,
-              or any file under \`references/\`.
-          EOF
-          # --bare: skip auto-discovery (hooks/skills/plugins/MCP/memory/CLAUDE.md)
-          #   for faster, deterministic startup. We read the narrative skill files
-          #   explicitly, so nothing is lost.
-          # --permission-mode acceptEdits: grant file read/write/edit only; arbitrary
-          #   Bash/network aborts. Pin model; bump to claude-opus-4-8 for max quality.
-          claude --bare -p "$(cat /tmp/regen-prompt.txt)" \
-            --model claude-sonnet-4-6 \
-            --permission-mode acceptEdits
+          # Reuses policy-prep in-process for the optimized, content-hashed
+          # document reading, then makes one cached API call (structured policy)
+          # and stamps this policy's STATUS.md row. Bump to claude-opus-4-8 for
+          # max quality.
+          python3 scripts/regenerate_policy.py "${{ matrix.slug }}" \
+            --model claude-sonnet-4-6
 
       - name: Open pull request
         uses: peter-evans/create-pull-request@v8
@@ -209,10 +175,9 @@ jobs:
           body: |
             Automated regeneration triggered by a change to `${{ matrix.slug }}/prompt.md`.
 
-            Structured `${{ matrix.slug }}/${{ matrix.slug }}.md` and narrative
-            `${{ matrix.slug }}/${{ matrix.slug }}-narrative.md` were rebuilt from the
-            current `prompt.md` + `references/` via the policy-prep pipeline and the
-            meta-prompt / narrative skills.
+            `${{ matrix.slug }}/${{ matrix.slug }}.md` was rebuilt from the current
+            `prompt.md` + `references/` via the policy-prep pipeline and the meta-prompt
+            (raw Anthropic API, prompt-cached).
 
             Review the diff before merging — these are regulator-facing compliance documents.
           delete-branch: true
