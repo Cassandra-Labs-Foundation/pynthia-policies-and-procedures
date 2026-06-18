@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -181,17 +181,21 @@ jobs:
             - If a composite prompt file is missing for a slug, skip that slug and
               note it; do not fail the whole run.
           EOF
+          # Least privilege: the regen only needs to read files (composite prompt,
+          # narrative skill template) and write/edit files (policy, narrative,
+          # STATUS.md). --permission-mode acceptEdits auto-approves those file ops
+          # and read-only tools, while any arbitrary Bash command or network call
+          # aborts the run — so we grant exactly what the regeneration needs and
+          # nothing more. (No --dangerously-skip-permissions, which would allow
+          # everything and defeat this scoping.)
           # Pin model; bump to claude-opus-4-8 for max quality.
-          # --dangerously-skip-permissions: required for autonomous headless tool use
-          # in an ephemeral CI runner.
           claude -p "$(cat /tmp/regen-prompt.txt)" \
             --model claude-sonnet-4-6 \
-            --dangerously-skip-permissions \
-            --allowedTools "Bash,Read,Write,Edit,Glob,Grep"
+            --permission-mode acceptEdits
 
       - name: Open pull request
         if: steps.detect.outputs.count != '0'
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           commit-message: "policy: regenerate ${{ steps.detect.outputs.slugs }} from prompt.md change"
           branch: regen/${{ github.run_id }}
