@@ -6,7 +6,7 @@
 > 2. The canonical input that our regeneration task feeds into the shared
 >    meta-prompt to produce the full Table-First, Design-Overlay v2 policy
 >    document.
-> 
+>
 > Edit this file directly when the policy's substance, scope, or ownership
 > changes. The regenerated long-form policy is rebuilt from this summary plus
 > the reference documents in `references/`.
