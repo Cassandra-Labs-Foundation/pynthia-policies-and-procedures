@@ -203,14 +203,35 @@ def apply_op(op: dict) -> bool:
         member_keys = [k for k in dict.fromkeys(member_keys)]  # dedupe, preserve order
         if name in schemas or len(member_keys) < 2:
             return False  # base name taken, or nothing to factor
-        # keep only fields present with an identical definition across ALL members
+        # keep fields present in EVERY member with a STRUCTURALLY identical definition — comparing
+        # only the schema keys (type/format/enum/items/$ref), not the derived metadata
+        # (x-bound-controls/description) that derive_bound_controls + author_descriptions stamp
+        # per-schema. The base carries the structural def + the UNION of the members' bindings, so a
+        # generic field individualized only by its compliance metadata still factors (and no binding
+        # is lost — it moves to the shared base).
+        _meta = ("x-bound-controls", "description")
+        def _struct(d):
+            return {k: v for k, v in d.items() if k not in _meta} if isinstance(d, dict) else d
         safe: dict = {}
         for f in fields:
             defs = [(schemas[k].get("properties") or {}).get(f) for k in member_keys]
-            if all(d is not None for d in defs) and all(d == defs[0] for d in defs):
-                safe[f] = defs[0]
+            if any(d is None for d in defs):
+                continue  # not present in every member
+            if any(not isinstance(d, dict) for d in defs):
+                if all(d == defs[0] for d in defs):
+                    safe[f] = defs[0]
+                continue
+            if all(_struct(d) == _struct(defs[0]) for d in defs):
+                base_def = dict(_struct(defs[0]))
+                bound = sorted({c for d in defs for c in (d.get("x-bound-controls") or [])})
+                if bound:
+                    base_def["x-bound-controls"] = bound
+                desc = next((d.get("description") for d in defs if d.get("description")), None)
+                if desc:
+                    base_def["description"] = desc
+                safe[f] = base_def
         if not safe:
-            return False  # no identically-defined shared field — refuse, no-op (scorer judges economics)
+            return False  # no structurally-shared field — refuse, no-op (scorer judges economics)
         ref = {"$ref": f"#/components/schemas/{name}"}
         schemas[name] = {"type": "object", "x-kind": "mixin", "properties": safe,
                          "description": f"Extracted base: fields shared identically by "
