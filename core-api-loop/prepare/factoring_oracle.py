@@ -87,6 +87,7 @@ def evaluate(doc: dict | None, cluster_min: int = 4) -> dict:
         candidates.append({
             "anchor": anchor,
             "fields": sorted(cluster),
+            "members": sorted(members),       # the concrete schemas to extract_base over
             "member_count": len(members),
             "savings_estimate": sum(counts[p] - 1 for p in cluster),
         })
