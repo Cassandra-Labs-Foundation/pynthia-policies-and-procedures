@@ -331,9 +331,13 @@ def render_composition_grammar(data):
     lines = ["## Composition grammar (rules for any NEW code)", ""]
     lines.append(
         "The engineering vocabulary is **closed-world and compositional**. Every "
-        "event code is `object.property.action` — a registered object, a property "
-        "(field) of that object, and a registered action. Before citing any code "
-        "not listed elsewhere in this document, apply these rules in order:"
+        "code is one object viewed through a facet: `object.property` is a **field** "
+        "(a data point), `object.property.action` is an **event** (that field "
+        "changed), `object.task_type.due_at` is a **timer** (an obligation), and a "
+        "lifecycle **state** is the result of an action (the action that reaches it). "
+        "Object, action, and task type are closed registries (listed below); "
+        "property is a field of the object. Before citing any code not listed "
+        "elsewhere in this document, apply these rules in order:"
     )
     lines.append("")
     lines.append(
@@ -349,9 +353,9 @@ def render_composition_grammar(data):
         "is a registered field of that object and the action is one of the "
         "registered actions below. Omit the property only for a whole-object "
         "lifecycle event (`<object>.<action>`, e.g. `record.disposed`). A new "
-        "*task or timer* code must use a registered task type — deadlines are "
-        "`Task` instances (`type` + `subject_ref` + `due_at`), never a new "
-        "per-domain `*_due_at` field."
+        "*timer* code must be `<registered object>.<registered task type>.due_at` "
+        "— a `Task` instance (`subject_ref` = the object, `type` = the task type, "
+        "`due_at`), never a new per-domain `*_due_at` field."
     )
     lines.append(
         "3. **Stay inside the registries.** Do not mint a new object (prefix) or "

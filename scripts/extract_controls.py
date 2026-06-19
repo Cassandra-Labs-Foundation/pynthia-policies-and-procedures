@@ -40,7 +40,7 @@ import re
 import sys
 from datetime import datetime, timezone
 
-from code_format import event_struct  # canonical object.property.action decomposition
+from code_format import event_struct, timer_struct  # canonical object.property.action + object.task_type.due
 
 # --------------------------------------------------------------------------- #
 # File discovery
@@ -256,7 +256,7 @@ DEADLINE_ENFORCED_RE = re.compile(r"\(\s*enforced by[^)]*\)", re.IGNORECASE)
 
 
 def normalize_rules(control_id: str, policy: str, events: list[dict],
-                    actions: set[str]) -> list[dict]:
+                    actions: set[str], task_types: set[str]) -> list[dict]:
     """Project parsed EVENTS rows into flat, DB-ready control_rule records.
 
     One record per EVENTS row: the trigger that opens the obligation, the inputs
@@ -289,6 +289,7 @@ def normalize_rules(control_id: str, policy: str, events: list[dict],
             "produced_events": produced,
             "produced": [event_struct(p, actions) for p in produced],
             "deadline_timer": timers[0] if timers else None,
+            "deadline": timer_struct(timers[0], task_types) if timers else None,
             "deadline_text": deadline_text or None,
         })
     return rules
@@ -381,6 +382,7 @@ def build(root: str) -> dict:
     vocab_path = os.path.join(root, "core-vocabulary.json")
     event_codes, field_paths, api_meta, vocab = load_api_index(vocab_path)
     actions = set((vocab or {}).get("event_types", []))
+    task_types = set((vocab or {}).get("task_types", []))
 
     policy_files = find_policy_files(root)
     controls: list[dict] = []
@@ -428,7 +430,7 @@ def build(root: str) -> dict:
                 "alerts_metrics": parsed["alerts_metrics"],
                 "events": parsed["events"],
                 "control_rules": normalize_rules(
-                    hm.group("id"), slug, parsed["events"], actions
+                    hm.group("id"), slug, parsed["events"], actions, task_types
                 ),
                 "api_references": {
                     **api,

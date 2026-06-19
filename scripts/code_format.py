@@ -72,10 +72,60 @@ def event_struct(code: str, actions: set[str]) -> dict:
     }
 
 
+def decompose_timer(code: str, task_types: set[str]) -> tuple[str, str | None, str | None, str | None]:
+    """Split a deadline timer code into (object, qualifier, task_type, marker).
+
+    A timer is the obligation facet of an object, the Task primitive in code form:
+    `object.[qualifier.]<task_type>.due_at`. The `due_at`/`due` marker identifies
+    it as a deadline; the trailing registered task type (one of x-task-types) is
+    the obligation kind. `access.review_due_at` -> (access, None, review, due_at);
+    `capital.annual_review_due_at` -> (capital, annual, review, due_at).
+
+    marker=None when the code carries no due marker (not a timer / non-conforming);
+    task_type=None when the obligation tail is not a registered task type.
+    """
+    obj, _, rest = code.partition(".")
+    norm = rest.replace(".", "_")
+    marker: str | None = None
+    for m in ("_due_at", "_due"):
+        if norm.endswith(m):
+            marker, norm = m.lstrip("_"), norm[: -len(m)]
+            break
+    if marker is None:
+        return obj, (rest or None), None, None
+    best: str | None = None
+    for t in task_types:
+        if norm == t or norm.endswith("_" + t):
+            if best is None or len(t) > len(best):
+                best = t
+    qualifier = norm[: -len(best)].rstrip("_") if best else norm
+    return obj, (qualifier or None), best, marker
+
+
+def timer_struct(code: str, task_types: set[str]) -> dict:
+    """Decompose a timer into a serializable Task record {object, task_type, …, conforms}."""
+    obj, qualifier, task_type, marker = decompose_timer(code, task_types)
+    canon = ".".join(p for p in (obj, qualifier, task_type, marker) if p)
+    return {
+        "object": obj,
+        "qualifier": qualifier,
+        "task_type": task_type,
+        "marker": marker,
+        "canonical": canon,
+        "conforms": marker is not None and task_type is not None,
+    }
+
+
 def load_actions(vocab_path: str) -> set[str]:
     """Load the registered action vocabulary (x-event-types) from core-vocabulary.json."""
     with open(vocab_path, encoding="utf-8") as fh:
         return set(json.load(fh).get("event_types", []))
+
+
+def load_task_types(vocab_path: str) -> set[str]:
+    """Load the registered task-type vocabulary (x-task-types) from core-vocabulary.json."""
+    with open(vocab_path, encoding="utf-8") as fh:
+        return set(json.load(fh).get("task_types", []))
 
 
 # --------------------------------------------------------------------------- #
