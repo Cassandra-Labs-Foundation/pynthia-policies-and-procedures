@@ -79,19 +79,31 @@ def extract_base(schemas: dict, name: str, fields, members) -> bool:
     return True
 
 
+OVERLAY = os.path.join(HERE, "factoring-overlay.yaml")
+
+
 def main() -> int:
     doc = yaml.safe_load(open(SPEC).read())
     schemas = doc["components"]["schemas"]
-    cands = factoring_oracle.evaluate(doc).get("mixin_candidates", [])
     applied = []
-    for c in cands:
-        if c.get("savings_estimate", 0) < MIN_SAVINGS:
-            continue
-        name = _base_name(c["anchor"])
-        if extract_base(schemas, name, c.get("fields", []), c.get("members", [])):
-            applied.append(f"{name}({','.join(c.get('fields', []))} ×{c.get('member_count')})")
+    overlay = yaml.safe_load(open(OVERLAY).read()) if os.path.exists(OVERLAY) else None
+    if overlay and overlay.get("bases"):
+        # Curated mode: extract exactly the reviewed bases (avoids over-merging distinct concepts).
+        for name, spec in overlay["bases"].items():
+            if extract_base(schemas, name, spec.get("fields", []), spec.get("members", [])):
+                applied.append(f"{name}({','.join(spec.get('fields', []))})")
+        src = "curated overlay"
+    else:
+        # Auto mode: every strong structural candidate (review before trusting — can over-merge).
+        for c in factoring_oracle.evaluate(doc).get("mixin_candidates", []):
+            if c.get("savings_estimate", 0) < MIN_SAVINGS:
+                continue
+            name = _base_name(c["anchor"])
+            if extract_base(schemas, name, c.get("fields", []), c.get("members", [])):
+                applied.append(f"{name}({','.join(c.get('fields', []))} ×{c.get('member_count')})")
+        src = "auto candidates"
     open(SPEC, "w").write(yaml.safe_dump(doc, **DUMP))
-    print(f"factored {len(applied)} base mixins: {applied}")
+    print(f"factored {len(applied)} base mixins ({src}): {applied}")
     return 0
 
 

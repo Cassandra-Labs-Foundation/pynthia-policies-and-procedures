@@ -76,7 +76,7 @@ paths:
                   $ref: '#/components/schemas/EscalationDetail'
                 evidence:
                   type: array
-                  items: &id068
+                  items: &id069
                     $ref: '#/components/schemas/Document'
                   x-bound-controls:
                   - BSA-06
@@ -91,11 +91,11 @@ paths:
                   example: Possible structuring pattern on acct 0012
                 tasks:
                   type: array
-                  items: &id069
+                  items: &id070
                     type: string
                 type:
                   type: string
-                  enum: &id070
+                  enum: &id071
                   - investigation
                   - sar_decision
                   - escalation
@@ -328,7 +328,7 @@ paths:
                   - IP-15
                 type:
                   type: string
-                  enum: &id071
+                  enum: &id072
                   - bo_certification
                   - risk_profile
                   - edd_file
@@ -489,7 +489,7 @@ paths:
                   $ref: '#/components/schemas/SarData'
                 type:
                   type: string
-                  enum: &id072
+                  enum: &id073
                   - ctr
                   - doep
                   - sar
@@ -1709,7 +1709,7 @@ paths:
                   - CL-03
                 booking_block_state:
                   type: string
-                  enum: &id074
+                  enum: &id075
                   - open
                   - cleared
                   - blocked
@@ -1777,7 +1777,7 @@ paths:
                   - CL-09
                 funding_block_state:
                   type: string
-                  enum: &id075
+                  enum: &id076
                   - open
                   - cleared
                   - blocked
@@ -1987,7 +1987,7 @@ paths:
                   $ref: '#/components/schemas/TrainingDetail'
                 type:
                   type: string
-                  enum: &id073
+                  enum: &id074
                   - acknowledgement
                   - activation
                   - analysis
@@ -4597,14 +4597,10 @@ components:
           x-bound-controls:
           - BSA-10
           description: Evidences control BSA-10.
-        name:
-          type: string
-          x-bound-controls:
-          - BSA-10
-          description: Evidences control BSA-10.
-        routing_number:
-          type: string
       description: The receiving party of a wire or transfer.
+      allOf:
+      - &id068
+        $ref: '#/components/schemas/PartyBase'
     BookkeepingEntry:
       type: object
       x-kind: banking-core
@@ -4721,12 +4717,10 @@ components:
     Counterparty:
       type: object
       x-kind: banking-core
-      properties:
-        name:
-          type: string
-        routing_number:
-          type: string
+      properties: {}
       description: The other party to a transfer.
+      allOf:
+      - *id068
     Entity:
       type: object
       x-kind: banking-core
@@ -4901,19 +4895,11 @@ components:
       type: object
       x-kind: banking-core
       properties:
-        name:
-          type: string
-          x-bound-controls:
-          - BSA-10
-          description: Evidences control BSA-10.
         reference:
           type: string
-        routing_number:
-          type: string
-          x-bound-controls:
-          - BSA-10
-          description: Evidences control BSA-10.
       description: The sending party of a transfer.
+      allOf:
+      - *id068
     Party:
       type: object
       x-kind: banking-core
@@ -4922,13 +4908,11 @@ components:
           type: string
         bank_name:
           type: string
-        name:
-          type: string
         reference:
           type: string
-        routing_number:
-          type: string
       description: A party to a transfer — originator, beneficiary, or counterparty.
+      allOf:
+      - *id068
     PepStatus:
       type: object
       x-kind: banking-core
@@ -5168,7 +5152,7 @@ components:
           $ref: '#/components/schemas/EscalationDetail'
         evidence:
           type: array
-          items: *id068
+          items: *id069
           x-bound-controls:
           - BSA-06
           description: Evidences control BSA-06.
@@ -5195,10 +5179,10 @@ components:
           description: Evidences control BSA-06.
         tasks:
           type: array
-          items: *id069
+          items: *id070
         type:
           type: string
-          enum: *id070
+          enum: *id071
         sar_decision_timer:
           type: string
           description: Timer/SLA marker.
@@ -5283,7 +5267,7 @@ components:
           description: Evidences controls IP-15, LN-09, RII-09.
         type:
           type: string
-          enum: *id071
+          enum: *id072
           x-bound-controls:
           - IP-15
           - LN-09
@@ -5351,7 +5335,7 @@ components:
           - nil_determined
         type:
           type: string
-          enum: *id072
+          enum: *id073
       description: A regulatory filing and its lifecycle (submit→acknowledge).
     LegalHold:
       type: object
@@ -5438,7 +5422,7 @@ components:
           $ref: '#/components/schemas/TrainingDetail'
         type:
           type: string
-          enum: *id073
+          enum: *id074
           description: Generic task verb. The task's noun/domain is carried in `subject`.
           x-bound-controls:
           - LP-14
@@ -5797,7 +5781,7 @@ components:
           description: Evidences control COL-03.
         booking_block_state:
           type: string
-          enum: *id074
+          enum: *id075
         charged_off:
           type: string
         chargeoff_due_closed_end:
@@ -5886,7 +5870,7 @@ components:
           description: Evidences control COL-09.
         funding_block_state:
           type: string
-          enum: *id075
+          enum: *id076
           x-bound-controls:
           - LN-11
           description: Evidences control LN-11.
@@ -21564,6 +21548,21 @@ components:
           x-bound-controls:
           - LN-06
           description: Evidences control LN-06.
+    PartyBase:
+      type: object
+      x-kind: mixin
+      properties:
+        name:
+          type: string
+          x-bound-controls:
+          - BSA-10
+          description: Evidences control BSA-10.
+        routing_number:
+          type: string
+          x-bound-controls:
+          - BSA-10
+          description: Evidences control BSA-10.
+      description: 'Extracted base: fields shared by 4 schemas.'
   parameters:
     Limit:
       name: limit
@@ -21690,7 +21689,7 @@ x-event-types:
 - validated
 - valued
 - verified
-x-task-types: *id073
+x-task-types: *id074
 x-state-machines:
   Entity:
   - pending
