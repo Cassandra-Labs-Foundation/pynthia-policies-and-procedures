@@ -5161,11 +5161,6 @@ components:
           x-bound-controls:
           - BSA-06
           description: Evidences control BSA-06.
-        owner_id:
-          type: string
-          x-bound-controls:
-          - BSA-06
-          description: Evidences control BSA-06.
         status:
           type: string
           enum:
@@ -5190,6 +5185,9 @@ components:
           - BSA-06
           - TPR-08
       description: An investigation or work case.
+      allOf:
+      - &id078
+        $ref: '#/components/schemas/OwnedEntity'
     ControlResult:
       type: object
       x-kind: primitive
@@ -11745,16 +11743,13 @@ components:
           x-bound-controls:
           - IC-07
           description: Evidences control IC-07.
-        owner_id:
-          type: string
-          x-bound-controls:
-          - IC-07
-          description: Evidences control IC-07.
         severity:
           type: string
           x-bound-controls:
           - IC-07
           description: Evidences control IC-07.
+      allOf:
+      - *id078
     destruction_log:
       type: object
       x-kind: vocabulary
@@ -18006,12 +18001,6 @@ components:
           - EC-01
           - TPR-03
           description: Evidences controls BSA-02, CP-04, EC-01, TPR-03.
-        owner_id:
-          type: string
-          x-bound-controls:
-          - BSA-02
-          - ERM-04
-          description: Evidences controls BSA-02, ERM-04.
         partner_dependency:
           type: string
           x-bound-controls:
@@ -18056,6 +18045,8 @@ components:
       x-timers:
       - task_type: assessment
         qualifier: product
+      allOf:
+      - *id078
     risk_acceptance:
       type: object
       x-kind: vocabulary
@@ -18096,11 +18087,6 @@ components:
           - ERM-07
           - ERM-08
           description: Evidences controls ERM-07, ERM-08.
-        owner_id:
-          type: string
-          x-bound-controls:
-          - ERM-07
-          description: Evidences control ERM-07.
         decision_due_at:
           type: string
           format: date-time
@@ -18112,6 +18098,8 @@ components:
       - action: decided
       x-timers:
       - task_type: decision
+      allOf:
+      - *id078
     risk_appetite:
       type: object
       x-kind: vocabulary
@@ -21550,6 +21538,20 @@ components:
           - PR-06
           description: Evidences controls IC-05, PR-06.
       description: 'Extracted base: fields shared by 8 schemas.'
+    OwnedEntity:
+      type: object
+      x-kind: mixin
+      properties:
+        owner_id:
+          type: string
+          x-bound-controls:
+          - BSA-02
+          - BSA-06
+          - ERM-04
+          - ERM-07
+          - IC-07
+          description: Evidences control BSA-06.
+      description: 'Extracted base: fields shared identically by 4 schemas.'
   parameters:
     Limit:
       name: limit
