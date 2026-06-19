@@ -10,3 +10,8 @@ bases:
   PartyBase:
     fields: [name, routing_number]
     members: [Party, Beneficiary, Counterparty, Originator]
+  # The review-deadline facet (a review_due date + due-at timer) recurs across schemas that carry a
+  # periodic-review obligation — a cross-cutting trait, composed rather than an entity identity.
+  ReviewDueBase:
+    fields: [review_due, review_due_at]
+    members: [access, bia, credit_box, firewall, instrument_list, intermediary, limit_set, policy]

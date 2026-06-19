@@ -6950,13 +6950,6 @@ components:
           - IS-06
           - PR-06
           description: Evidences controls IC-05, IS-06, PR-06.
-        review_due:
-          type: string
-          format: date
-          x-bound-controls:
-          - IC-05
-          - PR-06
-          description: Evidences controls IC-05, PR-06.
         review_due_at:
           type: string
           format: date-time
@@ -6989,6 +6982,9 @@ components:
       x-timers:
       - task_type: deprovision
       - task_type: review
+      allOf:
+      - &id077
+        $ref: '#/components/schemas/ReviewDueBase'
     access_right:
       type: object
       x-kind: vocabulary
@@ -8193,13 +8189,8 @@ components:
           - BCP-03
           - EC-11
           description: Evidences controls BCP-03, EC-11.
-        review_due:
-          type: string
-          format: date
-          x-bound-controls:
-          - BCP-03
-          - EC-11
-          description: Evidences controls BCP-03, EC-11.
+      allOf:
+      - *id077
     board:
       type: object
       x-kind: vocabulary
@@ -11470,12 +11461,6 @@ components:
           x-bound-controls:
           - LN-02
           description: Evidences control LN-02.
-        review_due:
-          type: string
-          format: date
-          x-bound-controls:
-          - LN-02
-          description: Evidences control LN-02.
         next_review_at:
           type: string
           format: date-time
@@ -11486,6 +11471,8 @@ components:
       - action: completed
         properties:
         - review
+      allOf:
+      - *id077
     credit_config:
       type: object
       x-kind: vocabulary
@@ -14533,12 +14520,6 @@ components:
           x-bound-controls:
           - IP-03
           description: Evidences control IP-03.
-        review_due:
-          type: string
-          format: date
-          x-bound-controls:
-          - IP-03
-          description: Evidences control IP-03.
         review_due_at:
           type: string
           format: date-time
@@ -14551,6 +14532,8 @@ components:
         - review
       x-timers:
       - task_type: review
+      allOf:
+      - *id077
     insurance:
       type: object
       x-kind: vocabulary
@@ -14648,12 +14631,6 @@ components:
           x-bound-controls:
           - IP-08
           description: Evidences control IP-08.
-        review_due:
-          type: string
-          format: date
-          x-bound-controls:
-          - IP-08
-          description: Evidences control IP-08.
         review_due_at:
           type: string
           format: date-time
@@ -14666,6 +14643,8 @@ components:
         - review
       x-timers:
       - task_type: review
+      allOf:
+      - *id077
     it:
       type: object
       x-kind: vocabulary
@@ -14886,12 +14865,6 @@ components:
           - IP-07
           - IP-13
           description: Evidences controls IP-07, IP-13.
-        review_due:
-          type: string
-          format: date
-          x-bound-controls:
-          - IP-07
-          description: Evidences control IP-07.
         review_due_at:
           type: string
           format: date-time
@@ -14909,6 +14882,8 @@ components:
         - review
       x-timers:
       - task_type: review
+      allOf:
+      - *id077
     liquidity:
       type: object
       x-kind: vocabulary
@@ -16234,12 +16209,6 @@ components:
           - IP-02
           - IS-01
           description: Evidences controls AU-01, BCP-01, BSA-01, CAP-01, CAP-04, CC-01, CP-09, IP-01, IP-02, IS-01.
-        review_due:
-          type: string
-          format: date
-          x-bound-controls:
-          - LN-01
-          description: Evidences control LN-01.
         review_due_at:
           type: string
           format: date-time
@@ -16343,6 +16312,8 @@ components:
       - task_type: approval
         qualifier: board
       - task_type: review
+      allOf:
+      - *id077
     portfolio:
       type: object
       x-kind: vocabulary
@@ -21486,12 +21457,8 @@ components:
           x-bound-controls:
           - EC-05
           description: Evidences control EC-05.
-        review_due:
-          type: string
-          format: date
-          x-bound-controls:
-          - EC-05
-          description: Evidences control EC-05.
+      allOf:
+      - *id077
     imt:
       type: object
       x-kind: vocabulary
@@ -21563,6 +21530,26 @@ components:
           - BSA-10
           description: Evidences control BSA-10.
       description: 'Extracted base: fields shared by 4 schemas.'
+    ReviewDueBase:
+      type: object
+      x-kind: mixin
+      properties:
+        review_due:
+          type: string
+          format: date
+          x-bound-controls:
+          - BCP-03
+          - EC-05
+          - EC-11
+          - IC-05
+          - IP-03
+          - IP-07
+          - IP-08
+          - LN-01
+          - LN-02
+          - PR-06
+          description: Evidences controls IC-05, PR-06.
+      description: 'Extracted base: fields shared by 8 schemas.'
   parameters:
     Limit:
       name: limit
