@@ -1,289 +1,439 @@
+```yaml
 ---
-title: Information Security Policy (Table-First, Design-Overlay v2)
+title: Information Security Policy (Table-First, Design-Overlay v3)
 owner: Patrick Wilson, Chief Compliance Officer
 version: v1.0
-effective: 2026-06-16
-next_review: 2027-06-16
+effective: 2025-07-01
+next_review: 2026-07-01
 approvers:
   - Patrick Wilson, Chief Compliance Officer
-tags: [Compliance, Information Security, Cybersecurity, NCUA-748, GLBA, Red-Flags]
+tags: [Compliance, Information Security, Cybersecurity, NCUA, GLBA, Identity Theft]
 ---
+```
 
 ## General Policy Statement
 
-Pynthia Credit Union maintains a board-governed, risk-based information security program to safeguard member and organizational information and ensure its confidentiality, integrity, availability, and resilience across people, facilities, data, systems, networks, vendors, AI tools, and member-facing channels. This policy implements NCUA 12 CFR Part 748 and its Appendices A and B, the Identity Theft Red Flags rule (12 CFR Part 717 Subpart J), GLBA safeguards (15 USC §§6801–6809), the FACTA Disposal Rule (16 CFR Part 682), and records-preservation requirements (12 CFR Part 749). Engineering and operations implement each control below and evidence it through audit logs and periodic testing. Enterprise risk methodology, vendor program mechanics, business continuity, privacy notices, e-commerce channel governance, and payment-rail controls are governed by the cross-referenced policies and are out of scope here.
+Pynthia Credit Union maintains a risk-based information security program that protects the confidentiality, integrity, availability, and resilience of member and organizational information across all people, facilities, data, systems, networks, vendors, and AI tools. The program is governed by the Board/Supervisory Committee, owned by the Chief Compliance Officer, and implemented by Engineering and SecOps. Controls are evidence-based: every obligation in this policy produces a logged event, a measurable artifact, or a scheduled task that can be examined by regulators and auditors. Out of scope: consumer online/mobile banking channel governance (E-Commerce Policy), electronic payment rails (Electronic Payment Systems Policy), marketing-compliance and advertising rules (Fair Lending Policy), enterprise risk appetite and taxonomy (Enterprise Risk Management Policy), vendor onboarding program mechanics beyond information-security diligence (Third-Party Risk Policy), detailed business continuity planning (Business Continuity Plan Policy), and privacy notices and member privacy rights (Privacy Policy).
+
+---
 
 ## Timing Matrix {#timing-matrix}
 
 | Scenario | Trigger (human → event) | Deadline | Content Reference | Control |
 |---|---|---:|---|---|
-| Reportable cyber incident determined | IR team determines incident is reportable (`incident.reportable_determined` recorded) | 72 hours | NCUA notice to regulator | [IS-09](#is-09-incident-response-cyber-incident-reporting) |
-| Member harm likely from incident | Misuse of member info determined likely (`incident.member_impact_confirmed`) | Without unreasonable delay | Appendix B member notice | [IS-09](#is-09-incident-response-cyber-incident-reporting) |
-| Quarterly KPI reporting to Board | Quarter closes (`security.quarter_closed`) | 30 days post-quarter | Security program KPI pack | [IS-01](#is-01-governance-oversight) |
-| New product security risk assessment | New product proposed (`risk.product_assessment_completed`) | 10 business days | Lightweight risk assessment | [IS-02](#is-02-enterprise-risk-assessment) |
-| Asset inventory change | CMDB-relevant change (`asset.changed`) | 5 business days | CMDB delta posting | [IS-03](#is-03-asset-inventory-classification) |
-| Medium/high-risk change | RFC submitted (`change.rfc_submitted`) | 3 business days CAB review | CAB decision record | [IS-04](#is-04-change-management-configuration-control) |
-| Emergency change deployed | Emergency change deployed (`change.emergency_deployed`) | 24 hours post-review | Post-implementation review | [IS-04](#is-04-change-management-configuration-control) |
-| Critical vulnerability found | Vuln confirmed Critical (`vuln.finding_confirmed`) | 7 days patch | POA&M closure | [IS-05](#is-05-vulnerability-penetration-testing) |
-| Employee termination | Separation recorded (`employee.separated`) | Same business day deprovision | Deprovision record | [IS-06](#is-06-access-control-authentication) |
-| Data eligible for disposal | Disposal eligibility reached (`disposal.scheduled`) | 30 days | Destruction certificate | [IS-07](#is-07-data-protection-encryption-disposal) |
-| Backup restore verification | Weekly restore cycle (`backup.restore_verified`) | Weekly | Restore verification log | [IS-08](#is-08-backup-disaster-recovery) |
-| Red-flag detected | Red flag triggered (`redflag.detected`) | Same day case review | Red-flag case disposition | [IS-10](#is-10-identity-theft-red-flags-program) |
-| Vendor security breach | Vendor notifies institution (`vendor.breach_notified`) | 24 hr vendor notice / 1 BD triage | Vendor incident triage | [IS-11](#is-11-vendor-risk-management) |
-| Staff separation (physical) | Separation recorded (`employee.separated`) | 24 hours badge deactivation | Badge deactivation record | [IS-12](#is-12-physical-security-facilities) |
-| AI tool approved | AI tool approved (`ai.tool_approved`) | 5 days register update | AI Use Register entry | [IS-13](#is-13-ai-governance-usage-disclosure) |
-| Critical SIEM alert | Critical alert raised (`siem.source_silent` / `siem.alert_critical`) | Daily review | SIEM alert disposition | [IS-14](#is-14-logging-monitoring-alerting) |
-| Access grant request | New hire / role change (`employee.hired`) | Before access granted | AUP acknowledgment | [IS-15](#is-15-acceptable-use-communications-systems) |
-| Social media scam/impersonation | Impersonation detected (`socialmedia.impersonation_detected`) | Same-day takedown escalation | Takedown escalation record | [IS-16](#is-16-social-media) |
-| New-hire security training | Hire recorded (`employee.hired`) | 30 days | Training completion record | [IS-17](#is-17-training-awareness-testing) |
-| Security record destruction | Monthly destruction cycle (`record.destruction_initiated`) | Monthly | Destruction log entry | [IS-18](#is-18-records-management-retention) |
+| Annual policy approval | Board meeting cycle opens (`policy.board_review.started`) | Annual | Board-approved policy document | [IS-01](#is-01-governance-and-oversight) |
+| Quarterly KPI report to Board | Quarter closes (`security.quarter.closed`) | 30 days post-quarter | KPI snapshot + program metrics | [IS-01](#is-01-governance-and-oversight) |
+| High/Very High risk reassessment | Risk rated High/Very High (`risk.rating.recorded`) | Quarterly | Risk register entry | [IS-02](#is-02-enterprise-risk-assessment) |
+| Moderate risk reassessment | Risk rated Moderate (`risk.rating.recorded`) | Annually | Risk register entry | [IS-02](#is-02-enterprise-risk-assessment) |
+| Low/Very Low risk reassessment | Risk rated Low/Very Low or trigger event | Every 2 years or on trigger | Risk register entry | [IS-02](#is-02-enterprise-risk-assessment) |
+| Monthly POA&M update | Month closes | Monthly | POA&M status report | [IS-02](#is-02-enterprise-risk-assessment) |
+| New-product security risk assessment | New product proposed (`product.change.proposed`) | 10 business days | Security risk assessment findings | [IS-02](#is-02-enterprise-risk-assessment) |
+| CMDB inventory delta posting | Asset change detected (`asset.changed`) | 5 business days | CMDB delta record | [IS-03](#is-03-asset-inventory-and-classification) |
+| Quarterly CMDB attestation | Quarter closes (`security.quarter.closed`) | Quarterly | Attestation record | [IS-03](#is-03-asset-inventory-and-classification) |
+| CAB review — medium/high-risk RFC | RFC submitted (`change.rfc.submitted`) | 3 business days | CAB decision record | [IS-04](#is-04-change-management-and-configuration-control) |
+| Emergency change post-review | Emergency change deployed (`change.emergency.deployed`) | 24 hours | Post-review record | [IS-04](#is-04-change-management-and-configuration-control) |
+| High-risk vulnerability triage | High-risk finding confirmed (`vuln.finding.confirmed`) | 5 business days | Triage record + POA&M entry | [IS-05](#is-05-vulnerability-and-penetration-testing) |
+| Critical vulnerability patch | Critical finding confirmed (`vuln.finding.confirmed`) | 7 days | Remediation evidence | [IS-05](#is-05-vulnerability-and-penetration-testing) |
+| High vulnerability patch | High finding confirmed (`vuln.finding.confirmed`) | 15 days | Remediation evidence | [IS-05](#is-05-vulnerability-and-penetration-testing) |
+| Medium vulnerability patch | Medium finding confirmed (`vuln.finding.confirmed`) | 30 days | Remediation evidence | [IS-05](#is-05-vulnerability-and-penetration-testing) |
+| Annual external pen-test | Annual cycle opens | Annual | Pen-test report | [IS-05](#is-05-vulnerability-and-penetration-testing) |
+| Access deprovisioning on termination | Employee separated (`employee.separated`) | Same business day | Deprovisioning record | [IS-06](#is-06-access-control-and-authentication) |
+| Quarterly access review | Quarter closes (`security.quarter.closed`) | Quarterly | Access review attestation | [IS-06](#is-06-access-control-and-authentication) |
+| Data disposal | Retention eligibility reached (`record.retention.expired`) | 30 days | Disposal certificate | [IS-07](#is-07-data-protection-encryption-and-disposal) |
+| Weekly backup restore verification | Weekly cycle (`backup.cycle.completed`) | Weekly | Restore test result | [IS-08](#is-08-backup-and-disaster-recovery) |
+| Annual DR exercise | Annual cycle | Annual | DR exercise after-action report | [IS-08](#is-08-backup-and-disaster-recovery) |
+| NCUA cyber incident notification | Reportable incident determined (`incident.security.confirmed`) | 72 hours | NCUA notification record | [IS-09](#is-09-incident-response-and-cyber-incident-reporting) |
+| Member notice — data breach | Incident closed/member impact confirmed | Without unreasonable delay | Member notice per Appendix B | [IS-09](#is-09-incident-response-and-cyber-incident-reporting) |
+| Red-flag case review | Red flag detected (`redflag.detected`) | Same day | Red-flag case record | [IS-10](#is-10-identity-theft-red-flags-program) |
+| Red-flag ruleset quarterly review | Quarter closes (`security.quarter.closed`) | Quarterly | Updated ruleset record | [IS-10](#is-10-identity-theft-red-flags-program) |
+| Vendor security triage (breach notice) | Vendor breach notified (`vendor.breach.notified`) | 1 business day | Triage record | [IS-11](#is-11-vendor-information-security-diligence) |
+| High-risk vendor annual review | Annual cycle | Annual | Vendor review package | [IS-11](#is-11-vendor-information-security-diligence) |
+| Badge deactivation on separation | Employee separated (`employee.separated`) | 24 hours | Badge deactivation record | [IS-12](#is-12-physical-security-and-facilities) |
+| AI tool registry update | AI tool approved (`ai.tool.approved`) | 5 business days | AI register entry | [IS-13](#is-13-ai-governance-and-usage-disclosure) |
+| Critical SIEM alert review | Critical alert fired (`siem.alert_critical`) | Daily | Alert disposition record | [IS-14](#is-14-logging-monitoring-and-alerting) |
+| AUP acknowledgment before access | Access requested (`user.access.requested`) | Before access granted | Signed AUP record | [IS-15](#is-15-acceptable-use-and-communications-systems) |
+| Social media takedown escalation | Impersonation/scam detected (`socialmedia.impersonation.detected`) | Same day | Takedown escalation record | [IS-16](#is-16-social-media) |
+| New-hire security training | Employee hired (`employee.hired`) | 30 days | Training completion record | [IS-17](#is-17-training-awareness-and-testing) |
+| Annual security training refresher | Annual cycle opens | Annual | Training completion record | [IS-17](#is-17-training-awareness-and-testing) |
+| Quarterly phishing simulation | Quarter opens | Quarterly | Phishing simulation results | [IS-17](#is-17-training-awareness-and-testing) |
+| Monthly security destruction queue | Month closes | Monthly (unless legal hold) | Destruction log entry | [IS-18](#is-18-records-management-and-retention) |
 
-## IS-01 — Governance & Oversight {#is-01-governance-oversight}
+---
 
-- **WHY (Reg cite):** NCUA requires a written, board-approved security program with continued administration and oversight ([12 CFR §748.0](https://www.ecfr.gov/current/title-12/part-748/section-748.0) and [Appendix A, III](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)); GLBA establishes the safeguards mandate ([15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801)).
-- **SYSTEM BEHAVIOR:** A single authoritative Security Program record holds the charter, owners, KPIs, and review cadence; the program is reviewed and approved by the Board annually, and a KPI pack is delivered to the Board/Supervisory Committee within 30 days after each quarter closes. The program charter and KPI snapshot are write-restricted to Compliance and the InfoSec/IT lead. If a scheduled board meeting slips past the 30-day window, the KPI pack is still finalized on time and the board-receipt timestamp is logged when the meeting occurs.
-- **EVENTS:**
+## IS-01 — Governance and Oversight {#is-01-governance-and-oversight}
 
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | Annual policy review cycle reached (`security.policy_review_opened`) | Program charter (`security.program_charter`), prior KPI snapshot (`security.kpi_snapshot`), policy version (`policy.document_version`) | Approved security policy + board resolution (`security.policy_approved`) | Annual (enforced by `policy.board_approval_due_at`) |
-  | Quarter closes (`security.quarter_closed`) | KPI snapshot (`security.kpi_snapshot`), board package inputs (`board.package_distributed`) | Board KPI report delivered (`security.board_report_issued`) | 30 days post-quarter (enforced by `security.board_report_due_at`) |
-- **ALERTS/METRICS:** Alert on board-report aging crossing 25 days post-quarter; track policy-review-lapsed flag at zero and target 100% on-time quarterly KPI delivery.
+**WHY (Reg cite):** [NCUA 12 CFR Part 748, Appendix A §I](https://www.ecfr.gov/current/title-12/part-748) requires each federally insured credit union to implement a written information security program approved by the board. [GLBA 15 USC §§6801–6809](https://www.law.cornell.edu/uscode/text/15/6801) establishes the overarching safeguards obligation for nonpublic personal information.
+
+**SYSTEM BEHAVIOR:** The Security Program record is the single authoritative source for the program charter, control owners, KPIs, and review cadence. The CCO owns the record and submits it for annual Board approval; the Board/Supervisory Committee receives a quarterly KPI report within 30 days of quarter-end. The program record is write-restricted to the CCO and designated Information Security/IT lead; read access is granted to all approvers and the Board package distribution list.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Annual board review cycle opens (`policy.board_review.started`) | Current program charter (`security.program_charter`), prior-year KPI snapshot (`security.kpi_snapshot`), proposed changes (`policy.change_description`) | Board-approved policy document + approval record (`policy.board.approved`) | Annual (enforced by `policy.board_approval_due_at`) |
+| Quarter closes and KPI report is due (`security.quarter.closed`) | KPI snapshot (`security.kpi_snapshot`), quarter identifier (`security.quarter`), program metrics | Quarterly KPI report delivered to Board/Supervisory Committee (`security.board_report.issued`) | 30 days post-quarter (enforced by `security.board_report_due_at`) |
+
+**ALERTS/METRICS:** Alert fires if `policy.board_approval_due_at` is breached without a `policy.board.approved` event; alert fires if `security.board_report_due_at` is breached without a `security.board_report.issued` event. Target: zero overdue approvals or reports in any rolling 12-month period.
+
+---
 
 ## IS-02 — Enterprise Risk Assessment {#is-02-enterprise-risk-assessment}
 
-- **WHY (Reg cite):** NCUA Appendix A requires a risk assessment identifying reasonably foreseeable internal and external threats ([12 CFR Part 748, App. A, III.B](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)); GLBA underpins the ongoing assessment duty ([15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801)).
-- **SYSTEM BEHAVIOR:** An information-security risk register maps assets, threats (including fraud, social engineering, ID theft, and AI risks), and controls, and feeds the centralized enterprise register owned by the Enterprise Risk Management Policy. Residual ratings drive reassessment cadence per ERM tiers — High/Very High at least quarterly, Moderate at least annually, Low/Very Low every two years or on trigger — with monthly POA&M updates. For new products, a lightweight security risk assessment completes within 10 business days and is submitted as input to the ERM new-product review. Register write access is restricted to Risk and Compliance; the ERM scoring methodology itself lives in the Enterprise Risk Management Policy and is not redefined here.
-- **EVENTS:**
+**WHY (Reg cite):** [NCUA 12 CFR Part 748, Appendix A §II](https://www.ecfr.gov/current/title-12/part-748) requires a risk assessment identifying threats, vulnerabilities, and controls for member information. [NCUA 12 CFR Part 748, Appendix A §III](https://www.ecfr.gov/current/title-12/part-748) requires ongoing monitoring and testing tied to risk levels.
 
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | Risk reassessment cadence reached for an entry (`risk.assessment_completed`) | Risk entry (`risk.id`), residual rating (`risk.residual_rating`), threat catalog (`risk.threat_catalog`), POA&M status (`risk.poam_status`) | Updated risk register entry (`risk.poam_updated`) | Tiered (quarterly/annual/biennial; enforced by `risk.reassessment_due_at`) |
-  | New product proposed (`risk.product_assessment_completed`) | Candidate profile (`risk.candidate_profile`), impact/likelihood scores (`risk.impact_score`, `risk.likelihood_score`) | Product security risk assessment (`risk.product_assessment_completed`) | 10 business days (enforced by `risk.product_assessment_due_at`) |
-- **ALERTS/METRICS:** Alert on any register entry with `risk.review_overdue` true; track POA&M monthly-update completion at 100% and zero overdue High/Very High reassessments.
+**SYSTEM BEHAVIOR:** The information-security risk register maps assets, threats (including fraud, social engineering, identity theft, and AI risks), and controls. It feeds into the centralized enterprise risk register owned by the Enterprise Risk Management Policy. Reassessment cadence follows ERM tiers: High/Very High residual risks at least quarterly, Moderate at least annually, Low/Very Low every two years or on trigger events. POA&M entries are updated monthly. For new products, a lightweight security risk assessment is completed within 10 business days and submitted as input to the ERM new-product review process. The risk register is write-restricted to the Information Security/IT lead and CCO; the ERM team has read access for consolidation.
 
-## IS-03 — Asset Inventory & Classification {#is-03-asset-inventory-classification}
+**EVENTS:**
 
-- **WHY (Reg cite):** NCUA Appendix A requires identifying and managing the systems and information to be protected ([12 CFR Part 748, App. A, III.B–C](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)); GLBA safeguards principle ([15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801)).
-- **SYSTEM BEHAVIOR:** A CMDB tracks hardware, software, data stores, and vendors with data classification (Public/Internal/Confidential-NPI). Inventory deltas are posted within 5 business days of any change, and asset owners attest quarterly. Classification values are write-restricted to the InfoSec/IT lead and asset owners.
-- **EVENTS:**
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Risk rating recorded or reassessment due (`risk.rating.recorded`) | Asset inventory (`asset.cmdb_snapshot`), threat catalog (`risk.threat_catalog`), control mapping (`risk.assessment_results`), residual rating (`risk.residual_rating`) | Risk register entry updated (`risk.assessment.completed`) | High/Very High: quarterly; Moderate: annually; Low/Very Low: every 2 years or on trigger (enforced by `risk.reassessment_due_at`) |
+| Month closes — POA&M update due | Open POA&M items (`risk.poam_status`), remediation evidence (`risk.remediation_evidence`), owner IDs (`risk.owner_id`) | POA&M status report (`risk.poam.updated`) | Monthly |
+| New product proposed (`product.change.proposed`) | Product description (`product.description`), data flows (`product.data_flows`), threat catalog (`risk.threat_catalog`) | Security risk assessment findings submitted to ERM (`risk.product_assessment.completed`) | 10 business days (enforced by `risk.product_assessment_due_at`) |
 
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | Asset added or changed (`asset.changed`) | Asset attributes (`asset.attributes`), classification (`asset.classification`), owner (`asset.owner`) | CMDB delta recorded (`asset.cmdb_updated`) | 5 business days (enforced by `asset.cmdb_update_due_at`) |
-  | Quarterly attestation cycle reached (`asset.attestation_completed`) | CMDB snapshot (`asset.cmdb_snapshot`), owner roster (`asset.owner_roster`) | Attestation recorded (`asset.attestation_completed`) | Quarterly (enforced by `asset.cmdb_update_due_at`) |
-- **ALERTS/METRICS:** Alert on CMDB deltas aging past 4 business days; track quarterly attestation coverage at 100% and zero unclassified Confidential-NPI stores.
+**ALERTS/METRICS:** Alert fires when a High/Very High risk item has not been reassessed within 90 days; alert fires when a POA&M item has no update event in the current month. Target: zero overdue reassessments; POA&M update coverage 100% monthly.
 
-## IS-04 — Change Management & Configuration Control {#is-04-change-management-configuration-control}
+---
 
-- **WHY (Reg cite):** NCUA Appendix A requires managing and controlling systems and processes to protect member information ([12 CFR Part 748, App. A, III.C](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)); GLBA safeguards ([15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801)).
-- **SYSTEM BEHAVIOR:** An RFC workflow captures risk rating, test evidence, backout plan, and approval. Medium/high-risk changes require CAB review within 3 business days; emergency changes are deployed under documented justification and receive post-implementation review within 24 hours. Configuration drift against baselines is detected and resolved. RFC approval authority is restricted to designated CAB approvers.
-- **EVENTS:**
+## IS-03 — Asset Inventory and Classification {#is-03-asset-inventory-and-classification}
 
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | RFC submitted (`change.rfc_submitted`) | Risk rating (`change.risk_rating`), test evidence (`change.test_evidence`), backout plan (`change.backout_plan`), approver (`change.approver_id`) | CAB decision recorded (`change.cab_decision_recorded`) | 3 business days for med/high (enforced by `change.cab_review_due_at`) |
-  | Emergency change deployed (`change.emergency_deployed`) | Emergency justification (`change.emergency_justification`), deployment record (`change.deployment_record`) | Post-implementation review completed (`change.post_review_completed`) | 24 hours (enforced by `change.post_review_due_at`) |
-  | Configuration drift detected (`config.drift_detected`) | Baseline id (`config.baseline_id`), drift detail (`config.drift_detail`) | Drift resolution recorded (`config.drift_resolved`) | Internal: 3 BD (no registered timer) |
-- **ALERTS/METRICS:** Alert on CAB reviews aging past 3 business days and emergency post-reviews past 24 hours; track unresolved config drift count toward zero.
+**WHY (Reg cite):** [NCUA 12 CFR Part 748, Appendix A §II](https://www.ecfr.gov/current/title-12/part-748) requires identification of information and systems that must be protected. [GLBA 15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801) requires safeguards appropriate to the nature and scope of information handled.
 
-## IS-05 — Vulnerability Testing & Penetration Testing {#is-05-vulnerability-penetration-testing}
+**SYSTEM BEHAVIOR:** The CMDB is the authoritative inventory of hardware, software, data stores, and vendors. Each asset record carries a data classification of Public, Internal, or Confidential-NPI. When any asset is added, changed, or retired, the CMDB delta must be posted within 5 business days. A quarterly attestation confirms inventory completeness. The CMDB is write-restricted to the Information Security/IT lead and Engineering; the CCO and Risk team have read access.
 
-- **WHY (Reg cite):** NCUA Appendix A requires regular testing of key controls, systems, and procedures ([12 CFR Part 748, App. A, III.C.3](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)); GLBA safeguards ([15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801)).
-- **SYSTEM BEHAVIOR:** Automated scans run on schedule and an external penetration test runs annually by an independent firm. High-risk findings are triaged within 5 business days; patches are applied to Critical within 7 days, High within 15, and Medium within 30, all tracked to closure in a POA&M. Pen-test scope and independence attestation are restricted to the InfoSec/IT lead.
-- **EVENTS:**
+**EVENTS:**
 
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | Vulnerability confirmed (`vuln.finding_confirmed`) | Severity (`vuln.severity`), detail (`vuln.detail`), remediation plan (`vuln.remediation_plan`) | Triage completed (`vuln.triage_completed`) | High-risk triage 5 BD (enforced by `vuln.triage_due_at`) |
-  | Patch SLA reached by severity (`vuln.remediated`) | Severity (`vuln.severity`), remediation plan (`vuln.remediation_plan`) | Remediation recorded to POA&M (`vuln.remediated`) | Critical 7 / High 15 / Medium 30 days (enforced by `vuln.remediation_due_at`) |
-  | Annual pen-test cycle reached (`pentest.report_received`) | Scope (`pentest.scope`), independence (`pentest.independence`) | Pen-test report issued (`pentest.report_issued`) | Annual (enforced by `pentest.engagement_due`) |
-- **ALERTS/METRICS:** Alert on any Critical patch breaching 7-day SLA; track POA&M Critical/High open-aging distribution and target zero overdue Critical findings.
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Asset added, changed, or retired (`asset.changed`) | Asset attributes (`asset.attributes`), data classification (`asset.classification`), owner (`asset.owner`), media type (`asset.media_type`) | CMDB delta record posted (`asset.cmdb.updated`) | 5 business days (enforced by `asset.cmdb_update_due_at`) |
+| Quarter closes — attestation due (`security.quarter.closed`) | Current CMDB snapshot (`asset.cmdb_snapshot`), owner roster (`asset.owner_roster`) | Quarterly attestation record (`asset.attestation.completed`) | Quarterly |
 
-## IS-06 — Access Control & Authentication {#is-06-access-control-authentication}
+**ALERTS/METRICS:** Alert fires when an `asset.changed` event is not followed by `asset.cmdb.updated` within 5 business days; alert fires when quarterly attestation is overdue. Target: CMDB delta lag ≤ 5 BD for 100% of changes; zero missed quarterly attestations.
 
-- **WHY (Reg cite):** NCUA Appendix A requires access controls and authentication on member-information systems ([12 CFR Part 748, App. A, III.C.1](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)); GLBA safeguards ([15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801)).
-- **SYSTEM BEHAVIOR:** SSO/MFA and least-privilege role-based access are enforced, with joiner/mover/leaver automation. On termination, access is deprovisioned the same business day; access is reviewed quarterly; break-glass accounts are heavily logged with justification. Role entitlement definitions and break-glass review are restricted to the InfoSec/IT lead and Compliance. Separation-of-duties conflicts block grants pending a compensating control.
-- **EVENTS:**
+---
 
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | Employee separated (`employee.separated`) | User id (`user.id`), employment status (`user.employment_status`), role (`user.role`) | Access deprovisioned (`access.deprovisioned`) | Same business day (enforced by `access.deprovision_due_at`) |
-  | Quarterly access review cycle reached (`access.review_completed`) | Reviewer roster (`access.reviewer_roster`), role entitlements (`access.role_entitlements`), review attestation (`access.review_attestation`) | Access review completed (`access_review.completed`) | Quarterly (enforced by `access.review_due_at`) |
-  | Break-glass account used (`access.granted`) | Break-glass id (`access.breakglass_id`), justification (`access.breakglass_justification`) | Break-glass use logged + reviewed (`access.granted`) | Reviewed quarterly (enforced by `access.review_due_at`) |
-  | SoD conflict on grant attempt (`sod.conflict_detected`) | Matrix version (`sod.matrix_version`), check result (`sod.check_result`) | Grant blocked / compensating control approved (`sod.compensating_control_approved`) | At grant time (no registered timer) |
-- **ALERTS/METRICS:** Alert on any termination not deprovisioned same business day; track quarterly access-review completion at 100% and break-glass uses reviewed within the quarter.
+## IS-04 — Change Management and Configuration Control {#is-04-change-management-and-configuration-control}
 
-## IS-07 — Data Protection, Encryption & Disposal {#is-07-data-protection-encryption-disposal}
+**WHY (Reg cite):** [NCUA 12 CFR Part 748, Appendix A §III](https://www.ecfr.gov/current/title-12/part-748) requires controls over information systems, including change management. [NIST SP 800-53 Rev.5 CM-3](https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final) (non-regulatory framework reference) provides the configuration change control baseline.
 
-- **WHY (Reg cite):** NCUA Appendix A requires encryption and secure disposal of member information ([12 CFR Part 748, App. A, III.C.1](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)); FACTA Disposal Rule requires reasonable measures to dispose of consumer information ([16 CFR Part 682](https://www.ecfr.gov/current/title-16/part-682)); GLBA safeguards ([15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801)).
-- **SYSTEM BEHAVIOR:** Data is encrypted in transit and at rest with approved cryptography (e.g., AES-256, TLS 1.2+), DLP is enforced, and disposed data is rendered unreadable. Disposal completes within 30 days of eligibility unless under litigation hold, in which case the disposal clock pauses until the hold is released and then resumes. Crypto configuration baselines are write-restricted to the InfoSec/IT lead.
-- **EVENTS:**
+**SYSTEM BEHAVIOR:** All changes to production systems follow an RFC workflow requiring documented risk rating, test evidence, backout plan, and approver sign-off. Medium- and high-risk changes require CAB review within 3 business days of RFC submission. Emergency changes bypass pre-approval but must receive a post-review within 24 hours of deployment. Configuration drift detected by automated tooling triggers an RFC or remediation record. The CAB decision field is write-restricted to designated CAB members; emergency post-review is write-restricted to the Information Security/IT lead and CCO.
 
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | Data reaches disposal eligibility (`disposal.scheduled`) | Disposal method (`disposal.method`), hold flag (`disposal.held`), batch manifest (`disposal.batch_manifest_id`) | Disposal executed + certificate (`disposal.executed`, `disposal.certificate_recorded`) | 30 days (enforced by `record.disposal_due_at`) |
-  | DLP violation detected (`dlp.violation_detected`) | Violation detail (`dlp.violation_detail`) | DLP violation resolved (`dlp.violation_resolved`) | Internal: 1 BD (no registered timer) |
-  | TLS/crypto assessment cycle reached (`tls.assessment_completed`) | Cipher suite (`tls.cipher_suite`), crypto config (`crypto.config`) | Crypto verified (`crypto.verified`) | Per cycle (enforced by `tls.assessment_due`) |
-- **ALERTS/METRICS:** Alert on disposal items aging past 25 days of eligibility (excluding held); track DLP violation MTTR and zero unencrypted Confidential-NPI stores.
+**EVENTS:**
 
-## IS-08 — Backup & Disaster Recovery {#is-08-backup-disaster-recovery}
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| RFC submitted for medium/high-risk change (`change.rfc.submitted`) | RFC document (`change.rfc`), risk rating (`change.risk_rating`), test evidence (`change.test_evidence`), backout plan (`change.backout_plan`), approver ID (`change.approver_id`) | CAB decision recorded (`change.cab_decision.recorded`) | 3 business days (enforced by `change.cab_review_due_at`) |
+| Emergency change deployed (`change.emergency.deployed`) | Emergency justification (`change.emergency_justification`), deployment record (`change.deployment_record`), rollback plan (`change.rollback_plan`) | Post-review record (`change.post_review.completed`) | 24 hours (enforced by `change.post_review_due_at`) |
+| Configuration drift detected (`config.drift.detected`) | Baseline ID (`config.baseline_id`), drift detail (`config.drift_detail`) | Drift remediation or RFC initiated (`config.drift.resolved`) | Per risk rating of the drift finding |
 
-- **WHY (Reg cite):** NCUA Appendix A requires measures to protect against destruction, loss, or damage of member information ([12 CFR Part 748, App. A, III.C.1](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)); records preservation under [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749). Detailed continuity planning is governed by the Business Continuity Plan Policy.
-- **SYSTEM BEHAVIOR:** RTO/RPO are defined by system, offsite/immutable backups are maintained, restores are verified weekly, and a full DR exercise runs annually with ransomware isolation and clean-room restores. Backup tier configuration and RTO/RPO matrix are write-restricted to the InfoSec/IT lead.
-- **EVENTS:**
+**ALERTS/METRICS:** Alert fires when a medium/high-risk RFC has no `change.cab_decision.recorded` within 3 BD; alert fires when an emergency change has no `change.post_review.completed` within 24 hours; alert fires on any unresolved `config.drift.detected` older than 5 BD. Target: zero overdue CAB reviews; zero unreviewed emergency changes.
 
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | Backup job completes (`backup.cycle_completed`) | Catalog (`backup.catalog`), tier config (`backup.tier_config`), RPO monitor (`backup.rpo_monitor`) | Backup verified (`backup.verified`) | Per schedule (enforced by `backup.verify_due_at`) |
-  | Weekly restore verification cycle (`backup.restore_verified`) | Restore test env (`restore.test_env`), point validated (`restore.point_validated`) | Restore verified (`backup.restore_verified`) | Weekly (enforced by `backup.restore_test_due`) |
-  | Annual DR exercise cycle reached (`dr.exercise_completed`) | DR plan (`dr.plan`), RTO/RPO matrix (`dr.rto_rpo_matrix`) | DR exercise completed (`dr.exercise_completed`) | Annual (enforced by `dr.exercise_due_at`) |
-- **ALERTS/METRICS:** Alert on any missed weekly restore verification or RPO monitor breach; track DR exercise remediation closure and target zero failed restores.
+---
 
-## IS-09 — Incident Response & Cyber Incident Reporting {#is-09-incident-response-cyber-incident-reporting}
+## IS-05 — Vulnerability and Penetration Testing {#is-05-vulnerability-and-penetration-testing}
 
-- **WHY (Reg cite):** NCUA requires 72-hour notification of a reportable cyber incident ([12 CFR §748.1(c)](https://www.ecfr.gov/current/title-12/part-748/section-748.1)) and an incident response program with member notice ([12 CFR Part 748, App. B](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20B%20to%20Part%20748)).
-- **SYSTEM BEHAVIOR:** An IR plan, roster, and playbooks are maintained. When an incident is determined reportable, NCUA is notified within 72 hours; where misuse of member information is likely, member notice is sent without unreasonable delay per Appendix B, coordinating with law enforcement and referring to BSA/SAR where applicable. The NCUA notice determination and member-notice template are write-restricted to the IR commander and Compliance. Incidents later determined non-reportable are documented with rationale and require no NCUA notice.
-- **EVENTS:**
+**WHY (Reg cite):** [NCUA 12 CFR Part 748, Appendix A §III](https://www.ecfr.gov/current/title-12/part-748) requires regular testing and monitoring of information security controls. [GLBA 15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801) requires safeguards to protect against anticipated threats.
 
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | Incident determined reportable (`incident.classified`) | Reportability determination (`incident.reportable_determined`), rationale (`incident.reportability_rationale`), data scope (`incident.data_scope`), severity (`incident.severity`) | NCUA notified (`incident.ncua_notified`, `ncua.notification_sent`) | 72 hours (enforced by `incident.ncua_notice_due_at`) |
-  | Member misuse likely (`incident.member_impact_confirmed`) | Misuse likelihood (`incident.misuse_likelihood`), notice template (`incident.member_notice_template`), notice content (`incident.notice_content`) | Member notices sent (`incident.member_notices_sent`) | Without unreasonable delay (enforced by `incident.notification_due_at`) |
-  | Incident declared (`incident.declared`) | Detection source (`incident.detection_source`), scope initial (`incident.scope_initial`), IC assignment (`incident.ic_assignment_timer`) | IC assigned + triage recorded (`incident.ic_assigned`, `incident.assessment_completed`) | Triage (enforced by `incident.triage_due_at`) |
-- **ALERTS/METRICS:** Alert on NCUA-notice aging crossing 48 hours after reportable determination; track member-notice latency distribution and target zero missed 72-hour deadlines.
+**SYSTEM BEHAVIOR:** Automated vulnerability scans run on a scheduled basis across all in-scope systems. An external penetration test is conducted annually by an independent party. All findings are triaged and tracked to closure in the POA&M. Severity-based patching SLAs apply: Critical within 7 days, High within 15 days, Medium within 30 days. High-risk findings (Critical or High severity) must be triaged within 5 business days of confirmation. Findings that cannot be remediated within SLA require a risk acceptance record. The pen-test scope and independence attestation are write-restricted to the Information Security/IT lead; finding records are write-restricted to SecOps.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Vulnerability finding confirmed (`vuln.finding.confirmed`) | Finding detail (`vuln.detail`), severity (`vuln.severity`), affected asset (`asset.id`) | Triage record + POA&M entry (`vuln.triage.completed`) | 5 business days for High/Critical (enforced by `vuln.triage_due_at`) |
+| Triage complete — remediation assigned (`vuln.triage.completed`) | Remediation plan (`vuln.remediation_plan`), owner, severity (`vuln.severity`) | Remediation evidence recorded (`vuln.remediated`) | Critical: 7 days; High: 15 days; Medium: 30 days (enforced by `vuln.remediation_due_at`) |
+| Annual pen-test cycle opens | Scope definition (`pentest.scope`), independence attestation (`pentest.independence`) | Pen-test report issued (`pentest.report.issued`) | Annual (enforced by `pentest.engagement_due`) |
+
+**ALERTS/METRICS:** Alert fires when a Critical finding has no `vuln.remediated` event within 7 days; High within 15 days; Medium within 30 days. Alert fires when annual pen-test is overdue. Target: zero Critical findings open beyond SLA; mean time to remediate High findings ≤ 15 days.
+
+---
+
+## IS-06 — Access Control and Authentication {#is-06-access-control-and-authentication}
+
+**WHY (Reg cite):** [NCUA 12 CFR Part 748, Appendix A §II–III](https://www.ecfr.gov/current/title-12/part-748) requires access controls to limit information access to authorized individuals. [GLBA 15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801) requires safeguards against unauthorized access to member information.
+
+**SYSTEM BEHAVIOR:** All system access requires SSO with MFA enforced at the identity provider. Role assignments follow least-privilege principles enforced by the SoD matrix. Joiner/mover/leaver events trigger automated provisioning and deprovisioning workflows. On termination, all access must be deprovisioned the same business day. Break-glass accounts are permitted for emergency use only and generate a heavily logged access record that is reviewed within one business day. Quarterly access reviews attest that all active entitlements remain appropriate. Access provisioning is write-restricted to the Information Security/IT lead with manager approval; break-glass usage is logged automatically and reviewed by the CCO.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Employee hired or role changed (`employee.hired`, `employee.role.changed`) | Role entitlements (`access.role_entitlements`), manager approval (`access.manager_approval`), justification (`access.justification`) | Access provisioned (`access.provisioned`) | Before first system access |
+| Employee separated (`employee.separated`) | User ID (`user.id`), employment status (`user.employment_status`), role ID (`access.role_id`) | Access deprovisioned (`access.deprovisioned`) | Same business day (enforced by `access.deprovision_due_at`) |
+| Break-glass account used (`access.breakglass_used`) | Break-glass ID (`access.breakglass_id`), justification (`access.breakglass_justification`), agent identity (`access.agent_identity`) | Break-glass usage logged and flagged for review (`access.breakglass_reviewed`) | Review within 1 business day |
+| Quarter closes — access review due (`security.quarter.closed`) | Reviewer roster (`access.reviewer_roster`), user roster (`access.user_roster`), last reviewed date (`access.last_reviewed_at`) | Access review attestation completed (`access_review.completed`) | Quarterly (enforced by `access.review_due_at`) |
+
+**ALERTS/METRICS:** Alert fires when `employee.separated` is not followed by `access.deprovisioned` within the same business day; alert fires when break-glass usage is not reviewed within 1 BD; alert fires when quarterly access review is overdue. Target: same-day deprovisioning rate 100%; zero unreviewed break-glass events.
+
+---
+
+## IS-07 — Data Protection, Encryption, and Disposal {#is-07-data-protection-encryption-and-disposal}
+
+**WHY (Reg cite):** [NCUA 12 CFR Part 748, Appendix A §II](https://www.ecfr.gov/current/title-12/part-748) requires encryption and other safeguards for member information in transit and at rest. [FACTA Disposal Rule 16 CFR Part 682](https://www.ecfr.gov/current/title-16/part-682) requires proper disposal of consumer information derived from consumer reports. [GLBA 15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801) requires safeguards against unauthorized access and use.
+
+**SYSTEM BEHAVIOR:** All data in transit uses TLS 1.2 or higher; all data at rest on Confidential-NPI classified assets uses AES-256 or equivalent approved cryptography. The approved cipher suite list is maintained in the crypto configuration record. DLP controls monitor and block unauthorized exfiltration of NPI. When data reaches its retention eligibility date, disposal must be completed within 30 days using a method that renders the data unreadable (shredding, degaussing, or certified overwrite), unless a legal hold is in effect. Disposal certificates are retained. Litigation-hold status is checked before any disposal action. The crypto configuration is write-restricted to the Information Security/IT lead; DLP policy rules are write-restricted to the CCO and Information Security/IT lead.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| TLS certificate approaching expiry (`tls.certificate_expires_at`) | Certificate details, cipher suite (`tls.cipher_suite`), assessment result (`tls.test_rating`) | Certificate renewed (`tls.certificate.renewed`) | Before expiry (enforced by `tls.certificate_expiry_due`) |
+| DLP violation detected (`dlp.violation.detected`) | Violation detail (`dlp.violation_detail`), data classification (`asset.classification`), actor ID | DLP violation resolved or escalated (`dlp.violation.resolved`) | Same business day for NPI violations |
+| Record reaches retention eligibility (`record.retention.expired`) | Record class (`record.retention_class`), legal hold flag (`record.legal_hold_flag`), disposal method (`record.disposal_method`) | Disposal certificate recorded (`disposal.certificate.recorded`) | 30 days (enforced by `record.disposal_due_at`); suspended if legal hold active |
+
+**ALERTS/METRICS:** Alert fires when a TLS certificate expires without renewal; alert fires when a DLP NPI violation is unresolved after 1 BD; alert fires when a disposal-eligible record has no `disposal.certificate.recorded` within 30 days. Target: zero expired certificates in production; zero unresolved NPI DLP violations beyond 1 BD.
+
+---
+
+## IS-08 — Backup and Disaster Recovery {#is-08-backup-and-disaster-recovery}
+
+**WHY (Reg cite):** [NCUA 12 CFR Part 748, Appendix A §III](https://www.ecfr.gov/current/title-12/part-748) requires controls to ensure availability and recovery of member information systems. [NCUA 12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749) and its Appendix B require vital-records preservation and recovery planning.
+
+**SYSTEM BEHAVIOR:** RTO and RPO targets are defined per system in the DR plan and scope registry. Backups are maintained offsite and in immutable storage. Restore tests are conducted weekly to verify backup integrity; failures trigger immediate remediation. An annual full DR exercise tests end-to-end recovery including ransomware isolation and clean-room restore scenarios. Exercise results are documented in an after-action report and findings tracked to closure. The DR plan and RTO/RPO matrix are write-restricted to the Information Security/IT lead; restore test results are written by SecOps.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Weekly backup cycle completes (`backup.cycle.completed`) | Backup catalog (`backup.catalog`), cycle detail (`backup.job_detail`), RPO monitor (`backup.rpo_monitor`) | Restore test result recorded (`backup.restore.verified`) | Weekly (enforced by `backup.verify_due_at`) |
+| Backup job fails (`backup.job.failed`) | Job detail (`backup.job_detail`), failure reason | Remediation record (`backup.job.remediated`) | Same business day |
+| Annual DR exercise cycle opens | DR plan (`dr.plan`), RTO/RPO matrix (`dr.rto_rpo_matrix`), exercise objectives (`drill.objectives`) | DR exercise after-action report published (`drill.aar.published`) | Annual (enforced by `dr.exercise_due_at`) |
+| Ransomware or destructive event detected (`incident.sev1.detected`) | Incident scope (`incident.scope`), blast radius isolation status (`it.blast_radius_isolated`), restore test environment (`restore.test_env`) | Clean-room restore completed (`restore.completed`) | Per RTO for affected systems |
+
+**ALERTS/METRICS:** Alert fires when weekly restore test is overdue or fails without a remediation record; alert fires when annual DR exercise is overdue. Target: weekly restore test success rate ≥ 99%; annual DR exercise completed on schedule with after-action report within 30 days.
+
+---
+
+## IS-09 — Incident Response and Cyber Incident Reporting {#is-09-incident-response-and-cyber-incident-reporting}
+
+**WHY (Reg cite):** [NCUA 12 CFR Part 748 §748.1(c)](https://www.ecfr.gov/current/title-12/part-748) requires credit unions to notify NCUA within 72 hours of determining a reportable cyber incident. [NCUA 12 CFR Part 748, Appendix B](https://www.ecfr.gov/current/title-12/part-748) requires a member notification program for unauthorized access to sensitive member information. [GLBA 15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801) requires safeguards and response programs for breaches.
+
+**SYSTEM BEHAVIOR:** The IR plan, incident commander roster, and playbooks are maintained and tested. When an incident is declared, the incident commander is assigned and the first-hour checklist is executed. Reportability is assessed as soon as material facts are known; once a reportable cyber incident is determined, NCUA notification must be sent within 72 hours. Member notice is sent without unreasonable delay per Appendix B criteria. Law enforcement coordination is documented in the incident record. The incident record is write-restricted to the assigned incident commander and CCO; the NCUA notification field is write-restricted to the CCO.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Security incident declared (`incident.declared`) | Incident description (`incident.description`), detection source (`incident.detection_source`), severity (`incident.severity`), scope initial (`incident.scope_initial`) | Incident commander assigned + first-hour checklist initiated (`incident.ic.assigned`, `incident.first_hour.completed`) | Immediately on declaration |
+| Reportable cyber incident determined (`incident.security.confirmed`) | Reportability determination (`incident.reportability_determination`), reportability rationale (`incident.reportability_rationale`), NCUA notice due (`incident.ncua_notice_due_at`) | NCUA notification sent (`incident.ncua.notified`) | 72 hours of determination (enforced by `incident.ncua_notice_due_at`) |
+| Member impact confirmed (`incident.member_impact.confirmed`) | Member impact summary (`incident.member_impact`), notice template (`incident.member_notice_template`), member notice required flag (`incident.member_notice_required`) | Member notices sent (`incident.member_notices.sent`) | Without unreasonable delay per Appendix B (enforced by `incident.notification_due_at`) |
+| Incident closed (`incident.closed`) | Root cause (`incident.root_cause`), timeline (`incident.timeline`), recovery evidence (`incident.recovered`) | Post-mortem completed (`incident.postmortem.completed`) | Within 30 days of closure |
+
+**ALERTS/METRICS:** Alert fires when `incident.ncua_notice_due_at` is within 12 hours without a `incident.ncua.notified` event; alert fires when member notice is overdue per `incident.notification_due_at`. Target: 100% of reportable incidents notified to NCUA within 72 hours; zero member notice SLA breaches.
+
+---
 
 ## IS-10 — Identity Theft Red Flags Program {#is-10-identity-theft-red-flags-program}
 
-- **WHY (Reg cite):** NCUA requires an identity-theft prevention program detecting and responding to red flags on covered accounts ([12 CFR Part 717 Subpart J / §717.90](https://www.ecfr.gov/current/title-12/part-717/subpart-J)).
-- **SYSTEM BEHAVIOR:** A red-flag matrix drives detection with step-up verification and account holds. Red-flag cases are reviewed the same day and the ruleset is reviewed quarterly; SAR referral is made where applicable. Address-change-plus-card-reissue within 30 days triggers a reissue-verification check before the card is released. Ruleset changes are write-restricted to Compliance.
-- **EVENTS:**
+**WHY (Reg cite):** [NCUA 12 CFR Part 717 Subpart J](https://www.ecfr.gov/current/title-12/part-717) requires federally insured credit unions to develop and implement a written identity theft prevention program covering covered accounts. [FACTA (15 USC §1681m(e))](https://www.law.cornell.edu/uscode/text/15/1681m) establishes the statutory basis for the Red Flags Rule.
 
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | Red flag detected (`redflag.detected`) | Red-flag type (`redflag.type`), step-up required (`redflag.stepup_required`) | Step-up completed / case disposed (`redflag.stepup_completed`, `redflag.case_disposed`) | Same day (enforced by `redflag.review_due_at`) |
-  | Address change + card reissue within 30 days (`redflag.detected`) | Reissue match flag (`redflag.address_reissue_match`), member id (`member.id`) | Reissue verified before release (`redflag.reissue_verified`) | Before card release (no registered timer) |
-  | Quarterly ruleset review cycle (`redflag.ruleset_updated`) | Pattern updates (`redflag.pattern_updates`), case stats (`redflag.case_stats`) | Ruleset updated (`redflag.ruleset_updated`) | Quarterly (enforced by `redflag.review_due_at`) |
-- **ALERTS/METRICS:** Alert on any red-flag case open past same-day SLA; track quarterly ruleset-review completion and SAR-referral rate where applicable.
+**SYSTEM BEHAVIOR:** The red-flag matrix enumerates applicable red flags for all covered accounts (loans, lines of credit, deposit accounts) across all access channels (in-person, telephone, online, ATM, written). When a red flag is detected, step-up verification is triggered and an account hold may be applied pending resolution. Cases are reviewed the same day they are detected. Staff complete the appropriate red-flag form (credit-report alert form or general red-flag alert form) for every detected flag, even when no response is warranted. SAR referral is made where suspicious activity meets BSA thresholds. The ruleset is reviewed quarterly and updated to reflect new identity theft methods, account types, or business arrangements. The red-flag ruleset is write-restricted to the CCO and designated ID Theft Compliance Officer.
 
-## IS-11 — Vendor Risk Management {#is-11-vendor-risk-management}
+**EVENTS:**
 
-- **WHY (Reg cite):** NCUA Appendix A requires oversight of service-provider arrangements ([12 CFR Part 748, App. A, III.D](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)); GLBA safeguards extend to service providers ([15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801)). Broader vendor lifecycle mechanics are governed by the Third-Party Risk Policy.
-- **SYSTEM BEHAVIOR:** Information-security due diligence (security questionnaires, privacy controls, SOC reports, pen-test results) is the InfoSec contribution to the vendor lifecycle. Contracts require breach notice, data disposition, and right to audit; vendors must notify the institution within 24 hours of discovery, with internal security triage completed within 1 business day. High-risk vendors are reviewed annually consistent with Third-Party Risk monitoring cadences. Vendor classification and contract-clause verification are restricted to Risk and Compliance; vendor onboarding mechanics beyond InfoSec diligence are governed by the Third-Party Risk Policy.
-- **EVENTS:**
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Red flag detected on new or existing covered account (`redflag.detected`) | Red flag type (`redflag.type`), account ID (`account.id`), step-up required flag (`redflag.stepup_required`), address/reissue match (`redflag.address_reissue_match`) | Red-flag case opened and step-up verification initiated (`redflags.case.opened`, `redflag.stepup.completed`) | Same day (enforced by `redflag.review_due_at`) |
+| Red-flag case resolved (`redflag.case.disposed`) | Case disposition, SAR referral if applicable (`sar.filing_id`), case stats (`redflag.case_stats`) | Case disposition recorded; SAR filed if warranted (`sar.filed`) | Same day as resolution |
+| Quarter closes — ruleset review due (`security.quarter.closed`) | Current ruleset (`redflag.ruleset`), pattern updates (`redflag.pattern_updates`), new account types or channels | Updated ruleset record (`redflag.ruleset.updated`) | Quarterly (enforced by `redflag.review_due_at`) |
 
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | Vendor breach notified (`vendor.breach_notified`) | Breach detail (`vendor.breach_detail`), affected scope (`vendor.affected_scope`), NPI access flag (`vendor.npi_access_flag`) | Vendor incident triaged (`vendor.incident_logged`) | Vendor 24 hr / internal 1 BD (enforced by `vendor.incident_triage_due`) |
-  | InfoSec due diligence cycle reached (`vendor.fl_dd_completed`) | Security questionnaire (`vendor.security_questionnaire`), SOC report (`vendor.soc_report`), GLBA addendum (`vendor.glba_addendum_id`) | InfoSec diligence completed (`vendor.diligence_completed`) | Per onboarding (no registered timer) |
-  | Annual high-risk vendor review (`vendor.review_completed`) | Inherent risk (`vendor.inherent_risk`), criticality tier (`vendor.criticality_tier`), monitoring alert (`vendor.monitoring_alert`) | Vendor review completed (`vendor.monitoring_review_completed`) | Annual (enforced by `vendor.annual_review_due_at`) |
-- **ALERTS/METRICS:** Alert on vendor incident triage aging past 1 business day; track high-risk vendor annual-review completion at 100%.
+**ALERTS/METRICS:** Alert fires when a detected red-flag case has no same-day disposition event; alert fires when quarterly ruleset review is overdue. Target: 100% of red-flag cases reviewed same day; zero missed quarterly ruleset reviews.
 
-## IS-12 — Physical Security & Facilities {#is-12-physical-security-facilities}
+---
 
-- **WHY (Reg cite):** NCUA Appendix A requires physical access controls protecting member information and systems ([12 CFR Part 748, App. A, III.C.1](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)); ADA supports facilities access and visitor accommodation ([28 CFR Part 36](https://www.ecfr.gov/current/title-28/part-36)).
-- **SYSTEM BEHAVIOR:** Card/access controls, visitor escort and logging, CCTV/alarm monitoring, and secure areas for servers and media are enforced; badges are deactivated within 24 hours of separation. Visitor logs and badge management are restricted to Facilities; secure-zone access grants require approval.
-- **EVENTS:**
+## IS-11 — Vendor Information Security Diligence {#is-11-vendor-information-security-diligence}
 
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | Employee separated (`employee.separated`) | Badge id (`facility.badge_id`), zone (`facility.zone`) | Badge deactivated (`facility.badge_deactivated`) | 24 hours (enforced by `facility.badge_deactivation_due_at`) |
-  | Visitor arrives (`facility.visitor_arrived`) | Visitor identity (`facility.visitor_identity`), visit purpose (`facility.visit_purpose`), access approval (`facility.access_approval`) | Visitor logged (`facility.visitor_logged`) | At entry (no registered timer) |
-  | Annual facility security test cycle (`facility.test_completed`) | Test script (`facility.test_script`), CCTV ref (`facility.cctv_ref`) | Facility test completed (`facility.test_completed`) | Annual (enforced by `facility.annual_test_due`) |
-- **ALERTS/METRICS:** Alert on any badge not deactivated within 24 hours of separation; track unescorted-visitor exceptions toward zero and alarm-resolution latency.
+**WHY (Reg cite):** [NCUA 12 CFR Part 748, Appendix A §IV](https://www.ecfr.gov/current/title-12/part-748) requires oversight of service provider arrangements to ensure they implement appropriate safeguards. [GLBA 15 USC §6801–6802](https://www.law.cornell.edu/uscode/text/15/6801) requires contractual protections when sharing NPI with service providers.
 
-## IS-13 — AI Governance & Usage Disclosure {#is-13-ai-governance-usage-disclosure}
+**SYSTEM BEHAVIOR:** This control covers the information-security contribution to the broader vendor lifecycle governed by the Third-Party Risk Policy. For each vendor with NPI access or network connectivity, the Information Security/IT lead completes a security questionnaire, reviews privacy controls, SOC reports, and pen-test results as part of the due-diligence package. Contracts must include breach-notice obligations (vendor notifies the institution within 24 hours of discovery), data disposition requirements, and right-to-audit clauses. When a vendor reports a breach, internal security triage must be completed within 1 business day. High-risk vendors are reviewed annually consistent with Third-Party Risk monitoring cadences. The vendor security questionnaire and SOC report fields are write-restricted to the Information Security/IT lead.
 
-- **WHY (Reg cite):** NCUA Appendix A requires safeguards over new technologies and processes that handle member information ([12 CFR Part 748, App. A, III.B–C](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)); GLBA safeguards constrain disclosure of NPI ([15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801)).
-- **SYSTEM BEHAVIOR:** A default pro-AI posture is maintained with controls: an AI Use Register, a DPIA before production, vendor/feature review, member-facing disclosure, and a prohibition on uploading NPI to external AI without approval. The registry is updated within 5 days of approval. AI tool approval and the register are write-restricted to Compliance and the InfoSec/IT lead.
-- **EVENTS:**
+**EVENTS:**
 
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | AI tool approved (`ai.tool_approved`) | Use case (`ai.use_case`), DPIA ref (`ai.dpia_ref`), approval record (`ai.approval_record`) | AI register updated (`ai.register_updated`) | 5 days (enforced by `ai.register_update_due_at`) |
-  | Member-facing AI feature launched (`ai.member_feature_launched`) | Disclosure text (`ai.disclosure_text`), disclosure channel (`ai.disclosure_channel`) | AI disclosure published (`ai.disclosure_published`) | Before launch (no registered timer) |
-  | Unapproved NPI-to-AI attempt (`ai.violation_disposed`) | Use case (`ai.use_case`), DLP violation detail (`dlp.violation_detail`) | AI violation disposed (`ai.violation_disposed`) | Internal: 1 BD (no registered timer) |
-- **ALERTS/METRICS:** Alert on AI register updates aging past 5 days post-approval; track DPIA-before-production coverage at 100% and zero unapproved NPI-to-AI events.
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Vendor proposed or onboarding initiated (`vendor.proposed`, `vendor.onboarding.started`) | Security questionnaire (`vendor.security_questionnaire`), SOC report (`vendor.soc_report`), NPI access flag (`vendor.npi_access_flag`), network access flag (`vendor.network_access_flag`), pen-test results | Vendor due-diligence package completed (`vendor.diligence.completed`) | Before contract execution |
+| Vendor breach notification received (`vendor.breach.notified`) | Breach detail (`vendor.breach_detail`), affected scope (`vendor.affected_scope`), incident scope (`vendor.incident_scope`) | Internal security triage completed (`vendor.incident.logged`) | 1 business day (enforced by `vendor.incident_triage_due`) |
+| Annual review cycle — high-risk vendor (`vendor.annual_review_due_at`) | Prior review package, updated security questionnaire, SOC report, contract clauses (`vendor.contract_clauses`), GLBA clause verification (`vendor.glba_clause`) | Annual vendor review completed (`vendor.review.completed`) | Annual (enforced by `vendor.annual_review_due_at`) |
 
-## IS-14 — Logging, Monitoring & Alerting {#is-14-logging-monitoring-alerting}
+**ALERTS/METRICS:** Alert fires when a vendor breach notification is not triaged within 1 BD; alert fires when a high-risk vendor annual review is overdue. Target: 100% of vendor breach notifications triaged within 1 BD; zero overdue high-risk vendor reviews.
 
-- **WHY (Reg cite):** NCUA Appendix A requires monitoring systems to detect actual and attempted attacks on or intrusions into member-information systems ([12 CFR Part 748, App. A, III.C.1](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)); records preservation under [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749).
-- **SYSTEM BEHAVIOR:** Logs are centralized in a SIEM with time-sync and real-time alerting for critical events; critical alerts are reviewed daily and security-relevant logs are retained at least 12 months aligned to the records schedule. SIEM source inventory and alert disposition are restricted to SecOps. A silent log source is treated as a critical alert until the source is restored.
-- **EVENTS:**
+---
 
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | Critical SIEM alert raised (`siem.source_silent`) | Alert detail (`siem.alert_detail`), source inventory (`siem.source_inventory`), last seen (`siem.last_seen_at`) | Alert disposed (`siem.alert_disposed`) | Daily review (enforced by `siem.alert_review_due_at`) |
-  | Intrusion detected (`intrusion.detected`) | Severity (`intrusion.severity`) | Intrusion response recorded (`intrusion.response_recorded`) | Internal: same day (no registered timer) |
-  | Silent log source detected (`siem.source_silent`) | Source inventory (`siem.source_inventory`), last seen (`siem.last_seen_at`) | Source restored (`siem.source_restored`) | Daily review (enforced by `siem.alert_review_due_at`) |
-- **ALERTS/METRICS:** Alert on critical SIEM alerts unreviewed past the daily window and on any silent source; track 12-month log-retention coverage at 100%.
+## IS-12 — Physical Security and Facilities {#is-12-physical-security-and-facilities}
 
-## IS-15 — Acceptable Use & Communications Systems {#is-15-acceptable-use-communications-systems}
+**WHY (Reg cite):** [NCUA 12 CFR Part 748, Appendix A §II](https://www.ecfr.gov/current/title-12/part-748) requires physical safeguards to protect member information and systems. [ADA 28 CFR Part 36](https://www.ecfr.gov/current/title-28/part-36) provides supporting authority for facilities access controls where public accommodation is involved.
 
-- **WHY (Reg cite):** NCUA Appendix A requires personnel controls and policies governing use of member-information systems ([12 CFR Part 748, App. A, III.C.1](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)); GLBA safeguards ([15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801)).
-- **SYSTEM BEHAVIOR:** Permitted use of devices, email, messaging, internet, and removable media is documented with monitoring notice and BYOD/remote-work safeguards; acknowledgment is required before access is granted. The acceptable-use ruleset is write-restricted to Compliance and the InfoSec/IT lead. Re-acknowledgment is required when the AUP is revised.
-- **EVENTS:**
+**SYSTEM BEHAVIOR:** Card/access controls restrict entry to all facilities; server rooms and media storage areas are designated secure zones with additional access controls. All visitors are escorted and logged. CCTV and alarm systems are monitored continuously. On employee separation, physical access badges are deactivated within 24 hours. Annual facility security tests verify alarm, CCTV, and access-control functionality. Facility access approval and badge deactivation are write-restricted to Facilities and the Information Security/IT lead.
 
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | New hire or role change (`employee.hired`) | Employee id (`employee.id`), role (`user.role`), AUP version (`aup.revision_summary`) | AUP acknowledged before access (`aup.acknowledged`) | Before access grant (no registered timer) |
-  | AUP revised (`aup.revised`) | Revision summary (`aup.revision_summary`) | Re-acknowledgment recorded (`aup.reacknowledged`) | Internal: 30 days (no registered timer) |
-  | BYOD enrollment requested (`byod.enrollment_requested`) | MDM status (`byod.mdm_status`), encryption status (`byod.encryption_status`) | BYOD enrolled (`byod.enrolled`) | Before access grant (no registered timer) |
-- **ALERTS/METRICS:** Alert on access grants without a current AUP acknowledgment; track acknowledgment coverage at 100% and BYOD encryption/MDM compliance.
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Visitor arrives at a facility (`facility.visitor.arrived`) | Visitor identity (`facility.visitor_identity`), visit purpose (`facility.visit_purpose`), zone (`facility.zone`) | Visitor log entry recorded (`facility.visitor.logged`) | At time of arrival |
+| Employee separated (`employee.separated`) | Badge ID (`facility.badge_id`), employee ID | Badge deactivated (`facility.badge_deactivated`) | 24 hours (enforced by `facility.badge_deactivation_due_at`) |
+| Facility alarm triggered (`facility.alarm.triggered`) | CCTV reference (`facility.cctv_ref`), zone, alarm detail | Alarm resolved and logged (`facility.alarm.resolved`) | Immediate response; resolution documented same day |
+| Annual facility test due (`facility.annual_test_due`) | Test script (`facility.test_script`), contacts (`facility.contacts`) | Facility test completed (`facility.test.completed`) | Annual (enforced by `facility.test_due_at`) |
+
+**ALERTS/METRICS:** Alert fires when badge deactivation is not completed within 24 hours of separation; alert fires when annual facility test is overdue. Target: 100% badge deactivation within 24 hours; annual test completion rate 100%.
+
+---
+
+## IS-13 — AI Governance and Usage Disclosure {#is-13-ai-governance-and-usage-disclosure}
+
+**WHY (Reg cite):** [NCUA 12 CFR Part 748, Appendix A §II–III](https://www.ecfr.gov/current/title-12/part-748) requires that safeguards extend to all systems and tools that process member information, including AI tools. [GLBA 15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801) requires safeguards for NPI regardless of the processing technology used.
+
+**SYSTEM BEHAVIOR:** Pynthia Credit Union maintains a default pro-AI posture with controls. All AI tools and use cases must be registered in the AI Use Register before production use. A Data Protection Impact Assessment (DPIA) is required before any AI tool is deployed in production. Member-facing AI features require a published disclosure. Uploading NPI to unapproved external AI tools is prohibited; DLP controls enforce this. When an AI tool is approved, the registry must be updated within 5 business days. AI violations (unapproved NPI upload, undisclosed member-facing feature) are dispositioned as policy violations. The AI Use Register is write-restricted to the CCO and Information Security/IT lead.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| AI tool proposed for production use (`ai.tool.proposed`) | Tool description (`ai.tool`), use case (`ai.use_case`), DPIA reference (`ai.dpia_ref`), vendor/feature review | DPIA completed and tool approved or rejected (`ai.tool.approved`, `ai.tool.rejected`) | Before production deployment |
+| AI tool approved (`ai.tool.approved`) | Approval record (`ai.approval_record`), use case (`ai.use_case`), member feature flag (`ai.member_feature`) | AI register updated (`ai.register.updated`) | 5 business days (enforced by `ai.register_update_due_at`) |
+| Member-facing AI feature launched (`ai.member_feature.launched`) | Disclosure text (`ai.disclosure_text`), disclosure channel (`ai.disclosure_channel`) | Member-facing disclosure published (`ai.disclosure.published`) | Before or at launch |
+| AI policy violation detected (`ai.violation.disposed`) | Violation type, actor ID, data scope (`incident.data_scope`) | Violation dispositioned and logged (`ai.violation.disposed`) | Same business day |
+
+**ALERTS/METRICS:** Alert fires when an AI tool is detected in production without a corresponding `ai.tool.approved` event; alert fires when registry update is overdue after approval. Target: zero unapproved AI tools in production; registry update lag ≤ 5 BD for 100% of approvals.
+
+---
+
+## IS-14 — Logging, Monitoring, and Alerting {#is-14-logging-monitoring-and-alerting}
+
+**WHY (Reg cite):** [NCUA 12 CFR Part 748, Appendix A §III](https://www.ecfr.gov/current/title-12/part-748) requires monitoring and testing of information security controls. [NCUA 12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749) sets retention requirements for records, including security logs.
+
+**SYSTEM BEHAVIOR:** All security-relevant events are centralized in the SIEM with time-synchronized sources. Real-time alerting is configured for critical events (authentication failures, privilege escalation, data exfiltration attempts, system outages). Critical alerts are reviewed daily; unreviewed critical alerts escalate automatically. Security-relevant logs are retained for at least 12 months, aligned to the records retention schedule. Silent log sources (no events received within expected window) trigger an alert. The SIEM alert disposition field is write-restricted to SecOps; the source inventory is write-restricted to the Information Security/IT lead.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Critical SIEM alert fires (`siem.alert_critical`) | Alert detail (`siem.alert_detail`), source inventory (`siem.source_inventory`), last seen timestamp (`siem.last_seen_at`) | Alert reviewed and dispositioned (`siem.alert.disposed`) | Daily (enforced by `siem.alert_review_due_at`) |
+| Log source goes silent (`siem.source_silent`) | Source inventory (`siem.source_inventory`), expected event cadence | Source restored or incident declared (`siem.source.restored`) | Same business day |
+| Security log retention period expires (`record.retention.expired`) | Record class (`record.retention_class`), legal hold flag (`record.legal_hold_flag`) | Log retention confirmed or disposal executed (`record.disposed`) | Per records schedule (minimum 12 months) |
+
+**ALERTS/METRICS:** Alert fires when any critical SIEM alert has no disposition event within 24 hours; alert fires when a log source is silent beyond its expected cadence. Target: critical alert review rate 100% daily; zero silent log sources undetected beyond 1 BD.
+
+---
+
+## IS-15 — Acceptable Use and Communications Systems {#is-15-acceptable-use-and-communications-systems}
+
+**WHY (Reg cite):** [NCUA 12 CFR Part 748, Appendix A §II](https://www.ecfr.gov/current/title-12/part-748) requires policies governing employee use of information systems. [GLBA 15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801) requires safeguards that include employee training and use controls.
+
+**SYSTEM BEHAVIOR:** The Acceptable Use Policy (AUP) documents permitted use of devices, email, messaging, internet, and removable media. Monitoring notice is provided to all users. BYOD devices must be enrolled in MDM with encryption enabled before accessing credit union systems. Remote-work connections require VPN or equivalent secure access. All users must acknowledge the AUP before access is granted; re-acknowledgment is required when the AUP is materially revised. The AUP document is write-restricted to the CCO and Information Security/IT lead; acknowledgment records are system-generated.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| User requests system access (`user.access.requested`) | User ID (`user.id`), role (`user.role`), AUP version (`aup.version`) | AUP acknowledged and access granted (`aup.acknowledged`, `access.granted`) | Before first access |
+| AUP materially revised (`aup.revised`) | Revision summary (`aup.revision_summary`), affected user roster | Re-acknowledgment collected from all users (`aup.reacknowledged`) | Within 30 days of revision |
+| BYOD device enrollment requested (`byod.enrollment.requested`) | MDM status (`byod.mdm_status`), encryption status (`byod.encryption_status`) | BYOD enrolled (`byod.enrolled`) | Before device accesses credit union systems |
+
+**ALERTS/METRICS:** Alert fires when a user has active system access without a current AUP acknowledgment; alert fires when a BYOD device accesses systems without MDM enrollment. Target: AUP acknowledgment coverage 100% of active users; zero unmanaged BYOD devices with system access.
+
+---
 
 ## IS-16 — Social Media {#is-16-social-media}
 
-- **WHY (Reg cite):** NCUA Appendix A requires safeguards against misuse and impersonation affecting member information and the institution's channels ([12 CFR Part 748, App. A, III.C.1](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)); GLBA safeguards ([15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801)). Marketing/advertising compliance is governed by the Fair Lending Policy.
-- **SYSTEM BEHAVIOR:** Corporate posts are pre-approved, personal posts require disclaimers, member-information disclosure is prohibited, and scams/impersonation are escalated with same-day takedown escalation. Post approval authority is restricted to designated approvers in Compliance/Marketing; advertising-content rules are governed by the Fair Lending Policy.
-- **EVENTS:**
+**WHY (Reg cite):** [NCUA 12 CFR Part 748, Appendix A §II](https://www.ecfr.gov/current/title-12/part-748) requires controls over communications channels that could expose member information. [GLBA 15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801) requires safeguards against unauthorized disclosure of NPI through any channel.
 
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | Impersonation or scam detected (`socialmedia.impersonation_detected`) | Impersonation detail (`socialmedia.impersonation_detail`), evidence (`socialmedia.evidence`) | Takedown escalated (`socialmedia.takedown_escalated`) | Same day (enforced by `socialmedia.takedown_due_at`) |
-  | Corporate post drafted (`socialmedia.post_drafted`) | Post content (`socialmedia.post_content`), approver (`socialmedia.approver`) | Post approved (`socialmedia.post_approved`) | Before publication (no registered timer) |
-  | Member-info disclosure on post detected (`socialmedia.disclosure_detected`) | Post content (`socialmedia.post_content`), evidence (`socialmedia.evidence`) | Disclosure disposed (`socialmedia.disclosure_disposed`) | Same day (enforced by `socialmedia.takedown_due_at`) |
-- **ALERTS/METRICS:** Alert on impersonation cases open past same-day takedown SLA; track pre-approval coverage on corporate posts and zero unredacted member-info disclosures.
+**SYSTEM BEHAVIOR:** Corporate social media posts require pre-approval by the designated approver before publication. Personal posts by employees that reference the credit union must include a disclaimer that views are personal. Employees are prohibited from disclosing member information on any social media platform. Scams, impersonation accounts, and fraudulent posts are escalated for takedown the same day they are detected. Evidence of detected violations is preserved. The social media approver field is write-restricted to the CCO and designated Communications lead.
 
-## IS-17 — Training, Awareness & Testing {#is-17-training-awareness-testing}
+**EVENTS:**
 
-- **WHY (Reg cite):** NCUA Appendix A requires training staff to implement the security program ([12 CFR Part 748, App. A, III.C.2](https://www.ecfr.gov/current/title-12/part-748/appendix-Appendix%20A%20to%20Part%20748)); GLBA safeguards ([15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801)).
-- **SYSTEM BEHAVIOR:** Role-based training is delivered with quarterly phishing simulations and high-risk-role deep-dives; new-hire training completes within 30 days and refreshers are annual, with re-training after repeated phishing failures. Curriculum assignment is restricted to HR and the InfoSec/IT lead.
-- **EVENTS:**
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Corporate post drafted (`socialmedia.post.drafted`) | Post content (`socialmedia.post_content`), approver (`socialmedia.approver`) | Post approved and published (`socialmedia.post.approved`) | Before publication |
+| Impersonation or scam detected (`socialmedia.impersonation.detected`) | Impersonation detail (`socialmedia.impersonation_detail`), evidence (`socialmedia.evidence`) | Takedown escalated (`socialmedia.takedown.escalated`) | Same day (enforced by `socialmedia.takedown_due_at`) |
+| Member-information disclosure detected (`socialmedia.disclosure.detected`) | Disclosure detail, actor ID, data scope | Disclosure dispositioned and logged (`socialmedia.disclosure.disposed`) | Same business day |
 
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | Employee hired (`employee.hired`) | Hire date (`training.hire_date`), role curriculum (`training.role_curriculum`) | New-hire training completed (`training.onboarding_completed`) | 30 days (enforced by `training.newhire_due_at`) |
-  | Annual refresher cycle reached (`training.annual_cycle_opened`) | Required curriculum (`training.required_curriculum`), content version (`training.content_version`) | Annual training completed (`training.refresher_completed`) | Annual (enforced by `training.annual_due_at`) |
-  | Quarterly phishing simulation (`phishing.simulation_launched`) | Scenario (`phishing.scenario`), failure history (`phishing.failure_history`) | Results recorded; remedial assigned on repeat failure (`phishing.results_recorded`, `training.remedial_assigned`) | Quarterly (no registered timer) |
-- **ALERTS/METRICS:** Alert on new-hire training aging past 30 days; track annual-refresher coverage at 100% and repeat-phishing-failure remediation completion.
+**ALERTS/METRICS:** Alert fires when a detected impersonation or scam has no `socialmedia.takedown.escalated` event within the same business day; alert fires when a corporate post is published without a prior `socialmedia.post.approved` event. Target: same-day takedown escalation rate 100%; zero unapproved corporate posts.
 
-## IS-18 — Records Management & Retention {#is-18-records-management-retention}
+---
 
-- **WHY (Reg cite):** NCUA requires records preservation and vital-records programs ([12 CFR Part 749 and App. B](https://www.ecfr.gov/current/title-12/part-749)); FACTA Disposal Rule governs secure disposal of consumer information ([16 CFR Part 682](https://www.ecfr.gov/current/title-16/part-682)). Schedule periods and legal-hold mechanics are governed by the Record Retention Policy.
-- **SYSTEM BEHAVIOR:** The Record Retention Policy's Schedule A periods apply to security-specific record classes (SIEM and audit logs, incident-response records, vulnerability findings and POA&Ms, access-review evidence, AI-use registry entries, and physical security logs). The security destruction queue is processed monthly unless a legal hold — governed by the Record Retention Policy — is in effect, which pauses the clock. Data disposal aligns with [IS-07](#is-07-data-protection-encryption-disposal) (render unreadable within 30 days of eligibility). Hold placement/release is write-restricted to Legal and Compliance.
-- **EVENTS:**
+## IS-17 — Training, Awareness, and Testing {#is-17-training-awareness-and-testing}
 
-  | When | What's needed | Produced (and logged) | Within |
-  |---|---|---|---|
-  | Monthly destruction cycle reached (`record.destruction_initiated`) | Record class (`record.retention_class`), disposal eligibility (`record.disposal_eligible`), hold status (`record.hold_status`) | Records destroyed + certified (`record.destroyed`, `record.destruction_certified`) | Monthly (enforced by `record.destruction_cycle_due_at`) |
-  | Legal hold placed on security records (`legal_hold.created`) | Hold scope (`legal_hold.hold_scope`), matter ref (`legal_hold.matter_ref`) | Hold applied; clock paused (`record.hold_applied`) | At placement (no registered timer) |
-  | Legal hold released (`legal_hold.clear_confirmed`) | Release approver (`legal_hold.release_approved_by`), schedule resumed (`legal_hold.schedule_resumed`) | Hold lifted; retention clock resumed (`record.hold_released`) | At release (no registered timer) |
-- **ALERTS/METRICS:** Alert on the monthly destruction queue aging past cycle and on any expired-retention record still present; track destruction-certificate completeness and held-record reconciliation at 100%.
+**WHY (Reg cite):** [NCUA 12 CFR Part 748, Appendix A §IV](https://www.ecfr.gov/current/title-12/part-748) requires training of staff to implement the information security program. [NCUA 12 CFR Part 717 Subpart J](https://www.ecfr.gov/current/title-12/part-717) requires training for the identity theft prevention program.
+
+**SYSTEM BEHAVIOR:** All employees complete role-based security training. New hires must complete initial security training within 30 days of hire. Annual refresher training is required for all staff. High-risk roles (system administrators, SecOps, finance) receive additional deep-dive training. Quarterly phishing simulations are conducted; employees who fail are flagged for re-training, which must be completed within 15 business days of the simulation results. Repeated phishing failures trigger escalated re-training and a coaching record. Training completion records are maintained for audit. Training assignments are write-restricted to the Information Security/IT lead and HR; completion records are system-generated.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Employee hired (`employee.hired`) | Hire date (`training.hire_date`), role curriculum (`training.role_curriculum`), required curriculum (`training.required_curriculum`) | New-hire training completed (`training.onboarding.completed`) | 30 days of hire (enforced by `training.onboarding_due_at`) |
+| Annual training cycle opens (`training.annual_cycle.opened`) | Annual curriculum (`training.annual_cycle`), assignee roster | Annual refresher training completed (`training.refresher.completed`) | Annual (enforced by `training.annual_due_at`) |
+| Quarterly phishing simulation launched (`phishing.simulation.launched`) | Simulation scenario (`phishing.scenario`), target population | Phishing simulation results recorded (`phishing.results.recorded`) | Quarterly |
+| Phishing simulation failure recorded (`phishing.repeat_failure`) | Failure history (`phishing.failure_history`), employee ID, repeat failure flag (`phishing.repeat_failure`) | Remedial training assigned and completed (`training.remedial.assigned`, `training.remedial.completed`) | Re-training within 15 BD of results |
+
+**ALERTS/METRICS:** Alert fires when new-hire training is not completed within 30 days; alert fires when annual refresher completion rate falls below 95% at cycle close; alert fires when a phishing-failure re-training assignment is not completed within 15 BD. Target: new-hire training completion rate 100% within 30 days; annual refresher completion ≥ 95%.
+
+---
+
+## IS-18 — Records Management and Retention {#is-18-records-management-and-retention}
+
+**WHY (Reg cite):** [NCUA 12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749) and its Appendix B require credit unions to maintain vital records and preserve them for specified periods. [NCUA 12 CFR Part 748, Appendix A §III](https://www.ecfr.gov/current/title-12/part-748) requires retention of records sufficient to evidence the security program. [FACTA Disposal Rule 16 CFR Part 682](https://www.ecfr.gov/current/title-16/part-682) requires proper disposal of consumer report-derived information.
+
+**SYSTEM BEHAVIOR:** Security-specific record classes — SIEM and audit logs, incident-response records, vulnerability findings and POA&Ms, access-review evidence, AI-use registry entries, and physical security logs — are subject to the retention periods in Record Retention Policy Schedule A. Retention clocks are set automatically when records are created. The security destruction queue is processed monthly unless a legal hold governed by the Record Retention Policy's legal-hold process is in effect. Data disposal aligns with IS-07: data is rendered unreadable within 30 days of eligibility. Destruction log entries are created for every disposal action. Legal-hold status is checked before any destruction action. The destruction queue and legal-hold flag are write-restricted to the CCO and Records Management lead.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Security record created (any security-class record) | Record class (`record.retention_class`), retention schedule (`record.retention_timer`), anchor date (`record.retention_anchor`) | Retention clock set (`record.retention_clock_set`) | At record creation |
+| Month closes — destruction queue processed | Disposal-eligible records (`record.disposal_eligible`), legal hold flag (`record.legal_hold_flag`), disposal method (`record.disposal_method`) | Destruction log entry created (`destruction_log.entry.created`) | Monthly (unless legal hold active) |
+| Legal hold placed on security records (`legal_hold.created`) | Hold scope (`legal_hold.hold_scope`), matter ID (`legal_hold.matter_id`), placed timestamp (`legal_hold.placed_at`) | Destruction clock suspended; hold recorded (`record.hold.placed`) | Immediately on hold placement |
+| Legal hold released (`legal_hold.clear.confirmed`) | Release authorization (`legal_hold.release_approved_by`), matter ID | Destruction clock resumed (`record.hold.released`) | Immediately on release |
+
+**ALERTS/METRICS:** Alert fires when a disposal-eligible record has no destruction log entry after the monthly queue run (absent a legal hold); alert fires when a destruction log mismatch is detected (`destruction_log.mismatch.detected`). Target: monthly destruction queue completion rate 100% for eligible records; zero unresolved destruction log mismatches.
+
+---
 
 ## Governance & Sign-Off {#governance}
 
-- **Owner:** Patrick Wilson, Chief Compliance Officer — accountable for program maintenance, board reporting, and control evidence.
-- **Approver:** Patrick Wilson, Chief Compliance Officer (annual approval).
-- **Required participants:** InfoSec/IT lead, Engineering/SecOps, Risk, Privacy, HR, Facilities, and the Board/Supervisory Committee as required.
-- **Review cadence:** Annual policy approval (see [IS-01](#is-01-governance-oversight)); quarterly KPI reporting to the Board/Supervisory Committee within 30 days post-quarter.
-- **Cross-references:** Enterprise Risk Management Policy (risk taxonomy/scoring — see [IS-02](#is-02-enterprise-risk-assessment)); Third-Party Risk Policy (vendor lifecycle — see [IS-11](#is-11-vendor-risk-management)); Record Retention Policy (Schedule A and legal holds — see [IS-18](#is-18-records-management-retention)); Business Continuity Plan Policy (continuity — see [IS-08](#is-08-backup-disaster-recovery)); Privacy Policy; E-Commerce Policy; Electronic Payment Systems Policy; Fair Lending Policy (advertising — see [IS-16](#is-16-social-media)).
+| Role | Name | Responsibility |
+|---|---|---|
+| Policy Owner | Patrick Wilson, Chief Compliance Officer | Maintains policy, coordinates annual review, submits for Board approval |
+| Information Security/IT Lead | TBD | Implements controls, maintains CMDB, SIEM, and security program record |
+| Engineering/SecOps | TBD | Implements automated controls, produces audit logs, executes vulnerability and DR testing |
+| Risk | TBD | Consolidates security risk register into enterprise risk register |
+| Privacy | TBD | Coordinates on data classification, DLP, and AI DPIA |
+| HR | TBD | Triggers joiner/mover/leaver events for access and training workflows |
+| Facilities | TBD | Manages physical access controls and badge deactivation |
+| Board/Supervisory Committee | TBD | Annual policy approval; quarterly KPI report recipient |
+
+**Review cadence:** Annual policy review and Board approval; quarterly KPI reporting; controls reviewed on trigger events (material incidents, regulatory changes, new products).
+
+**Cross-references:** Enterprise Risk Management Policy (risk register consolidation, ERM new-product review), Third-Party Risk Policy (vendor lifecycle beyond IS diligence), Record Retention Policy (Schedule A retention periods, legal-hold process), Business Continuity Plan Policy (BCP/DR coordination), Privacy Policy (member privacy rights), E-Commerce Policy (online/mobile channel governance), Electronic Payment Systems Policy (payment rail controls), Fair Lending Policy (marketing compliance).
+
+---
 
 ## Assumptions & Gaps {#assumptions}
 
-- **Engineering vocabulary is provisional.** Some resources, fields, and events referenced in the *When* / *What's needed* / *Produced (and logged)* / *Within* columns above are drawn from the registered Cassandra Banking Core vocabulary but several InfoSec-specific concepts are not yet bound to this policy's controls in `core-vocabulary.json`. Codes used in those columns are the target naming scheme and will be confirmed by engineering before the next review. Specific provisional/target codes relied on include `security_finding.description`/`security_finding.due_at`/`security_finding.severity` (provisional), `control.id`, `policy.id`, and `record.id`.
-- **Charter and NCUA applicability.** This policy assumes Pynthia Credit Union is a federally insured credit union subject to NCUA 12 CFR Parts 748, 717 (Subpart J), and 749. If the charter or FACTA coverage differs, the WHY citations in [IS-09](#is-09-incident-response-cyber-incident-reporting), [IS-10](#is-10-identity-theft-red-flags-program), and [IS-18](#is-18-records-management-retention) must be reconfirmed. NCUA 701.31 was reviewed and intentionally not anchored to any control, as it governs nondiscrimination/appraisal practices outside this policy's information-security scope.
-- **Reportable-incident threshold.** [IS-09](#is-09-incident-response-cyber-incident-reporting) assumes the §748.1(c) "reportable cyber incident" determination is made by the IR commander and Compliance; the exact internal criteria and SLA between detection and determination are to be confirmed.
-- **ERM tier-to-timer mapping.** [IS-02](#is-02-enterprise-risk-assessment) assumes the registered `risk.reassessment_due_at` timer is configured per the ERM tiered cadence (quarterly/annual/biennial). Confirmation that the ERM Policy owns and parameterizes these tiers is required.
-- **Vendor breach-notice window alignment.** [IS-11](#is-11-vendor-risk-management) assumes the Third-Party Risk Policy's standard sets the 24-hour vendor notice and 1-business-day internal triage; if that standard changes, this control's *Within* must follow it rather than restating a divergent value.
-- **Non-deadline operational steps.** Several rows (e.g., SoD grant blocking, visitor logging, pre-publication post approval, AUP acknowledgment, hold placement/release) have no registered timer and are enforced at the point of action; "no registered timer" is used rather than coining a per-domain due-date field, consistent with the composition grammar.
-- **Phishing-simulation cadence timer.** [IS-17](#is-17-training-awareness-testing) quarterly phishing simulations have no registered timer code; the cadence is tracked operationally and a generic `Task` (`type: simulation`) instance is assumed for scheduling, to be confirmed by engineering.
+- **Engineering vocabulary is provisional.** Several field and event codes referenced in the control overlays above are composed per the Composition grammar and are not yet confirmed as registered in `core-vocabulary.json`. Specifically: `security.program_charter`, `security.kpi_snapshot`, `security.quarter`, `security.board_report_due_at`, `security.board_report.issued`, `security.quarter.closed` (used as a trigger throughout — this is a composed event on the registered `security` object with the registered action `closed`, matching the registered event `security.quarter.closed`), `access.breakglass_used`, `access.breakglass_id`, `access.breakglass_justification`, `access.breakglass_reviewed`, `siem.alert_critical` (composed from registered `siem` object + registered action `alert`; the registered event `siem.alert_critical` does not appear in the events table but `siem.alert_detail` and `siem.alert_review_due_at` are registered fields). Engineering must confirm or register these codes before the next review cycle.
+
+- **`security.quarter.closed` as a recurring trigger.** This event is used throughout the Timing Matrix and control overlays as the trigger for quarterly obligations (KPI report, CMDB attestation, access review, red-flag ruleset review). The registered event `security.quarter.closed` exists in the vocabulary. Engineering should confirm the scheduler emits this event at quarter-end for all relevant consumers.
+
+- **`siem.alert_critical` event code.** The SIEM entity has a registered field `siem.alert_critical` (string) and `siem.alert_review_due_at` (string). The event `siem.alert_critical` is used in IS-14 as a trigger; engineering should confirm whether this is emitted as a lifecycle event or whether the correct trigger is a state change on `siem.alert_critical` field (e.g., `siem.alert_critical.detected`). The registered event `siem.source_silent` is used as-is.
+
+- **`phishing.repeat_failure` as an event trigger.** The `phishing` object has a registered field `phishing.repeat_failure` (string). IS-17 uses this as a trigger event. Engineering should confirm the event code — likely `phishing.repeat_failure.detected` per Composition grammar — and register it.
+
+- **`access.breakglass_used` event.** The `access` object has registered fields `access.breakglass_used`, `access.breakglass_id`, `access.breakglass_justification`, and `access.breakglass_reviewed`. IS-06 uses `access.breakglass_used` as a trigger event. Engineering should confirm the emitted event code (likely `access.breakglass.used` per Composition grammar) and register it.
+
+- **`product.description` provisional code.** IS-02 references `product.description` for the new-product security risk assessment. This is listed in the Provisional codes section and should be used as-is.
+
+- **`security.program_charter` and `security.kpi_snapshot` fields.** These are registered fields on the `security` object (`security.program_charter`, `security.kpi_snapshot`) and are used in IS-01. Engineering should confirm these fields are populated by the security program management workflow.
+
+- **ID Theft Compliance Officer designation.** PATRICK_NOTES and the REFERENCE_POLICY both reference a designated ID Theft Compliance Officer. This policy assigns that function to the CCO. If a separate designee is appointed, the role assignment in IS-10 and the Governance table should be updated.
+
+- **HMDA reporter status.** This policy does not address HMDA reporting obligations. If Pynthia Credit Union is a HMDA reporter, the information security program should coordinate with the Fair Lending Policy on data integrity controls for LAR data.
+
+- **NCUA Part 701.31 applicability.** NCUA 12 CFR Part 701.31 (nondiscrimination in lending) is not directly implicated by this policy. No assumption is made about its applicability here; the Fair Lending Policy governs.
+
+- **ADA (28 CFR Part 36) scope.** ADA is cited in IS-12 as supporting authority for facilities access controls. Its applicability depends on whether Pynthia Credit Union's facilities are places of public accommodation. Legal counsel should confirm the scope of ADA obligations for physical security design.
+
+- **`disposal.due_at` provisional code.** IS-07 references `record.disposal_due_at` (registered field on `record`) for the 30-day disposal deadline. The provisional code `disposal.due_at` is also listed; the registered `record.disposal_due_at` is preferred and used throughout.
+
+- **Vendor breach-notice window alignment.** IS-11 states vendors must notify the institution within 24 hours of discovery, with internal triage within 1 business day. This aligns with the Third-Party Risk Policy standard per PATRICK_NOTES. If the Third-Party Risk Policy specifies a different window, IS-11 should be updated to match.
+
+- **`training.onboarding_due_at` vs. `training.newhire_due_at`.** Both are registered timers for the same concept. IS-17 uses `training.onboarding_due_at`; engineering should confirm which timer is canonical for the 30-day new-hire security training deadline.

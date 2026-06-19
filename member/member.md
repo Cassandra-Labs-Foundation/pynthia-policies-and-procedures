@@ -1,193 +1,268 @@
+```yaml
 ---
-title: Member Policy (Table-First, Design-Overlay v2)
+title: Member Policy (Table-First, Design-Overlay v3)
 owner: Patrick Wilson, Chief Compliance Officer
 version: v1.0
-effective: 2026-06-16
-next_review: 2027-06-16
+effective: 2026-07-01
+next_review: 2027-07-01
 approvers:
   - Patrick Wilson, Chief Compliance Officer
-tags: [Compliance, Member Lifecycle, Membership, Expulsion, Disputes, Estate]
+tags: [Compliance, Member Lifecycle, Membership, Expulsion, Disputes, Account Maintenance]
 ---
+```
 
 ## General Policy Statement
 
-Pynthia Credit Union commits to fair, lawful, and well-documented treatment of members across the entire membership lifecycle — from eligibility and onboarding through account maintenance, communications, disputes, restrictions, closures, expulsion, death, and records handling. This policy governs all members and their accounts across all service channels. It enforces identity verification at onboarding and at sensitive maintenance events, timely and fair dispute resolution, and statutory due process for restrictions, closures, and expulsion. CIP/identity-program internals, Red Flags technical controls, privacy notices, retention schedules, complaint-program structure, online/mobile channels, and Truth-in-Savings disclosure content live in their respective policies and are referenced, not duplicated, here.
+Pynthia Credit Union (the "Credit Union") is a California state-chartered credit union committed to serving members throughout the full arc of their relationship with the institution — from eligibility determination and onboarding through account maintenance, dispute resolution, account restrictions and closures, expulsion, and estate handling. This policy establishes the minimum controls governing each stage of the member lifecycle, ensures that member rights are protected in accordance with California Credit Union Law ([Cal. Fin. Code §§ 14000 et seq.](https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=FIN&sectionNum=14000.)), the California Consumer Financial Protection Law, [Regulation E (12 CFR Part 1005)](https://www.ecfr.gov/current/title-12/part-1005), [Regulation P (12 CFR Part 1016)](https://www.ecfr.gov/current/title-12/part-1016), and the [FACT Act Red Flags Rule (16 CFR Part 681)](https://www.ecfr.gov/current/title-16/part-681), and that operational risk is managed through documented, auditable processes. Governance is centralized with the Chief Compliance Officer; Member Services, BSA, and the Board of Directors participate as required by specific controls. CIP/identity-verification program details, Red Flags technical controls, privacy notices, record retention schedules, UDAAP monitoring, e-commerce channel controls, and Truth-in-Savings disclosure content are governed by their respective policies and are out of scope here.
 
-## Timing Matrix  {#timing-matrix}
+---
+
+## Timing Matrix {#timing-matrix}
 
 | Scenario | Trigger (human → event) | Deadline | Content Reference | Control |
-|---|---|---|---:|---|
-| Eligibility denied at onboarding | Field-of-membership rule fails (`member.eligibility_rule_failed`) | Promptly (internal: 5 BD) | Ineligibility notice with basis | [MB-01](#mb-01-membership-eligibility-onboarding) |
-| Change of address request | Member submits address change (`entity.update_requested`) | Notice same day; card/statement hold 14 days | Prior-address notice + waiting window | [MB-02](#mb-02-account-maintenance-change-of-address) |
-| Member dispute (Reg E EFT error) | Member asserts EFT error (`dispute.opened`) | 10 BD investigate / 45 days resolve | Provisional credit + resolution letter | [MB-04](#mb-04-member-disputes-dispute-resolution) |
-| Regulator-routed complaint | DFPI/CFPB complaint received (`complaint.regulator_received`) | Acknowledge ≤5 BD; respond per portal date | Forward to designated officer | [MB-04](#mb-04-member-disputes-dispute-resolution) |
-| Account restriction/closure by CU | Grounds determined (`account.restriction_approved` / `account.closure_approved`) | Notice promptly; payout per closure timer | Documented rationale + member notice | [MB-05](#mb-05-account-restrictions-closures) |
-| Member expulsion | Board/CEO expulsion decided (`member.expulsion_decided`) | Hearing right; reconsideration ≤30 days | Expulsion notice + share payout | [MB-06](#mb-06-member-expulsion) |
-| Member death | Death reported (`member.death_reported`) | Payout per estate timer | Beneficiary/POD claim + documentation | [MB-07](#mb-07-member-death-estate-handling) |
-| Member service inquiry | Inquiry received (`service.inquiry_received`) | First response per SLA | Channel-standard response | [MB-09](#mb-09-member-service-standards) |
+|---|---|---:|---|---|
+| Eligibility determination at onboarding | Membership application received (`member.application.submitted`) | Before account opened | Field-of-membership rules; CIP hand-off | [MP-01](#mp-01-membership-eligibility-and-onboarding) |
+| Ineligibility notice to applicant | Eligibility check fails (`member.eligibility_rule.failed`) | Prompt; no statutory deadline — internal SLA: 3 business days | Written notice of ineligibility | [MP-01](#mp-01-membership-eligibility-and-onboarding) |
+| Address-change notice to prior address | Address change processed (`entity.address.changed`) | Same business day | Notice to old and new address | [MP-02](#mp-02-account-maintenance-and-change-of-address) |
+| Card/statement hold after address change | Address change processed (`entity.address.changed`) | Hold expires after 7 calendar days (`member.address_hold_expires_at`) | No new card or statement dispatched during hold | [MP-02](#mp-02-account-maintenance-and-change-of-address) |
+| Red Flags review on suspicious address change | Suspicious pattern detected (`redflag.detected`) | Immediate — same business day | Step-up verification or case opened | [MP-02](#mp-02-account-maintenance-and-change-of-address) |
+| Complaint acknowledgement | Complaint received (`complaint.received`) | 5 business days (`complaint.ack_due_at`) | Written or electronic acknowledgement | [MP-04](#mp-04-member-disputes-and-dispute-resolution) |
+| Complaint initial response | Complaint logged (`complaint.logged`) | 15 calendar days (`complaint.initial_response_due_at`) | Substantive response or status update | [MP-04](#mp-04-member-disputes-and-dispute-resolution) |
+| Complaint final response | Investigation complete (`complaint.investigation.completed`) | 45 calendar days (`complaint.final_response_due_at`) | Final written response | [MP-04](#mp-04-member-disputes-and-dispute-resolution) |
+| Reg E error-resolution provisional credit | EFT error dispute opened (`dispute.opened`) | 10 business days (`dispute.provisional_credit_due_at`) | Provisional credit posted | [MP-04](#mp-04-member-disputes-and-dispute-resolution) |
+| Reg E error-resolution final determination | EFT error investigation complete (`dispute.investigation.completed`) | 45 calendar days (`dispute.response_due_at`) | Written determination + correction if error confirmed | [MP-04](#mp-04-member-disputes-and-dispute-resolution) |
+| Account restriction notice to member | Restriction approved (`account.restriction.approved`) | Same business day | Written notice of restriction and grounds | [MP-05](#mp-05-account-restrictions-and-closures) |
+| Account closure notice to member | Closure approved (`account.closure.approved`) | Minimum 10 calendar days before closure (internal SLA) | Written notice of closure and payout timeline | [MP-05](#mp-05-account-restrictions-and-closures) |
+| Closure payout to member | Account closed (`account.closed`) | Promptly; internal SLA: 5 business days (`account.closure_payout_due_at`) | Payout of share balance net of amounts owed | [MP-05](#mp-05-account-restrictions-and-closures) |
+| Expulsion notice to member | Expulsion decided (`member.expulsion.decided`) | Prompt written notice before effective date | Written notice of grounds and hearing right | [MP-06](#mp-06-member-expulsion) |
+| Member hearing request deadline | Expulsion notice sent (`member.expulsion_notice.sent`) | 30 calendar days from notice date | Member's written request for special meeting | [MP-06](#mp-06-member-expulsion) |
+| Expulsion payout | Expulsion effective (`member.expelled`) | Promptly as funds available, net of amounts owed (`member.expulsion_payout`) | Share balance payout | [MP-06](#mp-06-member-expulsion) |
+| Death flag on account | Death reported (`member.death.reported`) | Same business day | Account flagged; new transactions reviewed | [MP-07](#mp-07-member-death-and-estate-handling) |
+| Estate claim payout | Claim documented and verified (`estate.claim.submitted`) | Internal SLA: 30 calendar days (`estate.payout_due_at`) | Payout to verified claimant net of amounts owed | [MP-07](#mp-07-member-death-and-estate-handling) |
+| Member service first response | Inquiry received (`service.inquiry.received`) | 1 business day (`service.first_response_due_at`) | Acknowledgement or resolution | [MP-09](#mp-09-member-service-standards) |
+| Member service resolution | Inquiry open (`service.inquiry.received`) | 5 business days (`service.resolution_due_at`) | Resolution or escalation to complaint | [MP-09](#mp-09-member-service-standards) |
 
-## MB-01 — Membership Eligibility & Onboarding  {#mb-01-membership-eligibility-onboarding}
+---
 
-**WHY (Reg cite):** State-chartered credit union membership is limited to a defined field of membership under [California Credit Union Law, Cal. Fin. Code Div. 5 (§§14000 et seq.)](https://leginfo.legislature.ca.gov/faces/codes_displayexpandedbranch.xhtml?tocCode=FIN&division=5.&title=&part=&chapter=&article=); identity verification at account opening is required as a precondition to establishing membership (CIP program internals governed by the BSA Policy, integrated here).
+## MP-01 — Membership Eligibility and Onboarding {#mp-01-membership-eligibility-and-onboarding}
 
-**SYSTEM BEHAVIOR:** When an applicant applies, the system evaluates field-of-membership eligibility and links the result to a completed identity verification before a membership is activated; a failed eligibility rule blocks activation and triggers an ineligibility notice with the basis. Identity verification is consumed from the CIP/identity-verification process (see BSA Policy) and must reach an approved state before `member.activated`. The eligibility-basis field and activation transition are write-restricted to Member Services with Compliance oversight.
+**WHY (Reg cite):** California Credit Union Law ([Cal. Fin. Code §§ 14050–14052](https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=FIN&sectionNum=14050.)) requires that membership be limited to persons within the credit union's field of membership as defined in its charter and bylaws; admission of an ineligible person is ultra vires. Identity verification at account opening is required by the BSA CIP program (31 CFR § 1020.220), which this control gates but does not duplicate.
 
-**EVENTS:**
-
-| When | What's needed | Produced (and logged) | Within |
-|---|---|---|---|
-| Applicant submits membership application (`member.application_submitted`) | Applicant identity (`enrollment.applicant_identity`), identity evidence (`enrollment.identity_evidence`), eligibility basis (`member.eligibility_basis`) | Verification record opened + onboarding task (`verification.created`) | At submission (internal: same day) |
-| Identity verification approved and eligibility passes (`verification.completed`) | Verification status (`verification.status`), member-number match (`enrollment.member_number_match`) | Membership activated (`member.activated`) | Before activation (internal: 1 BD) |
-| Field-of-membership rule fails (`member.eligibility_rule_failed`) | Eligibility denied flag (`member.eligibility_denied`), eligibility basis (`member.eligibility_basis`) | Ineligibility notice sent (`member.ineligibility_notice_sent`) | Promptly (internal: 5 BD) |
-
-**ALERTS/METRICS:** Alert on memberships activated without a completed verification (target zero); track onboarding cycle time and eligibility-denial rate by channel.
-
-## MB-02 — Account Maintenance & Change of Address  {#mb-02-account-maintenance-change-of-address}
-
-**WHY (Reg cite):** Address changes are an identity-theft red flag requiring verification and protective controls under the [FACT Act Red Flags Rule (16 CFR Part 681)](https://www.ecfr.gov/current/title-16/part-681) and the [FCRA address-discrepancy duties (15 USC §1681c-1, §1681m(e))](https://www.law.cornell.edu/uscode/text/15/1681m); technical Red Flags controls are governed by the Information Security Policy.
-
-**SYSTEM BEHAVIOR:** A change-of-address request requires identity verification before processing; on commit the system sends notice to the prior address and places a hold that delays dispatch of a new card or statement for a waiting window. A suspicious or NCOA-mismatched change triggers Red Flags review and step-up verification; a card reissue requested during the address hold is blocked until the hold expires. Bank-error address corrections may suppress the member notice. The address-hold timer and identity-check method are write-restricted to Member Services.
+**SYSTEM BEHAVIOR:** When a prospective member submits an application, the system evaluates the applicant's eligibility against the registered field-of-membership rules (`member.eligibility_rule`) before any account is created. If eligibility is confirmed, the system hands off to the CIP/identity-verification process (governed by the BSA Policy); a membership and share account are established only after CIP returns a passed verification (`verification.completed` with `verification.status` = `approved`). If eligibility fails, the system issues an ineligibility notice and no account is opened. If CIP fails, the application is declined and the applicant is notified. The eligibility basis and CIP outcome are recorded on the member record. Member Services staff may read eligibility determinations; only Compliance may override a failed eligibility check, and any override must be documented with rationale.
 
 **EVENTS:**
 
 | When | What's needed | Produced (and logged) | Within |
 |---|---|---|---|
-| Member requests address change (`entity.update_requested`) | Identity-check method (`member.identity_check_method`), new address (`entity.address_new`), prior address (`entity.address_previous`) | Address updated + prior-address notice (`member.address_notice_sent`) | Notice same day (internal: same day) |
-| Address change committed; card/statement hold applied (`entity.address_changed`) | Address hold expiry (`member.address_hold_expires_at`), reissue-during-hold flag (`card.request_during_address_hold`) | Dispatch hold set (`account.lock_applied`) | 14-day hold (enforced by `member.address_hold_expires_at`) |
-| NCOA mismatch or suspicious change detected (`address.ncoa_mismatch_detected`) | Reissue-match flag (`redflag.address_reissue_match`), step-up required (`redflag.stepup_required`) | Red Flags case opened (`redflag.detected`) | At detection (internal: same day) |
+| Prospective member submits application (`member.application.submitted`) | Applicant identity (`entity.name`, `entity.date_of_birth`, `entity.tin`), eligibility evidence (`member.eligibility_basis`, `member.eligibility_rule`) | Eligibility determination recorded (`member.eligibility_determined`); if failed, ineligibility notice queued (`member.eligibility_denied`) | Immediate — before account creation |
+| Eligibility check fails (`member.eligibility_rule.failed`) | Applicant contact information (`entity.contact`), denial basis (`member.eligibility_rule`) | Ineligibility notice sent to applicant (`member.ineligibility_notice.sent`) | Internal SLA: 3 business days |
+| Eligibility confirmed; CIP hand-off initiated (`verification.created`) | Applicant identity documents per BSA Policy; `verification.type`, `verification.provider` | CIP/verification record created; outcome returned (`verification.completed`) | Per BSA Policy SLA |
+| CIP passes (`verification.completed` with status `approved`) | `verification.status`, `verification.provider_result`, `member.eligibility_determined` | Member record activated (`member.activated`); share account created (`account.created`) | Same business day as CIP pass |
+| CIP fails or is denied (`verification.denied`) | `verification.status`, `verification.provider_result` | Application declined; applicant notified; no account created | Same business day as CIP outcome |
 
-**ALERTS/METRICS:** Alert on address changes processed without verification (target zero) and on card reissues dispatched before hold expiry; track NCOA-mismatch step-up completion rate.
+**ALERTS/METRICS:** Alert if any `account.created` event is not preceded by a `verification.completed` (status `approved`) event on the same member within the same session — target zero occurrences. Monitor the ratio of `member.eligibility_rule.failed` to `member.application.submitted` monthly; spikes may indicate field-of-membership boundary issues requiring Compliance review.
 
-## MB-03 — Member Communications & Preferences  {#mb-03-member-communications-preferences}
+---
 
-**WHY (Reg cite):** Electronic delivery of required disclosures requires affirmative consent under [E-SIGN (15 USC §7001)](https://www.law.cornell.edu/uscode/text/15/7001); information-sharing opt-outs and delivery of required notices are governed by [Regulation P (12 CFR Part 1016)](https://www.ecfr.gov/current/title-12/part-1016) (privacy program internals in the Privacy Policy).
+## MP-02 — Account Maintenance and Change of Address {#mp-02-account-maintenance-and-change-of-address}
 
-**SYSTEM BEHAVIOR:** The system captures and honors member communication preferences — electronic versus paper delivery and information-sharing opt-outs — and enforces them on required disclosure delivery. E-delivery requires captured E-SIGN consent before electronic channel is used; a delivery failure on the chosen channel reverts to a compliant fallback channel and flags the member record. Preference and consent fields are write-restricted to Member Services; opt-out enforcement honors the Privacy Policy program.
+**WHY (Reg cite):** The [FACT Act Red Flags Rule (16 CFR Part 681)](https://www.ecfr.gov/current/title-16/part-681) requires covered financial institutions to detect and respond to red flags — including suspicious address changes — as part of an identity-theft prevention program. The USA PATRIOT Act (31 U.S.C. § 5318(l)) requires that a physical address be maintained on the customer record. California Consumer Financial Protection Law imposes UDAAP standards on member interactions, including account servicing.
 
-**EVENTS:**
-
-| When | What's needed | Produced (and logged) | Within |
-|---|---|---|---|
-| Member sets or updates preferences (`member.preferences_updated`) | Contact preferences (`member.contact_preferences`), delivery channel (`member.delivery_channel`), e-sign consent evidence (`member.esign_consent_evidence`) | Preferences effective + consent recorded (`privacy.esign_consent_recorded`) | At update (internal: same day) |
-| Delivery on chosen channel fails (`member.delivery_failed`) | Delivery failure reason (`member.delivery_failure_reason`), reverted channel (`member.channel_reverted`) | Fallback delivery + record flag (`notice.sent`) | At failure (internal: 1 BD) |
-
-**ALERTS/METRICS:** Alert on electronic disclosures sent without captured E-SIGN consent (target zero); track delivery-failure rate and opt-out enforcement latency.
-
-## MB-04 — Member Disputes & Dispute Resolution  {#mb-04-member-disputes-dispute-resolution}
-
-**WHY (Reg cite):** EFT error-resolution timelines and provisional credit are required under [Regulation E (12 CFR §1005.11)](https://www.ecfr.gov/current/title-12/part-1005#p-1005.11); complaint handling and forwarding of DFPI/CFPB-routed complaints to a designated officer follow the [California Consumer Financial Protection Law (CCFPL, Cal. Fin. Code §90008)](https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?division=24.&chapter=&part=&lawCode=FIN) and CFPB complaint-response expectations (complaint-program structure in the Compliance Policy).
-
-**SYSTEM BEHAVIOR:** The system provides standardized complaint intake, escalation, and response with defined timelines; for asserted EFT errors it starts the Reg E clock, posts provisional credit where required, and completes investigation within the regulatory window. Regulator-routed (DFPI/CFPB) complaints are forwarded to the designated officer and tracked against the portal response date. A complaint reclassified as a dispute carries its evidence forward without restarting intake. Dispute basis and regulator-routing fields are write-restricted to the designated officer and Member Services.
+**SYSTEM BEHAVIOR:** Before processing any address change, the system requires identity verification of the requesting member using the method registered on the member record (`member.identity_check_method`); telephone requests require secondary-level identification per the BSA Policy. Upon processing, the system automatically dispatches a notice to both the prior address and the new address on the same business day. A 7-calendar-day hold is placed on dispatch of any new card or statement to the new address (`member.address_hold_expires_at`); card reissue requests received during the hold are queued and released only after the hold expires or is cleared by Compliance. Every address change is evaluated against the Red Flags ruleset (`redflag.ruleset`); if a red flag is detected (e.g., `redflag.address_reissue_match` = true, or a pattern of rapid successive changes), a step-up verification is required or a case is opened before the change is finalized. If the address change is disputed by the member (i.e., the member contacts the Credit Union to report a notice they did not initiate), the change is immediately flagged (`member.address_change_disputed`) and routed to the Information Security team per the Information Security Policy. PO Box requests are handled at the account level only; the customer-level record must retain a physical address. Address-change write access is restricted to Member Services staff with supervisor approval for changes flagged by Red Flags; Compliance has read access to all address-change audit records.
 
 **EVENTS:**
 
 | When | What's needed | Produced (and logged) | Within |
 |---|---|---|---|
-| Member asserts EFT error (`dispute.opened`) | Dispute basis (`dispute.basis`), category (`dispute.category`), correction amount (`dispute.correction_amount`) | Reg E clock started (`dispute.rege_clock_started`) | Investigate ≤10 BD (enforced by `dispute.investigation_due_at`) |
-| Provisional credit required before completion (`dispute.provisional_credit_posted`) | Investigation due (`dispute.investigation_due_at`), provisional credit due (`dispute.provisional_credit_due_at`) | Provisional credit posted (`dispute.provisional_credit_posted`) | 10 BD (enforced by `dispute.provisional_credit_due_at`) |
-| Investigation completed and decision reached (`dispute.investigation_completed`) | Findings (`dispute.findings`), correction amount (`dispute.correction_amount`) | Resolution sent (`dispute.response_sent`) | 45 days (enforced by `dispute.response_due_at`) |
-| DFPI/CFPB complaint received (`complaint.regulator_received`) | Regulator case id (`dispute.regulator_case_id`), narrative (`complaint.narrative`), portal due date (`complaint.portal_due_date`) | Acknowledged + routed to officer (`complaint.acknowledged`) | Ack ≤5 BD (enforced by `complaint.ack_due_at`) |
-| Regulator response prepared (`dispute.regulator_response_filed`) | Regulator routed flag (`dispute.regulator_routed`), final response due (`complaint.final_response_due_at`) | Regulator response filed (`dispute.regulator_response_filed`) | Per portal date (enforced by `complaint.final_response_due_at`) |
+| Member requests address change (in-branch or by phone) | Member identity verification (`member.identity_check_method`, `verification.status`), current address on file (`entity.address_previous`), new address (`entity.address_new`) | Identity verification result recorded (`verification.completed`); address change held pending verification | Before change is processed |
+| Identity verification passes for address change (`verification.completed` with status `approved`) | `entity.address_previous`, `entity.address_new`, all linked account IDs | Address updated on entity and all linked accounts (`entity.address.changed`); address-hold timer set (`member.address_hold_expires_at`); notice queued to old and new address (`member.address_notice`) | Same business day |
+| Address-change notice dispatched (`member.address_notice.sent`) | `entity.address_previous`, `entity.address_new`, member ID (`member.id`) | Notice sent to prior address and new address (`member.address_notice.sent`) | Same business day as address change |
+| Red Flags evaluation runs on address change (`redflag.detected`) | `redflag.ruleset`, `redflag.address_reissue_match`, `redflag.stepup_required`, member transaction history | Red flag case opened (`redflags.case.opened`) or step-up verification initiated (`verification.created`); address change suspended until resolved | Same business day |
+| Card or statement request received during address hold (`card.request_during_address_hold`) | `member.address_hold_expires_at`, card reissue request (`card.reissue_request`) | Request queued; dispatch blocked until hold expires (`member.address_hold_expires_at`) | Hold expires 7 calendar days after address change |
+| Member disputes address change they did not initiate | Member contact (`entity.contact`), disputed change record (`member.address_change_disputed`) | Dispute flag set (`member.address_change_disputed`); routed to Information Security per Information Security Policy | Same business day as member contact |
 
-**ALERTS/METRICS:** Aging alerts on disputes approaching the Reg E 10-BD and 45-day thresholds and on regulator complaints approaching portal due dates; track provisional-credit timeliness and reopened-dispute rate.
+**ALERTS/METRICS:** Alert in real time on any `redflag.detected` event tied to an address change where `redflag.stepup_required` = true and no subsequent `redflag.stepup.completed` is recorded within 1 business day — target zero unresolved. Monitor count of `member.address_change_disputed` events monthly; any instance triggers an Information Security review.
 
-## MB-05 — Account Restrictions & Closures  {#mb-05-account-restrictions-closures}
+---
 
-**WHY (Reg cite):** Sanctions limiting services for abusive conduct, and credit-union-initiated restriction or closure, must preserve a member's core share and voting rights and follow the bylaws and [Federal Credit Union Act / NCUA framework (12 USC §1764)](https://www.law.cornell.edu/uscode/text/12/1764) as applied under [California Credit Union Law (Cal. Fin. Code Div. 5)](https://leginfo.legislature.ca.gov/faces/codes_displayexpandedbranch.xhtml?tocCode=FIN&division=5.&title=&part=&chapter=&article=).
+## MP-03 — Member Communications and Preferences {#mp-03-member-communications-and-preferences}
 
-**SYSTEM BEHAVIOR:** Restrictions and closures initiated by the credit union require documented grounds and a designated approval before they take effect, after which the system notifies the member and, on closure, schedules the share/deposit payout net of amounts owed. Sanctions for abusive conduct may deny services involving personal contact or premises access while preserving the right to maintain a share account and vote, unless the conduct warrants full removal under MB-06. Restriction approver and grounds fields are write-restricted to authorized approvers (CEO/Executive Team per bylaws).
+**WHY (Reg cite):** [Regulation P (12 CFR Part 1016)](https://www.ecfr.gov/current/title-12/part-1016) requires that opt-out elections be honored and that required privacy notices be delivered. The E-SIGN Act (15 U.S.C. § 7001) requires affirmative consent before electronic delivery of required disclosures; consent must be captured and retained. California Consumer Financial Protection Law imposes UDAAP standards on member communications.
 
-**EVENTS:**
-
-| When | What's needed | Produced (and logged) | Within |
-|---|---|---|---|
-| Restriction grounds approved (`account.restriction_approved`) | Restriction grounds (`restriction.grounds`), approver (`restriction.approved_by`) | Restriction notice sent (`member.restriction_notice_sent`) | Promptly (internal: 2 BD) |
-| Closure approved by credit union (`account.closure_approved`) | Amounts owed (`member.amounts_owed`), closure payout due (`account.closure_payout_due_at`) | Account closed + member notice (`account.closed`) | Notice promptly (internal: 2 BD) |
-| Closure payout scheduled (`account.closed`) | Balance (`account.balance`), closure payout due (`account.closure_payout_due_at`) | Closure payout sent (`member.closure_payout_sent`) | Per payout timer (enforced by `account.closure_payout_due_at`) |
-
-**ALERTS/METRICS:** Alert on restrictions/closures effected without a recorded approver or grounds (target zero); track payout timeliness and member-notice delivery confirmation.
-
-## MB-06 — Member Expulsion  {#mb-06-member-expulsion}
-
-**WHY (Reg cite):** Member expulsion for cause must follow the statutory procedure — permissible grounds, written notice, the member's right to be heard at a special meeting, reconsideration, and payout of shares net of amounts owed — under the [Federal Credit Union Act §118 (12 USC §1764)](https://www.law.cornell.edu/uscode/text/12/1764) and [California Credit Union Law (Cal. Fin. Code Div. 5)](https://leginfo.legislature.ca.gov/faces/codes_displayexpandedbranch.xhtml?tocCode=FIN&division=5.&title=&part=&chapter=&article=) with Board ratification.
-
-**SYSTEM BEHAVIOR:** An expulsion decision records permissible grounds, sends written notice of expulsion and reasons, and opens the member's right to request a hearing at a special meeting and to request reconsideration within the statutory window; expulsion does not relieve the member of liabilities, and remaining shares are paid in withdrawal order net of amounts owed. A reconsideration request is decided by the President/CEO and reported to the Board and Supervisory Committee at the next meeting. Expulsion grounds, hearing dates, and reconsideration timers are write-restricted to the Board/CEO and Compliance.
+**SYSTEM BEHAVIOR:** The system captures each member's communication preferences (`member.contact_preferences`) and e-delivery consent (`member.esign_consent_captured`, `member.esign_consent_evidence`) at onboarding and updates them whenever the member changes preferences. Opt-out elections (e.g., privacy opt-out, marketing opt-out) are propagated to all downstream delivery channels within 1 business day of receipt. Required disclosures (e.g., account-opening disclosures, change-in-terms notices) are delivered through the member's elected channel only if valid e-consent exists; otherwise, paper delivery is used. If electronic delivery fails (`member.delivery.failed`), the system automatically reverts to paper delivery and records the failure reason (`member.delivery_failure_reason`). Preference records are write-restricted to Member Services and the member via self-service; Compliance has read access. The content of privacy notices and the information-sharing program are governed by the Privacy Policy and are out of scope here.
 
 **EVENTS:**
 
 | When | What's needed | Produced (and logged) | Within |
 |---|---|---|---|
-| Expulsion decided for cause (`member.expulsion_decided`) | Grounds (`expulsion.grounds`), decided by (`expulsion.decided_by`) | Expulsion notice sent (`member.expulsion_notice_sent`) | Promptly (internal: 5 BD) |
-| Member requests hearing at special meeting (`member.expulsion_hearing_requested`) | Hearing requested at (`expulsion.hearing_requested_at`), meeting date (`expulsion.meeting_date`) | Hearing scheduled + hearing held (`member.expulsion_hearing_requested`) | Per bylaws (internal: 30 days) |
-| Member requests reconsideration (`member.expulsion_reconsideration_requested`) | Reconsideration requested at (`expulsion.reconsideration_requested_at`), amounts owed (`member.amounts_owed`) | Reconsideration decided (`member.expulsion_reconsideration_decided`) | ≤30 days from expulsion (internal: 30 days) |
-| Expulsion finalized; shares payable (`member.expulsion_decided`) | Amounts owed (`member.amounts_owed`), balance (`account.balance`) | Expulsion payout sent (`member.expulsion_payout_sent`) | Promptly as funds available (internal: 10 BD) |
-| Board/Supervisory reporting cycle (`expulsion.board_report_filed`) | Decided by (`expulsion.decided_by`), grounds (`expulsion.grounds`) | Board report filed (`expulsion.board_report_filed`) | Next scheduled meeting (enforced by `board.notification_due_at`) |
+| Member elects or updates communication preferences (`member.preferences.updated`) | Member ID (`member.id`), elected channel (`member.delivery_channel`), e-consent evidence (`member.esign_consent_evidence`), opt-out scope (`privacy.optout_scope`) | Preferences recorded (`member.preferences.updated`); opt-out propagated to delivery systems (`privacy.optout_propagated`) | Opt-out effective within 1 business day (`privacy.optout_propagation_due_at`) |
+| Required disclosure is due for delivery (`disclosure.initiated`) | Member delivery channel (`member.delivery_channel`), e-consent status (`member.esign_consent_captured`), disclosure template (`disclosure.template_id`) | Disclosure delivered via elected channel (`disclosure.account_opening.delivered`) or paper if no valid e-consent | Per disclosure-specific deadline (see Truth-in-Savings Policy for content) |
+| Electronic delivery fails (`member.delivery.failed`) | Failure reason (`member.delivery_failure_reason`), member ID (`member.id`), disclosure or notice type | Channel reverted to paper (`member.channel_reverted`); paper delivery initiated | Same business day as failure |
+| Member revokes e-consent | Member ID (`member.id`), revocation evidence | E-consent flag cleared; all future required deliveries switched to paper (`member.channel_reverted`) | Effective immediately; propagated within 1 business day |
 
-**ALERTS/METRICS:** Alert on expulsions lacking notice, recorded grounds, or unfiled Board report (target zero); track reconsideration-window adherence and payout timeliness.
+**ALERTS/METRICS:** Alert if any `disclosure.initiated` event is not followed by a `disclosure.account_opening.delivered` (or equivalent) within the required deadline — target zero overdue. Monitor `member.delivery.failed` count weekly; more than 5 failures per week triggers a channel-reliability review.
 
-## MB-07 — Member Death & Estate Handling  {#mb-07-member-death-estate-handling}
+---
 
-**WHY (Reg cite):** Account handling on a member's death — payable-on-death designations, beneficiary claims, and required documentation — must follow account-contract terms and California probate/POD law, consistent with the [California Credit Union Law (Cal. Fin. Code Div. 5)](https://leginfo.legislature.ca.gov/faces/codes_displayexpandedbranch.xhtml?tocCode=FIN&division=5.&title=&part=&chapter=&article=) and applicable [California Probate Code (§5000 et seq., multiple-party accounts)](https://leginfo.legislature.ca.gov/faces/codes_displayexpandedbranch.xhtml?tocCode=PROB).
+## MP-04 — Member Disputes and Dispute Resolution {#mp-04-member-disputes-and-dispute-resolution}
 
-**SYSTEM BEHAVIOR:** On a reported death the system applies a death flag, requires a death certificate and claimant verification, validates POD/beneficiary designations and authority documents, and schedules payout to verified claimants per the estate timer; benefits received post-mortem (e.g., direct deposits after death) are flagged for return. Estate authority documents, claimant verification, and payout timing are write-restricted to Member Services with Compliance review.
+**WHY (Reg cite):** [Regulation E (12 CFR Part 1005.11)](https://www.ecfr.gov/current/title-12/part-1005#p-1005.11) establishes mandatory error-resolution procedures and timelines for electronic fund transfer disputes, including provisional credit and final determination deadlines. The California Consumer Financial Protection Law (CCFPL) requires that DFPI-routed complaints be forwarded to a designated officer and that complaint handling meet UDAAP standards. Complaint intake, logging, and UDAAP monitoring program structure are governed by the Compliance Policy; this control governs the member-facing response process only.
 
-**EVENTS:**
-
-| When | What's needed | Produced (and logged) | Within |
-|---|---|---|---|
-| Member death reported (`member.death_reported`) | Date of death (`estate.date_of_death`), death certificate (`estate.death_certificate_ref`) | Death flag applied (`account.death_flag_applied`) | At report (internal: 1 BD) |
-| Beneficiary/POD claim submitted (`estate.claim_submitted`) | Claimant verification (`estate.claimant_verification_id`), authority document (`estate.authority_document_ref`), claim form (`estate.claim_form_ref`) | Claim documented + payout scheduled (`estate.claim_submitted`) | Payout per timer (enforced by `estate.payout_due_at`) |
-| Post-mortem benefit received (`estate.benefit_returned`) | Benefit-received flag (`estate.benefit_received_postmortem`), payout due (`estate.payout_due_at`) | Benefit returned (`estate.benefit_returned`) | Promptly on identification (internal: 5 BD) |
-
-**ALERTS/METRICS:** Alert on payouts released without verified claimant or authority document (target zero); track death-flag latency and unreturned post-mortem benefits aging.
-
-## MB-08 — Member Records & Privacy  {#mb-08-member-records-privacy}
-
-**WHY (Reg cite):** Member records and access must be maintained on a need-to-know basis consistent with [Regulation P safeguards (12 CFR Part 1016)](https://www.ecfr.gov/current/title-12/part-1016) and applicable retention duties (retention schedules in the Record Retention Policy; privacy program in the Privacy Policy).
-
-**SYSTEM BEHAVIOR:** Member records are retained under a defined retention class with access logged and restricted to a need-to-know basis; sensitive-record access is recorded with actor and purpose, and disposal occurs only after retention expiry and absent a legal hold. Retention class, hold status, and sensitive-access fields are write-restricted to Records/Compliance; access enforcement defers to the access-control program.
+**SYSTEM BEHAVIOR:** All member complaints and disputes are logged in the complaint management system upon receipt, regardless of channel. Complaints received directly from members are acknowledged within 5 business days. Complaints routed from DFPI or CFPB are immediately forwarded to the Chief Compliance Officer (the designated officer) and tracked with a regulator case ID (`complaint.regulator_case_id`). EFT error disputes trigger the Regulation E clock (`dispute.rege_clock`): provisional credit is posted within 10 business days if the investigation cannot be completed sooner; a final determination is issued within 45 calendar days. Non-EFT complaints receive an initial substantive response within 15 calendar days and a final response within 45 calendar days. If a service inquiry is reclassified as a complaint (`service.reclassified_as_dispute`), the complaint clock starts from the date of original receipt. Complaint records are write-restricted to Member Services and Compliance; the CCO has full access including regulator-routed records.
 
 **EVENTS:**
 
 | When | What's needed | Produced (and logged) | Within |
 |---|---|---|---|
-| Member record created or updated (`record.created`) | Retention class (`record.retention_class`), record class (`record.class`) | Retention clock set (`record.retention_clock_set`) | At creation (internal: same day) |
-| Sensitive member record accessed (`record.access_logged`) | Actor id (`record.actor_id`), access purpose (`record.access_purpose`), sensitive-access flag (`record.sensitive_access`) | Access log entry written (`record.access_logged`) | At access (real-time) |
-| Retention expires with no hold (`record.retention_expired`) | Disposal eligible (`record.disposal_eligible`), legal-hold flag (`record.legal_hold_flag`) | Record disposed (`record.disposed`) | Per retention timer (enforced by `record.retention_expires_at`) |
+| Member complaint received via any channel (`complaint.received`) | Member ID (`complaint.member_id`), complaint narrative (`complaint.narrative`), channel (`complaint.channel`), category (`complaint.category`) | Complaint logged (`complaint.logged`); acknowledgement task created (`complaint.ack_due_at`) | Logged same business day |
+| Complaint acknowledged (`complaint.acknowledged`) | Complaint ID, member contact information (`entity.contact`) | Acknowledgement sent to member (`complaint.acknowledged`) | 5 business days from receipt (`complaint.ack_due_at`) |
+| Regulator-routed complaint received (`complaint.regulator.received`) | Regulator case ID (`complaint.regulator_case_id`), complaint narrative, regulator identity (`complaint.regulator`) | Complaint forwarded to CCO; regulator case ID recorded; initial response task created (`complaint.initial_response_due_at`) | Same business day as receipt |
+| EFT error dispute opened (`dispute.opened`) | Transaction details, member assertion (`dispute.basis`), account ID | Reg E clock started (`dispute.rege_clock.started`); provisional credit task created (`dispute.provisional_credit_due_at`) | Clock starts on date of receipt |
+| Provisional credit due for EFT dispute (`dispute.provisional_credit_due_at`) | Investigation status, account balance (`account.balance`) | Provisional credit posted (`dispute.provisional_credit.posted`) | 10 business days from dispute receipt |
+| EFT dispute investigation complete (`dispute.investigation.completed`) | Investigation findings (`dispute.findings`), correction amount if applicable (`dispute.correction_amount`) | Final determination sent to member (`dispute.response.sent`); correction applied if error confirmed (`dispute.resolved`) | 45 calendar days from dispute receipt (`dispute.response_due_at`) |
+| Non-EFT complaint investigation complete (`complaint.investigation.completed`) | Investigation notes (`complaint.investigation_notes`), root cause (`complaint.root_cause_tag`), UDAAP flag (`complaint.udaap_flag`) | Final response sent to member (`complaint.final_response.sent`); complaint resolved (`complaint.resolved`) | 45 calendar days from receipt (`complaint.final_response_due_at`) |
 
-**ALERTS/METRICS:** Alert on sensitive-record access without recorded purpose and on disposal attempts against held records (target zero); track access-log coverage and overdue-disposal backlog.
+**ALERTS/METRICS:** Alert if any complaint reaches 80% of its response deadline without a recorded response event — aging alert at 36 calendar days for final response. Alert immediately on any `complaint.udaap_flag` = true for CCO review. Monitor count of complaints exceeding any deadline; target zero. Track `dispute.provisional_credit_due_at` breaches; target zero.
 
-## MB-09 — Member Service Standards  {#mb-09-member-service-standards}
+---
 
-**WHY (Reg cite):** Timely, channel-consistent member service supports fair-dealing and UDAAP expectations under the [California Consumer Financial Protection Law (CCFPL, Cal. Fin. Code §90003)](https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?division=24.&chapter=&part=&lawCode=FIN) (UDAAP monitoring program in the Compliance Policy).
+## MP-05 — Account Restrictions and Closures {#mp-05-account-restrictions-and-closures}
 
-**SYSTEM BEHAVIOR:** Each member inquiry is assigned a category, channel, and owner with a first-response and resolution SLA; an inquiry that surfaces a regulated grievance is reclassified as a dispute and routed to MB-04 without losing its timeline. Service category, owner, and SLA timers are write-restricted to Member Services.
+**WHY (Reg cite):** California Credit Union Law ([Cal. Fin. Code §§ 14750–14752](https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=FIN&sectionNum=14750.)) permits a credit union to restrict or close member accounts under defined conditions, subject to the member's contractual rights and applicable law. The CCFPL imposes UDAAP standards on account closure practices. Restrictions and closures do not relieve a member of outstanding liabilities to the Credit Union.
+
+**SYSTEM BEHAVIOR:** An account may be restricted (e.g., denial of specific services, transaction limits) or closed only upon documented grounds (`restriction.grounds`, `account.restriction`) and with approval from the CEO or designee (`restriction.approved_by`). The system records the rationale and approver before any restriction or closure is applied. Upon restriction, a notice is sent to the member on the same business day (`member.restriction_notice.sent`). Upon closure approval, a notice is sent to the member at least 10 calendar days before the closure effective date (internal SLA), except where immediate closure is required by law (e.g., legal process, OFAC). Upon closure, the member's share balance is paid out promptly, net of any amounts owed to the Credit Union (`member.closure_payout`), within 5 business days (`account.closure_payout_due_at`). Abusive conduct by a member (as defined in the Credit Union's Abusive Member Policy) is a permissible ground for restriction; the CEO or designee may impose restrictions immediately and report to the Board at the next scheduled meeting. Account restriction and closure records are write-restricted to the CEO/designee and Compliance; Member Services has read access.
 
 **EVENTS:**
 
 | When | What's needed | Produced (and logged) | Within |
 |---|---|---|---|
-| Member inquiry received (`service.inquiry_received`) | Inquiry id (`service.inquiry_id`), category (`service.category`), assigned to (`service.assigned_to`) | First response sent (`service.first_response_sent`) | Per SLA (enforced by `service.first_response_due_at`) |
-| Inquiry worked to closure (`service.resolved`) | First response due (`service.first_response_due_at`), resolution due (`service.resolution_due_at`) | Inquiry resolved (`service.resolved`) | Per SLA (enforced by `service.resolution_due_at`) |
-| Inquiry surfaces regulated grievance (`service.inquiry_received`) | Reclassified-as-dispute flag (`service.reclassified_as_dispute`), category (`service.category`) | Routed to disputes (`dispute.opened`) | At triage (internal: same day) |
+| Account restriction proposed | Grounds (`restriction.grounds`), approver ID (`restriction.approved_by`), member ID (`member.id`), account ID (`account.id`) | Restriction approval recorded (`account.restriction.approved`); restriction applied to account (`account.lock.applied`) | Approval before restriction is applied |
+| Account restriction applied (`account.lock.applied`) | `account.restriction`, `account.lock_type`, member contact (`entity.contact`) | Restriction notice sent to member (`member.restriction_notice.sent`) | Same business day |
+| Account closure proposed | Grounds, approver ID, member ID, account balance (`account.balance`), amounts owed (`member.amounts_owed`) | Closure approval recorded (`account.closure.approved`) | Approval before closure notice |
+| Closure notice sent to member (`account.closure.approved`) | Member contact (`entity.contact`), closure effective date | Closure notice sent; closure effective date set | At least 10 calendar days before closure (internal SLA); immediate if required by law |
+| Account closed (`account.closed`) | `account.status`, `account.balance`, `member.amounts_owed` | Closure payout initiated (`member.closure_payout.sent`); payout amount = balance net of amounts owed | Payout within 5 business days (`account.closure_payout_due_at`) |
 
-**ALERTS/METRICS:** Aging alerts on inquiries breaching first-response or resolution SLAs; track reclassification rate and channel-level SLA adherence.
+**ALERTS/METRICS:** Alert if `account.closed` is not followed by `member.closure_payout.sent` within 5 business days — target zero breaches. Monitor count of restrictions and closures monthly; report to CCO. Alert if any closure notice-to-effective-date gap is less than 10 calendar days without a documented legal-process exception.
 
-## Governance & Sign-Off  {#governance}
+---
 
-- **Owner:** Patrick Wilson, Chief Compliance Officer — accountable for this policy and its controls.
-- **Approver(s):** Patrick Wilson, Chief Compliance Officer.
-- **Required participants:** Member Services (onboarding, maintenance, communications, disputes, service); BSA (identity verification integration, Red Flags); the Board (expulsion grounds, special meetings, ratification, and Supervisory Committee reporting).
-- **Review cadence:** Annual review (next review 2027-06-16) or upon material regulatory change; tracked via the policy review timer (`policy.review_due_at`).
-- **Cross-references:** BSA Policy (CIP/CDD), Information Security Policy (Red Flags technical controls), Privacy Policy (notices and information-sharing), Record Retention Policy (schedules), Compliance Policy (complaint program and UDAAP), E-Commerce Policy (online/mobile channels), Truth-in-Savings Policy (account disclosure content).
-- **Control cross-cut:** The [Timing Matrix](#timing-matrix) is the single consolidated deadline view; each row links to its governing control.
+## MP-06 — Member Expulsion {#mp-06-member-expulsion}
 
-## Assumptions & Gaps  {#assumptions}
+**WHY (Reg cite):** California Credit Union Law ([Cal. Fin. Code §§ 14850–14854](https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=FIN&sectionNum=14850.)) establishes the statutory procedure for expulsion of a credit union member, including permissible grounds, the member's right to notice, and the right to be heard at a special meeting of members. Expulsion does not relieve the member of outstanding liabilities. The Federal Credit Union Act § 118 ([12 U.S.C. § 1764](https://www.law.cornell.edu/uscode/text/12/1764)) provides the analogous federal framework for reference.
 
-- **Engineering vocabulary is provisional.** The member-lifecycle resources, fields, events, and timers cited throughout the control overlays target the registered Cassandra Banking Core vocabulary; most member/dispute/estate/expulsion codes used here are registered, but a small number rely on provisional spellings (e.g., `complaint.id`, `dispute.status`, `service.channel`, `member.state`, `enrollment.channel`). Where a concept is registered, the registered code is used verbatim; where only a provisional spelling exists, that exact spelling is used. Engineering will confirm all member-side codes before the next review.
-- **Charter type and statutory applicability.** This policy assumes Pynthia is a California state-chartered credit union, so California Credit Union Law and CCFPL govern membership, expulsion, special meetings, and complaint forwarding; the Federal Credit Union Act §118 / NCUA framework is cited as the federal-equivalent anchor for expulsion and restriction. If Pynthia is federally chartered, NCUA Part 701.31 and FCU Act procedures govern and the California citations are secondary — to be confirmed by Compliance.
-- **Reg E vs. Reg DD scope.** MB-04 assumes member disputes principally implicate Regulation E EFT error-resolution; non-EFT account disputes and Truth-in-Savings disclosure content are out of scope here and handled under the Truth-in-Savings and Compliance Policies. Confirm whether any billing-error (Reg Z) disputes also route through this control.
-- **Address waiting window length.** MB-02 assumes a 14-day card/statement dispatch hold after a change of address; the exact window is an operational parameter to be confirmed against the Information Security Red Flags procedure.
-- **Expulsion reconsideration window.** MB-06 assumes a 30-day reconsideration window and "next scheduled meeting" Board/Supervisory reporting, consistent with the reference policies; confirm the exact statutory/bylaw window applicable to Pynthia.
-- **POD/estate documentation set.** MB-07 assumes death certificate plus claimant verification and authority documents as the required claim package; confirm the precise documentation matrix (small-estate affidavits, letters testamentary thresholds) with Legal.
-- **Service SLA values.** MB-09 first-response and resolution SLAs are governed by registered timers but their specific durations are not set in PATRICK_NOTES; Member Services to define and confirm the channel-level SLA targets.
+**SYSTEM BEHAVIOR:** Permissible grounds for expulsion include: conduct causing the Credit Union a loss; breach of federal or state law or regulation; behavior that threatens, harasses, or abuses an employee or member; or other conduct harmful to the Credit Union (as documented in the expulsion record). Membership terminations resulting from loan charge-offs or bankruptcy are not governed by this control. The CEO (or Board-delegated officer) decides expulsion; the decision is recorded with grounds (`expulsion.grounds`, `expulsion.decided_by`). Upon decision, a written expulsion notice is sent to the member stating the grounds and the member's right to request a hearing at a special meeting within 30 calendar days (`member.expulsion_notice.sent`). If the member requests a hearing (`member.expulsion_hearing.requested`), a special meeting is convened; the Board ratifies or reverses the expulsion at that meeting or at the next annual meeting. The expulsion is reported to the Board and Supervisory Committee at their next normally scheduled meeting (`expulsion.board_report`). Upon expulsion becoming effective, the member's share balance is paid out as funds become available, net of amounts owed (`member.expulsion_payout.sent`). Reinstatement petitions are reviewed by the CEO; any losses must be repaid before reinstatement is considered. Expulsion records are write-restricted to the CEO and Compliance; the Board has read access to the board report.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Expulsion decided by CEO or designee (`member.expulsion.decided`) | Grounds (`expulsion.grounds`), deciding officer (`expulsion.decided_by`), member ID (`member.id`), supporting evidence | Expulsion decision recorded; expulsion notice queued (`member.expulsion_notice`) | Decision recorded before notice is sent |
+| Expulsion notice sent to member (`member.expulsion_notice.sent`) | Member contact (`entity.contact`), grounds, hearing-right statement, 30-day deadline | Expulsion notice sent (`member.expulsion_notice.sent`); 30-day hearing-request window opens | Prompt written notice; hearing-request window = 30 calendar days from notice date |
+| Member requests hearing (`member.expulsion_hearing.requested`) | Member's written request, `expulsion.hearing_requested_at` | Hearing request recorded; special meeting scheduled (`expulsion.meeting_date`) | Special meeting convened within a reasonable time per bylaws |
+| Special meeting held; Board ratifies or reverses (`member.expulsion_hearing.held`) | Board quorum, meeting minutes, decision | Expulsion ratified or reversed; board minutes recorded | At or before next annual meeting if no special meeting requested |
+| Expulsion board report filed (`expulsion.board_report.filed`) | Expulsion summary, member ID, grounds, outcome | Board report filed with Board and Supervisory Committee (`expulsion.board_report.filed`) | Next normally scheduled Board and Supervisory Committee meeting |
+| Expulsion effective; payout initiated (`member.expulsion_payout.sent`) | `account.balance`, `member.amounts_owed`, share account IDs | Share balance paid to expelled member net of amounts owed (`member.expulsion_payout.sent`) | As funds become available; internal SLA: 30 calendar days (`member.expulsion_payout`) |
+
+**ALERTS/METRICS:** Alert if `member.expulsion_notice.sent` is not recorded within 2 business days of `member.expulsion.decided` — target zero gaps. Alert if `expulsion.board_report.filed` is not recorded before the next Board meeting date following the expulsion decision. Monitor all open hearing requests (`member.expulsion_hearing.requested`) to ensure special meetings are scheduled within bylaw timelines.
+
+---
+
+## MP-07 — Member Death and Estate Handling {#mp-07-member-death-and-estate-handling}
+
+**WHY (Reg cite):** California Probate Code and California Credit Union Law govern the disposition of a deceased member's accounts, including payable-on-death (POD) designations and the rights of estate representatives. [Regulation E (12 CFR Part 1005)](https://www.ecfr.gov/current/title-12/part-1005) continues to apply to EFT transactions on the account until the account is closed or transferred. The Credit Union's obligation to pay out share balances to the estate is subject to deduction of amounts owed.
+
+**SYSTEM BEHAVIOR:** Upon notification of a member's death, the system applies a death flag to all accounts (`account.death_flag.applied`) on the same business day, suspending new discretionary transactions pending estate review. The death certificate and any POD designation on file are retrieved; if a valid POD beneficiary is designated, the system routes the claim to that beneficiary upon receipt of required documentation. If no POD designation exists, the account is held for the estate representative. Claimants must provide a death certificate (`estate.death_certificate_ref`), authority document (letters testamentary or equivalent, `estate.authority_document_ref`), and identity verification (`estate.claimant_verification_id`). Upon verification, the payout is processed net of amounts owed to the Credit Union (`estate.payout_due_at`). Any benefits received post-mortem (e.g., ACH credits) are identified and returned to the originator (`estate.benefit_received_postmortem`). Estate records are write-restricted to Member Services with CCO oversight; legal counsel is consulted for contested claims.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Member death reported (`member.death.reported`) | Member ID (`member.id`), date of death (`estate.date_of_death`), notification source | Death flag applied to all member accounts (`account.death_flag.applied`); estate record created | Same business day |
+| Post-mortem benefit (e.g., ACH credit) received on flagged account | `account.death_flag`, transaction details, originator (`estate.benefit_received_postmortem`) | Benefit identified; return initiated to originator | Per Reg E and ACH rules (typically within 5 business days) |
+| Estate claim submitted by claimant (`estate.claim.submitted`) | Death certificate (`estate.death_certificate_ref`), authority document (`estate.authority_document_ref`), claimant identity verification (`estate.claimant_verification_id`), POD designation if applicable | Claim documented (`estate.claim_documented`); claimant verification initiated (`verification.created`) | Claim accepted for processing upon receipt of complete documentation |
+| Claimant verification complete (`verification.completed`) | `verification.status`, `estate.claimant_verification_id`, account balance (`account.balance`), amounts owed (`member.amounts_owed`) | Payout authorized; payout sent to verified claimant (`estate.payout.sent`) | Internal SLA: 30 calendar days from complete documentation (`estate.payout_due_at`) |
+
+**ALERTS/METRICS:** Alert if `account.death_flag.applied` is not recorded within 1 business day of `member.death.reported` — target zero gaps. Alert if `estate.payout.sent` is not recorded within 30 calendar days of `estate.claim.submitted` with complete documentation (`estate.payout_due_at`). Monitor all open estate claims weekly.
+
+---
+
+## MP-08 — Member Records and Privacy {#mp-08-member-records-and-privacy}
+
+**WHY (Reg cite):** [Regulation P (12 CFR Part 1016)](https://www.ecfr.gov/current/title-12/part-1016) (Gramm-Leach-Bliley) requires financial institutions to protect the privacy of nonpublic personal information and to limit access to those with a need to know. California Consumer Financial Protection Law and the California Consumer Privacy Act impose additional access and data-minimization obligations. Record retention schedules are governed by the Record Retention Policy; this control governs access controls and the integrity of member records within their retention period.
+
+**SYSTEM BEHAVIOR:** Member records (identity, account, transaction, communication, and dispute records) are classified as sensitive and subject to need-to-know access controls. Access is provisioned by role: Member Services staff may access records for members they are actively serving; Compliance and the CCO have broad read access for oversight; BSA has access to records required for CIP and suspicious-activity review; no staff member has write access to audit log entries. All access to member records is logged (`record.access.logged`) with actor ID (`record.actor_id`), actor role (`record.actor_role`), and access purpose (`record.access_purpose`). Bulk exports require CCO approval (`record.export_approved_by`). The content of privacy notices, information-sharing elections, and opt-out propagation are governed by the Privacy Policy. Retention periods and destruction schedules are governed by the Record Retention Policy; this control does not set those schedules but enforces that records are not destroyed while under legal hold (`record.legal_hold_flag`).
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Staff member accesses a member record | Actor ID (`record.actor_id`), actor role (`record.actor_role`), access purpose (`record.access_purpose`), member record ID (`record.id`) | Access logged (`record.access.logged`) | Real time — every access |
+| Bulk export of member records requested (`record.bulk_export.requested`) | Requestor ID, export justification (`record.export_justification`), CCO approval (`record.export_approved_by`) | Export approved or denied; if approved, export completed and logged (`record.bulk_export.completed`) | CCO approval required before export executes |
+| Legal hold placed on member records (`record.hold.placed`) | Matter ID (`record.hold_matter_id`), hold scope (`record.hold_scope`), authorizer (`record.hold_authorizer`) | Legal hold flag set (`record.legal_hold_flag`); destruction suspended for affected records | Immediate upon hold order |
+| Legal hold released (`record.hold.released`) | Hold release authorization (`record.hold_release_auth`), matter closure confirmation | Legal hold flag cleared; retention clock resumed | Upon confirmed matter closure |
+
+**ALERTS/METRICS:** Alert on any bulk export (`record.bulk_export.requested`) that lacks a recorded CCO approval before execution — target zero unauthorized exports. Monitor access log anomalies (e.g., access outside normal hours, access to records of members not in the actor's active queue) weekly via the SIEM; route anomalies to Information Security per the Information Security Policy.
+
+---
+
+## MP-09 — Member Service Standards {#mp-09-member-service-standards}
+
+**WHY (Reg cite):** The California Consumer Financial Protection Law imposes UDAAP standards on member-facing interactions, including service responsiveness. Failure to respond to member inquiries in a timely manner may constitute an unfair or deceptive practice. Online and mobile channel-specific standards are governed by the E-Commerce Policy.
+
+**SYSTEM BEHAVIOR:** All member service inquiries received through any in-scope channel (branch, telephone, mail, secure message) are logged as service records upon receipt (`service.inquiry.received`) with category (`service.category`) and assigned staff (`service.assigned_to`). A first response (acknowledgement or resolution) is due within 1 business day (`service.first_response_due_at`). Full resolution is due within 5 business days (`service.resolution_due_at`). If an inquiry cannot be resolved within 5 business days, it is escalated to a supervisor and a status update is sent to the member. If the inquiry reveals a potential regulatory violation or UDAAP concern, it is reclassified as a complaint (`service.reclassified_as_dispute`) and the complaint process under [MP-04](#mp-04-member-disputes-and-dispute-resolution) governs from the original receipt date. Service records are write-restricted to Member Services; Compliance has read access for monitoring.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Member inquiry received via any in-scope channel (`service.inquiry.received`) | Inquiry description, channel (`service.category`), member ID (`member.id`), assigned staff (`service.assigned_to`) | Service record created; first-response task set (`service.first_response_due_at`) | Logged same business day |
+| First response sent to member (`service.first_response.sent`) | Inquiry ID (`service.inquiry_id`), response content | First response logged (`service.first_response.sent`) | 1 business day from receipt (`service.first_response_due_at`) |
+| Inquiry resolved (`service.resolved`) | Resolution summary, inquiry ID | Resolution recorded (`service.resolved`) | 5 business days from receipt (`service.resolution_due_at`) |
+| Inquiry not resolved within 5 business days | Inquiry ID, escalation reason | Status update sent to member (`service.status_update.sent`); escalation to supervisor | At 5-business-day mark |
+| Inquiry reclassified as complaint (`service.reclassified_as_dispute`) | Regulatory concern or UDAAP flag, original receipt date | Complaint record created with original receipt date; complaint process initiated per [MP-04](#mp-04-member-disputes-and-dispute-resolution) | Immediately upon reclassification |
+
+**ALERTS/METRICS:** Alert if any service inquiry has no `service.first_response.sent` within 1 business day — target zero breaches. Monitor aging of open service records daily; any inquiry open beyond 5 business days without a `service.resolved` or escalation event triggers a supervisor alert. Track monthly volume of `service.reclassified_as_dispute` events; increases may indicate systemic service issues requiring Compliance review.
+
+---
+
+## Governance & Sign-Off {#governance}
+
+| Role | Responsibility |
+|---|---|
+| **Patrick Wilson, Chief Compliance Officer** | Policy owner; approves all controls; receives all escalations; designated officer for DFPI/CFPB-routed complaints |
+| **Member Services** | Operational execution of MP-01, MP-02, MP-03, MP-04, MP-05, MP-07, MP-09; first-line access to member records |
+| **BSA Officer** | CIP hand-off at onboarding (MP-01); access to member records for BSA purposes (MP-08) |
+| **CEO / Designee** | Expulsion decisions (MP-06); account restriction and closure approvals (MP-05) |
+| **Board of Directors** | Ratification of expulsions at special or annual meetings (MP-06); receipt of expulsion board reports |
+| **Supervisory Committee** | Receipt of expulsion board reports (MP-06) |
+
+**Review cadence:** This policy is reviewed annually by the CCO, or sooner upon material regulatory change, examination finding, or significant operational event. The next scheduled review is 2027-07-01.
+
+**Cross-references:**
+- BSA Policy (CIP/identity-verification program)
+- Information Security Policy (Red Flags technical controls)
+- Privacy Policy (member privacy notices and information-sharing program)
+- Record Retention Policy (retention schedules and destruction)
+- Compliance Policy (complaint-logging program structure and UDAAP monitoring)
+- E-Commerce Policy (online and mobile channel controls)
+- Truth-in-Savings Policy (account disclosure content)
+
+---
+
+## Assumptions & Gaps {#assumptions}
+
+- **Engineering vocabulary is provisional.** Several field and event codes referenced in the control overlays above are composed from the registered vocabulary grammar but are not yet confirmed as registered in `core-vocabulary.json`. Specifically: `member.eligibility_determined`, `member.eligibility_denied`, `member.eligibility_basis`, `member.eligibility_rule` (field), `member.identity_check_method`, `member.address_change_disputed`, `member.channel_reverted`, `member.delivery_failure_reason`, `member.expelled`, `member.expulsion_payout` (timer), `expulsion.decided_by`, `expulsion.grounds`, `expulsion.hearing_requested_at`, `expulsion.meeting_date`, `expulsion.board_report`, `restriction.grounds`, `restriction.approved_by`, `card.request_during_address_hold`, `card.reissue_request`. These names follow the composition grammar and are the target naming scheme; engineering must confirm or adjust before the next review. All other codes cited are registered in the vocabulary dump provided.
+
+- **California Credit Union Law charter confirmation.** This policy assumes Pynthia Credit Union is a California state-chartered credit union subject to Cal. Fin. Code Division 5. If the Credit Union is federally chartered, the expulsion procedure (MP-06) must be re-anchored to 12 U.S.C. § 1764 and NCUA Bylaws Article VIII, and NCUA Part 701.31 may apply to additional controls. This must be confirmed before the policy is finalized.
+
+- **HMDA reporter status.** HMDA/Reg C (12 CFR Part 1003) is not cited in this policy because membership eligibility and onboarding are not loan origination events. If Pynthia originates covered mortgage loans, HMDA obligations are governed by the Fair Lending Policy, not this policy.
+
+- **Expulsion hearing timeline.** Cal. Fin. Code § 14852 requires that the member be given an opportunity to be heard at a special meeting, but does not specify a fixed number of days within which the special meeting must be convened. The policy states "within a reasonable time per bylaws." Compliance should confirm the specific bylaw provision and update the Timing Matrix accordingly.
+
+- **Complaint response timelines.** The 5-business-day acknowledgement, 15-calendar-day initial response, and 45-calendar-day final response timelines are derived from CCFPL examination guidance and CFPB complaint-handling expectations. They are not expressly codified in a single California statute. Compliance should confirm these timelines against current DFPI examination standards and update if guidance changes.
+
+- **Abusive member conduct and immediate expulsion.** The Reference Policy permits the CEO to immediately remove a member for extreme abusive behavior and have the action ratified at the next annual or special meeting. This control (MP-06) incorporates that authority. The specific definition of "abusive conduct" and the list of permissible sanctions short of expulsion (MP-05) are maintained in the Credit Union's Abusive Member Policy, which is a companion document to this policy.
+
+- **POD beneficiary claim process.** MP-07 references POD designations but does not specify the exact documentation checklist for POD versus estate-representative claims. Member Services should maintain a documented checklist (referenced from MP-07 but maintained separately) specifying required documents for each claim type. The assumption here is that a death certificate plus authority document (letters testamentary or equivalent) is the minimum for estate-representative claims, and a death certificate plus beneficiary identity verification is the minimum for POD claims.
+
+- **Service channel scope.** MP-09 covers branch, telephone, mail, and secure message channels. Online and mobile channel service interactions are governed by the E-Commerce Policy. If the boundary between channels is ambiguous for a given interaction type, Compliance and the E-Commerce team should resolve the classification before the next review.
