@@ -309,9 +309,18 @@ def render_tasks_and_timers(data):
 def render_composition_grammar(data):
     """Render the closed-world rules for coining any NEW code.
 
-    The lean spec deliberately registers generic verbs and task types and
-    composes domain codes as subject + verb (events) or subject + task
-    type (tasks). A policy must never invent codes outside this grammar.
+    The lean spec deliberately registers generic actions (verbs) and task types
+    and composes domain codes as **object.property.action** (events) or
+    object + task type (tasks). The three pieces are the primitives:
+
+      - object   : a registered entity / code prefix  (the noun)
+      - property : a registered field of that object  (the data point)
+      - action   : a registered action verb           (what happened)
+
+    An event is one combination of those three: a property of an object
+    undergoing an action — `record.retention_clock.set`. Whole-object lifecycle
+    events carry no property — `incident.classified`. A policy must never invent
+    codes outside this grammar.
     """
     verbs = data.get("event_types", [])
     task_types = data.get("task_types", [])
@@ -321,34 +330,46 @@ def render_composition_grammar(data):
 
     lines = ["## Composition grammar (rules for any NEW code)", ""]
     lines.append(
-        "The engineering vocabulary is **closed-world and compositional**. "
-        "Before citing any code not listed elsewhere in this document, apply "
-        "these rules in order:"
+        "The engineering vocabulary is **closed-world and compositional**. Every "
+        "event code is `object.property.action` — a registered object, a property "
+        "(field) of that object, and a registered action. Before citing any code "
+        "not listed elsewhere in this document, apply these rules in order:"
     )
     lines.append("")
     lines.append(
         "1. **Reuse first.** Search the field tables above for an existing "
-        "field with the same meaning — including the same field name under a "
-        "different entity (e.g. prefer `incident.description` over coining "
+        "`object.property` with the same meaning — including the same property "
+        "under a different object (e.g. prefer `incident.description` over coining "
         "`complaint.description` if the complaint is modeled as an incident). "
-        "Do the same for events and tasks/timers."
+        "Do the same for actions and tasks/timers."
     )
     lines.append(
         "2. **Compose, don't invent.** A new *event* code must be "
-        "`<registered subject>.<phrase ending in a registered verb>`. A new "
-        "*task or timer* code must use a registered task type. Deadlines are "
-        "`Task` instances (`type` + `subject_ref` + `due_at`) — never a new "
+        "`<registered object>.<property>.<registered action>`, where the property "
+        "is a registered field of that object and the action is one of the "
+        "registered actions below. Omit the property only for a whole-object "
+        "lifecycle event (`<object>.<action>`, e.g. `record.disposed`). A new "
+        "*task or timer* code must use a registered task type — deadlines are "
+        "`Task` instances (`type` + `subject_ref` + `due_at`), never a new "
         "per-domain `*_due_at` field."
     )
     lines.append(
-        "3. **Stay inside the subject registry.** Do not mint a new subject "
-        "(code prefix). If no registered subject fits, that is a gap to flag "
-        "in Assumptions & Gaps, not a license to create one."
+        "3. **Stay inside the registries.** Do not mint a new object (prefix) or "
+        "a new action. If no registered object or action fits, that is a gap to "
+        "flag in Assumptions & Gaps, not a license to create one. A new "
+        "*property* on a registered object is allowed when no registered field "
+        "fits — cite it and flag it as provisional."
     )
     lines.append("")
+    if subjects:
+        lines.append(
+            f"**Registered objects ({len(subjects)}):** "
+            + ", ".join(f"`{s}`" for s in subjects)
+        )
+        lines.append("")
     if verbs:
         lines.append(
-            f"**Registered event verbs ({len(verbs)}):** "
+            f"**Registered actions ({len(verbs)}):** "
             + ", ".join(f"`{v}`" for v in verbs)
         )
         lines.append("")
@@ -356,12 +377,6 @@ def render_composition_grammar(data):
         lines.append(
             f"**Registered task types ({len(task_types)}):** "
             + ", ".join(f"`{t}`" for t in task_types)
-        )
-        lines.append("")
-    if subjects:
-        lines.append(
-            f"**Registered subjects ({len(subjects)}):** "
-            + ", ".join(f"`{s}`" for s in subjects)
         )
         lines.append("")
     return lines

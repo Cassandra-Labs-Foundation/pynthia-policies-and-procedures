@@ -40,6 +40,8 @@ import re
 import sys
 from datetime import datetime, timezone
 
+from code_format import event_struct  # canonical object.property.action decomposition
+
 # --------------------------------------------------------------------------- #
 # File discovery
 # --------------------------------------------------------------------------- #
@@ -253,13 +255,18 @@ def parse_events_table(section: str) -> list[dict]:
 DEADLINE_ENFORCED_RE = re.compile(r"\(\s*enforced by[^)]*\)", re.IGNORECASE)
 
 
-def normalize_rules(control_id: str, policy: str, events: list[dict]) -> list[dict]:
+def normalize_rules(control_id: str, policy: str, events: list[dict],
+                    actions: set[str]) -> list[dict]:
     """Project parsed EVENTS rows into flat, DB-ready control_rule records.
 
     One record per EVENTS row: the trigger that opens the obligation, the inputs
     that must be present, the event(s) whose logging satisfies the control, and
     the deadline timer that bounds it. This is the shape `x-control-rules` (and
     the Supabase `control_rule` table) consume — the rule, not just the codes.
+
+    Event codes are also decomposed into the canonical object.property.action
+    primitives (against the registered action vocabulary) so the rule carries
+    its structure, not just the raw string.
     """
     rules: list[dict] = []
     for ev in events:
@@ -272,12 +279,15 @@ def normalize_rules(control_id: str, policy: str, events: list[dict]) -> list[di
             produced_events.extend(grp.get("codes", []))
         timers = ev.get("within_timer_codes", [])
         deadline_text = DEADLINE_ENFORCED_RE.sub("", ev.get("within", "")).strip(" ,;—–-")
+        produced = sorted(set(produced_events))
         rules.append({
             "control_id": control_id,
             "policy": policy,
             "trigger_event": trigger,
+            "trigger": event_struct(trigger, actions) if trigger else None,
             "required_inputs": sorted(set(required_inputs)),
-            "produced_events": sorted(set(produced_events)),
+            "produced_events": produced,
+            "produced": [event_struct(p, actions) for p in produced],
             "deadline_timer": timers[0] if timers else None,
             "deadline_text": deadline_text or None,
         })
@@ -369,7 +379,8 @@ def classify_codes(dotted: list[str], event_codes: set, field_paths: set) -> dic
 
 def build(root: str) -> dict:
     vocab_path = os.path.join(root, "core-vocabulary.json")
-    event_codes, field_paths, api_meta, _ = load_api_index(vocab_path)
+    event_codes, field_paths, api_meta, vocab = load_api_index(vocab_path)
+    actions = set((vocab or {}).get("event_types", []))
 
     policy_files = find_policy_files(root)
     controls: list[dict] = []
@@ -417,7 +428,7 @@ def build(root: str) -> dict:
                 "alerts_metrics": parsed["alerts_metrics"],
                 "events": parsed["events"],
                 "control_rules": normalize_rules(
-                    hm.group("id"), slug, parsed["events"]
+                    hm.group("id"), slug, parsed["events"], actions
                 ),
                 "api_references": {
                     **api,
