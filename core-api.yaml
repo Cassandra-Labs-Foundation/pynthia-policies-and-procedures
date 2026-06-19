@@ -2017,7 +2017,6 @@ paths:
                   - issuance
                   - notice
                   - onboarding
-                  - other
                   - payment
                   - plan
                   - propagation
