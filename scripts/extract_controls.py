@@ -12,6 +12,11 @@ captures:
   - system        : the SYSTEM BEHAVIOR prose
   - events        : the EVENTS table, row by row, decomposed into
                     trigger / inputs / outputs / deadline plus the raw codes
+  - control_rules : the same EVENTS rows normalized into flat, DB-ready rule
+                    records (trigger_event / required_inputs / produced_events /
+                    deadline_timer / deadline_text) — the projection that feeds
+                    `x-control-rules` in core-api.yaml and the Supabase
+                    `control_rule` table
   - alerts        : the ALERTS/METRICS prose
   - api_references: every backticked dotted code used by the control, classified
                     against core-vocabulary.json (the Cassandra Banking Core API model)
@@ -245,6 +250,40 @@ def parse_events_table(section: str) -> list[dict]:
     return events
 
 
+DEADLINE_ENFORCED_RE = re.compile(r"\(\s*enforced by[^)]*\)", re.IGNORECASE)
+
+
+def normalize_rules(control_id: str, policy: str, events: list[dict]) -> list[dict]:
+    """Project parsed EVENTS rows into flat, DB-ready control_rule records.
+
+    One record per EVENTS row: the trigger that opens the obligation, the inputs
+    that must be present, the event(s) whose logging satisfies the control, and
+    the deadline timer that bounds it. This is the shape `x-control-rules` (and
+    the Supabase `control_rule` table) consume — the rule, not just the codes.
+    """
+    rules: list[dict] = []
+    for ev in events:
+        trigger = (ev.get("trigger") or {}).get("code")
+        required_inputs: list[str] = []
+        for grp in ev.get("inputs", []):
+            required_inputs.extend(grp.get("codes", []))
+        produced_events: list[str] = []
+        for grp in ev.get("outputs", []):
+            produced_events.extend(grp.get("codes", []))
+        timers = ev.get("within_timer_codes", [])
+        deadline_text = DEADLINE_ENFORCED_RE.sub("", ev.get("within", "")).strip(" ,;—–-")
+        rules.append({
+            "control_id": control_id,
+            "policy": policy,
+            "trigger_event": trigger,
+            "required_inputs": sorted(set(required_inputs)),
+            "produced_events": sorted(set(produced_events)),
+            "deadline_timer": timers[0] if timers else None,
+            "deadline_text": deadline_text or None,
+        })
+    return rules
+
+
 def parse_control_body(body: str) -> dict:
     sections = split_sections(body)
 
@@ -377,6 +416,9 @@ def build(root: str) -> dict:
                 "system_behavior": parsed["system_behavior"],
                 "alerts_metrics": parsed["alerts_metrics"],
                 "events": parsed["events"],
+                "control_rules": normalize_rules(
+                    hm.group("id"), slug, parsed["events"]
+                ),
                 "api_references": {
                     **api,
                     "statuses": statuses,
@@ -385,6 +427,7 @@ def build(root: str) -> dict:
 
     # roll-up stats
     n_events = sum(len(c["events"]) for c in controls)
+    n_rules = sum(len(c["control_rules"]) for c in controls)
     all_codes = set()
     reg_events = set()
     reg_fields = set()
@@ -407,6 +450,7 @@ def build(root: str) -> dict:
             "policies": len(policies_seen),
             "controls": len(controls),
             "event_rows": n_events,
+            "control_rules": n_rules,
             "unique_api_codes": len(all_codes),
             "registered_event_codes": len(reg_events),
             "registered_field_codes": len(reg_fields),
@@ -437,6 +481,7 @@ def main(argv: list[str]) -> int:
     print(f"  policies            : {s['policies']}")
     print(f"  controls            : {s['controls']}")
     print(f"  event rows          : {s['event_rows']}")
+    print(f"  control rules       : {s['control_rules']}")
     print(f"  unique API codes    : {s['unique_api_codes']}")
     print(f"  registered events   : {s['registered_event_codes']}")
     print(f"  registered fields   : {s['registered_field_codes']}")
