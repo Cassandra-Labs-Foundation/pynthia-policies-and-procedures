@@ -40,6 +40,8 @@ sys.path.insert(0, HERE)
 import control_oracle        # noqa: E402
 import architecture_oracle   # noqa: E402
 import conformance_oracle    # noqa: E402
+import invariant_oracle      # noqa: E402
+import factoring_oracle      # noqa: E402
 import fitness               # noqa: E402
 
 DEFAULT_CONFIG = os.path.join(HERE, "score-config.json")
@@ -64,14 +66,24 @@ def score_spec(spec_path: str, migration_path: str | None, *, config: dict,
     conf = conformance_oracle.evaluate_vocab(vocab, conformance_oracle.load_demand_rules())
     irregularity = conformance_oracle.irregularity(conf, config) if config.get("structural_terms") else 0.0
 
+    # Self-consistency GATE: x-actions/x-timers/transitions/refs must resolve. A hard violation
+    # (folded into big_penalty) so no minimizing/factoring move can leave the model broken.
+    inv = invariant_oracle.evaluate(_doc)
+
+    # Factoring / description-length surcharge (soft, behind structural_terms): rewards extracting
+    # repeated field clusters into a composed base. Zero unless the term is enabled.
+    fac = factoring_oracle.evaluate(_doc)
+    redundancy = factoring_oracle.redundancy_term(fac, config) if config.get("structural_terms") else 0.0
+
     control_budget = config.get("control_budget", 0)
     arch_budget = config.get("arch_budget", 0)
     big = config.get("big_penalty", 100000)
 
     control_violations = max(0, control["unregistered_count"] - control_budget)
     arch_violations = max(0, arch["uncovered_count"] - arch_budget)
-    violations = control_violations + arch_violations
-    score = violations * big + cx["complexity"] + irregularity
+    invariant_violations = inv["violation_count"]
+    violations = control_violations + arch_violations + invariant_violations
+    score = violations * big + cx["complexity"] + irregularity + redundancy
 
     return {
         "spec": spec_path,
@@ -80,6 +92,7 @@ def score_spec(spec_path: str, migration_path: str | None, *, config: dict,
         "violations": {
             "control": control_violations,
             "architecture": arch_violations,
+            "invariant": invariant_violations,
             "total": violations,
         },
         "coverage": {
@@ -105,6 +118,13 @@ def score_spec(spec_path: str, migration_path: str | None, *, config: dict,
             "namespace_gaps": conf["namespace_gap_count"],
             "scored": bool(config.get("structural_terms")),
         },
+        "redundancy": round(redundancy, 4),
+        "factoring": {
+            "compressible_surplus": fac["redundancy"],
+            "mixin_candidates": fac["mixin_candidates"][:5],
+            "scored": bool(config.get("structural_terms")),
+        },
+        "invariant_detail": inv["violations"],
         "arch_by_category": arch["by_category"],
     }
 
@@ -159,7 +179,8 @@ def main(argv: list[str]) -> int:
         print(f"SCORE               : {result['score']}   (lower is better)")
         print(f"feasible            : {result['feasible']}")
         print(f"violations          : control={result['violations']['control']} "
-              f"architecture={result['violations']['architecture']}")
+              f"architecture={result['violations']['architecture']} "
+              f"invariant={result['violations']['invariant']}")
         cov = result["coverage"]
         print(f"  unregistered      : {cov['unregistered_codes']} (budget {cov['control_budget']})")
         print(f"  uncovered arch    : {cov['uncovered_arch_elements']} (budget {cov['arch_budget']})")
@@ -174,6 +195,11 @@ def main(argv: list[str]) -> int:
         print(f"  noncanon_events={reg['noncanonical_events']} "
               f"noncanon_timers={reg['noncanonical_timers']} "
               f"namespace_gaps={reg['namespace_gaps']}")
+        fac = result["factoring"]
+        print(f"redundancy          : {result['redundancy']}{'' if fac['scored'] else ' (not scored)'} "
+              f"(compressible surplus {fac['compressible_surplus']})")
+        for c in fac["mixin_candidates"][:3]:
+            print(f"  mixin~{c['anchor']}: {c['fields']} ({c['member_count']} members)")
         if verdict:
             print(f"VERDICT             : {'KEEP' if verdict['keep'] else 'REVERT'} "
                   f"(Δ={verdict['delta']} vs best {verdict['best_score']})")

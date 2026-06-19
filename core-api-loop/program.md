@@ -21,19 +21,40 @@ still fully spans both the architecture and the controls**.
 ## The objective
 
 ```
-score = (control_violations + arch_violations) * big_penalty + complexity + irregularity   # lower is better
-control_violations = max(0, unregistered_codes      - control_budget)
-arch_violations    = max(0, uncovered_arch_elements - arch_budget)
-irregularity       = conformance_event * noncanonical_events
-                   + conformance_timer * noncanonical_timers
-                   + namespace_gap     * namespace_gaps      # 0 when structural_terms is off
+score = (control_violations + arch_violations + invariant_violations) * big_penalty
+      + complexity + irregularity + redundancy                       # lower is better
+control_violations  = max(0, unregistered_codes      - control_budget)
+arch_violations     = max(0, uncovered_arch_elements - arch_budget)
+invariant_violations= x-actions/x-timers/transitions/$ref that do not resolve   # must stay 0
+irregularity        = conformance_event * noncanonical_events
+                    + conformance_timer * noncanonical_timers
+                    + namespace_gap     * namespace_gaps      # 0 when structural_terms is off
+redundancy          = redundancy_weight * compressible_field_surplus   # 0 when structural_terms is off
 ```
 
-Two regimes follow automatically:
+Three regimes follow automatically:
 - **While violations > 0 (infeasible):** the penalty dominates — your job is to *close gaps*
-  (register cited codes, add architecture-mandated resources/state-machines/events/endpoints).
-- **Once feasible:** the penalty is zero — your job is to *minimize complexity AND irregularity*
-  without reopening any gap.
+  (register cited codes, add architecture-mandated resources/state-machines/events/endpoints) and
+  *never introduce an invariant violation* (a dangling `$ref`, an `x-action` naming an unregistered
+  action). The invariant gate makes inconsistency as expensive as a coverage gap.
+- **Once feasible:** the penalty is zero — your job is to *minimize complexity, irregularity, AND
+  redundancy* without reopening any gap or breaking an invariant.
+
+`irregularity` (the `conformance_oracle` surcharge) rewards a *regular* spec: codes that
+decompose into registered primitives — events as `object.property.action` (action ∈
+x-event-types), timers as `object.<task_type>.due_at` (task_type ∈ x-task-types), and every
+`object.property` an event implies registered as a field. It is description length the element
+count is blind to: a spec generated from `objects × actions × properties` + a grammar is shorter
+than N bespoke codes of equal count. The demanded codes come from `controls.json` (immutable) and
+every term needs a real registered primitive, so you cannot lower it by renaming — only by
+genuinely registering the missing field/action/task type or normalizing a code onto an existing
+one. Run `conformance_oracle.py` to see exactly which codes are non-canonical.
+
+`redundancy` (the `factoring_oracle` surcharge) rewards *compression*: the same field cluster
+copied across many objects is description length a base schema could hold once. `extract_base` the
+cluster (members compose it via `allOf:[$ref]`) and the copies collapse to one definition + N
+references. Run `factoring_oracle.py` for the `extract_base` targets. The concept weight (10×) on
+the new base means only genuinely repeated clusters pay — the loop will not over-shatter the model.
 
 `irregularity` (the `conformance_oracle` surcharge) rewards a *regular* spec: codes that
 decompose into registered primitives — events as `object.property.action` (action ∈
@@ -65,8 +86,8 @@ The ordering is load-bearing. Do not jump to step 3 before exhausting steps 1–
    fields computed, subsume narrow endpoints under a general one, collapse redundant event verbs.
    Re-score after each. Heaviest payoff is on **concepts** (resources + distinct event verbs +
    endpoint shapes) — they are weighted 10×.
-4. **Regularize survivors** (when `irregularity > 0`). For each non-canonical code that survived
-   steps 1–3 (run `conformance_oracle.py`): make it decompose into registered primitives.
+4. **Regularize & factor survivors** (when `irregularity > 0` or `redundancy > 0`). For each
+   non-canonical code or repeated cluster that survived steps 1–3:
    - A field an event implies but the spec lacks → **register the field** (`object.property`).
      Lowers `namespace_gaps`.
    - A timer spelled as a bespoke `*_due_at` field → **fold into the Task pattern**
@@ -74,8 +95,18 @@ The ordering is load-bearing. Do not jump to step 3 before exhausting steps 1–
    - An event whose action tail is unregistered → **register the action** only if it is reused
      across enough codes to beat its concept weight (10×); otherwise **normalize** the code onto
      an existing action. Lowers `noncanonical_events`.
-   This step *adds* elements on purpose — a registered field (weight 1) that retires a chunk of
-   irregularity is a net score win. It is the one place where growing the spec lowers the score.
+   - A field cluster repeated across many objects (`factoring_oracle.py` mixin candidates) →
+     **`extract_base`** it into a composed base. Lowers `redundancy`. Only fields identical across
+     all members move; the rest stay put.
+   This step *adds* elements on purpose — a registered field or a base schema that retires a chunk
+   of irregularity/redundancy is a net score win. It is the one place where growing the spec lowers
+   the score. **Invariant guard:** every regularize/factor move must leave `x-actions`, `x-timers`,
+   `transitions_to`, and every `$ref` resolving — an inconsistency is a hard violation (big_penalty),
+   so a move that breaks the model is auto-reverted however much else it saves.
+
+The proposer is fed a **learned-moves** block (from `moves.jsonl` via `move_memory.py`) summarizing
+which move TYPES have been kept vs reverted. Favor kept-types; avoid revert-types unless you have a
+new angle. It biases search only — every move is still judged by the immutable scorer.
 
 Do **not** chase complexity by genericizing: replacing typed fields with `object`/`any` blobs is
 taxed by the genericness surcharge, and the control oracle still demands the real dotted codes
