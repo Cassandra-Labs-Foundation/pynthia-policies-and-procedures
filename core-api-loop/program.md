@@ -21,16 +21,29 @@ still fully spans both the architecture and the controls**.
 ## The objective
 
 ```
-score = (control_violations + arch_violations) * big_penalty + complexity      # lower is better
+score = (control_violations + arch_violations) * big_penalty + complexity + irregularity   # lower is better
 control_violations = max(0, unregistered_codes      - control_budget)
 arch_violations    = max(0, uncovered_arch_elements - arch_budget)
+irregularity       = conformance_event * noncanonical_events
+                   + conformance_timer * noncanonical_timers
+                   + namespace_gap     * namespace_gaps      # 0 when structural_terms is off
 ```
 
 Two regimes follow automatically:
 - **While violations > 0 (infeasible):** the penalty dominates — your job is to *close gaps*
   (register cited codes, add architecture-mandated resources/state-machines/events/endpoints).
-- **Once feasible:** the penalty is zero — your job is to *minimize complexity* without
-  reopening any gap.
+- **Once feasible:** the penalty is zero — your job is to *minimize complexity AND irregularity*
+  without reopening any gap.
+
+`irregularity` (the `conformance_oracle` surcharge) rewards a *regular* spec: codes that
+decompose into registered primitives — events as `object.property.action` (action ∈
+x-event-types), timers as `object.<task_type>.due_at` (task_type ∈ x-task-types), and every
+`object.property` an event implies registered as a field. It is description length the element
+count is blind to: a spec generated from `objects × actions × properties` + a grammar is shorter
+than N bespoke codes of equal count. The demanded codes come from `controls.json` (immutable) and
+every term needs a real registered primitive, so you cannot lower it by renaming — only by
+genuinely registering the missing field/action/task type or normalizing a code onto an existing
+one. Run `conformance_oracle.py` to see exactly which codes are non-canonical.
 
 Run the scorer to see exactly where you stand:
 ```
@@ -52,6 +65,17 @@ The ordering is load-bearing. Do not jump to step 3 before exhausting steps 1–
    fields computed, subsume narrow endpoints under a general one, collapse redundant event verbs.
    Re-score after each. Heaviest payoff is on **concepts** (resources + distinct event verbs +
    endpoint shapes) — they are weighted 10×.
+4. **Regularize survivors** (when `irregularity > 0`). For each non-canonical code that survived
+   steps 1–3 (run `conformance_oracle.py`): make it decompose into registered primitives.
+   - A field an event implies but the spec lacks → **register the field** (`object.property`).
+     Lowers `namespace_gaps`.
+   - A timer spelled as a bespoke `*_due_at` field → **fold into the Task pattern**
+     `object.<registered task_type>.due_at`. Lowers `noncanonical_timers`.
+   - An event whose action tail is unregistered → **register the action** only if it is reused
+     across enough codes to beat its concept weight (10×); otherwise **normalize** the code onto
+     an existing action. Lowers `noncanonical_events`.
+   This step *adds* elements on purpose — a registered field (weight 1) that retires a chunk of
+   irregularity is a net score win. It is the one place where growing the spec lowers the score.
 
 Do **not** chase complexity by genericizing: replacing typed fields with `object`/`any` blobs is
 taxed by the genericness surcharge, and the control oracle still demands the real dotted codes

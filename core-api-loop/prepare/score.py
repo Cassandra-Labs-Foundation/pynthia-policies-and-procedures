@@ -3,14 +3,18 @@
 score.py — The single gated scalar + keep/revert verdict (IMMUTABLE eval harness).
 
 This is the `val_bpb` analog and the accept rule of the AutoResearch loop, folded into one
-number so the loop runs unchanged. It composes the two coverage oracles (control + architecture)
-with the complexity fitness:
+number so the loop runs unchanged. It composes the two coverage oracles (control + architecture),
+the complexity fitness, and the conformance oracle's regularity surcharge:
 
     control_violations = max(0, unregistered_codes        - control_budget)
     arch_violations    = max(0, uncovered_arch_elements   - arch_budget)
-    score = (control_violations + arch_violations) * big_penalty + complexity
+    irregularity       = weighted noncanonical_events + noncanonical_timers + namespace_gaps
+                         (conformance_oracle; 0 unless config.structural_terms)
+    score = (control_violations + arch_violations) * big_penalty + complexity + irregularity
 
-Lower is better. The runner keeps a candidate iff score(candidate) < score(best). Because the
+Lower is better. The irregularity term is a soft surcharge, not a gate — it rewards codes that
+decompose into registered object.property.action / object.task_type.due primitives, the
+description length the element-count complexity term cannot see. The runner keeps a candidate iff score(candidate) < score(best). Because the
 penalty dwarfs complexity, the loop first drives violations down (feasibility), then minimizes
 complexity while staying feasible — the two regimes the plan calls for.
 
@@ -35,6 +39,7 @@ sys.path.insert(0, HERE)
 
 import control_oracle        # noqa: E402
 import architecture_oracle   # noqa: E402
+import conformance_oracle    # noqa: E402
 import fitness               # noqa: E402
 
 DEFAULT_CONFIG = os.path.join(HERE, "score-config.json")
@@ -54,6 +59,11 @@ def score_spec(spec_path: str, migration_path: str | None, *, config: dict,
     arch = architecture_oracle.evaluate(vocab, checklist, _doc)
     cx = fitness.complexity(vocab, config, root=root, doc=_doc)
 
+    # Structural regularity surcharge (soft, behind the structural_terms flag): rewards codes
+    # that decompose into registered object.property.action / object.task_type.due primitives.
+    conf = conformance_oracle.evaluate_vocab(vocab, conformance_oracle.load_demand_rules())
+    irregularity = conformance_oracle.irregularity(conf, config) if config.get("structural_terms") else 0.0
+
     control_budget = config.get("control_budget", 0)
     arch_budget = config.get("arch_budget", 0)
     big = config.get("big_penalty", 100000)
@@ -61,7 +71,7 @@ def score_spec(spec_path: str, migration_path: str | None, *, config: dict,
     control_violations = max(0, control["unregistered_count"] - control_budget)
     arch_violations = max(0, arch["uncovered_count"] - arch_budget)
     violations = control_violations + arch_violations
-    score = violations * big + cx["complexity"]
+    score = violations * big + cx["complexity"] + irregularity
 
     return {
         "spec": spec_path,
@@ -88,6 +98,13 @@ def score_spec(spec_path: str, migration_path: str | None, *, config: dict,
         },
         "complexity": cx["complexity"],
         "complexity_components": cx["components"],
+        "irregularity": round(irregularity, 4),
+        "regularity": {
+            "noncanonical_events": conf["noncanonical_event_count"],
+            "noncanonical_timers": conf["noncanonical_timer_count"],
+            "namespace_gaps": conf["namespace_gap_count"],
+            "scored": bool(config.get("structural_terms")),
+        },
         "arch_by_category": arch["by_category"],
     }
 
@@ -151,6 +168,12 @@ def main(argv: list[str]) -> int:
         print(f"  concepts={comp['concepts']} fields={comp['field_count']} "
               f"endpoints={comp['endpoint_count']} tasks={comp['task_type_count']} "
               f"generic={comp['generic_field_count']}")
+        reg = result["regularity"]
+        tag = "" if reg["scored"] else " (not scored)"
+        print(f"irregularity        : {result['irregularity']}{tag}")
+        print(f"  noncanon_events={reg['noncanonical_events']} "
+              f"noncanon_timers={reg['noncanonical_timers']} "
+              f"namespace_gaps={reg['namespace_gaps']}")
         if verdict:
             print(f"VERDICT             : {'KEEP' if verdict['keep'] else 'REVERT'} "
                   f"(Δ={verdict['delta']} vs best {verdict['best_score']})")

@@ -10,7 +10,10 @@
     "generic": 5,
     "money_float": 8,
     "enum": 1,
-    "global_dl": 0.0001
+    "global_dl": 0.0001,
+    "conformance_event": 2,
+    "conformance_timer": 2,
+    "namespace_gap": 1
   },
   "enum_cap": 12,
   "_enum_note": "weights.enum is charged per enum value above enum_cap, summed across every enum in the doc. Closes a blind spot: enum VALUES are schema-internal constraints the parser never lifts into the vocabulary, so without this term a 337-value Task.type cost zero and the minimizer could neither see nor delete it. Cap 12 leaves normal status/type enums free; a 337-value enum contributes 325, making its collapse to the ~28 generic verbs a large, keep-worthy score win. The companion 'unused supply' signal (control_oracle: fields/events no control cites) is reported in score.coverage as deletion candidates for the proposer, but is intentionally NOT a score gate — much uncited supply is architecture-required or contract plumbing, and the arch gate already protects load-bearing elements.",
@@ -18,6 +21,9 @@
 
   "global_dl": false,
   "_global_dl_note": "Off by default (API-only fitness, cheap). Set true once the outer loop lands to also penalize pushing complexity from the spec into controls.json / control-vocabulary.json (byte-length term).",
+
+  "structural_terms": true,
+  "_structural_terms_note": "Turns on the conformance_oracle irregularity surcharge: score += conformance_event*noncanonical_events + conformance_timer*noncanonical_timers + namespace_gap*namespace_gaps. This deepens the objective from 'minimize element count' to 'minimize description length subject to regularity' — a spec whose codes all decompose into registered object.property.action / object.task_type.due primitives is shorter to describe generatively than N bespoke codes of equal count, and that compression is exactly what the count-based complexity term is blind to. It makes the meta-structure moves (decompose code to canonical form, register an event-implied field, fold a per-domain *_due_at into the Task pattern) score-LOWERING, so the proposer proposes and KEEPS them instead of having them auto-reverted. A soft surcharge, not a gate (13% non-conformance must not make the spec infeasible). Anti-gaming: every term requires a real registered primitive (action in x-event-types, task_type in x-task-types, property as a schema field) and the demanded codes come from controls.json (immutable), so dot-shape renaming earns nothing. conformance_event/timer are weighted 2 (above field=1, below concept=10) so registering a reused action to make many codes canonical pays, but minting a junk action does not. Set false to revert to pure count-minimization.",
 
   "big_penalty": 100000,
 
