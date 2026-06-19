@@ -31,6 +31,23 @@ from pathlib import Path
 SCRIPT_DIR = Path(__file__).resolve().parent
 DEFAULT_INPUT = SCRIPT_DIR.parent.parent.parent / "core-vocabulary.json"
 
+# Canonicalize event codes to object.property.action ON EMIT, so the DESIGN_NOTES the policy
+# generator reuses shows the canonical dotted form — not the stored fused spelling. Without this,
+# meta-prompt rule 1 ("reuse the exact registered spelling") faithfully reproduces fused codes and
+# the new scheme is only adopted for newly-composed codes. See scripts/code_format.py.
+sys.path.insert(0, str(SCRIPT_DIR.parent.parent.parent / "scripts"))
+try:
+    import code_format  # noqa: E402
+except Exception:  # pragma: no cover — degrade to raw codes if the canonicalizer is unavailable
+    code_format = None
+
+
+def _canon(code, actions):
+    """Event code -> canonical object.property.action (idempotent; non-conforming codes unchanged)."""
+    if code_format and actions and code and code != "?":
+        return code_format.canonical(code, actions)
+    return code
+
 
 def one_line(text, max_chars=120):
     """Collapse multi-line descriptions to a single readable line."""
@@ -161,6 +178,7 @@ def render_events_and_endpoints(data):
     lines = []
     events = data.get("events", [])
     endpoints = data.get("endpoints", [])
+    actions = set(data.get("event_types", []))  # the registered action vocabulary (x-event-types)
 
     lines.append("## Events")
     lines.append("")
@@ -172,7 +190,7 @@ def render_events_and_endpoints(data):
                 "| "
                 + " | ".join(
                     [
-                        f"`{escape_cell(ev.get('name') or ev.get('code') or '?')}`",
+                        f"`{escape_cell(_canon(ev.get('name') or ev.get('code') or '?', actions))}`",
                         escape_cell(ev.get("entity") or ""),
                         escape_cell(one_line(ev.get("description"))),
                     ]
@@ -206,7 +224,7 @@ def render_events_and_endpoints(data):
         path = ep.get("path", "")
         summary = one_line(ep.get("summary"))
         control_refs = ", ".join(ep.get("control_refs") or [])
-        audit_events = ", ".join(ep.get("audit_events") or [])
+        audit_events = ", ".join(_canon(e, actions) for e in (ep.get("audit_events") or []))
         lines.append(
             "| "
             + " | ".join(
