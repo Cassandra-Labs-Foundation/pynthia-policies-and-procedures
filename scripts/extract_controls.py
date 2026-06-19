@@ -40,7 +40,7 @@ import re
 import sys
 from datetime import datetime, timezone
 
-from code_format import event_struct, timer_struct  # canonical object.property.action + object.task_type.due
+from code_format import event_struct, timer_struct, canonical_code  # object.property.action + object.task_type.due_at
 
 # --------------------------------------------------------------------------- #
 # File discovery
@@ -268,16 +268,19 @@ def normalize_rules(control_id: str, policy: str, events: list[dict],
     primitives (against the registered action vocabulary) so the rule carries
     its structure, not just the raw string.
     """
+    def cc(code):  # unified canonical form (event OR timer grammar)
+        return canonical_code(code, actions, task_types) if code else code
+
     rules: list[dict] = []
     for ev in events:
-        trigger = (ev.get("trigger") or {}).get("code")
+        trigger = cc((ev.get("trigger") or {}).get("code"))
         required_inputs: list[str] = []
         for grp in ev.get("inputs", []):
-            required_inputs.extend(grp.get("codes", []))
+            required_inputs.extend(cc(c) for c in grp.get("codes", []))
         produced_events: list[str] = []
         for grp in ev.get("outputs", []):
-            produced_events.extend(grp.get("codes", []))
-        timers = ev.get("within_timer_codes", [])
+            produced_events.extend(cc(c) for c in grp.get("codes", []))
+        timers = [cc(c) for c in ev.get("within_timer_codes", [])]
         deadline_text = DEADLINE_ENFORCED_RE.sub("", ev.get("within", "")).strip(" ,;—–-")
         produced = sorted(set(produced_events))
         rules.append({
@@ -383,6 +386,11 @@ def build(root: str) -> dict:
     event_codes, field_paths, api_meta, vocab = load_api_index(vocab_path)
     actions = set((vocab or {}).get("event_types", []))
     task_types = set((vocab or {}).get("task_types", []))
+    # Canonicalize the registered index (supply) so it matches the canonicalized cited codes
+    # (demand) — both sides go through the same event/timer canonicalization, so a fused timer
+    # registers as its dotted form rather than spuriously reading as unregistered.
+    event_codes = {canonical_code(c, actions, task_types) for c in event_codes}
+    field_paths = {canonical_code(c, actions, task_types) for c in field_paths}
 
     policy_files = find_policy_files(root)
     controls: list[dict] = []
@@ -411,7 +419,8 @@ def build(root: str) -> dict:
             body = text[start:end]
 
             parsed = parse_control_body(body)
-            api = classify_codes(parsed.pop("_all_dotted"), event_codes, field_paths)
+            dotted = [canonical_code(c, actions, task_types) for c in parsed.pop("_all_dotted")]
+            api = classify_codes(dotted, event_codes, field_paths)
             statuses = parsed.pop("_all_status")
 
             controls.append({

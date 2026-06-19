@@ -42,10 +42,11 @@ except Exception:  # pragma: no cover — degrade to raw codes if the canonicali
     code_format = None
 
 
-def _canon(code, actions):
-    """Event code -> canonical object.property.action (idempotent; non-conforming codes unchanged)."""
-    if code_format and actions and code and code != "?":
-        return code_format.canonical(code, actions)
+def _canon(code, actions, task_types=frozenset()):
+    """Code -> canonical dotted form under EITHER grammar (event object.property.action or timer
+    object.task_type.due_at); idempotent, non-conforming codes unchanged."""
+    if code_format and code and code != "?":
+        return code_format.canonical_code(code, actions, task_types)
     return code
 
 
@@ -178,7 +179,8 @@ def render_events_and_endpoints(data):
     lines = []
     events = data.get("events", [])
     endpoints = data.get("endpoints", [])
-    actions = set(data.get("event_types", []))  # the registered action vocabulary (x-event-types)
+    actions = set(data.get("event_types", []))    # registered action vocabulary (x-event-types)
+    task_types = set(data.get("task_types", []))  # registered task-type vocabulary (timer obligations)
 
     lines.append("## Events")
     lines.append("")
@@ -190,7 +192,7 @@ def render_events_and_endpoints(data):
                 "| "
                 + " | ".join(
                     [
-                        f"`{escape_cell(_canon(ev.get('name') or ev.get('code') or '?', actions))}`",
+                        f"`{escape_cell(_canon(ev.get("name") or ev.get("code") or "?", actions, task_types))}`",
                         escape_cell(ev.get("entity") or ""),
                         escape_cell(one_line(ev.get("description"))),
                     ]
@@ -224,7 +226,7 @@ def render_events_and_endpoints(data):
         path = ep.get("path", "")
         summary = one_line(ep.get("summary"))
         control_refs = ", ".join(ep.get("control_refs") or [])
-        audit_events = ", ".join(_canon(e, actions) for e in (ep.get("audit_events") or []))
+        audit_events = ", ".join(_canon(e, actions, task_types) for e in (ep.get("audit_events") or []))
         lines.append(
             "| "
             + " | ".join(

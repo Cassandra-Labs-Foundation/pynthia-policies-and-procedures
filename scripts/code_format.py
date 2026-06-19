@@ -87,7 +87,7 @@ def decompose_timer(code: str, task_types: set[str]) -> tuple[str, str | None, s
     obj, _, rest = code.partition(".")
     norm = rest.replace(".", "_")
     marker: str | None = None
-    for m in ("_due_at", "_due"):
+    for m in ("_expires_at", "_due_at", "_due", "_timer"):
         if norm.endswith(m):
             marker, norm = m.lstrip("_"), norm[: -len(m)]
             break
@@ -116,6 +116,21 @@ def timer_struct(code: str, task_types: set[str]) -> dict:
     }
 
 
+def canonical_code(code: str, actions: set[str], task_types: set[str]) -> str:
+    """Unified canonical form across BOTH grammars: try the event grammar
+    (object.property.action), then the timer grammar (object.[qualifier.]task_type.due_at),
+    else return the code unchanged. This is the single normalization the pipeline applies to every
+    cited/registered code, so a fused timer like `account.maturity_notice_due_at` lands in the same
+    dotted form on both the supply (core-vocabulary) and demand (controls) sides."""
+    ev = canonical(code, actions)
+    if ev != code:
+        return ev
+    tm = timer_struct(code, task_types)
+    if tm["conforms"]:
+        return tm["canonical"]
+    return code
+
+
 def load_actions(vocab_path: str) -> set[str]:
     """Load the registered action vocabulary (x-event-types) from core-vocabulary.json."""
     with open(vocab_path, encoding="utf-8") as fh:
@@ -134,7 +149,9 @@ def load_task_types(vocab_path: str) -> set[str]:
 
 def _main() -> int:
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    actions = load_actions(os.path.join(root, "core-vocabulary.json"))
+    vocab_path = os.path.join(root, "core-vocabulary.json")
+    actions = load_actions(vocab_path)
+    task_types = load_task_types(vocab_path)
     controls = json.load(open(os.path.join(root, "controls.json")))
 
     codes: set[str] = set()
@@ -144,14 +161,18 @@ def _main() -> int:
                 codes.add(r["trigger_event"])
             codes.update(r.get("produced_events") or [])
 
+    # A code conforms under EITHER grammar: an event (object.property.action) or a timer
+    # (object.[qualifier.]task_type.due_at). Checking only the event grammar wrongly flags every
+    # timer as non-conforming.
     conforming, nonconforming = [], []
     for code in sorted(codes):
-        (conforming if decompose(code, actions)[2] else nonconforming).append(code)
+        ok = decompose(code, actions)[2] is not None or timer_struct(code, task_types)["conforms"]
+        (conforming if ok else nonconforming).append(code)
 
-    print(f"event codes: {len(codes)}")
-    print(f"  conforming (object[.property].action): {len(conforming)} "
-          f"({100 * len(conforming) // max(1, len(codes))}%)")
-    print(f"  non-conforming (action not registered): {len(nonconforming)}")
+    print(f"codes: {len(codes)}")
+    print(f"  conforming (event object.property.action OR timer object.task_type.due_at): "
+          f"{len(conforming)} ({100 * len(conforming) // max(1, len(codes))}%)")
+    print(f"  non-conforming (tail not a registered action or task type): {len(nonconforming)}")
     if nonconforming:
         print("\nnon-conforming codes (tail is not a registered action — register or normalize):")
         for code in nonconforming:

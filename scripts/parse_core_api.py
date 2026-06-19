@@ -219,6 +219,25 @@ def build(spec, migration_doc):
         and (entry.get("ref") or token) not in registered_paths
     })
 
+    # Canonicalize every field path + event code to the dotted form under BOTH grammars (event
+    # object.property.action / timer object.[qualifier.]task_type.due_at), so core-vocabulary.json —
+    # the single source of registered codes — is the canonical form every downstream consumer
+    # (controls, DESIGN_NOTES, oracles) matches against. The fused spellings never escape the parser.
+    try:
+        import code_format  # scripts/ is on sys.path for every caller
+        _acts, _tts = set(spec.get("event_types") or []), set(task_types)
+        for _f in fields:
+            _cp = code_format.canonical_code(_f["path"], _acts, _tts)
+            if _cp != _f["path"]:
+                _f["path"] = _cp
+                _f["field"] = _cp.split(".", 1)[1] if "." in _cp else _cp
+        for _e in events:
+            for _k in ("code", "name"):
+                if _e.get(_k):
+                    _e[_k] = code_format.canonical_code(_e[_k], _acts, _tts)
+    except Exception:  # pragma: no cover — never let canonicalization break parsing
+        pass
+
     meta_in = spec.get("meta") or {}
     out = {
         "meta": {
