@@ -3,7 +3,7 @@
     "spec_title": "Cassandra Banking Core API",
     "spec_version": "3.0.0",
     "parser_version": "0.2.0",
-    "parsed_at": "2026-06-19T23:09:00.235812Z",
+    "parsed_at": "2026-06-20T00:05:48.578718Z",
     "note": "Specific domain codes (e.g. sar.filed, vendor_review) live as `subject` values in vocab-migration.json, not as distinct vocabulary elements.",
     "sources": [
       "core-api.yaml",
@@ -18,7 +18,7 @@
     "endpoints": 95,
     "state_machines": 12,
     "plugins": 0,
-    "task_types": 55,
+    "task_types": 54,
     "tasks": 753,
     "provisional_fields": 119
   },
@@ -54548,7 +54548,6 @@
     "issuance",
     "notice",
     "onboarding",
-    "other",
     "payment",
     "plan",
     "propagation",
