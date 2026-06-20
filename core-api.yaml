@@ -4656,6 +4656,1306 @@ paths:
                   type: string
               required:
               - action
+  /disputes:
+    get:
+      operationId: get_disputes
+      x-operation-id: list_dispute
+      responses:
+        '200':
+          description: A page of Dispute objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/dispute'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - Disputes
+      summary: List dispute
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
+    post:
+      operationId: post_disputes
+      x-operation-id: create_dispute
+      responses:
+        '201':
+          description: The created Dispute.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/dispute'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      tags:
+      - Disputes
+      summary: Create dispute
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/dispute'
+  /disputes/{id}:
+    get:
+      operationId: get_disputes_id
+      x-operation-id: get_dispute
+      responses:
+        '200':
+          description: The requested Dispute.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/dispute'
+        '404':
+          description: Dispute not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Disputes
+      summary: Get dispute
+  /disputes/{id}/transition:
+    post:
+      operationId: post_disputes_id_transition
+      x-operation-id: transition_dispute
+      responses:
+        '200':
+          description: The updated Dispute.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/dispute'
+        '404':
+          description: Dispute not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Disputes
+      summary: Transition dispute
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+              required:
+              - action
+  /changes:
+    get:
+      operationId: get_changes
+      x-operation-id: list_change
+      responses:
+        '200':
+          description: A page of Change objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/change'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - Changes
+      summary: List change
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
+    post:
+      operationId: post_changes
+      x-operation-id: create_change
+      responses:
+        '201':
+          description: The created Change.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/change'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      tags:
+      - Changes
+      summary: Create change
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/change'
+  /changes/{id}:
+    get:
+      operationId: get_changes_id
+      x-operation-id: get_change
+      responses:
+        '200':
+          description: The requested Change.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/change'
+        '404':
+          description: Change not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Changes
+      summary: Get change
+  /changes/{id}/transition:
+    post:
+      operationId: post_changes_id_transition
+      x-operation-id: transition_change
+      responses:
+        '200':
+          description: The updated Change.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/change'
+        '404':
+          description: Change not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Changes
+      summary: Transition change
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+              required:
+              - action
+  /trades:
+    get:
+      operationId: get_trades
+      x-operation-id: list_trade
+      responses:
+        '200':
+          description: A page of Trade objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/trade'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - Trades
+      summary: List trade
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
+    post:
+      operationId: post_trades
+      x-operation-id: create_trade
+      responses:
+        '201':
+          description: The created Trade.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/trade'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      tags:
+      - Trades
+      summary: Create trade
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/trade'
+  /trades/{id}:
+    get:
+      operationId: get_trades_id
+      x-operation-id: get_trade
+      responses:
+        '200':
+          description: The requested Trade.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/trade'
+        '404':
+          description: Trade not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Trades
+      summary: Get trade
+  /trades/{id}/transition:
+    post:
+      operationId: post_trades_id_transition
+      x-operation-id: transition_trade
+      responses:
+        '200':
+          description: The updated Trade.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/trade'
+        '404':
+          description: Trade not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Trades
+      summary: Transition trade
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+              required:
+              - action
+  /cois:
+    get:
+      operationId: get_cois
+      x-operation-id: list_coi
+      responses:
+        '200':
+          description: A page of Coi objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/coi'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - Cois
+      summary: List coi
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
+    post:
+      operationId: post_cois
+      x-operation-id: create_coi
+      responses:
+        '201':
+          description: The created Coi.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/coi'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      tags:
+      - Cois
+      summary: Create coi
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/coi'
+  /cois/{id}:
+    get:
+      operationId: get_cois_id
+      x-operation-id: get_coi
+      responses:
+        '200':
+          description: The requested Coi.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/coi'
+        '404':
+          description: Coi not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Cois
+      summary: Get coi
+  /cois/{id}/transition:
+    post:
+      operationId: post_cois_id_transition
+      x-operation-id: transition_coi
+      responses:
+        '200':
+          description: The updated Coi.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/coi'
+        '404':
+          description: Coi not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Cois
+      summary: Transition coi
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+              required:
+              - action
+  /handovers:
+    get:
+      operationId: get_handovers
+      x-operation-id: list_handover
+      responses:
+        '200':
+          description: A page of Handover objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/handover'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - Handovers
+      summary: List handover
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
+    post:
+      operationId: post_handovers
+      x-operation-id: create_handover
+      responses:
+        '201':
+          description: The created Handover.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/handover'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      tags:
+      - Handovers
+      summary: Create handover
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/handover'
+  /handovers/{id}:
+    get:
+      operationId: get_handovers_id
+      x-operation-id: get_handover
+      responses:
+        '200':
+          description: The requested Handover.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/handover'
+        '404':
+          description: Handover not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Handovers
+      summary: Get handover
+  /handovers/{id}/transition:
+    post:
+      operationId: post_handovers_id_transition
+      x-operation-id: transition_handover
+      responses:
+        '200':
+          description: The updated Handover.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/handover'
+        '404':
+          description: Handover not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Handovers
+      summary: Transition handover
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+              required:
+              - action
+  /indemnifications:
+    get:
+      operationId: get_indemnifications
+      x-operation-id: list_indemnification
+      responses:
+        '200':
+          description: A page of Indemnification objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/indemnification'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - Indemnifications
+      summary: List indemnification
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
+    post:
+      operationId: post_indemnifications
+      x-operation-id: create_indemnification
+      responses:
+        '201':
+          description: The created Indemnification.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/indemnification'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      tags:
+      - Indemnifications
+      summary: Create indemnification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/indemnification'
+  /indemnifications/{id}:
+    get:
+      operationId: get_indemnifications_id
+      x-operation-id: get_indemnification
+      responses:
+        '200':
+          description: The requested Indemnification.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/indemnification'
+        '404':
+          description: Indemnification not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Indemnifications
+      summary: Get indemnification
+  /indemnifications/{id}/transition:
+    post:
+      operationId: post_indemnifications_id_transition
+      x-operation-id: transition_indemnification
+      responses:
+        '200':
+          description: The updated Indemnification.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/indemnification'
+        '404':
+          description: Indemnification not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Indemnifications
+      summary: Transition indemnification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+              required:
+              - action
+  /risks:
+    get:
+      operationId: get_risks
+      x-operation-id: list_risk
+      responses:
+        '200':
+          description: A page of Risk objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/risk'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - Risks
+      summary: List risk
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
+    post:
+      operationId: post_risks
+      x-operation-id: create_risk
+      responses:
+        '201':
+          description: The created Risk.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/risk'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      tags:
+      - Risks
+      summary: Create risk
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/risk'
+  /risks/{id}:
+    get:
+      operationId: get_risks_id
+      x-operation-id: get_risk
+      responses:
+        '200':
+          description: The requested Risk.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/risk'
+        '404':
+          description: Risk not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Risks
+      summary: Get risk
+  /risks/{id}/transition:
+    post:
+      operationId: post_risks_id_transition
+      x-operation-id: transition_risk
+      responses:
+        '200':
+          description: The updated Risk.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/risk'
+        '404':
+          description: Risk not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Risks
+      summary: Transition risk
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+              required:
+              - action
+  /trainings:
+    get:
+      operationId: get_trainings
+      x-operation-id: list_training
+      responses:
+        '200':
+          description: A page of Training objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/training'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - Trainings
+      summary: List training
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
+    post:
+      operationId: post_trainings
+      x-operation-id: create_training
+      responses:
+        '201':
+          description: The created Training.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/training'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      tags:
+      - Trainings
+      summary: Create training
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/training'
+  /trainings/{id}:
+    get:
+      operationId: get_trainings_id
+      x-operation-id: get_training
+      responses:
+        '200':
+          description: The requested Training.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/training'
+        '404':
+          description: Training not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Trainings
+      summary: Get training
+  /trainings/{id}/transition:
+    post:
+      operationId: post_trainings_id_transition
+      x-operation-id: transition_training
+      responses:
+        '200':
+          description: The updated Training.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/training'
+        '404':
+          description: Training not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Trainings
+      summary: Transition training
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+              required:
+              - action
+  /records-packages:
+    get:
+      operationId: get_records_packages
+      x-operation-id: list_records_package
+      responses:
+        '200':
+          description: A page of RecordsPackage objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/records_package'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - RecordsPackages
+      summary: List records_package
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
+    post:
+      operationId: post_records_packages
+      x-operation-id: create_records_package
+      responses:
+        '201':
+          description: The created RecordsPackage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/records_package'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      tags:
+      - RecordsPackages
+      summary: Create records_package
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/records_package'
+  /records-packages/{id}:
+    get:
+      operationId: get_records_packages_id
+      x-operation-id: get_records_package
+      responses:
+        '200':
+          description: The requested RecordsPackage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/records_package'
+        '404':
+          description: RecordsPackage not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - RecordsPackages
+      summary: Get records_package
+  /records-packages/{id}/transition:
+    post:
+      operationId: post_records_packages_id_transition
+      x-operation-id: transition_records_package
+      responses:
+        '200':
+          description: The updated RecordsPackage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/records_package'
+        '404':
+          description: RecordsPackage not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - RecordsPackages
+      summary: Transition records_package
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+              required:
+              - action
+  /insiders:
+    get:
+      operationId: get_insiders
+      x-operation-id: list_insider
+      responses:
+        '200':
+          description: A page of Insider objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/insider'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - Insiders
+      summary: List insider
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/After'
+    post:
+      operationId: post_insiders
+      x-operation-id: create_insider
+      responses:
+        '201':
+          description: The created Insider.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/insider'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      tags:
+      - Insiders
+      summary: Create insider
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/insider'
+  /insiders/{id}:
+    get:
+      operationId: get_insiders_id
+      x-operation-id: get_insider
+      responses:
+        '200':
+          description: The requested Insider.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/insider'
+        '404':
+          description: Insider not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Insiders
+      summary: Get insider
+  /insiders/{id}/transition:
+    post:
+      operationId: post_insiders_id_transition
+      x-operation-id: transition_insider
+      responses:
+        '200':
+          description: The updated Insider.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/insider'
+        '404':
+          description: Insider not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Insiders
+      summary: Transition insider
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+              required:
+              - action
 components:
   schemas:
     Account:
@@ -5445,7 +6745,7 @@ components:
           - TPR-08
       description: An investigation or work case.
       allOf:
-      - &id079
+      - &id081
         $ref: '#/components/schemas/OwnedEntity'
     ControlResult:
       type: object
@@ -10525,7 +11825,7 @@ components:
       - task_type: transition
     change:
       type: object
-      x-kind: vocabulary
+      x-kind: domain
       properties:
         backout_plan:
           type: object
@@ -10600,6 +11900,14 @@ components:
           x-provisional: true
           x-derived-from: event
           description: Provisional field implied by event change.rfc.submitted; registered to reconcile the field/event namespace.
+        status:
+          type: string
+          description: Lifecycle state.
+          enum: &id078
+          - requested
+          - in_review
+          - deployed
+          - closed
       x-actions:
       - action: completed
         properties:
@@ -10618,6 +11926,8 @@ components:
         qualifier: cab
       - task_type: review
         qualifier: post
+      description: A change request tracked through review, deployment, and post-implementation review.
+      x-states: *id078
     claim:
       type: object
       x-kind: vocabulary
@@ -10640,7 +11950,7 @@ components:
           description: Evidences control RII-08.
     coi:
       type: object
-      x-kind: vocabulary
+      x-kind: domain
       properties:
         adhoc_form:
           type: string
@@ -10746,6 +12056,13 @@ components:
           x-derived-from: event
           description: Provisional field implied by event coi.annual_cycle.opened; registered to reconcile the field/event
             namespace.
+        status:
+          type: string
+          description: Lifecycle state.
+          enum: &id079
+          - disclosed
+          - under_review
+          - determined
       x-actions:
       - action: certified
       - action: created
@@ -10774,6 +12091,8 @@ components:
         - questionnaire
       x-timers:
       - task_type: certification
+      description: A conflict-of-interest disclosure tracked from disclosure through review to determination.
+      x-states: *id079
     collateral:
       type: object
       x-kind: vocabulary
@@ -11266,7 +12585,7 @@ components:
         status:
           type: string
           description: Lifecycle state.
-          enum: &id078
+          enum: &id080
           - received
           - investigating
           - resolved
@@ -11299,7 +12618,7 @@ components:
       - task_type: review
         qualifier: trend
       description: A consumer or member complaint tracked from intake through investigation and resolution.
-      x-states: *id078
+      x-states: *id080
     compliance:
       type: object
       x-kind: vocabulary
@@ -11957,7 +13276,7 @@ components:
           - IC-07
           description: Evidences control IC-07.
       allOf:
-      - *id079
+      - *id081
     destruction_log:
       type: object
       x-kind: vocabulary
@@ -12174,7 +13493,7 @@ components:
       - action: scheduled
     dispute:
       type: object
-      x-kind: vocabulary
+      x-kind: domain
       properties:
         basis:
           type: string
@@ -12244,6 +13563,14 @@ components:
           x-derived-from: event
           description: Provisional field implied by event dispute.regulator_response.filed; registered to reconcile the field/event
             namespace.
+        status:
+          type: string
+          description: Lifecycle state.
+          enum: &id082
+          - filed
+          - investigating
+          - resolved
+          - closed
       x-actions:
       - action: completed
         properties:
@@ -12264,6 +13591,8 @@ components:
       x-timers:
       - task_type: investigation
       - task_type: response
+      description: A Regulation E error/dispute tracked from filing through investigation to resolution.
+      x-states: *id082
     dlp:
       type: object
       x-kind: vocabulary
@@ -13882,7 +15211,7 @@ components:
         status:
           type: string
           description: Lifecycle state.
-          enum: &id080
+          enum: &id083
           - open
           - in_remediation
           - closed
@@ -13928,7 +15257,7 @@ components:
       - task_type: response
       - task_type: review
         qualifier: monthly
-      x-states: *id080
+      x-states: *id083
     form:
       type: object
       x-kind: vocabulary
@@ -14179,7 +15508,7 @@ components:
           description: Evidences control IC-04.
     handover:
       type: object
-      x-kind: vocabulary
+      x-kind: domain
       properties:
         access_scope:
           type: string
@@ -14243,6 +15572,15 @@ components:
           x-bound-controls:
           - RP-07
           description: Evidences control RP-07.
+        status:
+          type: string
+          description: Lifecycle state.
+          enum: &id084
+          - initiated
+          - provisioned
+          - completed
+      description: A trustee/fiduciary handover tracked from initiation through provisioning to completion.
+      x-states: *id084
     hmda:
       type: object
       x-kind: vocabulary
@@ -14332,7 +15670,7 @@ components:
           description: Evidences controls CAP-07, CAP-10.
     indemnification:
       type: object
-      x-kind: vocabulary
+      x-kind: domain
       properties:
         advance.disbursed:
           type: string
@@ -14497,9 +15835,19 @@ components:
           - RII-05
           - RII-06
           description: Evidences controls RII-03, RII-04, RII-05, RII-06.
+        status:
+          type: string
+          description: Lifecycle state.
+          enum: &id085
+          - requested
+          - under_review
+          - determined
+          - paid
+      description: An indemnification request tracked from filing through determination to payment.
+      x-states: *id085
     insider:
       type: object
-      x-kind: vocabulary
+      x-kind: domain
       properties:
         aggregate_credit_amount:
           type: integer
@@ -14629,6 +15977,13 @@ components:
           x-derived-from: event
           description: Provisional field implied by event insider.terms_parity.checked; registered to reconcile the field/event
             namespace.
+        status:
+          type: string
+          description: Lifecycle state.
+          enum: &id086
+          - requested
+          - board_review
+          - approved
       x-actions:
       - action: checked
         properties:
@@ -14651,6 +16006,8 @@ components:
         - record
       x-timers:
       - task_type: report
+      description: A Regulation O insider-credit request tracked through board review and approval.
+      x-states: *id086
     institution_freeze:
       type: object
       x-kind: vocabulary
@@ -17485,7 +18842,7 @@ components:
         qualifier: annual
     records_package:
       type: object
-      x-kind: vocabulary
+      x-kind: domain
       properties:
         artifact_id:
           type: string
@@ -17548,6 +18905,15 @@ components:
           x-bound-controls:
           - RP-08
           description: Evidences control RP-08.
+        status:
+          type: string
+          description: Lifecycle state.
+          enum: &id087
+          - requested
+          - building
+          - complete
+      description: A records-production package tracked from request through assembly to completion.
+      x-states: *id087
     redflag:
       type: object
       x-kind: vocabulary
@@ -18050,7 +19416,7 @@ components:
           description: Evidences control MB-05.
     risk:
       type: object
-      x-kind: vocabulary
+      x-kind: domain
       properties:
         assessment_results:
           type: object
@@ -18193,6 +19559,14 @@ components:
           - ERM-04
           - IS-02
           description: Evidences controls BSA-02, ERM-04, IS-02.
+        status:
+          type: string
+          description: Lifecycle state.
+          enum: &id088
+          - registered
+          - assessed
+          - remediated
+          - closed
       x-actions:
       - action: completed
         properties:
@@ -18208,7 +19582,9 @@ components:
       - task_type: assessment
         qualifier: product
       allOf:
-      - *id079
+      - *id081
+      description: A risk-register entry tracked through assessment and remediation.
+      x-states: *id088
     risk_acceptance:
       type: object
       x-kind: vocabulary
@@ -18261,7 +19637,7 @@ components:
       x-timers:
       - task_type: decision
       allOf:
-      - *id079
+      - *id081
     risk_appetite:
       type: object
       x-kind: vocabulary
@@ -19346,7 +20722,7 @@ components:
       - task_type: assessment
     trade:
       type: object
-      x-kind: vocabulary
+      x-kind: domain
       properties:
         blocked_prohibited:
           type: string
@@ -19456,6 +20832,13 @@ components:
           x-derived-from: event
           description: Provisional field implied by event trade.permissibility.checked; registered to reconcile the field/event
             namespace.
+        status:
+          type: string
+          description: Lifecycle state.
+          enum: &id089
+          - entered
+          - confirmed
+          - settled
       x-actions:
       - action: approved
         properties:
@@ -19496,9 +20879,11 @@ components:
       - action: settled
       x-timers:
       - task_type: reconciliation
+      description: An investment trade tracked from entry through confirmation to settlement.
+      x-states: *id089
     training:
       type: object
-      x-kind: vocabulary
+      x-kind: domain
       properties:
         assessment_score:
           type: number
@@ -19746,6 +21131,13 @@ components:
           x-derived-from: event
           description: Provisional field implied by event training.session.delivered; registered to reconcile the field/event
             namespace.
+        status:
+          type: string
+          description: Lifecycle state.
+          enum: &id090
+          - assigned
+          - in_progress
+          - completed
       x-actions:
       - action: assigned
         properties:
@@ -19780,6 +21172,8 @@ components:
       x-timers:
       - task_type: completion
       - task_type: onboarding
+      description: A training assignment tracked from assignment through completion.
+      x-states: *id090
     transaction:
       type: object
       x-kind: vocabulary
@@ -21767,8 +23161,18 @@ x-state-machines:
   - booking_requested
   - booked
   - funded
-  finding: *id080
-  complaint: *id078
+  finding: *id083
+  complaint: *id080
+  dispute: *id082
+  change: *id078
+  trade: *id089
+  coi: *id079
+  handover: *id084
+  indemnification: *id085
+  risk: *id088
+  training: *id090
+  records_package: *id087
+  insider: *id086
 tags:
 - name: Account Numbers
   description: Account Numbers operations.
