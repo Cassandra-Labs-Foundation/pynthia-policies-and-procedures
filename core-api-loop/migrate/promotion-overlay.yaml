@@ -1,0 +1,19 @@
+# Pile C — promotions. Heavy, well-cited vocabulary schemas elevated to first-class typed
+# resources (control_oracle.promotion_candidates surfaces the pool). The lifecycle `states` here
+# are AUTHORED JUDGMENT inferred from each schema's fields — draft, flag for compliance review.
+# promote_schema.py emits the mechanical surface (x-kind, status, x-states, REST endpoints);
+# field paths are unchanged so promotion is coverage-safe.
+#
+# Only COHERENT single-concept schemas belong here. Grab-bags (eps, cda, capital, cash, member,
+# policy) need decomposition first; shadows (policy/PolicyDoc, vendor/vendor_review, ...) need
+# prefix reconciliation — both handled separately, not by a bare promote.
+promote:
+  - name: finding
+    kind: domain
+    description: An audit, examination, or compliance finding tracked through its remediation lifecycle.
+    states: [open, in_remediation, closed]
+
+  - name: complaint
+    kind: domain
+    description: A consumer or member complaint tracked from intake through investigation and resolution.
+    states: [received, investigating, resolved, closed]
