@@ -104,6 +104,18 @@ def _task_types_in_use() -> set:
     return {t.get("type") for t in (_migration().get("task_map") or {}).values() if t.get("type")}
 
 
+def _cited_vocab_prefixes() -> set:
+    """First dotted segment of every frozen demand code — the vocab prefixes some control still
+    cites. delete_resource refuses to drop a vocab schema in this set, making pile-A pruning safe
+    independent of the control_budget: the keep-iff-best gate alone would miss a cited deletion
+    whenever the budget has headroom above the current unregistered count."""
+    try:
+        demand = control_oracle.load_demand(DEMAND) if os.path.exists(DEMAND) else {}
+    except Exception:  # noqa: BLE001 — missing/unreadable demand just means "cite nothing known"
+        return set()
+    return {c.split(".")[0] for c in (demand.get("codes") or {})}
+
+
 def apply_op(op: dict) -> bool:
     """Apply one edit op to the OpenAPI core-api.yaml in place. Returns True iff it changed.
 
@@ -173,10 +185,14 @@ def apply_op(op: dict) -> bool:
 
     elif kind == "delete_resource" and name:
         key = _find_resource_key(schemas, name)
-        # refuse to delete a schema still referenced via $ref (it isn't an orphan, and removing
-        # it would leave a dangling ref / invalid OpenAPI). Un-reference it first.
-        if key is not None and schemas[key].get("x-kind") != "vocabulary" \
-                and not _is_referenced(doc, key):
+        # Refuse a schema still referenced via $ref (not an orphan; removing it dangles the ref).
+        # A vocabulary schema is now deletable too (pile A) — but ONLY when no control cites its
+        # prefix, so a cited registration anchor is refused here. That keeps the move safe even
+        # when control_budget has slack the keep-iff-best gate would not catch. Non-vocab
+        # resources delete as before, protected by the coverage + architecture gates.
+        if key is not None and not _is_referenced(doc, key) and not (
+                schemas[key].get("x-kind") == "vocabulary"
+                and _snake(key) in _cited_vocab_prefixes()):
             del schemas[key]
             changed = True
 
@@ -323,6 +339,12 @@ def propose_greedy(demand, vocab, result) -> dict:
             return {"op": "delete_endpoint", "path": path,
                     "label": f"delete orphan endpoint {path}",
                     "note": "no backing resource and not an architecture-mandated/exempt endpoint"}
+    # pile A: reclaim the vocabulary tier — delete a schema no control cites. apply_op refuses any
+    # vocab schema still cited, so this cannot drop live demand; it only retires dead registration.
+    for c in (result["coverage"].get("prunable_vocab_schemas") or []):
+        return {"op": "delete_resource", "name": c["schema"],
+                "label": f"prune uncited vocab schema {c['schema']}",
+                "note": f"{c['fields']} field(s), cited by 0 controls — reclaims the registration tier"}
     return {"op": "noop", "label": None, "note": "greedy: no beneficial move left"}
 
 
@@ -366,7 +388,7 @@ def build_llm_prompt(demand, vocab, result) -> str:
         '  {"op":"add_event_type","name":"verb"}\n'
         '  {"op":"delete_field","path":"x.y"}                     delete an orphan\n'
         '  {"op":"delete_endpoint","path":"/cases"}\n'
-        '  {"op":"delete_resource","name":"Foo"}\n'
+        '  {"op":"delete_resource","name":"Foo"}                   resource orphan OR an uncited vocab schema\n'
         '  {"op":"delete_state_machine","name":"Foo"}\n'
         '  {"op":"delete_event_type","name":"verb"}\n'
         '  {"op":"delete_task_type","name":"type"}\n'
@@ -394,7 +416,12 @@ def build_llm_prompt(demand, vocab, result) -> str:
         "Then attack structure (step 4): if `regularity` shows namespace_gaps, register the implied "
         "field; if `factoring.mixin_candidates` lists a cluster, `extract_base` it. These add an "
         "element but retire more irregularity/redundancy — a net win. Never break an invariant "
-        "(x-actions/x-timers/$ref must resolve) — that is a hard violation. If nothing helps, noop.\n\n"
+        "(x-actions/x-timers/$ref must resolve) — that is a hard violation. If nothing helps, noop.\n"
+        "Vocabulary tier: `coverage.prunable_vocab_schemas` are vocab schemas NO control cites — "
+        "`delete_resource` them to reclaim the registration tier (a still-cited anchor is auto-refused, "
+        "so this cannot drop live demand). `coverage.promotion_candidates` are heavy, well-cited vocab "
+        "schemas that act like typed resources; they are ADVISORY for human review only — there is no "
+        "promote op and flipping x-kind would only RAISE complexity, so do NOT act on them here.\n\n"
         "=== OUTPUT ===\n" + schema +
         "\nThink briefly, then output the single-line JSON op as the final line."
     )

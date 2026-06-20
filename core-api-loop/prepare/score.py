@@ -108,6 +108,10 @@ def score_spec(spec_path: str, migration_path: str | None, *, config: dict,
             # contract plumbing; the arch gate protects the load-bearing ones. See control_oracle.
             "unused_field_count": control["unused_field_count"],
             "unused_event_count": control["unused_event_count"],
+            # pile A: vocab-tier schemas no control cites — whole-schema deletion candidates.
+            "prunable_vocab_schemas": control["prunable_vocab_schemas"],
+            # pile C: heavy, well-cited vocab schemas that behave like typed resources (advisory).
+            "promotion_candidates": control["promotion_candidates"],
         },
         "complexity": cx["complexity"],
         "complexity_components": cx["components"],

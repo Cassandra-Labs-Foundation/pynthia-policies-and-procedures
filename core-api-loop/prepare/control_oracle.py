@@ -144,6 +144,11 @@ def spec_index(spec_path: str, migration_path: str | None) -> tuple[set, set, di
     return event_codes, field_paths, vocab.get("stats", {})
 
 
+# A vocab schema with at least this many fields is heavy enough to read as a typed resource
+# mis-filed in the vocabulary tier (pile C, promotion candidate) rather than a registration anchor.
+PROMOTE_FIELD_MIN = 12
+
+
 def evaluate_vocab(vocab: dict, demand: dict) -> dict:
     """Classify the frozen demand against an already-parsed vocab (no re-parse).
     Mirrors extract_controls.classify_codes: event takes priority over field.
@@ -163,6 +168,39 @@ def evaluate_vocab(vocab: dict, demand: dict) -> dict:
     # inverse: spec codes that no control cites
     unused_events = sorted(event_codes - demand_codes)
     unused_fields = sorted(field_paths - demand_codes - event_codes)
+
+    # --- pile A + C: per-vocabulary-schema citation analysis -------------------------------
+    # The vocab tier is near-free to the complexity term (its schemas are not counted as
+    # concepts), so the minimizer never touches it — yet it still carries dead weight and
+    # mis-filed resources. Two opposite extremes are worth surfacing as candidates:
+    #   A. PRUNABLE  — a vocab schema NO control cites: removable WHOLE (not just field by
+    #      field). propose.delete_resource now accepts these; a still-cited one is refused.
+    #   C. PROMOTION — a HEAVY, well-cited vocab schema behaving like a typed resource that is
+    #      mis-filed in the vocab tier. ADVISORY ONLY: promotion is a structural/human call,
+    #      not a scored loop move (flipping x-kind would only RAISE complexity).
+    entities = vocab.get("entities", [])
+    cite_count: dict[str, int] = {}
+    for code in demand_codes:
+        prefix = code.split(".")[0]
+        cite_count[prefix] = cite_count.get(prefix, 0) + 1
+    typed_stems = {e["name"].split("_")[0] for e in entities if e.get("kind") != "vocabulary"}
+    prunable_vocab: list[dict] = []
+    promotion_candidates: list[dict] = []
+    for e in entities:
+        if e.get("kind") != "vocabulary":
+            continue
+        name = e.get("name", "")
+        fields = e.get("field_count", 0)
+        n_cited = cite_count.get(name, 0)
+        if n_cited == 0:
+            prunable_vocab.append({"schema": e.get("schema_name", name), "fields": fields})
+        elif fields >= PROMOTE_FIELD_MIN:
+            promotion_candidates.append({
+                "schema": e.get("schema_name", name), "fields": fields,
+                "cited_codes": n_cited, "typed_twin": name.split("_")[0] in typed_stems})
+    prunable_vocab.sort(key=lambda r: -r["fields"])
+    promotion_candidates.sort(key=lambda r: -r["fields"])
+
     return {
         "spec_stats": vocab.get("stats", {}),
         "demand_codes": len(demand_codes),
@@ -174,6 +212,11 @@ def evaluate_vocab(vocab: dict, demand: dict) -> dict:
         "unused_field_count": len(unused_fields),
         "unused_events": unused_events,
         "unused_fields": unused_fields,
+        # pile A: vocab schemas no control cites — whole-schema deletion candidates.
+        "prunable_vocab_schemas": prunable_vocab,
+        "prunable_vocab_count": len(prunable_vocab),
+        # pile C: heavy, well-cited vocab schemas that behave like typed resources (advisory).
+        "promotion_candidates": promotion_candidates,
         "demand_meta": demand.get("meta", {}),
     }
 
@@ -227,6 +270,13 @@ def main(argv: list[str]) -> int:
         print(f"UNREGISTERED (gap)  : {result['unregistered_count']}")
         print(f"unused supply       : {result['unused_field_count']} fields + "
               f"{result['unused_event_count']} events cited by no control (deletion candidates)")
+        print(f"prunable vocab      : {result['prunable_vocab_count']} schemas no control cites "
+              f"(pile A — whole-schema deletion candidates)")
+        if result.get("promotion_candidates"):
+            top = ", ".join(f"{c['schema']}({c['fields']}f{'*' if c['typed_twin'] else ''})"
+                            for c in result["promotion_candidates"][:6])
+            print(f"promotion candidates: {len(result['promotion_candidates'])} heavy cited vocab "
+                  f"schemas (pile C, advisory; *=has typed twin): {top} …")
     return 0
 
 
