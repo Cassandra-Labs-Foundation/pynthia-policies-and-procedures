@@ -13434,7 +13434,8 @@ components:
         - overdraft
     finding:
       type: object
-      x-kind: vocabulary
+      x-kind: domain
+      description: An audit, examination, or compliance finding tracked through its remediation lifecycle.
       properties:
         closure_evidence:
           type: object
