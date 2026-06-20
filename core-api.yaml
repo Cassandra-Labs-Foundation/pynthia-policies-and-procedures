@@ -7372,15 +7372,6 @@ components:
       - action: failed
         properties:
         - catalogue_sync
-    aml:
-      type: object
-      x-kind: vocabulary
-      properties:
-        case.referred:
-          type: string
-          x-bound-controls:
-          - CC-07
-          description: Evidences control CC-07.
     analytics:
       type: object
       x-kind: vocabulary
@@ -8124,16 +8115,6 @@ components:
       - action: received
         properties:
         - inquiry
-    balances:
-      type: object
-      x-kind: vocabulary
-      properties:
-        inflight_balance:
-          type: string
-          x-bound-controls:
-          - RP-05
-          - TIS-08
-          description: Evidences controls RP-05, TIS-08.
     bcp:
       type: object
       x-kind: vocabulary
@@ -8280,28 +8261,6 @@ components:
           x-bound-controls:
           - COL-01
           description: Evidences control COL-01.
-    bureau:
-      type: object
-      x-kind: vocabulary
-      properties:
-        discrepancy_artifact_id:
-          type: string
-          x-bound-controls:
-          - PR-05
-          description: Evidences control PR-05.
-        address:
-          type: string
-          x-provisional: true
-          x-derived-from: event
-          description: Provisional field implied by event bureau.address.confirmed; registered to reconcile the field/event
-            namespace.
-      x-actions:
-      - action: confirmed
-        properties:
-        - address
-      - action: received
-        properties:
-        - address_discrepancy
     byod:
       type: object
       x-kind: vocabulary
@@ -11221,15 +11180,6 @@ components:
       - action: resolved
         properties:
         - drift
-    confirmation:
-      type: object
-      x-kind: vocabulary
-      properties:
-        terms:
-          type: string
-          x-bound-controls:
-          - IP-14
-          description: Evidences control IP-14.
     connection:
       type: object
       x-kind: vocabulary
@@ -11678,17 +11628,6 @@ components:
         properties:
         - decision
         - extraordinary
-    crypto:
-      type: object
-      x-kind: vocabulary
-      properties:
-        config:
-          type: string
-          x-bound-controls:
-          - IS-07
-          description: Evidences control IS-07.
-      x-actions:
-      - action: verified
     csa:
       type: object
       x-kind: vocabulary
@@ -14025,20 +13964,6 @@ components:
           x-bound-controls:
           - RP-07
           description: Evidences control RP-07.
-    hazard:
-      type: object
-      x-kind: vocabulary
-      properties:
-        feed_detail:
-          type: object
-          x-bound-controls:
-          - BCP-02
-          description: Evidences control BCP-02.
-        watch_raised:
-          type: string
-          x-bound-controls:
-          - BCP-02
-          description: Evidences control BCP-02.
     hmda:
       type: object
       x-kind: vocabulary
@@ -14447,23 +14372,6 @@ components:
         - record
       x-timers:
       - task_type: report
-    insider_case:
-      type: object
-      x-kind: vocabulary
-      properties:
-        attestation:
-          type: string
-          x-bound-controls:
-          - LN-14
-          description: Evidences control LN-14.
-      x-actions:
-      - action: resolved
-    institution:
-      type: object
-      x-kind: vocabulary
-      properties:
-        risk_profile:
-          type: string
     institution_freeze:
       type: object
       x-kind: vocabulary
@@ -15531,15 +15439,6 @@ components:
         - review
       x-timers:
       - task_type: review
-    monitor:
-      type: object
-      x-kind: vocabulary
-      properties:
-        source:
-          type: string
-          x-bound-controls:
-          - BCP-05
-          description: Evidences control BCP-05.
     monitoring:
       type: object
       x-kind: vocabulary
@@ -15643,12 +15542,6 @@ components:
       - action: sent
         properties:
         - notification
-    network:
-      type: object
-      x-kind: vocabulary
-      properties:
-        connection:
-          type: string
     notice:
       type: object
       x-kind: vocabulary
@@ -15665,15 +15558,6 @@ components:
         properties:
         - oral
       - action: sent
-    officer:
-      type: object
-      x-kind: vocabulary
-      properties:
-        lending_authority:
-          type: string
-          x-bound-controls:
-          - CL-10
-          description: Evidences control CL-10.
     official:
       type: object
       x-kind: vocabulary
@@ -18251,28 +18135,6 @@ components:
           x-bound-controls:
           - ERM-03
           description: Evidences control ERM-03.
-    role:
-      type: object
-      x-kind: vocabulary
-      properties:
-        definition:
-          type: string
-          x-bound-controls:
-          - CMP-03
-          description: Evidences control CMP-03.
-        effective_date:
-          type: string
-          x-bound-controls:
-          - CMP-03
-          description: Evidences control CMP-03.
-    rule:
-      type: object
-      x-kind: vocabulary
-      properties:
-        exception_justification:
-          type: string
-        exception_owner:
-          type: string
     rwa:
       type: object
       x-kind: vocabulary
@@ -18607,12 +18469,6 @@ components:
         qualifier: downgrade
       - task_type: update
         qualifier: fair_value
-    security_finding:
-      type: object
-      x-kind: vocabulary
-      properties:
-        owner:
-          type: string
     service:
       type: object
       x-kind: vocabulary
@@ -18851,20 +18707,6 @@ components:
       - action: detected
         properties:
         - conflict
-    spend_controls:
-      type: object
-      x-kind: vocabulary
-      properties:
-        daily_limit:
-          type: string
-          x-bound-controls:
-          - RP-03
-          description: Evidences control RP-03.
-        per_transaction_limit:
-          type: string
-          x-bound-controls:
-          - RP-03
-          description: Evidences control RP-03.
     staffing:
       type: object
       x-kind: vocabulary
@@ -19144,20 +18986,6 @@ components:
           x-bound-controls:
           - COL-05
           description: Evidences control COL-05.
-    threat:
-      type: object
-      x-kind: vocabulary
-      properties:
-        impact:
-          type: string
-          x-bound-controls:
-          - BCP-02
-          description: Evidences control BCP-02.
-        likelihood:
-          type: string
-          x-bound-controls:
-          - BCP-02
-          description: Evidences control BCP-02.
     threat_register:
       type: object
       x-kind: vocabulary
@@ -20955,17 +20783,6 @@ components:
           description: Timer/SLA marker.
           x-bound-controls:
           - BSA-07
-    department:
-      type: object
-      x-kind: vocabulary
-      description: department vocabulary (control demand).
-      properties:
-        id:
-          type: string
-          x-bound-controls:
-          - RR-01
-          - RR-08
-          description: Evidences controls RR-01, RR-08.
     edd:
       type: object
       x-kind: vocabulary
@@ -21009,22 +20826,6 @@ components:
           - BSA-16
           - BSA-20
           description: Evidences controls BSA-04, BSA-16, BSA-20.
-    engagement:
-      type: object
-      x-kind: vocabulary
-      description: engagement vocabulary (control demand).
-      properties:
-        provider:
-          type: string
-          x-bound-controls:
-          - AU-02
-          - EC-05
-          description: Evidences controls AU-02, EC-05.
-        scope:
-          type: string
-          x-bound-controls:
-          - EC-05
-          description: Evidences control EC-05.
     escalation:
       type: object
       x-kind: vocabulary
@@ -21066,21 +20867,6 @@ components:
           - BSA-13
       x-actions:
       - action: routed
-    flow:
-      type: object
-      x-kind: vocabulary
-      description: flow vocabulary (control demand).
-      properties:
-        amount:
-          type: integer
-          x-bound-controls:
-          - LIQ-03
-          description: Evidences control LIQ-03.
-        direction:
-          type: string
-          x-bound-controls:
-          - LIQ-03
-          description: Evidences control LIQ-03.
     governance:
       type: object
       x-kind: vocabulary
@@ -21178,16 +20964,6 @@ components:
           x-bound-controls:
           - FL-05
           description: Evidences control FL-05.
-    monitoring_coverage:
-      type: object
-      x-kind: vocabulary
-      description: monitoring_coverage vocabulary (control demand).
-      properties:
-        review:
-          type: string
-          x-bound-controls:
-          - CP-06
-          description: Evidences control CP-06.
     ofac:
       type: object
       x-kind: vocabulary
@@ -21225,26 +21001,6 @@ components:
           x-bound-controls:
           - LN-11
           description: Evidences control LN-11.
-    process:
-      type: object
-      x-kind: vocabulary
-      description: process vocabulary (control demand).
-      properties:
-        id:
-          type: string
-          x-bound-controls:
-          - IC-01
-          description: Evidences control IC-01.
-    product_risk:
-      type: object
-      x-kind: vocabulary
-      description: product_risk vocabulary (control demand).
-      properties:
-        candidate_profile:
-          type: string
-          x-bound-controls:
-          - EPS-01
-          description: Evidences control EPS-01.
     regulation_inventory:
       type: object
       x-kind: vocabulary
@@ -21492,16 +21248,6 @@ components:
       - task_type: review
       - task_type: review
         qualifier: quarterly
-    property:
-      type: object
-      x-kind: vocabulary
-      description: property vocabulary (control demand).
-      properties:
-        address:
-          type: string
-          x-bound-controls:
-          - LN-06
-          description: Evidences control LN-06.
     PartyBase:
       type: object
       x-kind: mixin
