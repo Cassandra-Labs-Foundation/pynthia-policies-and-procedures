@@ -3,7 +3,7 @@
     "spec_title": "Cassandra Banking Core API",
     "spec_version": "3.0.0",
     "parser_version": "0.2.0",
-    "parsed_at": "2026-06-20T01:44:00.554773Z",
+    "parsed_at": "2026-06-20T01:50:27.172778Z",
     "note": "Specific domain codes (e.g. sar.filed, vendor_review) live as `subject` values in vocab-migration.json, not as distinct vocabulary elements.",
     "sources": [
       "core-api.yaml",
@@ -54417,6 +54417,7 @@
       "states": [
         "open",
         "in_remediation",
+        "risk_accepted",
         "closed"
       ]
     },
@@ -54445,7 +54446,8 @@
       "states": [
         "requested",
         "board_review",
-        "approved"
+        "approved",
+        "denied"
       ]
     },
     {
@@ -54454,7 +54456,8 @@
       "states": [
         "requested",
         "building",
-        "complete"
+        "complete",
+        "failed"
       ]
     },
     {
@@ -54463,7 +54466,7 @@
       "states": [
         "registered",
         "assessed",
-        "remediated",
+        "monitored",
         "closed"
       ]
     },
@@ -54473,7 +54476,8 @@
       "states": [
         "entered",
         "confirmed",
-        "settled"
+        "settled",
+        "blocked"
       ]
     },
     {
@@ -54482,7 +54486,8 @@
       "states": [
         "assigned",
         "in_progress",
-        "completed"
+        "completed",
+        "lapsed"
       ]
     }
   ],

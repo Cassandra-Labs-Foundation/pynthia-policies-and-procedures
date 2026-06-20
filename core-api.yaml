@@ -15214,6 +15214,7 @@ components:
           enum: &id083
           - open
           - in_remediation
+          - risk_accepted
           - closed
       x-actions:
       - action: breached
@@ -15984,6 +15985,7 @@ components:
           - requested
           - board_review
           - approved
+          - denied
       x-actions:
       - action: checked
         properties:
@@ -16006,7 +16008,7 @@ components:
         - record
       x-timers:
       - task_type: report
-      description: A Regulation O insider-credit request tracked through board review and approval.
+      description: A Regulation O insider-credit request tracked through board review to approval or denial.
       x-states: *id086
     institution_freeze:
       type: object
@@ -18912,6 +18914,7 @@ components:
           - requested
           - building
           - complete
+          - failed
       description: A records-production package tracked from request through assembly to completion.
       x-states: *id087
     redflag:
@@ -19565,7 +19568,7 @@ components:
           enum: &id088
           - registered
           - assessed
-          - remediated
+          - monitored
           - closed
       x-actions:
       - action: completed
@@ -19583,7 +19586,7 @@ components:
         qualifier: product
       allOf:
       - *id081
-      description: A risk-register entry tracked through assessment and remediation.
+      description: A risk-register entry tracked through assessment into ongoing monitoring (remediation is a sub-process).
       x-states: *id088
     risk_acceptance:
       type: object
@@ -20839,6 +20842,7 @@ components:
           - entered
           - confirmed
           - settled
+          - blocked
       x-actions:
       - action: approved
         properties:
@@ -21138,6 +21142,7 @@ components:
           - assigned
           - in_progress
           - completed
+          - lapsed
       x-actions:
       - action: assigned
         properties:
@@ -21172,7 +21177,7 @@ components:
       x-timers:
       - task_type: completion
       - task_type: onboarding
-      description: A training assignment tracked from assignment through completion.
+      description: A training assignment tracked from assignment through completion, with lapse on overdue cycles.
       x-states: *id090
     transaction:
       type: object

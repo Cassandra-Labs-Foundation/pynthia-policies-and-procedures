@@ -4,6 +4,12 @@
 # promote_schema.py emits the mechanical surface (x-kind, status, x-states, REST endpoints);
 # field paths are unchanged so promotion is coverage-safe.
 #
+# Lifecycle review (applied): exception terminals added where the fields imply one
+# (risk_accepted/failed/blocked/denied/lapsed); `risk` reshaped to its monitored cycle rather
+# than a linear "-> closed". Still flagged for SME review: dispute (Reg E provisional-credit step),
+# indemnification (advances + clawback), change (emergency path) carry sub-process depth left for
+# a domain reviewer.
+#
 # Promote ONLY coherent single-concept ENTITIES that genuinely have a lifecycle. Deliberately NOT
 # promoted:
 #   * grab-bags (namespaces holding many sub-entities): eps, cda, vendor, capital, cash, record,
@@ -17,7 +23,7 @@ promote:
   - name: finding
     kind: domain
     description: An audit, examination, or compliance finding tracked through its remediation lifecycle.
-    states: [open, in_remediation, closed]
+    states: [open, in_remediation, risk_accepted, closed]
 
   - name: complaint
     kind: domain
@@ -37,7 +43,7 @@ promote:
   - name: trade
     kind: domain
     description: An investment trade tracked from entry through confirmation to settlement.
-    states: [entered, confirmed, settled]
+    states: [entered, confirmed, settled, blocked]
 
   - name: coi
     kind: domain
@@ -56,20 +62,20 @@ promote:
 
   - name: risk
     kind: domain
-    description: A risk-register entry tracked through assessment and remediation.
-    states: [registered, assessed, remediated, closed]
+    description: A risk-register entry tracked through assessment into ongoing monitoring (remediation is a sub-process).
+    states: [registered, assessed, monitored, closed]
 
   - name: training
     kind: domain
-    description: A training assignment tracked from assignment through completion.
-    states: [assigned, in_progress, completed]
+    description: A training assignment tracked from assignment through completion, with lapse on overdue cycles.
+    states: [assigned, in_progress, completed, lapsed]
 
   - name: records_package
     kind: domain
     description: A records-production package tracked from request through assembly to completion.
-    states: [requested, building, complete]
+    states: [requested, building, complete, failed]
 
   - name: insider
     kind: domain
-    description: A Regulation O insider-credit request tracked through board review and approval.
-    states: [requested, board_review, approved]
+    description: A Regulation O insider-credit request tracked through board review to approval or denial.
+    states: [requested, board_review, approved, denied]
