@@ -12,6 +12,11 @@ captures:
   - system        : the SYSTEM BEHAVIOR prose
   - events        : the EVENTS table, row by row, decomposed into
                     trigger / inputs / outputs / deadline plus the raw codes
+  - control_rules : the same EVENTS rows normalized into flat, DB-ready rule
+                    records (trigger_event / required_inputs / produced_events /
+                    deadline_timer / deadline_text) — the projection that feeds
+                    `x-control-rules` in core-api.yaml and the Supabase
+                    `control_rule` table
   - alerts        : the ALERTS/METRICS prose
   - api_references: every backticked dotted code used by the control, classified
                     against core-vocabulary.json (the Cassandra Banking Core API model)
@@ -34,6 +39,8 @@ import os
 import re
 import sys
 from datetime import datetime, timezone
+
+from code_format import event_struct, timer_struct, canonical_code  # object.property.action + object.task_type.due_at
 
 # --------------------------------------------------------------------------- #
 # File discovery
@@ -245,6 +252,52 @@ def parse_events_table(section: str) -> list[dict]:
     return events
 
 
+DEADLINE_ENFORCED_RE = re.compile(r"\(\s*enforced by[^)]*\)", re.IGNORECASE)
+
+
+def normalize_rules(control_id: str, policy: str, events: list[dict],
+                    actions: set[str], task_types: set[str]) -> list[dict]:
+    """Project parsed EVENTS rows into flat, DB-ready control_rule records.
+
+    One record per EVENTS row: the trigger that opens the obligation, the inputs
+    that must be present, the event(s) whose logging satisfies the control, and
+    the deadline timer that bounds it. This is the shape `x-control-rules` (and
+    the Supabase `control_rule` table) consume — the rule, not just the codes.
+
+    Event codes are also decomposed into the canonical object.property.action
+    primitives (against the registered action vocabulary) so the rule carries
+    its structure, not just the raw string.
+    """
+    def cc(code):  # unified canonical form (event OR timer grammar)
+        return canonical_code(code, actions, task_types) if code else code
+
+    rules: list[dict] = []
+    for ev in events:
+        trigger = cc((ev.get("trigger") or {}).get("code"))
+        required_inputs: list[str] = []
+        for grp in ev.get("inputs", []):
+            required_inputs.extend(cc(c) for c in grp.get("codes", []))
+        produced_events: list[str] = []
+        for grp in ev.get("outputs", []):
+            produced_events.extend(cc(c) for c in grp.get("codes", []))
+        timers = [cc(c) for c in ev.get("within_timer_codes", [])]
+        deadline_text = DEADLINE_ENFORCED_RE.sub("", ev.get("within", "")).strip(" ,;—–-")
+        produced = sorted(set(produced_events))
+        rules.append({
+            "control_id": control_id,
+            "policy": policy,
+            "trigger_event": trigger,
+            "trigger": event_struct(trigger, actions) if trigger else None,
+            "required_inputs": sorted(set(required_inputs)),
+            "produced_events": produced,
+            "produced": [event_struct(p, actions) for p in produced],
+            "deadline_timer": timers[0] if timers else None,
+            "deadline": timer_struct(timers[0], task_types) if timers else None,
+            "deadline_text": deadline_text or None,
+        })
+    return rules
+
+
 def parse_control_body(body: str) -> dict:
     sections = split_sections(body)
 
@@ -330,7 +383,14 @@ def classify_codes(dotted: list[str], event_codes: set, field_paths: set) -> dic
 
 def build(root: str) -> dict:
     vocab_path = os.path.join(root, "core-vocabulary.json")
-    event_codes, field_paths, api_meta, _ = load_api_index(vocab_path)
+    event_codes, field_paths, api_meta, vocab = load_api_index(vocab_path)
+    actions = set((vocab or {}).get("event_types", []))
+    task_types = set((vocab or {}).get("task_types", []))
+    # Canonicalize the registered index (supply) so it matches the canonicalized cited codes
+    # (demand) — both sides go through the same event/timer canonicalization, so a fused timer
+    # registers as its dotted form rather than spuriously reading as unregistered.
+    event_codes = {canonical_code(c, actions, task_types) for c in event_codes}
+    field_paths = {canonical_code(c, actions, task_types) for c in field_paths}
 
     policy_files = find_policy_files(root)
     controls: list[dict] = []
@@ -359,7 +419,8 @@ def build(root: str) -> dict:
             body = text[start:end]
 
             parsed = parse_control_body(body)
-            api = classify_codes(parsed.pop("_all_dotted"), event_codes, field_paths)
+            dotted = [canonical_code(c, actions, task_types) for c in parsed.pop("_all_dotted")]
+            api = classify_codes(dotted, event_codes, field_paths)
             statuses = parsed.pop("_all_status")
 
             controls.append({
@@ -377,6 +438,9 @@ def build(root: str) -> dict:
                 "system_behavior": parsed["system_behavior"],
                 "alerts_metrics": parsed["alerts_metrics"],
                 "events": parsed["events"],
+                "control_rules": normalize_rules(
+                    hm.group("id"), slug, parsed["events"], actions, task_types
+                ),
                 "api_references": {
                     **api,
                     "statuses": statuses,
@@ -385,6 +449,7 @@ def build(root: str) -> dict:
 
     # roll-up stats
     n_events = sum(len(c["events"]) for c in controls)
+    n_rules = sum(len(c["control_rules"]) for c in controls)
     all_codes = set()
     reg_events = set()
     reg_fields = set()
@@ -407,6 +472,7 @@ def build(root: str) -> dict:
             "policies": len(policies_seen),
             "controls": len(controls),
             "event_rows": n_events,
+            "control_rules": n_rules,
             "unique_api_codes": len(all_codes),
             "registered_event_codes": len(reg_events),
             "registered_field_codes": len(reg_fields),
@@ -437,6 +503,7 @@ def main(argv: list[str]) -> int:
     print(f"  policies            : {s['policies']}")
     print(f"  controls            : {s['controls']}")
     print(f"  event rows          : {s['event_rows']}")
+    print(f"  control rules       : {s['control_rules']}")
     print(f"  unique API codes    : {s['unique_api_codes']}")
     print(f"  registered events   : {s['registered_event_codes']}")
     print(f"  registered fields   : {s['registered_field_codes']}")

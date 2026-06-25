@@ -1,0 +1,81 @@
+# Pile C — promotions. Heavy, well-cited vocabulary schemas elevated to first-class typed
+# resources (control_oracle.promotion_candidates surfaces the pool). The lifecycle `states` here
+# are AUTHORED JUDGMENT inferred from each schema's fields — DRAFTS, flag for compliance review.
+# promote_schema.py emits the mechanical surface (x-kind, status, x-states, REST endpoints);
+# field paths are unchanged so promotion is coverage-safe.
+#
+# Lifecycle review (applied): exception terminals added where the fields imply one
+# (risk_accepted/failed/blocked/denied/lapsed); `risk` reshaped to its monitored cycle rather
+# than a linear "-> closed". Still flagged for SME review: dispute (Reg E provisional-credit step),
+# indemnification (advances + clawback), change (emergency path) carry sub-process depth left for
+# a domain reviewer.
+#
+# Promote ONLY coherent single-concept ENTITIES that genuinely have a lifecycle. Deliberately NOT
+# promoted:
+#   * grab-bags (namespaces holding many sub-entities): eps, cda, vendor, capital, cash, record,
+#     policy, member — need decomposition first, not a flat promote.
+#   * metrics / vocabulary (no lifecycle — ratios, indicators, alert flags): liquidity, rwa, ewi,
+#     gl, stress, analytics, position, alert, security, collateral, repo, facility, affiliate.
+#   * borderline, deferred for judgment: audit, privacy, access, disclosure, comms, collections.
+#   * false "shadows" (load-bearing typed sub-records on Case/Document/Task): AuditDetail,
+#     VendorReview, VendorAlert, TrainingDetail, RiskCatalogEntry, DisclosureDetail, PolicyDoc.
+promote:
+  - name: finding
+    kind: domain
+    description: An audit, examination, or compliance finding tracked through its remediation lifecycle.
+    states: [open, in_remediation, risk_accepted, closed]
+
+  - name: complaint
+    kind: domain
+    description: A consumer or member complaint tracked from intake through investigation and resolution.
+    states: [received, investigating, resolved, closed]
+
+  - name: dispute
+    kind: domain
+    description: A Regulation E error/dispute tracked from filing through investigation to resolution.
+    states: [filed, investigating, resolved, closed]
+
+  - name: change
+    kind: domain
+    description: A change request tracked through review, deployment, and post-implementation review.
+    states: [requested, in_review, deployed, closed]
+
+  - name: trade
+    kind: domain
+    description: An investment trade tracked from entry through confirmation to settlement.
+    states: [entered, confirmed, settled, blocked]
+
+  - name: coi
+    kind: domain
+    description: A conflict-of-interest disclosure tracked from disclosure through review to determination.
+    states: [disclosed, under_review, determined]
+
+  - name: handover
+    kind: domain
+    description: A trustee/fiduciary handover tracked from initiation through provisioning to completion.
+    states: [initiated, provisioned, completed]
+
+  - name: indemnification
+    kind: domain
+    description: An indemnification request tracked from filing through determination to payment.
+    states: [requested, under_review, determined, paid]
+
+  - name: risk
+    kind: domain
+    description: A risk-register entry tracked through assessment into ongoing monitoring (remediation is a sub-process).
+    states: [registered, assessed, monitored, closed]
+
+  - name: training
+    kind: domain
+    description: A training assignment tracked from assignment through completion, with lapse on overdue cycles.
+    states: [assigned, in_progress, completed, lapsed]
+
+  - name: records_package
+    kind: domain
+    description: A records-production package tracked from request through assembly to completion.
+    states: [requested, building, complete, failed]
+
+  - name: insider
+    kind: domain
+    description: A Regulation O insider-credit request tracked through board review to approval or denial.
+    states: [requested, board_review, approved, denied]

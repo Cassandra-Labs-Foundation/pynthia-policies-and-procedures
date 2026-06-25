@@ -104,6 +104,18 @@ def _task_types_in_use() -> set:
     return {t.get("type") for t in (_migration().get("task_map") or {}).values() if t.get("type")}
 
 
+def _cited_vocab_prefixes() -> set:
+    """First dotted segment of every frozen demand code — the vocab prefixes some control still
+    cites. delete_resource refuses to drop a vocab schema in this set, making pile-A pruning safe
+    independent of the control_budget: the keep-iff-best gate alone would miss a cited deletion
+    whenever the budget has headroom above the current unregistered count."""
+    try:
+        demand = control_oracle.load_demand(DEMAND) if os.path.exists(DEMAND) else {}
+    except Exception:  # noqa: BLE001 — missing/unreadable demand just means "cite nothing known"
+        return set()
+    return {c.split(".")[0] for c in (demand.get("codes") or {})}
+
+
 def apply_op(op: dict) -> bool:
     """Apply one edit op to the OpenAPI core-api.yaml in place. Returns True iff it changed.
 
@@ -173,10 +185,14 @@ def apply_op(op: dict) -> bool:
 
     elif kind == "delete_resource" and name:
         key = _find_resource_key(schemas, name)
-        # refuse to delete a schema still referenced via $ref (it isn't an orphan, and removing
-        # it would leave a dangling ref / invalid OpenAPI). Un-reference it first.
-        if key is not None and schemas[key].get("x-kind") != "vocabulary" \
-                and not _is_referenced(doc, key):
+        # Refuse a schema still referenced via $ref (not an orphan; removing it dangles the ref).
+        # A vocabulary schema is now deletable too (pile A) — but ONLY when no control cites its
+        # prefix, so a cited registration anchor is refused here. That keeps the move safe even
+        # when control_budget has slack the keep-iff-best gate would not catch. Non-vocab
+        # resources delete as before, protected by the coverage + architecture gates.
+        if key is not None and not _is_referenced(doc, key) and not (
+                schemas[key].get("x-kind") == "vocabulary"
+                and _snake(key) in _cited_vocab_prefixes()):
             del schemas[key]
             changed = True
 
@@ -190,6 +206,61 @@ def apply_op(op: dict) -> bool:
         if rk is not None and "x-states" in schemas[rk]:
             del schemas[rk]["x-states"]
             changed = True
+
+    elif kind == "extract_base" and name:
+        # Factor a repeated field cluster into a base schema the members compose via allOf:[$ref].
+        # Only fields whose definition is IDENTICAL across every named member are extracted (a
+        # differing definition — e.g. a per-member enum — is left in place, never lossily merged).
+        # Members keep their remaining own properties; the shared ones move to the base once.
+        fields = [f for f in (op.get("fields") or []) if isinstance(f, str)]
+        members = [m for m in (op.get("members") or []) if isinstance(m, str)]
+        member_keys = [k for m in members for k in (
+            [m] if m in schemas else [kk for kk in schemas if _snake(kk) == _snake(m)])]
+        member_keys = [k for k in dict.fromkeys(member_keys)]  # dedupe, preserve order
+        if name in schemas or len(member_keys) < 2:
+            return False  # base name taken, or nothing to factor
+        # keep fields present in EVERY member with a STRUCTURALLY identical definition — comparing
+        # only the schema keys (type/format/enum/items/$ref), not the derived metadata
+        # (x-bound-controls/description) that derive_bound_controls + author_descriptions stamp
+        # per-schema. The base carries the structural def + the UNION of the members' bindings, so a
+        # generic field individualized only by its compliance metadata still factors (and no binding
+        # is lost — it moves to the shared base).
+        _meta = ("x-bound-controls", "description")
+        def _struct(d):
+            return {k: v for k, v in d.items() if k not in _meta} if isinstance(d, dict) else d
+        safe: dict = {}
+        for f in fields:
+            defs = [(schemas[k].get("properties") or {}).get(f) for k in member_keys]
+            if any(d is None for d in defs):
+                continue  # not present in every member
+            if any(not isinstance(d, dict) for d in defs):
+                if all(d == defs[0] for d in defs):
+                    safe[f] = defs[0]
+                continue
+            if all(_struct(d) == _struct(defs[0]) for d in defs):
+                base_def = dict(_struct(defs[0]))
+                bound = sorted({c for d in defs for c in (d.get("x-bound-controls") or [])})
+                if bound:
+                    base_def["x-bound-controls"] = bound
+                desc = next((d.get("description") for d in defs if d.get("description")), None)
+                if desc:
+                    base_def["description"] = desc
+                safe[f] = base_def
+        if not safe:
+            return False  # no structurally-shared field — refuse, no-op (scorer judges economics)
+        ref = {"$ref": f"#/components/schemas/{name}"}
+        schemas[name] = {"type": "object", "x-kind": "mixin", "properties": safe,
+                         "description": f"Extracted base: fields shared identically by "
+                                        f"{len(member_keys)} schemas."}
+        for k in member_keys:
+            props = schemas[k].get("properties") or {}
+            for f in safe:
+                props.pop(f, None)
+            schemas[k]["properties"] = props
+            allof = schemas[k].setdefault("allOf", [])
+            if ref not in allof:
+                allof.append(ref)
+        changed = True
 
     if changed:
         with open(SPEC, "w", encoding="utf-8") as fh:
@@ -268,6 +339,12 @@ def propose_greedy(demand, vocab, result) -> dict:
             return {"op": "delete_endpoint", "path": path,
                     "label": f"delete orphan endpoint {path}",
                     "note": "no backing resource and not an architecture-mandated/exempt endpoint"}
+    # pile A: reclaim the vocabulary tier — delete a schema no control cites. apply_op refuses any
+    # vocab schema still cited, so this cannot drop live demand; it only retires dead registration.
+    for c in (result["coverage"].get("prunable_vocab_schemas") or []):
+        return {"op": "delete_resource", "name": c["schema"],
+                "label": f"prune uncited vocab schema {c['schema']}",
+                "note": f"{c['fields']} field(s), cited by 0 controls — reclaims the registration tier"}
     return {"op": "noop", "label": None, "note": "greedy: no beneficial move left"}
 
 
@@ -293,7 +370,17 @@ def build_llm_prompt(demand, vocab, result) -> str:
             "task_types": inv["task_types"],
             "field_count": inv["field_count"],
         },
+        # structural signals (from the conformance + factoring oracles, via score.py)
+        "regularity": result.get("regularity"),
+        "irregularity": result.get("irregularity"),
+        "factoring": result.get("factoring"),
+        "redundancy": result.get("redundancy"),
     }
+    try:
+        import move_memory
+        memory_block = move_memory.render_for_prompt()
+    except Exception:
+        memory_block = ""
     schema = (
         'Emit EXACTLY ONE move as a single-line JSON object on the LAST line, with keys '
         '"op","label","note" plus op args. Valid ops:\n'
@@ -301,10 +388,14 @@ def build_llm_prompt(demand, vocab, result) -> str:
         '  {"op":"add_event_type","name":"verb"}\n'
         '  {"op":"delete_field","path":"x.y"}                     delete an orphan\n'
         '  {"op":"delete_endpoint","path":"/cases"}\n'
-        '  {"op":"delete_resource","name":"Foo"}\n'
+        '  {"op":"delete_resource","name":"Foo"}                   resource orphan OR an uncited vocab schema\n'
         '  {"op":"delete_state_machine","name":"Foo"}\n'
         '  {"op":"delete_event_type","name":"verb"}\n'
         '  {"op":"delete_task_type","name":"type"}\n'
+        '  {"op":"extract_base","name":"BaseX","fields":["id","status"],"members":["Foo","Bar"]}\n'
+        '                                                         factor a repeated field cluster into a\n'
+        '                                                         composed base (lowers redundancy); only\n'
+        '                                                         fields identical across all members move\n'
         '  {"op":"noop"}                                          if no beneficial move remains\n'
     )
     return (
@@ -313,14 +404,24 @@ def build_llm_prompt(demand, vocab, result) -> str:
         "if it doesn't help, so propose your single best move.\n\n"
         "=== CONTRACT (program.md) ===\n" + program + "\n\n"
         "=== CURRENT STATE (score.py) ===\n" + json.dumps(ctx, indent=2) + "\n\n"
-        "=== HOW TO CHOOSE ===\n"
+        + (memory_block + "\n\n" if memory_block else "")
+        + "=== HOW TO CHOOSE ===\n"
         "Follow Elon ordering. If control violations > 0 (infeasible), the dominant cost is the "
         "gap: register a high-ref unregistered code (add_field, or add_event_type if it is a verb), "
         "or delete an orphan that opens no gap. Once feasible, delete/merge orphans to cut "
         "complexity (concepts are weighted heaviest). Never delete an element the architecture "
         "requires. Do NOT delete_event_type / delete_task_type for a verb still referenced by event "
         "or task data — those codes register by NAME so the score won't drop, the move is refused, "
-        "and you've wasted the turn. If nothing helps, emit noop.\n\n"
+        "and you've wasted the turn.\n"
+        "Then attack structure (step 4): if `regularity` shows namespace_gaps, register the implied "
+        "field; if `factoring.mixin_candidates` lists a cluster, `extract_base` it. These add an "
+        "element but retire more irregularity/redundancy — a net win. Never break an invariant "
+        "(x-actions/x-timers/$ref must resolve) — that is a hard violation. If nothing helps, noop.\n"
+        "Vocabulary tier: `coverage.prunable_vocab_schemas` are vocab schemas NO control cites — "
+        "`delete_resource` them to reclaim the registration tier (a still-cited anchor is auto-refused, "
+        "so this cannot drop live demand). `coverage.promotion_candidates` are heavy, well-cited vocab "
+        "schemas that act like typed resources; they are ADVISORY for human review only — there is no "
+        "promote op and flipping x-kind would only RAISE complexity, so do NOT act on them here.\n\n"
         "=== OUTPUT ===\n" + schema +
         "\nThink briefly, then output the single-line JSON op as the final line."
     )

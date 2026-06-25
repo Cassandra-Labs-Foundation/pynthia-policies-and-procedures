@@ -204,15 +204,26 @@ def resolve_directive(
     memo: dict[str, str],
 ) -> tuple[str, str]:
     """Return (stdout, source_label). Updates `memo` keyed by cache key."""
-    # Cache key: sha256(command || script_bytes || core-vocabulary.json bytes)
+    # Cache key: sha256(command || dependency .py bytes || core-vocabulary.json bytes).
+    # Hash the referenced skill script AND its likely Python dependencies, so an edit to a SHARED
+    # module (e.g. scripts/code_format.py, imported by extract_vocabulary.py) invalidates the cache
+    # too. Hashing only the directly-named script would miss transitive changes and serve stale
+    # DESIGN_NOTES. Dep set = the skill's own dir + the repo scripts/ dir (where shared modules live).
     h = hashlib.sha256()
     h.update(command.encode())
-    # If command references a script under .skills, include the script's bytes.
+    dep_dirs = [project_root / "scripts"]
     script_m = re.search(r"(\.skills/[\w\-/]+\.py)", command)
     if script_m:
         script_path = project_root / script_m.group(1)
         if script_path.exists():
-            h.update(script_path.read_bytes())
+            dep_dirs.append(script_path.parent)
+    hashed: set[Path] = set()
+    for d in dep_dirs:
+        if d.is_dir():
+            for py in sorted(d.glob("*.py")):
+                if py not in hashed:
+                    hashed.add(py)
+                    h.update(py.read_bytes())
     vocab_path = project_root / "core-vocabulary.json"
     if vocab_path.exists():
         h.update(vocab_path.read_bytes())

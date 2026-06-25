@@ -31,6 +31,24 @@ from pathlib import Path
 SCRIPT_DIR = Path(__file__).resolve().parent
 DEFAULT_INPUT = SCRIPT_DIR.parent.parent.parent / "core-vocabulary.json"
 
+# Canonicalize event codes to object.property.action ON EMIT, so the DESIGN_NOTES the policy
+# generator reuses shows the canonical dotted form — not the stored fused spelling. Without this,
+# meta-prompt rule 1 ("reuse the exact registered spelling") faithfully reproduces fused codes and
+# the new scheme is only adopted for newly-composed codes. See scripts/code_format.py.
+sys.path.insert(0, str(SCRIPT_DIR.parent.parent.parent / "scripts"))
+try:
+    import code_format  # noqa: E402
+except Exception:  # pragma: no cover — degrade to raw codes if the canonicalizer is unavailable
+    code_format = None
+
+
+def _canon(code, actions, task_types=frozenset()):
+    """Code -> canonical dotted form under EITHER grammar (event object.property.action or timer
+    object.task_type.due_at); idempotent, non-conforming codes unchanged."""
+    if code_format and code and code != "?":
+        return code_format.canonical_code(code, actions, task_types)
+    return code
+
 
 def one_line(text, max_chars=120):
     """Collapse multi-line descriptions to a single readable line."""
@@ -161,6 +179,8 @@ def render_events_and_endpoints(data):
     lines = []
     events = data.get("events", [])
     endpoints = data.get("endpoints", [])
+    actions = set(data.get("event_types", []))    # registered action vocabulary (x-event-types)
+    task_types = set(data.get("task_types", []))  # registered task-type vocabulary (timer obligations)
 
     lines.append("## Events")
     lines.append("")
@@ -172,7 +192,7 @@ def render_events_and_endpoints(data):
                 "| "
                 + " | ".join(
                     [
-                        f"`{escape_cell(ev.get('name') or ev.get('code') or '?')}`",
+                        f"`{escape_cell(_canon(ev.get("name") or ev.get("code") or "?", actions, task_types))}`",
                         escape_cell(ev.get("entity") or ""),
                         escape_cell(one_line(ev.get("description"))),
                     ]
@@ -206,7 +226,7 @@ def render_events_and_endpoints(data):
         path = ep.get("path", "")
         summary = one_line(ep.get("summary"))
         control_refs = ", ".join(ep.get("control_refs") or [])
-        audit_events = ", ".join(ep.get("audit_events") or [])
+        audit_events = ", ".join(_canon(e, actions, task_types) for e in (ep.get("audit_events") or []))
         lines.append(
             "| "
             + " | ".join(
@@ -309,9 +329,18 @@ def render_tasks_and_timers(data):
 def render_composition_grammar(data):
     """Render the closed-world rules for coining any NEW code.
 
-    The lean spec deliberately registers generic verbs and task types and
-    composes domain codes as subject + verb (events) or subject + task
-    type (tasks). A policy must never invent codes outside this grammar.
+    The lean spec deliberately registers generic actions (verbs) and task types
+    and composes domain codes as **object.property.action** (events) or
+    object + task type (tasks). The three pieces are the primitives:
+
+      - object   : a registered entity / code prefix  (the noun)
+      - property : a registered field of that object  (the data point)
+      - action   : a registered action verb           (what happened)
+
+    An event is one combination of those three: a property of an object
+    undergoing an action — `record.retention_clock.set`. Whole-object lifecycle
+    events carry no property — `incident.classified`. A policy must never invent
+    codes outside this grammar.
     """
     verbs = data.get("event_types", [])
     task_types = data.get("task_types", [])
@@ -321,34 +350,50 @@ def render_composition_grammar(data):
 
     lines = ["## Composition grammar (rules for any NEW code)", ""]
     lines.append(
-        "The engineering vocabulary is **closed-world and compositional**. "
-        "Before citing any code not listed elsewhere in this document, apply "
-        "these rules in order:"
+        "The engineering vocabulary is **closed-world and compositional**. Every "
+        "code is one object viewed through a facet: `object.property` is a **field** "
+        "(a data point), `object.property.action` is an **event** (that field "
+        "changed), `object.task_type.due_at` is a **timer** (an obligation), and a "
+        "lifecycle **state** is the result of an action (the action that reaches it). "
+        "Object, action, and task type are closed registries (listed below); "
+        "property is a field of the object. Before citing any code not listed "
+        "elsewhere in this document, apply these rules in order:"
     )
     lines.append("")
     lines.append(
         "1. **Reuse first.** Search the field tables above for an existing "
-        "field with the same meaning — including the same field name under a "
-        "different entity (e.g. prefer `incident.description` over coining "
+        "`object.property` with the same meaning — including the same property "
+        "under a different object (e.g. prefer `incident.description` over coining "
         "`complaint.description` if the complaint is modeled as an incident). "
-        "Do the same for events and tasks/timers."
+        "Do the same for actions and tasks/timers."
     )
     lines.append(
         "2. **Compose, don't invent.** A new *event* code must be "
-        "`<registered subject>.<phrase ending in a registered verb>`. A new "
-        "*task or timer* code must use a registered task type. Deadlines are "
-        "`Task` instances (`type` + `subject_ref` + `due_at`) — never a new "
-        "per-domain `*_due_at` field."
+        "`<registered object>.<property>.<registered action>`, where the property "
+        "is a registered field of that object and the action is one of the "
+        "registered actions below. Omit the property only for a whole-object "
+        "lifecycle event (`<object>.<action>`, e.g. `record.disposed`). A new "
+        "*timer* code must be `<registered object>.<registered task type>.due_at` "
+        "— a `Task` instance (`subject_ref` = the object, `type` = the task type, "
+        "`due_at`), never a new per-domain `*_due_at` field."
     )
     lines.append(
-        "3. **Stay inside the subject registry.** Do not mint a new subject "
-        "(code prefix). If no registered subject fits, that is a gap to flag "
-        "in Assumptions & Gaps, not a license to create one."
+        "3. **Stay inside the registries.** Do not mint a new object (prefix) or "
+        "a new action. If no registered object or action fits, that is a gap to "
+        "flag in Assumptions & Gaps, not a license to create one. A new "
+        "*property* on a registered object is allowed when no registered field "
+        "fits — cite it and flag it as provisional."
     )
     lines.append("")
+    if subjects:
+        lines.append(
+            f"**Registered objects ({len(subjects)}):** "
+            + ", ".join(f"`{s}`" for s in subjects)
+        )
+        lines.append("")
     if verbs:
         lines.append(
-            f"**Registered event verbs ({len(verbs)}):** "
+            f"**Registered actions ({len(verbs)}):** "
             + ", ".join(f"`{v}`" for v in verbs)
         )
         lines.append("")
@@ -356,12 +401,6 @@ def render_composition_grammar(data):
         lines.append(
             f"**Registered task types ({len(task_types)}):** "
             + ", ".join(f"`{t}`" for t in task_types)
-        )
-        lines.append("")
-    if subjects:
-        lines.append(
-            f"**Registered subjects ({len(subjects)}):** "
-            + ", ".join(f"`{s}`" for s in subjects)
         )
         lines.append("")
     return lines

@@ -219,6 +219,25 @@ def build(spec, migration_doc):
         and (entry.get("ref") or token) not in registered_paths
     })
 
+    # Canonicalize every field path + event code to the dotted form under BOTH grammars (event
+    # object.property.action / timer object.[qualifier.]task_type.due_at), so core-vocabulary.json —
+    # the single source of registered codes — is the canonical form every downstream consumer
+    # (controls, DESIGN_NOTES, oracles) matches against. The fused spellings never escape the parser.
+    try:
+        import code_format  # scripts/ is on sys.path for every caller
+        _acts, _tts = set(spec.get("event_types") or []), set(task_types)
+        for _f in fields:
+            _cp = code_format.canonical_code(_f["path"], _acts, _tts)
+            if _cp != _f["path"]:
+                _f["path"] = _cp
+                _f["field"] = _cp.split(".", 1)[1] if "." in _cp else _cp
+        for _e in events:
+            for _k in ("code", "name"):
+                if _e.get(_k):
+                    _e[_k] = code_format.canonical_code(_e[_k], _acts, _tts)
+    except Exception:  # pragma: no cover — never let canonicalization break parsing
+        pass
+
     meta_in = spec.get("meta") or {}
     out = {
         "meta": {
@@ -275,12 +294,39 @@ def openapi_to_spec(doc):
             return [rewrite_refs(x) for x in obj]
         return obj
 
+    def merged_props(key, sch, _seen=None):
+        """Properties of a schema INCLUDING those inherited via allOf:[{$ref: Base}], so a member
+        that factors shared fields into a base still exposes them under its own path (e.g.
+        beneficiary.name survives when name moves to a PartyBase mixin). The member's own property
+        wins over an inherited one. Without this, factoring would drop inherited paths and silently
+        un-register every control citing them."""
+        _seen = _seen or set()
+        if key in _seen:
+            return dict(sch.get("properties") or {})
+        _seen = _seen | {key}
+        props = dict(sch.get("properties") or {})
+        for item in (sch.get("allOf") or []):
+            if not isinstance(item, dict):
+                continue
+            ref = item.get("$ref")
+            if isinstance(ref, str) and ref.startswith("#/components/schemas/"):
+                base = schemas.get(ref.rsplit("/", 1)[-1])
+                if base:
+                    for p, ps in merged_props(ref.rsplit("/", 1)[-1], base, _seen).items():
+                        props.setdefault(p, ps)
+            for p, ps in (item.get("properties") or {}).items():
+                props.setdefault(p, ps)
+        return props
+
     resources, fields = {}, {}
     for key, sch in schemas.items():
         if sch.get("x-vocabulary") is False:
             continue  # API-plumbing schema (Error/Pagination/...) — not domain vocabulary
+        if sch.get("x-kind") == "mixin":
+            continue  # extracted base — its fields register via each member's flattened allOf
+        props = merged_props(key, sch)
         if sch.get("x-kind") == "vocabulary":
-            for prop, ps in (sch.get("properties") or {}).items():
+            for prop, ps in props.items():
                 fields[f"{key}.{prop}"] = ps.get("type") if isinstance(ps, dict) else ps
         else:
             rspec = {"kind": sch.get("x-kind")}
@@ -288,7 +334,7 @@ def openapi_to_spec(doc):
                 rspec["states"] = sch["x-states"]
             if "x-retention" in sch:
                 rspec["retention"] = sch["x-retention"]
-            rspec["properties"] = {p: rewrite_refs(ps) for p, ps in (sch.get("properties") or {}).items()}
+            rspec["properties"] = {p: rewrite_refs(ps) for p, ps in props.items()}
             resources[key] = rspec
 
     endpoints = {}

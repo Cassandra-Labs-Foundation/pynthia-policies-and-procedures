@@ -2,3 +2,5 @@
 .cache/
 .fuse_hidden*
 .env.local
+__pycache__/
+*.pyc

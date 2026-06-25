@@ -52,6 +52,33 @@ def main() -> int:
             continue
         prefix_schema[_snake(key) if s.get("x-kind") != "vocabulary" else key] = key
 
+    # Clear existing bindings first so re-runs are idempotent: a base property accumulates the
+    # UNION across the members that cite it (below), so without a reset a re-run would keep stale
+    # control ids from a prior derivation.
+    for s in schemas.values():
+        for p in (s.get("properties") or {}).values():
+            if isinstance(p, dict):
+                p.pop("x-bound-controls", None)
+
+    def resolve_prop(skey, rest, seen=None):
+        """Find a property in a schema OR its allOf:[$ref] bases — a field factored into a base
+        is cited under the member's path but owned by the base, so the binding belongs on the base.
+        Multiple members citing the same inherited field accumulate onto the one base property."""
+        seen = seen or set()
+        if skey in seen:
+            return None
+        sch = schemas.get(skey) or {}
+        prop = (sch.get("properties") or {}).get(rest)
+        if isinstance(prop, dict):
+            return prop
+        for item in (sch.get("allOf") or []):
+            ref = item.get("$ref") if isinstance(item, dict) else None
+            if isinstance(ref, str) and ref.startswith("#/components/schemas/"):
+                r = resolve_prop(ref.rsplit("/", 1)[-1], rest, seen | {skey})
+                if r is not None:
+                    return r
+        return None
+
     stamped = 0
     for code, cids in field_controls.items():
         prefix, _, rest = code.partition(".")
@@ -60,9 +87,10 @@ def main() -> int:
         skey = prefix_schema.get(prefix)
         if not skey:
             continue
-        prop = (schemas[skey].get("properties") or {}).get(rest)
+        prop = resolve_prop(skey, rest)
         if isinstance(prop, dict):
-            prop["x-bound-controls"] = sorted(cids)
+            # union, since a base property is shared by multiple members that may cite distinct controls
+            prop["x-bound-controls"] = sorted(set(prop.get("x-bound-controls") or []) | set(cids))
             stamped += 1
 
     with open(SPEC, "w", encoding="utf-8") as fh:

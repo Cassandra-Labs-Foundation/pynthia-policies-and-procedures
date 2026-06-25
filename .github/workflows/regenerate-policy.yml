@@ -98,6 +98,11 @@ jobs:
       # Serialize repeat runs for the same policy; different policies run free.
       group: regen-${{ matrix.slug }}
       cancel-in-progress: false
+    env:
+      # Never write .pyc — importing policy-prep would otherwise drop a
+      # __pycache__/*.pyc into the tree and each parallel PR would carry a
+      # different one, causing merge conflicts.
+      PYTHONDONTWRITEBYTECODE: "1"
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -107,44 +112,64 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install light conversion tools (pdf + docx)
+      - name: Detect reference-conversion needs
+        id: conv
         shell: bash
         run: |
           set -euo pipefail
-          # Cheap + fast: poppler (pdftotext) ~5s, mammoth (docx) pip ~3s.
-          # These only actually run on a reference cache-miss; install is the floor cost.
-          sudo apt-get update
-          sudo apt-get install -y poppler-utils
-          python3 -m pip install --upgrade pip
-          python3 -m pip install mammoth
+          # A reference source needs (re)conversion only if its committed .md
+          # sidecar is missing or its hash is stale. On a normal prompt.md run
+          # references/ is untouched -> every sidecar fresh -> nothing to install.
+          stale() {  # stale <ext> -> echoes 1 if any matching source needs conversion
+            local ext="$1"
+            for f in "${{ matrix.slug }}"/references/*."$ext"; do
+              [ -e "$f" ] || continue
+              local sc="$f.md"
+              [ -f "$sc" ] || { echo 1; return; }
+              local rec cur
+              rec="$(sed -n '1{s/.*source-sha256="\([0-9a-f]\{64\}\)".*/\1/p;}' "$sc")"
+              cur="$(sha256sum "$f" | cut -d' ' -f1)"
+              [ "$rec" = "$cur" ] || { echo 1; return; }
+            done
+            echo 0
+          }
+          pdf="$(stale pdf)"; docx="$(stale docx)"; doc="$(stale doc)"
+          echo "pdf=$pdf"   >> "$GITHUB_OUTPUT"   # poppler (pdftotext)
+          echo "docx=$docx" >> "$GITHUB_OUTPUT"   # mammoth
+          echo "doc=$doc"   >> "$GITHUB_OUTPUT"   # libreoffice + mammoth
+          if [ "$pdf$docx$doc" = "000" ]; then
+            echo "any=0" >> "$GITHUB_OUTPUT"
+            echo "All reference sidecars fresh -> no conversion tools needed."
+          else
+            echo "any=1" >> "$GITHUB_OUTPUT"
+            echo "Cache-miss: pdf=$pdf docx=$docx doc=$doc -> installing only what's needed."
+          fi
 
-      - name: Decide if libreoffice is needed (.doc conversion)
-        id: libre
+      - name: Install conversion tools (only on a reference cache-miss)
+        if: steps.conv.outputs.any == '1'
         shell: bash
         run: |
           set -euo pipefail
-          # libreoffice (~90s install) is needed ONLY to convert a .doc source
-          # whose committed .md sidecar is missing or stale. On a normal
-          # prompt.md-triggered run references/ is untouched, so we skip it.
-          need=0
-          for doc in "${{ matrix.slug }}"/references/*.doc; do
-            [ -e "$doc" ] || continue
-            sc="$doc.md"
-            if [ ! -f "$sc" ]; then need=1; break; fi
-            rec="$(sed -n '1{s/.*source-sha256="\([0-9a-f]\{64\}\)".*/\1/p;}' "$sc")"
-            cur="$(sha256sum "$doc" | cut -d' ' -f1)"
-            [ "$rec" = "$cur" ] || { need=1; break; }
-          done
-          echo "need=$need" >> "$GITHUB_OUTPUT"
-          [ "$need" = 1 ] && echo "Stale/new .doc found -> will install libreoffice." \
-                          || echo "All .doc sidecars fresh -> skipping libreoffice."
-
-      - name: Install libreoffice (only when a .doc must be converted)
-        if: steps.libre.outputs.need == '1'
-        shell: bash
-        run: |
-          set -euo pipefail
-          sudo apt-get install -y libreoffice-writer
+          # Install only the missing binaries for the extensions that changed.
+          # command -v guards skip apt entirely if the runner already ships them
+          # (ubuntu-latest often does), and we only pay apt-get update when an
+          # apt package is genuinely required.
+          pkgs=""
+          [ "${{ steps.conv.outputs.pdf }}" = "1" ] && ! command -v pdftotext >/dev/null && pkgs="$pkgs poppler-utils"
+          [ "${{ steps.conv.outputs.doc }}" = "1" ] && ! command -v soffice    >/dev/null && pkgs="$pkgs libreoffice-writer"
+          if [ -n "$pkgs" ]; then
+            # ForceIPv4 + bounded retries/timeout: the azure.archive.ubuntu.com
+            # mirror's IPv6 path frequently stalls apt for minutes on GitHub
+            # runners (the repeated "Ign:" lines). Pin IPv4 + cap retries so a
+            # flaky mirror can't hang the job; --no-install-recommends trims size.
+            APT_OPTS="-o Acquire::ForceIPv4=true -o Acquire::Retries=3 -o Acquire::http::Timeout=20"
+            sudo apt-get $APT_OPTS update
+            sudo apt-get $APT_OPTS install -y --no-install-recommends $pkgs
+          fi
+          # mammoth handles .docx and the .doc->.docx output; pip, no apt.
+          if [ "${{ steps.conv.outputs.docx }}" = "1" ] || [ "${{ steps.conv.outputs.doc }}" = "1" ]; then
+            python3 -m pip install mammoth
+          fi
 
       - name: Install Anthropic SDK
         shell: bash
@@ -160,8 +185,8 @@ jobs:
           set -euo pipefail
           # Reuses policy-prep in-process for the optimized, content-hashed
           # document reading, then makes one cached API call (structured policy)
-          # and stamps this policy's STATUS.md row. Bump to claude-opus-4-8 for
-          # max quality.
+          # and writes this policy's own <slug>.status.md. Bump to
+          # claude-opus-4-8 for max quality.
           python3 scripts/regenerate_policy.py "${{ matrix.slug }}" \
             --model claude-sonnet-4-6
 
@@ -171,6 +196,14 @@ jobs:
           commit-message: "policy: regenerate ${{ matrix.slug }} from prompt.md change"
           branch: regen/${{ matrix.slug }}-${{ github.run_id }}
           base: ${{ github.ref_name }}
+          # Commit ONLY this policy's outputs: the generated policy and any
+          # refreshed reference sidecars. Scoping per-slug means parallel PRs
+          # never touch a shared file (STATUS.md, __pycache__, etc.) and so
+          # cannot conflict with each other.
+          add-paths: |
+            ${{ matrix.slug }}/${{ matrix.slug }}.md
+            ${{ matrix.slug }}/${{ matrix.slug }}.status.md
+            ${{ matrix.slug }}/references/**
           title: "Regenerate policy: ${{ matrix.slug }}"
           body: |
             Automated regeneration triggered by a change to `${{ matrix.slug }}/prompt.md`.

@@ -1,0 +1,17 @@
+# factoring-overlay.yaml — CURATED schema consolidations (reviewed, semantically-coherent bases only).
+#
+# factor_schemas.py applies these exact bases when this file is present, instead of auto-extracting
+# every structural factoring_oracle candidate (which over-merges distinct concepts that merely share
+# a field name). Each base lists the shared fields + the member schemas that compose it via allOf.
+# A field is only moved if it is structurally identical across all members (the base carries the
+# union of x-bound-controls), so the consolidation is lossless and coverage-safe.
+bases:
+  # The party-identity fields (name + routing number) are shared by every party role on a transfer.
+  PartyBase:
+    fields: [name, routing_number]
+    members: [Party, Beneficiary, Counterparty, Originator]
+  # The review-deadline facet (a review_due date + due-at timer) recurs across schemas that carry a
+  # periodic-review obligation — a cross-cutting trait, composed rather than an entity identity.
+  ReviewDueBase:
+    fields: [review_due, review_due_at]
+    members: [access, bia, credit_box, firewall, instrument_list, intermediary, limit_set, policy]
