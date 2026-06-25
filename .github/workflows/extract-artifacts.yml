@@ -1,0 +1,95 @@
+name: Rebuild controls + vocabulary artifacts
+
+# Deterministic, mechanical re-extraction. Whenever a generated policy ({slug}.md),
+# the engineering spec (core-api.yaml / vocab-migration.json), or the extractor
+# scripts change on main, this rebuilds the four derived JSON artifacts and
+# auto-commits whatever actually changed straight back to main.
+#
+# These are pure functions of their inputs (stdlib-only, sub-second, no API key),
+# so there is nothing to review — the diff just mirrors the source change that was
+# already reviewed. Hence: commit to main, no PR.
+#
+# Pipeline (dependency order):
+#   core-api.yaml + vocab-migration.json --parse_core_api.py-->        core-vocabulary.json
+#   policies {slug}.md  (+ core-vocabulary.json to classify) --extract_controls.py-->  controls.json
+#   controls.json + core-vocabulary.json --build_control_vocabulary.py--> control-vocabulary.json
+#   policies {slug}.md --extract_vocab.py-->                            extracted-vocab.json
+#
+# Loop-safety (three independent guarantees):
+#   1. A push made with GITHUB_TOKEN does NOT trigger further workflow runs.
+#   2. The artifacts are root-level JSON — they match none of the trigger paths.
+#   3. The commit step is a no-op when nothing changed.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "*/*.md"             # generated {slug}/{slug}.md
+      - "!**/prompt.md"      # prompt.md is a regen INPUT, not an extraction input
+      - "core-api.yaml"
+      - "vocab-migration.json"
+      - "scripts/*.py"       # extractor logic (incl. code_format.py)
+  workflow_dispatch: {}      # manual full rebuild
+
+permissions:
+  contents: write
+
+concurrency:
+  # Serialize runs so two rebuilds never race to push main. Let each finish —
+  # a cancelled rebuild could leave a stale artifact uncommitted.
+  group: extract-artifacts-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    env:
+      # Don't litter scripts/__pycache__ when extract_controls imports code_format.
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          # Full history so the post-rebuild push can fast-forward cleanly.
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install PyYAML
+        # Only parse_core_api.py needs it; the other three extractors are stdlib-only.
+        run: python3 -m pip install pyyaml
+
+      - name: Rebuild artifacts (dependency order)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/parse_core_api.py              # -> core-vocabulary.json
+          python3 scripts/extract_controls.py            # -> controls.json
+          python3 scripts/build_control_vocabulary.py    # -> control-vocabulary.json
+          python3 scripts/extract_vocab.py .             # -> extracted-vocab.json
+
+      - name: Commit refreshed artifacts to main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          arts="controls.json control-vocabulary.json core-vocabulary.json extracted-vocab.json"
+          git add -- $arts
+
+          if git diff --cached --quiet; then
+            echo "Artifacts already current — nothing to commit."
+            exit 0
+          fi
+
+          echo "Changed artifacts:"; git diff --cached --name-only
+          git commit -m "chore(artifacts): rebuild controls + vocabulary from ${GITHUB_SHA::7}"
+
+          # Race guard: a concurrent run (or human) may have moved main meanwhile.
+          # --autostash is a no-op here (tree is clean post-commit) but harmless.
+          git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
