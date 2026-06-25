@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Extract vocabulary tokens from generated policy/procedure documents.
 
-Scans each policy folder for its generated output (`<slug>/<slug>.md` and
-`<slug>/<slug>-narrative.md`), pulling every backticked dotted token like
+Scans each policy folder for its generated output (`<slug>/<slug>.md`),
+pulling every backticked dotted token like
 `audit.committee_meeting_scheduled`. Prompts, NOTES.md, and references/ are
 ignored — only generated artifacts count.
 
@@ -45,9 +45,9 @@ def generated_files(root: Path):
     """Yield (slug, path) for each generated policy doc."""
     for folder in sorted(p for p in root.iterdir() if p.is_dir() and not p.name.startswith(".")):
         slug = folder.name
-        for candidate in (folder / f"{slug}.md", folder / f"{slug}-narrative.md"):
-            if candidate.is_file():
-                yield slug, candidate
+        candidate = folder / f"{slug}.md"
+        if candidate.is_file():
+            yield slug, candidate
 
 
 def extract(root: Path) -> dict:
