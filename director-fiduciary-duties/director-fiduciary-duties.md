@@ -7,7 +7,7 @@ effective: 2026-07-01
 next_review: 2027-07-01
 approvers:
   - Patrick Wilson, Chief Compliance Officer
-tags: [Compliance, Fiduciary Duties, Conflicts of Interest, Insider Lending, Affiliate Transactions, Corporate Governance]
+tags: [Compliance, Fiduciary Duties, Conflicts of Interest, Insider Transactions, Affiliate Transactions, Corporate Governance]
 ---
 ```
 
