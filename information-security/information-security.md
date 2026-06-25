@@ -42,8 +42,8 @@ Pynthia Credit Union maintains a risk-based information security program that pr
 | Data disposal | Retention eligibility reached (`record.retention.expired`) | 30 days | Disposal certificate | [IS-07](#is-07-data-protection-encryption-and-disposal) |
 | Weekly backup restore verification | Weekly cycle (`backup.cycle.completed`) | Weekly | Restore test result | [IS-08](#is-08-backup-and-disaster-recovery) |
 | Annual DR exercise | Annual cycle | Annual | DR exercise after-action report | [IS-08](#is-08-backup-and-disaster-recovery) |
-| NCUA cyber incident notification | Reportable incident determined (`incident.security.confirmed`) | 72 hours | NCUA notification record | [IS-09](#is-09-incident-response-and-cyber-incident-reporting) |
-| Member notice — data breach | Incident closed/member impact confirmed | Without unreasonable delay | Member notice per Appendix B | [IS-09](#is-09-incident-response-and-cyber-incident-reporting) |
+| NCUA cyber incident notification | Reportable incident determined (`incident.reportability_determination`) | 72 hours | NCUA notification record | [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification) |
+| Member notice — data breach | Member impact confirmed | Without unreasonable delay | Member notice per Appendix B | [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification) |
 | Red-flag case review | Red flag detected (`redflag.detected`) | Same day | Red-flag case record | [IS-10](#is-10-identity-theft-red-flags-program) |
 | Red-flag ruleset quarterly review | Quarter closes (`security.quarter.closed`) | Quarterly | Updated ruleset record | [IS-10](#is-10-identity-theft-red-flags-program) |
 | Vendor security triage (breach notice) | Vendor breach notified (`vendor.breach.notified`) | 1 business day | Triage record | [IS-11](#is-11-vendor-information-security-diligence) |
@@ -204,22 +204,37 @@ Pynthia Credit Union maintains a risk-based information security program that pr
 
 ---
 
-## IS-09 — Incident Response and Cyber Incident Reporting {#is-09-incident-response-and-cyber-incident-reporting}
+## SC-01 — NCUA Reportable Cyber-Incident & Member Notification {#sc-01-ncua-reportable-cyber-incident-member-notification}
 
-**WHY (Reg cite):** [NCUA 12 CFR Part 748 §748.1(c)](https://www.ecfr.gov/current/title-12/part-748) requires credit unions to notify NCUA within 72 hours of determining a reportable cyber incident. [NCUA 12 CFR Part 748, Appendix B](https://www.ecfr.gov/current/title-12/part-748) requires a member notification program for unauthorized access to sensitive member information. [GLBA 15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801) requires safeguards and response programs for breaches.
+**WHY (Reg cite):** [NCUA 12 CFR Part 748 §748.1(c)](https://www.ecfr.gov/current/title-12/part-748) requires credit unions to notify NCUA within 72 hours of determining a reportable cyber incident. [NCUA 12 CFR Part 748, Appendix B](https://www.ecfr.gov/current/title-12/part-748) requires a member notification program for unauthorized access to sensitive member information.
 
-**SYSTEM BEHAVIOR:** The IR plan, incident commander roster, and playbooks are maintained and tested. When an incident is declared, the incident commander is assigned and the first-hour checklist is executed. Reportability is assessed as soon as material facts are known; once a reportable cyber incident is determined, NCUA notification must be sent within 72 hours. Member notice is sent without unreasonable delay per Appendix B criteria. Law enforcement coordination is documented in the incident record. The incident record is write-restricted to the assigned incident commander and CCO; the NCUA notification field is write-restricted to the CCO.
+**SYSTEM BEHAVIOR:** Once a reportable cyber incident is determined, NCUA notification must be sent within 72 hours of that determination. Member notice is sent without unreasonable delay per Appendix B criteria once misuse of member information is determined likely. The reportability determination and the NCUA-notification field are write-restricted to the CCO/Compliance-Legal. An incident determined non-reportable is documented with rationale and triggers no NCUA notice.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Reportable cyber incident determined (`incident.reportability_determination`) | Reportability rationale (`incident.reportability_rationale`), NCUA notice due (`incident.ncua_notice_due_at`) | NCUA notification sent (`incident.ncua.notified`) | 72 hours of determination (enforced by `incident.ncua_notice_due_at`) |
+| Member impact confirmed (`incident.member_impact.confirmed`) | Member impact summary (`incident.member_impact`), notice template (`incident.member_notice_template`) | Member notices sent (`incident.member_notices.sent`) | Without unreasonable delay per Appendix B (enforced by `incident.notification_due_at`) |
+
+**ALERTS/METRICS:** Alert fires when `incident.ncua_notice_due_at` is within 12 hours without an `incident.ncua.notified` event; alert fires when member notice is overdue per `incident.notification_due_at`. Target: 100% of reportable incidents notified to NCUA within 72 hours; zero member-notice SLA breaches.
+
+---
+
+## IS-19 — Incident Declaration, IC Assignment & Post-Mortem {#is-19-incident-declaration-ic-assignment-post-mortem}
+
+**WHY (Reg cite):** [GLBA 15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801) requires safeguards and response programs for breaches. Incident declaration and triage feed the reportability determination governed by [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification).
+
+**SYSTEM BEHAVIOR:** The IR plan, incident commander roster, and playbooks are maintained and tested. When an incident is declared, the incident commander is assigned and the first-hour checklist is executed. Reportability is assessed as soon as material facts are known and routed to SC-01. Law enforcement coordination is documented in the incident record. The incident record is write-restricted to the assigned incident commander and CCO.
 
 **EVENTS:**
 
 | When | What's needed | Produced (and logged) | Within |
 |---|---|---|---|
 | Security incident declared (`incident.declared`) | Incident description (`incident.description`), detection source (`incident.detection_source`), severity (`incident.severity`), scope initial (`incident.scope_initial`) | Incident commander assigned + first-hour checklist initiated (`incident.ic.assigned`, `incident.first_hour.completed`) | Immediately on declaration |
-| Reportable cyber incident determined (`incident.security.confirmed`) | Reportability determination (`incident.reportability_determination`), reportability rationale (`incident.reportability_rationale`), NCUA notice due (`incident.ncua_notice_due_at`) | NCUA notification sent (`incident.ncua.notified`) | 72 hours of determination (enforced by `incident.ncua_notice_due_at`) |
-| Member impact confirmed (`incident.member_impact.confirmed`) | Member impact summary (`incident.member_impact`), notice template (`incident.member_notice_template`), member notice required flag (`incident.member_notice_required`) | Member notices sent (`incident.member_notices.sent`) | Without unreasonable delay per Appendix B (enforced by `incident.notification_due_at`) |
 | Incident closed (`incident.closed`) | Root cause (`incident.root_cause`), timeline (`incident.timeline`), recovery evidence (`incident.recovered`) | Post-mortem completed (`incident.postmortem.completed`) | Within 30 days of closure |
 
-**ALERTS/METRICS:** Alert fires when `incident.ncua_notice_due_at` is within 12 hours without a `incident.ncua.notified` event; alert fires when member notice is overdue per `incident.notification_due_at`. Target: 100% of reportable incidents notified to NCUA within 72 hours; zero member notice SLA breaches.
+**ALERTS/METRICS:** Track time from `incident.declared` to `incident.ic.assigned` (target ≤ 15 minutes); track post-mortem completion within 30 days of closure.
 
 ---
 
@@ -413,6 +428,8 @@ Pynthia Credit Union maintains a risk-based information security program that pr
 - **Engineering vocabulary is provisional.** Several field and event codes referenced in the control overlays above are composed per the Composition grammar and are not yet confirmed as registered in `core-vocabulary.json`. Specifically: `security.program_charter`, `security.kpi_snapshot`, `security.quarter`, `security.board_report_due_at`, `security.board_report.issued`, `security.quarter.closed` (used as a trigger throughout — this is a composed event on the registered `security` object with the registered action `closed`, matching the registered event `security.quarter.closed`), `access.breakglass_used`, `access.breakglass_id`, `access.breakglass_justification`, `access.breakglass_reviewed`, `siem.alert_critical` (composed from registered `siem` object + registered action `alert`; the registered event `siem.alert_critical` does not appear in the events table but `siem.alert_detail` and `siem.alert_review_due_at` are registered fields). Engineering must confirm or register these codes before the next review cycle.
 
 - **`security.quarter.closed` as a recurring trigger.** This event is used throughout the Timing Matrix and control overlays as the trigger for quarterly obligations (KPI report, CMDB attestation, access review, red-flag ruleset review). The registered event `security.quarter.closed` exists in the vocabulary. Engineering should confirm the scheduler emits this event at quarter-end for all relevant consumers.
+
+- **NCUA reportable-incident/member-notice mechanic is a single shared control.** [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification) is sourced verbatim — same control ID, title, and body — from [`shared-controls/ncua-incident-notification.md`](../shared-controls/ncua-incident-notification.md) and appears identically in Business Continuity Plan, E-Commerce, Electronic Payment Systems, Collections, Information Security, Privacy, and Third-Party Risk. Edit the shared source first, then propagate to all seven; do not edit SC-01 in this policy in isolation. IS-19 carries the IR-declaration/IC-assignment/post-mortem material that used to be bundled into the old IS-09 control.
 
 - **`siem.alert_critical` event code.** The SIEM entity has a registered field `siem.alert_critical` (string) and `siem.alert_review_due_at` (string). The event `siem.alert_critical` is used in IS-14 as a trigger; engineering should confirm whether this is emitted as a lifecycle event or whether the correct trigger is a state change on `siem.alert_critical` field (e.g., `siem.alert_critical.detected`). The registered event `siem.source_silent` is used as-is.
 

@@ -39,8 +39,8 @@ Pynthia Credit Union operates a risk-based privacy program that governs how nonp
 | Vendor GLBA addendum — before first data transfer | Vendor onboarding started (`vendor.onboarding.started`) | Before first transfer | Reg P §1016.13; NCUA §748 | [PR-07](#pr-07-third-party-oversight-and-contracts) |
 | Vendor annual privacy review | Annual review due (`vendor.annual_review_due_at`) | Annually | Reg P §1016.13; NCUA §748 | [PR-07](#pr-07-third-party-oversight-and-contracts) |
 | NPPI disposal — retention expiry | Retention expires (`record.retention_expires_at`) | Within 90 days of expiry | 16 CFR Part 682; NCUA §748 | [PR-08](#pr-08-secure-disposal-of-nppi) |
-| Incident detection and triage | Incident detected (`incident.detected`) | Immediate triage | NCUA §748 App. B | [PR-09](#pr-09-incident-response-and-breach-notification) |
-| Member breach notification | Notification determination made (`incident.notification_due_at`) | Without unreasonable delay / per state clock | State breach laws; NCUA §748 App. B | [PR-09](#pr-09-incident-response-and-breach-notification) |
+| Incident detection and triage | Incident detected (`incident.detected`) | Immediate triage | NCUA §748 App. B | [PR-18](#pr-18-incident-detection-classification-sar-referral) |
+| Member breach notification | Notification determination made (`incident.notification_due_at`) | Without unreasonable delay / per state clock | State breach laws; NCUA §748 App. B | [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification) |
 | Board privacy report — annual | Annual cycle (`privacy.board_report_due_at`) | Annually | NCUA §748 | [PR-10](#pr-10-recordkeeping-complaints-and-board-reporting) |
 | Board privacy report — material incident | Material incident flagged (`privacy.board_adhoc.delivered`) | Ad hoc | NCUA §748 | [PR-10](#pr-10-recordkeeping-complaints-and-board-reporting) |
 | Website notice update | Material change in sharing (`privacy.website_notice.updated`) | Before change takes effect | Reg P §1016.9 | [PR-11](#pr-11-website-posting-and-e-sign-delivery) |
@@ -204,23 +204,38 @@ Pynthia Credit Union operates a risk-based privacy program that governs how nonp
 
 ---
 
-## PR-09 — Incident Response and Breach Notification {#pr-09-incident-response-and-breach-notification}
+## SC-01 — NCUA Reportable Cyber-Incident & Member Notification {#sc-01-ncua-reportable-cyber-incident-member-notification}
 
-**WHY (Reg cite):** [NCUA Part 748, Appendix B](https://www.ecfr.gov/current/title-12/part-748) requires credit unions to develop and implement an incident-response program that includes detecting, containing, and notifying members and regulators of unauthorized access to member information. State breach notification laws impose specific deadlines. Where criminal activity is suspected, a SAR referral is required under BSA program obligations (mechanics governed by the BSA Policy).
+**WHY (Reg cite):** [NCUA 12 CFR Part 748 §748.1(c)](https://www.ecfr.gov/current/title-12/part-748) requires credit unions to notify NCUA within 72 hours of determining a reportable cyber incident. [NCUA 12 CFR Part 748, Appendix B](https://www.ecfr.gov/current/title-12/part-748) requires a member notification program for unauthorized access to sensitive member information.
 
-**SYSTEM BEHAVIOR:** On detection of a potential privacy incident, the system creates an incident record and starts the triage clock (`incident.triage_due_at`). Privacy Operations and Legal are notified immediately. The incident is classified (`incident.classified`) for scope (`incident.data_scope`), member impact (`incident.member_impact`), and materiality (`incident.material`). If member notification is required (`incident.member_notice_required`), the system sets `incident.notification_due_at` based on the applicable state clock and the strictest-standard default. NCUA notification is tracked via `incident.ncua_notice_due_at`. If criminal activity is suspected (`incident.criminal_suspected`), the incident is flagged for SAR referral (`incident.sar_referred`) per the BSA Policy. The IR runbook integrates Privacy and Legal as required participants. Incident records are write-restricted to the Incident Commander and Privacy Operations; member notice content (`incident.notice_content`) requires Legal sign-off before dispatch.
+**SYSTEM BEHAVIOR:** Once a reportable cyber incident is determined, NCUA notification must be sent within 72 hours of that determination. Member notice is sent without unreasonable delay per Appendix B criteria once misuse of member information is determined likely (state breach-notice clocks apply in addition where stricter). The reportability determination and the NCUA-notification field are write-restricted to the CCO/Compliance-Legal. An incident determined non-reportable is documented with rationale and triggers no NCUA notice.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Reportable cyber incident determined (`incident.reportability_determination`) | Reportability rationale (`incident.reportability_rationale`), NCUA notice due (`incident.ncua_notice_due_at`) | NCUA notification sent (`incident.ncua.notified`) | 72 hours of determination (enforced by `incident.ncua_notice_due_at`) |
+| Member impact confirmed (`incident.member_impact.confirmed`) | Member impact summary (`incident.member_impact`), notice template (`incident.notice_template_id`) | Member notices sent (`incident.member_notices.sent`) | Without unreasonable delay per Appendix B / applicable state clock (enforced by `incident.notification_due_at`) |
+
+**ALERTS/METRICS:** Alert fires when `incident.ncua_notice_due_at` is within 12 hours without an `incident.ncua.notified` event; alert fires when member notice is overdue per `incident.notification_due_at`. Target: 100% of reportable incidents notified to NCUA within 72 hours; zero member-notice SLA breaches.
+
+---
+
+## PR-18 — Incident Detection, Classification & SAR Referral {#pr-18-incident-detection-classification-sar-referral}
+
+**WHY (Reg cite):** [NCUA Part 748, Appendix B](https://www.ecfr.gov/current/title-12/part-748) requires credit unions to develop and implement an incident-response program that includes detecting and containing unauthorized access to member information. Where criminal activity is suspected, a SAR referral is required under BSA program obligations (mechanics governed by the BSA Policy). Detection and classification feed the reportability determination governed by [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification).
+
+**SYSTEM BEHAVIOR:** On detection of a potential privacy incident, the system creates an incident record and starts the triage clock (`incident.triage_due_at`). Privacy Operations and Legal are notified immediately. The incident is classified (`incident.classified`) for scope (`incident.data_scope`), member impact (`incident.member_impact`), and materiality (`incident.material`), feeding the SC-01 reportability determination. If criminal activity is suspected (`incident.criminal_suspected`), the incident is flagged for SAR referral (`incident.sar_referred`) per the BSA Policy. The IR runbook integrates Privacy and Legal as required participants. Incident records are write-restricted to the Incident Commander and Privacy Operations.
 
 **EVENTS:**
 
 | When | What's needed | Produced (and logged) | Within |
 |---|---|---|---|
 | Privacy incident detected (`incident.detected`) | Detection source (`incident.detection_source`), initial scope (`incident.scope_initial`), description (`incident.description`) | Incident record created; triage clock started; Privacy Operations and Legal notified + `incident.created`, `incident.detected` | Immediate (triage due within 24 hours; enforced by `incident.triage_due_at`) |
-| Incident classified (`incident.classified`) | Data scope (`incident.data_scope`), member impact (`incident.member_impact`), materiality flag (`incident.material`), criminal suspicion flag (`incident.criminal_suspected`) | Classification recorded; notification determination made; SAR referral flagged if applicable + `incident.classified`, `notification.decision.recorded` | Within 72 hours of detection (internal SLA) |
-| Member notification required (`incident.member_notice_required` = true) | Notice template (`incident.notice_template_id`), notice content (`incident.notice_content`), member list (`incident.member_notices`), applicable state clock | Member notices sent; notification recorded + `incident.member_notices.sent` | Without unreasonable delay per applicable state clock (enforced by `incident.notification_due_at`) |
-| NCUA notification required (`incident.ncua_notice_due_at`) | Incident summary, scope, containment status (`incident.contained`), member impact count | NCUA notified + `incident.ncua.notified` | Per NCUA §748 App. B timeline (enforced by `incident.ncua_notice_due_at`) |
+| Incident classified (`incident.classified`) | Data scope (`incident.data_scope`), member impact (`incident.member_impact`), materiality flag (`incident.material`), criminal suspicion flag (`incident.criminal_suspected`) | Classification recorded; SAR referral flagged if applicable + `incident.classified`, `notification.decision.recorded` | Within 72 hours of detection (internal SLA) |
 | Criminal activity suspected (`incident.criminal_suspected` = true) | Incident ID (`incident.id`), BSA referral basis | SAR referral flagged; BSA Officer notified + `incident.sar_referred` | Within 1 BD of classification |
 
-**ALERTS/METRICS:** Alert on any incident triage task that ages past 20 hours without `incident.classified` (4-hour early warning before 24-hour SLA). Alert when `incident.notification_due_at` is within 48 hours and `incident.member_notices.sent` is not recorded. Monitor mean time from `incident.detected` to `incident.contained`; target under 4 hours for Severity 1.
+**ALERTS/METRICS:** Alert on any incident triage task that ages past 20 hours without `incident.classified` (4-hour early warning before 24-hour SLA). Monitor mean time from `incident.detected` to `incident.contained`; target under 4 hours for Severity 1.
 
 ---
 
@@ -357,7 +372,7 @@ Pynthia Credit Union operates a risk-based privacy program that governs how nonp
 
 **WHY (Reg cite):** [COPPA (16 CFR Part 312)](https://www.ecfr.gov/current/title-16/part-312) prohibits the collection of personal information from children under 13 without verifiable parental consent. The Credit Union's services are not directed to children under 13. Any minor data collected without valid parental consent must be deleted promptly on discovery.
 
-**SYSTEM BEHAVIOR:** The Credit Union operates age gates (`privacy.age_gate_ruleset_id`) on all digital onboarding flows to prevent under-13 users from creating accounts or providing personal information. If minor data is detected post-collection (e.g., through date-of-birth review or parental complaint), the system flags the record (`privacy.minor_data.detected`) and creates a deletion task with a 5-BD internal deadline. The deletion is recorded (`privacy.minor_data_deleted`). Privacy Operations is notified immediately on detection. The age gate ruleset and minor data deletion records are write-restricted to Privacy Operations. If the detection suggests a systemic failure of the age gate, an incident is created per [PR-09](#pr-09-incident-response-and-breach-notification).
+**SYSTEM BEHAVIOR:** The Credit Union operates age gates (`privacy.age_gate_ruleset_id`) on all digital onboarding flows to prevent under-13 users from creating accounts or providing personal information. If minor data is detected post-collection (e.g., through date-of-birth review or parental complaint), the system flags the record (`privacy.minor_data.detected`) and creates a deletion task with a 5-BD internal deadline. The deletion is recorded (`privacy.minor_data_deleted`). Privacy Operations is notified immediately on detection. The age gate ruleset and minor data deletion records are write-restricted to Privacy Operations. If the detection suggests a systemic failure of the age gate, an incident is created per [PR-18](#pr-18-incident-detection-classification-sar-referral).
 
 **EVENTS:**
 
@@ -415,7 +430,8 @@ Pynthia Credit Union operates a risk-based privacy program that governs how nonp
 
 - **RFPA government-access process.** PR-04 references RFPA notice and process requirements. The specific RFPA notice templates, challenge procedures, and Legal review workflow are assumed to be documented in the Legal department's playbook. This policy does not reproduce those mechanics.
 
-- **SAR referral mechanics.** PR-09 flags criminal-activity incidents for SAR referral. The mechanics of SAR preparation, review, and filing are governed by the BSA Policy. This policy assumes that the `incident.sar_referred` flag triggers the BSA workflow automatically; the integration between the incident management system and the BSA case management system must be confirmed by engineering.
+- **SAR referral mechanics.** PR-18 flags criminal-activity incidents for SAR referral. The mechanics of SAR preparation, review, and filing are governed by the BSA Policy. This policy assumes that the `incident.sar_referred` flag triggers the BSA workflow automatically; the integration between the incident management system and the BSA case management system must be confirmed by engineering.
+- **NCUA reportable-incident/member-notice mechanic is a single shared control.** [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification) is sourced verbatim — same control ID, title, and body — from [`shared-controls/ncua-incident-notification.md`](../shared-controls/ncua-incident-notification.md) and appears identically in Business Continuity Plan, E-Commerce, Electronic Payment Systems, Collections, Information Security, Privacy, and Third-Party Risk. Edit the shared source first, then propagate to all seven; do not edit SC-01 in this policy in isolation. PR-18 carries the detection/classification/SAR-referral material that used to be bundled into the old PR-09 control.
 
 - **Strictest-standard default — conflict resolution.** The policy applies the strictest applicable standard across all members regardless of state. Where two standards conflict in a way not addressed by this policy (e.g., a state law that is stricter than CPRA in a specific dimension), Privacy Operations and Legal must resolve the conflict and document the resolution. No such conflicts have been identified at the time of drafting.
 

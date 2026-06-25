@@ -41,8 +41,8 @@ Pynthia Credit Union is committed to recognizing, monitoring, and controlling lo
 | Complaint final response — regulator | Regulator complaint received (`complaint.regulator.received`) | 60 days | Final response | [CO-06](#co-06-consumer-complaint-intake-and-resolution) |
 | Metro 2 furnishing file | Month-end close | Monthly | Metro 2 file | [CO-07](#co-07-credit-reporting-and-dispute-handling) |
 | Dispute investigation | Dispute received (`furnishing.dispute.received`) | 30 days | Investigation findings + correction | [CO-07](#co-07-credit-reporting-and-dispute-handling) |
-| Incident triage | Collections data incident created (`incident.collections.logged`) | 24 hours | Triage classification | [CO-08](#co-08-collections-data-breach-and-incident-reporting) |
-| NCUA cyber-incident notification | Reasonable belief of reportable incident | 72 hours | NCUA notification | [CO-08](#co-08-collections-data-breach-and-incident-reporting) |
+| Incident triage | Collections data incident created (`incident.collections.logged`) | 24 hours | Triage classification | [CO-11](#co-11-collections-data-incident-logging-and-triage) |
+| NCUA cyber-incident notification | Reasonable belief of reportable incident | 72 hours | NCUA notification | [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification) |
 | Nonaccrual placement | Loan reaches 90+ DPD or full collection doubtful | Immediate | Nonaccrual flag + interest reversal | [CO-09](#co-09-problem-loans-nonaccrual-and-foreclosure-governance) |
 | Watch/Substandard/Doubtful rating review | Quarter close | Quarterly | Rating review memo | [CO-09](#co-09-problem-loans-nonaccrual-and-foreclosure-governance) |
 | Board/ELC delinquency report | Month-end close | Monthly | Portfolio delinquency report | [CO-01](#co-01-collections-governance-and-scope) |
@@ -190,11 +190,28 @@ Pynthia Credit Union is committed to recognizing, monitoring, and controlling lo
 
 ---
 
-## CO-08 — Collections Data Breach & Incident Reporting {#co-08-collections-data-breach-and-incident-reporting}
+## SC-01 — NCUA Reportable Cyber-Incident & Member Notification {#sc-01-ncua-reportable-cyber-incident-member-notification}
 
-**WHY (Reg cite):** [NCUA Part 748 (12 CFR Part 748)](https://www.ecfr.gov/current/title-12/part-748) requires federally insured credit unions to maintain a written security program protecting member records and to notify NCUA no later than 72 hours after the credit union reasonably believes a reportable cyber incident has occurred. Member notification obligations arise once misuse of member information is determined to be likely, consistent with applicable state breach-notification laws and NCUA guidance.
+**WHY (Reg cite):** [NCUA 12 CFR Part 748 §748.1(c)](https://www.ecfr.gov/current/title-12/part-748) requires credit unions to notify NCUA within 72 hours of determining a reportable cyber incident. [NCUA 12 CFR Part 748, Appendix B](https://www.ecfr.gov/current/title-12/part-748) requires a member notification program for unauthorized access to sensitive member information.
 
-**SYSTEM BEHAVIOR:** Any incident affecting collections data (loan records, member contact data, payment history, credit-reporting data) is logged as an incident with the `incident.collections` flag set (`incident.collections.logged`). The incident is triaged within 24 hours (`incident.triage_due_at`) to classify severity (`incident.severity`), assess reportability (`incident.reportability_assessment`), and determine member impact (`incident.member_impact`). If the credit union reasonably believes a reportable cyber incident has occurred, NCUA is notified within 72 hours (`incident.ncua_notice_due_at`). Member notices are sent as soon as reasonably possible after misuse is determined likely (`incident.misuse_determined`, `incident.member_notice_required`). This control operates within the enterprise incident-response framework (see Information Security Policy); this policy governs the collections-data-specific classification and notification obligations. IT/Security owns incident detection and triage; Compliance and Legal own reportability determination; CCO signs off on NCUA notification.
+**SYSTEM BEHAVIOR:** Once a reportable cyber incident is determined, NCUA notification must be sent within 72 hours of that determination. Member notice is sent without unreasonable delay per Appendix B criteria once misuse of member information is determined likely. The reportability determination and the NCUA-notification field are write-restricted to the CCO/Compliance-Legal. An incident determined non-reportable is documented with rationale and triggers no NCUA notice.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Reportable cyber incident determined (`incident.reportability_determination`) | Reportability rationale (`incident.reportability_rationale`), NCUA notice due (`incident.ncua_notice_due_at`) | NCUA notification sent (`incident.ncua.notified`) | 72 hours of determination (enforced by `incident.ncua_notice_due_at`) |
+| Member impact confirmed (`incident.member_impact.confirmed`) | Member impact summary (`incident.member_impact`), notice template (`incident.member_notice_template`) | Member notices sent (`incident.member_notices.sent`) | Without unreasonable delay per Appendix B (enforced by `incident.notification_due_at`) |
+
+**ALERTS/METRICS:** Alert fires when `incident.ncua_notice_due_at` is within 12 hours without an `incident.ncua.notified` event; alert fires when member notice is overdue per `incident.notification_due_at`. Target: 100% of reportable incidents notified to NCUA within 72 hours; zero member-notice SLA breaches.
+
+---
+
+## CO-11 — Collections-Data Incident Logging & Triage {#co-11-collections-data-incident-logging-and-triage}
+
+**WHY (Reg cite):** [NCUA Part 748 (12 CFR Part 748)](https://www.ecfr.gov/current/title-12/part-748) requires federally insured credit unions to maintain a written security program protecting member records. Triage feeds the reportability determination governed by [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification).
+
+**SYSTEM BEHAVIOR:** Any incident affecting collections data (loan records, member contact data, payment history, credit-reporting data) is logged as an incident with the `incident.collections` flag set (`incident.collections.logged`). The incident is triaged within 24 hours (`incident.triage_due_at`) to classify severity (`incident.severity`), assess reportability (`incident.reportability_assessment`), and determine member impact (`incident.member_impact`) feeding the SC-01 reportability determination. This control operates within the enterprise incident-response framework (see Information Security Policy); this policy governs the collections-data-specific classification obligations. IT/Security owns incident detection and triage; Compliance and Legal own reportability determination.
 
 **EVENTS:**
 
@@ -202,10 +219,8 @@ Pynthia Credit Union is committed to recognizing, monitoring, and controlling lo
 |---|---|---|---|
 | Incident affecting collections data detected and logged (`incident.collections.logged`) | Incident description (`incident.description`), data scope (`incident.data_scope`), detection source (`incident.detection_source`), collections flag (`incident.collections`) | Incident record created (`incident.created`); triage task opened | Immediately upon detection |
 | Triage due — incident classification (`incident.classified`) | Incident severity (`incident.severity`), scope assessment (`incident.scope_initial`), reportability assessment (`incident.reportability_assessment`), member impact (`incident.member_impact`) | Triage completed (`incident.classified`); reportability determination recorded (`incident.reportability_determination`) | Within 24 hours of incident creation; enforced by `incident.triage_due_at` |
-| Reasonable belief of reportable cyber incident established (`incident.ncua.notified`) | Reportability rationale (`incident.reportability_rationale`), CCO sign-off (`incident.cco_signoff`), NCUA notification content (`incident.notice_content`) | NCUA notified (`incident.ncua.notified`); notification record logged | Within 72 hours of reasonable belief; enforced by `incident.ncua_notice_due_at` |
-| Misuse of member information determined likely (`incident.member_notices.sent`) | Misuse likelihood determination (`incident.misuse_likelihood`), member impact list (`incident.member_impact`), notice template (`incident.member_notice_template`), member notice required flag (`incident.member_notice_required`) | Member notices sent (`incident.member_notices.sent`) | As soon as reasonably possible after misuse determination; enforced by `incident.notification_due_at` |
 
-**ALERTS/METRICS:** Alert when any collections-flagged incident ages past 24 hours without a `incident.classified` event. Alert when `incident.ncua_notice_due_at` is within 12 hours without a `incident.ncua.notified` event. Alert when `incident.notification_due_at` ages past the misuse determination date without `incident.member_notices.sent`. Target: zero NCUA notifications missed within the 72-hour window.
+**ALERTS/METRICS:** Alert when any collections-flagged incident ages past 24 hours without a `incident.classified` event.
 
 ---
 
@@ -256,7 +271,7 @@ Pynthia Credit Union is committed to recognizing, monitoring, and controlling lo
 | Collections Operations | VP Collections (to be designated) | Operational execution of CO-02, CO-05, CO-10 |
 | Credit Risk | Chief Credit Officer (to be designated) | CO-03, CO-04, CO-09 classification and charge-off decisions |
 | Legal | General Counsel (to be designated) | State law mapping (CO-02), foreclosure checklist (CO-09), UDAAP consultation (CO-06) |
-| IT/Security | CISO (to be designated) | CO-08 incident detection and triage |
+| IT/Security | CISO (to be designated) | CO-11 incident detection and triage |
 | Finance | CFO (to be designated) | Charge-off GL entries (CO-03) |
 | Executive Loan Committee | ELC Chair | CO-04 interest capitalization/IO approvals; CO-09 foreclosure approval |
 | Board of Directors | Board Chair | Monthly delinquency report recipient (CO-01) |
@@ -295,4 +310,5 @@ Pynthia Credit Union is committed to recognizing, monitoring, and controlling lo
 
 - **Complaint trend review frequency.** PATRICK_NOTES do not specify a frequency for complaint trend reviews beyond "periodic." This policy defaults to at minimum quarterly. If a different frequency is required by examiner expectation or internal risk appetite, the `complaint.trend_review_due` timer should be reconfigured accordingly.
 
-- **Member notice timing for data breaches.** CO-08 states member notices are sent "as soon as reasonably possible after misuse is determined likely." The specific timeline is not fixed in NCUA Part 748 for member notices (as distinct from the 72-hour NCUA notification). State breach-notification laws may impose shorter deadlines. Legal must confirm the applicable state-law overlay and configure `incident.notification_due_at` accordingly.
+- **Member notice timing for data breaches.** [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification) states member notices are sent "without unreasonable delay" once misuse is determined likely. State breach-notification laws may impose shorter deadlines. Legal must confirm the applicable state-law overlay and configure `incident.notification_due_at` accordingly.
+- **NCUA reportable-incident/member-notice mechanic is a single shared control.** [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification) is sourced verbatim — same control ID, title, and body — from [`shared-controls/ncua-incident-notification.md`](../shared-controls/ncua-incident-notification.md) and appears identically in Business Continuity Plan, E-Commerce, Electronic Payment Systems, Collections, Information Security, Privacy, and Third-Party Risk. Edit the shared source first, then propagate to all seven; do not edit SC-01 in this policy in isolation. CO-11 carries the collections-specific incident-logging/triage material that used to be bundled into the old CO-08 control.

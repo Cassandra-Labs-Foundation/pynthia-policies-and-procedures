@@ -39,10 +39,10 @@ Pynthia Credit Union maintains a Board-approved, risk-based Business Continuity 
 | Full critical ops at alternate site | Alternate site activated → `site.readiness.confirmed` | 24 hours | Critical ops status | [BC-08](#bc-08-alternate-site-and-remote-operations) |
 | IT IC assignment (major failure) | Major IT failure detected → `it.major_failure.detected` | 5 minutes | IC assignment log | [BC-09](#bc-09-major-it-failure-response) |
 | Member status communication (IT) | IT IC assigned → `incident.ic.assigned` | 15 minutes | Member status notice | [BC-09](#bc-09-major-it-failure-response) |
-| Incident containment (privacy/security) | Security incident created → `incident.created` | 1 hour | Containment record | [BC-10](#bc-10-incident-response-privacysecurity) |
-| Legal counsel consultation | Containment started → `incident.containment.started` | 24 hours | Legal consult log | [BC-10](#bc-10-incident-response-privacysecurity) |
+| Incident containment (privacy/security) | Security incident created → `incident.created` | 1 hour | Containment record | [BC-15](#bc-15-security-privacy-incident-containment-legal-consult-vendor-coordination) |
+| Legal counsel consultation | Containment started → `incident.containment.started` | 24 hours | Legal consult log | [BC-15](#bc-15-security-privacy-incident-containment-legal-consult-vendor-coordination) |
 | First internal alert | Incident declared → `incident.declared` | 15 minutes | Internal alert artifact | [BC-11](#bc-11-communications-and-notification-tree) |
-| Regulator notification | Incident declared → `incident.declared` | Per applicable law/policy | Regulator notice | [BC-11](#bc-11-communications-and-notification-tree) |
+| Regulator notification | Reportable incident determined → `incident.reportability_determination` | 72 hours of determination | NCUA notice | [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification) |
 | Staffing plan activation (people event) | Absenteeism ≥ 30% or public-health trigger → `staffing.plan.activated` | 24 hours | Staffing activation record | [BC-12](#bc-12-people-continuity-and-pandemic) |
 | PIR draft | Incident closed → `incident.closed` | 10 business days | PIR draft document | [BC-13](#bc-13-post-incident-review) |
 | CAP approval | PIR drafted → `pir.drafted` | 30 days | Approved CAP | [BC-13](#bc-13-post-incident-review) |
@@ -219,11 +219,28 @@ Pynthia Credit Union maintains a Board-approved, risk-based Business Continuity 
 
 ---
 
-## BC-10 — Incident Response (Privacy/Security) {#bc-10-incident-response-privacysecurity}
+## SC-01 — NCUA Reportable Cyber-Incident & Member Notification {#sc-01-ncua-reportable-cyber-incident-member-notification}
 
-**WHY (Reg cite):** [12 CFR Part 748 Appendix A](https://www.ecfr.gov/current/title-12/part-748) requires a GLBA-aligned incident response program covering containment, eradication, recovery, forensics, and notification; [12 CFR Part 748 Appendix B](https://www.ecfr.gov/current/title-12/part-748) requires notification to NCUA of certain incidents. Member breach notification obligations and detailed privacy controls are governed by the Privacy Policy; security control design is governed by the Information Security Policy.
+**WHY (Reg cite):** [NCUA 12 CFR Part 748 §748.1(c)](https://www.ecfr.gov/current/title-12/part-748) requires credit unions to notify NCUA within 72 hours of determining a reportable cyber incident. [NCUA 12 CFR Part 748, Appendix B](https://www.ecfr.gov/current/title-12/part-748) requires a member notification program for unauthorized access to sensitive member information.
 
-**SYSTEM BEHAVIOR:** Upon detection of a privacy or security incident, the IC initiates containment within 1 hour. The response follows GLBA-aligned phases: containment, eradication, recovery, forensics, and notification decisioning. Legal counsel must be consulted within 24 hours of incident creation to assess notification obligations. Service-provider coordination is required where the incident involves a vendor. NCUA notification obligations are assessed per [12 CFR Part 748](https://www.ecfr.gov/current/title-12/part-748) and the credit union's incident notification policy; member breach notices are governed by the Privacy Policy. The incident record, containment evidence, and notification decisions are write-restricted to the IC, CCO, and Legal.
+**SYSTEM BEHAVIOR:** Once a reportable cyber incident is determined, NCUA notification must be sent within 72 hours of that determination. Member notice is sent without unreasonable delay per Appendix B criteria once misuse of member information is determined likely. The reportability determination and the NCUA-notification field are write-restricted to the CCO/Compliance-Legal. An incident determined non-reportable is documented with rationale and triggers no NCUA notice.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Reportable cyber incident determined (`incident.reportability_determination`) | Reportability rationale (`incident.reportability_rationale`), NCUA notice due (`incident.ncua_notice_due_at`) | NCUA notification sent (`incident.ncua.notified`) | 72 hours of determination (enforced by `incident.ncua_notice_due_at`) |
+| Member impact confirmed (`incident.member_impact.confirmed`) | Member impact summary (`incident.member_impact`), notice template (`incident.member_notice_template`) | Member notices sent (`incident.member_notices.sent`) | Without unreasonable delay per Appendix B (enforced by `incident.notification_due_at`) |
+
+**ALERTS/METRICS:** Alert fires when `incident.ncua_notice_due_at` is within 12 hours without an `incident.ncua.notified` event; alert fires when member notice is overdue per `incident.notification_due_at`. Target: 100% of reportable incidents notified to NCUA within 72 hours; zero member-notice SLA breaches.
+
+---
+
+## BC-15 — Security/Privacy Incident Containment, Legal Consult & Vendor Coordination {#bc-15-security-privacy-incident-containment-legal-consult-vendor-coordination}
+
+**WHY (Reg cite):** [12 CFR Part 748 Appendix A](https://www.ecfr.gov/current/title-12/part-748) requires a GLBA-aligned incident response program covering containment, eradication, recovery, and forensics. Feeds the reportability determination governed by [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification).
+
+**SYSTEM BEHAVIOR:** Upon detection of a privacy or security incident, the IC initiates containment within 1 hour. The response follows GLBA-aligned phases: containment, eradication, recovery, and forensics. Legal counsel must be consulted within 24 hours of incident creation to assess notification obligations feeding SC-01. Service-provider coordination is required where the incident involves a vendor. The incident record and containment evidence are write-restricted to the IC, CCO, and Legal.
 
 **EVENTS:**
 
@@ -231,10 +248,9 @@ Pynthia Credit Union maintains a Board-approved, risk-based Business Continuity 
 |---|---|---|---|
 | Security or privacy incident created (`incident.created`) | Incident description (`incident.description`), data scope (`incident.data_scope`), detection source (`incident.detection_source`), severity (`incident.severity`) | Containment initiated (`incident.containment.started`), containment timer started (`incident.containment_timer`) | 1 hour after incident creation (enforced by `incident.containment_timer`) |
 | Containment started (`incident.containment.started`) | Containment actions, affected systems, member impact assessment (`incident.member_impact`) | Legal consult initiated (`legal.consulted`), legal consult timer started (`legal.consult_timer`) | 24 hours after incident creation (enforced by `legal.consult_timer`) |
-| Notification determination made (`incident.notification_determined`) | Legal review (`incident.legal_review`), reportability assessment (`incident.reportability_assessment`), member impact (`incident.member_notice_required`) | Notification decision recorded (`notification.decision.recorded`), NCUA notice initiated if required (`incident.ncua.notified`), member notices per Privacy Policy | Per applicable law/policy (NCUA: enforced by `incident.ncua_notice_due_at`) |
 | Vendor involved in incident (`vendor.incident.logged`) | Vendor identity (`vendor.id`), incident scope (`vendor.incident_scope`), vendor containment status (`vendor.incident_containment_status`) | Vendor incident track dispatched (`vendor.incident_tracks_dispatched`), vendor coordination logged | Immediately upon identification |
 
-**ALERTS/METRICS:** Alert fires if containment is not initiated within 1 hour of incident creation; alert fires if legal consult is not logged within 24 hours; alert fires if NCUA notification due date (`incident.ncua_notice_due_at`) is approaching without `incident.ncua.notified` logged. Target: 100% of security/privacy incidents with containment ≤ 1 hour; 100% with legal consult ≤ 24 hours; zero missed regulatory notification deadlines.
+**ALERTS/METRICS:** Alert fires if containment is not initiated within 1 hour of incident creation; alert fires if legal consult is not logged within 24 hours. Target: 100% of security/privacy incidents with containment ≤ 1 hour; 100% with legal consult ≤ 24 hours.
 
 ---
 
@@ -242,7 +258,7 @@ Pynthia Credit Union maintains a Board-approved, risk-based Business Continuity 
 
 **WHY (Reg cite):** [12 CFR Part 748 Appendix A](https://www.ecfr.gov/current/title-12/part-748) requires communication procedures as part of incident response; FFIEC Business Continuity Management guidance requires pre-defined contact trees for employees, Board, regulators, vendors, and media with backup channels. Timely internal and external communications are supervisory expectations.
 
-**SYSTEM BEHAVIOR:** The BCM maintains contact trees for employees, Board members, regulators, critical vendors, and media, with predefined status-page playbooks for member-facing communications. The first internal alert must be issued within 15 minutes of incident declaration. Regulator notification follows applicable law and the credit union's notification policy (see [BC-10](#bc-10-incident-response-privacysecurity) for NCUA-specific obligations). If primary communications platforms fail, backup channels (cell phones, out-of-band messaging) are activated per the communications plan. Contact trees are reviewed and updated quarterly as part of the IMT roster verification (see [BC-01](#bc-01-governance-and-roles)). The communications plan and contact trees are write-restricted to the BCM and CCO.
+**SYSTEM BEHAVIOR:** The BCM maintains contact trees for employees, Board members, regulators, critical vendors, and media, with predefined status-page playbooks for member-facing communications. The first internal alert must be issued within 15 minutes of incident declaration. Regulator notification follows the NCUA mechanic governed by [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification). If primary communications platforms fail, backup channels (cell phones, out-of-band messaging) are activated per the communications plan. Contact trees are reviewed and updated quarterly as part of the IMT roster verification (see [BC-01](#bc-01-governance-and-roles)). The communications plan and contact trees are write-restricted to the BCM and CCO.
 
 **EVENTS:**
 
@@ -250,7 +266,7 @@ Pynthia Credit Union maintains a Board-approved, risk-based Business Continuity 
 |---|---|---|---|
 | Incident declared (`incident.declared`) | Contact tree (`comms.contact_tree`), stakeholder matrix (`comms.stakeholder_matrix`), internal alert template | First internal alert issued (`comms.internal_alert.issued`), initial timer logged (`comms.initial_timer`) | 15 minutes after declaration (enforced by `comms.initial_timer`) |
 | Primary communications platform failure detected (`comms.platform.failed`) | Backup channel list, IC authorization | Backup communications activated (`comms.backup.activated`), backup channel logged | Immediately upon detection |
-| Regulator notification required (per [BC-10](#bc-10-incident-response-privacysecurity)) | Notification determination, regulator contact (`regulator.contacts`), required content | Regulator notified (`regulator.ncua.notified`), notification logged | Per applicable law/policy deadline |
+| Regulator notification required (per [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification)) | Notification determination, regulator contact (`regulator.contacts`), required content | Regulator notified (`regulator.ncua.notified`), notification logged | Per SC-01's 72-hour deadline |
 | Member-facing status update required | Incident status, affected services, estimated resolution, status-page playbook (`comms.statuspage_playbook`) | Member status issued (`comms.member_status.issued`), status page updated | Per IC cadence decision; at minimum with each sitrep |
 | Media inquiry received (`comms.media_inquiry.received`) | Holding statement (`comms.holding_statement`), CEO/CCO approval (`comms.ceo_approval`) | Media response logged (`comms.media_response.logged`) | Within 1 hour of inquiry receipt |
 
@@ -348,7 +364,9 @@ Pynthia Credit Union maintains a Board-approved, risk-based Business Continuity 
 
 - **Declaration authority.** PATRICK_NOTES identify the CCO as the primary declaration authority. The policy should confirm whether the CEO and designated IMT leads also hold declaration authority (consistent with the reference policy's approach) and document this in the BCP/DR plan.
 
-- **NCUA reporter status and notification thresholds.** Pynthia Credit Union is a federally insured credit union; NCUA notification obligations under [12 CFR Part 748](https://www.ecfr.gov/current/title-12/part-748) apply. The specific notification thresholds and timelines (e.g., 72-hour notification for certain cyber incidents per NCUA's 2023 rule) should be confirmed with Legal and documented in the incident response procedures referenced by [BC-10](#bc-10-incident-response-privacysecurity).
+- **NCUA reporter status and notification thresholds.** Pynthia Credit Union is a federally insured credit union; NCUA notification obligations under [12 CFR Part 748](https://www.ecfr.gov/current/title-12/part-748) apply via [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification). The specific notification thresholds and timelines should be confirmed with Legal and documented in the incident response procedures.
+
+- **NCUA reportable-incident/member-notice mechanic is a single shared control.** [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification) is sourced verbatim — same control ID, title, and body — from [`shared-controls/ncua-incident-notification.md`](../shared-controls/ncua-incident-notification.md) and appears identically in Business Continuity Plan, E-Commerce, Electronic Payment Systems, Collections, Information Security, Privacy, and Third-Party Risk. Edit the shared source first, then propagate to all seven; do not edit SC-01 in this policy in isolation. BC-15 carries the containment/legal-consult/vendor-coordination material that used to be bundled into the old BC-10 control.
 
 - **Electronic payment channel RTO/RPO targets.** PATRICK_NOTES designate electronic payment channels as highest-priority critical services but do not specify their individual RTO/RPO targets. These must be set in the BIA ([BC-03](#bc-03-business-impact-analysis)) and confirmed with the Electronic Payment Systems Policy owner before the policy effective date.
 

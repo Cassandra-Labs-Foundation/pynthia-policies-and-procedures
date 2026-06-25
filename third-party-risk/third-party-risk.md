@@ -37,8 +37,8 @@ Pynthia Credit Union (the "Credit Union") relies on third parties to deliver pro
 | Low-risk vendor monitoring review | Triennial cycle → `vendor.monitoring_review.completed` | Every 3 years | Monitoring report | [TR-07](#tr-07-ongoing-monitoring-performance-risk-reporting) |
 | High-severity issue remediation | Issue rated high → `vendor.cap.issued` | 30 days | Remediation/CAP plan | [TR-07](#tr-07-ongoing-monitoring-performance-risk-reporting) |
 | Board risk report — vendor status | Monitoring period closes → `vendor.board_report.delivered` | Per monitoring cycle | High/Medium vendor status report | [TR-07](#tr-07-ongoing-monitoring-performance-risk-reporting) |
-| Vendor incident — vendor notification | Vendor discovers incident → `vendor.incident.reported` | Per contract SLA (≤ 24 hrs of discovery) | Vendor incident notification | [TR-08](#tr-08-incident-breach-reporting) |
-| Vendor incident — internal triage | Incident reported → `vendor.incident.logged` | 1 business day | Triage determination | [TR-08](#tr-08-incident-breach-reporting) |
+| Vendor incident — vendor notification | Vendor discovers incident → `vendor.incident.reported` | Per contract SLA (≤ 24 hrs of discovery) | Vendor incident notification | [TR-11](#tr-11-vendor-incident-notification-internal-triage-sar-referral) |
+| Vendor incident — internal triage | Incident reported → `vendor.incident.logged` | 1 business day | Triage determination | [TR-11](#tr-11-vendor-incident-notification-internal-triage-sar-referral) |
 | Exit strategy — critical/capital-impacting | Vendor onboarded as Critical/capital-impacting → `vendor.exit_plan.approved` | Within 90 days of onboarding | Documented exit strategy | [TR-09](#tr-09-termination-exit-strategy) |
 | Exit strategy refresh | Termination notice pending → `vendor.exit_plan.approved` | Before notice issued | Refreshed and approved exit plan | [TR-09](#tr-09-termination-exit-strategy) |
 | RACI register — initial | Vendor classified Critical or Material → `vendor.raci.assigned` | Before go-live | Completed RACI register entry | [TR-10](#tr-10-key-third-party-owners-raci) |
@@ -176,23 +176,38 @@ Pynthia Credit Union (the "Credit Union") relies on third parties to deliver pro
 
 ---
 
-## TR-08 — Incident & Breach Reporting {#tr-08-incident-breach-reporting}
+## SC-01 — NCUA Reportable Cyber-Incident & Member Notification {#sc-01-ncua-reportable-cyber-incident-member-notification}
 
-**WHY (Reg cite):** [12 CFR Part 748, Appendices A and B](https://www.ecfr.gov/current/title-12/part-748) require NCUA-supervised credit unions to maintain an incident response program and to notify NCUA and affected members of certain security incidents, including those caused by or involving service providers. BSA SAR rules ([31 CFR Chapter X](https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X)) require SAR filing when a vendor incident involves suspected criminal activity. The [2023 Interagency Guidance (88 FR 37920)](https://www.federalregister.gov/documents/2023/06/09/2023-12340/interagency-guidance-on-third-party-relationships-risk-management) requires contracts to include vendor incident notification obligations.
+**WHY (Reg cite):** [NCUA 12 CFR Part 748 §748.1(c)](https://www.ecfr.gov/current/title-12/part-748) requires credit unions to notify NCUA within 72 hours of determining a reportable cyber incident. [NCUA 12 CFR Part 748, Appendix B](https://www.ecfr.gov/current/title-12/part-748) requires a member notification program for unauthorized access to sensitive member information.
 
-**SYSTEM BEHAVIOR:** All vendor contracts must include a clause requiring the vendor to notify the Credit Union of any security incident or data breach within the contractual SLA (target: no later than 24 hours of the vendor's discovery). Upon receipt of a vendor incident notification, the Vendor Risk team logs the incident (`vendor.incident.logged`) and the Compliance/BSA team triages it within 1 business day to determine: (a) member NPI impact (`vendor.incident_member_count`, `vendor.incident_scope`); (b) SAR referral requirement; (c) member notice requirement under Part 748 Appendix B; and (d) NCUA notification requirement. Triage outcomes are mapped to the Credit Union's incident response process (`incident.created`) for handling. The CCO is the approving authority for all regulatory notification decisions; the BSA Officer approves SAR referrals. Vendor incident history (`vendor.incident_history`) is maintained in the vendor record and reviewed at each monitoring cycle.
+**SYSTEM BEHAVIOR:** Once a reportable cyber incident is determined, NCUA notification must be sent within 72 hours of that determination. Member notice is sent without unreasonable delay per Appendix B criteria once misuse of member information is determined likely. The reportability determination and the NCUA-notification field are write-restricted to the CCO/Compliance-Legal. An incident determined non-reportable is documented with rationale and triggers no NCUA notice.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Reportable cyber incident determined (`incident.reportability_determination`) | Reportability rationale (`incident.reportability_rationale`), NCUA notice due (`incident.ncua_notice_due_at`) | NCUA notification sent (`incident.ncua.notified`) | 72 hours of determination (enforced by `incident.ncua_notice_due_at`) |
+| Member impact confirmed (`incident.member_impact.confirmed`) | Member impact summary (`incident.member_impact`), notice template (`incident.member_notice_template`) | Member notices sent (`incident.member_notices.sent`) | Without unreasonable delay per Appendix B (enforced by `incident.notification_due_at`) |
+
+**ALERTS/METRICS:** Alert fires when `incident.ncua_notice_due_at` is within 12 hours without an `incident.ncua.notified` event; alert fires when member notice is overdue per `incident.notification_due_at`. Target: 100% of reportable incidents notified to NCUA within 72 hours; zero member-notice SLA breaches.
+
+---
+
+## TR-11 — Vendor Incident Notification, Internal Triage & SAR Referral {#tr-11-vendor-incident-notification-internal-triage-sar-referral}
+
+**WHY (Reg cite):** [12 CFR Part 748, Appendices A and B](https://www.ecfr.gov/current/title-12/part-748) require NCUA-supervised credit unions to maintain an incident response program covering incidents caused by or involving service providers. BSA SAR rules ([31 CFR Chapter X](https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X)) require SAR filing when a vendor incident involves suspected criminal activity. The [2023 Interagency Guidance (88 FR 37920)](https://www.federalregister.gov/documents/2023/06/09/2023-12340/interagency-guidance-on-third-party-relationships-risk-management) requires contracts to include vendor incident notification obligations. Vendor notification and triage feed the reportability determination governed by [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification).
+
+**SYSTEM BEHAVIOR:** All vendor contracts must include a clause requiring the vendor to notify the Credit Union of any security incident or data breach within the contractual SLA (target: no later than 24 hours of the vendor's discovery). Upon receipt of a vendor incident notification, the Vendor Risk team logs the incident (`vendor.incident.logged`) and the Compliance/BSA team triages it within 1 business day to determine member NPI impact and SAR referral requirement, routing to SC-01 for the member-notice/NCUA-notice determination. Triage outcomes are mapped to the Credit Union's incident response process (`incident.created`) for handling. The BSA Officer approves SAR referrals. Vendor incident history (`vendor.incident_history`) is maintained in the vendor record and reviewed at each monitoring cycle.
 
 **EVENTS:**
 
 | When | What's needed | Produced (and logged) | Within |
 |---|---|---|---|
 | Vendor reports incident (`vendor.incident.reported`) | Vendor incident notification, incident scope (`vendor.incident_scope`), member count estimate (`vendor.incident_member_count`), containment status (`vendor.incident_containment_status`) | Incident logged; triage task created (`vendor.incident.logged`) | Immediately on receipt; triage within 1 business day (enforced by `vendor.incident_triage_due`) |
-| Internal triage completed (`vendor.incident_triage_due`) | Triage determination: member NPI impact, SAR referral flag, member notice flag, NCUA notification flag; incident severity (`vendor.issue_severity`) | Triage completed; incident tracks dispatched to response process (`vendor.incident_tracks_dispatched`, `incident.created`) | Within 1 business day of vendor notification (enforced by `vendor.incident_triage_due`) |
+| Internal triage completed (`vendor.incident_triage_due`) | Triage determination: member NPI impact, SAR referral flag; incident severity (`vendor.issue_severity`) | Triage completed; incident tracks dispatched to response process (`vendor.incident_tracks_dispatched`, `incident.created`) | Within 1 business day of vendor notification (enforced by `vendor.incident_triage_due`) |
 | SAR referral determination made | BSA Officer review, incident facts, criminal activity assessment | SAR referral recorded or declined; BSA case opened if referred (`sar.filed` or `sar.decision_no_file`) | Per BSA SAR timing rules (30 days of detection; 60 days with extension) |
-| Member notice determination made | Part 748 Appendix B assessment, member impact scope, CCO approval | Member notice issued or determination documented (`incident.member_notices.sent` or `incident.member_impact.confirmed`) | As required by Part 748 Appendix B |
-| NCUA notification determination made | Part 748 Appendix B assessment, materiality determination, CCO approval | NCUA notified or determination documented (`incident.ncua.notified`) | As required by Part 748 Appendix B (enforced by `incident.ncua_notice_due_at`) |
 
-**ALERTS/METRICS:** Alert fires if `vendor.incident_triage_due` ages past 1 business day without `vendor.incident_tracks_dispatched`; alert fires if any vendor incident with member NPI impact has no regulatory notification determination within 3 business days. Target: 100% of vendor incidents triaged within 1 business day; zero incidents with unresolved SAR/member-notice/NCUA-notice determinations beyond applicable deadlines.
+**ALERTS/METRICS:** Alert fires if `vendor.incident_triage_due` ages past 1 business day without `vendor.incident_tracks_dispatched`. Target: 100% of vendor incidents triaged within 1 business day.
 
 ---
 
@@ -262,7 +277,8 @@ Pynthia Credit Union (the "Credit Union") relies on third parties to deliver pro
 
 - **Board approval threshold for "material vendors" is undefined.** PATRICK_NOTES and the reference policies reference Board approval for material vendors but do not define the dollar threshold or other criteria that trigger Board (versus committee) approval. This policy requires Board or committee approval for all Critical vendors and for any vendor the CCO designates as material. A specific dollar or risk threshold should be confirmed with the Board and documented in the governance map.
 
-- **Contractual SLA for vendor incident notification is a target, not a fixed requirement.** The 24-hour notification SLA in TR-08 is the Credit Union's target for contract negotiations. Some incumbent vendors may have negotiated longer windows. Legal and the CCO should confirm the minimum acceptable SLA for each vendor tier and update the clause library accordingly.
+- **Contractual SLA for vendor incident notification is a target, not a fixed requirement.** The 24-hour notification SLA in TR-11 is the Credit Union's target for contract negotiations. Some incumbent vendors may have negotiated longer windows. Legal and the CCO should confirm the minimum acceptable SLA for each vendor tier and update the clause library accordingly.
+- **NCUA reportable-incident/member-notice mechanic is a single shared control.** [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification) is sourced verbatim — same control ID, title, and body — from [`shared-controls/ncua-incident-notification.md`](../shared-controls/ncua-incident-notification.md) and appears identically in Business Continuity Plan, E-Commerce, Electronic Payment Systems, Collections, Information Security, Privacy, and Third-Party Risk. Edit the shared source first, then propagate to all seven; do not edit SC-01 in this policy in isolation. TR-11 carries the vendor-notification-SLA/internal-triage/SAR-referral material that used to be bundled into the old TR-08 control.
 
 - **Fourth-party (subcontractor) visibility.** PATRICK_NOTES require visibility into fourth-party subcontractors. This policy requires subprocessor attestation (`vendor.subprocessor_attestation`) as part of core vendor reviews and EDD packages, but a dedicated fourth-party inventory and monitoring workflow is not yet defined. Engineering should confirm whether the `vendor` object supports a subprocessor relationship graph, or whether a separate `vendor.dependency_map` field is sufficient.
 

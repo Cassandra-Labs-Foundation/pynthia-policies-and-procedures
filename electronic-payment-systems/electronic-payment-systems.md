@@ -22,7 +22,8 @@ Pynthia Credit Union recognizes that electronic payment systems — including AC
 | Scenario | Trigger (human → event) | Deadline | Content Reference | Control |
 |---|---|---:|---|---|
 | New electronic banking service proposed | Proposal submitted → `eps.proposal.submitted` | Before deployment | Product Risk Analysis form; ERM Committee review | [EPS-01](#eps-01-planning-and-feasibility-analysis) |
-| BCP/IRP test of key electronic banking services | Scheduled test cycle → `eps.bcp_test.scheduled` | Per BCP schedule (at least annual) | Business Continuity Plan Policy | [EPS-02](#eps-02-incident-planning-and-preparedness) |
+| BCP/IRP test of key electronic banking services | Scheduled test cycle → `eps.bcp_test.scheduled` | Per BCP schedule (at least annual) | Business Continuity Plan Policy | [EPS-11](#eps-11-payment-incident-detection-bcp-testing) |
+| Reportable cyber incident determined | Reportable incident determined → `incident.reportability_determination` | 72 hours to NCUA | NCUA incident notification | [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification) |
 | Internal control review of electronic payment systems | Review cycle opens → `eps.control_review.opened` | Annual (internal SLA) | Control review checklist; deficiency log | [EPS-03](#eps-03-internal-routines-and-controls) |
 | IT Committee meeting | Quarterly calendar → `eps.it_committee.convened` | Quarterly | IT Committee minutes; dashboards | [EPS-04](#eps-04-management-supervision-and-oversight) |
 | IT Audit | Annual audit cycle → `eps.it_audit.opened` | Annual | IT Audit report | [EPS-04](#eps-04-management-supervision-and-oversight) |
@@ -61,11 +62,28 @@ Pynthia Credit Union recognizes that electronic payment systems — including AC
 
 ---
 
-## EPS-02 — Incident Planning and Preparedness {#eps-02-incident-planning-and-preparedness}
+## SC-01 — NCUA Reportable Cyber-Incident & Member Notification {#sc-01-ncua-reportable-cyber-incident-member-notification}
 
-**WHY (Reg cite):** [NCUA 12 CFR Part 748 Appendix A](https://www.ecfr.gov/current/title-12/part-748) requires federally insured credit unions to maintain an incident response program and business continuity plan covering information systems and electronic services. The FFIEC IT Examination Handbook (Business Continuity Management Booklet) sets expectations for regular testing of critical electronic banking services. Incident notification obligations for cybersecurity incidents are governed by [NCUA 12 CFR Part 748 Appendix B](https://www.ecfr.gov/current/title-12/part-748).
+**WHY (Reg cite):** [NCUA 12 CFR Part 748 §748.1(c)](https://www.ecfr.gov/current/title-12/part-748) requires credit unions to notify NCUA within 72 hours of determining a reportable cyber incident. [NCUA 12 CFR Part 748, Appendix B](https://www.ecfr.gov/current/title-12/part-748) requires a member notification program for unauthorized access to sensitive member information.
 
-**SYSTEM BEHAVIOR:** The Credit Union maintains a Business Continuity Plan (BCP), associated procedures, and an Incident Response Plan (IRP) that explicitly cover electronic banking risks, including all in-scope payment channels. The BCP must include regular testing of key electronic banking services; test results and after-action items are tracked to closure. When an electronic banking incident is detected, the incident response workflow is activated: the incident is declared, severity assigned, and — where the incident meets NCUA reportability thresholds — the NCUA notification timer is set. Incident records are write-restricted to the AVP of Deposit Operations and the Incident Commander; Compliance has read access. BCP test scheduling and results are maintained by the AVP of Deposit Operations and reviewed by the IT Committee. Detail on BCP program structure, DR objectives, and recovery procedures resides in the Business Continuity Plan Policy.
+**SYSTEM BEHAVIOR:** Once a reportable cyber incident is determined, NCUA notification must be sent within 72 hours of that determination. Member notice is sent without unreasonable delay per Appendix B criteria once misuse of member information is determined likely. The reportability determination and the NCUA-notification field are write-restricted to the CCO/Compliance-Legal. An incident determined non-reportable is documented with rationale and triggers no NCUA notice.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Reportable cyber incident determined (`incident.reportability_determination`) | Reportability rationale (`incident.reportability_rationale`), NCUA notice due (`incident.ncua_notice_due_at`) | NCUA notification sent (`incident.ncua.notified`) | 72 hours of determination (enforced by `incident.ncua_notice_due_at`) |
+| Member impact confirmed (`incident.member_impact.confirmed`) | Member impact summary (`incident.member_impact`), notice template (`incident.member_notice_template`) | Member notices sent (`incident.member_notices.sent`) | Without unreasonable delay per Appendix B (enforced by `incident.notification_due_at`) |
+
+**ALERTS/METRICS:** Alert fires when `incident.ncua_notice_due_at` is within 12 hours without an `incident.ncua.notified` event; alert fires when member notice is overdue per `incident.notification_due_at`. Target: 100% of reportable incidents notified to NCUA within 72 hours; zero member-notice SLA breaches.
+
+---
+
+## EPS-11 — Payment-Incident Detection & BCP Testing {#eps-11-payment-incident-detection-bcp-testing}
+
+**WHY (Reg cite):** [NCUA 12 CFR Part 748 Appendix A](https://www.ecfr.gov/current/title-12/part-748) requires federally insured credit unions to maintain an incident response program and business continuity plan covering information systems and electronic services. The FFIEC IT Examination Handbook (Business Continuity Management Booklet) sets expectations for regular testing of critical electronic banking services. Incident detection feeds the reportability determination governed by [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification).
+
+**SYSTEM BEHAVIOR:** The Credit Union maintains a Business Continuity Plan (BCP), associated procedures, and an Incident Response Plan (IRP) that explicitly cover electronic banking risks, including all in-scope payment channels. The BCP must include regular testing of key electronic banking services; test results and after-action items are tracked to closure. When an electronic banking incident is detected, the incident response workflow is activated: the incident is declared, severity assigned, and routed to SC-01 for reportability assessment. Incident records are write-restricted to the AVP of Deposit Operations and the Incident Commander; Compliance has read access. BCP test scheduling and results are maintained by the AVP of Deposit Operations and reviewed by the IT Committee. Detail on BCP program structure, DR objectives, and recovery procedures resides in the Business Continuity Plan Policy.
 
 **EVENTS:**
 
@@ -74,10 +92,8 @@ Pynthia Credit Union recognizes that electronic payment systems — including AC
 | BCP test of key electronic banking services scheduled (`eps.bcp_test.scheduled`) | Test scenario (`eps.bcp_test.scenario`), services in scope, test date | BCP test scheduled (`eps.bcp_test.scheduled`); task created (`eps.bcp_test.due_at`) | Per BCP schedule; at least annually |
 | BCP test of key electronic banking services completed (`eps.bcp_test.completed`) | Test results, defects identified (`eps.test.defects`), after-action items | BCP test results recorded (`eps.bcp_test.completed`); deficiencies logged if any (`eps.control_review.deficiency_found`) | Within 10 BD of test execution |
 | Electronic banking incident detected (`eps.incident.detected`) | Incident description (`incident.description`), affected service (`eps.service.id`), initial severity (`eps.incident.severity`), vendor linkage if applicable (`eps.incident.vendor_linked`) | Incident opened (`eps.incident.opened`); incident record created (`incident.created`) | Immediately upon detection |
-| Incident reportability to NCUA determined (`eps.incident.reportable_determined`) | Incident scope (`incident.scope`), member impact (`eps.incident.impact`), reportability assessment (`incident.reportability_assessment`) | Reportability determination recorded (`eps.incident.reportable_determined`); NCUA notification timer set if reportable (`eps.incident.ncua_due_at`) | Within 72 hours of incident discovery (NCUA 72-hour rule where applicable; enforced by `eps.incident.ncua_due_at`) |
-| NCUA notified of reportable incident (`eps.incident_ncua.notified`) | NCUA notification content, incident record reference | NCUA notification logged (`eps.incident_ncua.notified`) | Within 72 hours of discovery (enforced by `eps.incident.ncua_due_at`) |
 
-**ALERTS/METRICS:** Alert if a BCP test for electronic banking services has not been completed within the scheduled window — target zero overdue tests. Alert if an incident with `eps.incident.reportable_determined` = true has no `eps.incident_ncua.notified` event within 72 hours of discovery. Monitor mean time to incident containment for electronic banking incidents.
+**ALERTS/METRICS:** Alert if a BCP test for electronic banking services has not been completed within the scheduled window — target zero overdue tests. Monitor mean time to incident containment for electronic banking incidents.
 
 ---
 
@@ -284,7 +300,8 @@ Pynthia Credit Union recognizes that electronic payment systems — including AC
 
 - **Phishing communication cadence.** The Reference Policy states communications are sent "periodically." This policy assumes at least semi-annually (every 180 days) as the internal SLA for `eps.training_fraud_comm.sent`. This should be confirmed and documented in the Electronic Banking Risk Assessment.
 
-- **NCUA 72-hour incident notification.** The 72-hour notification deadline for reportable cybersecurity incidents is drawn from [NCUA 12 CFR Part 748 Appendix B](https://www.ecfr.gov/current/title-12/part-748) (effective September 2023). The registered timer `eps.incident.ncua_due_at` is used to enforce this deadline. Engineering should confirm this timer is set at incident discovery time, not detection time, consistent with the NCUA rule.
+- **NCUA 72-hour incident notification.** The 72-hour notification deadline for reportable cybersecurity incidents is drawn from [NCUA 12 CFR Part 748 Appendix B](https://www.ecfr.gov/current/title-12/part-748) (effective September 2023) and is governed by [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification). The registered timer `incident.ncua_notice_due_at` is used to enforce this deadline. Engineering should confirm this timer is set at incident discovery time, not detection time, consistent with the NCUA rule.
+- **NCUA reportable-incident/member-notice mechanic is a single shared control.** [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification) is sourced verbatim — same control ID, title, and body — from [`shared-controls/ncua-incident-notification.md`](../shared-controls/ncua-incident-notification.md) and appears identically in Business Continuity Plan, E-Commerce, Electronic Payment Systems, Collections, Information Security, Privacy, and Third-Party Risk. Edit the shared source first, then propagate to all seven; do not edit SC-01 in this policy in isolation. EPS-11 carries the payment-incident detection/BCP-testing material that used to be bundled into the old EPS-02 control, and its prior EPS-specific `eps.incident.reportable_determined`/`eps.incident_ncua.notified`/`eps.incident.ncua_due_at` codes were migrated onto SC-01's generic `incident.*` codes.
 
 - **Regulation CC applicability to remote/mobile deposit capture.** [Regulation CC (12 CFR Part 229)](https://www.ecfr.gov/current/title-12/part-229) governs funds availability for remotely deposited checks. This policy references Reg CC as an authority for EPS-10 (testing) but does not establish Reg CC funds-availability controls, which are assumed to be governed by the E-Commerce Policy or a separate Funds Availability Policy. This scope boundary should be confirmed.
 

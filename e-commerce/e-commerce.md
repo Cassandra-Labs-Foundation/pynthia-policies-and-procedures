@@ -31,7 +31,7 @@ Pynthia Credit Union is committed to identifying, measuring, monitoring, and con
 | Firewall periodic review | Scheduled review cycle opens | Periodically (internal cadence) | Firewall rule review and test | [EC-05](#ec-05-firewalls) |
 | Firewall independent annual review | Annual calendar trigger (`firewall.independent_review_due`) | Annually | Independent provider intrusion-risk review and test | [EC-05](#ec-05-firewalls) |
 | TLS/SSL annual test | Annual calendar trigger (`tls.assessment_due`) | Annually | Qualys SSL Labs test; results retained with IT | [EC-06](#ec-06-encryption) |
-| Security breach detected | Unauthorized act or user detected (`incident.detected`) | Immediately | Management notification; damage/liability assessment; response activation | [EC-10](#ec-10-breach-of-security-response) |
+| Security breach detected | Unauthorized act or user detected (`incident.detected`) | Immediately | Management notification; damage/liability assessment; response activation | [EC-13](#ec-13-breach-detection-liability-assessment-external-comms-gating) / [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification) |
 | Annual e-commerce risk assessment | Annual calendar trigger (`ecommerce.risk_assessment_due`) | Annually | Risk assessment covering all e-commerce systems | [EC-02](#ec-02-network-and-data-access-controls) |
 | Annual training needs assessment | Annual calendar trigger (`training.annual_due`) | Annually | Staffing and training needs reassessment | [EC-12](#ec-12-expertise-and-training) |
 | Annual policy review | Board review cycle opens (`policy.review_due`) | Annually | Board review and approval of this policy | [EC-01](#ec-01-safeguarding-member-information) |
@@ -202,23 +202,38 @@ Pynthia Credit Union is committed to identifying, measuring, monitoring, and con
 
 ---
 
-## EC-10 — Breach of Security Response {#ec-10-breach-of-security-response}
+## SC-01 — NCUA Reportable Cyber-Incident & Member Notification {#sc-01-ncua-reportable-cyber-incident-member-notification}
 
-**WHY (Reg cite):** [NCUA 12 CFR Part 748, Appendix B](https://www.ecfr.gov/current/title-12/part-748) (Guidance on Response Programs for Unauthorized Access to Member Information) requires credit unions to implement a response program for security breaches involving member information, including notification to members, regulators, and law enforcement as appropriate. [GLBA 15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801) underpins the obligation to protect member information and respond to breaches.
+**WHY (Reg cite):** [NCUA 12 CFR Part 748 §748.1(c)](https://www.ecfr.gov/current/title-12/part-748) requires credit unions to notify NCUA within 72 hours of determining a reportable cyber incident. [NCUA 12 CFR Part 748, Appendix B](https://www.ecfr.gov/current/title-12/part-748) requires a member notification program for unauthorized access to sensitive member information.
 
-**SYSTEM BEHAVIOR:** Upon detection of an unauthorized act or user, the credit union immediately notifies management of the cause and scope of the breach. The extent of damage or disclosure of information is determined, including potential legal liability. Proper response activities are activated covering communications with members, law enforcement agencies, regulatory agencies, and the media. Only designated individuals are authorized to communicate externally with any of these parties; all other staff must route external inquiries to the designated spokesperson. The incident is managed through the credit union's incident management process. Member notification decisions are made based on the scope of member information affected. The CCO coordinates the response; the CIO/IT Department supports containment and forensics.
+**SYSTEM BEHAVIOR:** Once a reportable cyber incident is determined, NCUA notification must be sent within 72 hours of that determination. Member notice is sent without unreasonable delay per Appendix B criteria once misuse of member information is determined likely. The reportability determination and the NCUA-notification field are write-restricted to the CCO/Compliance-Legal. An incident determined non-reportable is documented with rationale and triggers no NCUA notice.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Reportable cyber incident determined (`incident.reportability_determination`) | Reportability rationale (`incident.reportability_rationale`), NCUA notice due (`incident.ncua_notice_due_at`) | NCUA notification sent (`incident.ncua.notified`) | 72 hours of determination (enforced by `incident.ncua_notice_due_at`) |
+| Member impact confirmed (`incident.member_impact.confirmed`) | Member impact summary (`incident.member_impact`), notice template (`incident.member_notice_template`) | Member notices sent (`incident.member_notices.sent`) | Without unreasonable delay per Appendix B (enforced by `incident.notification_due_at`) |
+
+**ALERTS/METRICS:** Alert fires when `incident.ncua_notice_due_at` is within 12 hours without an `incident.ncua.notified` event; alert fires when member notice is overdue per `incident.notification_due_at`. Target: 100% of reportable incidents notified to NCUA within 72 hours; zero member-notice SLA breaches.
+
+---
+
+## EC-13 — Breach Detection, Liability Assessment & External Comms Gating {#ec-13-breach-detection-liability-assessment-external-comms-gating}
+
+**WHY (Reg cite):** [GLBA 15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801) underpins the obligation to protect member information and respond to breaches. Feeds the reportability determination governed by [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification).
+
+**SYSTEM BEHAVIOR:** Upon detection of an unauthorized act or user, the credit union immediately notifies management of the cause and scope of the breach. The extent of damage or disclosure of information is determined, including potential legal liability, to support the SC-01 reportability determination. Proper response activities are activated covering communications with members, law enforcement agencies, regulatory agencies, and the media. Only designated individuals are authorized to communicate externally with any of these parties; all other staff must route external inquiries to the designated spokesperson. The CCO coordinates the response; the CIO/IT Department supports containment and forensics.
 
 **EVENTS:**
 
 | When | What's needed | Produced (and logged) | Within |
 |---|---|---|---|
 | Unauthorized act or user detected (`incident.detected`) | Detection source (`incident.detection_source`), initial scope (`incident.scope_initial`), severity (`incident.severity`) | Incident declared (`incident.declared`); management notified immediately (`incident.ic.assigned`); incident record created (`incident.created`) | Immediately on detection |
-| Incident scope and damage assessed (`incident.assessment.completed`) | Incident facts (`incident.facts`), data scope (`incident.data_scope`), member impact (`incident.member_impact`), legal review (`incident.legal_review`) | Assessment completed (`incident.assessment.completed`); reportability determination made (`incident.reportability_assessment`); member notice requirement determined (`incident.member_notice_required`) | Within internal SLA (internal: within 24 hours of detection) |
-| Member notification required (`incident.member.notified`) | Member notice template (`incident.member_notice_template`), affected member list (`incident.member_impact`), notice content (`incident.notice_content`) | Member notices sent (`incident.member_notices`); notification logged (`incident.member_notices.sent`) | Per NCUA Part 748 Appendix B timeline (enforced by `incident.notification_due_at`) |
-| Regulator notification required (`incident.regulator.notified`) | Reportability determination (`incident.reportable_determined`), NCUA notice due date (`incident.ncua_notice_due_at`), regulator contact | NCUA notified (`incident.ncua.notified`); notification logged (`regulator.ncua.notified`) | Per NCUA 72-hour notification requirement where applicable (enforced by `incident.ncua_notice_due_at`) |
+| Incident scope and damage assessed (`incident.assessment.completed`) | Incident facts (`incident.facts`), data scope (`incident.data_scope`), member impact (`incident.member_impact`), legal review (`incident.legal_review`) | Assessment completed (`incident.assessment.completed`); reportability determination made (`incident.reportability_assessment`) | Within internal SLA (internal: within 24 hours of detection) |
 | External communications required (media, law enforcement) (`incident.external_comms.started`) | Designated spokesperson authorization, communications plan (`incident.comms_plan`), holding statement (`comms.holding_statement`) | External communications logged (`incident.external_comms.recorded`); only designated individuals authorized to communicate | Per response plan timeline |
 
-**ALERTS/METRICS:** Alert when an `incident.declared` event has no `incident.ic.assigned` event within 15 minutes. Alert when `incident.notification_due_at` is approaching without a `incident.member_notices.sent` event. Alert when `incident.ncua_notice_due_at` is within 12 hours without a `incident.ncua.notified` event. Target: zero breaches where management notification is delayed beyond immediate; zero regulatory notifications missed.
+**ALERTS/METRICS:** Alert when an `incident.declared` event has no `incident.ic.assigned` event within 15 minutes. Target: zero breaches where management notification is delayed beyond immediate.
 
 ---
 
@@ -290,7 +305,8 @@ Pynthia Credit Union is committed to identifying, measuring, monitoring, and con
 
 - **Penetration testing frequency.** PATRICK_NOTES and the REFERENCE_POLICY do not specify a minimum penetration testing frequency beyond the annual independent firewall review. This policy treats penetration testing as an annual engagement minimum, consistent with FFIEC expectations. If the credit union's risk assessment supports a different cadence, the `pentest.engagement_due` timer should be updated accordingly.
 
-- **NCUA 72-hour breach notification applicability.** The NCUA cybersecurity incident notification rule (12 CFR Part 748, Appendix B, as amended) imposes a 72-hour notification requirement for certain reportable incidents. EC-10 references this requirement. The specific threshold for "reportable" incidents (material impact on members or operations) should be confirmed with legal counsel and documented in the Breach Response procedures referenced by this policy.
+- **NCUA 72-hour breach notification applicability.** The NCUA cybersecurity incident notification rule (12 CFR Part 748, Appendix B, as amended) imposes a 72-hour notification requirement for certain reportable incidents, governed by [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification). The specific threshold for "reportable" incidents (material impact on members or operations) should be confirmed with legal counsel and documented in the Breach Response procedures referenced by this policy.
+- **NCUA reportable-incident/member-notice mechanic is a single shared control.** [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification) is sourced verbatim — same control ID, title, and body — from [`shared-controls/ncua-incident-notification.md`](../shared-controls/ncua-incident-notification.md) and appears identically in Business Continuity Plan, E-Commerce, Electronic Payment Systems, Collections, Information Security, Privacy, and Third-Party Risk. Edit the shared source first, then propagate to all seven; do not edit SC-01 in this policy in isolation. EC-13 carries the detection/liability-assessment/external-comms material that used to be bundled into the old EC-10 control.
 
 - **SecureWorks as SOC provider.** The REFERENCE_POLICY names SecureWorks as the 24/7 security operations center. This policy preserves that reference. If the provider changes, EC-09 should be updated and the vendor change processed through the Third-Party Risk Policy.
 

@@ -106,8 +106,25 @@ is `Cassandra Banking Core API v1.0.0`, which is banking-core
 
 ## 6. Local Overrides to the Shared Meta-Prompt
 
-{{Usually empty. Put anything here that should override the shared
-`meta-prompt.md` for THIS policy only — a different control-ID prefix,
-extra required sections, a specific citation style, etc. The regeneration
-task applies overrides AFTER the shared meta-prompt, so instructions here
-win.}}
+**Shared control SC-01: NCUA reportable-incident & member notification.**
+This policy contains a control named, numbered, and bodied **identically**
+to the same control in six other policies — Business Continuity Plan,
+E-Commerce, Electronic Payment Systems, Information Security, Privacy, and
+Third-Party Risk. Before generating, read
+`shared-controls/ncua-incident-notification.md` at the project root and
+emit its "Embeddable block" **verbatim and in full**, including the
+heading line itself:
+
+    ## SC-01 — NCUA Reportable Cyber-Incident & Member Notification {#sc-01-ncua-reportable-cyber-incident-member-notification}
+
+Do not renumber this control into the CO-xx sequence, do not retitle it,
+and do not paraphrase the WHY / SYSTEM BEHAVIOR / EVENTS / ALERTS body. The
+control ID `SC-01` and this exact title must be byte-identical across all
+seven policies — that identity is the point of the consolidation.
+
+This policy's own collections-data incident logging and 24-hour triage is
+**not** part of SC-01. Emit it as its own separate, normally-numbered
+control in this policy's CO-xx sequence (next available number), titled
+along the lines of "Collections-Data Incident Logging & Triage," and have
+its SYSTEM BEHAVIOR note that it feeds the SC-01 reportability
+determination. Link the two via anchor, but do not merge their bodies.
