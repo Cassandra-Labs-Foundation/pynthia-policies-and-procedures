@@ -1,22 +1,22 @@
 {
   "meta": {
     "generator": "scripts/build_control_vocabulary.py",
-    "generated_at": "2026-06-19T23:09:01+00:00",
+    "generated_at": "2026-06-25T17:24:46+00:00",
     "source": "controls.json",
     "api_model": {
       "spec_title": "Cassandra Banking Core API",
       "spec_version": "3.0.0",
       "events": 1223,
-      "fields": 2523,
-      "entities": 298
+      "fields": 2504,
+      "entities": 275
     },
-    "controls_generated_at": "2026-06-19T23:09:00+00:00"
+    "controls_generated_at": "2026-06-25T17:24:46+00:00"
   },
   "stats": {
     "entities": 264,
-    "unique_codes": 2954,
-    "registered_events": 1051,
-    "registered_fields": 1872,
+    "unique_codes": 2939,
+    "registered_events": 1047,
+    "registered_fields": 1861,
     "unregistered_codes": 31,
     "statuses": 33
   },
@@ -13501,7 +13501,7 @@
           "status": "field",
           "spec": {
             "entity": "change",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -13565,7 +13565,7 @@
           "status": "field",
           "spec": {
             "entity": "change",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -14206,7 +14206,7 @@
           "status": "field",
           "spec": {
             "entity": "coi",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -15265,7 +15265,7 @@
           "ref_count": 3,
           "controls": [
             "BC-11",
-            "EC-10",
+            "EC-13",
             "LQ-12"
           ],
           "policies": [
@@ -15572,7 +15572,7 @@
           "status": "field",
           "spec": {
             "entity": "complaint",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -15660,7 +15660,7 @@
           "status": "field",
           "spec": {
             "entity": "complaint",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -15680,7 +15680,7 @@
           "status": "field",
           "spec": {
             "entity": "complaint",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -15832,7 +15832,7 @@
           "status": "field",
           "spec": {
             "entity": "complaint",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -15876,7 +15876,7 @@
           "status": "field",
           "spec": {
             "entity": "complaint",
-            "type": "string",
+            "type": "string (date)",
             "pii": false,
             "required": false,
             "description": null
@@ -19273,7 +19273,7 @@
           "status": "field",
           "spec": {
             "entity": "dispute",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -19309,7 +19309,7 @@
           "status": "field",
           "spec": {
             "entity": "dispute",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -21083,9 +21083,9 @@
     },
     "eps": {
       "entity": "eps",
-      "code_count": 123,
-      "registered_events": 43,
-      "registered_fields": 80,
+      "code_count": 119,
+      "registered_events": 42,
+      "registered_fields": 77,
       "unregistered": 0,
       "codes": [
         {
@@ -21127,7 +21127,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "EPS-02"
+            "EPS-11"
           ],
           "policies": [
             "electronic-payment-systems"
@@ -21142,7 +21142,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "EPS-02"
+            "EPS-11"
           ],
           "policies": [
             "electronic-payment-systems"
@@ -21339,7 +21339,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "EPS-02"
+            "EPS-11"
           ],
           "policies": [
             "electronic-payment-systems"
@@ -21354,22 +21354,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "EPS-02"
-          ],
-          "policies": [
-            "electronic-payment-systems"
-          ]
-        },
-        {
-          "code": "eps.incident_ncua.notified",
-          "status": "event",
-          "spec": {
-            "entity": "eps",
-            "description": "canonical event_type: `notified`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "EPS-02"
+            "EPS-11"
           ],
           "policies": [
             "electronic-payment-systems"
@@ -21858,7 +21843,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "EPS-02"
+            "EPS-11"
           ],
           "policies": [
             "electronic-payment-systems"
@@ -21876,7 +21861,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "EPS-02"
+            "EPS-11"
           ],
           "policies": [
             "electronic-payment-systems"
@@ -22111,8 +22096,8 @@
           },
           "ref_count": 2,
           "controls": [
-            "EPS-02",
-            "EPS-03"
+            "EPS-03",
+            "EPS-11"
           ],
           "policies": [
             "electronic-payment-systems"
@@ -22299,42 +22284,6 @@
           ]
         },
         {
-          "code": "eps.incident.impact",
-          "status": "field",
-          "spec": {
-            "entity": "eps",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "EPS-02"
-          ],
-          "policies": [
-            "electronic-payment-systems"
-          ]
-        },
-        {
-          "code": "eps.incident.ncua_due_at",
-          "status": "field",
-          "spec": {
-            "entity": "eps",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "EPS-02"
-          ],
-          "policies": [
-            "electronic-payment-systems"
-          ]
-        },
-        {
           "code": "eps.incident.severity",
           "status": "field",
           "spec": {
@@ -22346,7 +22295,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "EPS-02"
+            "EPS-11"
           ],
           "policies": [
             "electronic-payment-systems"
@@ -22364,25 +22313,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "EPS-02"
-          ],
-          "policies": [
-            "electronic-payment-systems"
-          ]
-        },
-        {
-          "code": "eps.incident_reportable.determined",
-          "status": "field",
-          "spec": {
-            "entity": "eps",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "EPS-02"
+            "EPS-11"
           ],
           "policies": [
             "electronic-payment-systems"
@@ -22639,9 +22570,9 @@
           "ref_count": 4,
           "controls": [
             "EPS-01",
-            "EPS-02",
             "EPS-05",
-            "EPS-10"
+            "EPS-10",
+            "EPS-11"
           ],
           "policies": [
             "electronic-payment-systems"
@@ -22713,8 +22644,8 @@
           },
           "ref_count": 2,
           "controls": [
-            "EPS-02",
-            "EPS-10"
+            "EPS-10",
+            "EPS-11"
           ],
           "policies": [
             "electronic-payment-systems"
@@ -25638,7 +25569,7 @@
           "status": "field",
           "spec": {
             "entity": "finding",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -25696,7 +25627,7 @@
           "status": "field",
           "spec": {
             "entity": "finding",
-            "type": "string",
+            "type": "string (date)",
             "pii": false,
             "required": false,
             "description": null
@@ -25733,7 +25664,7 @@
           "status": "field",
           "spec": {
             "entity": "finding",
-            "type": "string",
+            "type": "string (date)",
             "pii": false,
             "required": false,
             "description": null
@@ -25794,7 +25725,7 @@
           "status": "field",
           "spec": {
             "entity": "finding",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -27102,7 +27033,7 @@
           "status": "field",
           "spec": {
             "entity": "handover",
-            "type": "string",
+            "type": "string (date)",
             "pii": false,
             "required": false,
             "description": null
@@ -27174,7 +27105,7 @@
           "status": "field",
           "spec": {
             "entity": "handover",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -27192,7 +27123,7 @@
           "status": "field",
           "spec": {
             "entity": "handover",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -27647,9 +27578,9 @@
     },
     "incident": {
       "entity": "incident",
-      "code_count": 60,
-      "registered_events": 22,
-      "registered_fields": 38,
+      "code_count": 49,
+      "registered_events": 19,
+      "registered_fields": 30,
       "unregistered": 0,
       "codes": [
         {
@@ -27661,7 +27592,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "EC-10"
+            "EC-13"
           ],
           "policies": [
             "e-commerce"
@@ -27677,8 +27608,8 @@
           "ref_count": 3,
           "controls": [
             "BC-05",
-            "CO-08",
-            "PR-09"
+            "CO-11",
+            "PR-18"
           ],
           "policies": [
             "business-continuity-plan",
@@ -27696,7 +27627,7 @@
           "ref_count": 2,
           "controls": [
             "BC-13",
-            "IS-09"
+            "IS-19"
           ],
           "policies": [
             "business-continuity-plan",
@@ -27712,7 +27643,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CO-08"
+            "CO-11"
           ],
           "policies": [
             "collections"
@@ -27727,7 +27658,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "BC-10"
+            "BC-15"
           ],
           "policies": [
             "business-continuity-plan"
@@ -27744,15 +27675,15 @@
           "controls": [
             "BC-05",
             "BC-09",
-            "BC-10",
-            "CO-08",
+            "BC-15",
+            "CO-11",
             "CP-08",
             "EC-09",
-            "EC-10",
-            "EPS-02",
+            "EC-13",
+            "EPS-11",
             "ERM-04",
-            "PR-09",
-            "TR-08"
+            "PR-18",
+            "TR-11"
           ],
           "policies": [
             "business-continuity-plan",
@@ -27776,8 +27707,8 @@
           "controls": [
             "BC-06",
             "BC-11",
-            "EC-10",
-            "IS-09"
+            "EC-13",
+            "IS-19"
           ],
           "policies": [
             "business-continuity-plan",
@@ -27794,8 +27725,8 @@
           },
           "ref_count": 2,
           "controls": [
-            "EC-10",
-            "PR-09"
+            "EC-13",
+            "PR-18"
           ],
           "policies": [
             "e-commerce",
@@ -27811,7 +27742,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "EC-10"
+            "EC-13"
           ],
           "policies": [
             "e-commerce"
@@ -27826,7 +27757,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "EC-10"
+            "EC-13"
           ],
           "policies": [
             "e-commerce"
@@ -27842,7 +27773,7 @@
           "ref_count": 2,
           "controls": [
             "BC-06",
-            "IS-09"
+            "IS-19"
           ],
           "policies": [
             "business-continuity-plan",
@@ -27861,28 +27792,13 @@
             "BC-05",
             "BC-06",
             "BC-09",
-            "EC-10",
-            "IS-09"
+            "EC-13",
+            "IS-19"
           ],
           "policies": [
             "business-continuity-plan",
             "e-commerce",
             "information-security"
-          ]
-        },
-        {
-          "code": "incident.member.notified",
-          "status": "event",
-          "spec": {
-            "entity": "incident",
-            "description": "canonical event_type: `notified`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "EC-10"
-          ],
-          "policies": [
-            "e-commerce"
           ]
         },
         {
@@ -27892,13 +27808,18 @@
             "entity": "incident",
             "description": "canonical event_type: `confirmed`"
           },
-          "ref_count": 2,
+          "ref_count": 1,
           "controls": [
-            "IS-09",
-            "TR-08"
+            "SC-01"
           ],
           "policies": [
+            "business-continuity-plan",
+            "collections",
+            "e-commerce",
+            "electronic-payment-systems",
             "information-security",
+            "privacy",
+            "shared-controls",
             "third-party-risk"
           ]
         },
@@ -27909,19 +27830,18 @@
             "entity": "incident",
             "description": "canonical event_type: `sent`"
           },
-          "ref_count": 5,
+          "ref_count": 1,
           "controls": [
-            "CO-08",
-            "EC-10",
-            "IS-09",
-            "PR-09",
-            "TR-08"
+            "SC-01"
           ],
           "policies": [
+            "business-continuity-plan",
             "collections",
             "e-commerce",
+            "electronic-payment-systems",
             "information-security",
             "privacy",
+            "shared-controls",
             "third-party-risk"
           ]
         },
@@ -27932,21 +27852,18 @@
             "entity": "incident",
             "description": "canonical event_type: `notified`"
           },
-          "ref_count": 6,
+          "ref_count": 1,
           "controls": [
-            "BC-10",
-            "CO-08",
-            "EC-10",
-            "IS-09",
-            "PR-09",
-            "TR-08"
+            "SC-01"
           ],
           "policies": [
             "business-continuity-plan",
             "collections",
             "e-commerce",
+            "electronic-payment-systems",
             "information-security",
             "privacy",
+            "shared-controls",
             "third-party-risk"
           ]
         },
@@ -27959,37 +27876,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "IS-09"
-          ],
-          "policies": [
-            "information-security"
-          ]
-        },
-        {
-          "code": "incident.regulator.notified",
-          "status": "event",
-          "spec": {
-            "entity": "incident",
-            "description": "canonical event_type: `notified`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "EC-10"
-          ],
-          "policies": [
-            "e-commerce"
-          ]
-        },
-        {
-          "code": "incident.security.confirmed",
-          "status": "event",
-          "spec": {
-            "entity": "incident",
-            "description": "canonical event_type: `confirmed`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "IS-09"
+            "IS-19"
           ],
           "policies": [
             "information-security"
@@ -28044,24 +27931,6 @@
           ]
         },
         {
-          "code": "incident.cco_signoff",
-          "status": "field",
-          "spec": {
-            "entity": "Incident",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "CO-08"
-          ],
-          "policies": [
-            "collections"
-          ]
-        },
-        {
           "code": "incident.collections",
           "status": "field",
           "spec": {
@@ -28073,7 +27942,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CO-08"
+            "CO-11"
           ],
           "policies": [
             "collections"
@@ -28092,7 +27961,7 @@
           "ref_count": 2,
           "controls": [
             "BC-05",
-            "EC-10"
+            "EC-13"
           ],
           "policies": [
             "business-continuity-plan",
@@ -28112,7 +27981,7 @@
           "ref_count": 2,
           "controls": [
             "BC-06",
-            "PR-09"
+            "PR-18"
           ],
           "policies": [
             "business-continuity-plan",
@@ -28131,7 +28000,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "BC-10"
+            "BC-15"
           ],
           "policies": [
             "business-continuity-plan"
@@ -28149,7 +28018,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "PR-09"
+            "PR-18"
           ],
           "policies": [
             "privacy"
@@ -28167,11 +28036,11 @@
           },
           "ref_count": 5,
           "controls": [
-            "BC-10",
-            "CO-08",
-            "EC-10",
+            "BC-15",
+            "CO-11",
+            "EC-13",
             "IS-13",
-            "PR-09"
+            "PR-18"
           ],
           "policies": [
             "business-continuity-plan",
@@ -28193,11 +28062,11 @@
           },
           "ref_count": 5,
           "controls": [
-            "BC-10",
-            "CO-08",
-            "EPS-02",
-            "IS-09",
-            "PR-09"
+            "BC-15",
+            "CO-11",
+            "EPS-11",
+            "IS-19",
+            "PR-18"
           ],
           "policies": [
             "business-continuity-plan",
@@ -28219,12 +28088,12 @@
           },
           "ref_count": 6,
           "controls": [
-            "BC-10",
-            "CO-08",
+            "BC-15",
+            "CO-11",
             "EC-09",
-            "EC-10",
-            "IS-09",
-            "PR-09"
+            "EC-13",
+            "IS-19",
+            "PR-18"
           ],
           "policies": [
             "business-continuity-plan",
@@ -28246,7 +28115,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "EC-10"
+            "EC-13"
           ],
           "policies": [
             "e-commerce"
@@ -28283,7 +28152,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "PR-09"
+            "PR-18"
           ],
           "policies": [
             "privacy"
@@ -28317,13 +28186,11 @@
             "required": false,
             "description": null
           },
-          "ref_count": 2,
+          "ref_count": 1,
           "controls": [
-            "BC-10",
-            "EC-10"
+            "EC-13"
           ],
           "policies": [
-            "business-continuity-plan",
             "e-commerce"
           ]
         },
@@ -28339,8 +28206,8 @@
           },
           "ref_count": 2,
           "controls": [
-            "PR-09",
-            "PR-10"
+            "PR-10",
+            "PR-18"
           ],
           "policies": [
             "privacy"
@@ -28359,44 +28226,21 @@
           "ref_count": 6,
           "controls": [
             "BC-09",
-            "BC-10",
-            "CO-08",
-            "EC-10",
-            "IS-09",
-            "PR-09"
+            "BC-15",
+            "CO-11",
+            "EC-13",
+            "PR-18",
+            "SC-01"
           ],
           "policies": [
             "business-continuity-plan",
             "collections",
             "e-commerce",
+            "electronic-payment-systems",
             "information-security",
-            "privacy"
-          ]
-        },
-        {
-          "code": "incident.member_notice_required",
-          "status": "field",
-          "spec": {
-            "entity": "Incident",
-            "type": "boolean",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 5,
-          "controls": [
-            "BC-10",
-            "CO-08",
-            "EC-10",
-            "IS-09",
-            "PR-09"
-          ],
-          "policies": [
-            "business-continuity-plan",
-            "collections",
-            "e-commerce",
-            "information-security",
-            "privacy"
+            "privacy",
+            "shared-controls",
+            "third-party-risk"
           ]
         },
         {
@@ -28409,72 +28253,18 @@
             "required": false,
             "description": null
           },
-          "ref_count": 3,
+          "ref_count": 1,
           "controls": [
-            "CO-08",
-            "EC-10",
-            "IS-09"
+            "SC-01"
           ],
           "policies": [
+            "business-continuity-plan",
             "collections",
             "e-commerce",
-            "information-security"
-          ]
-        },
-        {
-          "code": "incident.member_notices",
-          "status": "field",
-          "spec": {
-            "entity": "Incident",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 2,
-          "controls": [
-            "EC-10",
-            "PR-09"
-          ],
-          "policies": [
-            "e-commerce",
-            "privacy"
-          ]
-        },
-        {
-          "code": "incident.misuse.determined",
-          "status": "field",
-          "spec": {
-            "entity": "Incident",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "CO-08"
-          ],
-          "policies": [
-            "collections"
-          ]
-        },
-        {
-          "code": "incident.misuse_likelihood",
-          "status": "field",
-          "spec": {
-            "entity": "Incident",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "CO-08"
-          ],
-          "policies": [
-            "collections"
+            "electronic-payment-systems",
+            "information-security",
+            "shared-controls",
+            "third-party-risk"
           ]
         },
         {
@@ -28487,44 +28277,19 @@
             "required": false,
             "description": null
           },
-          "ref_count": 6,
+          "ref_count": 1,
           "controls": [
-            "BC-10",
-            "CO-08",
-            "EC-10",
-            "IS-09",
-            "PR-09",
-            "TR-08"
+            "SC-01"
           ],
           "policies": [
             "business-continuity-plan",
             "collections",
             "e-commerce",
+            "electronic-payment-systems",
             "information-security",
             "privacy",
+            "shared-controls",
             "third-party-risk"
-          ]
-        },
-        {
-          "code": "incident.notice_content",
-          "status": "field",
-          "spec": {
-            "entity": "Incident",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 3,
-          "controls": [
-            "CO-08",
-            "EC-10",
-            "PR-09"
-          ],
-          "policies": [
-            "collections",
-            "e-commerce",
-            "privacy"
           ]
         },
         {
@@ -28539,28 +28304,10 @@
           },
           "ref_count": 1,
           "controls": [
-            "PR-09"
+            "SC-01"
           ],
           "policies": [
             "privacy"
-          ]
-        },
-        {
-          "code": "incident.notification.determined",
-          "status": "field",
-          "spec": {
-            "entity": "Incident",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "BC-10"
-          ],
-          "policies": [
-            "business-continuity-plan"
           ]
         },
         {
@@ -28573,18 +28320,19 @@
             "required": false,
             "description": null
           },
-          "ref_count": 4,
+          "ref_count": 1,
           "controls": [
-            "CO-08",
-            "EC-10",
-            "IS-09",
-            "PR-09"
+            "SC-01"
           ],
           "policies": [
+            "business-continuity-plan",
             "collections",
             "e-commerce",
+            "electronic-payment-systems",
             "information-security",
-            "privacy"
+            "privacy",
+            "shared-controls",
+            "third-party-risk"
           ]
         },
         {
@@ -28599,7 +28347,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "IS-09"
+            "IS-19"
           ],
           "policies": [
             "information-security"
@@ -28615,18 +28363,14 @@
             "required": false,
             "description": null
           },
-          "ref_count": 4,
+          "ref_count": 2,
           "controls": [
-            "BC-10",
-            "CO-08",
-            "EC-10",
-            "EPS-02"
+            "CO-11",
+            "EC-13"
           ],
           "policies": [
-            "business-continuity-plan",
             "collections",
-            "e-commerce",
-            "electronic-payment-systems"
+            "e-commerce"
           ]
         },
         {
@@ -28641,12 +28385,18 @@
           },
           "ref_count": 2,
           "controls": [
-            "CO-08",
-            "IS-09"
+            "CO-11",
+            "SC-01"
           ],
           "policies": [
+            "business-continuity-plan",
             "collections",
-            "information-security"
+            "e-commerce",
+            "electronic-payment-systems",
+            "information-security",
+            "privacy",
+            "shared-controls",
+            "third-party-risk"
           ]
         },
         {
@@ -28659,32 +28409,19 @@
             "required": false,
             "description": null
           },
-          "ref_count": 2,
-          "controls": [
-            "CO-08",
-            "IS-09"
-          ],
-          "policies": [
-            "collections",
-            "information-security"
-          ]
-        },
-        {
-          "code": "incident.reportable.determined",
-          "status": "field",
-          "spec": {
-            "entity": "Incident",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
           "ref_count": 1,
           "controls": [
-            "EC-10"
+            "SC-01"
           ],
           "policies": [
-            "e-commerce"
+            "business-continuity-plan",
+            "collections",
+            "e-commerce",
+            "electronic-payment-systems",
+            "information-security",
+            "privacy",
+            "shared-controls",
+            "third-party-risk"
           ]
         },
         {
@@ -28700,7 +28437,7 @@
           "ref_count": 2,
           "controls": [
             "BC-13",
-            "IS-09"
+            "IS-19"
           ],
           "policies": [
             "business-continuity-plan",
@@ -28719,7 +28456,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "PR-09"
+            "PR-18"
           ],
           "policies": [
             "privacy"
@@ -28735,15 +28472,13 @@
             "required": false,
             "description": null
           },
-          "ref_count": 3,
+          "ref_count": 2,
           "controls": [
             "BC-06",
-            "EPS-02",
             "IS-08"
           ],
           "policies": [
             "business-continuity-plan",
-            "electronic-payment-systems",
             "information-security"
           ]
         },
@@ -28760,10 +28495,10 @@
           "ref_count": 5,
           "controls": [
             "BC-05",
-            "CO-08",
-            "EC-10",
-            "IS-09",
-            "PR-09"
+            "CO-11",
+            "EC-13",
+            "IS-19",
+            "PR-18"
           ],
           "policies": [
             "business-continuity-plan",
@@ -28787,10 +28522,10 @@
           "controls": [
             "BC-05",
             "BC-06",
-            "BC-10",
-            "CO-08",
-            "EC-10",
-            "IS-09"
+            "BC-15",
+            "CO-11",
+            "EC-13",
+            "IS-19"
           ],
           "policies": [
             "business-continuity-plan",
@@ -28813,7 +28548,7 @@
           "controls": [
             "BC-13",
             "EC-09",
-            "IS-09"
+            "IS-19"
           ],
           "policies": [
             "business-continuity-plan",
@@ -28833,8 +28568,8 @@
           },
           "ref_count": 2,
           "controls": [
-            "CO-08",
-            "PR-09"
+            "CO-11",
+            "PR-18"
           ],
           "policies": [
             "collections",
@@ -29025,7 +28760,7 @@
           "status": "field",
           "spec": {
             "entity": "indemnification",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -29174,7 +28909,7 @@
           "status": "field",
           "spec": {
             "entity": "indemnification",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -29347,7 +29082,7 @@
           "status": "field",
           "spec": {
             "entity": "indemnification",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -29721,7 +29456,7 @@
           "status": "field",
           "spec": {
             "entity": "insider",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -29777,7 +29512,7 @@
           "status": "field",
           "spec": {
             "entity": "insider",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -31220,7 +30955,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "BC-10"
+            "BC-15"
           ],
           "policies": [
             "business-continuity-plan"
@@ -31238,7 +30973,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "BC-10"
+            "BC-15"
           ],
           "policies": [
             "business-continuity-plan"
@@ -36611,13 +36346,11 @@
             "entity": "notification",
             "description": "canonical event_type: `recorded`"
           },
-          "ref_count": 2,
+          "ref_count": 1,
           "controls": [
-            "BC-10",
-            "PR-09"
+            "PR-18"
           ],
           "policies": [
-            "business-continuity-plan",
             "privacy"
           ]
         }
@@ -42419,7 +42152,7 @@
           "status": "field",
           "spec": {
             "entity": "records_package",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -42491,7 +42224,7 @@
           "status": "field",
           "spec": {
             "entity": "records_package",
-            "type": "string",
+            "type": "string (date)",
             "pii": false,
             "required": false,
             "description": null
@@ -42545,7 +42278,7 @@
           "status": "field",
           "spec": {
             "entity": "records_package",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -42958,14 +42691,12 @@
             "entity": "regulator",
             "description": "canonical event_type: `notified`"
           },
-          "ref_count": 2,
+          "ref_count": 1,
           "controls": [
-            "BC-11",
-            "EC-10"
+            "BC-11"
           ],
           "policies": [
-            "business-continuity-plan",
-            "e-commerce"
+            "business-continuity-plan"
           ]
         },
         {
@@ -44547,7 +44278,7 @@
           "status": "field",
           "spec": {
             "entity": "risk",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -44763,7 +44494,7 @@
           "status": "field",
           "spec": {
             "entity": "risk",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -44799,7 +44530,7 @@
           "status": "field",
           "spec": {
             "entity": "risk",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -46569,7 +46300,7 @@
           "ref_count": 2,
           "controls": [
             "BSA-06",
-            "TR-08"
+            "TR-11"
           ],
           "policies": [
             "bsa",
@@ -46618,7 +46349,7 @@
             "BSA-06",
             "BSA-07",
             "IS-10",
-            "TR-08"
+            "TR-11"
           ],
           "policies": [
             "bsa",
@@ -49873,7 +49604,7 @@
           "status": "field",
           "spec": {
             "entity": "trade",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -50353,7 +50084,7 @@
           "status": "field",
           "spec": {
             "entity": "training",
-            "type": "string",
+            "type": "string (date)",
             "pii": false,
             "required": false,
             "description": null
@@ -50371,7 +50102,7 @@
           "status": "field",
           "spec": {
             "entity": "training",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -50521,7 +50252,7 @@
           "status": "field",
           "spec": {
             "entity": "training",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -50741,7 +50472,7 @@
           "status": "field",
           "spec": {
             "entity": "training",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -50771,7 +50502,7 @@
           "status": "field",
           "spec": {
             "entity": "training",
-            "type": "string",
+            "type": "string (date-time)",
             "pii": false,
             "required": false,
             "description": null
@@ -51862,12 +51593,12 @@
           },
           "ref_count": 6,
           "controls": [
-            "BC-10",
             "BC-14",
+            "BC-15",
             "BSA-20",
             "IS-11",
             "PR-07",
-            "TR-08"
+            "TR-11"
           ],
           "policies": [
             "bsa",
@@ -51886,7 +51617,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "TR-08"
+            "TR-11"
           ],
           "policies": [
             "third-party-risk"
@@ -53099,8 +52830,8 @@
           },
           "ref_count": 4,
           "controls": [
-            "BC-10",
             "BC-14",
+            "BC-15",
             "PR-03",
             "PR-07"
           ],
@@ -53122,7 +52853,7 @@
           "ref_count": 2,
           "controls": [
             "IS-11",
-            "TR-08"
+            "TR-11"
           ],
           "policies": [
             "information-security",
@@ -53141,8 +52872,8 @@
           },
           "ref_count": 2,
           "controls": [
-            "BC-10",
-            "TR-08"
+            "BC-15",
+            "TR-11"
           ],
           "policies": [
             "business-continuity-plan",
@@ -53161,7 +52892,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "TR-08"
+            "TR-11"
           ],
           "policies": [
             "third-party-risk"
@@ -53179,7 +52910,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "TR-08"
+            "TR-11"
           ],
           "policies": [
             "third-party-risk"
@@ -53197,9 +52928,9 @@
           },
           "ref_count": 3,
           "controls": [
-            "BC-10",
+            "BC-15",
             "IS-11",
-            "TR-08"
+            "TR-11"
           ],
           "policies": [
             "business-continuity-plan",
@@ -53219,8 +52950,8 @@
           },
           "ref_count": 2,
           "controls": [
-            "BC-10",
-            "TR-08"
+            "BC-15",
+            "TR-11"
           ],
           "policies": [
             "business-continuity-plan",
@@ -53330,7 +53061,7 @@
           "ref_count": 2,
           "controls": [
             "TR-07",
-            "TR-08"
+            "TR-11"
           ],
           "policies": [
             "third-party-risk"

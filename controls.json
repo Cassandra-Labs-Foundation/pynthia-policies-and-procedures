@@ -1,24 +1,24 @@
 {
   "meta": {
     "generator": "scripts/extract_controls.py",
-    "generated_at": "2026-06-19T23:09:00+00:00",
+    "generated_at": "2026-06-25T17:24:46+00:00",
     "repo_root": "pynthia-policies-and-procedures",
     "api_model": {
       "spec_title": "Cassandra Banking Core API",
       "spec_version": "3.0.0",
       "events": 1223,
-      "fields": 2523,
-      "entities": 298
+      "fields": 2504,
+      "entities": 275
     }
   },
   "stats": {
-    "policies": 26,
-    "controls": 313,
-    "event_rows": 1178,
-    "control_rules": 1178,
-    "unique_api_codes": 2954,
-    "registered_event_codes": 1051,
-    "registered_field_codes": 1872,
+    "policies": 27,
+    "controls": 321,
+    "event_rows": 1181,
+    "control_rules": 1181,
+    "unique_api_codes": 2939,
+    "registered_event_codes": 1047,
+    "registered_field_codes": 1861,
     "unregistered_codes": 31
   },
   "controls": [
@@ -15653,9 +15653,212 @@
       }
     },
     {
-      "control_id": "BC-10",
-      "title": "Incident Response (Privacy/Security)",
-      "anchor": "bc-10-incident-response-privacysecurity",
+      "control_id": "SC-01",
+      "title": "NCUA Reportable Cyber-Incident & Member Notification",
+      "anchor": "sc-01-ncua-reportable-cyber-incident-member-notification",
+      "policy": "business-continuity-plan",
+      "policy_title": null,
+      "policy_owner": null,
+      "policy_version": null,
+      "policy_effective": null,
+      "source_file": "business-continuity-plan/business-continuity-plan.md",
+      "regulatory_citations": [
+        {
+          "text": "NCUA 12 CFR Part 748 §748.1(c)",
+          "url": "https://www.ecfr.gov/current/title-12/part-748"
+        },
+        {
+          "text": "NCUA 12 CFR Part 748, Appendix B",
+          "url": "https://www.ecfr.gov/current/title-12/part-748"
+        }
+      ],
+      "why_text": "[NCUA 12 CFR Part 748 §748.1(c)](https://www.ecfr.gov/current/title-12/part-748) requires credit unions to notify NCUA within 72 hours of determining a reportable cyber incident. [NCUA 12 CFR Part 748, Appendix B](https://www.ecfr.gov/current/title-12/part-748) requires a member notification program for unauthorized access to sensitive member information.",
+      "system_behavior": "Once a reportable cyber incident is determined, NCUA notification must be sent within 72 hours of that determination. Member notice is sent without unreasonable delay per Appendix B criteria once misuse of member information is determined likely. The reportability determination and the NCUA-notification field are write-restricted to the CCO/Compliance-Legal. An incident determined non-reportable is documented with rationale and triggers no NCUA notice.",
+      "alerts_metrics": "Alert fires when `incident.ncua_notice_due_at` is within 12 hours without an `incident.ncua.notified` event; alert fires when member notice is overdue per `incident.notification_due_at`. Target: 100% of reportable incidents notified to NCUA within 72 hours; zero member-notice SLA breaches.\n\n---",
+      "events": [
+        {
+          "trigger": {
+            "label": "Reportable cyber incident determined",
+            "code": "incident.reportability_determination",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Reportability rationale, NCUA notice due",
+              "codes": [
+                "incident.reportability_rationale",
+                "incident.ncua_notice_due_at"
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "label": "NCUA notification sent",
+              "codes": [
+                "incident.ncua.notified"
+              ],
+              "status": null
+            }
+          ],
+          "within": "72 hours of determination (enforced by)",
+          "within_timer_codes": [
+            "incident.ncua_notice_due_at"
+          ],
+          "all_codes": [
+            "incident.ncua.notified",
+            "incident.ncua_notice_due_at",
+            "incident.reportability_determination",
+            "incident.reportability_rationale"
+          ]
+        },
+        {
+          "trigger": {
+            "label": "Member impact confirmed",
+            "code": "incident.member_impact.confirmed",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Member impact summary, notice template",
+              "codes": [
+                "incident.member_impact",
+                "incident.member_notice_template"
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "label": "Member notices sent",
+              "codes": [
+                "incident.member_notices.sent"
+              ],
+              "status": null
+            }
+          ],
+          "within": "Without unreasonable delay per Appendix B (enforced by)",
+          "within_timer_codes": [
+            "incident.notification_due_at"
+          ],
+          "all_codes": [
+            "incident.member_impact",
+            "incident.member_impact.confirmed",
+            "incident.member_notice_template",
+            "incident.member_notices.sent",
+            "incident.notification_due_at"
+          ]
+        }
+      ],
+      "control_rules": [
+        {
+          "control_id": "SC-01",
+          "policy": "business-continuity-plan",
+          "trigger_event": "incident.reportability_determination",
+          "trigger": {
+            "object": "incident",
+            "property": "reportability_determination",
+            "action": null,
+            "canonical": "incident.reportability_determination",
+            "conforms": false
+          },
+          "required_inputs": [
+            "incident.ncua.notice.due_at",
+            "incident.reportability_rationale"
+          ],
+          "produced_events": [
+            "incident.ncua.notified"
+          ],
+          "produced": [
+            {
+              "object": "incident",
+              "property": "ncua",
+              "action": "notified",
+              "canonical": "incident.ncua.notified",
+              "conforms": true
+            }
+          ],
+          "deadline_timer": "incident.ncua.notice.due_at",
+          "deadline": {
+            "object": "incident",
+            "qualifier": "ncua",
+            "task_type": "notice",
+            "marker": "due_at",
+            "canonical": "incident.ncua.notice.due_at",
+            "conforms": true
+          },
+          "deadline_text": "72 hours of determination"
+        },
+        {
+          "control_id": "SC-01",
+          "policy": "business-continuity-plan",
+          "trigger_event": "incident.member_impact.confirmed",
+          "trigger": {
+            "object": "incident",
+            "property": "member_impact",
+            "action": "confirmed",
+            "canonical": "incident.member_impact.confirmed",
+            "conforms": true
+          },
+          "required_inputs": [
+            "incident.member_impact",
+            "incident.member_notice_template"
+          ],
+          "produced_events": [
+            "incident.member_notices.sent"
+          ],
+          "produced": [
+            {
+              "object": "incident",
+              "property": "member_notices",
+              "action": "sent",
+              "canonical": "incident.member_notices.sent",
+              "conforms": true
+            }
+          ],
+          "deadline_timer": "incident.notification_due_at",
+          "deadline": {
+            "object": "incident",
+            "qualifier": "notification",
+            "task_type": null,
+            "marker": "due_at",
+            "canonical": "incident.notification.due_at",
+            "conforms": false
+          },
+          "deadline_text": "Without unreasonable delay per Appendix B"
+        }
+      ],
+      "api_references": {
+        "events": [
+          "incident.member_impact.confirmed",
+          "incident.member_notices.sent",
+          "incident.ncua.notified"
+        ],
+        "fields": [
+          "incident.member_impact",
+          "incident.member_notice_template",
+          "incident.ncua.notice.due_at",
+          "incident.notification_due_at",
+          "incident.reportability_determination",
+          "incident.reportability_rationale"
+        ],
+        "unregistered": [],
+        "all": [
+          "incident.member_impact",
+          "incident.member_impact.confirmed",
+          "incident.member_notice_template",
+          "incident.member_notices.sent",
+          "incident.ncua.notice.due_at",
+          "incident.ncua.notified",
+          "incident.notification_due_at",
+          "incident.reportability_determination",
+          "incident.reportability_rationale"
+        ],
+        "statuses": []
+      }
+    },
+    {
+      "control_id": "BC-15",
+      "title": "Security/Privacy Incident Containment, Legal Consult & Vendor Coordination",
+      "anchor": "bc-15-security-privacy-incident-containment-legal-consult-vendor-coordination",
       "policy": "business-continuity-plan",
       "policy_title": null,
       "policy_owner": null,
@@ -15668,13 +15871,13 @@
           "url": "https://www.ecfr.gov/current/title-12/part-748"
         },
         {
-          "text": "12 CFR Part 748 Appendix B",
-          "url": "https://www.ecfr.gov/current/title-12/part-748"
+          "text": "SC-01",
+          "url": "#sc-01-ncua-reportable-cyber-incident-member-notification"
         }
       ],
-      "why_text": "[12 CFR Part 748 Appendix A](https://www.ecfr.gov/current/title-12/part-748) requires a GLBA-aligned incident response program covering containment, eradication, recovery, forensics, and notification; [12 CFR Part 748 Appendix B](https://www.ecfr.gov/current/title-12/part-748) requires notification to NCUA of certain incidents. Member breach notification obligations and detailed privacy controls are governed by the Privacy Policy; security control design is governed by the Information Security Policy.",
-      "system_behavior": "Upon detection of a privacy or security incident, the IC initiates containment within 1 hour. The response follows GLBA-aligned phases: containment, eradication, recovery, forensics, and notification decisioning. Legal counsel must be consulted within 24 hours of incident creation to assess notification obligations. Service-provider coordination is required where the incident involves a vendor. NCUA notification obligations are assessed per [12 CFR Part 748](https://www.ecfr.gov/current/title-12/part-748) and the credit union's incident notification policy; member breach notices are governed by the Privacy Policy. The incident record, containment evidence, and notification decisions are write-restricted to the IC, CCO, and Legal.",
-      "alerts_metrics": "Alert fires if containment is not initiated within 1 hour of incident creation; alert fires if legal consult is not logged within 24 hours; alert fires if NCUA notification due date (`incident.ncua_notice_due_at`) is approaching without `incident.ncua.notified` logged. Target: 100% of security/privacy incidents with containment ≤ 1 hour; 100% with legal consult ≤ 24 hours; zero missed regulatory notification deadlines.\n\n---",
+      "why_text": "[12 CFR Part 748 Appendix A](https://www.ecfr.gov/current/title-12/part-748) requires a GLBA-aligned incident response program covering containment, eradication, recovery, and forensics. Feeds the reportability determination governed by [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification).",
+      "system_behavior": "Upon detection of a privacy or security incident, the IC initiates containment within 1 hour. The response follows GLBA-aligned phases: containment, eradication, recovery, and forensics. Legal counsel must be consulted within 24 hours of incident creation to assess notification obligations feeding SC-01. Service-provider coordination is required where the incident involves a vendor. The incident record and containment evidence are write-restricted to the IC, CCO, and Legal.",
+      "alerts_metrics": "Alert fires if containment is not initiated within 1 hour of incident creation; alert fires if legal consult is not logged within 24 hours. Target: 100% of security/privacy incidents with containment ≤ 1 hour; 100% with legal consult ≤ 24 hours.\n\n---",
       "events": [
         {
           "trigger": {
@@ -15754,46 +15957,6 @@
         },
         {
           "trigger": {
-            "label": "Notification determination made",
-            "code": "incident.notification_determined",
-            "status": null
-          },
-          "inputs": [
-            {
-              "label": "Legal review, reportability assessment, member impact",
-              "codes": [
-                "incident.legal_review",
-                "incident.reportability_assessment",
-                "incident.member_notice_required"
-              ]
-            }
-          ],
-          "outputs": [
-            {
-              "label": "Notification decision recorded, NCUA notice initiated if required, member notices per Privacy Policy",
-              "codes": [
-                "notification.decision.recorded",
-                "incident.ncua.notified"
-              ],
-              "status": null
-            }
-          ],
-          "within": "Per applicable law/policy (NCUA: enforced by)",
-          "within_timer_codes": [
-            "incident.ncua_notice_due_at"
-          ],
-          "all_codes": [
-            "incident.legal_review",
-            "incident.member_notice_required",
-            "incident.ncua.notified",
-            "incident.ncua_notice_due_at",
-            "incident.notification_determined",
-            "incident.reportability_assessment",
-            "notification.decision.recorded"
-          ]
-        },
-        {
-          "trigger": {
             "label": "Vendor involved in incident",
             "code": "vendor.incident.logged",
             "status": null
@@ -15830,7 +15993,7 @@
       ],
       "control_rules": [
         {
-          "control_id": "BC-10",
+          "control_id": "BC-15",
           "policy": "business-continuity-plan",
           "trigger_event": "incident.created",
           "trigger": {
@@ -15878,7 +16041,7 @@
           "deadline_text": "1 hour after incident creation"
         },
         {
-          "control_id": "BC-10",
+          "control_id": "BC-15",
           "policy": "business-continuity-plan",
           "trigger_event": "incident.containment.started",
           "trigger": {
@@ -15923,54 +16086,7 @@
           "deadline_text": "24 hours after incident creation"
         },
         {
-          "control_id": "BC-10",
-          "policy": "business-continuity-plan",
-          "trigger_event": "incident.notification.determined",
-          "trigger": {
-            "object": "incident",
-            "property": "notification",
-            "action": "determined",
-            "canonical": "incident.notification.determined",
-            "conforms": true
-          },
-          "required_inputs": [
-            "incident.legal_review",
-            "incident.member_notice_required",
-            "incident.reportability_assessment"
-          ],
-          "produced_events": [
-            "incident.ncua.notified",
-            "notification.decision.recorded"
-          ],
-          "produced": [
-            {
-              "object": "incident",
-              "property": "ncua",
-              "action": "notified",
-              "canonical": "incident.ncua.notified",
-              "conforms": true
-            },
-            {
-              "object": "notification",
-              "property": "decision",
-              "action": "recorded",
-              "canonical": "notification.decision.recorded",
-              "conforms": true
-            }
-          ],
-          "deadline_timer": "incident.ncua.notice.due_at",
-          "deadline": {
-            "object": "incident",
-            "qualifier": "ncua",
-            "task_type": "notice",
-            "marker": "due_at",
-            "canonical": "incident.ncua.notice.due_at",
-            "conforms": true
-          },
-          "deadline_text": "Per applicable law/policy (NCUA: enforced by)"
-        },
-        {
-          "control_id": "BC-10",
+          "control_id": "BC-15",
           "policy": "business-continuity-plan",
           "trigger_event": "vendor.incident.logged",
           "trigger": {
@@ -16006,8 +16122,6 @@
         "events": [
           "incident.containment.started",
           "incident.created",
-          "incident.ncua.notified",
-          "notification.decision.recorded",
           "vendor.incident.logged"
         ],
         "fields": [
@@ -16015,12 +16129,7 @@
           "incident.data_scope",
           "incident.description",
           "incident.detection_source",
-          "incident.legal_review",
           "incident.member_impact",
-          "incident.member_notice_required",
-          "incident.ncua.notice.due_at",
-          "incident.notification.determined",
-          "incident.reportability_assessment",
           "incident.severity",
           "legal.consult_timer",
           "legal.consulted",
@@ -16037,17 +16146,10 @@
           "incident.data_scope",
           "incident.description",
           "incident.detection_source",
-          "incident.legal_review",
           "incident.member_impact",
-          "incident.member_notice_required",
-          "incident.ncua.notice.due_at",
-          "incident.ncua.notified",
-          "incident.notification.determined",
-          "incident.reportability_assessment",
           "incident.severity",
           "legal.consult_timer",
           "legal.consulted",
-          "notification.decision.recorded",
           "vendor.id",
           "vendor.incident.logged",
           "vendor.incident_containment_status",
@@ -16074,7 +16176,7 @@
         }
       ],
       "why_text": "[12 CFR Part 748 Appendix A](https://www.ecfr.gov/current/title-12/part-748) requires communication procedures as part of incident response; FFIEC Business Continuity Management guidance requires pre-defined contact trees for employees, Board, regulators, vendors, and media with backup channels. Timely internal and external communications are supervisory expectations.",
-      "system_behavior": "The BCM maintains contact trees for employees, Board members, regulators, critical vendors, and media, with predefined status-page playbooks for member-facing communications. The first internal alert must be issued within 15 minutes of incident declaration. Regulator notification follows applicable law and the credit union's notification policy (see [BC-10](#bc-10-incident-response-privacysecurity) for NCUA-specific obligations). If primary communications platforms fail, backup channels (cell phones, out-of-band messaging) are activated per the communications plan. Contact trees are reviewed and updated quarterly as part of the IMT roster verification (see [BC-01](#bc-01-governance-and-roles)). The communications plan and contact trees are write-restricted to the BCM and CCO.",
+      "system_behavior": "The BCM maintains contact trees for employees, Board members, regulators, critical vendors, and media, with predefined status-page playbooks for member-facing communications. The first internal alert must be issued within 15 minutes of incident declaration. Regulator notification follows the NCUA mechanic governed by [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification). If primary communications platforms fail, backup channels (cell phones, out-of-band messaging) are activated per the communications plan. Contact trees are reviewed and updated quarterly as part of the IMT roster verification (see [BC-01](#bc-01-governance-and-roles)). The communications plan and contact trees are write-restricted to the BCM and CCO.",
       "alerts_metrics": "Alert fires if first internal alert exceeds 15 minutes from declaration; alert fires if backup communications are not activated within 5 minutes of primary platform failure. Track regulator notification timeliness against applicable deadlines. Target: 100% of incidents with internal alert ≤ 15 minutes; zero missed regulator notification deadlines.\n\n---",
       "events": [
         {
@@ -16144,7 +16246,7 @@
         },
         {
           "trigger": {
-            "label": "Regulator notification required (per [BC-10](#bc-10-incident-response-privacysecurity))",
+            "label": "Regulator notification required (per [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification))",
             "code": null,
             "status": null
           },
@@ -16165,7 +16267,7 @@
               "status": null
             }
           ],
-          "within": "Per applicable law/policy deadline",
+          "within": "Per SC-01's 72-hour deadline",
           "within_timer_codes": [],
           "all_codes": [
             "regulator.contacts",
@@ -16333,7 +16435,7 @@
           ],
           "deadline_timer": null,
           "deadline": null,
-          "deadline_text": "Per applicable law/policy deadline"
+          "deadline_text": "Per SC-01's 72-hour deadline"
         },
         {
           "control_id": "BC-11",
@@ -30956,9 +31058,212 @@
       }
     },
     {
-      "control_id": "CO-08",
-      "title": "Collections Data Breach & Incident Reporting",
-      "anchor": "co-08-collections-data-breach-and-incident-reporting",
+      "control_id": "SC-01",
+      "title": "NCUA Reportable Cyber-Incident & Member Notification",
+      "anchor": "sc-01-ncua-reportable-cyber-incident-member-notification",
+      "policy": "collections",
+      "policy_title": null,
+      "policy_owner": null,
+      "policy_version": null,
+      "policy_effective": null,
+      "source_file": "collections/collections.md",
+      "regulatory_citations": [
+        {
+          "text": "NCUA 12 CFR Part 748 §748.1(c)",
+          "url": "https://www.ecfr.gov/current/title-12/part-748"
+        },
+        {
+          "text": "NCUA 12 CFR Part 748, Appendix B",
+          "url": "https://www.ecfr.gov/current/title-12/part-748"
+        }
+      ],
+      "why_text": "[NCUA 12 CFR Part 748 §748.1(c)](https://www.ecfr.gov/current/title-12/part-748) requires credit unions to notify NCUA within 72 hours of determining a reportable cyber incident. [NCUA 12 CFR Part 748, Appendix B](https://www.ecfr.gov/current/title-12/part-748) requires a member notification program for unauthorized access to sensitive member information.",
+      "system_behavior": "Once a reportable cyber incident is determined, NCUA notification must be sent within 72 hours of that determination. Member notice is sent without unreasonable delay per Appendix B criteria once misuse of member information is determined likely. The reportability determination and the NCUA-notification field are write-restricted to the CCO/Compliance-Legal. An incident determined non-reportable is documented with rationale and triggers no NCUA notice.",
+      "alerts_metrics": "Alert fires when `incident.ncua_notice_due_at` is within 12 hours without an `incident.ncua.notified` event; alert fires when member notice is overdue per `incident.notification_due_at`. Target: 100% of reportable incidents notified to NCUA within 72 hours; zero member-notice SLA breaches.\n\n---",
+      "events": [
+        {
+          "trigger": {
+            "label": "Reportable cyber incident determined",
+            "code": "incident.reportability_determination",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Reportability rationale, NCUA notice due",
+              "codes": [
+                "incident.reportability_rationale",
+                "incident.ncua_notice_due_at"
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "label": "NCUA notification sent",
+              "codes": [
+                "incident.ncua.notified"
+              ],
+              "status": null
+            }
+          ],
+          "within": "72 hours of determination (enforced by)",
+          "within_timer_codes": [
+            "incident.ncua_notice_due_at"
+          ],
+          "all_codes": [
+            "incident.ncua.notified",
+            "incident.ncua_notice_due_at",
+            "incident.reportability_determination",
+            "incident.reportability_rationale"
+          ]
+        },
+        {
+          "trigger": {
+            "label": "Member impact confirmed",
+            "code": "incident.member_impact.confirmed",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Member impact summary, notice template",
+              "codes": [
+                "incident.member_impact",
+                "incident.member_notice_template"
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "label": "Member notices sent",
+              "codes": [
+                "incident.member_notices.sent"
+              ],
+              "status": null
+            }
+          ],
+          "within": "Without unreasonable delay per Appendix B (enforced by)",
+          "within_timer_codes": [
+            "incident.notification_due_at"
+          ],
+          "all_codes": [
+            "incident.member_impact",
+            "incident.member_impact.confirmed",
+            "incident.member_notice_template",
+            "incident.member_notices.sent",
+            "incident.notification_due_at"
+          ]
+        }
+      ],
+      "control_rules": [
+        {
+          "control_id": "SC-01",
+          "policy": "collections",
+          "trigger_event": "incident.reportability_determination",
+          "trigger": {
+            "object": "incident",
+            "property": "reportability_determination",
+            "action": null,
+            "canonical": "incident.reportability_determination",
+            "conforms": false
+          },
+          "required_inputs": [
+            "incident.ncua.notice.due_at",
+            "incident.reportability_rationale"
+          ],
+          "produced_events": [
+            "incident.ncua.notified"
+          ],
+          "produced": [
+            {
+              "object": "incident",
+              "property": "ncua",
+              "action": "notified",
+              "canonical": "incident.ncua.notified",
+              "conforms": true
+            }
+          ],
+          "deadline_timer": "incident.ncua.notice.due_at",
+          "deadline": {
+            "object": "incident",
+            "qualifier": "ncua",
+            "task_type": "notice",
+            "marker": "due_at",
+            "canonical": "incident.ncua.notice.due_at",
+            "conforms": true
+          },
+          "deadline_text": "72 hours of determination"
+        },
+        {
+          "control_id": "SC-01",
+          "policy": "collections",
+          "trigger_event": "incident.member_impact.confirmed",
+          "trigger": {
+            "object": "incident",
+            "property": "member_impact",
+            "action": "confirmed",
+            "canonical": "incident.member_impact.confirmed",
+            "conforms": true
+          },
+          "required_inputs": [
+            "incident.member_impact",
+            "incident.member_notice_template"
+          ],
+          "produced_events": [
+            "incident.member_notices.sent"
+          ],
+          "produced": [
+            {
+              "object": "incident",
+              "property": "member_notices",
+              "action": "sent",
+              "canonical": "incident.member_notices.sent",
+              "conforms": true
+            }
+          ],
+          "deadline_timer": "incident.notification_due_at",
+          "deadline": {
+            "object": "incident",
+            "qualifier": "notification",
+            "task_type": null,
+            "marker": "due_at",
+            "canonical": "incident.notification.due_at",
+            "conforms": false
+          },
+          "deadline_text": "Without unreasonable delay per Appendix B"
+        }
+      ],
+      "api_references": {
+        "events": [
+          "incident.member_impact.confirmed",
+          "incident.member_notices.sent",
+          "incident.ncua.notified"
+        ],
+        "fields": [
+          "incident.member_impact",
+          "incident.member_notice_template",
+          "incident.ncua.notice.due_at",
+          "incident.notification_due_at",
+          "incident.reportability_determination",
+          "incident.reportability_rationale"
+        ],
+        "unregistered": [],
+        "all": [
+          "incident.member_impact",
+          "incident.member_impact.confirmed",
+          "incident.member_notice_template",
+          "incident.member_notices.sent",
+          "incident.ncua.notice.due_at",
+          "incident.ncua.notified",
+          "incident.notification_due_at",
+          "incident.reportability_determination",
+          "incident.reportability_rationale"
+        ],
+        "statuses": []
+      }
+    },
+    {
+      "control_id": "CO-11",
+      "title": "Collections-Data Incident Logging & Triage",
+      "anchor": "co-11-collections-data-incident-logging-and-triage",
       "policy": "collections",
       "policy_title": null,
       "policy_owner": null,
@@ -30969,11 +31274,15 @@
         {
           "text": "NCUA Part 748 (12 CFR Part 748)",
           "url": "https://www.ecfr.gov/current/title-12/part-748"
+        },
+        {
+          "text": "SC-01",
+          "url": "#sc-01-ncua-reportable-cyber-incident-member-notification"
         }
       ],
-      "why_text": "[NCUA Part 748 (12 CFR Part 748)](https://www.ecfr.gov/current/title-12/part-748) requires federally insured credit unions to maintain a written security program protecting member records and to notify NCUA no later than 72 hours after the credit union reasonably believes a reportable cyber incident has occurred. Member notification obligations arise once misuse of member information is determined to be likely, consistent with applicable state breach-notification laws and NCUA guidance.",
-      "system_behavior": "Any incident affecting collections data (loan records, member contact data, payment history, credit-reporting data) is logged as an incident with the `incident.collections` flag set (`incident.collections.logged`). The incident is triaged within 24 hours (`incident.triage_due_at`) to classify severity (`incident.severity`), assess reportability (`incident.reportability_assessment`), and determine member impact (`incident.member_impact`). If the credit union reasonably believes a reportable cyber incident has occurred, NCUA is notified within 72 hours (`incident.ncua_notice_due_at`). Member notices are sent as soon as reasonably possible after misuse is determined likely (`incident.misuse_determined`, `incident.member_notice_required`). This control operates within the enterprise incident-response framework (see Information Security Policy); this policy governs the collections-data-specific classification and notification obligations. IT/Security owns incident detection and triage; Compliance and Legal own reportability determination; CCO signs off on NCUA notification.",
-      "alerts_metrics": "Alert when any collections-flagged incident ages past 24 hours without a `incident.classified` event. Alert when `incident.ncua_notice_due_at` is within 12 hours without a `incident.ncua.notified` event. Alert when `incident.notification_due_at` ages past the misuse determination date without `incident.member_notices.sent`. Target: zero NCUA notifications missed within the 72-hour window.\n\n---",
+      "why_text": "[NCUA Part 748 (12 CFR Part 748)](https://www.ecfr.gov/current/title-12/part-748) requires federally insured credit unions to maintain a written security program protecting member records. Triage feeds the reportability determination governed by [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification).",
+      "system_behavior": "Any incident affecting collections data (loan records, member contact data, payment history, credit-reporting data) is logged as an incident with the `incident.collections` flag set (`incident.collections.logged`). The incident is triaged within 24 hours (`incident.triage_due_at`) to classify severity (`incident.severity`), assess reportability (`incident.reportability_assessment`), and determine member impact (`incident.member_impact`) feeding the SC-01 reportability determination. This control operates within the enterprise incident-response framework (see Information Security Policy); this policy governs the collections-data-specific classification obligations. IT/Security owns incident detection and triage; Compliance and Legal own reportability determination.",
+      "alerts_metrics": "Alert when any collections-flagged incident ages past 24 hours without a `incident.classified` event.\n\n---",
       "events": [
         {
           "trigger": {
@@ -31052,87 +31361,11 @@
             "incident.severity",
             "incident.triage_due_at"
           ]
-        },
-        {
-          "trigger": {
-            "label": "Reasonable belief of reportable cyber incident established",
-            "code": "incident.ncua.notified",
-            "status": null
-          },
-          "inputs": [
-            {
-              "label": "Reportability rationale, CCO sign-off, NCUA notification content",
-              "codes": [
-                "incident.reportability_rationale",
-                "incident.cco_signoff",
-                "incident.notice_content"
-              ]
-            }
-          ],
-          "outputs": [
-            {
-              "label": "NCUA notified; notification record logged",
-              "codes": [
-                "incident.ncua.notified"
-              ],
-              "status": null
-            }
-          ],
-          "within": "Within 72 hours of reasonable belief; enforced by",
-          "within_timer_codes": [
-            "incident.ncua_notice_due_at"
-          ],
-          "all_codes": [
-            "incident.cco_signoff",
-            "incident.ncua.notified",
-            "incident.ncua_notice_due_at",
-            "incident.notice_content",
-            "incident.reportability_rationale"
-          ]
-        },
-        {
-          "trigger": {
-            "label": "Misuse of member information determined likely",
-            "code": "incident.member_notices.sent",
-            "status": null
-          },
-          "inputs": [
-            {
-              "label": "Misuse likelihood determination, member impact list, notice template, member notice required flag",
-              "codes": [
-                "incident.misuse_likelihood",
-                "incident.member_impact",
-                "incident.member_notice_template",
-                "incident.member_notice_required"
-              ]
-            }
-          ],
-          "outputs": [
-            {
-              "label": "Member notices sent",
-              "codes": [
-                "incident.member_notices.sent"
-              ],
-              "status": null
-            }
-          ],
-          "within": "As soon as reasonably possible after misuse determination; enforced by",
-          "within_timer_codes": [
-            "incident.notification_due_at"
-          ],
-          "all_codes": [
-            "incident.member_impact",
-            "incident.member_notice_required",
-            "incident.member_notice_template",
-            "incident.member_notices.sent",
-            "incident.misuse_likelihood",
-            "incident.notification_due_at"
-          ]
         }
       ],
       "control_rules": [
         {
-          "control_id": "CO-08",
+          "control_id": "CO-11",
           "policy": "collections",
           "trigger_event": "incident.collections.logged",
           "trigger": {
@@ -31165,7 +31398,7 @@
           "deadline_text": "Immediately upon detection"
         },
         {
-          "control_id": "CO-08",
+          "control_id": "CO-11",
           "policy": "collections",
           "trigger_event": "incident.classified",
           "trigger": {
@@ -31211,119 +31444,28 @@
             "conforms": true
           },
           "deadline_text": "Within 24 hours of incident creation; enforced by"
-        },
-        {
-          "control_id": "CO-08",
-          "policy": "collections",
-          "trigger_event": "incident.ncua.notified",
-          "trigger": {
-            "object": "incident",
-            "property": "ncua",
-            "action": "notified",
-            "canonical": "incident.ncua.notified",
-            "conforms": true
-          },
-          "required_inputs": [
-            "incident.cco_signoff",
-            "incident.notice_content",
-            "incident.reportability_rationale"
-          ],
-          "produced_events": [
-            "incident.ncua.notified"
-          ],
-          "produced": [
-            {
-              "object": "incident",
-              "property": "ncua",
-              "action": "notified",
-              "canonical": "incident.ncua.notified",
-              "conforms": true
-            }
-          ],
-          "deadline_timer": "incident.ncua.notice.due_at",
-          "deadline": {
-            "object": "incident",
-            "qualifier": "ncua",
-            "task_type": "notice",
-            "marker": "due_at",
-            "canonical": "incident.ncua.notice.due_at",
-            "conforms": true
-          },
-          "deadline_text": "Within 72 hours of reasonable belief; enforced by"
-        },
-        {
-          "control_id": "CO-08",
-          "policy": "collections",
-          "trigger_event": "incident.member_notices.sent",
-          "trigger": {
-            "object": "incident",
-            "property": "member_notices",
-            "action": "sent",
-            "canonical": "incident.member_notices.sent",
-            "conforms": true
-          },
-          "required_inputs": [
-            "incident.member_impact",
-            "incident.member_notice_required",
-            "incident.member_notice_template",
-            "incident.misuse_likelihood"
-          ],
-          "produced_events": [
-            "incident.member_notices.sent"
-          ],
-          "produced": [
-            {
-              "object": "incident",
-              "property": "member_notices",
-              "action": "sent",
-              "canonical": "incident.member_notices.sent",
-              "conforms": true
-            }
-          ],
-          "deadline_timer": "incident.notification_due_at",
-          "deadline": {
-            "object": "incident",
-            "qualifier": "notification",
-            "task_type": null,
-            "marker": "due_at",
-            "canonical": "incident.notification.due_at",
-            "conforms": false
-          },
-          "deadline_text": "As soon as reasonably possible after misuse determination; enforced by"
         }
       ],
       "api_references": {
         "events": [
           "incident.classified",
           "incident.collections.logged",
-          "incident.created",
-          "incident.member_notices.sent",
-          "incident.ncua.notified"
+          "incident.created"
         ],
         "fields": [
-          "incident.cco_signoff",
           "incident.collections",
           "incident.data_scope",
           "incident.description",
           "incident.detection_source",
           "incident.member_impact",
-          "incident.member_notice_required",
-          "incident.member_notice_template",
-          "incident.misuse.determined",
-          "incident.misuse_likelihood",
-          "incident.ncua.notice.due_at",
-          "incident.notice_content",
-          "incident.notification_due_at",
           "incident.reportability_assessment",
           "incident.reportability_determination",
-          "incident.reportability_rationale",
           "incident.scope_initial",
           "incident.severity",
           "incident.triage.due_at"
         ],
         "unregistered": [],
         "all": [
-          "incident.cco_signoff",
           "incident.classified",
           "incident.collections",
           "incident.collections.logged",
@@ -31332,18 +31474,8 @@
           "incident.description",
           "incident.detection_source",
           "incident.member_impact",
-          "incident.member_notice_required",
-          "incident.member_notice_template",
-          "incident.member_notices.sent",
-          "incident.misuse.determined",
-          "incident.misuse_likelihood",
-          "incident.ncua.notice.due_at",
-          "incident.ncua.notified",
-          "incident.notice_content",
-          "incident.notification_due_at",
           "incident.reportability_assessment",
           "incident.reportability_determination",
-          "incident.reportability_rationale",
           "incident.scope_initial",
           "incident.severity",
           "incident.triage.due_at"
@@ -41334,9 +41466,9 @@
       }
     },
     {
-      "control_id": "EC-10",
-      "title": "Breach of Security Response",
-      "anchor": "ec-10-breach-of-security-response",
+      "control_id": "SC-01",
+      "title": "NCUA Reportable Cyber-Incident & Member Notification",
+      "anchor": "sc-01-ncua-reportable-cyber-incident-member-notification",
       "policy": "e-commerce",
       "policy_title": null,
       "policy_owner": null,
@@ -41345,17 +41477,220 @@
       "source_file": "e-commerce/e-commerce.md",
       "regulatory_citations": [
         {
-          "text": "NCUA 12 CFR Part 748, Appendix B",
+          "text": "NCUA 12 CFR Part 748 §748.1(c)",
           "url": "https://www.ecfr.gov/current/title-12/part-748"
         },
         {
-          "text": "GLBA 15 USC §6801",
-          "url": "https://www.law.cornell.edu/uscode/text/15/6801"
+          "text": "NCUA 12 CFR Part 748, Appendix B",
+          "url": "https://www.ecfr.gov/current/title-12/part-748"
         }
       ],
-      "why_text": "[NCUA 12 CFR Part 748, Appendix B](https://www.ecfr.gov/current/title-12/part-748) (Guidance on Response Programs for Unauthorized Access to Member Information) requires credit unions to implement a response program for security breaches involving member information, including notification to members, regulators, and law enforcement as appropriate. [GLBA 15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801) underpins the obligation to protect member information and respond to breaches.",
-      "system_behavior": "Upon detection of an unauthorized act or user, the credit union immediately notifies management of the cause and scope of the breach. The extent of damage or disclosure of information is determined, including potential legal liability. Proper response activities are activated covering communications with members, law enforcement agencies, regulatory agencies, and the media. Only designated individuals are authorized to communicate externally with any of these parties; all other staff must route external inquiries to the designated spokesperson. The incident is managed through the credit union's incident management process. Member notification decisions are made based on the scope of member information affected. The CCO coordinates the response; the CIO/IT Department supports containment and forensics.",
-      "alerts_metrics": "Alert when an `incident.declared` event has no `incident.ic.assigned` event within 15 minutes. Alert when `incident.notification_due_at` is approaching without a `incident.member_notices.sent` event. Alert when `incident.ncua_notice_due_at` is within 12 hours without a `incident.ncua.notified` event. Target: zero breaches where management notification is delayed beyond immediate; zero regulatory notifications missed.\n\n---",
+      "why_text": "[NCUA 12 CFR Part 748 §748.1(c)](https://www.ecfr.gov/current/title-12/part-748) requires credit unions to notify NCUA within 72 hours of determining a reportable cyber incident. [NCUA 12 CFR Part 748, Appendix B](https://www.ecfr.gov/current/title-12/part-748) requires a member notification program for unauthorized access to sensitive member information.",
+      "system_behavior": "Once a reportable cyber incident is determined, NCUA notification must be sent within 72 hours of that determination. Member notice is sent without unreasonable delay per Appendix B criteria once misuse of member information is determined likely. The reportability determination and the NCUA-notification field are write-restricted to the CCO/Compliance-Legal. An incident determined non-reportable is documented with rationale and triggers no NCUA notice.",
+      "alerts_metrics": "Alert fires when `incident.ncua_notice_due_at` is within 12 hours without an `incident.ncua.notified` event; alert fires when member notice is overdue per `incident.notification_due_at`. Target: 100% of reportable incidents notified to NCUA within 72 hours; zero member-notice SLA breaches.\n\n---",
+      "events": [
+        {
+          "trigger": {
+            "label": "Reportable cyber incident determined",
+            "code": "incident.reportability_determination",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Reportability rationale, NCUA notice due",
+              "codes": [
+                "incident.reportability_rationale",
+                "incident.ncua_notice_due_at"
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "label": "NCUA notification sent",
+              "codes": [
+                "incident.ncua.notified"
+              ],
+              "status": null
+            }
+          ],
+          "within": "72 hours of determination (enforced by)",
+          "within_timer_codes": [
+            "incident.ncua_notice_due_at"
+          ],
+          "all_codes": [
+            "incident.ncua.notified",
+            "incident.ncua_notice_due_at",
+            "incident.reportability_determination",
+            "incident.reportability_rationale"
+          ]
+        },
+        {
+          "trigger": {
+            "label": "Member impact confirmed",
+            "code": "incident.member_impact.confirmed",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Member impact summary, notice template",
+              "codes": [
+                "incident.member_impact",
+                "incident.member_notice_template"
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "label": "Member notices sent",
+              "codes": [
+                "incident.member_notices.sent"
+              ],
+              "status": null
+            }
+          ],
+          "within": "Without unreasonable delay per Appendix B (enforced by)",
+          "within_timer_codes": [
+            "incident.notification_due_at"
+          ],
+          "all_codes": [
+            "incident.member_impact",
+            "incident.member_impact.confirmed",
+            "incident.member_notice_template",
+            "incident.member_notices.sent",
+            "incident.notification_due_at"
+          ]
+        }
+      ],
+      "control_rules": [
+        {
+          "control_id": "SC-01",
+          "policy": "e-commerce",
+          "trigger_event": "incident.reportability_determination",
+          "trigger": {
+            "object": "incident",
+            "property": "reportability_determination",
+            "action": null,
+            "canonical": "incident.reportability_determination",
+            "conforms": false
+          },
+          "required_inputs": [
+            "incident.ncua.notice.due_at",
+            "incident.reportability_rationale"
+          ],
+          "produced_events": [
+            "incident.ncua.notified"
+          ],
+          "produced": [
+            {
+              "object": "incident",
+              "property": "ncua",
+              "action": "notified",
+              "canonical": "incident.ncua.notified",
+              "conforms": true
+            }
+          ],
+          "deadline_timer": "incident.ncua.notice.due_at",
+          "deadline": {
+            "object": "incident",
+            "qualifier": "ncua",
+            "task_type": "notice",
+            "marker": "due_at",
+            "canonical": "incident.ncua.notice.due_at",
+            "conforms": true
+          },
+          "deadline_text": "72 hours of determination"
+        },
+        {
+          "control_id": "SC-01",
+          "policy": "e-commerce",
+          "trigger_event": "incident.member_impact.confirmed",
+          "trigger": {
+            "object": "incident",
+            "property": "member_impact",
+            "action": "confirmed",
+            "canonical": "incident.member_impact.confirmed",
+            "conforms": true
+          },
+          "required_inputs": [
+            "incident.member_impact",
+            "incident.member_notice_template"
+          ],
+          "produced_events": [
+            "incident.member_notices.sent"
+          ],
+          "produced": [
+            {
+              "object": "incident",
+              "property": "member_notices",
+              "action": "sent",
+              "canonical": "incident.member_notices.sent",
+              "conforms": true
+            }
+          ],
+          "deadline_timer": "incident.notification_due_at",
+          "deadline": {
+            "object": "incident",
+            "qualifier": "notification",
+            "task_type": null,
+            "marker": "due_at",
+            "canonical": "incident.notification.due_at",
+            "conforms": false
+          },
+          "deadline_text": "Without unreasonable delay per Appendix B"
+        }
+      ],
+      "api_references": {
+        "events": [
+          "incident.member_impact.confirmed",
+          "incident.member_notices.sent",
+          "incident.ncua.notified"
+        ],
+        "fields": [
+          "incident.member_impact",
+          "incident.member_notice_template",
+          "incident.ncua.notice.due_at",
+          "incident.notification_due_at",
+          "incident.reportability_determination",
+          "incident.reportability_rationale"
+        ],
+        "unregistered": [],
+        "all": [
+          "incident.member_impact",
+          "incident.member_impact.confirmed",
+          "incident.member_notice_template",
+          "incident.member_notices.sent",
+          "incident.ncua.notice.due_at",
+          "incident.ncua.notified",
+          "incident.notification_due_at",
+          "incident.reportability_determination",
+          "incident.reportability_rationale"
+        ],
+        "statuses": []
+      }
+    },
+    {
+      "control_id": "EC-13",
+      "title": "Breach Detection, Liability Assessment & External Comms Gating",
+      "anchor": "ec-13-breach-detection-liability-assessment-external-comms-gating",
+      "policy": "e-commerce",
+      "policy_title": null,
+      "policy_owner": null,
+      "policy_version": null,
+      "policy_effective": null,
+      "source_file": "e-commerce/e-commerce.md",
+      "regulatory_citations": [
+        {
+          "text": "GLBA 15 USC §6801",
+          "url": "https://www.law.cornell.edu/uscode/text/15/6801"
+        },
+        {
+          "text": "SC-01",
+          "url": "#sc-01-ncua-reportable-cyber-incident-member-notification"
+        }
+      ],
+      "why_text": "[GLBA 15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801) underpins the obligation to protect member information and respond to breaches. Feeds the reportability determination governed by [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification).",
+      "system_behavior": "Upon detection of an unauthorized act or user, the credit union immediately notifies management of the cause and scope of the breach. The extent of damage or disclosure of information is determined, including potential legal liability, to support the SC-01 reportability determination. Proper response activities are activated covering communications with members, law enforcement agencies, regulatory agencies, and the media. Only designated individuals are authorized to communicate externally with any of these parties; all other staff must route external inquiries to the designated spokesperson. The CCO coordinates the response; the CIO/IT Department supports containment and forensics.",
+      "alerts_metrics": "Alert when an `incident.declared` event has no `incident.ic.assigned` event within 15 minutes. Target: zero breaches where management notification is delayed beyond immediate.\n\n---",
       "events": [
         {
           "trigger": {
@@ -41415,11 +41750,10 @@
           ],
           "outputs": [
             {
-              "label": "Assessment completed; reportability determination made; member notice requirement determined",
+              "label": "Assessment completed; reportability determination made",
               "codes": [
                 "incident.assessment.completed",
-                "incident.reportability_assessment",
-                "incident.member_notice_required"
+                "incident.reportability_assessment"
               ],
               "status": null
             }
@@ -41432,85 +41766,7 @@
             "incident.facts",
             "incident.legal_review",
             "incident.member_impact",
-            "incident.member_notice_required",
             "incident.reportability_assessment"
-          ]
-        },
-        {
-          "trigger": {
-            "label": "Member notification required",
-            "code": "incident.member.notified",
-            "status": null
-          },
-          "inputs": [
-            {
-              "label": "Member notice template, affected member list, notice content",
-              "codes": [
-                "incident.member_notice_template",
-                "incident.member_impact",
-                "incident.notice_content"
-              ]
-            }
-          ],
-          "outputs": [
-            {
-              "label": "Member notices sent; notification logged",
-              "codes": [
-                "incident.member_notices",
-                "incident.member_notices.sent"
-              ],
-              "status": null
-            }
-          ],
-          "within": "Per NCUA Part 748 Appendix B timeline (enforced by)",
-          "within_timer_codes": [
-            "incident.notification_due_at"
-          ],
-          "all_codes": [
-            "incident.member.notified",
-            "incident.member_impact",
-            "incident.member_notice_template",
-            "incident.member_notices",
-            "incident.member_notices.sent",
-            "incident.notice_content",
-            "incident.notification_due_at"
-          ]
-        },
-        {
-          "trigger": {
-            "label": "Regulator notification required",
-            "code": "incident.regulator.notified",
-            "status": null
-          },
-          "inputs": [
-            {
-              "label": "Reportability determination, NCUA notice due date, regulator contact",
-              "codes": [
-                "incident.reportable_determined",
-                "incident.ncua_notice_due_at"
-              ]
-            }
-          ],
-          "outputs": [
-            {
-              "label": "NCUA notified; notification logged",
-              "codes": [
-                "incident.ncua.notified",
-                "regulator.ncua.notified"
-              ],
-              "status": null
-            }
-          ],
-          "within": "Per NCUA 72-hour notification requirement where applicable (enforced by)",
-          "within_timer_codes": [
-            "incident.ncua_notice_due_at"
-          ],
-          "all_codes": [
-            "incident.ncua.notified",
-            "incident.ncua_notice_due_at",
-            "incident.regulator.notified",
-            "incident.reportable_determined",
-            "regulator.ncua.notified"
           ]
         },
         {
@@ -41549,7 +41805,7 @@
       ],
       "control_rules": [
         {
-          "control_id": "EC-10",
+          "control_id": "EC-13",
           "policy": "e-commerce",
           "trigger_event": "incident.detected",
           "trigger": {
@@ -41597,7 +41853,7 @@
           "deadline_text": "Immediately on detection"
         },
         {
-          "control_id": "EC-10",
+          "control_id": "EC-13",
           "policy": "e-commerce",
           "trigger_event": "incident.assessment.completed",
           "trigger": {
@@ -41615,7 +41871,6 @@
           ],
           "produced_events": [
             "incident.assessment.completed",
-            "incident.member_notice_required",
             "incident.reportability_assessment"
           ],
           "produced": [
@@ -41625,13 +41880,6 @@
               "action": "completed",
               "canonical": "incident.assessment.completed",
               "conforms": true
-            },
-            {
-              "object": "incident",
-              "property": "member_notice_required",
-              "action": null,
-              "canonical": "incident.member_notice_required",
-              "conforms": false
             },
             {
               "object": "incident",
@@ -41646,100 +41894,7 @@
           "deadline_text": "Within internal SLA (internal: within 24 hours of detection)"
         },
         {
-          "control_id": "EC-10",
-          "policy": "e-commerce",
-          "trigger_event": "incident.member.notified",
-          "trigger": {
-            "object": "incident",
-            "property": "member",
-            "action": "notified",
-            "canonical": "incident.member.notified",
-            "conforms": true
-          },
-          "required_inputs": [
-            "incident.member_impact",
-            "incident.member_notice_template",
-            "incident.notice_content"
-          ],
-          "produced_events": [
-            "incident.member_notices",
-            "incident.member_notices.sent"
-          ],
-          "produced": [
-            {
-              "object": "incident",
-              "property": "member_notices",
-              "action": null,
-              "canonical": "incident.member_notices",
-              "conforms": false
-            },
-            {
-              "object": "incident",
-              "property": "member_notices",
-              "action": "sent",
-              "canonical": "incident.member_notices.sent",
-              "conforms": true
-            }
-          ],
-          "deadline_timer": "incident.notification_due_at",
-          "deadline": {
-            "object": "incident",
-            "qualifier": "notification",
-            "task_type": null,
-            "marker": "due_at",
-            "canonical": "incident.notification.due_at",
-            "conforms": false
-          },
-          "deadline_text": "Per NCUA Part 748 Appendix B timeline"
-        },
-        {
-          "control_id": "EC-10",
-          "policy": "e-commerce",
-          "trigger_event": "incident.regulator.notified",
-          "trigger": {
-            "object": "incident",
-            "property": "regulator",
-            "action": "notified",
-            "canonical": "incident.regulator.notified",
-            "conforms": true
-          },
-          "required_inputs": [
-            "incident.ncua.notice.due_at",
-            "incident.reportable.determined"
-          ],
-          "produced_events": [
-            "incident.ncua.notified",
-            "regulator.ncua.notified"
-          ],
-          "produced": [
-            {
-              "object": "incident",
-              "property": "ncua",
-              "action": "notified",
-              "canonical": "incident.ncua.notified",
-              "conforms": true
-            },
-            {
-              "object": "regulator",
-              "property": "ncua",
-              "action": "notified",
-              "canonical": "regulator.ncua.notified",
-              "conforms": true
-            }
-          ],
-          "deadline_timer": "incident.ncua.notice.due_at",
-          "deadline": {
-            "object": "incident",
-            "qualifier": "ncua",
-            "task_type": "notice",
-            "marker": "due_at",
-            "canonical": "incident.ncua.notice.due_at",
-            "conforms": true
-          },
-          "deadline_text": "Per NCUA 72-hour notification requirement where applicable"
-        },
-        {
-          "control_id": "EC-10",
+          "control_id": "EC-13",
           "policy": "e-commerce",
           "trigger_event": "incident.external_comms.started",
           "trigger": {
@@ -41778,12 +41933,7 @@
           "incident.detected",
           "incident.external_comms.recorded",
           "incident.external_comms.started",
-          "incident.ic.assigned",
-          "incident.member.notified",
-          "incident.member_notices.sent",
-          "incident.ncua.notified",
-          "incident.regulator.notified",
-          "regulator.ncua.notified"
+          "incident.ic.assigned"
         ],
         "fields": [
           "comms.holding_statement",
@@ -41793,14 +41943,7 @@
           "incident.facts",
           "incident.legal_review",
           "incident.member_impact",
-          "incident.member_notice_required",
-          "incident.member_notice_template",
-          "incident.member_notices",
-          "incident.ncua.notice.due_at",
-          "incident.notice_content",
-          "incident.notification_due_at",
           "incident.reportability_assessment",
-          "incident.reportable.determined",
           "incident.scope_initial",
           "incident.severity"
         ],
@@ -41819,22 +41962,10 @@
           "incident.facts",
           "incident.ic.assigned",
           "incident.legal_review",
-          "incident.member.notified",
           "incident.member_impact",
-          "incident.member_notice_required",
-          "incident.member_notice_template",
-          "incident.member_notices",
-          "incident.member_notices.sent",
-          "incident.ncua.notice.due_at",
-          "incident.ncua.notified",
-          "incident.notice_content",
-          "incident.notification_due_at",
-          "incident.regulator.notified",
           "incident.reportability_assessment",
-          "incident.reportable.determined",
           "incident.scope_initial",
-          "incident.severity",
-          "regulator.ncua.notified"
+          "incident.severity"
         ],
         "statuses": []
       }
@@ -42852,9 +42983,212 @@
       }
     },
     {
-      "control_id": "EPS-02",
-      "title": "Incident Planning and Preparedness",
-      "anchor": "eps-02-incident-planning-and-preparedness",
+      "control_id": "SC-01",
+      "title": "NCUA Reportable Cyber-Incident & Member Notification",
+      "anchor": "sc-01-ncua-reportable-cyber-incident-member-notification",
+      "policy": "electronic-payment-systems",
+      "policy_title": null,
+      "policy_owner": null,
+      "policy_version": null,
+      "policy_effective": null,
+      "source_file": "electronic-payment-systems/electronic-payment-systems.md",
+      "regulatory_citations": [
+        {
+          "text": "NCUA 12 CFR Part 748 §748.1(c)",
+          "url": "https://www.ecfr.gov/current/title-12/part-748"
+        },
+        {
+          "text": "NCUA 12 CFR Part 748, Appendix B",
+          "url": "https://www.ecfr.gov/current/title-12/part-748"
+        }
+      ],
+      "why_text": "[NCUA 12 CFR Part 748 §748.1(c)](https://www.ecfr.gov/current/title-12/part-748) requires credit unions to notify NCUA within 72 hours of determining a reportable cyber incident. [NCUA 12 CFR Part 748, Appendix B](https://www.ecfr.gov/current/title-12/part-748) requires a member notification program for unauthorized access to sensitive member information.",
+      "system_behavior": "Once a reportable cyber incident is determined, NCUA notification must be sent within 72 hours of that determination. Member notice is sent without unreasonable delay per Appendix B criteria once misuse of member information is determined likely. The reportability determination and the NCUA-notification field are write-restricted to the CCO/Compliance-Legal. An incident determined non-reportable is documented with rationale and triggers no NCUA notice.",
+      "alerts_metrics": "Alert fires when `incident.ncua_notice_due_at` is within 12 hours without an `incident.ncua.notified` event; alert fires when member notice is overdue per `incident.notification_due_at`. Target: 100% of reportable incidents notified to NCUA within 72 hours; zero member-notice SLA breaches.\n\n---",
+      "events": [
+        {
+          "trigger": {
+            "label": "Reportable cyber incident determined",
+            "code": "incident.reportability_determination",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Reportability rationale, NCUA notice due",
+              "codes": [
+                "incident.reportability_rationale",
+                "incident.ncua_notice_due_at"
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "label": "NCUA notification sent",
+              "codes": [
+                "incident.ncua.notified"
+              ],
+              "status": null
+            }
+          ],
+          "within": "72 hours of determination (enforced by)",
+          "within_timer_codes": [
+            "incident.ncua_notice_due_at"
+          ],
+          "all_codes": [
+            "incident.ncua.notified",
+            "incident.ncua_notice_due_at",
+            "incident.reportability_determination",
+            "incident.reportability_rationale"
+          ]
+        },
+        {
+          "trigger": {
+            "label": "Member impact confirmed",
+            "code": "incident.member_impact.confirmed",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Member impact summary, notice template",
+              "codes": [
+                "incident.member_impact",
+                "incident.member_notice_template"
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "label": "Member notices sent",
+              "codes": [
+                "incident.member_notices.sent"
+              ],
+              "status": null
+            }
+          ],
+          "within": "Without unreasonable delay per Appendix B (enforced by)",
+          "within_timer_codes": [
+            "incident.notification_due_at"
+          ],
+          "all_codes": [
+            "incident.member_impact",
+            "incident.member_impact.confirmed",
+            "incident.member_notice_template",
+            "incident.member_notices.sent",
+            "incident.notification_due_at"
+          ]
+        }
+      ],
+      "control_rules": [
+        {
+          "control_id": "SC-01",
+          "policy": "electronic-payment-systems",
+          "trigger_event": "incident.reportability_determination",
+          "trigger": {
+            "object": "incident",
+            "property": "reportability_determination",
+            "action": null,
+            "canonical": "incident.reportability_determination",
+            "conforms": false
+          },
+          "required_inputs": [
+            "incident.ncua.notice.due_at",
+            "incident.reportability_rationale"
+          ],
+          "produced_events": [
+            "incident.ncua.notified"
+          ],
+          "produced": [
+            {
+              "object": "incident",
+              "property": "ncua",
+              "action": "notified",
+              "canonical": "incident.ncua.notified",
+              "conforms": true
+            }
+          ],
+          "deadline_timer": "incident.ncua.notice.due_at",
+          "deadline": {
+            "object": "incident",
+            "qualifier": "ncua",
+            "task_type": "notice",
+            "marker": "due_at",
+            "canonical": "incident.ncua.notice.due_at",
+            "conforms": true
+          },
+          "deadline_text": "72 hours of determination"
+        },
+        {
+          "control_id": "SC-01",
+          "policy": "electronic-payment-systems",
+          "trigger_event": "incident.member_impact.confirmed",
+          "trigger": {
+            "object": "incident",
+            "property": "member_impact",
+            "action": "confirmed",
+            "canonical": "incident.member_impact.confirmed",
+            "conforms": true
+          },
+          "required_inputs": [
+            "incident.member_impact",
+            "incident.member_notice_template"
+          ],
+          "produced_events": [
+            "incident.member_notices.sent"
+          ],
+          "produced": [
+            {
+              "object": "incident",
+              "property": "member_notices",
+              "action": "sent",
+              "canonical": "incident.member_notices.sent",
+              "conforms": true
+            }
+          ],
+          "deadline_timer": "incident.notification_due_at",
+          "deadline": {
+            "object": "incident",
+            "qualifier": "notification",
+            "task_type": null,
+            "marker": "due_at",
+            "canonical": "incident.notification.due_at",
+            "conforms": false
+          },
+          "deadline_text": "Without unreasonable delay per Appendix B"
+        }
+      ],
+      "api_references": {
+        "events": [
+          "incident.member_impact.confirmed",
+          "incident.member_notices.sent",
+          "incident.ncua.notified"
+        ],
+        "fields": [
+          "incident.member_impact",
+          "incident.member_notice_template",
+          "incident.ncua.notice.due_at",
+          "incident.notification_due_at",
+          "incident.reportability_determination",
+          "incident.reportability_rationale"
+        ],
+        "unregistered": [],
+        "all": [
+          "incident.member_impact",
+          "incident.member_impact.confirmed",
+          "incident.member_notice_template",
+          "incident.member_notices.sent",
+          "incident.ncua.notice.due_at",
+          "incident.ncua.notified",
+          "incident.notification_due_at",
+          "incident.reportability_determination",
+          "incident.reportability_rationale"
+        ],
+        "statuses": []
+      }
+    },
+    {
+      "control_id": "EPS-11",
+      "title": "Payment-Incident Detection & BCP Testing",
+      "anchor": "eps-11-payment-incident-detection-bcp-testing",
       "policy": "electronic-payment-systems",
       "policy_title": null,
       "policy_owner": null,
@@ -42867,13 +43201,13 @@
           "url": "https://www.ecfr.gov/current/title-12/part-748"
         },
         {
-          "text": "NCUA 12 CFR Part 748 Appendix B",
-          "url": "https://www.ecfr.gov/current/title-12/part-748"
+          "text": "SC-01",
+          "url": "#sc-01-ncua-reportable-cyber-incident-member-notification"
         }
       ],
-      "why_text": "[NCUA 12 CFR Part 748 Appendix A](https://www.ecfr.gov/current/title-12/part-748) requires federally insured credit unions to maintain an incident response program and business continuity plan covering information systems and electronic services. The FFIEC IT Examination Handbook (Business Continuity Management Booklet) sets expectations for regular testing of critical electronic banking services. Incident notification obligations for cybersecurity incidents are governed by [NCUA 12 CFR Part 748 Appendix B](https://www.ecfr.gov/current/title-12/part-748).",
-      "system_behavior": "The Credit Union maintains a Business Continuity Plan (BCP), associated procedures, and an Incident Response Plan (IRP) that explicitly cover electronic banking risks, including all in-scope payment channels. The BCP must include regular testing of key electronic banking services; test results and after-action items are tracked to closure. When an electronic banking incident is detected, the incident response workflow is activated: the incident is declared, severity assigned, and — where the incident meets NCUA reportability thresholds — the NCUA notification timer is set. Incident records are write-restricted to the AVP of Deposit Operations and the Incident Commander; Compliance has read access. BCP test scheduling and results are maintained by the AVP of Deposit Operations and reviewed by the IT Committee. Detail on BCP program structure, DR objectives, and recovery procedures resides in the Business Continuity Plan Policy.",
-      "alerts_metrics": "Alert if a BCP test for electronic banking services has not been completed within the scheduled window — target zero overdue tests. Alert if an incident with `eps.incident.reportable_determined` = true has no `eps.incident_ncua.notified` event within 72 hours of discovery. Monitor mean time to incident containment for electronic banking incidents.\n\n---",
+      "why_text": "[NCUA 12 CFR Part 748 Appendix A](https://www.ecfr.gov/current/title-12/part-748) requires federally insured credit unions to maintain an incident response program and business continuity plan covering information systems and electronic services. The FFIEC IT Examination Handbook (Business Continuity Management Booklet) sets expectations for regular testing of critical electronic banking services. Incident detection feeds the reportability determination governed by [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification).",
+      "system_behavior": "The Credit Union maintains a Business Continuity Plan (BCP), associated procedures, and an Incident Response Plan (IRP) that explicitly cover electronic banking risks, including all in-scope payment channels. The BCP must include regular testing of key electronic banking services; test results and after-action items are tracked to closure. When an electronic banking incident is detected, the incident response workflow is activated: the incident is declared, severity assigned, and routed to SC-01 for reportability assessment. Incident records are write-restricted to the AVP of Deposit Operations and the Incident Commander; Compliance has read access. BCP test scheduling and results are maintained by the AVP of Deposit Operations and reviewed by the IT Committee. Detail on BCP program structure, DR objectives, and recovery procedures resides in the Business Continuity Plan Policy.",
+      "alerts_metrics": "Alert if a BCP test for electronic banking services has not been completed within the scheduled window — target zero overdue tests. Monitor mean time to incident containment for electronic banking incidents.\n\n---",
       "events": [
         {
           "trigger": {
@@ -42977,79 +43311,11 @@
             "incident.created",
             "incident.description"
           ]
-        },
-        {
-          "trigger": {
-            "label": "Incident reportability to NCUA determined",
-            "code": "eps.incident.reportable_determined",
-            "status": null
-          },
-          "inputs": [
-            {
-              "label": "Incident scope, member impact, reportability assessment",
-              "codes": [
-                "incident.scope",
-                "eps.incident.impact",
-                "incident.reportability_assessment"
-              ]
-            }
-          ],
-          "outputs": [
-            {
-              "label": "Reportability determination recorded; NCUA notification timer set if reportable",
-              "codes": [
-                "eps.incident.reportable_determined",
-                "eps.incident.ncua_due_at"
-              ],
-              "status": null
-            }
-          ],
-          "within": "Within 72 hours of incident discovery (NCUA 72-hour rule where applicable; enforced by)",
-          "within_timer_codes": [
-            "eps.incident.ncua_due_at"
-          ],
-          "all_codes": [
-            "eps.incident.impact",
-            "eps.incident.ncua_due_at",
-            "eps.incident.reportable_determined",
-            "incident.reportability_assessment",
-            "incident.scope"
-          ]
-        },
-        {
-          "trigger": {
-            "label": "NCUA notified of reportable incident",
-            "code": "eps.incident_ncua.notified",
-            "status": null
-          },
-          "inputs": [
-            {
-              "label": "NCUA notification content, incident record reference",
-              "codes": []
-            }
-          ],
-          "outputs": [
-            {
-              "label": "NCUA notification logged",
-              "codes": [
-                "eps.incident_ncua.notified"
-              ],
-              "status": null
-            }
-          ],
-          "within": "Within 72 hours of discovery (enforced by)",
-          "within_timer_codes": [
-            "eps.incident.ncua_due_at"
-          ],
-          "all_codes": [
-            "eps.incident.ncua_due_at",
-            "eps.incident_ncua.notified"
-          ]
         }
       ],
       "control_rules": [
         {
-          "control_id": "EPS-02",
+          "control_id": "EPS-11",
           "policy": "electronic-payment-systems",
           "trigger_event": "eps.bcp_test.scheduled",
           "trigger": {
@@ -43087,7 +43353,7 @@
           "deadline_text": "Per BCP schedule; at least annually"
         },
         {
-          "control_id": "EPS-02",
+          "control_id": "EPS-11",
           "policy": "electronic-payment-systems",
           "trigger_event": "eps.bcp_test.completed",
           "trigger": {
@@ -43125,7 +43391,7 @@
           "deadline_text": "Within 10 BD of test execution"
         },
         {
-          "control_id": "EPS-02",
+          "control_id": "EPS-11",
           "policy": "electronic-payment-systems",
           "trigger_event": "eps.incident.detected",
           "trigger": {
@@ -43164,88 +43430,6 @@
           "deadline_timer": null,
           "deadline": null,
           "deadline_text": "Immediately upon detection"
-        },
-        {
-          "control_id": "EPS-02",
-          "policy": "electronic-payment-systems",
-          "trigger_event": "eps.incident_reportable.determined",
-          "trigger": {
-            "object": "eps",
-            "property": "incident_reportable",
-            "action": "determined",
-            "canonical": "eps.incident_reportable.determined",
-            "conforms": true
-          },
-          "required_inputs": [
-            "eps.incident.impact",
-            "incident.reportability_assessment",
-            "incident.scope"
-          ],
-          "produced_events": [
-            "eps.incident.ncua_due_at",
-            "eps.incident_reportable.determined"
-          ],
-          "produced": [
-            {
-              "object": "eps",
-              "property": "incident.ncua_due_at",
-              "action": null,
-              "canonical": "eps.incident.ncua_due_at",
-              "conforms": false
-            },
-            {
-              "object": "eps",
-              "property": "incident_reportable",
-              "action": "determined",
-              "canonical": "eps.incident_reportable.determined",
-              "conforms": true
-            }
-          ],
-          "deadline_timer": "eps.incident.ncua_due_at",
-          "deadline": {
-            "object": "eps",
-            "qualifier": "incident_ncua",
-            "task_type": null,
-            "marker": "due_at",
-            "canonical": "eps.incident_ncua.due_at",
-            "conforms": false
-          },
-          "deadline_text": "Within 72 hours of incident discovery (NCUA 72-hour rule where applicable; enforced by)"
-        },
-        {
-          "control_id": "EPS-02",
-          "policy": "electronic-payment-systems",
-          "trigger_event": "eps.incident_ncua.notified",
-          "trigger": {
-            "object": "eps",
-            "property": "incident_ncua",
-            "action": "notified",
-            "canonical": "eps.incident_ncua.notified",
-            "conforms": true
-          },
-          "required_inputs": [],
-          "produced_events": [
-            "eps.incident_ncua.notified"
-          ],
-          "produced": [
-            {
-              "object": "eps",
-              "property": "incident_ncua",
-              "action": "notified",
-              "canonical": "eps.incident_ncua.notified",
-              "conforms": true
-            }
-          ],
-          "deadline_timer": "eps.incident.ncua_due_at",
-          "deadline": {
-            "object": "eps",
-            "qualifier": "incident_ncua",
-            "task_type": null,
-            "marker": "due_at",
-            "canonical": "eps.incident_ncua.due_at",
-            "conforms": false
-          },
-          "deadline_text": "Within 72 hours of discovery"
         }
       ],
       "api_references": {
@@ -43254,23 +43438,17 @@
           "eps.bcp_test.scheduled",
           "eps.incident.detected",
           "eps.incident.opened",
-          "eps.incident_ncua.notified",
           "incident.created"
         ],
         "fields": [
           "eps.bcp.test.due_at",
           "eps.bcp_test.scenario",
           "eps.control_review.deficiency_found",
-          "eps.incident.impact",
-          "eps.incident.ncua_due_at",
           "eps.incident.severity",
           "eps.incident.vendor_linked",
-          "eps.incident_reportable.determined",
           "eps.service.id",
           "eps.test.defects",
-          "incident.description",
-          "incident.reportability_assessment",
-          "incident.scope"
+          "incident.description"
         ],
         "unregistered": [],
         "all": [
@@ -43280,19 +43458,13 @@
           "eps.bcp_test.scheduled",
           "eps.control_review.deficiency_found",
           "eps.incident.detected",
-          "eps.incident.impact",
-          "eps.incident.ncua_due_at",
           "eps.incident.opened",
           "eps.incident.severity",
           "eps.incident.vendor_linked",
-          "eps.incident_ncua.notified",
-          "eps.incident_reportable.determined",
           "eps.service.id",
           "eps.test.defects",
           "incident.created",
-          "incident.description",
-          "incident.reportability_assessment",
-          "incident.scope"
+          "incident.description"
         ],
         "statuses": []
       }
@@ -56410,9 +56582,9 @@
       }
     },
     {
-      "control_id": "IS-09",
-      "title": "Incident Response and Cyber Incident Reporting",
-      "anchor": "is-09-incident-response-and-cyber-incident-reporting",
+      "control_id": "SC-01",
+      "title": "NCUA Reportable Cyber-Incident & Member Notification",
+      "anchor": "sc-01-ncua-reportable-cyber-incident-member-notification",
       "policy": "information-security",
       "policy_title": null,
       "policy_owner": null,
@@ -56427,15 +56599,214 @@
         {
           "text": "NCUA 12 CFR Part 748, Appendix B",
           "url": "https://www.ecfr.gov/current/title-12/part-748"
+        }
+      ],
+      "why_text": "[NCUA 12 CFR Part 748 §748.1(c)](https://www.ecfr.gov/current/title-12/part-748) requires credit unions to notify NCUA within 72 hours of determining a reportable cyber incident. [NCUA 12 CFR Part 748, Appendix B](https://www.ecfr.gov/current/title-12/part-748) requires a member notification program for unauthorized access to sensitive member information.",
+      "system_behavior": "Once a reportable cyber incident is determined, NCUA notification must be sent within 72 hours of that determination. Member notice is sent without unreasonable delay per Appendix B criteria once misuse of member information is determined likely. The reportability determination and the NCUA-notification field are write-restricted to the CCO/Compliance-Legal. An incident determined non-reportable is documented with rationale and triggers no NCUA notice.",
+      "alerts_metrics": "Alert fires when `incident.ncua_notice_due_at` is within 12 hours without an `incident.ncua.notified` event; alert fires when member notice is overdue per `incident.notification_due_at`. Target: 100% of reportable incidents notified to NCUA within 72 hours; zero member-notice SLA breaches.\n\n---",
+      "events": [
+        {
+          "trigger": {
+            "label": "Reportable cyber incident determined",
+            "code": "incident.reportability_determination",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Reportability rationale, NCUA notice due",
+              "codes": [
+                "incident.reportability_rationale",
+                "incident.ncua_notice_due_at"
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "label": "NCUA notification sent",
+              "codes": [
+                "incident.ncua.notified"
+              ],
+              "status": null
+            }
+          ],
+          "within": "72 hours of determination (enforced by)",
+          "within_timer_codes": [
+            "incident.ncua_notice_due_at"
+          ],
+          "all_codes": [
+            "incident.ncua.notified",
+            "incident.ncua_notice_due_at",
+            "incident.reportability_determination",
+            "incident.reportability_rationale"
+          ]
         },
+        {
+          "trigger": {
+            "label": "Member impact confirmed",
+            "code": "incident.member_impact.confirmed",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Member impact summary, notice template",
+              "codes": [
+                "incident.member_impact",
+                "incident.member_notice_template"
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "label": "Member notices sent",
+              "codes": [
+                "incident.member_notices.sent"
+              ],
+              "status": null
+            }
+          ],
+          "within": "Without unreasonable delay per Appendix B (enforced by)",
+          "within_timer_codes": [
+            "incident.notification_due_at"
+          ],
+          "all_codes": [
+            "incident.member_impact",
+            "incident.member_impact.confirmed",
+            "incident.member_notice_template",
+            "incident.member_notices.sent",
+            "incident.notification_due_at"
+          ]
+        }
+      ],
+      "control_rules": [
+        {
+          "control_id": "SC-01",
+          "policy": "information-security",
+          "trigger_event": "incident.reportability_determination",
+          "trigger": {
+            "object": "incident",
+            "property": "reportability_determination",
+            "action": null,
+            "canonical": "incident.reportability_determination",
+            "conforms": false
+          },
+          "required_inputs": [
+            "incident.ncua.notice.due_at",
+            "incident.reportability_rationale"
+          ],
+          "produced_events": [
+            "incident.ncua.notified"
+          ],
+          "produced": [
+            {
+              "object": "incident",
+              "property": "ncua",
+              "action": "notified",
+              "canonical": "incident.ncua.notified",
+              "conforms": true
+            }
+          ],
+          "deadline_timer": "incident.ncua.notice.due_at",
+          "deadline": {
+            "object": "incident",
+            "qualifier": "ncua",
+            "task_type": "notice",
+            "marker": "due_at",
+            "canonical": "incident.ncua.notice.due_at",
+            "conforms": true
+          },
+          "deadline_text": "72 hours of determination"
+        },
+        {
+          "control_id": "SC-01",
+          "policy": "information-security",
+          "trigger_event": "incident.member_impact.confirmed",
+          "trigger": {
+            "object": "incident",
+            "property": "member_impact",
+            "action": "confirmed",
+            "canonical": "incident.member_impact.confirmed",
+            "conforms": true
+          },
+          "required_inputs": [
+            "incident.member_impact",
+            "incident.member_notice_template"
+          ],
+          "produced_events": [
+            "incident.member_notices.sent"
+          ],
+          "produced": [
+            {
+              "object": "incident",
+              "property": "member_notices",
+              "action": "sent",
+              "canonical": "incident.member_notices.sent",
+              "conforms": true
+            }
+          ],
+          "deadline_timer": "incident.notification_due_at",
+          "deadline": {
+            "object": "incident",
+            "qualifier": "notification",
+            "task_type": null,
+            "marker": "due_at",
+            "canonical": "incident.notification.due_at",
+            "conforms": false
+          },
+          "deadline_text": "Without unreasonable delay per Appendix B"
+        }
+      ],
+      "api_references": {
+        "events": [
+          "incident.member_impact.confirmed",
+          "incident.member_notices.sent",
+          "incident.ncua.notified"
+        ],
+        "fields": [
+          "incident.member_impact",
+          "incident.member_notice_template",
+          "incident.ncua.notice.due_at",
+          "incident.notification_due_at",
+          "incident.reportability_determination",
+          "incident.reportability_rationale"
+        ],
+        "unregistered": [],
+        "all": [
+          "incident.member_impact",
+          "incident.member_impact.confirmed",
+          "incident.member_notice_template",
+          "incident.member_notices.sent",
+          "incident.ncua.notice.due_at",
+          "incident.ncua.notified",
+          "incident.notification_due_at",
+          "incident.reportability_determination",
+          "incident.reportability_rationale"
+        ],
+        "statuses": []
+      }
+    },
+    {
+      "control_id": "IS-19",
+      "title": "Incident Declaration, IC Assignment & Post-Mortem",
+      "anchor": "is-19-incident-declaration-ic-assignment-post-mortem",
+      "policy": "information-security",
+      "policy_title": null,
+      "policy_owner": null,
+      "policy_version": null,
+      "policy_effective": null,
+      "source_file": "information-security/information-security.md",
+      "regulatory_citations": [
         {
           "text": "GLBA 15 USC §6801",
           "url": "https://www.law.cornell.edu/uscode/text/15/6801"
+        },
+        {
+          "text": "SC-01",
+          "url": "#sc-01-ncua-reportable-cyber-incident-member-notification"
         }
       ],
-      "why_text": "[NCUA 12 CFR Part 748 §748.1(c)](https://www.ecfr.gov/current/title-12/part-748) requires credit unions to notify NCUA within 72 hours of determining a reportable cyber incident. [NCUA 12 CFR Part 748, Appendix B](https://www.ecfr.gov/current/title-12/part-748) requires a member notification program for unauthorized access to sensitive member information. [GLBA 15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801) requires safeguards and response programs for breaches.",
-      "system_behavior": "The IR plan, incident commander roster, and playbooks are maintained and tested. When an incident is declared, the incident commander is assigned and the first-hour checklist is executed. Reportability is assessed as soon as material facts are known; once a reportable cyber incident is determined, NCUA notification must be sent within 72 hours. Member notice is sent without unreasonable delay per Appendix B criteria. Law enforcement coordination is documented in the incident record. The incident record is write-restricted to the assigned incident commander and CCO; the NCUA notification field is write-restricted to the CCO.",
-      "alerts_metrics": "Alert fires when `incident.ncua_notice_due_at` is within 12 hours without a `incident.ncua.notified` event; alert fires when member notice is overdue per `incident.notification_due_at`. Target: 100% of reportable incidents notified to NCUA within 72 hours; zero member notice SLA breaches.\n\n---",
+      "why_text": "[GLBA 15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801) requires safeguards and response programs for breaches. Incident declaration and triage feed the reportability determination governed by [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification).",
+      "system_behavior": "The IR plan, incident commander roster, and playbooks are maintained and tested. When an incident is declared, the incident commander is assigned and the first-hour checklist is executed. Reportability is assessed as soon as material facts are known and routed to SC-01. Law enforcement coordination is documented in the incident record. The incident record is write-restricted to the assigned incident commander and CCO.",
+      "alerts_metrics": "Track time from `incident.declared` to `incident.ic.assigned` (target ≤ 15 minutes); track post-mortem completion within 30 days of closure.\n\n---",
       "events": [
         {
           "trigger": {
@@ -56478,81 +56849,6 @@
         },
         {
           "trigger": {
-            "label": "Reportable cyber incident determined",
-            "code": "incident.security.confirmed",
-            "status": null
-          },
-          "inputs": [
-            {
-              "label": "Reportability determination, reportability rationale, NCUA notice due",
-              "codes": [
-                "incident.reportability_determination",
-                "incident.reportability_rationale",
-                "incident.ncua_notice_due_at"
-              ]
-            }
-          ],
-          "outputs": [
-            {
-              "label": "NCUA notification sent",
-              "codes": [
-                "incident.ncua.notified"
-              ],
-              "status": null
-            }
-          ],
-          "within": "72 hours of determination (enforced by)",
-          "within_timer_codes": [
-            "incident.ncua_notice_due_at"
-          ],
-          "all_codes": [
-            "incident.ncua.notified",
-            "incident.ncua_notice_due_at",
-            "incident.reportability_determination",
-            "incident.reportability_rationale",
-            "incident.security.confirmed"
-          ]
-        },
-        {
-          "trigger": {
-            "label": "Member impact confirmed",
-            "code": "incident.member_impact.confirmed",
-            "status": null
-          },
-          "inputs": [
-            {
-              "label": "Member impact summary, notice template, member notice required flag",
-              "codes": [
-                "incident.member_impact",
-                "incident.member_notice_template",
-                "incident.member_notice_required"
-              ]
-            }
-          ],
-          "outputs": [
-            {
-              "label": "Member notices sent",
-              "codes": [
-                "incident.member_notices.sent"
-              ],
-              "status": null
-            }
-          ],
-          "within": "Without unreasonable delay per Appendix B (enforced by)",
-          "within_timer_codes": [
-            "incident.notification_due_at"
-          ],
-          "all_codes": [
-            "incident.member_impact",
-            "incident.member_impact.confirmed",
-            "incident.member_notice_required",
-            "incident.member_notice_template",
-            "incident.member_notices.sent",
-            "incident.notification_due_at"
-          ]
-        },
-        {
-          "trigger": {
             "label": "Incident closed",
             "code": "incident.closed",
             "status": null
@@ -56589,7 +56885,7 @@
       ],
       "control_rules": [
         {
-          "control_id": "IS-09",
+          "control_id": "IS-19",
           "policy": "information-security",
           "trigger_event": "incident.declared",
           "trigger": {
@@ -56630,85 +56926,7 @@
           "deadline_text": "Immediately on declaration"
         },
         {
-          "control_id": "IS-09",
-          "policy": "information-security",
-          "trigger_event": "incident.security.confirmed",
-          "trigger": {
-            "object": "incident",
-            "property": "security",
-            "action": "confirmed",
-            "canonical": "incident.security.confirmed",
-            "conforms": true
-          },
-          "required_inputs": [
-            "incident.ncua.notice.due_at",
-            "incident.reportability_determination",
-            "incident.reportability_rationale"
-          ],
-          "produced_events": [
-            "incident.ncua.notified"
-          ],
-          "produced": [
-            {
-              "object": "incident",
-              "property": "ncua",
-              "action": "notified",
-              "canonical": "incident.ncua.notified",
-              "conforms": true
-            }
-          ],
-          "deadline_timer": "incident.ncua.notice.due_at",
-          "deadline": {
-            "object": "incident",
-            "qualifier": "ncua",
-            "task_type": "notice",
-            "marker": "due_at",
-            "canonical": "incident.ncua.notice.due_at",
-            "conforms": true
-          },
-          "deadline_text": "72 hours of determination"
-        },
-        {
-          "control_id": "IS-09",
-          "policy": "information-security",
-          "trigger_event": "incident.member_impact.confirmed",
-          "trigger": {
-            "object": "incident",
-            "property": "member_impact",
-            "action": "confirmed",
-            "canonical": "incident.member_impact.confirmed",
-            "conforms": true
-          },
-          "required_inputs": [
-            "incident.member_impact",
-            "incident.member_notice_required",
-            "incident.member_notice_template"
-          ],
-          "produced_events": [
-            "incident.member_notices.sent"
-          ],
-          "produced": [
-            {
-              "object": "incident",
-              "property": "member_notices",
-              "action": "sent",
-              "canonical": "incident.member_notices.sent",
-              "conforms": true
-            }
-          ],
-          "deadline_timer": "incident.notification_due_at",
-          "deadline": {
-            "object": "incident",
-            "qualifier": "notification",
-            "task_type": null,
-            "marker": "due_at",
-            "canonical": "incident.notification.due_at",
-            "conforms": false
-          },
-          "deadline_text": "Without unreasonable delay per Appendix B"
-        },
-        {
-          "control_id": "IS-09",
+          "control_id": "IS-19",
           "policy": "information-security",
           "trigger_event": "incident.closed",
           "trigger": {
@@ -56746,23 +56964,12 @@
           "incident.declared",
           "incident.first_hour.completed",
           "incident.ic.assigned",
-          "incident.member_impact.confirmed",
-          "incident.member_notices.sent",
-          "incident.ncua.notified",
-          "incident.postmortem.completed",
-          "incident.security.confirmed"
+          "incident.postmortem.completed"
         ],
         "fields": [
           "incident.description",
           "incident.detection_source",
-          "incident.member_impact",
-          "incident.member_notice_required",
-          "incident.member_notice_template",
-          "incident.ncua.notice.due_at",
-          "incident.notification_due_at",
           "incident.recovered",
-          "incident.reportability_determination",
-          "incident.reportability_rationale",
           "incident.root_cause",
           "incident.scope_initial",
           "incident.severity",
@@ -56776,21 +56983,10 @@
           "incident.detection_source",
           "incident.first_hour.completed",
           "incident.ic.assigned",
-          "incident.member_impact",
-          "incident.member_impact.confirmed",
-          "incident.member_notice_required",
-          "incident.member_notice_template",
-          "incident.member_notices.sent",
-          "incident.ncua.notice.due_at",
-          "incident.ncua.notified",
-          "incident.notification_due_at",
           "incident.postmortem.completed",
           "incident.recovered",
-          "incident.reportability_determination",
-          "incident.reportability_rationale",
           "incident.root_cause",
           "incident.scope_initial",
-          "incident.security.confirmed",
           "incident.severity",
           "incident.timeline"
         ],
@@ -85723,9 +85919,212 @@
       }
     },
     {
-      "control_id": "PR-09",
-      "title": "Incident Response and Breach Notification",
-      "anchor": "pr-09-incident-response-and-breach-notification",
+      "control_id": "SC-01",
+      "title": "NCUA Reportable Cyber-Incident & Member Notification",
+      "anchor": "sc-01-ncua-reportable-cyber-incident-member-notification",
+      "policy": "privacy",
+      "policy_title": null,
+      "policy_owner": null,
+      "policy_version": null,
+      "policy_effective": null,
+      "source_file": "privacy/privacy.md",
+      "regulatory_citations": [
+        {
+          "text": "NCUA 12 CFR Part 748 §748.1(c)",
+          "url": "https://www.ecfr.gov/current/title-12/part-748"
+        },
+        {
+          "text": "NCUA 12 CFR Part 748, Appendix B",
+          "url": "https://www.ecfr.gov/current/title-12/part-748"
+        }
+      ],
+      "why_text": "[NCUA 12 CFR Part 748 §748.1(c)](https://www.ecfr.gov/current/title-12/part-748) requires credit unions to notify NCUA within 72 hours of determining a reportable cyber incident. [NCUA 12 CFR Part 748, Appendix B](https://www.ecfr.gov/current/title-12/part-748) requires a member notification program for unauthorized access to sensitive member information.",
+      "system_behavior": "Once a reportable cyber incident is determined, NCUA notification must be sent within 72 hours of that determination. Member notice is sent without unreasonable delay per Appendix B criteria once misuse of member information is determined likely (state breach-notice clocks apply in addition where stricter). The reportability determination and the NCUA-notification field are write-restricted to the CCO/Compliance-Legal. An incident determined non-reportable is documented with rationale and triggers no NCUA notice.",
+      "alerts_metrics": "Alert fires when `incident.ncua_notice_due_at` is within 12 hours without an `incident.ncua.notified` event; alert fires when member notice is overdue per `incident.notification_due_at`. Target: 100% of reportable incidents notified to NCUA within 72 hours; zero member-notice SLA breaches.\n\n---",
+      "events": [
+        {
+          "trigger": {
+            "label": "Reportable cyber incident determined",
+            "code": "incident.reportability_determination",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Reportability rationale, NCUA notice due",
+              "codes": [
+                "incident.reportability_rationale",
+                "incident.ncua_notice_due_at"
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "label": "NCUA notification sent",
+              "codes": [
+                "incident.ncua.notified"
+              ],
+              "status": null
+            }
+          ],
+          "within": "72 hours of determination (enforced by)",
+          "within_timer_codes": [
+            "incident.ncua_notice_due_at"
+          ],
+          "all_codes": [
+            "incident.ncua.notified",
+            "incident.ncua_notice_due_at",
+            "incident.reportability_determination",
+            "incident.reportability_rationale"
+          ]
+        },
+        {
+          "trigger": {
+            "label": "Member impact confirmed",
+            "code": "incident.member_impact.confirmed",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Member impact summary, notice template",
+              "codes": [
+                "incident.member_impact",
+                "incident.notice_template_id"
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "label": "Member notices sent",
+              "codes": [
+                "incident.member_notices.sent"
+              ],
+              "status": null
+            }
+          ],
+          "within": "Without unreasonable delay per Appendix B / applicable state clock (enforced by)",
+          "within_timer_codes": [
+            "incident.notification_due_at"
+          ],
+          "all_codes": [
+            "incident.member_impact",
+            "incident.member_impact.confirmed",
+            "incident.member_notices.sent",
+            "incident.notice_template_id",
+            "incident.notification_due_at"
+          ]
+        }
+      ],
+      "control_rules": [
+        {
+          "control_id": "SC-01",
+          "policy": "privacy",
+          "trigger_event": "incident.reportability_determination",
+          "trigger": {
+            "object": "incident",
+            "property": "reportability_determination",
+            "action": null,
+            "canonical": "incident.reportability_determination",
+            "conforms": false
+          },
+          "required_inputs": [
+            "incident.ncua.notice.due_at",
+            "incident.reportability_rationale"
+          ],
+          "produced_events": [
+            "incident.ncua.notified"
+          ],
+          "produced": [
+            {
+              "object": "incident",
+              "property": "ncua",
+              "action": "notified",
+              "canonical": "incident.ncua.notified",
+              "conforms": true
+            }
+          ],
+          "deadline_timer": "incident.ncua.notice.due_at",
+          "deadline": {
+            "object": "incident",
+            "qualifier": "ncua",
+            "task_type": "notice",
+            "marker": "due_at",
+            "canonical": "incident.ncua.notice.due_at",
+            "conforms": true
+          },
+          "deadline_text": "72 hours of determination"
+        },
+        {
+          "control_id": "SC-01",
+          "policy": "privacy",
+          "trigger_event": "incident.member_impact.confirmed",
+          "trigger": {
+            "object": "incident",
+            "property": "member_impact",
+            "action": "confirmed",
+            "canonical": "incident.member_impact.confirmed",
+            "conforms": true
+          },
+          "required_inputs": [
+            "incident.member_impact",
+            "incident.notice_template_id"
+          ],
+          "produced_events": [
+            "incident.member_notices.sent"
+          ],
+          "produced": [
+            {
+              "object": "incident",
+              "property": "member_notices",
+              "action": "sent",
+              "canonical": "incident.member_notices.sent",
+              "conforms": true
+            }
+          ],
+          "deadline_timer": "incident.notification_due_at",
+          "deadline": {
+            "object": "incident",
+            "qualifier": "notification",
+            "task_type": null,
+            "marker": "due_at",
+            "canonical": "incident.notification.due_at",
+            "conforms": false
+          },
+          "deadline_text": "Without unreasonable delay per Appendix B / applicable state clock"
+        }
+      ],
+      "api_references": {
+        "events": [
+          "incident.member_impact.confirmed",
+          "incident.member_notices.sent",
+          "incident.ncua.notified"
+        ],
+        "fields": [
+          "incident.member_impact",
+          "incident.ncua.notice.due_at",
+          "incident.notice_template_id",
+          "incident.notification_due_at",
+          "incident.reportability_determination",
+          "incident.reportability_rationale"
+        ],
+        "unregistered": [],
+        "all": [
+          "incident.member_impact",
+          "incident.member_impact.confirmed",
+          "incident.member_notices.sent",
+          "incident.ncua.notice.due_at",
+          "incident.ncua.notified",
+          "incident.notice_template_id",
+          "incident.notification_due_at",
+          "incident.reportability_determination",
+          "incident.reportability_rationale"
+        ],
+        "statuses": []
+      }
+    },
+    {
+      "control_id": "PR-18",
+      "title": "Incident Detection, Classification & SAR Referral",
+      "anchor": "pr-18-incident-detection-classification-sar-referral",
       "policy": "privacy",
       "policy_title": null,
       "policy_owner": null,
@@ -85736,11 +86135,15 @@
         {
           "text": "NCUA Part 748, Appendix B",
           "url": "https://www.ecfr.gov/current/title-12/part-748"
+        },
+        {
+          "text": "SC-01",
+          "url": "#sc-01-ncua-reportable-cyber-incident-member-notification"
         }
       ],
-      "why_text": "[NCUA Part 748, Appendix B](https://www.ecfr.gov/current/title-12/part-748) requires credit unions to develop and implement an incident-response program that includes detecting, containing, and notifying members and regulators of unauthorized access to member information. State breach notification laws impose specific deadlines. Where criminal activity is suspected, a SAR referral is required under BSA program obligations (mechanics governed by the BSA Policy).",
-      "system_behavior": "On detection of a potential privacy incident, the system creates an incident record and starts the triage clock (`incident.triage_due_at`). Privacy Operations and Legal are notified immediately. The incident is classified (`incident.classified`) for scope (`incident.data_scope`), member impact (`incident.member_impact`), and materiality (`incident.material`). If member notification is required (`incident.member_notice_required`), the system sets `incident.notification_due_at` based on the applicable state clock and the strictest-standard default. NCUA notification is tracked via `incident.ncua_notice_due_at`. If criminal activity is suspected (`incident.criminal_suspected`), the incident is flagged for SAR referral (`incident.sar_referred`) per the BSA Policy. The IR runbook integrates Privacy and Legal as required participants. Incident records are write-restricted to the Incident Commander and Privacy Operations; member notice content (`incident.notice_content`) requires Legal sign-off before dispatch.",
-      "alerts_metrics": "Alert on any incident triage task that ages past 20 hours without `incident.classified` (4-hour early warning before 24-hour SLA). Alert when `incident.notification_due_at` is within 48 hours and `incident.member_notices.sent` is not recorded. Monitor mean time from `incident.detected` to `incident.contained`; target under 4 hours for Severity 1.\n\n---",
+      "why_text": "[NCUA Part 748, Appendix B](https://www.ecfr.gov/current/title-12/part-748) requires credit unions to develop and implement an incident-response program that includes detecting and containing unauthorized access to member information. Where criminal activity is suspected, a SAR referral is required under BSA program obligations (mechanics governed by the BSA Policy). Detection and classification feed the reportability determination governed by [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification).",
+      "system_behavior": "On detection of a potential privacy incident, the system creates an incident record and starts the triage clock (`incident.triage_due_at`). Privacy Operations and Legal are notified immediately. The incident is classified (`incident.classified`) for scope (`incident.data_scope`), member impact (`incident.member_impact`), and materiality (`incident.material`), feeding the SC-01 reportability determination. If criminal activity is suspected (`incident.criminal_suspected`), the incident is flagged for SAR referral (`incident.sar_referred`) per the BSA Policy. The IR runbook integrates Privacy and Legal as required participants. Incident records are write-restricted to the Incident Commander and Privacy Operations.",
+      "alerts_metrics": "Alert on any incident triage task that ages past 20 hours without `incident.classified` (4-hour early warning before 24-hour SLA). Monitor mean time from `incident.detected` to `incident.contained`; target under 4 hours for Severity 1.\n\n---",
       "events": [
         {
           "trigger": {
@@ -85800,7 +86203,7 @@
           ],
           "outputs": [
             {
-              "label": "Classification recorded; notification determination made; SAR referral flagged if applicable +",
+              "label": "Classification recorded; SAR referral flagged if applicable +",
               "codes": [
                 "incident.classified",
                 "notification.decision.recorded"
@@ -85817,77 +86220,6 @@
             "incident.material",
             "incident.member_impact",
             "notification.decision.recorded"
-          ]
-        },
-        {
-          "trigger": {
-            "label": "Member notification required (= true)",
-            "code": "incident.member_notice_required",
-            "status": null
-          },
-          "inputs": [
-            {
-              "label": "Notice template, notice content, member list, applicable state clock",
-              "codes": [
-                "incident.notice_template_id",
-                "incident.notice_content",
-                "incident.member_notices"
-              ]
-            }
-          ],
-          "outputs": [
-            {
-              "label": "Member notices sent; notification recorded +",
-              "codes": [
-                "incident.member_notices.sent"
-              ],
-              "status": null
-            }
-          ],
-          "within": "Without unreasonable delay per applicable state clock (enforced by)",
-          "within_timer_codes": [
-            "incident.notification_due_at"
-          ],
-          "all_codes": [
-            "incident.member_notice_required",
-            "incident.member_notices",
-            "incident.member_notices.sent",
-            "incident.notice_content",
-            "incident.notice_template_id",
-            "incident.notification_due_at"
-          ]
-        },
-        {
-          "trigger": {
-            "label": "NCUA notification required",
-            "code": "incident.ncua_notice_due_at",
-            "status": null
-          },
-          "inputs": [
-            {
-              "label": "Incident summary, scope, containment status, member impact count",
-              "codes": [
-                "incident.contained"
-              ]
-            }
-          ],
-          "outputs": [
-            {
-              "label": "NCUA notified +",
-              "codes": [
-                "incident.ncua.notified"
-              ],
-              "status": null
-            }
-          ],
-          "within": "Per NCUA §748 App. B timeline (enforced by)",
-          "within_timer_codes": [
-            "incident.ncua_notice_due_at"
-          ],
-          "all_codes": [
-            "incident.contained",
-            "incident.ncua.notified",
-            "incident.ncua_notice_due_at"
           ]
         },
         {
@@ -85924,7 +86256,7 @@
       ],
       "control_rules": [
         {
-          "control_id": "PR-09",
+          "control_id": "PR-18",
           "policy": "privacy",
           "trigger_event": "incident.detected",
           "trigger": {
@@ -85971,7 +86303,7 @@
           "deadline_text": "Immediate (triage due within 24 hours; enforced by)"
         },
         {
-          "control_id": "PR-09",
+          "control_id": "PR-18",
           "policy": "privacy",
           "trigger_event": "incident.classified",
           "trigger": {
@@ -86012,83 +86344,7 @@
           "deadline_text": "Within 72 hours of detection (internal SLA)"
         },
         {
-          "control_id": "PR-09",
-          "policy": "privacy",
-          "trigger_event": "incident.member_notice_required",
-          "trigger": {
-            "object": "incident",
-            "property": "member_notice_required",
-            "action": null,
-            "canonical": "incident.member_notice_required",
-            "conforms": false
-          },
-          "required_inputs": [
-            "incident.member_notices",
-            "incident.notice_content",
-            "incident.notice_template_id"
-          ],
-          "produced_events": [
-            "incident.member_notices.sent"
-          ],
-          "produced": [
-            {
-              "object": "incident",
-              "property": "member_notices",
-              "action": "sent",
-              "canonical": "incident.member_notices.sent",
-              "conforms": true
-            }
-          ],
-          "deadline_timer": "incident.notification_due_at",
-          "deadline": {
-            "object": "incident",
-            "qualifier": "notification",
-            "task_type": null,
-            "marker": "due_at",
-            "canonical": "incident.notification.due_at",
-            "conforms": false
-          },
-          "deadline_text": "Without unreasonable delay per applicable state clock"
-        },
-        {
-          "control_id": "PR-09",
-          "policy": "privacy",
-          "trigger_event": "incident.ncua.notice.due_at",
-          "trigger": {
-            "object": "incident",
-            "property": "ncua.notice.due_at",
-            "action": null,
-            "canonical": "incident.ncua.notice.due_at",
-            "conforms": false
-          },
-          "required_inputs": [
-            "incident.contained"
-          ],
-          "produced_events": [
-            "incident.ncua.notified"
-          ],
-          "produced": [
-            {
-              "object": "incident",
-              "property": "ncua",
-              "action": "notified",
-              "canonical": "incident.ncua.notified",
-              "conforms": true
-            }
-          ],
-          "deadline_timer": "incident.ncua.notice.due_at",
-          "deadline": {
-            "object": "incident",
-            "qualifier": "ncua",
-            "task_type": "notice",
-            "marker": "due_at",
-            "canonical": "incident.ncua.notice.due_at",
-            "conforms": true
-          },
-          "deadline_text": "Per NCUA §748 App. B timeline"
-        },
-        {
-          "control_id": "PR-09",
+          "control_id": "PR-18",
           "policy": "privacy",
           "trigger_event": "incident.criminal_suspected",
           "trigger": {
@@ -86123,8 +86379,6 @@
           "incident.classified",
           "incident.created",
           "incident.detected",
-          "incident.member_notices.sent",
-          "incident.ncua.notified",
           "notification.decision.recorded"
         ],
         "fields": [
@@ -86136,12 +86390,6 @@
           "incident.id",
           "incident.material",
           "incident.member_impact",
-          "incident.member_notice_required",
-          "incident.member_notices",
-          "incident.ncua.notice.due_at",
-          "incident.notice_content",
-          "incident.notice_template_id",
-          "incident.notification_due_at",
           "incident.sar_referred",
           "incident.scope_initial",
           "incident.triage.due_at"
@@ -86159,14 +86407,6 @@
           "incident.id",
           "incident.material",
           "incident.member_impact",
-          "incident.member_notice_required",
-          "incident.member_notices",
-          "incident.member_notices.sent",
-          "incident.ncua.notice.due_at",
-          "incident.ncua.notified",
-          "incident.notice_content",
-          "incident.notice_template_id",
-          "incident.notification_due_at",
           "incident.sar_referred",
           "incident.scope_initial",
           "incident.triage.due_at",
@@ -88317,7 +88557,7 @@
         }
       ],
       "why_text": "[COPPA (16 CFR Part 312)](https://www.ecfr.gov/current/title-16/part-312) prohibits the collection of personal information from children under 13 without verifiable parental consent. The Credit Union's services are not directed to children under 13. Any minor data collected without valid parental consent must be deleted promptly on discovery.",
-      "system_behavior": "The Credit Union operates age gates (`privacy.age_gate_ruleset_id`) on all digital onboarding flows to prevent under-13 users from creating accounts or providing personal information. If minor data is detected post-collection (e.g., through date-of-birth review or parental complaint), the system flags the record (`privacy.minor_data.detected`) and creates a deletion task with a 5-BD internal deadline. The deletion is recorded (`privacy.minor_data_deleted`). Privacy Operations is notified immediately on detection. The age gate ruleset and minor data deletion records are write-restricted to Privacy Operations. If the detection suggests a systemic failure of the age gate, an incident is created per [PR-09](#pr-09-incident-response-and-breach-notification).",
+      "system_behavior": "The Credit Union operates age gates (`privacy.age_gate_ruleset_id`) on all digital onboarding flows to prevent under-13 users from creating accounts or providing personal information. If minor data is detected post-collection (e.g., through date-of-birth review or parental complaint), the system flags the record (`privacy.minor_data.detected`) and creates a deletion task with a 5-BD internal deadline. The deletion is recorded (`privacy.minor_data_deleted`). Privacy Operations is notified immediately on detection. The age gate ruleset and minor data deletion records are write-restricted to Privacy Operations. If the detection suggests a systemic failure of the age gate, an incident is created per [PR-18](#pr-18-incident-detection-classification-sar-referral).",
       "alerts_metrics": "Alert on any `privacy.minor_data.detected` event (target: zero; each instance is a potential COPPA violation). Alert if minor data deletion is not completed within 3 BD of detection (2-day early warning before 5-BD SLA). Monitor age gate block rate; a sudden drop may indicate a gate failure.\n\n---",
       "events": [
         {
@@ -98080,6 +98320,209 @@
       }
     },
     {
+      "control_id": "SC-01",
+      "title": "NCUA Reportable Cyber-Incident & Member Notification",
+      "anchor": "sc-01-ncua-reportable-cyber-incident-member-notification",
+      "policy": "shared-controls",
+      "policy_title": null,
+      "policy_owner": null,
+      "policy_version": null,
+      "policy_effective": null,
+      "source_file": "shared-controls/ncua-incident-notification.md",
+      "regulatory_citations": [
+        {
+          "text": "NCUA 12 CFR Part 748 §748.1(c)",
+          "url": "https://www.ecfr.gov/current/title-12/part-748"
+        },
+        {
+          "text": "NCUA 12 CFR Part 748, Appendix B",
+          "url": "https://www.ecfr.gov/current/title-12/part-748"
+        }
+      ],
+      "why_text": "[NCUA 12 CFR Part 748 §748.1(c)](https://www.ecfr.gov/current/title-12/part-748) requires credit unions to notify NCUA within 72 hours of determining a reportable cyber incident. [NCUA 12 CFR Part 748, Appendix B](https://www.ecfr.gov/current/title-12/part-748) requires a member notification program for unauthorized access to sensitive member information.",
+      "system_behavior": "Once a reportable cyber incident is determined, NCUA notification must be sent within 72 hours of that determination. Member notice is sent without unreasonable delay per Appendix B criteria once misuse of member information is determined likely. The reportability determination and the NCUA-notification field are write-restricted to the CCO/Compliance-Legal. An incident determined non-reportable is documented with rationale and triggers no NCUA notice.",
+      "alerts_metrics": "Alert fires when `incident.ncua_notice_due_at` is within 12 hours without an `incident.ncua.notified` event; alert fires when member notice is overdue per `incident.notification_due_at`. Target: 100% of reportable incidents notified to NCUA within 72 hours; zero member-notice SLA breaches.\n\n---",
+      "events": [
+        {
+          "trigger": {
+            "label": "Reportable cyber incident determined",
+            "code": "incident.reportability_determination",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Reportability rationale, NCUA notice due",
+              "codes": [
+                "incident.reportability_rationale",
+                "incident.ncua_notice_due_at"
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "label": "NCUA notification sent",
+              "codes": [
+                "incident.ncua.notified"
+              ],
+              "status": null
+            }
+          ],
+          "within": "72 hours of determination (enforced by)",
+          "within_timer_codes": [
+            "incident.ncua_notice_due_at"
+          ],
+          "all_codes": [
+            "incident.ncua.notified",
+            "incident.ncua_notice_due_at",
+            "incident.reportability_determination",
+            "incident.reportability_rationale"
+          ]
+        },
+        {
+          "trigger": {
+            "label": "Member impact confirmed",
+            "code": "incident.member_impact.confirmed",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Member impact summary, notice template",
+              "codes": [
+                "incident.member_impact",
+                "incident.member_notice_template"
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "label": "Member notices sent",
+              "codes": [
+                "incident.member_notices.sent"
+              ],
+              "status": null
+            }
+          ],
+          "within": "Without unreasonable delay per Appendix B (enforced by)",
+          "within_timer_codes": [
+            "incident.notification_due_at"
+          ],
+          "all_codes": [
+            "incident.member_impact",
+            "incident.member_impact.confirmed",
+            "incident.member_notice_template",
+            "incident.member_notices.sent",
+            "incident.notification_due_at"
+          ]
+        }
+      ],
+      "control_rules": [
+        {
+          "control_id": "SC-01",
+          "policy": "shared-controls",
+          "trigger_event": "incident.reportability_determination",
+          "trigger": {
+            "object": "incident",
+            "property": "reportability_determination",
+            "action": null,
+            "canonical": "incident.reportability_determination",
+            "conforms": false
+          },
+          "required_inputs": [
+            "incident.ncua.notice.due_at",
+            "incident.reportability_rationale"
+          ],
+          "produced_events": [
+            "incident.ncua.notified"
+          ],
+          "produced": [
+            {
+              "object": "incident",
+              "property": "ncua",
+              "action": "notified",
+              "canonical": "incident.ncua.notified",
+              "conforms": true
+            }
+          ],
+          "deadline_timer": "incident.ncua.notice.due_at",
+          "deadline": {
+            "object": "incident",
+            "qualifier": "ncua",
+            "task_type": "notice",
+            "marker": "due_at",
+            "canonical": "incident.ncua.notice.due_at",
+            "conforms": true
+          },
+          "deadline_text": "72 hours of determination"
+        },
+        {
+          "control_id": "SC-01",
+          "policy": "shared-controls",
+          "trigger_event": "incident.member_impact.confirmed",
+          "trigger": {
+            "object": "incident",
+            "property": "member_impact",
+            "action": "confirmed",
+            "canonical": "incident.member_impact.confirmed",
+            "conforms": true
+          },
+          "required_inputs": [
+            "incident.member_impact",
+            "incident.member_notice_template"
+          ],
+          "produced_events": [
+            "incident.member_notices.sent"
+          ],
+          "produced": [
+            {
+              "object": "incident",
+              "property": "member_notices",
+              "action": "sent",
+              "canonical": "incident.member_notices.sent",
+              "conforms": true
+            }
+          ],
+          "deadline_timer": "incident.notification_due_at",
+          "deadline": {
+            "object": "incident",
+            "qualifier": "notification",
+            "task_type": null,
+            "marker": "due_at",
+            "canonical": "incident.notification.due_at",
+            "conforms": false
+          },
+          "deadline_text": "Without unreasonable delay per Appendix B"
+        }
+      ],
+      "api_references": {
+        "events": [
+          "incident.member_impact.confirmed",
+          "incident.member_notices.sent",
+          "incident.ncua.notified"
+        ],
+        "fields": [
+          "incident.member_impact",
+          "incident.member_notice_template",
+          "incident.ncua.notice.due_at",
+          "incident.notification_due_at",
+          "incident.reportability_determination",
+          "incident.reportability_rationale"
+        ],
+        "unregistered": [],
+        "all": [
+          "incident.member_impact",
+          "incident.member_impact.confirmed",
+          "incident.member_notice_template",
+          "incident.member_notices.sent",
+          "incident.ncua.notice.due_at",
+          "incident.ncua.notified",
+          "incident.notification_due_at",
+          "incident.reportability_determination",
+          "incident.reportability_rationale"
+        ],
+        "statuses": []
+      }
+    },
+    {
       "control_id": "TR-01",
       "title": "Governance & Accountability",
       "anchor": "tr-01-governance-accountability",
@@ -100119,9 +100562,212 @@
       }
     },
     {
-      "control_id": "TR-08",
-      "title": "Incident & Breach Reporting",
-      "anchor": "tr-08-incident-breach-reporting",
+      "control_id": "SC-01",
+      "title": "NCUA Reportable Cyber-Incident & Member Notification",
+      "anchor": "sc-01-ncua-reportable-cyber-incident-member-notification",
+      "policy": "third-party-risk",
+      "policy_title": null,
+      "policy_owner": null,
+      "policy_version": null,
+      "policy_effective": null,
+      "source_file": "third-party-risk/third-party-risk.md",
+      "regulatory_citations": [
+        {
+          "text": "NCUA 12 CFR Part 748 §748.1(c)",
+          "url": "https://www.ecfr.gov/current/title-12/part-748"
+        },
+        {
+          "text": "NCUA 12 CFR Part 748, Appendix B",
+          "url": "https://www.ecfr.gov/current/title-12/part-748"
+        }
+      ],
+      "why_text": "[NCUA 12 CFR Part 748 §748.1(c)](https://www.ecfr.gov/current/title-12/part-748) requires credit unions to notify NCUA within 72 hours of determining a reportable cyber incident. [NCUA 12 CFR Part 748, Appendix B](https://www.ecfr.gov/current/title-12/part-748) requires a member notification program for unauthorized access to sensitive member information.",
+      "system_behavior": "Once a reportable cyber incident is determined, NCUA notification must be sent within 72 hours of that determination. Member notice is sent without unreasonable delay per Appendix B criteria once misuse of member information is determined likely. The reportability determination and the NCUA-notification field are write-restricted to the CCO/Compliance-Legal. An incident determined non-reportable is documented with rationale and triggers no NCUA notice.",
+      "alerts_metrics": "Alert fires when `incident.ncua_notice_due_at` is within 12 hours without an `incident.ncua.notified` event; alert fires when member notice is overdue per `incident.notification_due_at`. Target: 100% of reportable incidents notified to NCUA within 72 hours; zero member-notice SLA breaches.\n\n---",
+      "events": [
+        {
+          "trigger": {
+            "label": "Reportable cyber incident determined",
+            "code": "incident.reportability_determination",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Reportability rationale, NCUA notice due",
+              "codes": [
+                "incident.reportability_rationale",
+                "incident.ncua_notice_due_at"
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "label": "NCUA notification sent",
+              "codes": [
+                "incident.ncua.notified"
+              ],
+              "status": null
+            }
+          ],
+          "within": "72 hours of determination (enforced by)",
+          "within_timer_codes": [
+            "incident.ncua_notice_due_at"
+          ],
+          "all_codes": [
+            "incident.ncua.notified",
+            "incident.ncua_notice_due_at",
+            "incident.reportability_determination",
+            "incident.reportability_rationale"
+          ]
+        },
+        {
+          "trigger": {
+            "label": "Member impact confirmed",
+            "code": "incident.member_impact.confirmed",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Member impact summary, notice template",
+              "codes": [
+                "incident.member_impact",
+                "incident.member_notice_template"
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "label": "Member notices sent",
+              "codes": [
+                "incident.member_notices.sent"
+              ],
+              "status": null
+            }
+          ],
+          "within": "Without unreasonable delay per Appendix B (enforced by)",
+          "within_timer_codes": [
+            "incident.notification_due_at"
+          ],
+          "all_codes": [
+            "incident.member_impact",
+            "incident.member_impact.confirmed",
+            "incident.member_notice_template",
+            "incident.member_notices.sent",
+            "incident.notification_due_at"
+          ]
+        }
+      ],
+      "control_rules": [
+        {
+          "control_id": "SC-01",
+          "policy": "third-party-risk",
+          "trigger_event": "incident.reportability_determination",
+          "trigger": {
+            "object": "incident",
+            "property": "reportability_determination",
+            "action": null,
+            "canonical": "incident.reportability_determination",
+            "conforms": false
+          },
+          "required_inputs": [
+            "incident.ncua.notice.due_at",
+            "incident.reportability_rationale"
+          ],
+          "produced_events": [
+            "incident.ncua.notified"
+          ],
+          "produced": [
+            {
+              "object": "incident",
+              "property": "ncua",
+              "action": "notified",
+              "canonical": "incident.ncua.notified",
+              "conforms": true
+            }
+          ],
+          "deadline_timer": "incident.ncua.notice.due_at",
+          "deadline": {
+            "object": "incident",
+            "qualifier": "ncua",
+            "task_type": "notice",
+            "marker": "due_at",
+            "canonical": "incident.ncua.notice.due_at",
+            "conforms": true
+          },
+          "deadline_text": "72 hours of determination"
+        },
+        {
+          "control_id": "SC-01",
+          "policy": "third-party-risk",
+          "trigger_event": "incident.member_impact.confirmed",
+          "trigger": {
+            "object": "incident",
+            "property": "member_impact",
+            "action": "confirmed",
+            "canonical": "incident.member_impact.confirmed",
+            "conforms": true
+          },
+          "required_inputs": [
+            "incident.member_impact",
+            "incident.member_notice_template"
+          ],
+          "produced_events": [
+            "incident.member_notices.sent"
+          ],
+          "produced": [
+            {
+              "object": "incident",
+              "property": "member_notices",
+              "action": "sent",
+              "canonical": "incident.member_notices.sent",
+              "conforms": true
+            }
+          ],
+          "deadline_timer": "incident.notification_due_at",
+          "deadline": {
+            "object": "incident",
+            "qualifier": "notification",
+            "task_type": null,
+            "marker": "due_at",
+            "canonical": "incident.notification.due_at",
+            "conforms": false
+          },
+          "deadline_text": "Without unreasonable delay per Appendix B"
+        }
+      ],
+      "api_references": {
+        "events": [
+          "incident.member_impact.confirmed",
+          "incident.member_notices.sent",
+          "incident.ncua.notified"
+        ],
+        "fields": [
+          "incident.member_impact",
+          "incident.member_notice_template",
+          "incident.ncua.notice.due_at",
+          "incident.notification_due_at",
+          "incident.reportability_determination",
+          "incident.reportability_rationale"
+        ],
+        "unregistered": [],
+        "all": [
+          "incident.member_impact",
+          "incident.member_impact.confirmed",
+          "incident.member_notice_template",
+          "incident.member_notices.sent",
+          "incident.ncua.notice.due_at",
+          "incident.ncua.notified",
+          "incident.notification_due_at",
+          "incident.reportability_determination",
+          "incident.reportability_rationale"
+        ],
+        "statuses": []
+      }
+    },
+    {
+      "control_id": "TR-11",
+      "title": "Vendor Incident Notification, Internal Triage & SAR Referral",
+      "anchor": "tr-11-vendor-incident-notification-internal-triage-sar-referral",
       "policy": "third-party-risk",
       "policy_title": null,
       "policy_owner": null,
@@ -100140,11 +100786,15 @@
         {
           "text": "2023 Interagency Guidance (88 FR 37920)",
           "url": "https://www.federalregister.gov/documents/2023/06/09/2023-12340/interagency-guidance-on-third-party-relationships-risk-management"
+        },
+        {
+          "text": "SC-01",
+          "url": "#sc-01-ncua-reportable-cyber-incident-member-notification"
         }
       ],
-      "why_text": "[12 CFR Part 748, Appendices A and B](https://www.ecfr.gov/current/title-12/part-748) require NCUA-supervised credit unions to maintain an incident response program and to notify NCUA and affected members of certain security incidents, including those caused by or involving service providers. BSA SAR rules ([31 CFR Chapter X](https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X)) require SAR filing when a vendor incident involves suspected criminal activity. The [2023 Interagency Guidance (88 FR 37920)](https://www.federalregister.gov/documents/2023/06/09/2023-12340/interagency-guidance-on-third-party-relationships-risk-management) requires contracts to include vendor incident notification obligations.",
-      "system_behavior": "All vendor contracts must include a clause requiring the vendor to notify the Credit Union of any security incident or data breach within the contractual SLA (target: no later than 24 hours of the vendor's discovery). Upon receipt of a vendor incident notification, the Vendor Risk team logs the incident (`vendor.incident.logged`) and the Compliance/BSA team triages it within 1 business day to determine: (a) member NPI impact (`vendor.incident_member_count`, `vendor.incident_scope`); (b) SAR referral requirement; (c) member notice requirement under Part 748 Appendix B; and (d) NCUA notification requirement. Triage outcomes are mapped to the Credit Union's incident response process (`incident.created`) for handling. The CCO is the approving authority for all regulatory notification decisions; the BSA Officer approves SAR referrals. Vendor incident history (`vendor.incident_history`) is maintained in the vendor record and reviewed at each monitoring cycle.",
-      "alerts_metrics": "Alert fires if `vendor.incident_triage_due` ages past 1 business day without `vendor.incident_tracks_dispatched`; alert fires if any vendor incident with member NPI impact has no regulatory notification determination within 3 business days. Target: 100% of vendor incidents triaged within 1 business day; zero incidents with unresolved SAR/member-notice/NCUA-notice determinations beyond applicable deadlines.\n\n---",
+      "why_text": "[12 CFR Part 748, Appendices A and B](https://www.ecfr.gov/current/title-12/part-748) require NCUA-supervised credit unions to maintain an incident response program covering incidents caused by or involving service providers. BSA SAR rules ([31 CFR Chapter X](https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X)) require SAR filing when a vendor incident involves suspected criminal activity. The [2023 Interagency Guidance (88 FR 37920)](https://www.federalregister.gov/documents/2023/06/09/2023-12340/interagency-guidance-on-third-party-relationships-risk-management) requires contracts to include vendor incident notification obligations. Vendor notification and triage feed the reportability determination governed by [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification).",
+      "system_behavior": "All vendor contracts must include a clause requiring the vendor to notify the Credit Union of any security incident or data breach within the contractual SLA (target: no later than 24 hours of the vendor's discovery). Upon receipt of a vendor incident notification, the Vendor Risk team logs the incident (`vendor.incident.logged`) and the Compliance/BSA team triages it within 1 business day to determine member NPI impact and SAR referral requirement, routing to SC-01 for the member-notice/NCUA-notice determination. Triage outcomes are mapped to the Credit Union's incident response process (`incident.created`) for handling. The BSA Officer approves SAR referrals. Vendor incident history (`vendor.incident_history`) is maintained in the vendor record and reviewed at each monitoring cycle.",
+      "alerts_metrics": "Alert fires if `vendor.incident_triage_due` ages past 1 business day without `vendor.incident_tracks_dispatched`. Target: 100% of vendor incidents triaged within 1 business day.\n\n---",
       "events": [
         {
           "trigger": {
@@ -100192,7 +100842,7 @@
           },
           "inputs": [
             {
-              "label": "Triage determination: member NPI impact, SAR referral flag, member notice flag, NCUA notification flag; incident severity",
+              "label": "Triage determination: member NPI impact, SAR referral flag; incident severity",
               "codes": [
                 "vendor.issue_severity"
               ]
@@ -100247,70 +100897,11 @@
             "sar.decision_no_file",
             "sar.filed"
           ]
-        },
-        {
-          "trigger": {
-            "label": "Member notice determination made",
-            "code": null,
-            "status": null
-          },
-          "inputs": [
-            {
-              "label": "Part 748 Appendix B assessment, member impact scope, CCO approval",
-              "codes": []
-            }
-          ],
-          "outputs": [
-            {
-              "label": "Member notice issued or determination documented (or)",
-              "codes": [
-                "incident.member_notices.sent",
-                "incident.member_impact.confirmed"
-              ],
-              "status": null
-            }
-          ],
-          "within": "As required by Part 748 Appendix B",
-          "within_timer_codes": [],
-          "all_codes": [
-            "incident.member_impact.confirmed",
-            "incident.member_notices.sent"
-          ]
-        },
-        {
-          "trigger": {
-            "label": "NCUA notification determination made",
-            "code": null,
-            "status": null
-          },
-          "inputs": [
-            {
-              "label": "Part 748 Appendix B assessment, materiality determination, CCO approval",
-              "codes": []
-            }
-          ],
-          "outputs": [
-            {
-              "label": "NCUA notified or determination documented",
-              "codes": [
-                "incident.ncua.notified"
-              ],
-              "status": null
-            }
-          ],
-          "within": "As required by Part 748 Appendix B (enforced by)",
-          "within_timer_codes": [
-            "incident.ncua_notice_due_at"
-          ],
-          "all_codes": [
-            "incident.ncua.notified",
-            "incident.ncua_notice_due_at"
-          ]
         }
       ],
       "control_rules": [
         {
-          "control_id": "TR-08",
+          "control_id": "TR-11",
           "policy": "third-party-risk",
           "trigger_event": "vendor.incident.reported",
           "trigger": {
@@ -100349,7 +100940,7 @@
           "deadline_text": "Immediately on receipt; triage within 1 business day"
         },
         {
-          "control_id": "TR-08",
+          "control_id": "TR-11",
           "policy": "third-party-risk",
           "trigger_event": "vendor.incident.triage.due",
           "trigger": {
@@ -100394,7 +100985,7 @@
           "deadline_text": "Within 1 business day of vendor notification"
         },
         {
-          "control_id": "TR-08",
+          "control_id": "TR-11",
           "policy": "third-party-risk",
           "trigger_event": null,
           "trigger": null,
@@ -100422,80 +101013,17 @@
           "deadline_timer": null,
           "deadline": null,
           "deadline_text": "Per BSA SAR timing rules (30 days of detection; 60 days with extension)"
-        },
-        {
-          "control_id": "TR-08",
-          "policy": "third-party-risk",
-          "trigger_event": null,
-          "trigger": null,
-          "required_inputs": [],
-          "produced_events": [
-            "incident.member_impact.confirmed",
-            "incident.member_notices.sent"
-          ],
-          "produced": [
-            {
-              "object": "incident",
-              "property": "member_impact",
-              "action": "confirmed",
-              "canonical": "incident.member_impact.confirmed",
-              "conforms": true
-            },
-            {
-              "object": "incident",
-              "property": "member_notices",
-              "action": "sent",
-              "canonical": "incident.member_notices.sent",
-              "conforms": true
-            }
-          ],
-          "deadline_timer": null,
-          "deadline": null,
-          "deadline_text": "As required by Part 748 Appendix B"
-        },
-        {
-          "control_id": "TR-08",
-          "policy": "third-party-risk",
-          "trigger_event": null,
-          "trigger": null,
-          "required_inputs": [],
-          "produced_events": [
-            "incident.ncua.notified"
-          ],
-          "produced": [
-            {
-              "object": "incident",
-              "property": "ncua",
-              "action": "notified",
-              "canonical": "incident.ncua.notified",
-              "conforms": true
-            }
-          ],
-          "deadline_timer": "incident.ncua.notice.due_at",
-          "deadline": {
-            "object": "incident",
-            "qualifier": "ncua",
-            "task_type": "notice",
-            "marker": "due_at",
-            "canonical": "incident.ncua.notice.due_at",
-            "conforms": true
-          },
-          "deadline_text": "As required by Part 748 Appendix B"
         }
       ],
       "api_references": {
         "events": [
           "incident.created",
-          "incident.member_impact.confirmed",
-          "incident.member_notices.sent",
-          "incident.ncua.notified",
           "sar.decision_no_file",
           "sar.filed",
           "vendor.incident.logged",
           "vendor.incident.reported"
         ],
         "fields": [
-          "incident.ncua.notice.due_at",
           "vendor.incident.triage.due",
           "vendor.incident_containment_status",
           "vendor.incident_history",
@@ -100507,10 +101035,6 @@
         "unregistered": [],
         "all": [
           "incident.created",
-          "incident.member_impact.confirmed",
-          "incident.member_notices.sent",
-          "incident.ncua.notice.due_at",
-          "incident.ncua.notified",
           "sar.decision_no_file",
           "sar.filed",
           "vendor.incident.logged",
