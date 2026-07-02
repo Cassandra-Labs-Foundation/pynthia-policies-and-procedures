@@ -2,8 +2,8 @@
 
 - **Slug:** information-security
 - **Status:** ✅ regenerated
-- **Last regenerated:** 2026-06-19T18:46:52Z
+- **Last regenerated:** 2026-07-02T16:58:41Z
 - **Model:** claude-sonnet-4-6
-- **DESIGN_NOTES source:** dynamic via skill (cached)
+- **DESIGN_NOTES source:** dynamic via skill (ok)
 - **References:** 3 extracted (3 cached, 0 converted)
 - **Skipped references:** —
