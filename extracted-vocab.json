@@ -1,14 +1,14 @@
 {
   "meta": {
     "parser_version": "0.1.0",
-    "parsed_at": "2026-06-25T17:24:46+00:00",
+    "parsed_at": "2026-07-02T16:53:16+00:00",
     "repo": "pynthia-policies-and-procedures"
   },
   "stats": {
     "policies_scanned": 26,
     "files_scanned": 26,
-    "unique_tokens": 3004,
-    "total_occurrences": 8255
+    "unique_tokens": 3001,
+    "total_occurrences": 8546
   },
   "entities": {
     "aan": {
@@ -339,7 +339,7 @@
       ]
     },
     "audit": {
-      "token_count": 60,
+      "token_count": 59,
       "tokens": [
         "audit.access_request_detail",
         "audit.annual_plan.approved",
@@ -381,7 +381,6 @@
         "audit.poor_rating.recorded",
         "audit.record_written",
         "audit.records",
-        "audit.records.destroyed",
         "audit.remediation_due",
         "audit.remediation_timer",
         "audit.report.approved",
@@ -3235,7 +3234,7 @@
       ]
     },
     "record": {
-      "token_count": 52,
+      "token_count": 50,
       "tokens": [
         "record.access.logged",
         "record.access_purpose",
@@ -3250,7 +3249,6 @@
         "record.created",
         "record.destroyed",
         "record.destruction.certified",
-        "record.destruction.initiated",
         "record.destruction_due_at",
         "record.disposal_due_at",
         "record.disposal_eligible",
@@ -3265,7 +3263,6 @@
         "record.hold_authorizer",
         "record.hold_matter",
         "record.hold_matter_id",
-        "record.hold_registry",
         "record.hold_release_auth",
         "record.hold_scope",
         "record.hold_status",
@@ -4507,7 +4504,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 438
+          "line": 457
         }
       ]
     },
@@ -4525,11 +4522,11 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 428
+          "line": 447
         },
         {
           "file": "information-security/information-security.md",
-          "line": 438
+          "line": 457
         }
       ]
     },
@@ -4547,11 +4544,11 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 428
+          "line": 447
         },
         {
           "file": "information-security/information-security.md",
-          "line": 438
+          "line": 457
         }
       ]
     },
@@ -4569,11 +4566,11 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 428
+          "line": 447
         },
         {
           "file": "information-security/information-security.md",
-          "line": 438
+          "line": 457
         }
       ]
     },
@@ -4591,19 +4588,19 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 428
+          "line": 447
         },
         {
           "file": "information-security/information-security.md",
-          "line": 438
+          "line": 457
         },
         {
           "file": "information-security/information-security.md",
-          "line": 438
+          "line": 457
         },
         {
           "file": "information-security/information-security.md",
-          "line": 438
+          "line": 457
         }
       ]
     },
@@ -4906,11 +4903,11 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 396
+          "line": 416
         },
         {
           "file": "investment/investment.md",
-          "line": 399
+          "line": 419
         },
         {
           "file": "privacy/privacy.md",
@@ -5183,11 +5180,11 @@
       "occurrences": [
         {
           "file": "investment/investment.md",
-          "line": 389
+          "line": 409
         },
         {
           "file": "investment/investment.md",
-          "line": 398
+          "line": 418
         }
       ]
     },
@@ -6086,7 +6083,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -6104,7 +6101,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -6122,7 +6119,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -6136,7 +6133,7 @@
       "occurrences": [
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -6203,7 +6200,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -6513,7 +6510,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -6528,7 +6525,7 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 259
+          "line": 278
         },
         {
           "file": "truth-in-savings/truth-in-savings.md",
@@ -7163,11 +7160,11 @@
         },
         {
           "file": "liquidity/liquidity.md",
-          "line": 343
+          "line": 362
         },
         {
           "file": "liquidity/liquidity.md",
-          "line": 343
+          "line": 362
         }
       ]
     },
@@ -7185,11 +7182,11 @@
         },
         {
           "file": "liquidity/liquidity.md",
-          "line": 324
+          "line": 343
         },
         {
           "file": "liquidity/liquidity.md",
-          "line": 328
+          "line": 347
         }
       ]
     },
@@ -7363,11 +7360,11 @@
       "occurrences": [
         {
           "file": "liquidity/liquidity.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "liquidity/liquidity.md",
-          "line": 346
+          "line": 365
         }
       ]
     },
@@ -7439,11 +7436,11 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 285
+          "line": 304
         },
         {
           "file": "lending/lending.md",
-          "line": 287
+          "line": 306
         }
       ]
     },
@@ -7457,7 +7454,7 @@
       "occurrences": [
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -7479,7 +7476,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 304
+          "line": 323
         }
       ]
     },
@@ -7495,11 +7492,11 @@
       "occurrences": [
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "lending/lending.md",
-          "line": 286
+          "line": 305
         },
         {
           "file": "privacy/privacy.md",
@@ -7588,11 +7585,11 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "lending/lending.md",
-          "line": 286
+          "line": 305
         }
       ]
     },
@@ -7611,11 +7608,11 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 286
+          "line": 305
         },
         {
           "file": "lending/lending.md",
-          "line": 286
+          "line": 305
         }
       ]
     },
@@ -7638,15 +7635,15 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "lending/lending.md",
-          "line": 279
+          "line": 298
         },
         {
           "file": "lending/lending.md",
-          "line": 287
+          "line": 306
         }
       ]
     },
@@ -7660,7 +7657,7 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 286
+          "line": 305
         }
       ]
     },
@@ -7683,15 +7680,15 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "lending/lending.md",
-          "line": 279
+          "line": 298
         },
         {
           "file": "lending/lending.md",
-          "line": 286
+          "line": 305
         }
       ]
     },
@@ -7780,11 +7777,11 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "lending/lending.md",
-          "line": 287
+          "line": 306
         }
       ]
     },
@@ -7803,11 +7800,11 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 287
+          "line": 306
         },
         {
           "file": "lending/lending.md",
-          "line": 287
+          "line": 306
         }
       ]
     },
@@ -7867,11 +7864,11 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 286
+          "line": 305
         },
         {
           "file": "lending/lending.md",
-          "line": 291
+          "line": 310
         },
         {
           "file": "privacy/privacy.md",
@@ -8013,7 +8010,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -8035,7 +8032,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -8053,7 +8050,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -8067,7 +8064,7 @@
       "occurrences": [
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -8082,11 +8079,11 @@
       "occurrences": [
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "lending/lending.md",
-          "line": 339
+          "line": 358
         }
       ]
     },
@@ -8100,7 +8097,7 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 339
+          "line": 358
         }
       ]
     },
@@ -8114,7 +8111,7 @@
       "occurrences": [
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -8204,7 +8201,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "lending/lending.md",
@@ -8259,11 +8256,11 @@
       "occurrences": [
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "lending/lending.md",
-          "line": 288
+          "line": 307
         }
       ]
     },
@@ -8299,7 +8296,7 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 339
+          "line": 358
         }
       ]
     },
@@ -8317,7 +8314,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -8335,7 +8332,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -8381,7 +8378,7 @@
       "occurrences": [
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -8399,7 +8396,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -8443,7 +8440,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -8475,7 +8472,7 @@
       "occurrences": [
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -8640,7 +8637,7 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 351
+          "line": 370
         }
       ]
     },
@@ -8939,7 +8936,7 @@
         },
         {
           "file": "audit/audit.md",
-          "line": 248
+          "line": 268
         }
       ]
     },
@@ -9192,7 +9189,7 @@
         },
         {
           "file": "audit/audit.md",
-          "line": 248
+          "line": 268
         }
       ]
     },
@@ -9448,7 +9445,7 @@
         },
         {
           "file": "audit/audit.md",
-          "line": 248
+          "line": 268
         }
       ]
     },
@@ -9492,25 +9489,21 @@
         },
         {
           "file": "audit/audit.md",
-          "line": 248
+          "line": 268
         }
       ]
     },
     "audit.legal_hold_status": {
       "entity": "audit",
       "field": "legal_hold_status",
-      "count": 2,
+      "count": 1,
       "policies": [
         "audit"
       ],
       "occurrences": [
         {
           "file": "audit/audit.md",
-          "line": 221
-        },
-        {
-          "file": "audit/audit.md",
-          "line": 248
+          "line": 268
         }
       ]
     },
@@ -9635,7 +9628,7 @@
       "occurrences": [
         {
           "file": "audit/audit.md",
-          "line": 248
+          "line": 268
         }
       ]
     },
@@ -9689,7 +9682,7 @@
         },
         {
           "file": "audit/audit.md",
-          "line": 248
+          "line": 268
         }
       ]
     },
@@ -9704,20 +9697,6 @@
         {
           "file": "bsa/bsa.md",
           "line": 343
-        }
-      ]
-    },
-    "audit.records.destroyed": {
-      "entity": "audit",
-      "field": "records.destroyed",
-      "count": 1,
-      "policies": [
-        "audit"
-      ],
-      "occurrences": [
-        {
-          "file": "audit/audit.md",
-          "line": 221
         }
       ]
     },
@@ -9958,7 +9937,7 @@
         },
         {
           "file": "audit/audit.md",
-          "line": 248
+          "line": 268
         }
       ]
     },
@@ -9997,7 +9976,7 @@
     "audit.retention_expires_at": {
       "entity": "audit",
       "field": "retention_expires_at",
-      "count": 6,
+      "count": 4,
       "policies": [
         "audit"
       ],
@@ -10016,15 +9995,7 @@
         },
         {
           "file": "audit/audit.md",
-          "line": 221
-        },
-        {
-          "file": "audit/audit.md",
-          "line": 221
-        },
-        {
-          "file": "audit/audit.md",
-          "line": 223
+          "line": 222
         }
       ]
     },
@@ -10042,7 +10013,7 @@
         },
         {
           "file": "audit/audit.md",
-          "line": 248
+          "line": 268
         }
       ]
     },
@@ -10068,7 +10039,7 @@
         },
         {
           "file": "audit/audit.md",
-          "line": 248
+          "line": 268
         }
       ]
     },
@@ -10086,7 +10057,7 @@
         },
         {
           "file": "audit/audit.md",
-          "line": 248
+          "line": 268
         }
       ]
     },
@@ -10108,7 +10079,7 @@
         },
         {
           "file": "audit/audit.md",
-          "line": 248
+          "line": 268
         }
       ]
     },
@@ -10130,7 +10101,7 @@
         },
         {
           "file": "audit/audit.md",
-          "line": 248
+          "line": 268
         }
       ]
     },
@@ -10156,7 +10127,7 @@
         },
         {
           "file": "audit/audit.md",
-          "line": 223
+          "line": 222
         }
       ]
     },
@@ -10182,7 +10153,7 @@
         },
         {
           "file": "audit/audit.md",
-          "line": 223
+          "line": 222
         }
       ]
     },
@@ -10214,7 +10185,7 @@
         },
         {
           "file": "audit/audit.md",
-          "line": 248
+          "line": 268
         }
       ]
     },
@@ -10240,7 +10211,7 @@
         },
         {
           "file": "audit/audit.md",
-          "line": 248
+          "line": 268
         }
       ]
     },
@@ -10266,7 +10237,7 @@
         },
         {
           "file": "audit/audit.md",
-          "line": 248
+          "line": 268
         }
       ]
     },
@@ -10300,7 +10271,7 @@
         },
         {
           "file": "audit/audit.md",
-          "line": 248
+          "line": 268
         }
       ]
     },
@@ -10522,7 +10493,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 472
+          "line": 492
         }
       ]
     },
@@ -14564,7 +14535,7 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 339
+          "line": 358
         }
       ]
     },
@@ -16487,7 +16458,7 @@
       "occurrences": [
         {
           "file": "liquidity/liquidity.md",
-          "line": 325
+          "line": 344
         }
       ]
     },
@@ -16501,7 +16472,7 @@
       "occurrences": [
         {
           "file": "liquidity/liquidity.md",
-          "line": 325
+          "line": 344
         }
       ]
     },
@@ -16515,7 +16486,7 @@
       "occurrences": [
         {
           "file": "liquidity/liquidity.md",
-          "line": 324
+          "line": 343
         }
       ]
     },
@@ -16529,7 +16500,7 @@
       "occurrences": [
         {
           "file": "liquidity/liquidity.md",
-          "line": 325
+          "line": 344
         }
       ]
     },
@@ -16543,7 +16514,7 @@
       "occurrences": [
         {
           "file": "liquidity/liquidity.md",
-          "line": 324
+          "line": 343
         }
       ]
     },
@@ -16557,7 +16528,7 @@
       "occurrences": [
         {
           "file": "liquidity/liquidity.md",
-          "line": 324
+          "line": 343
         }
       ]
     },
@@ -16571,7 +16542,7 @@
       "occurrences": [
         {
           "file": "liquidity/liquidity.md",
-          "line": 326
+          "line": 345
         }
       ]
     },
@@ -16589,7 +16560,7 @@
         },
         {
           "file": "liquidity/liquidity.md",
-          "line": 324
+          "line": 343
         }
       ]
     },
@@ -16607,11 +16578,11 @@
         },
         {
           "file": "liquidity/liquidity.md",
-          "line": 324
+          "line": 343
         },
         {
           "file": "liquidity/liquidity.md",
-          "line": 324
+          "line": 343
         }
       ]
     },
@@ -18998,11 +18969,11 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 417
+          "line": 437
         },
         {
           "file": "investment/investment.md",
-          "line": 468
+          "line": 488
         }
       ]
     },
@@ -19016,11 +18987,11 @@
       "occurrences": [
         {
           "file": "investment/investment.md",
-          "line": 410
+          "line": 430
         },
         {
           "file": "investment/investment.md",
-          "line": 417
+          "line": 437
         }
       ]
     },
@@ -19039,19 +19010,19 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 416
+          "line": 436
         },
         {
           "file": "investment/investment.md",
-          "line": 416
+          "line": 436
         },
         {
           "file": "investment/investment.md",
-          "line": 418
+          "line": 438
         },
         {
           "file": "investment/investment.md",
-          "line": 419
+          "line": 439
         }
       ]
     },
@@ -19074,15 +19045,15 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 410
+          "line": 430
         },
         {
           "file": "investment/investment.md",
-          "line": 416
+          "line": 436
         },
         {
           "file": "investment/investment.md",
-          "line": 421
+          "line": 441
         }
       ]
     },
@@ -19114,7 +19085,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 417
+          "line": 437
         },
         {
           "file": "liquidity/liquidity.md",
@@ -19142,7 +19113,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 417
+          "line": 437
         },
         {
           "file": "liquidity/liquidity.md",
@@ -19177,23 +19148,23 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 410
+          "line": 430
         },
         {
           "file": "investment/investment.md",
-          "line": 416
+          "line": 436
         },
         {
           "file": "investment/investment.md",
-          "line": 417
+          "line": 437
         },
         {
           "file": "investment/investment.md",
-          "line": 418
+          "line": 438
         },
         {
           "file": "investment/investment.md",
-          "line": 468
+          "line": 488
         }
       ]
     },
@@ -19666,7 +19637,7 @@
       "occurrences": [
         {
           "file": "bsa/bsa.md",
-          "line": 461
+          "line": 480
         }
       ]
     },
@@ -19680,7 +19651,7 @@
       "occurrences": [
         {
           "file": "bsa/bsa.md",
-          "line": 461
+          "line": 480
         }
       ]
     },
@@ -19694,7 +19665,7 @@
       "occurrences": [
         {
           "file": "bsa/bsa.md",
-          "line": 461
+          "line": 480
         }
       ]
     },
@@ -19775,7 +19746,7 @@
       "occurrences": [
         {
           "file": "bsa/bsa.md",
-          "line": 461
+          "line": 480
         }
       ]
     },
@@ -19888,7 +19859,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 397
+          "line": 417
         }
       ]
     },
@@ -19921,7 +19892,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 399
+          "line": 419
         }
       ]
     },
@@ -19940,15 +19911,15 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 398
+          "line": 418
         },
         {
           "file": "investment/investment.md",
-          "line": 399
+          "line": 419
         },
         {
           "file": "investment/investment.md",
-          "line": 399
+          "line": 419
         }
       ]
     },
@@ -19993,7 +19964,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 400
+          "line": 420
         }
       ]
     },
@@ -20035,7 +20006,7 @@
       "occurrences": [
         {
           "file": "investment/investment.md",
-          "line": 400
+          "line": 420
         }
       ]
     },
@@ -20076,7 +20047,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 400
+          "line": 420
         }
       ]
     },
@@ -20104,7 +20075,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 400
+          "line": 420
         },
         {
           "file": "reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md",
@@ -20131,7 +20102,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 397
+          "line": 417
         }
       ]
     },
@@ -20168,15 +20139,15 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 389
+          "line": 409
         },
         {
           "file": "investment/investment.md",
-          "line": 397
+          "line": 417
         },
         {
           "file": "investment/investment.md",
-          "line": 398
+          "line": 418
         }
       ]
     },
@@ -20196,7 +20167,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 399
+          "line": 419
         },
         {
           "file": "reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md",
@@ -20219,7 +20190,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 397
+          "line": 417
         }
       ]
     },
@@ -20242,11 +20213,11 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 389
+          "line": 409
         },
         {
           "file": "investment/investment.md",
-          "line": 400
+          "line": 420
         }
       ]
     },
@@ -20310,7 +20281,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 400
+          "line": 420
         }
       ]
     },
@@ -21402,11 +21373,11 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 300
+          "line": 319
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 311
+          "line": 330
         },
         {
           "file": "member/member.md",
@@ -21442,7 +21413,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 300
+          "line": 319
         },
         {
           "file": "member/member.md",
@@ -21512,15 +21483,15 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 294
+          "line": 313
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 300
+          "line": 319
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "member/member.md",
@@ -21657,11 +21628,11 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 302
+          "line": 321
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 311
+          "line": 330
         },
         {
           "file": "member/member.md",
@@ -21753,11 +21724,11 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 300
+          "line": 319
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 301
+          "line": 320
         },
         {
           "file": "member/member.md",
@@ -21803,15 +21774,15 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 294
+          "line": 313
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 300
+          "line": 319
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "member/member.md",
@@ -21853,15 +21824,15 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 294
+          "line": 313
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 300
+          "line": 319
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "member/member.md",
@@ -21943,7 +21914,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 300
+          "line": 319
         },
         {
           "file": "member/member.md",
@@ -22002,7 +21973,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 301
+          "line": 320
         },
         {
           "file": "member/member.md",
@@ -22152,15 +22123,15 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 304
+          "line": 323
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 307
+          "line": 326
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 309
+          "line": 328
         },
         {
           "file": "privacy/privacy.md",
@@ -22307,7 +22278,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 308
+          "line": 327
         }
       ]
     },
@@ -22358,11 +22329,11 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 308
+          "line": 327
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 308
+          "line": 327
         }
       ]
     },
@@ -22398,7 +22369,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -22413,11 +22384,11 @@
       "occurrences": [
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 344
+          "line": 363
         },
         {
           "file": "lending/lending.md",
-          "line": 286
+          "line": 305
         }
       ]
     },
@@ -22447,7 +22418,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -22470,11 +22441,11 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 352
+          "line": 371
         },
         {
           "file": "lending/lending.md",
@@ -22486,11 +22457,11 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 259
+          "line": 278
         },
         {
           "file": "lending/lending.md",
-          "line": 265
+          "line": 284
         }
       ]
     },
@@ -23147,11 +23118,11 @@
         },
         {
           "file": "internal-controls/internal-controls.md",
-          "line": 218
+          "line": 237
         },
         {
           "file": "internal-controls/internal-controls.md",
-          "line": 218
+          "line": 237
         }
       ]
     },
@@ -23643,7 +23614,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 395
+          "line": 415
         }
       ]
     },
@@ -23671,15 +23642,15 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 397
+          "line": 417
         },
         {
           "file": "lending/lending.md",
-          "line": 299
+          "line": 318
         },
         {
           "file": "lending/lending.md",
-          "line": 305
+          "line": 324
         }
       ]
     },
@@ -24149,7 +24120,7 @@
     "credit_package.retention_expires_at": {
       "entity": "credit_package",
       "field": "retention_expires_at",
-      "count": 7,
+      "count": 6,
       "policies": [
         "lending"
       ],
@@ -24172,15 +24143,11 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 209
+          "line": 210
         },
         {
           "file": "lending/lending.md",
-          "line": 212
-        },
-        {
-          "file": "lending/lending.md",
-          "line": 212
+          "line": 210
         }
       ]
     },
@@ -24270,7 +24237,7 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 339
+          "line": 358
         }
       ]
     },
@@ -24316,11 +24283,11 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 339
+          "line": 358
         },
         {
           "file": "lending/lending.md",
-          "line": 339
+          "line": 358
         }
       ]
     },
@@ -24775,7 +24742,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 470
+          "line": 490
         }
       ]
     },
@@ -25040,20 +25007,54 @@
     "destruction_log.entry.created": {
       "entity": "destruction_log",
       "field": "entry.created",
-      "count": 4,
+      "count": 11,
       "policies": [
+        "audit",
         "bsa",
+        "fair-lending",
         "information-security",
+        "internal-controls",
+        "investment",
+        "lending",
+        "liquidity",
         "record-retention"
       ],
       "occurrences": [
         {
+          "file": "audit/audit.md",
+          "line": 239
+        },
+        {
           "file": "bsa/bsa.md",
-          "line": 437
+          "line": 454
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 301
         },
         {
           "file": "information-security/information-security.md",
           "line": 399
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 418
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 211
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 397
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 227
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 325
         },
         {
           "file": "record-retention/record-retention.md",
@@ -25068,12 +25069,52 @@
     "destruction_log.entry_id": {
       "entity": "destruction_log",
       "field": "entry_id",
-      "count": 6,
+      "count": 14,
       "policies": [
+        "audit",
+        "bsa",
+        "fair-lending",
+        "information-security",
+        "internal-controls",
+        "investment",
+        "lending",
+        "liquidity",
         "privacy",
         "record-retention"
       ],
       "occurrences": [
+        {
+          "file": "audit/audit.md",
+          "line": 240
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 455
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 302
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 419
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 212
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 398
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 228
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 326
+        },
         {
           "file": "privacy/privacy.md",
           "line": 193
@@ -25122,15 +25163,54 @@
     "destruction_log.mismatch.detected": {
       "entity": "destruction_log",
       "field": "mismatch.detected",
-      "count": 6,
+      "count": 14,
       "policies": [
+        "audit",
+        "bsa",
+        "fair-lending",
         "information-security",
+        "internal-controls",
+        "investment",
+        "lending",
+        "liquidity",
         "record-retention"
       ],
       "occurrences": [
         {
+          "file": "audit/audit.md",
+          "line": 241
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 456
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 303
+        },
+        {
           "file": "information-security/information-security.md",
-          "line": 403
+          "line": 401
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 420
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 213
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 399
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 229
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 327
         },
         {
           "file": "record-retention/record-retention.md",
@@ -25728,12 +25808,52 @@
     "disposal.batch_manifest_id": {
       "entity": "disposal",
       "field": "batch_manifest_id",
-      "count": 3,
+      "count": 11,
       "policies": [
+        "audit",
+        "bsa",
+        "fair-lending",
+        "information-security",
+        "internal-controls",
+        "investment",
+        "lending",
+        "liquidity",
         "privacy",
         "record-retention"
       ],
       "occurrences": [
+        {
+          "file": "audit/audit.md",
+          "line": 240
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 455
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 302
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 419
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 212
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 398
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 228
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 326
+        },
         {
           "file": "privacy/privacy.md",
           "line": 201
@@ -25751,12 +25871,116 @@
     "disposal.certificate": {
       "entity": "disposal",
       "field": "certificate",
-      "count": 4,
+      "count": 28,
       "policies": [
+        "audit",
+        "bsa",
+        "fair-lending",
+        "information-security",
+        "internal-controls",
+        "investment",
+        "lending",
+        "liquidity",
         "privacy",
         "record-retention"
       ],
       "occurrences": [
+        {
+          "file": "audit/audit.md",
+          "line": 230
+        },
+        {
+          "file": "audit/audit.md",
+          "line": 240
+        },
+        {
+          "file": "audit/audit.md",
+          "line": 243
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 445
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 455
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 458
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 292
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 302
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 305
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 409
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 419
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 422
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 202
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 212
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 215
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 388
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 398
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 401
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 218
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 228
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 231
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 316
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 326
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 329
+        },
         {
           "file": "privacy/privacy.md",
           "line": 193
@@ -25805,12 +26029,52 @@
     "disposal.clock_resumed": {
       "entity": "disposal",
       "field": "clock_resumed",
-      "count": 3,
+      "count": 11,
       "policies": [
+        "audit",
+        "bsa",
+        "fair-lending",
+        "information-security",
+        "internal-controls",
+        "investment",
+        "lending",
+        "liquidity",
         "privacy",
         "record-retention"
       ],
       "occurrences": [
+        {
+          "file": "audit/audit.md",
+          "line": 238
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 453
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 300
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 417
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 210
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 396
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 226
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 324
+        },
         {
           "file": "privacy/privacy.md",
           "line": 200
@@ -25835,23 +26099,63 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 452
+          "line": 471
         },
         {
           "file": "information-security/information-security.md",
-          "line": 452
+          "line": 471
         }
       ]
     },
     "disposal.executed": {
       "entity": "disposal",
       "field": "executed",
-      "count": 3,
+      "count": 11,
       "policies": [
+        "audit",
+        "bsa",
+        "fair-lending",
+        "information-security",
+        "internal-controls",
+        "investment",
+        "lending",
+        "liquidity",
         "privacy",
         "record-retention"
       ],
       "occurrences": [
+        {
+          "file": "audit/audit.md",
+          "line": 240
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 455
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 302
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 419
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 212
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 398
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 228
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 326
+        },
         {
           "file": "privacy/privacy.md",
           "line": 201
@@ -25869,12 +26173,84 @@
     "disposal.held": {
       "entity": "disposal",
       "field": "held",
-      "count": 5,
+      "count": 21,
       "policies": [
+        "audit",
+        "bsa",
+        "fair-lending",
+        "information-security",
+        "internal-controls",
+        "investment",
+        "lending",
+        "liquidity",
         "privacy",
         "record-retention"
       ],
       "occurrences": [
+        {
+          "file": "audit/audit.md",
+          "line": 230
+        },
+        {
+          "file": "audit/audit.md",
+          "line": 236
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 445
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 451
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 292
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 298
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 409
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 415
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 202
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 208
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 388
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 394
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 218
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 224
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 316
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 322
+        },
         {
           "file": "privacy/privacy.md",
           "line": 193
@@ -25918,12 +26294,52 @@
     "disposal.scheduled": {
       "entity": "disposal",
       "field": "scheduled",
-      "count": 2,
+      "count": 10,
       "policies": [
+        "audit",
+        "bsa",
+        "fair-lending",
+        "information-security",
+        "internal-controls",
+        "investment",
+        "lending",
+        "liquidity",
         "privacy",
         "record-retention"
       ],
       "occurrences": [
+        {
+          "file": "audit/audit.md",
+          "line": 239
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 454
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 301
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 418
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 211
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 397
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 227
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 325
+        },
         {
           "file": "privacy/privacy.md",
           "line": 199
@@ -26236,38 +26652,21 @@
     "document.legal_hold_flag": {
       "entity": "document",
       "field": "legal_hold_flag",
-      "count": 5,
+      "count": 1,
       "policies": [
-        "fair-lending",
-        "lending"
+        "fair-lending"
       ],
       "occurrences": [
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 273
-        },
-        {
-          "file": "fair-lending/fair-lending.md",
-          "line": 282
-        },
-        {
-          "file": "fair-lending/fair-lending.md",
-          "line": 286
-        },
-        {
-          "file": "fair-lending/fair-lending.md",
-          "line": 342
-        },
-        {
-          "file": "lending/lending.md",
-          "line": 209
+          "line": 361
         }
       ]
     },
     "document.required_set": {
       "entity": "document",
       "field": "required_set",
-      "count": 4,
+      "count": 3,
       "policies": [
         "investment"
       ],
@@ -26283,17 +26682,13 @@
         {
           "file": "investment/investment.md",
           "line": 377
-        },
-        {
-          "file": "investment/investment.md",
-          "line": 378
         }
       ]
     },
     "document.retention_schedule": {
       "entity": "document",
       "field": "retention_schedule",
-      "count": 2,
+      "count": 1,
       "policies": [
         "investment"
       ],
@@ -26301,10 +26696,6 @@
         {
           "file": "investment/investment.md",
           "line": 370
-        },
-        {
-          "file": "investment/investment.md",
-          "line": 379
         }
       ]
     },
@@ -27166,7 +27557,7 @@
       "occurrences": [
         {
           "file": "bsa/bsa.md",
-          "line": 461
+          "line": 480
         }
       ]
     },
@@ -27573,7 +27964,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 395
+          "line": 415
         },
         {
           "file": "privacy/privacy.md",
@@ -27693,7 +28084,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 395
+          "line": 415
         }
       ]
     },
@@ -30811,7 +31202,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 303
+          "line": 322
         }
       ]
     },
@@ -30825,7 +31216,7 @@
       "occurrences": [
         {
           "file": "bsa/bsa.md",
-          "line": 461
+          "line": 480
         }
       ]
     },
@@ -30857,7 +31248,7 @@
       "occurrences": [
         {
           "file": "bsa/bsa.md",
-          "line": 461
+          "line": 480
         }
       ]
     },
@@ -30901,7 +31292,7 @@
         },
         {
           "file": "bsa/bsa.md",
-          "line": 461
+          "line": 480
         }
       ]
     },
@@ -31487,11 +31878,11 @@
         },
         {
           "file": "internal-controls/internal-controls.md",
-          "line": 218
+          "line": 237
         },
         {
           "file": "internal-controls/internal-controls.md",
-          "line": 218
+          "line": 237
         }
       ]
     },
@@ -31521,11 +31912,11 @@
         },
         {
           "file": "internal-controls/internal-controls.md",
-          "line": 218
+          "line": 237
         },
         {
           "file": "internal-controls/internal-controls.md",
-          "line": 218
+          "line": 237
         }
       ]
     },
@@ -31661,11 +32052,11 @@
         },
         {
           "file": "internal-controls/internal-controls.md",
-          "line": 218
+          "line": 237
         },
         {
           "file": "internal-controls/internal-controls.md",
-          "line": 218
+          "line": 237
         }
       ]
     },
@@ -32375,11 +32766,11 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 279
+          "line": 298
         },
         {
           "file": "lending/lending.md",
-          "line": 285
+          "line": 304
         }
       ]
     },
@@ -32393,11 +32784,11 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 279
+          "line": 298
         },
         {
           "file": "lending/lending.md",
-          "line": 285
+          "line": 304
         }
       ]
     },
@@ -32412,15 +32803,15 @@
       "occurrences": [
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "lending/lending.md",
-          "line": 259
+          "line": 278
         },
         {
           "file": "lending/lending.md",
-          "line": 268
+          "line": 287
         }
       ]
     },
@@ -32455,15 +32846,15 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 268
+          "line": 287
         },
         {
           "file": "lending/lending.md",
-          "line": 268
+          "line": 287
         },
         {
           "file": "lending/lending.md",
-          "line": 271
+          "line": 290
         }
       ]
     },
@@ -32478,15 +32869,15 @@
       "occurrences": [
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "lending/lending.md",
-          "line": 279
+          "line": 298
         },
         {
           "file": "lending/lending.md",
-          "line": 289
+          "line": 308
         }
       ]
     },
@@ -32500,11 +32891,11 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 285
+          "line": 304
         },
         {
           "file": "lending/lending.md",
-          "line": 291
+          "line": 310
         }
       ]
     },
@@ -32522,15 +32913,15 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 294
+          "line": 313
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 302
+          "line": 321
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 306
+          "line": 325
         }
       ]
     },
@@ -32545,15 +32936,15 @@
       "occurrences": [
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 305
+          "line": 324
         },
         {
           "file": "lending/lending.md",
-          "line": 279
+          "line": 298
         },
         {
           "file": "lending/lending.md",
-          "line": 289
+          "line": 308
         }
       ]
     },
@@ -32568,15 +32959,15 @@
       "occurrences": [
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 304
+          "line": 323
         },
         {
           "file": "lending/lending.md",
-          "line": 268
+          "line": 287
         },
         {
           "file": "lending/lending.md",
-          "line": 289
+          "line": 308
         }
       ]
     },
@@ -32591,27 +32982,27 @@
       "occurrences": [
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "lending/lending.md",
-          "line": 268
+          "line": 287
         },
         {
           "file": "lending/lending.md",
-          "line": 279
+          "line": 298
         },
         {
           "file": "lending/lending.md",
-          "line": 289
+          "line": 308
         },
         {
           "file": "lending/lending.md",
-          "line": 289
+          "line": 308
         },
         {
           "file": "lending/lending.md",
-          "line": 291
+          "line": 310
         }
       ]
     },
@@ -32639,7 +33030,7 @@
       "occurrences": [
         {
           "file": "bsa/bsa.md",
-          "line": 461
+          "line": 480
         }
       ]
     },
@@ -32653,7 +33044,7 @@
       "occurrences": [
         {
           "file": "bsa/bsa.md",
-          "line": 461
+          "line": 480
         }
       ]
     },
@@ -32923,7 +33314,7 @@
       "occurrences": [
         {
           "file": "bsa/bsa.md",
-          "line": 461
+          "line": 480
         }
       ]
     },
@@ -32937,7 +33328,7 @@
       "occurrences": [
         {
           "file": "bsa/bsa.md",
-          "line": 461
+          "line": 480
         }
       ]
     },
@@ -33494,7 +33885,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 419
+          "line": 439
         },
         {
           "file": "record-retention/record-retention.md",
@@ -33560,7 +33951,7 @@
       "occurrences": [
         {
           "file": "audit/audit.md",
-          "line": 248
+          "line": 268
         }
       ]
     },
@@ -33587,7 +33978,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 419
+          "line": 439
         }
       ]
     },
@@ -35273,7 +35664,7 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 288
+          "line": 307
         }
       ]
     },
@@ -35314,7 +35705,7 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 288
+          "line": 307
         }
       ]
     },
@@ -35333,15 +35724,15 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 279
+          "line": 298
         },
         {
           "file": "lending/lending.md",
-          "line": 288
+          "line": 307
         },
         {
           "file": "lending/lending.md",
-          "line": 288
+          "line": 307
         }
       ]
     },
@@ -35373,7 +35764,7 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 288
+          "line": 307
         }
       ]
     },
@@ -35414,11 +35805,11 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 288
+          "line": 307
         },
         {
           "file": "lending/lending.md",
-          "line": 291
+          "line": 310
         }
       ]
     },
@@ -37979,11 +38370,11 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 306
+          "line": 325
         },
         {
           "file": "lending/lending.md",
-          "line": 307
+          "line": 326
         }
       ]
     },
@@ -38010,7 +38401,7 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 307
+          "line": 326
         }
       ]
     },
@@ -38033,15 +38424,15 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 299
+          "line": 318
         },
         {
           "file": "lending/lending.md",
-          "line": 307
+          "line": 326
         },
         {
           "file": "lending/lending.md",
-          "line": 307
+          "line": 326
         }
       ]
     },
@@ -38060,15 +38451,15 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 299
+          "line": 318
         },
         {
           "file": "lending/lending.md",
-          "line": 308
+          "line": 327
         },
         {
           "file": "lending/lending.md",
-          "line": 308
+          "line": 327
         }
       ]
     },
@@ -38087,11 +38478,11 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 299
+          "line": 318
         },
         {
           "file": "lending/lending.md",
-          "line": 306
+          "line": 325
         }
       ]
     },
@@ -38164,11 +38555,11 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 299
+          "line": 318
         },
         {
           "file": "lending/lending.md",
-          "line": 349
+          "line": 368
         }
       ]
     },
@@ -38237,11 +38628,11 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 299
+          "line": 318
         },
         {
           "file": "lending/lending.md",
-          "line": 306
+          "line": 325
         }
       ]
     },
@@ -38412,7 +38803,7 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 299
+          "line": 318
         }
       ]
     },
@@ -38426,15 +38817,15 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 299
+          "line": 318
         },
         {
           "file": "lending/lending.md",
-          "line": 306
+          "line": 325
         },
         {
           "file": "lending/lending.md",
-          "line": 310
+          "line": 329
         }
       ]
     },
@@ -38448,7 +38839,7 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 339
+          "line": 358
         }
       ]
     },
@@ -38467,7 +38858,7 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 308
+          "line": 327
         }
       ]
     },
@@ -39820,15 +40211,50 @@
     "legal.hold.placed": {
       "entity": "legal",
       "field": "hold.placed",
-      "count": 2,
+      "count": 9,
       "policies": [
+        "audit",
+        "bsa",
+        "fair-lending",
+        "information-security",
+        "internal-controls",
+        "investment",
+        "lending",
         "liquidity",
         "record-retention"
       ],
       "occurrences": [
         {
+          "file": "audit/audit.md",
+          "line": 236
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 451
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 298
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 415
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 208
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 394
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 224
+        },
+        {
           "file": "liquidity/liquidity.md",
-          "line": 307
+          "line": 322
         },
         {
           "file": "record-retention/record-retention.md",
@@ -39839,11 +40265,51 @@
     "legal.hold.released": {
       "entity": "legal",
       "field": "hold.released",
-      "count": 1,
+      "count": 9,
       "policies": [
+        "audit",
+        "bsa",
+        "fair-lending",
+        "information-security",
+        "internal-controls",
+        "investment",
+        "lending",
+        "liquidity",
         "record-retention"
       ],
       "occurrences": [
+        {
+          "file": "audit/audit.md",
+          "line": 238
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 453
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 300
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 417
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 210
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 396
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 226
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 324
+        },
         {
           "file": "record-retention/record-retention.md",
           "line": 126
@@ -39853,16 +40319,11 @@
     "legal.hold_scope": {
       "entity": "legal",
       "field": "hold_scope",
-      "count": 3,
+      "count": 2,
       "policies": [
-        "liquidity",
         "reimbursement-insurance-indemnification"
       ],
       "occurrences": [
-        {
-          "file": "liquidity/liquidity.md",
-          "line": 307
-        },
         {
           "file": "reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md",
           "line": 181
@@ -39876,16 +40337,11 @@
     "legal.matter_id": {
       "entity": "legal",
       "field": "matter_id",
-      "count": 3,
+      "count": 2,
       "policies": [
-        "liquidity",
         "reimbursement-insurance-indemnification"
       ],
       "occurrences": [
-        {
-          "file": "liquidity/liquidity.md",
-          "line": 307
-        },
         {
           "file": "reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md",
           "line": 181
@@ -39953,16 +40409,51 @@
     "legal_hold.clear.confirmed": {
       "entity": "legal_hold",
       "field": "clear.confirmed",
-      "count": 5,
+      "count": 12,
       "policies": [
+        "audit",
+        "bsa",
+        "fair-lending",
         "information-security",
+        "internal-controls",
+        "investment",
+        "lending",
+        "liquidity",
         "privacy",
         "record-retention"
       ],
       "occurrences": [
         {
+          "file": "audit/audit.md",
+          "line": 238
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 453
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 300
+        },
+        {
           "file": "information-security/information-security.md",
-          "line": 401
+          "line": 417
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 210
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 396
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 226
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 324
         },
         {
           "file": "privacy/privacy.md",
@@ -39985,29 +40476,50 @@
     "legal_hold.created": {
       "entity": "legal_hold",
       "field": "created",
-      "count": 6,
+      "count": 10,
       "policies": [
+        "audit",
         "bsa",
+        "fair-lending",
         "information-security",
+        "internal-controls",
+        "investment",
         "lending",
+        "liquidity",
         "record-retention"
       ],
       "occurrences": [
         {
+          "file": "audit/audit.md",
+          "line": 236
+        },
+        {
           "file": "bsa/bsa.md",
-          "line": 436
+          "line": 451
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 298
         },
         {
           "file": "information-security/information-security.md",
-          "line": 400
+          "line": 415
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 208
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 394
         },
         {
           "file": "lending/lending.md",
-          "line": 210
+          "line": 224
         },
         {
-          "file": "lending/lending.md",
-          "line": 210
+          "file": "liquidity/liquidity.md",
+          "line": 322
         },
         {
           "file": "record-retention/record-retention.md",
@@ -40022,25 +40534,82 @@
     "legal_hold.hold_scope": {
       "entity": "legal_hold",
       "field": "hold_scope",
-      "count": 5,
+      "count": 18,
       "policies": [
+        "audit",
         "bsa",
+        "fair-lending",
         "information-security",
+        "internal-controls",
+        "investment",
         "lending",
+        "liquidity",
         "record-retention"
       ],
       "occurrences": [
         {
+          "file": "audit/audit.md",
+          "line": 230
+        },
+        {
+          "file": "audit/audit.md",
+          "line": 236
+        },
+        {
           "file": "bsa/bsa.md",
-          "line": 436
+          "line": 445
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 451
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 292
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 298
         },
         {
           "file": "information-security/information-security.md",
-          "line": 400
+          "line": 409
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 415
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 202
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 208
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 388
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 394
         },
         {
           "file": "lending/lending.md",
-          "line": 210
+          "line": 218
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 224
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 316
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 322
         },
         {
           "file": "record-retention/record-retention.md",
@@ -40055,26 +40624,51 @@
     "legal_hold.matter_id": {
       "entity": "legal_hold",
       "field": "matter_id",
-      "count": 5,
+      "count": 10,
       "policies": [
+        "audit",
         "bsa",
+        "fair-lending",
         "information-security",
+        "internal-controls",
+        "investment",
         "lending",
+        "liquidity",
         "privacy",
         "record-retention"
       ],
       "occurrences": [
         {
+          "file": "audit/audit.md",
+          "line": 236
+        },
+        {
           "file": "bsa/bsa.md",
-          "line": 436
+          "line": 451
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 298
         },
         {
           "file": "information-security/information-security.md",
-          "line": 400
+          "line": 415
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 208
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 394
         },
         {
           "file": "lending/lending.md",
-          "line": 210
+          "line": 224
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 322
         },
         {
           "file": "privacy/privacy.md",
@@ -40089,11 +40683,51 @@
     "legal_hold.matter_ref": {
       "entity": "legal_hold",
       "field": "matter_ref",
-      "count": 1,
+      "count": 9,
       "policies": [
+        "audit",
+        "bsa",
+        "fair-lending",
+        "information-security",
+        "internal-controls",
+        "investment",
+        "lending",
+        "liquidity",
         "record-retention"
       ],
       "occurrences": [
+        {
+          "file": "audit/audit.md",
+          "line": 230
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 445
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 292
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 409
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 202
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 388
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 218
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 316
+        },
         {
           "file": "record-retention/record-retention.md",
           "line": 118
@@ -40103,15 +40737,50 @@
     "legal_hold.placed_at": {
       "entity": "legal_hold",
       "field": "placed_at",
-      "count": 2,
+      "count": 9,
       "policies": [
+        "audit",
+        "bsa",
+        "fair-lending",
         "information-security",
+        "internal-controls",
+        "investment",
+        "lending",
+        "liquidity",
         "record-retention"
       ],
       "occurrences": [
         {
+          "file": "audit/audit.md",
+          "line": 236
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 451
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 298
+        },
+        {
           "file": "information-security/information-security.md",
-          "line": 400
+          "line": 415
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 208
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 394
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 224
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 322
         },
         {
           "file": "record-retention/record-retention.md",
@@ -40122,16 +40791,51 @@
     "legal_hold.release_approved_by": {
       "entity": "legal_hold",
       "field": "release_approved_by",
-      "count": 5,
+      "count": 12,
       "policies": [
+        "audit",
+        "bsa",
+        "fair-lending",
         "information-security",
+        "internal-controls",
+        "investment",
+        "lending",
+        "liquidity",
         "privacy",
         "record-retention"
       ],
       "occurrences": [
         {
+          "file": "audit/audit.md",
+          "line": 238
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 453
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 300
+        },
+        {
           "file": "information-security/information-security.md",
-          "line": 401
+          "line": 417
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 210
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 396
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 226
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 324
         },
         {
           "file": "privacy/privacy.md",
@@ -40154,11 +40858,51 @@
     "legal_hold.released_at": {
       "entity": "legal_hold",
       "field": "released_at",
-      "count": 1,
+      "count": 9,
       "policies": [
+        "audit",
+        "bsa",
+        "fair-lending",
+        "information-security",
+        "internal-controls",
+        "investment",
+        "lending",
+        "liquidity",
         "record-retention"
       ],
       "occurrences": [
+        {
+          "file": "audit/audit.md",
+          "line": 238
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 453
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 300
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 417
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 210
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 396
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 226
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 324
+        },
         {
           "file": "record-retention/record-retention.md",
           "line": 126
@@ -40168,11 +40912,83 @@
     "legal_hold.schedule_resumed": {
       "entity": "legal_hold",
       "field": "schedule_resumed",
-      "count": 2,
+      "count": 18,
       "policies": [
+        "audit",
+        "bsa",
+        "fair-lending",
+        "information-security",
+        "internal-controls",
+        "investment",
+        "lending",
+        "liquidity",
         "record-retention"
       ],
       "occurrences": [
+        {
+          "file": "audit/audit.md",
+          "line": 230
+        },
+        {
+          "file": "audit/audit.md",
+          "line": 238
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 445
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 453
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 292
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 300
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 409
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 417
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 202
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 210
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 388
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 396
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 218
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 226
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 316
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 324
+        },
         {
           "file": "record-retention/record-retention.md",
           "line": 118
@@ -40795,11 +41611,11 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 410
+          "line": 430
         },
         {
           "file": "investment/investment.md",
-          "line": 417
+          "line": 437
         }
       ]
     },
@@ -40849,7 +41665,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -40904,11 +41720,11 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "lending/lending.md",
-          "line": 220
+          "line": 239
         }
       ]
     },
@@ -41058,7 +41874,7 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 212
+          "line": 210
         }
       ]
     },
@@ -41697,15 +42513,15 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 240
+          "line": 259
         },
         {
           "file": "lending/lending.md",
-          "line": 247
+          "line": 266
         },
         {
           "file": "lending/lending.md",
-          "line": 249
+          "line": 268
         }
       ]
     },
@@ -42429,7 +43245,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "lending/lending.md",
@@ -42459,7 +43275,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -42509,7 +43325,7 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 305
+          "line": 324
         }
       ]
     },
@@ -42671,7 +43487,7 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 339
+          "line": 358
         }
       ]
     },
@@ -42690,7 +43506,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "lending/lending.md",
@@ -42698,7 +43514,7 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 339
+          "line": 358
         }
       ]
     },
@@ -42857,7 +43673,7 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 212
+          "line": 210
         }
       ]
     },
@@ -42919,7 +43735,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -42938,7 +43754,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "lending/lending.md",
@@ -42995,7 +43811,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "lending/lending.md",
@@ -43091,11 +43907,11 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 299
+          "line": 318
         },
         {
           "file": "lending/lending.md",
-          "line": 305
+          "line": 324
         }
       ]
     },
@@ -43118,15 +43934,15 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 305
+          "line": 324
         },
         {
           "file": "lending/lending.md",
-          "line": 305
+          "line": 324
         },
         {
           "file": "lending/lending.md",
-          "line": 310
+          "line": 329
         }
       ]
     },
@@ -43149,7 +43965,7 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 306
+          "line": 325
         }
       ]
     },
@@ -43186,11 +44002,11 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "lending/lending.md",
-          "line": 339
+          "line": 358
         }
       ]
     },
@@ -43213,7 +44029,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "lending/lending.md",
@@ -43229,7 +44045,7 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 339
+          "line": 358
         }
       ]
     },
@@ -43248,7 +44064,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "lending/lending.md",
@@ -43315,7 +44131,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "lending/lending.md",
@@ -43327,7 +44143,7 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 339
+          "line": 358
         }
       ]
     },
@@ -43604,11 +44420,11 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 240
+          "line": 259
         },
         {
           "file": "lending/lending.md",
-          "line": 246
+          "line": 265
         }
       ]
     },
@@ -43622,7 +44438,7 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 246
+          "line": 265
         }
       ]
     },
@@ -43645,7 +44461,7 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 246
+          "line": 265
         }
       ]
     },
@@ -43659,15 +44475,15 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 240
+          "line": 259
         },
         {
           "file": "lending/lending.md",
-          "line": 247
+          "line": 266
         },
         {
           "file": "lending/lending.md",
-          "line": 247
+          "line": 266
         }
       ]
     },
@@ -43681,15 +44497,15 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 240
+          "line": 259
         },
         {
           "file": "lending/lending.md",
-          "line": 248
+          "line": 267
         },
         {
           "file": "lending/lending.md",
-          "line": 248
+          "line": 267
         }
       ]
     },
@@ -43703,7 +44519,7 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 246
+          "line": 265
         }
       ]
     },
@@ -43717,15 +44533,15 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 246
+          "line": 265
         },
         {
           "file": "lending/lending.md",
-          "line": 251
+          "line": 270
         },
         {
           "file": "lending/lending.md",
-          "line": 251
+          "line": 270
         }
       ]
     },
@@ -43739,11 +44555,11 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 240
+          "line": 259
         },
         {
           "file": "lending/lending.md",
-          "line": 248
+          "line": 267
         }
       ]
     },
@@ -43765,11 +44581,11 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 240
+          "line": 259
         },
         {
           "file": "lending/lending.md",
-          "line": 249
+          "line": 268
         }
       ]
     },
@@ -43783,7 +44599,7 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 227
+          "line": 246
         }
       ]
     },
@@ -43797,7 +44613,7 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 228
+          "line": 247
         }
       ]
     },
@@ -43811,11 +44627,11 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 229
+          "line": 248
         },
         {
           "file": "lending/lending.md",
-          "line": 229
+          "line": 248
         }
       ]
     },
@@ -43829,7 +44645,7 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 228
+          "line": 247
         }
       ]
     },
@@ -43843,11 +44659,11 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 220
+          "line": 239
         },
         {
           "file": "lending/lending.md",
-          "line": 351
+          "line": 370
         }
       ]
     },
@@ -43861,11 +44677,11 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 227
+          "line": 246
         },
         {
           "file": "lending/lending.md",
-          "line": 232
+          "line": 251
         }
       ]
     },
@@ -43883,7 +44699,7 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 227
+          "line": 246
         }
       ]
     },
@@ -43897,11 +44713,11 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 220
+          "line": 239
         },
         {
           "file": "lending/lending.md",
-          "line": 227
+          "line": 246
         }
       ]
     },
@@ -45255,7 +46071,7 @@
         },
         {
           "file": "bsa/bsa.md",
-          "line": 461
+          "line": 480
         }
       ]
     },
@@ -45269,7 +46085,7 @@
       "occurrences": [
         {
           "file": "bsa/bsa.md",
-          "line": 461
+          "line": 480
         }
       ]
     },
@@ -45335,7 +46151,7 @@
         },
         {
           "file": "bsa/bsa.md",
-          "line": 461
+          "line": 480
         }
       ]
     },
@@ -45363,7 +46179,7 @@
       "occurrences": [
         {
           "file": "bsa/bsa.md",
-          "line": 461
+          "line": 480
         }
       ]
     },
@@ -46047,7 +46863,7 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 339
+          "line": 358
         }
       ]
     },
@@ -46246,15 +47062,15 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 240
+          "line": 259
         },
         {
           "file": "lending/lending.md",
-          "line": 240
+          "line": 259
         },
         {
           "file": "lending/lending.md",
-          "line": 246
+          "line": 265
         }
       ]
     },
@@ -46344,7 +47160,7 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 247
+          "line": 266
         }
       ]
     },
@@ -46358,7 +47174,7 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 247
+          "line": 266
         }
       ]
     },
@@ -47009,7 +47825,7 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 339
+          "line": 358
         }
       ]
     },
@@ -47325,7 +48141,7 @@
         },
         {
           "file": "bsa/bsa.md",
-          "line": 461
+          "line": 480
         }
       ]
     },
@@ -47351,7 +48167,7 @@
         },
         {
           "file": "bsa/bsa.md",
-          "line": 461
+          "line": 480
         }
       ]
     },
@@ -47477,11 +48293,11 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 436
+          "line": 455
         },
         {
           "file": "information-security/information-security.md",
-          "line": 436
+          "line": 455
         }
       ]
     },
@@ -47495,7 +48311,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 436
+          "line": 455
         }
       ]
     },
@@ -47649,15 +48465,15 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 429
+          "line": 449
         },
         {
           "file": "investment/investment.md",
-          "line": 435
+          "line": 455
         },
         {
           "file": "investment/investment.md",
-          "line": 436
+          "line": 456
         }
       ]
     },
@@ -47676,7 +48492,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 429
+          "line": 449
         }
       ]
     },
@@ -47749,7 +48565,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 437
+          "line": 457
         },
         {
           "file": "liquidity/liquidity.md",
@@ -47810,7 +48626,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 435
+          "line": 455
         }
       ]
     },
@@ -47842,7 +48658,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 429
+          "line": 449
         }
       ]
     },
@@ -47901,11 +48717,11 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 429
+          "line": 449
         },
         {
           "file": "investment/investment.md",
-          "line": 435
+          "line": 455
         }
       ]
     },
@@ -47983,7 +48799,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 429
+          "line": 449
         }
       ]
     },
@@ -48111,11 +48927,11 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 429
+          "line": 449
         },
         {
           "file": "investment/investment.md",
-          "line": 435
+          "line": 455
         },
         {
           "file": "lending/lending.md",
@@ -48178,11 +48994,11 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 429
+          "line": 449
         },
         {
           "file": "investment/investment.md",
-          "line": 429
+          "line": 449
         },
         {
           "file": "third-party-risk/third-party-risk.md",
@@ -48297,7 +49113,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 436
+          "line": 456
         },
         {
           "file": "liquidity/liquidity.md",
@@ -48387,7 +49203,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 437
+          "line": 457
         },
         {
           "file": "lending/lending.md",
@@ -48488,7 +49304,7 @@
       "occurrences": [
         {
           "file": "investment/investment.md",
-          "line": 435
+          "line": 455
         }
       ]
     },
@@ -48686,7 +49502,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 437
+          "line": 457
         },
         {
           "file": "liquidity/liquidity.md",
@@ -48762,7 +49578,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 437
+          "line": 457
         }
       ]
     },
@@ -49312,7 +50128,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 416
+          "line": 436
         }
       ]
     },
@@ -49344,7 +50160,7 @@
       "occurrences": [
         {
           "file": "investment/investment.md",
-          "line": 468
+          "line": 488
         }
       ]
     },
@@ -49362,7 +50178,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 468
+          "line": 488
         }
       ]
     },
@@ -49380,7 +50196,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 416
+          "line": 436
         }
       ]
     },
@@ -49394,11 +50210,11 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 259
+          "line": 278
         },
         {
           "file": "lending/lending.md",
-          "line": 265
+          "line": 284
         }
       ]
     },
@@ -49412,7 +50228,7 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 265
+          "line": 284
         }
       ]
     },
@@ -49426,11 +50242,11 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 259
+          "line": 278
         },
         {
           "file": "lending/lending.md",
-          "line": 265
+          "line": 284
         }
       ]
     },
@@ -49444,7 +50260,7 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 265
+          "line": 284
         }
       ]
     },
@@ -49458,7 +50274,7 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 265
+          "line": 284
         }
       ]
     },
@@ -49477,7 +50293,7 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 220
+          "line": 239
         }
       ]
     },
@@ -49504,7 +50320,7 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 228
+          "line": 247
         }
       ]
     },
@@ -49523,11 +50339,11 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "lending/lending.md",
-          "line": 228
+          "line": 247
         }
       ]
     },
@@ -49554,15 +50370,15 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "lending/lending.md",
-          "line": 220
+          "line": 239
         },
         {
           "file": "lending/lending.md",
-          "line": 230
+          "line": 249
         }
       ]
     },
@@ -49580,7 +50396,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -49598,7 +50414,7 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 230
+          "line": 249
         }
       ]
     },
@@ -49621,15 +50437,15 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "lending/lending.md",
-          "line": 220
+          "line": 239
         },
         {
           "file": "lending/lending.md",
-          "line": 228
+          "line": 247
         }
       ]
     },
@@ -49643,11 +50459,11 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 220
+          "line": 239
         },
         {
           "file": "lending/lending.md",
-          "line": 230
+          "line": 249
         }
       ]
     },
@@ -49670,7 +50486,7 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 230
+          "line": 249
         }
       ]
     },
@@ -49688,7 +50504,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -49706,7 +50522,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -50854,11 +51670,11 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 440
+          "line": 459
         },
         {
           "file": "information-security/information-security.md",
-          "line": 440
+          "line": 459
         }
       ]
     },
@@ -51018,7 +51834,7 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 266
+          "line": 285
         }
       ]
     },
@@ -51032,15 +51848,15 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 259
+          "line": 278
         },
         {
           "file": "lending/lending.md",
-          "line": 266
+          "line": 285
         },
         {
           "file": "lending/lending.md",
-          "line": 271
+          "line": 290
         }
       ]
     },
@@ -51058,15 +51874,15 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 259
+          "line": 278
         },
         {
           "file": "lending/lending.md",
-          "line": 267
+          "line": 286
         },
         {
           "file": "lending/lending.md",
-          "line": 267
+          "line": 286
         }
       ]
     },
@@ -51080,7 +51896,7 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 266
+          "line": 285
         }
       ]
     },
@@ -51094,11 +51910,11 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 267
+          "line": 286
         },
         {
           "file": "lending/lending.md",
-          "line": 269
+          "line": 288
         }
       ]
     },
@@ -51112,7 +51928,7 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 259
+          "line": 278
         }
       ]
     },
@@ -51126,7 +51942,7 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 226
+          "line": 245
         }
       ]
     },
@@ -51140,15 +51956,15 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 220
+          "line": 239
         },
         {
           "file": "lending/lending.md",
-          "line": 226
+          "line": 245
         },
         {
           "file": "lending/lending.md",
-          "line": 227
+          "line": 246
         }
       ]
     },
@@ -51162,11 +51978,11 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 226
+          "line": 245
         },
         {
           "file": "lending/lending.md",
-          "line": 232
+          "line": 251
         }
       ]
     },
@@ -51180,19 +51996,19 @@
       "occurrences": [
         {
           "file": "lending/lending.md",
-          "line": 220
+          "line": 239
         },
         {
           "file": "lending/lending.md",
-          "line": 226
+          "line": 245
         },
         {
           "file": "lending/lending.md",
-          "line": 226
+          "line": 245
         },
         {
           "file": "lending/lending.md",
-          "line": 232
+          "line": 251
         }
       ]
     },
@@ -51635,16 +52451,56 @@
     "record.destroyed": {
       "entity": "record",
       "field": "destroyed",
-      "count": 4,
+      "count": 12,
       "policies": [
+        "audit",
+        "bsa",
         "cash",
+        "fair-lending",
+        "information-security",
+        "internal-controls",
+        "investment",
+        "lending",
+        "liquidity",
         "privacy",
         "record-retention"
       ],
       "occurrences": [
         {
+          "file": "audit/audit.md",
+          "line": 240
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 455
+        },
+        {
           "file": "cash/cash.md",
           "line": 274
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 302
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 419
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 212
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 398
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 228
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 326
         },
         {
           "file": "privacy/privacy.md",
@@ -51663,37 +52519,54 @@
     "record.destruction.certified": {
       "entity": "record",
       "field": "destruction.certified",
-      "count": 3,
+      "count": 9,
       "policies": [
+        "audit",
+        "bsa",
+        "fair-lending",
+        "information-security",
         "internal-controls",
+        "investment",
+        "lending",
+        "liquidity",
         "record-retention"
       ],
       "occurrences": [
         {
-          "file": "internal-controls/internal-controls.md",
-          "line": 184
+          "file": "audit/audit.md",
+          "line": 240
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 455
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 302
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 419
         },
         {
           "file": "internal-controls/internal-controls.md",
-          "line": 193
+          "line": 212
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 398
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 228
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 326
         },
         {
           "file": "record-retention/record-retention.md",
           "line": 88
-        }
-      ]
-    },
-    "record.destruction.initiated": {
-      "entity": "record",
-      "field": "destruction.initiated",
-      "count": 1,
-      "policies": [
-        "lending"
-      ],
-      "occurrences": [
-        {
-          "file": "lending/lending.md",
-          "line": 209
         }
       ]
     },
@@ -51733,32 +52606,130 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 452
+          "line": 471
         },
         {
           "file": "information-security/information-security.md",
-          "line": 452
+          "line": 471
         }
       ]
     },
     "record.disposal_eligible": {
       "entity": "record",
       "field": "disposal_eligible",
-      "count": 9,
+      "count": 32,
       "policies": [
+        "audit",
+        "bsa",
         "fair-lending",
         "information-security",
+        "internal-controls",
+        "investment",
+        "lending",
+        "liquidity",
         "record-retention",
         "reimbursement-insurance-indemnification"
       ],
       "occurrences": [
         {
+          "file": "audit/audit.md",
+          "line": 230
+        },
+        {
+          "file": "audit/audit.md",
+          "line": 230
+        },
+        {
+          "file": "audit/audit.md",
+          "line": 239
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 445
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 445
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 454
+        },
+        {
           "file": "fair-lending/fair-lending.md",
-          "line": 283
+          "line": 292
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 292
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 301
         },
         {
           "file": "information-security/information-security.md",
           "line": 399
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 409
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 409
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 418
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 202
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 202
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 211
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 388
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 388
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 397
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 218
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 218
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 227
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 316
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 316
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 325
         },
         {
           "file": "record-retention/record-retention.md",
@@ -51820,40 +52791,21 @@
     "record.disposed": {
       "entity": "record",
       "field": "disposed",
-      "count": 10,
+      "count": 6,
       "policies": [
         "fair-lending",
         "information-security",
-        "internal-controls",
-        "lending",
-        "liquidity",
         "record-retention",
         "truth-in-savings"
       ],
       "occurrences": [
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 283
-        },
-        {
-          "file": "fair-lending/fair-lending.md",
-          "line": 286
+          "line": 284
         },
         {
           "file": "information-security/information-security.md",
           "line": 327
-        },
-        {
-          "file": "internal-controls/internal-controls.md",
-          "line": 193
-        },
-        {
-          "file": "lending/lending.md",
-          "line": 209
-        },
-        {
-          "file": "liquidity/liquidity.md",
-          "line": 308
         },
         {
           "file": "record-retention/record-retention.md",
@@ -51926,16 +52878,83 @@
     "record.hold.applied": {
       "entity": "record",
       "field": "hold.applied",
-      "count": 4,
+      "count": 19,
       "policies": [
+        "audit",
+        "bsa",
+        "fair-lending",
+        "information-security",
+        "internal-controls",
+        "investment",
+        "lending",
         "liquidity",
         "record-retention",
         "truth-in-savings"
       ],
       "occurrences": [
         {
+          "file": "audit/audit.md",
+          "line": 237
+        },
+        {
+          "file": "audit/audit.md",
+          "line": 237
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 452
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 452
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 299
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 299
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 416
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 416
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 209
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 209
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 395
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 395
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 225
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 225
+        },
+        {
           "file": "liquidity/liquidity.md",
-          "line": 307
+          "line": 323
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 323
         },
         {
           "file": "record-retention/record-retention.md",
@@ -51954,12 +52973,16 @@
     "record.hold.placed": {
       "entity": "record",
       "field": "hold.placed",
-      "count": 13,
+      "count": 15,
       "policies": [
+        "audit",
+        "bsa",
         "fair-lending",
         "information-security",
         "internal-controls",
         "investment",
+        "lending",
+        "liquidity",
         "member",
         "record-retention",
         "reimbursement-insurance-indemnification",
@@ -51967,28 +52990,36 @@
       ],
       "occurrences": [
         {
-          "file": "fair-lending/fair-lending.md",
-          "line": 273
+          "file": "audit/audit.md",
+          "line": 236
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 451
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 282
-        },
-        {
-          "file": "fair-lending/fair-lending.md",
-          "line": 286
+          "line": 298
         },
         {
           "file": "information-security/information-security.md",
-          "line": 400
+          "line": 415
         },
         {
           "file": "internal-controls/internal-controls.md",
-          "line": 194
+          "line": 208
         },
         {
           "file": "investment/investment.md",
-          "line": 370
+          "line": 394
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 224
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 322
         },
         {
           "file": "member/member.md",
@@ -52023,27 +53054,52 @@
     "record.hold.released": {
       "entity": "record",
       "field": "hold.released",
-      "count": 8,
+      "count": 13,
       "policies": [
+        "audit",
+        "bsa",
         "fair-lending",
         "information-security",
         "internal-controls",
+        "investment",
+        "lending",
+        "liquidity",
         "member",
         "record-retention",
         "reimbursement-insurance-indemnification"
       ],
       "occurrences": [
         {
+          "file": "audit/audit.md",
+          "line": 238
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 453
+        },
+        {
           "file": "fair-lending/fair-lending.md",
-          "line": 273
+          "line": 300
         },
         {
           "file": "information-security/information-security.md",
-          "line": 401
+          "line": 417
         },
         {
           "file": "internal-controls/internal-controls.md",
-          "line": 184
+          "line": 210
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 396
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 226
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 324
         },
         {
           "file": "member/member.md",
@@ -52070,18 +53126,13 @@
     "record.hold_authorizer": {
       "entity": "record",
       "field": "hold_authorizer",
-      "count": 4,
+      "count": 3,
       "policies": [
-        "internal-controls",
         "member",
         "reimbursement-insurance-indemnification",
         "truth-in-savings"
       ],
       "occurrences": [
-        {
-          "file": "internal-controls/internal-controls.md",
-          "line": 194
-        },
         {
           "file": "member/member.md",
           "line": 201
@@ -52099,23 +53150,14 @@
     "record.hold_matter": {
       "entity": "record",
       "field": "hold_matter",
-      "count": 3,
+      "count": 1,
       "policies": [
-        "fair-lending",
-        "internal-controls"
+        "fair-lending"
       ],
       "occurrences": [
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 282
-        },
-        {
-          "file": "fair-lending/fair-lending.md",
-          "line": 342
-        },
-        {
-          "file": "internal-controls/internal-controls.md",
-          "line": 194
+          "line": 361
         }
       ]
     },
@@ -52130,20 +53172,6 @@
         {
           "file": "member/member.md",
           "line": 201
-        }
-      ]
-    },
-    "record.hold_registry": {
-      "entity": "record",
-      "field": "hold_registry",
-      "count": 1,
-      "policies": [
-        "internal-controls"
-      ],
-      "occurrences": [
-        {
-          "file": "internal-controls/internal-controls.md",
-          "line": 194
         }
       ]
     },
@@ -52169,24 +53197,15 @@
     "record.hold_scope": {
       "entity": "record",
       "field": "hold_scope",
-      "count": 4,
+      "count": 2,
       "policies": [
         "fair-lending",
-        "internal-controls",
         "member"
       ],
       "occurrences": [
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 282
-        },
-        {
-          "file": "fair-lending/fair-lending.md",
-          "line": 342
-        },
-        {
-          "file": "internal-controls/internal-controls.md",
-          "line": 194
+          "line": 361
         },
         {
           "file": "member/member.md",
@@ -52197,7 +53216,7 @@
     "record.hold_status": {
       "entity": "record",
       "field": "hold_status",
-      "count": 6,
+      "count": 4,
       "policies": [
         "fair-lending",
         "record-retention"
@@ -52205,15 +53224,7 @@
       "occurrences": [
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 283
-        },
-        {
-          "file": "fair-lending/fair-lending.md",
-          "line": 286
-        },
-        {
-          "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "record-retention/record-retention.md",
@@ -52362,13 +53373,17 @@
     "record.legal_hold_flag": {
       "entity": "record",
       "field": "legal_hold_flag",
-      "count": 19,
+      "count": 55,
       "policies": [
+        "audit",
         "bsa",
         "cash",
+        "fair-lending",
         "information-security",
         "internal-controls",
         "investment",
+        "lending",
+        "liquidity",
         "member",
         "privacy",
         "record-retention",
@@ -52377,12 +53392,72 @@
       ],
       "occurrences": [
         {
+          "file": "audit/audit.md",
+          "line": 230
+        },
+        {
+          "file": "audit/audit.md",
+          "line": 230
+        },
+        {
+          "file": "audit/audit.md",
+          "line": 236
+        },
+        {
+          "file": "audit/audit.md",
+          "line": 239
+        },
+        {
+          "file": "audit/audit.md",
+          "line": 243
+        },
+        {
           "file": "bsa/bsa.md",
-          "line": 428
+          "line": 445
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 445
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 451
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 454
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 458
         },
         {
           "file": "cash/cash.md",
           "line": 274
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 284
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 292
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 292
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 298
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 301
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 305
         },
         {
           "file": "information-security/information-security.md",
@@ -52397,20 +53472,104 @@
           "line": 399
         },
         {
-          "file": "internal-controls/internal-controls.md",
-          "line": 184
+          "file": "information-security/information-security.md",
+          "line": 409
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 409
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 415
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 418
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 422
         },
         {
           "file": "internal-controls/internal-controls.md",
-          "line": 193
+          "line": 202
         },
         {
           "file": "internal-controls/internal-controls.md",
-          "line": 194
+          "line": 202
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 208
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 211
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 215
         },
         {
           "file": "investment/investment.md",
-          "line": 379
+          "line": 388
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 388
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 394
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 397
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 401
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 218
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 218
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 224
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 227
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 231
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 316
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 316
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 322
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 325
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 329
         },
         {
           "file": "member/member.md",
@@ -52558,7 +53717,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 438
+          "line": 458
         },
         {
           "file": "record-retention/record-retention.md",
@@ -52573,14 +53732,10 @@
     "record.retention.expired": {
       "entity": "record",
       "field": "retention.expired",
-      "count": 14,
+      "count": 9,
       "policies": [
         "cash",
-        "fair-lending",
         "information-security",
-        "investment",
-        "lending",
-        "liquidity",
         "record-retention",
         "truth-in-savings"
       ],
@@ -52588,10 +53743,6 @@
         {
           "file": "cash/cash.md",
           "line": 274
-        },
-        {
-          "file": "fair-lending/fair-lending.md",
-          "line": 283
         },
         {
           "file": "information-security/information-security.md",
@@ -52604,22 +53755,6 @@
         {
           "file": "information-security/information-security.md",
           "line": 327
-        },
-        {
-          "file": "investment/investment.md",
-          "line": 379
-        },
-        {
-          "file": "investment/investment.md",
-          "line": 379
-        },
-        {
-          "file": "lending/lending.md",
-          "line": 209
-        },
-        {
-          "file": "liquidity/liquidity.md",
-          "line": 308
         },
         {
           "file": "record-retention/record-retention.md",
@@ -52691,24 +53826,53 @@
     "record.retention_class": {
       "entity": "record",
       "field": "retention_class",
-      "count": 14,
+      "count": 30,
       "policies": [
+        "audit",
         "bsa",
         "cash",
+        "fair-lending",
         "information-security",
         "internal-controls",
+        "investment",
+        "lending",
+        "liquidity",
         "privacy",
         "record-retention",
         "truth-in-savings"
       ],
       "occurrences": [
         {
+          "file": "audit/audit.md",
+          "line": 230
+        },
+        {
+          "file": "audit/audit.md",
+          "line": 241
+        },
+        {
           "file": "bsa/bsa.md",
           "line": 428
         },
         {
+          "file": "bsa/bsa.md",
+          "line": 445
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 456
+        },
+        {
           "file": "cash/cash.md",
           "line": 264
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 292
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 303
         },
         {
           "file": "information-security/information-security.md",
@@ -52723,8 +53887,48 @@
           "line": 398
         },
         {
+          "file": "information-security/information-security.md",
+          "line": 409
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 420
+        },
+        {
           "file": "internal-controls/internal-controls.md",
           "line": 192
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 202
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 213
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 388
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 399
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 218
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 229
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 316
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 327
         },
         {
           "file": "privacy/privacy.md",
@@ -52802,7 +54006,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 284
+          "line": 282
         },
         {
           "file": "information-security/information-security.md",
@@ -52853,18 +54057,38 @@
     "record.retention_expires_at": {
       "entity": "record",
       "field": "retention_expires_at",
-      "count": 31,
+      "count": 58,
       "policies": [
+        "audit",
         "bsa",
         "cash",
         "fair-lending",
+        "information-security",
         "internal-controls",
+        "investment",
+        "lending",
         "liquidity",
         "privacy",
         "record-retention",
         "truth-in-savings"
       ],
       "occurrences": [
+        {
+          "file": "audit/audit.md",
+          "line": 230
+        },
+        {
+          "file": "audit/audit.md",
+          "line": 239
+        },
+        {
+          "file": "audit/audit.md",
+          "line": 239
+        },
+        {
+          "file": "audit/audit.md",
+          "line": 243
+        },
         {
           "file": "bsa/bsa.md",
           "line": 107
@@ -52883,15 +54107,19 @@
         },
         {
           "file": "bsa/bsa.md",
-          "line": 437
+          "line": 445
         },
         {
           "file": "bsa/bsa.md",
-          "line": 437
+          "line": 454
         },
         {
           "file": "bsa/bsa.md",
-          "line": 439
+          "line": 454
+        },
+        {
+          "file": "bsa/bsa.md",
+          "line": 458
         },
         {
           "file": "cash/cash.md",
@@ -52915,15 +54143,103 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 286
+          "line": 284
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 292
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 301
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 301
+        },
+        {
+          "file": "fair-lending/fair-lending.md",
+          "line": 305
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 409
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 418
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 418
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 422
         },
         {
           "file": "internal-controls/internal-controls.md",
-          "line": 193
+          "line": 202
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 211
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 211
+        },
+        {
+          "file": "internal-controls/internal-controls.md",
+          "line": 215
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 388
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 397
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 397
+        },
+        {
+          "file": "investment/investment.md",
+          "line": 401
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 218
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 227
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 227
+        },
+        {
+          "file": "lending/lending.md",
+          "line": 231
         },
         {
           "file": "liquidity/liquidity.md",
-          "line": 308
+          "line": 316
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 325
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 325
+        },
+        {
+          "file": "liquidity/liquidity.md",
+          "line": 329
         },
         {
           "file": "privacy/privacy.md",
@@ -54154,7 +55470,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 436
+          "line": 456
         }
       ]
     },
@@ -55398,7 +56714,7 @@
     "retention.purge.executed": {
       "entity": "retention",
       "field": "purge.executed",
-      "count": 6,
+      "count": 5,
       "policies": [
         "bsa"
       ],
@@ -55422,10 +56738,6 @@
         {
           "file": "bsa/bsa.md",
           "line": 400
-        },
-        {
-          "file": "bsa/bsa.md",
-          "line": 437
         }
       ]
     },
@@ -55443,7 +56755,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -55457,7 +56769,7 @@
       "occurrences": [
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -58105,7 +59417,7 @@
       "occurrences": [
         {
           "file": "bsa/bsa.md",
-          "line": 461
+          "line": 480
         },
         {
           "file": "information-security/information-security.md",
@@ -58583,7 +59895,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 428
+          "line": 447
         }
       ]
     },
@@ -58605,7 +59917,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 428
+          "line": 447
         }
       ]
     },
@@ -58745,15 +60057,15 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 428
+          "line": 447
         },
         {
           "file": "information-security/information-security.md",
-          "line": 442
+          "line": 461
         },
         {
           "file": "information-security/information-security.md",
-          "line": 442
+          "line": 461
         }
       ]
     },
@@ -58793,15 +60105,15 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 428
+          "line": 447
         },
         {
           "file": "information-security/information-security.md",
-          "line": 442
+          "line": 461
         },
         {
           "file": "information-security/information-security.md",
-          "line": 442
+          "line": 461
         }
       ]
     },
@@ -58819,7 +60131,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 428
+          "line": 447
         }
       ]
     },
@@ -58865,19 +60177,19 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 428
+          "line": 447
         },
         {
           "file": "information-security/information-security.md",
-          "line": 428
+          "line": 447
         },
         {
           "file": "information-security/information-security.md",
-          "line": 430
+          "line": 449
         },
         {
           "file": "information-security/information-security.md",
-          "line": 430
+          "line": 449
         }
       ]
     },
@@ -59149,27 +60461,27 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 428
+          "line": 447
         },
         {
           "file": "information-security/information-security.md",
-          "line": 428
+          "line": 447
         },
         {
           "file": "information-security/information-security.md",
-          "line": 434
+          "line": 453
         },
         {
           "file": "information-security/information-security.md",
-          "line": 434
+          "line": 453
         },
         {
           "file": "information-security/information-security.md",
-          "line": 434
+          "line": 453
         },
         {
           "file": "information-security/information-security.md",
-          "line": 434
+          "line": 453
         }
       ]
     },
@@ -59183,7 +60495,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 434
+          "line": 453
         }
       ]
     },
@@ -59206,7 +60518,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 428
+          "line": 447
         }
       ]
     },
@@ -59233,11 +60545,11 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 428
+          "line": 447
         },
         {
           "file": "information-security/information-security.md",
-          "line": 434
+          "line": 453
         }
       ]
     },
@@ -59311,7 +60623,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 434
+          "line": 453
         }
       ]
     },
@@ -60054,27 +61366,27 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 259
+          "line": 278
         },
         {
           "file": "lending/lending.md",
-          "line": 266
+          "line": 285
         },
         {
           "file": "lending/lending.md",
-          "line": 267
+          "line": 286
         },
         {
           "file": "lending/lending.md",
-          "line": 269
+          "line": 288
         },
         {
           "file": "lending/lending.md",
-          "line": 269
+          "line": 288
         },
         {
           "file": "lending/lending.md",
-          "line": 271
+          "line": 290
         }
       ]
     },
@@ -60093,7 +61405,7 @@
         },
         {
           "file": "lending/lending.md",
-          "line": 269
+          "line": 288
         }
       ]
     },
@@ -60265,11 +61577,11 @@
         },
         {
           "file": "liquidity/liquidity.md",
-          "line": 372
+          "line": 391
         },
         {
           "file": "liquidity/liquidity.md",
-          "line": 390
+          "line": 409
         }
       ]
     },
@@ -61651,7 +62963,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 468
+          "line": 488
         }
       ]
     },
@@ -62164,7 +63476,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 395
+          "line": 415
         },
         {
           "file": "record-retention/record-retention.md",
@@ -62296,15 +63608,15 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 389
+          "line": 409
         },
         {
           "file": "investment/investment.md",
-          "line": 396
+          "line": 416
         },
         {
           "file": "investment/investment.md",
-          "line": 396
+          "line": 416
         },
         {
           "file": "privacy/privacy.md",
@@ -62489,11 +63801,11 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 389
+          "line": 409
         },
         {
           "file": "investment/investment.md",
-          "line": 396
+          "line": 416
         },
         {
           "file": "record-retention/record-retention.md",
@@ -62511,7 +63823,7 @@
       "occurrences": [
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -62556,7 +63868,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -62596,7 +63908,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -62775,7 +64087,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 396
+          "line": 416
         },
         {
           "file": "record-retention/record-retention.md",
@@ -62874,7 +64186,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 456
+          "line": 475
         },
         {
           "file": "record-retention/record-retention.md",
@@ -62934,11 +64246,11 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 456
+          "line": 475
         },
         {
           "file": "information-security/information-security.md",
-          "line": 456
+          "line": 475
         },
         {
           "file": "privacy/privacy.md",
@@ -63115,7 +64427,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 395
+          "line": 415
         }
       ]
     },
@@ -63167,7 +64479,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "information-security/information-security.md",
@@ -63175,7 +64487,7 @@
         },
         {
           "file": "investment/investment.md",
-          "line": 395
+          "line": 415
         },
         {
           "file": "privacy/privacy.md",
@@ -63422,11 +64734,11 @@
         },
         {
           "file": "internal-controls/internal-controls.md",
-          "line": 218
+          "line": 237
         },
         {
           "file": "internal-controls/internal-controls.md",
-          "line": 218
+          "line": 237
         },
         {
           "file": "resolution/resolution.md",
@@ -63629,7 +64941,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "lending/lending.md",
@@ -63669,7 +64981,7 @@
       "occurrences": [
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -63733,7 +65045,7 @@
       "occurrences": [
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -63824,7 +65136,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "lending/lending.md",
@@ -64231,7 +65543,7 @@
       "occurrences": [
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -65550,7 +66862,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -66243,7 +67555,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "third-party-risk/third-party-risk.md",
@@ -66274,7 +67586,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "third-party-risk/third-party-risk.md",
@@ -66345,7 +67657,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "third-party-risk/third-party-risk.md",
@@ -66871,7 +68183,7 @@
         },
         {
           "file": "fair-lending/fair-lending.md",
-          "line": 342
+          "line": 361
         },
         {
           "file": "third-party-risk/third-party-risk.md",
@@ -68110,7 +69422,7 @@
       "occurrences": [
         {
           "file": "liquidity/liquidity.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -68124,7 +69436,7 @@
       "occurrences": [
         {
           "file": "liquidity/liquidity.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -68138,7 +69450,7 @@
       "occurrences": [
         {
           "file": "liquidity/liquidity.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -68156,7 +69468,7 @@
         },
         {
           "file": "liquidity/liquidity.md",
-          "line": 343
+          "line": 362
         }
       ]
     },
@@ -68170,7 +69482,7 @@
       "occurrences": [
         {
           "file": "liquidity/liquidity.md",
-          "line": 344
+          "line": 363
         }
       ]
     },
@@ -68184,7 +69496,7 @@
       "occurrences": [
         {
           "file": "liquidity/liquidity.md",
-          "line": 344
+          "line": 363
         }
       ]
     },
@@ -68198,7 +69510,7 @@
       "occurrences": [
         {
           "file": "liquidity/liquidity.md",
-          "line": 343
+          "line": 362
         }
       ]
     },
@@ -68212,7 +69524,7 @@
       "occurrences": [
         {
           "file": "liquidity/liquidity.md",
-          "line": 343
+          "line": 362
         }
       ]
     },
@@ -68230,7 +69542,7 @@
         },
         {
           "file": "liquidity/liquidity.md",
-          "line": 342
+          "line": 361
         }
       ]
     },
@@ -68248,7 +69560,7 @@
         },
         {
           "file": "liquidity/liquidity.md",
-          "line": 342
+          "line": 361
         }
       ]
     },

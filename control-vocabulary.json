@@ -1,7 +1,7 @@
 {
   "meta": {
     "generator": "scripts/build_control_vocabulary.py",
-    "generated_at": "2026-06-25T17:24:46+00:00",
+    "generated_at": "2026-07-02T16:53:16+00:00",
     "source": "controls.json",
     "api_model": {
       "spec_title": "Cassandra Banking Core API",
@@ -10,15 +10,15 @@
       "fields": 2504,
       "entities": 275
     },
-    "controls_generated_at": "2026-06-25T17:24:46+00:00"
+    "controls_generated_at": "2026-07-02T16:53:16+00:00"
   },
   "stats": {
     "entities": 264,
-    "unique_codes": 2939,
-    "registered_events": 1047,
-    "registered_fields": 1861,
+    "unique_codes": 2933,
+    "registered_events": 1045,
+    "registered_fields": 1857,
     "unregistered_codes": 31,
-    "statuses": 33
+    "statuses": 32
   },
   "entities": {
     "aan": {
@@ -3925,9 +3925,9 @@
     },
     "audit": {
       "entity": "audit",
-      "code_count": 59,
-      "registered_events": 25,
-      "registered_fields": 34,
+      "code_count": 57,
+      "registered_events": 24,
+      "registered_fields": 33,
       "unregistered": 0,
       "codes": [
         {
@@ -4192,21 +4192,6 @@
           "controls": [
             "AU-04",
             "AU-09"
-          ],
-          "policies": [
-            "audit"
-          ]
-        },
-        {
-          "code": "audit.records.destroyed",
-          "status": "event",
-          "spec": {
-            "entity": "audit",
-            "description": "canonical event_type: `destroyed`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "AU-10"
           ],
           "policies": [
             "audit"
@@ -4614,24 +4599,6 @@
           "ref_count": 1,
           "controls": [
             "AU-02"
-          ],
-          "policies": [
-            "audit"
-          ]
-        },
-        {
-          "code": "audit.legal_hold_status",
-          "status": "field",
-          "spec": {
-            "entity": "audit",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "AU-10"
           ],
           "policies": [
             "audit"
@@ -18413,14 +18380,21 @@
           },
           "ref_count": 3,
           "controls": [
-            "BSA-21",
             "IS-18",
-            "RR-03"
+            "RR-03",
+            "SC-02"
           ],
           "policies": [
+            "audit",
             "bsa",
+            "fair-lending",
             "information-security",
-            "record-retention"
+            "internal-controls",
+            "investment",
+            "lending",
+            "liquidity",
+            "record-retention",
+            "shared-controls"
           ]
         },
         {
@@ -18430,16 +18404,25 @@
             "entity": "destruction_log",
             "description": "canonical event_type: `detected`"
           },
-          "ref_count": 4,
+          "ref_count": 5,
           "controls": [
             "IS-18",
             "RR-03",
             "RR-04",
-            "RR-11"
+            "RR-11",
+            "SC-02"
           ],
           "policies": [
+            "audit",
+            "bsa",
+            "fair-lending",
             "information-security",
-            "record-retention"
+            "internal-controls",
+            "investment",
+            "lending",
+            "liquidity",
+            "record-retention",
+            "shared-controls"
           ]
         },
         {
@@ -18467,15 +18450,25 @@
             "required": false,
             "description": null
           },
-          "ref_count": 3,
+          "ref_count": 4,
           "controls": [
             "PR-08",
             "RR-03",
-            "RR-04"
+            "RR-04",
+            "SC-02"
           ],
           "policies": [
+            "audit",
+            "bsa",
+            "fair-lending",
+            "information-security",
+            "internal-controls",
+            "investment",
+            "lending",
+            "liquidity",
             "privacy",
-            "record-retention"
+            "record-retention",
+            "shared-controls"
           ]
         },
         {
@@ -18948,14 +18941,24 @@
             "entity": "disposal",
             "description": "canonical event_type: `executed`"
           },
-          "ref_count": 2,
+          "ref_count": 3,
           "controls": [
             "PR-08",
-            "RR-03"
+            "RR-03",
+            "SC-02"
           ],
           "policies": [
+            "audit",
+            "bsa",
+            "fair-lending",
+            "information-security",
+            "internal-controls",
+            "investment",
+            "lending",
+            "liquidity",
             "privacy",
-            "record-retention"
+            "record-retention",
+            "shared-controls"
           ]
         },
         {
@@ -18965,14 +18968,24 @@
             "entity": "disposal",
             "description": "canonical event_type: `scheduled`"
           },
-          "ref_count": 2,
+          "ref_count": 3,
           "controls": [
             "PR-08",
-            "RR-03"
+            "RR-03",
+            "SC-02"
           ],
           "policies": [
+            "audit",
+            "bsa",
+            "fair-lending",
+            "information-security",
+            "internal-controls",
+            "investment",
+            "lending",
+            "liquidity",
             "privacy",
-            "record-retention"
+            "record-retention",
+            "shared-controls"
           ]
         },
         {
@@ -18985,14 +18998,24 @@
             "required": false,
             "description": null
           },
-          "ref_count": 2,
+          "ref_count": 3,
           "controls": [
             "PR-08",
-            "RR-03"
+            "RR-03",
+            "SC-02"
           ],
           "policies": [
+            "audit",
+            "bsa",
+            "fair-lending",
+            "information-security",
+            "internal-controls",
+            "investment",
+            "lending",
+            "liquidity",
             "privacy",
-            "record-retention"
+            "record-retention",
+            "shared-controls"
           ]
         },
         {
@@ -19005,14 +19028,24 @@
             "required": false,
             "description": null
           },
-          "ref_count": 2,
+          "ref_count": 3,
           "controls": [
             "PR-08",
-            "RR-03"
+            "RR-03",
+            "SC-02"
           ],
           "policies": [
+            "audit",
+            "bsa",
+            "fair-lending",
+            "information-security",
+            "internal-controls",
+            "investment",
+            "lending",
+            "liquidity",
             "privacy",
-            "record-retention"
+            "record-retention",
+            "shared-controls"
           ]
         },
         {
@@ -19025,14 +19058,24 @@
             "required": false,
             "description": null
           },
-          "ref_count": 2,
+          "ref_count": 3,
           "controls": [
             "PR-08",
-            "RR-05"
+            "RR-05",
+            "SC-02"
           ],
           "policies": [
+            "audit",
+            "bsa",
+            "fair-lending",
+            "information-security",
+            "internal-controls",
+            "investment",
+            "lending",
+            "liquidity",
             "privacy",
-            "record-retention"
+            "record-retention",
+            "shared-controls"
           ]
         },
         {
@@ -19045,14 +19088,24 @@
             "required": false,
             "description": null
           },
-          "ref_count": 2,
+          "ref_count": 3,
           "controls": [
             "PR-08",
-            "RR-05"
+            "RR-05",
+            "SC-02"
           ],
           "policies": [
+            "audit",
+            "bsa",
+            "fair-lending",
+            "information-security",
+            "internal-controls",
+            "investment",
+            "lending",
+            "liquidity",
             "privacy",
-            "record-retention"
+            "record-retention",
+            "shared-controls"
           ]
         },
         {
@@ -19383,9 +19436,9 @@
     },
     "document": {
       "entity": "document",
-      "code_count": 6,
+      "code_count": 5,
       "registered_events": 1,
-      "registered_fields": 5,
+      "registered_fields": 4,
       "unregistered": 0,
       "codes": [
         {
@@ -19419,26 +19472,6 @@
           ],
           "policies": [
             "investment"
-          ]
-        },
-        {
-          "code": "document.legal_hold_flag",
-          "status": "field",
-          "spec": {
-            "entity": "Document",
-            "type": "boolean",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 2,
-          "controls": [
-            "FL-12",
-            "LP-09"
-          ],
-          "policies": [
-            "fair-lending",
-            "lending"
           ]
         },
         {
@@ -30905,12 +30938,20 @@
           },
           "ref_count": 2,
           "controls": [
-            "LQ-15",
-            "RR-05"
+            "RR-05",
+            "SC-02"
           ],
           "policies": [
+            "audit",
+            "bsa",
+            "fair-lending",
+            "information-security",
+            "internal-controls",
+            "investment",
+            "lending",
             "liquidity",
-            "record-retention"
+            "record-retention",
+            "shared-controls"
           ]
         },
         {
@@ -30920,12 +30961,22 @@
             "entity": "legal",
             "description": "canonical event_type: `released`"
           },
-          "ref_count": 1,
+          "ref_count": 2,
           "controls": [
-            "RR-05"
+            "RR-05",
+            "SC-02"
           ],
           "policies": [
-            "record-retention"
+            "audit",
+            "bsa",
+            "fair-lending",
+            "information-security",
+            "internal-controls",
+            "investment",
+            "lending",
+            "liquidity",
+            "record-retention",
+            "shared-controls"
           ]
         },
         {
@@ -31025,14 +31076,12 @@
             "required": false,
             "description": null
           },
-          "ref_count": 3,
+          "ref_count": 2,
           "controls": [
-            "LQ-15",
             "RII-08",
             "RII-09"
           ],
           "policies": [
-            "liquidity",
             "reimbursement-insurance-indemnification"
           ]
         },
@@ -31046,14 +31095,12 @@
             "required": false,
             "description": null
           },
-          "ref_count": 3,
+          "ref_count": 2,
           "controls": [
-            "LQ-15",
             "RII-08",
             "RII-09"
           ],
           "policies": [
-            "liquidity",
             "reimbursement-insurance-indemnification"
           ]
         },
@@ -31111,14 +31158,22 @@
           },
           "ref_count": 3,
           "controls": [
-            "IS-18",
             "PR-08",
-            "RR-05"
+            "RR-05",
+            "SC-02"
           ],
           "policies": [
+            "audit",
+            "bsa",
+            "fair-lending",
             "information-security",
+            "internal-controls",
+            "investment",
+            "lending",
+            "liquidity",
             "privacy",
-            "record-retention"
+            "record-retention",
+            "shared-controls"
           ]
         },
         {
@@ -31128,18 +31183,22 @@
             "entity": "legal_hold",
             "description": "canonical event_type: `created`"
           },
-          "ref_count": 4,
+          "ref_count": 2,
           "controls": [
-            "BSA-21",
-            "IS-18",
-            "LP-09",
-            "RR-05"
+            "RR-05",
+            "SC-02"
           ],
           "policies": [
+            "audit",
             "bsa",
+            "fair-lending",
             "information-security",
+            "internal-controls",
+            "investment",
             "lending",
-            "record-retention"
+            "liquidity",
+            "record-retention",
+            "shared-controls"
           ]
         },
         {
@@ -31152,18 +31211,22 @@
             "required": false,
             "description": null
           },
-          "ref_count": 4,
+          "ref_count": 2,
           "controls": [
-            "BSA-21",
-            "IS-18",
-            "LP-09",
-            "RR-05"
+            "RR-05",
+            "SC-02"
           ],
           "policies": [
+            "audit",
             "bsa",
+            "fair-lending",
             "information-security",
+            "internal-controls",
+            "investment",
             "lending",
-            "record-retention"
+            "liquidity",
+            "record-retention",
+            "shared-controls"
           ]
         },
         {
@@ -31176,20 +31239,24 @@
             "required": false,
             "description": null
           },
-          "ref_count": 5,
+          "ref_count": 3,
           "controls": [
-            "BSA-21",
-            "IS-18",
-            "LP-09",
             "PR-08",
-            "RR-05"
+            "RR-05",
+            "SC-02"
           ],
           "policies": [
+            "audit",
             "bsa",
+            "fair-lending",
             "information-security",
+            "internal-controls",
+            "investment",
             "lending",
+            "liquidity",
             "privacy",
-            "record-retention"
+            "record-retention",
+            "shared-controls"
           ]
         },
         {
@@ -31202,12 +31269,22 @@
             "required": false,
             "description": null
           },
-          "ref_count": 1,
+          "ref_count": 2,
           "controls": [
-            "RR-05"
+            "RR-05",
+            "SC-02"
           ],
           "policies": [
-            "record-retention"
+            "audit",
+            "bsa",
+            "fair-lending",
+            "information-security",
+            "internal-controls",
+            "investment",
+            "lending",
+            "liquidity",
+            "record-retention",
+            "shared-controls"
           ]
         },
         {
@@ -31222,12 +31299,20 @@
           },
           "ref_count": 2,
           "controls": [
-            "IS-18",
-            "RR-05"
+            "RR-05",
+            "SC-02"
           ],
           "policies": [
+            "audit",
+            "bsa",
+            "fair-lending",
             "information-security",
-            "record-retention"
+            "internal-controls",
+            "investment",
+            "lending",
+            "liquidity",
+            "record-retention",
+            "shared-controls"
           ]
         },
         {
@@ -31242,14 +31327,22 @@
           },
           "ref_count": 3,
           "controls": [
-            "IS-18",
             "PR-08",
-            "RR-05"
+            "RR-05",
+            "SC-02"
           ],
           "policies": [
+            "audit",
+            "bsa",
+            "fair-lending",
             "information-security",
+            "internal-controls",
+            "investment",
+            "lending",
+            "liquidity",
             "privacy",
-            "record-retention"
+            "record-retention",
+            "shared-controls"
           ]
         },
         {
@@ -31262,12 +31355,22 @@
             "required": false,
             "description": null
           },
-          "ref_count": 1,
+          "ref_count": 2,
           "controls": [
-            "RR-05"
+            "RR-05",
+            "SC-02"
           ],
           "policies": [
-            "record-retention"
+            "audit",
+            "bsa",
+            "fair-lending",
+            "information-security",
+            "internal-controls",
+            "investment",
+            "lending",
+            "liquidity",
+            "record-retention",
+            "shared-controls"
           ]
         },
         {
@@ -31280,12 +31383,22 @@
             "required": false,
             "description": null
           },
-          "ref_count": 1,
+          "ref_count": 2,
           "controls": [
-            "RR-05"
+            "RR-05",
+            "SC-02"
           ],
           "policies": [
-            "record-retention"
+            "audit",
+            "bsa",
+            "fair-lending",
+            "information-security",
+            "internal-controls",
+            "investment",
+            "lending",
+            "liquidity",
+            "record-retention",
+            "shared-controls"
           ]
         }
       ]
@@ -40776,9 +40889,9 @@
     },
     "record": {
       "entity": "record",
-      "code_count": 52,
-      "registered_events": 15,
-      "registered_fields": 36,
+      "code_count": 49,
+      "registered_events": 14,
+      "registered_fields": 34,
       "unregistered": 1,
       "codes": [
         {
@@ -40881,16 +40994,26 @@
             "entity": "record",
             "description": "canonical event_type: `destroyed`"
           },
-          "ref_count": 3,
+          "ref_count": 4,
           "controls": [
             "CP-12",
             "PR-08",
-            "RR-03"
+            "RR-03",
+            "SC-02"
           ],
           "policies": [
+            "audit",
+            "bsa",
             "cash",
+            "fair-lending",
+            "information-security",
+            "internal-controls",
+            "investment",
+            "lending",
+            "liquidity",
             "privacy",
-            "record-retention"
+            "record-retention",
+            "shared-controls"
           ]
         },
         {
@@ -40902,27 +41025,20 @@
           },
           "ref_count": 2,
           "controls": [
-            "IC-08",
-            "RR-03"
+            "RR-03",
+            "SC-02"
           ],
           "policies": [
+            "audit",
+            "bsa",
+            "fair-lending",
+            "information-security",
             "internal-controls",
-            "record-retention"
-          ]
-        },
-        {
-          "code": "record.destruction.initiated",
-          "status": "event",
-          "spec": {
-            "entity": "record",
-            "description": "canonical event_type: `initiated`"
-          },
-          "ref_count": 1,
-          "controls": [
-            "LP-09"
-          ],
-          "policies": [
-            "lending"
+            "investment",
+            "lending",
+            "liquidity",
+            "record-retention",
+            "shared-controls"
           ]
         },
         {
@@ -40932,22 +41048,16 @@
             "entity": "record",
             "description": "canonical event_type: `disposed`"
           },
-          "ref_count": 7,
+          "ref_count": 4,
           "controls": [
             "FL-12",
-            "IC-08",
             "IS-14",
-            "LP-09",
-            "LQ-15",
             "RR-07",
             "TIS-09"
           ],
           "policies": [
             "fair-lending",
             "information-security",
-            "internal-controls",
-            "lending",
-            "liquidity",
             "record-retention",
             "truth-in-savings"
           ]
@@ -40961,13 +41071,21 @@
           },
           "ref_count": 3,
           "controls": [
-            "LQ-15",
             "RR-05",
+            "SC-02",
             "TIS-09"
           ],
           "policies": [
+            "audit",
+            "bsa",
+            "fair-lending",
+            "information-security",
+            "internal-controls",
+            "investment",
+            "lending",
             "liquidity",
             "record-retention",
+            "shared-controls",
             "truth-in-savings"
           ]
         },
@@ -40978,26 +41096,28 @@
             "entity": "record",
             "description": "canonical event_type: `placed`"
           },
-          "ref_count": 9,
+          "ref_count": 6,
           "controls": [
-            "FL-12",
-            "IC-08",
-            "IP-15",
-            "IS-18",
             "MP-08",
             "RII-08",
             "RII-09",
             "RR-05",
+            "SC-02",
             "TIS-09"
           ],
           "policies": [
+            "audit",
+            "bsa",
             "fair-lending",
             "information-security",
             "internal-controls",
             "investment",
+            "lending",
+            "liquidity",
             "member",
             "record-retention",
             "reimbursement-insurance-indemnification",
+            "shared-controls",
             "truth-in-savings"
           ]
         },
@@ -41008,23 +41128,27 @@
             "entity": "record",
             "description": "canonical event_type: `released`"
           },
-          "ref_count": 7,
+          "ref_count": 5,
           "controls": [
-            "FL-12",
-            "IC-08",
-            "IS-18",
             "MP-08",
             "RII-08",
             "RII-09",
-            "RR-05"
+            "RR-05",
+            "SC-02"
           ],
           "policies": [
+            "audit",
+            "bsa",
             "fair-lending",
             "information-security",
             "internal-controls",
+            "investment",
+            "lending",
+            "liquidity",
             "member",
             "record-retention",
-            "reimbursement-insurance-indemnification"
+            "reimbursement-insurance-indemnification",
+            "shared-controls"
           ]
         },
         {
@@ -41051,26 +41175,18 @@
             "entity": "record",
             "description": "canonical event_type: `expired`"
           },
-          "ref_count": 10,
+          "ref_count": 6,
           "controls": [
             "CP-12",
-            "FL-12",
-            "IP-15",
             "IS-07",
             "IS-14",
-            "LP-09",
-            "LQ-15",
             "RR-03",
             "RR-07",
             "TIS-09"
           ],
           "policies": [
             "cash",
-            "fair-lending",
             "information-security",
-            "investment",
-            "lending",
-            "liquidity",
             "record-retention",
             "truth-in-savings"
           ]
@@ -41267,17 +41383,24 @@
           },
           "ref_count": 5,
           "controls": [
-            "FL-12",
             "IS-18",
             "RII-09",
             "RR-03",
-            "RR-11"
+            "RR-11",
+            "SC-02"
           ],
           "policies": [
+            "audit",
+            "bsa",
             "fair-lending",
             "information-security",
+            "internal-controls",
+            "investment",
+            "lending",
+            "liquidity",
             "record-retention",
-            "reimbursement-insurance-indemnification"
+            "reimbursement-insurance-indemnification",
+            "shared-controls"
           ]
         },
         {
@@ -41365,38 +41488,16 @@
             "required": false,
             "description": null
           },
-          "ref_count": 4,
+          "ref_count": 3,
           "controls": [
-            "IC-08",
             "MP-08",
             "RII-09",
             "TIS-09"
           ],
           "policies": [
-            "internal-controls",
             "member",
             "reimbursement-insurance-indemnification",
             "truth-in-savings"
-          ]
-        },
-        {
-          "code": "record.hold_matter",
-          "status": "field",
-          "spec": {
-            "entity": "record",
-            "type": "string",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 2,
-          "controls": [
-            "FL-12",
-            "IC-08"
-          ],
-          "policies": [
-            "fair-lending",
-            "internal-controls"
           ]
         },
         {
@@ -41415,24 +41516,6 @@
           ],
           "policies": [
             "member"
-          ]
-        },
-        {
-          "code": "record.hold_registry",
-          "status": "field",
-          "spec": {
-            "entity": "record",
-            "type": "object",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "IC-08"
-          ],
-          "policies": [
-            "internal-controls"
           ]
         },
         {
@@ -41465,15 +41548,11 @@
             "required": false,
             "description": null
           },
-          "ref_count": 3,
+          "ref_count": 1,
           "controls": [
-            "FL-12",
-            "IC-08",
             "MP-08"
           ],
           "policies": [
-            "fair-lending",
-            "internal-controls",
             "member"
           ]
         },
@@ -41487,14 +41566,12 @@
             "required": false,
             "description": null
           },
-          "ref_count": 3,
+          "ref_count": 2,
           "controls": [
-            "FL-12",
             "RR-03",
             "RR-05"
           ],
           "policies": [
-            "fair-lending",
             "record-retention"
           ]
         },
@@ -41586,12 +41663,10 @@
             "required": false,
             "description": null
           },
-          "ref_count": 12,
+          "ref_count": 11,
           "controls": [
-            "BSA-21",
             "CP-12",
-            "IC-08",
-            "IP-15",
+            "FL-12",
             "IS-07",
             "IS-14",
             "IS-18",
@@ -41599,18 +41674,24 @@
             "PR-08",
             "RII-09",
             "RR-05",
+            "SC-02",
             "TIS-09"
           ],
           "policies": [
+            "audit",
             "bsa",
             "cash",
+            "fair-lending",
             "information-security",
             "internal-controls",
             "investment",
+            "lending",
+            "liquidity",
             "member",
             "privacy",
             "record-retention",
             "reimbursement-insurance-indemnification",
+            "shared-controls",
             "truth-in-savings"
           ]
         },
@@ -41741,30 +41822,34 @@
             "required": false,
             "description": null
           },
-          "ref_count": 13,
+          "ref_count": 12,
           "controls": [
             "BSA-03",
             "BSA-19",
             "BSA-21",
             "CP-12",
             "FL-12",
-            "IC-08",
-            "LQ-15",
             "PR-08",
             "RR-01",
             "RR-03",
             "RR-07",
             "RR-11",
+            "SC-02",
             "TIS-09"
           ],
           "policies": [
+            "audit",
             "bsa",
             "cash",
             "fair-lending",
+            "information-security",
             "internal-controls",
+            "investment",
+            "lending",
             "liquidity",
             "privacy",
             "record-retention",
+            "shared-controls",
             "truth-in-savings"
           ]
         },
@@ -41821,7 +41906,7 @@
             "required": false,
             "description": null
           },
-          "ref_count": 11,
+          "ref_count": 12,
           "controls": [
             "BSA-21",
             "CP-12",
@@ -41833,15 +41918,22 @@
             "RR-03",
             "RR-07",
             "RR-11",
+            "SC-02",
             "TIS-09"
           ],
           "policies": [
+            "audit",
             "bsa",
             "cash",
+            "fair-lending",
             "information-security",
             "internal-controls",
+            "investment",
+            "lending",
+            "liquidity",
             "privacy",
             "record-retention",
+            "shared-controls",
             "truth-in-savings"
           ]
         },
@@ -44107,14 +44199,13 @@
             "entity": "retention",
             "description": "canonical event_type: `executed`"
           },
-          "ref_count": 6,
+          "ref_count": 5,
           "controls": [
             "BSA-07",
             "BSA-09",
             "BSA-10",
             "BSA-12",
-            "BSA-19",
-            "BSA-21"
+            "BSA-19"
           ],
           "policies": [
             "bsa"
@@ -54831,16 +54922,6 @@
       ]
     },
     {
-      "value": "destruction_log",
-      "ref_count": 1,
-      "controls": [
-        "BSA-21"
-      ],
-      "policies": [
-        "bsa"
-      ]
-    },
-    {
       "value": "edd_file",
       "ref_count": 1,
       "controls": [
@@ -54872,15 +54953,11 @@
     },
     {
       "value": "legal_hold",
-      "ref_count": 3,
+      "ref_count": 1,
       "controls": [
-        "BSA-21",
-        "LP-09",
         "RR-05"
       ],
       "policies": [
-        "bsa",
-        "lending",
         "record-retention"
       ]
     },
