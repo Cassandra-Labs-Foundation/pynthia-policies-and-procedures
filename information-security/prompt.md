@@ -145,3 +145,22 @@ available number), titled along the lines of "Incident Declaration, IC
 Assignment & Post-Mortem," and have its SYSTEM BEHAVIOR note that it feeds
 the SC-01 reportability determination. Link the two via anchor, but do not
 merge their bodies.
+
+**Shared control SC-02: Record-retention lifecycle mechanics.**
+This policy also contains a control that embeds shared control `SC-02 — Record-Retention
+Lifecycle Mechanics` immediately after its record-class-specific retention control
+(`IS-18`). Before generating, read `shared-controls/record-retention-mechanics.md` at
+the project root and emit its "Embeddable block" **verbatim and in full**, including the
+heading line itself:
+
+    ## SC-02 — Record-Retention Lifecycle Mechanics {#sc-02-record-retention-lifecycle-mechanics}
+
+Do not renumber this control into the IS-xx sequence, do not retitle it, and do not
+paraphrase the SYSTEM BEHAVIOR, EVENTS, or ALERTS body. The control ID `SC-02` and this
+exact title must be byte-identical across all eight consuming policies.
+
+`IS-18` (the local retention control) covers only: the security-specific record classes
+(SIEM logs, IR records, POA&Ms, access-review evidence, AI-use registry, physical
+security logs), the monthly destruction-queue cadence, and the clock-setting EVENT
+(security record created → `record.retention_clock_set`). Do NOT include legal-hold,
+destruction, or permanent-record EVENTS in `IS-18` — those live exclusively in SC-02.

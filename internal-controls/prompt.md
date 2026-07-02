@@ -97,8 +97,20 @@ is `Cassandra Banking Core API v1.0.0`, which is banking-core
 
 ## 6. Local Overrides to the Shared Meta-Prompt
 
-{{Usually empty. Put anything here that should override the shared
-`meta-prompt.md` for THIS policy only — a different control-ID prefix,
-extra required sections, a specific citation style, etc. The regeneration
-task applies overrides AFTER the shared meta-prompt, so instructions here
-win.}}
+**Shared control SC-02: Record-retention lifecycle mechanics.**
+This policy contains a control that embeds shared control `SC-02 — Record-Retention
+Lifecycle Mechanics` immediately after its record-class-specific retention control
+(`IC-08`). Before generating, read `shared-controls/record-retention-mechanics.md` at
+the project root and emit its "Embeddable block" **verbatim and in full**, including the
+heading line itself:
+
+    ## SC-02 — Record-Retention Lifecycle Mechanics {#sc-02-record-retention-lifecycle-mechanics}
+
+Do not renumber this control into the IC-xx sequence, do not retitle it, and do not
+paraphrase the SYSTEM BEHAVIOR, EVENTS, or ALERTS body. The control ID `SC-02` and this
+exact title must be byte-identical across all eight consuming policies.
+
+`IC-08` (the local retention control) covers only: tamper-evident audit log creation,
+integrity test scheduling and completion, and clock-setting EVENTS (control document
+created/closed → `record.retention_clock_set`). Do NOT include legal-hold, destruction,
+or permanent-record EVENTS in `IC-08` — those live exclusively in SC-02.

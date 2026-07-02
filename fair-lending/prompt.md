@@ -136,3 +136,21 @@ The following overrides apply to this policy only and take precedence over the s
 4. **Disparity thresholds placeholder.** If Compliance has not yet defined the disparity thresholds for CAP triggers, the policy must include a `[THRESHOLD NEEDED]` placeholder in FL-10 and flag it prominently as a pre-exam priority. Do not invent thresholds.
 
 5. **Advertising controls — low-volume context.** When drafting FL-07, note that Pynthia does not currently anticipate significant consumer advertising. However, the controls for ADA/accessibility in digital marketing and for periodic demographic marketing-reach review must be fully documented regardless of volume. Frame the controls as always-on requirements that scale with advertising activity rather than as obligations that only activate above a certain volume.
+
+6. **Shared control SC-02: Record-retention lifecycle mechanics.**
+This policy contains a control that embeds shared control `SC-02 — Record-Retention
+Lifecycle Mechanics` immediately after its record-class-specific retention control
+(`FL-12`). Before generating, read `shared-controls/record-retention-mechanics.md` at
+the project root and emit its "Embeddable block" **verbatim and in full**, including the
+heading line itself:
+
+    ## SC-02 — Record-Retention Lifecycle Mechanics {#sc-02-record-retention-lifecycle-mechanics}
+
+Do not renumber this control into the FL-xx sequence, do not retitle it, and do not
+paraphrase the SYSTEM BEHAVIOR, EVENTS, or ALERTS body. The control ID `SC-02` and this
+exact title must be byte-identical across all eight consuming policies.
+
+`FL-12` (the local retention control) covers only: Reg B/HMDA/Reg Z period tiers by
+record class, the self-test privilege flag, and clock-setting EVENTS (action-taken →
+`record.retention_clock_set`). Do NOT include legal-hold, destruction, or
+permanent-record EVENTS in `FL-12` — those live exclusively in SC-02.

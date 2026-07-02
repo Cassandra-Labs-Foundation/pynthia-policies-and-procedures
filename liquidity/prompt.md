@@ -121,8 +121,20 @@ is `Cassandra Banking Core API v1.0.0`, which is banking-core
 
 ## 6. Local Overrides to the Shared Meta-Prompt
 
-{{Usually empty. Put anything here that should override the shared
-`meta-prompt.md` for THIS policy only — a different control-ID prefix,
-extra required sections, a specific citation style, etc. The regeneration
-task applies overrides AFTER the shared meta-prompt, so instructions here
-win.}}
+**Shared control SC-02: Record-retention lifecycle mechanics.**
+This policy contains a control that embeds shared control `SC-02 — Record-Retention
+Lifecycle Mechanics` immediately after its record-class-specific retention control
+(`LQ-15`). Before generating, read `shared-controls/record-retention-mechanics.md` at
+the project root and emit its "Embeddable block" **verbatim and in full**, including the
+heading line itself:
+
+    ## SC-02 — Record-Retention Lifecycle Mechanics {#sc-02-record-retention-lifecycle-mechanics}
+
+Do not renumber this control into the LQ-xx sequence, do not retitle it, and do not
+paraphrase the SYSTEM BEHAVIOR, EVENTS, or ALERTS body. The control ID `SC-02` and this
+exact title must be byte-identical across all eight consuming policies.
+
+`LQ-15` (the local retention control) covers only: the 10-year retention period for all
+liquidity program artifacts, the 2-BD indexing SLA (`record.index_due_at`), and the
+indexing-latency and retention-gap ALERTS. Do NOT include legal-hold, destruction, or
+permanent-record EVENTS in `LQ-15` — those live exclusively in SC-02.
