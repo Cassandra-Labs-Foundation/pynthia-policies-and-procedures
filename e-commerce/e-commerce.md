@@ -223,17 +223,36 @@ Pynthia Credit Union is committed to identifying, measuring, monitoring, and con
 
 **WHY (Reg cite):** [GLBA 15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801) underpins the obligation to protect member information and respond to breaches. Feeds the reportability determination governed by [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification).
 
-**SYSTEM BEHAVIOR:** Upon detection of an unauthorized act or user, the credit union immediately notifies management of the cause and scope of the breach. The extent of damage or disclosure of information is determined, including potential legal liability, to support the SC-01 reportability determination. Proper response activities are activated covering communications with members, law enforcement agencies, regulatory agencies, and the media. Only designated individuals are authorized to communicate externally with any of these parties; all other staff must route external inquiries to the designated spokesperson. The CCO coordinates the response; the CIO/IT Department supports containment and forensics.
+**SYSTEM BEHAVIOR:** Upon detection of an unauthorized act or user, the credit union immediately declares an incident and creates the incident record; management is notified of cause and scope. Enterprise incident declaration and first-hour mechanics then proceed per SC-03 (embedded below). The extent of damage or disclosure of information is determined, including potential legal liability, to support the SC-01 reportability determination. Only designated individuals are authorized to communicate externally; all other staff route external inquiries to the designated spokesperson. The CCO coordinates the response; the CIO/IT Department supports containment and forensics.
 
 **EVENTS:**
 
 | When | What's needed | Produced (and logged) | Within |
 |---|---|---|---|
-| Unauthorized act or user detected (`incident.detected`) | Detection source (`incident.detection_source`), initial scope (`incident.scope_initial`), severity (`incident.severity`) | Incident declared (`incident.declared`); management notified immediately (`incident.ic.assigned`); incident record created (`incident.created`) | Immediately on detection |
+| Unauthorized act or user detected (`incident.detected`) | Detection source (`incident.detection_source`), initial scope (`incident.scope_initial`), severity (`incident.severity`) | Incident declared (`incident.declared`); incident record created (`incident.created`) | Immediately on detection |
 | Incident scope and damage assessed (`incident.assessment.completed`) | Incident facts (`incident.facts`), data scope (`incident.data_scope`), member impact (`incident.member_impact`), legal review (`incident.legal_review`) | Assessment completed (`incident.assessment.completed`); reportability determination made (`incident.reportability_assessment`) | Within internal SLA (internal: within 24 hours of detection) |
 | External communications required (media, law enforcement) (`incident.external_comms.started`) | Designated spokesperson authorization, communications plan (`incident.comms_plan`), holding statement (`comms.holding_statement`) | External communications logged (`incident.external_comms.recorded`); only designated individuals authorized to communicate | Per response plan timeline |
 
-**ALERTS/METRICS:** Alert when an `incident.declared` event has no `incident.ic.assigned` event within 15 minutes. Target: zero breaches where management notification is delayed beyond immediate.
+**ALERTS/METRICS:** Target: zero breaches where incident declaration is delayed beyond immediate on detection.
+
+---
+
+## SC-03 — Enterprise Incident Declaration & First-Hour Response {#sc-03-enterprise-incident-declaration-first-hour-response}
+
+**WHY (Reg cite):** [12 CFR Part 748, Appendix A](https://www.ecfr.gov/current/title-12/part-748) requires a defined incident response process including declaration, containment, and communication; [FFIEC Business Continuity Management guidance](https://www.ffiec.gov/press/pdf/FFIEC_IT_Booklet_BCM.pdf) requires a structured first-hour checklist and regular situation reporting. Documented declaration authority and initial actions are supervisory expectations. This control implements the enterprise incident declaration and initial-response mechanics defined in [BC-06 — Incident Declaration and Initial Actions](../business-continuity-plan/business-continuity-plan.md#bc-06-incident-declaration-and-initial-actions), which is the authoritative source for IMT roles, sitrep cadence, and incident stabilization.
+
+**SYSTEM BEHAVIOR:** Upon declaration of a disruptive event, the IC executes a "first hour" checklist covering: (1) confirm human safety, (2) stabilize immediate threat, (3) scope the incident, (4) assign IMT roles, (5) notify required parties, and (6) set sitrep cadence. A Situation Report version 1 (Sitrep v1) must be produced within 30 minutes of declaration. Sitreps are issued every 30–60 minutes until the incident is stabilized. Declaration authority rests with the CCO, CEO, or designated IMT lead; the IC manages execution. Sitrep content and cadence are write-restricted to the IC and IMT leads.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Incident declared (`incident.declared`) | Incident scope (`incident.scope`), severity (`incident.severity`), IC identity, IMT roster | First-hour checklist initiated (`incident.first_hour.completed`), IMT roles assigned (`incident.ic.assigned`) | Immediately upon declaration |
+| First-hour checklist completed (`incident.first_hour.completed`) | Safety confirmation, stabilization status, scope assessment, role assignments, notification list | Sitrep v1 issued (`sitrep.issued`), v1 timer logged (`sitrep.v1_timer`) | 30 minutes after declaration (enforced by `sitrep.v1_timer`) |
+| Sitrep v1 issued (`sitrep.issued`) | Current incident status, actions taken, next steps, estimated resolution | Sitrep cadence timer set (`sitrep.cadence_timer`), subsequent sitreps issued at cadence | Every 30–60 minutes until stabilized (enforced by `sitrep.cadence_timer`) |
+| Incident stabilized (`incident.contained`) | Stabilization criteria met, IC confirmation | Sitrep cadence suspended, stabilization logged (`incident.contained`) | Upon IC determination of stabilization |
+
+**ALERTS/METRICS:** Alert fires if `incident.ic.assigned` is not logged within 15 minutes of `incident.declared`. Alert fires if Sitrep v1 is not issued within 30 minutes of declaration (`sitrep.v1_timer` breached); alert fires if sitrep cadence lapses beyond 60 minutes during active incident. Target: IC assignment ≤ 15 minutes of declaration; 100% of declared incidents with Sitrep v1 ≤ 30 minutes; zero cadence lapses during active incidents.
 
 ---
 

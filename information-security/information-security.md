@@ -221,20 +221,38 @@ Pynthia Credit Union maintains a risk-based information security program that pr
 
 ---
 
-## IS-19 — Incident Declaration, IC Assignment & Post-Mortem {#is-19-incident-declaration-ic-assignment-post-mortem}
+## IS-19 — Incident Response Plan, Post-Mortem & Law Enforcement Coordination {#is-19-incident-response-plan-post-mortem-law-enforcement-coordination}
 
 **WHY (Reg cite):** [GLBA 15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801) requires safeguards and response programs for breaches. Incident declaration and triage feed the reportability determination governed by [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification).
 
-**SYSTEM BEHAVIOR:** The IR plan, incident commander roster, and playbooks are maintained and tested. When an incident is declared, the incident commander is assigned and the first-hour checklist is executed. Reportability is assessed as soon as material facts are known and routed to SC-01. Law enforcement coordination is documented in the incident record. The incident record is write-restricted to the assigned incident commander and CCO.
+**SYSTEM BEHAVIOR:** The IR plan, incident commander roster, and playbooks are maintained and tested annually. Reportability is assessed as soon as material facts are known and routed to SC-01. Law enforcement coordination is documented in the incident record. Incident declaration, IC assignment, and first-hour mechanics are governed by SC-03 (embedded below). The incident record is write-restricted to the assigned incident commander and CCO.
 
 **EVENTS:**
 
 | When | What's needed | Produced (and logged) | Within |
 |---|---|---|---|
-| Security incident declared (`incident.declared`) | Incident description (`incident.description`), detection source (`incident.detection_source`), severity (`incident.severity`), scope initial (`incident.scope_initial`) | Incident commander assigned + first-hour checklist initiated (`incident.ic.assigned`, `incident.first_hour.completed`) | Immediately on declaration |
 | Incident closed (`incident.closed`) | Root cause (`incident.root_cause`), timeline (`incident.timeline`), recovery evidence (`incident.recovered`) | Post-mortem completed (`incident.postmortem.completed`) | Within 30 days of closure |
 
-**ALERTS/METRICS:** Track time from `incident.declared` to `incident.ic.assigned` (target ≤ 15 minutes); track post-mortem completion within 30 days of closure.
+**ALERTS/METRICS:** Track post-mortem completion within 30 days of closure (target: 100%).
+
+---
+
+## SC-03 — Enterprise Incident Declaration & First-Hour Response {#sc-03-enterprise-incident-declaration-first-hour-response}
+
+**WHY (Reg cite):** [12 CFR Part 748, Appendix A](https://www.ecfr.gov/current/title-12/part-748) requires a defined incident response process including declaration, containment, and communication; [FFIEC Business Continuity Management guidance](https://www.ffiec.gov/press/pdf/FFIEC_IT_Booklet_BCM.pdf) requires a structured first-hour checklist and regular situation reporting. Documented declaration authority and initial actions are supervisory expectations. This control implements the enterprise incident declaration and initial-response mechanics defined in [BC-06 — Incident Declaration and Initial Actions](../business-continuity-plan/business-continuity-plan.md#bc-06-incident-declaration-and-initial-actions), which is the authoritative source for IMT roles, sitrep cadence, and incident stabilization.
+
+**SYSTEM BEHAVIOR:** Upon declaration of a disruptive event, the IC executes a "first hour" checklist covering: (1) confirm human safety, (2) stabilize immediate threat, (3) scope the incident, (4) assign IMT roles, (5) notify required parties, and (6) set sitrep cadence. A Situation Report version 1 (Sitrep v1) must be produced within 30 minutes of declaration. Sitreps are issued every 30–60 minutes until the incident is stabilized. Declaration authority rests with the CCO, CEO, or designated IMT lead; the IC manages execution. Sitrep content and cadence are write-restricted to the IC and IMT leads.
+
+**EVENTS:**
+
+| When | What's needed | Produced (and logged) | Within |
+|---|---|---|---|
+| Incident declared (`incident.declared`) | Incident scope (`incident.scope`), severity (`incident.severity`), IC identity, IMT roster | First-hour checklist initiated (`incident.first_hour.completed`), IMT roles assigned (`incident.ic.assigned`) | Immediately upon declaration |
+| First-hour checklist completed (`incident.first_hour.completed`) | Safety confirmation, stabilization status, scope assessment, role assignments, notification list | Sitrep v1 issued (`sitrep.issued`), v1 timer logged (`sitrep.v1_timer`) | 30 minutes after declaration (enforced by `sitrep.v1_timer`) |
+| Sitrep v1 issued (`sitrep.issued`) | Current incident status, actions taken, next steps, estimated resolution | Sitrep cadence timer set (`sitrep.cadence_timer`), subsequent sitreps issued at cadence | Every 30–60 minutes until stabilized (enforced by `sitrep.cadence_timer`) |
+| Incident stabilized (`incident.contained`) | Stabilization criteria met, IC confirmation | Sitrep cadence suspended, stabilization logged (`incident.contained`) | Upon IC determination of stabilization |
+
+**ALERTS/METRICS:** Alert fires if `incident.ic.assigned` is not logged within 15 minutes of `incident.declared`. Alert fires if Sitrep v1 is not issued within 30 minutes of declaration (`sitrep.v1_timer` breached); alert fires if sitrep cadence lapses beyond 60 minutes during active incident. Target: IC assignment ≤ 15 minutes of declaration; 100% of declared incidents with Sitrep v1 ≤ 30 minutes; zero cadence lapses during active incidents.
 
 ---
 

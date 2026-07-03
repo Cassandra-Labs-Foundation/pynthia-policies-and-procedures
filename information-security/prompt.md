@@ -164,3 +164,22 @@ exact title must be byte-identical across all eight consuming policies.
 security logs), the monthly destruction-queue cadence, and the clock-setting EVENT
 (security record created → `record.retention_clock_set`). Do NOT include legal-hold,
 destruction, or permanent-record EVENTS in `IS-18` — those live exclusively in SC-02.
+
+**Shared control SC-03: Enterprise incident declaration & first-hour response.**
+This policy contains `IS-19` followed immediately by shared control `SC-03 — Enterprise
+Incident Declaration & First-Hour Response`. Before generating, read
+`shared-controls/incident-declaration.md` at the project root and emit its "Embeddable
+block" **verbatim and in full**, including the heading line itself:
+
+    ## SC-03 — Enterprise Incident Declaration & First-Hour Response {#sc-03-enterprise-incident-declaration-first-hour-response}
+
+Do not renumber this control into the IS-xx sequence, do not retitle it, and do not
+paraphrase the SYSTEM BEHAVIOR, EVENTS, or ALERTS body. The control ID `SC-03` and this
+exact title must be byte-identical across all consuming policies.
+
+`IS-19` (the local incident control) covers only: IR plan, playbook, and incident
+commander roster maintenance; law enforcement coordination documentation; and the
+post-mortem EVENT (`incident.closed` → `incident.postmortem.completed` within 30 days).
+Do NOT include declaration, IC assignment, first-hour checklist, sitrep, or stabilization
+EVENTS in `IS-19` — those live exclusively in SC-03. `IS-19`'s SYSTEM BEHAVIOR must note
+that incident declaration and first-hour mechanics are governed by SC-03 (embedded below).

@@ -128,3 +128,23 @@ EC-xx sequence (next available number), titled along the lines of "Breach
 Detection, Liability Assessment & External Comms Gating," and have its
 SYSTEM BEHAVIOR note that it feeds the SC-01 reportability determination.
 Link the two via anchor, but do not merge their bodies.
+
+**Shared control SC-03: Enterprise incident declaration & first-hour response.**
+This policy contains `EC-13` followed immediately by shared control `SC-03 — Enterprise
+Incident Declaration & First-Hour Response`. Before generating, read
+`shared-controls/incident-declaration.md` at the project root and emit its "Embeddable
+block" **verbatim and in full**, including the heading line itself:
+
+    ## SC-03 — Enterprise Incident Declaration & First-Hour Response {#sc-03-enterprise-incident-declaration-first-hour-response}
+
+Do not renumber this control into the EC-xx sequence, do not retitle it, and do not
+paraphrase the SYSTEM BEHAVIOR, EVENTS, or ALERTS body. The control ID `SC-03` and this
+exact title must be byte-identical across all consuming policies.
+
+`EC-13` (the local breach-detection control) covers only: the e-commerce-specific
+detection trigger (`incident.detected` → `incident.declared` + `incident.created`),
+the 24-hour damage and legal-liability assessment, and the external-communications gating
+(designated spokesperson, holding statement). Do NOT include IC assignment, first-hour
+checklist, sitrep, or stabilization EVENTS in `EC-13` — those live exclusively in SC-03.
+`EC-13`'s SYSTEM BEHAVIOR must note that enterprise incident declaration and first-hour
+mechanics proceed per SC-03 (embedded below).
