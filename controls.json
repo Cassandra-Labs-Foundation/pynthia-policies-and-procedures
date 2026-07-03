@@ -1,7 +1,7 @@
 {
   "meta": {
     "generator": "scripts/extract_controls.py",
-    "generated_at": "2026-07-02T16:53:16+00:00",
+    "generated_at": "2026-07-03T16:04:31+00:00",
     "repo_root": "pynthia-policies-and-procedures",
     "api_model": {
       "spec_title": "Cassandra Banking Core API",
@@ -13,9 +13,9 @@
   },
   "stats": {
     "policies": 27,
-    "controls": 330,
-    "event_rows": 1221,
-    "control_rules": 1221,
+    "controls": 333,
+    "event_rows": 1232,
+    "control_rules": 1232,
     "unique_api_codes": 2933,
     "registered_event_codes": 1045,
     "registered_field_codes": 1857,
@@ -42615,8 +42615,8 @@
         }
       ],
       "why_text": "[GLBA 15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801) underpins the obligation to protect member information and respond to breaches. Feeds the reportability determination governed by [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification).",
-      "system_behavior": "Upon detection of an unauthorized act or user, the credit union immediately notifies management of the cause and scope of the breach. The extent of damage or disclosure of information is determined, including potential legal liability, to support the SC-01 reportability determination. Proper response activities are activated covering communications with members, law enforcement agencies, regulatory agencies, and the media. Only designated individuals are authorized to communicate externally with any of these parties; all other staff must route external inquiries to the designated spokesperson. The CCO coordinates the response; the CIO/IT Department supports containment and forensics.",
-      "alerts_metrics": "Alert when an `incident.declared` event has no `incident.ic.assigned` event within 15 minutes. Target: zero breaches where management notification is delayed beyond immediate.\n\n---",
+      "system_behavior": "Upon detection of an unauthorized act or user, the credit union immediately declares an incident and creates the incident record; management is notified of cause and scope. Enterprise incident declaration and first-hour mechanics then proceed per SC-03 (embedded below). The extent of damage or disclosure of information is determined, including potential legal liability, to support the SC-01 reportability determination. Only designated individuals are authorized to communicate externally; all other staff route external inquiries to the designated spokesperson. The CCO coordinates the response; the CIO/IT Department supports containment and forensics.",
+      "alerts_metrics": "Target: zero breaches where incident declaration is delayed beyond immediate on detection.\n\n---",
       "events": [
         {
           "trigger": {
@@ -42636,10 +42636,9 @@
           ],
           "outputs": [
             {
-              "label": "Incident declared; management notified immediately; incident record created",
+              "label": "Incident declared; incident record created",
               "codes": [
                 "incident.declared",
-                "incident.ic.assigned",
                 "incident.created"
               ],
               "status": null
@@ -42652,7 +42651,6 @@
             "incident.declared",
             "incident.detected",
             "incident.detection_source",
-            "incident.ic.assigned",
             "incident.scope_initial",
             "incident.severity"
           ]
@@ -42748,8 +42746,7 @@
           ],
           "produced_events": [
             "incident.created",
-            "incident.declared",
-            "incident.ic.assigned"
+            "incident.declared"
           ],
           "produced": [
             {
@@ -42764,13 +42761,6 @@
               "property": null,
               "action": "declared",
               "canonical": "incident.declared",
-              "conforms": true
-            },
-            {
-              "object": "incident",
-              "property": "ic",
-              "action": "assigned",
-              "canonical": "incident.ic.assigned",
               "conforms": true
             }
           ],
@@ -42858,8 +42848,7 @@
           "incident.declared",
           "incident.detected",
           "incident.external_comms.recorded",
-          "incident.external_comms.started",
-          "incident.ic.assigned"
+          "incident.external_comms.started"
         ],
         "fields": [
           "comms.holding_statement",
@@ -42886,12 +42875,340 @@
           "incident.external_comms.recorded",
           "incident.external_comms.started",
           "incident.facts",
-          "incident.ic.assigned",
           "incident.legal_review",
           "incident.member_impact",
           "incident.reportability_assessment",
           "incident.scope_initial",
           "incident.severity"
+        ],
+        "statuses": []
+      }
+    },
+    {
+      "control_id": "SC-03",
+      "title": "Enterprise Incident Declaration & First-Hour Response",
+      "anchor": "sc-03-enterprise-incident-declaration-first-hour-response",
+      "policy": "e-commerce",
+      "policy_title": null,
+      "policy_owner": null,
+      "policy_version": null,
+      "policy_effective": null,
+      "source_file": "e-commerce/e-commerce.md",
+      "regulatory_citations": [
+        {
+          "text": "12 CFR Part 748, Appendix A",
+          "url": "https://www.ecfr.gov/current/title-12/part-748"
+        },
+        {
+          "text": "FFIEC Business Continuity Management guidance",
+          "url": "https://www.ffiec.gov/press/pdf/FFIEC_IT_Booklet_BCM.pdf"
+        },
+        {
+          "text": "BC-06 — Incident Declaration and Initial Actions",
+          "url": "../business-continuity-plan/business-continuity-plan.md#bc-06-incident-declaration-and-initial-actions"
+        }
+      ],
+      "why_text": "[12 CFR Part 748, Appendix A](https://www.ecfr.gov/current/title-12/part-748) requires a defined incident response process including declaration, containment, and communication; [FFIEC Business Continuity Management guidance](https://www.ffiec.gov/press/pdf/FFIEC_IT_Booklet_BCM.pdf) requires a structured first-hour checklist and regular situation reporting. Documented declaration authority and initial actions are supervisory expectations. This control implements the enterprise incident declaration and initial-response mechanics defined in [BC-06 — Incident Declaration and Initial Actions](../business-continuity-plan/business-continuity-plan.md#bc-06-incident-declaration-and-initial-actions), which is the authoritative source for IMT roles, sitrep cadence, and incident stabilization.",
+      "system_behavior": "Upon declaration of a disruptive event, the IC executes a \"first hour\" checklist covering: (1) confirm human safety, (2) stabilize immediate threat, (3) scope the incident, (4) assign IMT roles, (5) notify required parties, and (6) set sitrep cadence. A Situation Report version 1 (Sitrep v1) must be produced within 30 minutes of declaration. Sitreps are issued every 30–60 minutes until the incident is stabilized. Declaration authority rests with the CCO, CEO, or designated IMT lead; the IC manages execution. Sitrep content and cadence are write-restricted to the IC and IMT leads.",
+      "alerts_metrics": "Alert fires if `incident.ic.assigned` is not logged within 15 minutes of `incident.declared`. Alert fires if Sitrep v1 is not issued within 30 minutes of declaration (`sitrep.v1_timer` breached); alert fires if sitrep cadence lapses beyond 60 minutes during active incident. Target: IC assignment ≤ 15 minutes of declaration; 100% of declared incidents with Sitrep v1 ≤ 30 minutes; zero cadence lapses during active incidents.\n\n---",
+      "events": [
+        {
+          "trigger": {
+            "label": "Incident declared",
+            "code": "incident.declared",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Incident scope, severity, IC identity, IMT roster",
+              "codes": [
+                "incident.scope",
+                "incident.severity"
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "label": "First-hour checklist initiated, IMT roles assigned",
+              "codes": [
+                "incident.first_hour.completed",
+                "incident.ic.assigned"
+              ],
+              "status": null
+            }
+          ],
+          "within": "Immediately upon declaration",
+          "within_timer_codes": [],
+          "all_codes": [
+            "incident.declared",
+            "incident.first_hour.completed",
+            "incident.ic.assigned",
+            "incident.scope",
+            "incident.severity"
+          ]
+        },
+        {
+          "trigger": {
+            "label": "First-hour checklist completed",
+            "code": "incident.first_hour.completed",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Safety confirmation, stabilization status, scope assessment, role assignments, notification list",
+              "codes": []
+            }
+          ],
+          "outputs": [
+            {
+              "label": "Sitrep v1 issued, v1 timer logged",
+              "codes": [
+                "sitrep.issued",
+                "sitrep.v1_timer"
+              ],
+              "status": null
+            }
+          ],
+          "within": "30 minutes after declaration (enforced by)",
+          "within_timer_codes": [
+            "sitrep.v1_timer"
+          ],
+          "all_codes": [
+            "incident.first_hour.completed",
+            "sitrep.issued",
+            "sitrep.v1_timer"
+          ]
+        },
+        {
+          "trigger": {
+            "label": "Sitrep v1 issued",
+            "code": "sitrep.issued",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Current incident status, actions taken, next steps, estimated resolution",
+              "codes": []
+            }
+          ],
+          "outputs": [
+            {
+              "label": "Sitrep cadence timer set, subsequent sitreps issued at cadence",
+              "codes": [
+                "sitrep.cadence_timer"
+              ],
+              "status": null
+            }
+          ],
+          "within": "Every 30–60 minutes until stabilized (enforced by)",
+          "within_timer_codes": [
+            "sitrep.cadence_timer"
+          ],
+          "all_codes": [
+            "sitrep.cadence_timer",
+            "sitrep.issued"
+          ]
+        },
+        {
+          "trigger": {
+            "label": "Incident stabilized",
+            "code": "incident.contained",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Stabilization criteria met, IC confirmation",
+              "codes": []
+            }
+          ],
+          "outputs": [
+            {
+              "label": "Sitrep cadence suspended, stabilization logged",
+              "codes": [
+                "incident.contained"
+              ],
+              "status": null
+            }
+          ],
+          "within": "Upon IC determination of stabilization",
+          "within_timer_codes": [],
+          "all_codes": [
+            "incident.contained"
+          ]
+        }
+      ],
+      "control_rules": [
+        {
+          "control_id": "SC-03",
+          "policy": "e-commerce",
+          "trigger_event": "incident.declared",
+          "trigger": {
+            "object": "incident",
+            "property": null,
+            "action": "declared",
+            "canonical": "incident.declared",
+            "conforms": true
+          },
+          "required_inputs": [
+            "incident.scope",
+            "incident.severity"
+          ],
+          "produced_events": [
+            "incident.first_hour.completed",
+            "incident.ic.assigned"
+          ],
+          "produced": [
+            {
+              "object": "incident",
+              "property": "first_hour",
+              "action": "completed",
+              "canonical": "incident.first_hour.completed",
+              "conforms": true
+            },
+            {
+              "object": "incident",
+              "property": "ic",
+              "action": "assigned",
+              "canonical": "incident.ic.assigned",
+              "conforms": true
+            }
+          ],
+          "deadline_timer": null,
+          "deadline": null,
+          "deadline_text": "Immediately upon declaration"
+        },
+        {
+          "control_id": "SC-03",
+          "policy": "e-commerce",
+          "trigger_event": "incident.first_hour.completed",
+          "trigger": {
+            "object": "incident",
+            "property": "first_hour",
+            "action": "completed",
+            "canonical": "incident.first_hour.completed",
+            "conforms": true
+          },
+          "required_inputs": [],
+          "produced_events": [
+            "sitrep.issued",
+            "sitrep.v1_timer"
+          ],
+          "produced": [
+            {
+              "object": "sitrep",
+              "property": null,
+              "action": "issued",
+              "canonical": "sitrep.issued",
+              "conforms": true
+            },
+            {
+              "object": "sitrep",
+              "property": "v1_timer",
+              "action": null,
+              "canonical": "sitrep.v1_timer",
+              "conforms": false
+            }
+          ],
+          "deadline_timer": "sitrep.v1_timer",
+          "deadline": {
+            "object": "sitrep",
+            "qualifier": "v1",
+            "task_type": null,
+            "marker": "timer",
+            "canonical": "sitrep.v1.timer",
+            "conforms": false
+          },
+          "deadline_text": "30 minutes after declaration"
+        },
+        {
+          "control_id": "SC-03",
+          "policy": "e-commerce",
+          "trigger_event": "sitrep.issued",
+          "trigger": {
+            "object": "sitrep",
+            "property": null,
+            "action": "issued",
+            "canonical": "sitrep.issued",
+            "conforms": true
+          },
+          "required_inputs": [],
+          "produced_events": [
+            "sitrep.cadence_timer"
+          ],
+          "produced": [
+            {
+              "object": "sitrep",
+              "property": "cadence_timer",
+              "action": null,
+              "canonical": "sitrep.cadence_timer",
+              "conforms": false
+            }
+          ],
+          "deadline_timer": "sitrep.cadence_timer",
+          "deadline": {
+            "object": "sitrep",
+            "qualifier": "cadence",
+            "task_type": null,
+            "marker": "timer",
+            "canonical": "sitrep.cadence.timer",
+            "conforms": false
+          },
+          "deadline_text": "Every 30–60 minutes until stabilized"
+        },
+        {
+          "control_id": "SC-03",
+          "policy": "e-commerce",
+          "trigger_event": "incident.contained",
+          "trigger": {
+            "object": "incident",
+            "property": "contained",
+            "action": null,
+            "canonical": "incident.contained",
+            "conforms": false
+          },
+          "required_inputs": [],
+          "produced_events": [
+            "incident.contained"
+          ],
+          "produced": [
+            {
+              "object": "incident",
+              "property": "contained",
+              "action": null,
+              "canonical": "incident.contained",
+              "conforms": false
+            }
+          ],
+          "deadline_timer": null,
+          "deadline": null,
+          "deadline_text": "Upon IC determination of stabilization"
+        }
+      ],
+      "api_references": {
+        "events": [
+          "incident.declared",
+          "incident.first_hour.completed",
+          "incident.ic.assigned",
+          "sitrep.issued"
+        ],
+        "fields": [
+          "incident.contained",
+          "incident.scope",
+          "incident.severity",
+          "sitrep.cadence_timer",
+          "sitrep.v1_timer"
+        ],
+        "unregistered": [],
+        "all": [
+          "incident.contained",
+          "incident.declared",
+          "incident.first_hour.completed",
+          "incident.ic.assigned",
+          "incident.scope",
+          "incident.severity",
+          "sitrep.cadence_timer",
+          "sitrep.issued",
+          "sitrep.v1_timer"
         ],
         "statuses": []
       }
@@ -58137,8 +58454,8 @@
     },
     {
       "control_id": "IS-19",
-      "title": "Incident Declaration, IC Assignment & Post-Mortem",
-      "anchor": "is-19-incident-declaration-ic-assignment-post-mortem",
+      "title": "Incident Response Plan, Post-Mortem & Law Enforcement Coordination",
+      "anchor": "is-19-incident-response-plan-post-mortem-law-enforcement-coordination",
       "policy": "information-security",
       "policy_title": null,
       "policy_owner": null,
@@ -58156,48 +58473,9 @@
         }
       ],
       "why_text": "[GLBA 15 USC §6801](https://www.law.cornell.edu/uscode/text/15/6801) requires safeguards and response programs for breaches. Incident declaration and triage feed the reportability determination governed by [SC-01](#sc-01-ncua-reportable-cyber-incident-member-notification).",
-      "system_behavior": "The IR plan, incident commander roster, and playbooks are maintained and tested. When an incident is declared, the incident commander is assigned and the first-hour checklist is executed. Reportability is assessed as soon as material facts are known and routed to SC-01. Law enforcement coordination is documented in the incident record. The incident record is write-restricted to the assigned incident commander and CCO.",
-      "alerts_metrics": "Track time from `incident.declared` to `incident.ic.assigned` (target ≤ 15 minutes); track post-mortem completion within 30 days of closure.\n\n---",
+      "system_behavior": "The IR plan, incident commander roster, and playbooks are maintained and tested annually. Reportability is assessed as soon as material facts are known and routed to SC-01. Law enforcement coordination is documented in the incident record. Incident declaration, IC assignment, and first-hour mechanics are governed by SC-03 (embedded below). The incident record is write-restricted to the assigned incident commander and CCO.",
+      "alerts_metrics": "Track post-mortem completion within 30 days of closure (target: 100%).\n\n---",
       "events": [
-        {
-          "trigger": {
-            "label": "Security incident declared",
-            "code": "incident.declared",
-            "status": null
-          },
-          "inputs": [
-            {
-              "label": "Incident description, detection source, severity, scope initial",
-              "codes": [
-                "incident.description",
-                "incident.detection_source",
-                "incident.severity",
-                "incident.scope_initial"
-              ]
-            }
-          ],
-          "outputs": [
-            {
-              "label": "Incident commander assigned + first-hour checklist initiated",
-              "codes": [
-                "incident.ic.assigned",
-                "incident.first_hour.completed"
-              ],
-              "status": null
-            }
-          ],
-          "within": "Immediately on declaration",
-          "within_timer_codes": [],
-          "all_codes": [
-            "incident.declared",
-            "incident.description",
-            "incident.detection_source",
-            "incident.first_hour.completed",
-            "incident.ic.assigned",
-            "incident.scope_initial",
-            "incident.severity"
-          ]
-        },
         {
           "trigger": {
             "label": "Incident closed",
@@ -58238,47 +58516,6 @@
         {
           "control_id": "IS-19",
           "policy": "information-security",
-          "trigger_event": "incident.declared",
-          "trigger": {
-            "object": "incident",
-            "property": null,
-            "action": "declared",
-            "canonical": "incident.declared",
-            "conforms": true
-          },
-          "required_inputs": [
-            "incident.description",
-            "incident.detection_source",
-            "incident.scope_initial",
-            "incident.severity"
-          ],
-          "produced_events": [
-            "incident.first_hour.completed",
-            "incident.ic.assigned"
-          ],
-          "produced": [
-            {
-              "object": "incident",
-              "property": "first_hour",
-              "action": "completed",
-              "canonical": "incident.first_hour.completed",
-              "conforms": true
-            },
-            {
-              "object": "incident",
-              "property": "ic",
-              "action": "assigned",
-              "canonical": "incident.ic.assigned",
-              "conforms": true
-            }
-          ],
-          "deadline_timer": null,
-          "deadline": null,
-          "deadline_text": "Immediately on declaration"
-        },
-        {
-          "control_id": "IS-19",
-          "policy": "information-security",
           "trigger_event": "incident.closed",
           "trigger": {
             "object": "incident",
@@ -58312,34 +58549,349 @@
       "api_references": {
         "events": [
           "incident.closed",
-          "incident.declared",
-          "incident.first_hour.completed",
-          "incident.ic.assigned",
           "incident.postmortem.completed"
         ],
         "fields": [
-          "incident.description",
-          "incident.detection_source",
           "incident.recovered",
           "incident.root_cause",
-          "incident.scope_initial",
-          "incident.severity",
           "incident.timeline"
         ],
         "unregistered": [],
         "all": [
           "incident.closed",
-          "incident.declared",
-          "incident.description",
-          "incident.detection_source",
-          "incident.first_hour.completed",
-          "incident.ic.assigned",
           "incident.postmortem.completed",
           "incident.recovered",
           "incident.root_cause",
-          "incident.scope_initial",
-          "incident.severity",
           "incident.timeline"
+        ],
+        "statuses": []
+      }
+    },
+    {
+      "control_id": "SC-03",
+      "title": "Enterprise Incident Declaration & First-Hour Response",
+      "anchor": "sc-03-enterprise-incident-declaration-first-hour-response",
+      "policy": "information-security",
+      "policy_title": null,
+      "policy_owner": null,
+      "policy_version": null,
+      "policy_effective": null,
+      "source_file": "information-security/information-security.md",
+      "regulatory_citations": [
+        {
+          "text": "12 CFR Part 748, Appendix A",
+          "url": "https://www.ecfr.gov/current/title-12/part-748"
+        },
+        {
+          "text": "FFIEC Business Continuity Management guidance",
+          "url": "https://www.ffiec.gov/press/pdf/FFIEC_IT_Booklet_BCM.pdf"
+        },
+        {
+          "text": "BC-06 — Incident Declaration and Initial Actions",
+          "url": "../business-continuity-plan/business-continuity-plan.md#bc-06-incident-declaration-and-initial-actions"
+        }
+      ],
+      "why_text": "[12 CFR Part 748, Appendix A](https://www.ecfr.gov/current/title-12/part-748) requires a defined incident response process including declaration, containment, and communication; [FFIEC Business Continuity Management guidance](https://www.ffiec.gov/press/pdf/FFIEC_IT_Booklet_BCM.pdf) requires a structured first-hour checklist and regular situation reporting. Documented declaration authority and initial actions are supervisory expectations. This control implements the enterprise incident declaration and initial-response mechanics defined in [BC-06 — Incident Declaration and Initial Actions](../business-continuity-plan/business-continuity-plan.md#bc-06-incident-declaration-and-initial-actions), which is the authoritative source for IMT roles, sitrep cadence, and incident stabilization.",
+      "system_behavior": "Upon declaration of a disruptive event, the IC executes a \"first hour\" checklist covering: (1) confirm human safety, (2) stabilize immediate threat, (3) scope the incident, (4) assign IMT roles, (5) notify required parties, and (6) set sitrep cadence. A Situation Report version 1 (Sitrep v1) must be produced within 30 minutes of declaration. Sitreps are issued every 30–60 minutes until the incident is stabilized. Declaration authority rests with the CCO, CEO, or designated IMT lead; the IC manages execution. Sitrep content and cadence are write-restricted to the IC and IMT leads.",
+      "alerts_metrics": "Alert fires if `incident.ic.assigned` is not logged within 15 minutes of `incident.declared`. Alert fires if Sitrep v1 is not issued within 30 minutes of declaration (`sitrep.v1_timer` breached); alert fires if sitrep cadence lapses beyond 60 minutes during active incident. Target: IC assignment ≤ 15 minutes of declaration; 100% of declared incidents with Sitrep v1 ≤ 30 minutes; zero cadence lapses during active incidents.\n\n---",
+      "events": [
+        {
+          "trigger": {
+            "label": "Incident declared",
+            "code": "incident.declared",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Incident scope, severity, IC identity, IMT roster",
+              "codes": [
+                "incident.scope",
+                "incident.severity"
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "label": "First-hour checklist initiated, IMT roles assigned",
+              "codes": [
+                "incident.first_hour.completed",
+                "incident.ic.assigned"
+              ],
+              "status": null
+            }
+          ],
+          "within": "Immediately upon declaration",
+          "within_timer_codes": [],
+          "all_codes": [
+            "incident.declared",
+            "incident.first_hour.completed",
+            "incident.ic.assigned",
+            "incident.scope",
+            "incident.severity"
+          ]
+        },
+        {
+          "trigger": {
+            "label": "First-hour checklist completed",
+            "code": "incident.first_hour.completed",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Safety confirmation, stabilization status, scope assessment, role assignments, notification list",
+              "codes": []
+            }
+          ],
+          "outputs": [
+            {
+              "label": "Sitrep v1 issued, v1 timer logged",
+              "codes": [
+                "sitrep.issued",
+                "sitrep.v1_timer"
+              ],
+              "status": null
+            }
+          ],
+          "within": "30 minutes after declaration (enforced by)",
+          "within_timer_codes": [
+            "sitrep.v1_timer"
+          ],
+          "all_codes": [
+            "incident.first_hour.completed",
+            "sitrep.issued",
+            "sitrep.v1_timer"
+          ]
+        },
+        {
+          "trigger": {
+            "label": "Sitrep v1 issued",
+            "code": "sitrep.issued",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Current incident status, actions taken, next steps, estimated resolution",
+              "codes": []
+            }
+          ],
+          "outputs": [
+            {
+              "label": "Sitrep cadence timer set, subsequent sitreps issued at cadence",
+              "codes": [
+                "sitrep.cadence_timer"
+              ],
+              "status": null
+            }
+          ],
+          "within": "Every 30–60 minutes until stabilized (enforced by)",
+          "within_timer_codes": [
+            "sitrep.cadence_timer"
+          ],
+          "all_codes": [
+            "sitrep.cadence_timer",
+            "sitrep.issued"
+          ]
+        },
+        {
+          "trigger": {
+            "label": "Incident stabilized",
+            "code": "incident.contained",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Stabilization criteria met, IC confirmation",
+              "codes": []
+            }
+          ],
+          "outputs": [
+            {
+              "label": "Sitrep cadence suspended, stabilization logged",
+              "codes": [
+                "incident.contained"
+              ],
+              "status": null
+            }
+          ],
+          "within": "Upon IC determination of stabilization",
+          "within_timer_codes": [],
+          "all_codes": [
+            "incident.contained"
+          ]
+        }
+      ],
+      "control_rules": [
+        {
+          "control_id": "SC-03",
+          "policy": "information-security",
+          "trigger_event": "incident.declared",
+          "trigger": {
+            "object": "incident",
+            "property": null,
+            "action": "declared",
+            "canonical": "incident.declared",
+            "conforms": true
+          },
+          "required_inputs": [
+            "incident.scope",
+            "incident.severity"
+          ],
+          "produced_events": [
+            "incident.first_hour.completed",
+            "incident.ic.assigned"
+          ],
+          "produced": [
+            {
+              "object": "incident",
+              "property": "first_hour",
+              "action": "completed",
+              "canonical": "incident.first_hour.completed",
+              "conforms": true
+            },
+            {
+              "object": "incident",
+              "property": "ic",
+              "action": "assigned",
+              "canonical": "incident.ic.assigned",
+              "conforms": true
+            }
+          ],
+          "deadline_timer": null,
+          "deadline": null,
+          "deadline_text": "Immediately upon declaration"
+        },
+        {
+          "control_id": "SC-03",
+          "policy": "information-security",
+          "trigger_event": "incident.first_hour.completed",
+          "trigger": {
+            "object": "incident",
+            "property": "first_hour",
+            "action": "completed",
+            "canonical": "incident.first_hour.completed",
+            "conforms": true
+          },
+          "required_inputs": [],
+          "produced_events": [
+            "sitrep.issued",
+            "sitrep.v1_timer"
+          ],
+          "produced": [
+            {
+              "object": "sitrep",
+              "property": null,
+              "action": "issued",
+              "canonical": "sitrep.issued",
+              "conforms": true
+            },
+            {
+              "object": "sitrep",
+              "property": "v1_timer",
+              "action": null,
+              "canonical": "sitrep.v1_timer",
+              "conforms": false
+            }
+          ],
+          "deadline_timer": "sitrep.v1_timer",
+          "deadline": {
+            "object": "sitrep",
+            "qualifier": "v1",
+            "task_type": null,
+            "marker": "timer",
+            "canonical": "sitrep.v1.timer",
+            "conforms": false
+          },
+          "deadline_text": "30 minutes after declaration"
+        },
+        {
+          "control_id": "SC-03",
+          "policy": "information-security",
+          "trigger_event": "sitrep.issued",
+          "trigger": {
+            "object": "sitrep",
+            "property": null,
+            "action": "issued",
+            "canonical": "sitrep.issued",
+            "conforms": true
+          },
+          "required_inputs": [],
+          "produced_events": [
+            "sitrep.cadence_timer"
+          ],
+          "produced": [
+            {
+              "object": "sitrep",
+              "property": "cadence_timer",
+              "action": null,
+              "canonical": "sitrep.cadence_timer",
+              "conforms": false
+            }
+          ],
+          "deadline_timer": "sitrep.cadence_timer",
+          "deadline": {
+            "object": "sitrep",
+            "qualifier": "cadence",
+            "task_type": null,
+            "marker": "timer",
+            "canonical": "sitrep.cadence.timer",
+            "conforms": false
+          },
+          "deadline_text": "Every 30–60 minutes until stabilized"
+        },
+        {
+          "control_id": "SC-03",
+          "policy": "information-security",
+          "trigger_event": "incident.contained",
+          "trigger": {
+            "object": "incident",
+            "property": "contained",
+            "action": null,
+            "canonical": "incident.contained",
+            "conforms": false
+          },
+          "required_inputs": [],
+          "produced_events": [
+            "incident.contained"
+          ],
+          "produced": [
+            {
+              "object": "incident",
+              "property": "contained",
+              "action": null,
+              "canonical": "incident.contained",
+              "conforms": false
+            }
+          ],
+          "deadline_timer": null,
+          "deadline": null,
+          "deadline_text": "Upon IC determination of stabilization"
+        }
+      ],
+      "api_references": {
+        "events": [
+          "incident.declared",
+          "incident.first_hour.completed",
+          "incident.ic.assigned",
+          "sitrep.issued"
+        ],
+        "fields": [
+          "incident.contained",
+          "incident.scope",
+          "incident.severity",
+          "sitrep.cadence_timer",
+          "sitrep.v1_timer"
+        ],
+        "unregistered": [],
+        "all": [
+          "incident.contained",
+          "incident.declared",
+          "incident.first_hour.completed",
+          "incident.ic.assigned",
+          "incident.scope",
+          "incident.severity",
+          "sitrep.cadence_timer",
+          "sitrep.issued",
+          "sitrep.v1_timer"
         ],
         "statuses": []
       }
@@ -101810,6 +102362,335 @@
           "resolution_review.completed",
           "resolution_review.due",
           "scope_registry.version_id"
+        ],
+        "statuses": []
+      }
+    },
+    {
+      "control_id": "SC-03",
+      "title": "Enterprise Incident Declaration & First-Hour Response",
+      "anchor": "sc-03-enterprise-incident-declaration-first-hour-response",
+      "policy": "shared-controls",
+      "policy_title": null,
+      "policy_owner": null,
+      "policy_version": null,
+      "policy_effective": null,
+      "source_file": "shared-controls/incident-declaration.md",
+      "regulatory_citations": [
+        {
+          "text": "12 CFR Part 748, Appendix A",
+          "url": "https://www.ecfr.gov/current/title-12/part-748"
+        },
+        {
+          "text": "FFIEC Business Continuity Management guidance",
+          "url": "https://www.ffiec.gov/press/pdf/FFIEC_IT_Booklet_BCM.pdf"
+        },
+        {
+          "text": "BC-06 — Incident Declaration and Initial Actions",
+          "url": "../business-continuity-plan/business-continuity-plan.md#bc-06-incident-declaration-and-initial-actions"
+        }
+      ],
+      "why_text": "[12 CFR Part 748, Appendix A](https://www.ecfr.gov/current/title-12/part-748) requires a defined incident response process including declaration, containment, and communication; [FFIEC Business Continuity Management guidance](https://www.ffiec.gov/press/pdf/FFIEC_IT_Booklet_BCM.pdf) requires a structured first-hour checklist and regular situation reporting. Documented declaration authority and initial actions are supervisory expectations. This control implements the enterprise incident declaration and initial-response mechanics defined in [BC-06 — Incident Declaration and Initial Actions](../business-continuity-plan/business-continuity-plan.md#bc-06-incident-declaration-and-initial-actions), which is the authoritative source for IMT roles, sitrep cadence, and incident stabilization.",
+      "system_behavior": "Upon declaration of a disruptive event, the IC executes a \"first hour\" checklist covering: (1) confirm human safety, (2) stabilize immediate threat, (3) scope the incident, (4) assign IMT roles, (5) notify required parties, and (6) set sitrep cadence. A Situation Report version 1 (Sitrep v1) must be produced within 30 minutes of declaration. Sitreps are issued every 30–60 minutes until the incident is stabilized. Declaration authority rests with the CCO, CEO, or designated IMT lead; the IC manages execution. Sitrep content and cadence are write-restricted to the IC and IMT leads.",
+      "alerts_metrics": "Alert fires if `incident.ic.assigned` is not logged within 15 minutes of `incident.declared`. Alert fires if Sitrep v1 is not issued within 30 minutes of declaration (`sitrep.v1_timer` breached); alert fires if sitrep cadence lapses beyond 60 minutes during active incident. Target: IC assignment ≤ 15 minutes of declaration; 100% of declared incidents with Sitrep v1 ≤ 30 minutes; zero cadence lapses during active incidents.\n```",
+      "events": [
+        {
+          "trigger": {
+            "label": "Incident declared",
+            "code": "incident.declared",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Incident scope, severity, IC identity, IMT roster",
+              "codes": [
+                "incident.scope",
+                "incident.severity"
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "label": "First-hour checklist initiated, IMT roles assigned",
+              "codes": [
+                "incident.first_hour.completed",
+                "incident.ic.assigned"
+              ],
+              "status": null
+            }
+          ],
+          "within": "Immediately upon declaration",
+          "within_timer_codes": [],
+          "all_codes": [
+            "incident.declared",
+            "incident.first_hour.completed",
+            "incident.ic.assigned",
+            "incident.scope",
+            "incident.severity"
+          ]
+        },
+        {
+          "trigger": {
+            "label": "First-hour checklist completed",
+            "code": "incident.first_hour.completed",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Safety confirmation, stabilization status, scope assessment, role assignments, notification list",
+              "codes": []
+            }
+          ],
+          "outputs": [
+            {
+              "label": "Sitrep v1 issued, v1 timer logged",
+              "codes": [
+                "sitrep.issued",
+                "sitrep.v1_timer"
+              ],
+              "status": null
+            }
+          ],
+          "within": "30 minutes after declaration (enforced by)",
+          "within_timer_codes": [
+            "sitrep.v1_timer"
+          ],
+          "all_codes": [
+            "incident.first_hour.completed",
+            "sitrep.issued",
+            "sitrep.v1_timer"
+          ]
+        },
+        {
+          "trigger": {
+            "label": "Sitrep v1 issued",
+            "code": "sitrep.issued",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Current incident status, actions taken, next steps, estimated resolution",
+              "codes": []
+            }
+          ],
+          "outputs": [
+            {
+              "label": "Sitrep cadence timer set, subsequent sitreps issued at cadence",
+              "codes": [
+                "sitrep.cadence_timer"
+              ],
+              "status": null
+            }
+          ],
+          "within": "Every 30–60 minutes until stabilized (enforced by)",
+          "within_timer_codes": [
+            "sitrep.cadence_timer"
+          ],
+          "all_codes": [
+            "sitrep.cadence_timer",
+            "sitrep.issued"
+          ]
+        },
+        {
+          "trigger": {
+            "label": "Incident stabilized",
+            "code": "incident.contained",
+            "status": null
+          },
+          "inputs": [
+            {
+              "label": "Stabilization criteria met, IC confirmation",
+              "codes": []
+            }
+          ],
+          "outputs": [
+            {
+              "label": "Sitrep cadence suspended, stabilization logged",
+              "codes": [
+                "incident.contained"
+              ],
+              "status": null
+            }
+          ],
+          "within": "Upon IC determination of stabilization",
+          "within_timer_codes": [],
+          "all_codes": [
+            "incident.contained"
+          ]
+        }
+      ],
+      "control_rules": [
+        {
+          "control_id": "SC-03",
+          "policy": "shared-controls",
+          "trigger_event": "incident.declared",
+          "trigger": {
+            "object": "incident",
+            "property": null,
+            "action": "declared",
+            "canonical": "incident.declared",
+            "conforms": true
+          },
+          "required_inputs": [
+            "incident.scope",
+            "incident.severity"
+          ],
+          "produced_events": [
+            "incident.first_hour.completed",
+            "incident.ic.assigned"
+          ],
+          "produced": [
+            {
+              "object": "incident",
+              "property": "first_hour",
+              "action": "completed",
+              "canonical": "incident.first_hour.completed",
+              "conforms": true
+            },
+            {
+              "object": "incident",
+              "property": "ic",
+              "action": "assigned",
+              "canonical": "incident.ic.assigned",
+              "conforms": true
+            }
+          ],
+          "deadline_timer": null,
+          "deadline": null,
+          "deadline_text": "Immediately upon declaration"
+        },
+        {
+          "control_id": "SC-03",
+          "policy": "shared-controls",
+          "trigger_event": "incident.first_hour.completed",
+          "trigger": {
+            "object": "incident",
+            "property": "first_hour",
+            "action": "completed",
+            "canonical": "incident.first_hour.completed",
+            "conforms": true
+          },
+          "required_inputs": [],
+          "produced_events": [
+            "sitrep.issued",
+            "sitrep.v1_timer"
+          ],
+          "produced": [
+            {
+              "object": "sitrep",
+              "property": null,
+              "action": "issued",
+              "canonical": "sitrep.issued",
+              "conforms": true
+            },
+            {
+              "object": "sitrep",
+              "property": "v1_timer",
+              "action": null,
+              "canonical": "sitrep.v1_timer",
+              "conforms": false
+            }
+          ],
+          "deadline_timer": "sitrep.v1_timer",
+          "deadline": {
+            "object": "sitrep",
+            "qualifier": "v1",
+            "task_type": null,
+            "marker": "timer",
+            "canonical": "sitrep.v1.timer",
+            "conforms": false
+          },
+          "deadline_text": "30 minutes after declaration"
+        },
+        {
+          "control_id": "SC-03",
+          "policy": "shared-controls",
+          "trigger_event": "sitrep.issued",
+          "trigger": {
+            "object": "sitrep",
+            "property": null,
+            "action": "issued",
+            "canonical": "sitrep.issued",
+            "conforms": true
+          },
+          "required_inputs": [],
+          "produced_events": [
+            "sitrep.cadence_timer"
+          ],
+          "produced": [
+            {
+              "object": "sitrep",
+              "property": "cadence_timer",
+              "action": null,
+              "canonical": "sitrep.cadence_timer",
+              "conforms": false
+            }
+          ],
+          "deadline_timer": "sitrep.cadence_timer",
+          "deadline": {
+            "object": "sitrep",
+            "qualifier": "cadence",
+            "task_type": null,
+            "marker": "timer",
+            "canonical": "sitrep.cadence.timer",
+            "conforms": false
+          },
+          "deadline_text": "Every 30–60 minutes until stabilized"
+        },
+        {
+          "control_id": "SC-03",
+          "policy": "shared-controls",
+          "trigger_event": "incident.contained",
+          "trigger": {
+            "object": "incident",
+            "property": "contained",
+            "action": null,
+            "canonical": "incident.contained",
+            "conforms": false
+          },
+          "required_inputs": [],
+          "produced_events": [
+            "incident.contained"
+          ],
+          "produced": [
+            {
+              "object": "incident",
+              "property": "contained",
+              "action": null,
+              "canonical": "incident.contained",
+              "conforms": false
+            }
+          ],
+          "deadline_timer": null,
+          "deadline": null,
+          "deadline_text": "Upon IC determination of stabilization"
+        }
+      ],
+      "api_references": {
+        "events": [
+          "incident.declared",
+          "incident.first_hour.completed",
+          "incident.ic.assigned",
+          "sitrep.issued"
+        ],
+        "fields": [
+          "incident.contained",
+          "incident.scope",
+          "incident.severity",
+          "sitrep.cadence_timer",
+          "sitrep.v1_timer"
+        ],
+        "unregistered": [],
+        "all": [
+          "incident.contained",
+          "incident.declared",
+          "incident.first_hour.completed",
+          "incident.ic.assigned",
+          "incident.scope",
+          "incident.severity",
+          "sitrep.cadence_timer",
+          "sitrep.issued",
+          "sitrep.v1_timer"
         ],
         "statuses": []
       }

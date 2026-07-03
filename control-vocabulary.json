@@ -1,7 +1,7 @@
 {
   "meta": {
     "generator": "scripts/build_control_vocabulary.py",
-    "generated_at": "2026-07-02T16:53:16+00:00",
+    "generated_at": "2026-07-03T16:04:31+00:00",
     "source": "controls.json",
     "api_model": {
       "spec_title": "Cassandra Banking Core API",
@@ -10,7 +10,7 @@
       "fields": 2504,
       "entities": 275
     },
-    "controls_generated_at": "2026-07-02T16:53:16+00:00"
+    "controls_generated_at": "2026-07-03T16:04:31+00:00"
   },
   "stats": {
     "entities": 264,
@@ -27741,12 +27741,13 @@
             "BC-06",
             "BC-11",
             "EC-13",
-            "IS-19"
+            "SC-03"
           ],
           "policies": [
             "business-continuity-plan",
             "e-commerce",
-            "information-security"
+            "information-security",
+            "shared-controls"
           ]
         },
         {
@@ -27806,11 +27807,13 @@
           "ref_count": 2,
           "controls": [
             "BC-06",
-            "IS-19"
+            "SC-03"
           ],
           "policies": [
             "business-continuity-plan",
-            "information-security"
+            "e-commerce",
+            "information-security",
+            "shared-controls"
           ]
         },
         {
@@ -27820,18 +27823,18 @@
             "entity": "incident",
             "description": "canonical event_type: `assigned`"
           },
-          "ref_count": 5,
+          "ref_count": 4,
           "controls": [
             "BC-05",
             "BC-06",
             "BC-09",
-            "EC-13",
-            "IS-19"
+            "SC-03"
           ],
           "policies": [
             "business-continuity-plan",
             "e-commerce",
-            "information-security"
+            "information-security",
+            "shared-controls"
           ]
         },
         {
@@ -28011,14 +28014,18 @@
             "required": false,
             "description": null
           },
-          "ref_count": 2,
+          "ref_count": 3,
           "controls": [
             "BC-06",
-            "PR-18"
+            "PR-18",
+            "SC-03"
           ],
           "policies": [
             "business-continuity-plan",
-            "privacy"
+            "e-commerce",
+            "information-security",
+            "privacy",
+            "shared-controls"
           ]
         },
         {
@@ -28093,19 +28100,17 @@
             "required": false,
             "description": null
           },
-          "ref_count": 5,
+          "ref_count": 4,
           "controls": [
             "BC-15",
             "CO-11",
             "EPS-11",
-            "IS-19",
             "PR-18"
           ],
           "policies": [
             "business-continuity-plan",
             "collections",
             "electronic-payment-systems",
-            "information-security",
             "privacy"
           ]
         },
@@ -28119,20 +28124,18 @@
             "required": false,
             "description": null
           },
-          "ref_count": 6,
+          "ref_count": 5,
           "controls": [
             "BC-15",
             "CO-11",
             "EC-09",
             "EC-13",
-            "IS-19",
             "PR-18"
           ],
           "policies": [
             "business-continuity-plan",
             "collections",
             "e-commerce",
-            "information-security",
             "privacy"
           ]
         },
@@ -28505,14 +28508,17 @@
             "required": false,
             "description": null
           },
-          "ref_count": 2,
+          "ref_count": 3,
           "controls": [
             "BC-06",
-            "IS-08"
+            "IS-08",
+            "SC-03"
           ],
           "policies": [
             "business-continuity-plan",
-            "information-security"
+            "e-commerce",
+            "information-security",
+            "shared-controls"
           ]
         },
         {
@@ -28525,19 +28531,17 @@
             "required": false,
             "description": null
           },
-          "ref_count": 5,
+          "ref_count": 4,
           "controls": [
             "BC-05",
             "CO-11",
             "EC-13",
-            "IS-19",
             "PR-18"
           ],
           "policies": [
             "business-continuity-plan",
             "collections",
             "e-commerce",
-            "information-security",
             "privacy"
           ]
         },
@@ -28558,13 +28562,14 @@
             "BC-15",
             "CO-11",
             "EC-13",
-            "IS-19"
+            "SC-03"
           ],
           "policies": [
             "business-continuity-plan",
             "collections",
             "e-commerce",
-            "information-security"
+            "information-security",
+            "shared-controls"
           ]
         },
         {
@@ -47534,12 +47539,16 @@
             "entity": "sitrep",
             "description": "canonical event_type: `issued`"
           },
-          "ref_count": 1,
+          "ref_count": 2,
           "controls": [
-            "BC-06"
+            "BC-06",
+            "SC-03"
           ],
           "policies": [
-            "business-continuity-plan"
+            "business-continuity-plan",
+            "e-commerce",
+            "information-security",
+            "shared-controls"
           ]
         },
         {
@@ -47552,12 +47561,16 @@
             "required": false,
             "description": null
           },
-          "ref_count": 1,
+          "ref_count": 2,
           "controls": [
-            "BC-06"
+            "BC-06",
+            "SC-03"
           ],
           "policies": [
-            "business-continuity-plan"
+            "business-continuity-plan",
+            "e-commerce",
+            "information-security",
+            "shared-controls"
           ]
         },
         {
@@ -47570,12 +47583,16 @@
             "required": false,
             "description": null
           },
-          "ref_count": 1,
+          "ref_count": 2,
           "controls": [
-            "BC-06"
+            "BC-06",
+            "SC-03"
           ],
           "policies": [
-            "business-continuity-plan"
+            "business-continuity-plan",
+            "e-commerce",
+            "information-security",
+            "shared-controls"
           ]
         }
       ]

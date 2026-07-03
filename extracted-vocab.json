@@ -1,14 +1,14 @@
 {
   "meta": {
     "parser_version": "0.1.0",
-    "parsed_at": "2026-07-02T16:53:16+00:00",
+    "parsed_at": "2026-07-03T16:04:31+00:00",
     "repo": "pynthia-policies-and-procedures"
   },
   "stats": {
     "policies_scanned": 26,
     "files_scanned": 26,
     "unique_tokens": 3001,
-    "total_occurrences": 8546
+    "total_occurrences": 8568
   },
   "entities": {
     "aan": {
@@ -4504,7 +4504,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 457
+          "line": 475
         }
       ]
     },
@@ -4522,11 +4522,11 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 447
+          "line": 465
         },
         {
           "file": "information-security/information-security.md",
-          "line": 457
+          "line": 475
         }
       ]
     },
@@ -4544,11 +4544,11 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 447
+          "line": 465
         },
         {
           "file": "information-security/information-security.md",
-          "line": 457
+          "line": 475
         }
       ]
     },
@@ -4566,11 +4566,11 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 447
+          "line": 465
         },
         {
           "file": "information-security/information-security.md",
-          "line": 457
+          "line": 475
         }
       ]
     },
@@ -4588,19 +4588,19 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 447
+          "line": 465
         },
         {
           "file": "information-security/information-security.md",
-          "line": 457
+          "line": 475
         },
         {
           "file": "information-security/information-security.md",
-          "line": 457
+          "line": 475
         },
         {
           "file": "information-security/information-security.md",
-          "line": 457
+          "line": 475
         }
       ]
     },
@@ -4710,7 +4710,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 343
+          "line": 361
         },
         {
           "file": "privacy/privacy.md",
@@ -5528,7 +5528,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 251
+          "line": 269
         },
         {
           "file": "member/member.md",
@@ -6881,7 +6881,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 307
+          "line": 325
         }
       ]
     },
@@ -6895,7 +6895,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 308
+          "line": 326
         }
       ]
     },
@@ -6909,7 +6909,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 308
+          "line": 326
         }
       ]
     },
@@ -6923,7 +6923,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 308
+          "line": 326
         }
       ]
     },
@@ -6937,7 +6937,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 306
+          "line": 324
         }
       ]
     },
@@ -6951,7 +6951,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 307
+          "line": 325
         }
       ]
     },
@@ -6965,7 +6965,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 308
+          "line": 326
         }
       ]
     },
@@ -6979,7 +6979,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 307
+          "line": 325
         }
       ]
     },
@@ -6993,7 +6993,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 307
+          "line": 325
         }
       ]
     },
@@ -7007,7 +7007,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 306
+          "line": 324
         }
       ]
     },
@@ -7025,15 +7025,15 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 306
+          "line": 324
         },
         {
           "file": "information-security/information-security.md",
-          "line": 307
+          "line": 325
         },
         {
           "file": "information-security/information-security.md",
-          "line": 311
+          "line": 329
         }
       ]
     },
@@ -7047,7 +7047,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 306
+          "line": 324
         }
       ]
     },
@@ -7061,7 +7061,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 306
+          "line": 324
         }
       ]
     },
@@ -7075,11 +7075,11 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 306
+          "line": 324
         },
         {
           "file": "information-security/information-security.md",
-          "line": 307
+          "line": 325
         }
       ]
     },
@@ -7093,11 +7093,11 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 309
+          "line": 327
         },
         {
           "file": "information-security/information-security.md",
-          "line": 309
+          "line": 327
         }
       ]
     },
@@ -10285,7 +10285,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 343
+          "line": 361
         }
       ]
     },
@@ -10299,7 +10299,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 344
+          "line": 362
         }
       ]
     },
@@ -10313,7 +10313,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 344
+          "line": 362
         }
       ]
     },
@@ -10327,7 +10327,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 344
+          "line": 362
         }
       ]
     },
@@ -10341,7 +10341,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 343
+          "line": 361
         }
       ]
     },
@@ -10927,15 +10927,15 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 250
+          "line": 269
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 250
+          "line": 269
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 254
+          "line": 273
         }
       ]
     },
@@ -10984,11 +10984,11 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 250
+          "line": 269
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 254
+          "line": 273
         }
       ]
     },
@@ -11002,7 +11002,7 @@
       "occurrences": [
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 250
+          "line": 269
         }
       ]
     },
@@ -11016,7 +11016,7 @@
       "occurrences": [
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 250
+          "line": 269
         }
       ]
     },
@@ -11030,7 +11030,7 @@
       "occurrences": [
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 250
+          "line": 269
         }
       ]
     },
@@ -11057,7 +11057,7 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 250
+          "line": 269
         }
       ]
     },
@@ -11605,7 +11605,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 345
+          "line": 363
         }
       ]
     },
@@ -11619,7 +11619,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 345
+          "line": 363
         }
       ]
     },
@@ -11633,7 +11633,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 345
+          "line": 363
         }
       ]
     },
@@ -11647,7 +11647,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 345
+          "line": 363
         }
       ]
     },
@@ -25034,11 +25034,11 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 399
+          "line": 417
         },
         {
           "file": "information-security/information-security.md",
-          "line": 418
+          "line": 436
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -25097,7 +25097,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 419
+          "line": 437
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -25190,11 +25190,11 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 401
+          "line": 419
         },
         {
           "file": "information-security/information-security.md",
-          "line": 420
+          "line": 438
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -25836,7 +25836,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 419
+          "line": 437
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -25923,15 +25923,15 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 409
+          "line": 427
         },
         {
           "file": "information-security/information-security.md",
-          "line": 419
+          "line": 437
         },
         {
           "file": "information-security/information-security.md",
-          "line": 422
+          "line": 440
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -26057,7 +26057,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 417
+          "line": 435
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -26099,11 +26099,11 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 471
+          "line": 489
         },
         {
           "file": "information-security/information-security.md",
-          "line": 471
+          "line": 489
         }
       ]
     },
@@ -26138,7 +26138,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 419
+          "line": 437
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -26213,11 +26213,11 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 409
+          "line": 427
         },
         {
           "file": "information-security/information-security.md",
-          "line": 415
+          "line": 433
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -26322,7 +26322,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 418
+          "line": 436
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -26838,7 +26838,7 @@
       "occurrences": [
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 252
+          "line": 271
         },
         {
           "file": "information-security/information-security.md",
@@ -26891,7 +26891,7 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 252
+          "line": 271
         },
         {
           "file": "information-security/information-security.md",
@@ -26936,11 +26936,11 @@
       "occurrences": [
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 252
+          "line": 271
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 252
+          "line": 271
         },
         {
           "file": "liquidity/liquidity.md",
@@ -26963,7 +26963,7 @@
       "occurrences": [
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 252
+          "line": 271
         },
         {
           "file": "liquidity/liquidity.md",
@@ -27021,7 +27021,7 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 252
+          "line": 271
         },
         {
           "file": "information-security/information-security.md",
@@ -27119,7 +27119,7 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 252
+          "line": 271
         },
         {
           "file": "liquidity/liquidity.md",
@@ -27161,7 +27161,7 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 302
+          "line": 321
         }
       ]
     },
@@ -27325,7 +27325,7 @@
       "occurrences": [
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 302
+          "line": 321
         }
       ]
     },
@@ -27423,7 +27423,7 @@
       "occurrences": [
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 302
+          "line": 321
         }
       ]
     },
@@ -27441,11 +27441,11 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 302
+          "line": 321
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 302
+          "line": 321
         }
       ]
     },
@@ -27924,11 +27924,11 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 268
+          "line": 287
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 270
+          "line": 289
         },
         {
           "file": "electronic-payment-systems/electronic-payment-systems.md",
@@ -27956,7 +27956,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 379
+          "line": 397
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -28114,7 +28114,7 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 268
+          "line": 287
         },
         {
           "file": "information-security/information-security.md",
@@ -28134,7 +28134,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 288
+          "line": 306
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -28190,7 +28190,7 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 302
+          "line": 321
         }
       ]
     },
@@ -28208,7 +28208,7 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 302
+          "line": 321
         }
       ]
     },
@@ -28230,7 +28230,7 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 302
+          "line": 321
         }
       ]
     },
@@ -28252,7 +28252,7 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 302
+          "line": 321
         }
       ]
     },
@@ -28461,7 +28461,7 @@
       "occurrences": [
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 317
+          "line": 336
         },
         {
           "file": "truth-in-savings/truth-in-savings.md",
@@ -28639,7 +28639,7 @@
       "occurrences": [
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 319
+          "line": 338
         },
         {
           "file": "truth-in-savings/truth-in-savings.md",
@@ -32462,7 +32462,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 289
+          "line": 307
         }
       ]
     },
@@ -32476,7 +32476,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 289
+          "line": 307
         }
       ]
     },
@@ -32491,7 +32491,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 290
+          "line": 308
         },
         {
           "file": "liquidity/liquidity.md",
@@ -32509,7 +32509,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 288
+          "line": 306
         }
       ]
     },
@@ -32523,7 +32523,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 288
+          "line": 306
         }
       ]
     },
@@ -32537,7 +32537,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 288
+          "line": 306
         }
       ]
     },
@@ -32551,7 +32551,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 289
+          "line": 307
         }
       ]
     },
@@ -32580,7 +32580,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 290
+          "line": 308
         },
         {
           "file": "liquidity/liquidity.md",
@@ -32617,7 +32617,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 290
+          "line": 308
         },
         {
           "file": "liquidity/liquidity.md",
@@ -32640,7 +32640,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 290
+          "line": 308
         },
         {
           "file": "liquidity/liquidity.md",
@@ -32663,7 +32663,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 290
+          "line": 308
         },
         {
           "file": "liquidity/liquidity.md",
@@ -32686,7 +32686,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 287
+          "line": 305
         }
       ]
     },
@@ -32700,7 +32700,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 287
+          "line": 305
         }
       ]
     },
@@ -32719,7 +32719,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 287
+          "line": 305
         }
       ]
     },
@@ -32738,7 +32738,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 287
+          "line": 305
         }
       ]
     },
@@ -32752,7 +32752,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 287
+          "line": 305
         }
       ]
     },
@@ -34345,7 +34345,7 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 304
+          "line": 323
         }
       ]
     },
@@ -36119,7 +36119,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 235
+          "line": 234
         }
       ]
     },
@@ -36185,9 +36185,11 @@
     "incident.contained": {
       "entity": "incident",
       "field": "contained",
-      "count": 3,
+      "count": 7,
       "policies": [
         "business-continuity-plan",
+        "e-commerce",
+        "information-security",
         "privacy"
       ],
       "occurrences": [
@@ -36198,6 +36200,22 @@
         {
           "file": "business-continuity-plan/business-continuity-plan.md",
           "line": 159
+        },
+        {
+          "file": "e-commerce/e-commerce.md",
+          "line": 253
+        },
+        {
+          "file": "e-commerce/e-commerce.md",
+          "line": 253
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 253
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 253
         },
         {
           "file": "privacy/privacy.md",
@@ -36362,7 +36380,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 309
+          "line": 327
         },
         {
           "file": "privacy/privacy.md",
@@ -36377,7 +36395,7 @@
     "incident.declared": {
       "entity": "incident",
       "field": "declared",
-      "count": 8,
+      "count": 9,
       "policies": [
         "business-continuity-plan",
         "e-commerce",
@@ -36406,27 +36424,30 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 236
+          "line": 250
+        },
+        {
+          "file": "e-commerce/e-commerce.md",
+          "line": 255
         },
         {
           "file": "information-security/information-security.md",
-          "line": 234
+          "line": 250
         },
         {
           "file": "information-security/information-security.md",
-          "line": 237
+          "line": 255
         }
       ]
     },
     "incident.description": {
       "entity": "incident",
       "field": "description",
-      "count": 6,
+      "count": 5,
       "policies": [
         "business-continuity-plan",
         "collections",
         "electronic-payment-systems",
-        "information-security",
         "privacy",
         "truth-in-savings"
       ],
@@ -36442,10 +36463,6 @@
         {
           "file": "electronic-payment-systems/electronic-payment-systems.md",
           "line": 94
-        },
-        {
-          "file": "information-security/information-security.md",
-          "line": 234
         },
         {
           "file": "privacy/privacy.md",
@@ -36495,12 +36512,11 @@
     "incident.detection_source": {
       "entity": "incident",
       "field": "detection_source",
-      "count": 6,
+      "count": 5,
       "policies": [
         "business-continuity-plan",
         "collections",
         "e-commerce",
-        "information-security",
         "privacy"
       ],
       "occurrences": [
@@ -36519,10 +36535,6 @@
         {
           "file": "e-commerce/e-commerce.md",
           "line": 232
-        },
-        {
-          "file": "information-security/information-security.md",
-          "line": 234
         },
         {
           "file": "privacy/privacy.md",
@@ -36575,9 +36587,10 @@
     "incident.first_hour.completed": {
       "entity": "incident",
       "field": "first_hour.completed",
-      "count": 3,
+      "count": 6,
       "policies": [
         "business-continuity-plan",
+        "e-commerce",
         "information-security"
       ],
       "occurrences": [
@@ -36590,8 +36603,20 @@
           "line": 157
         },
         {
+          "file": "e-commerce/e-commerce.md",
+          "line": 250
+        },
+        {
+          "file": "e-commerce/e-commerce.md",
+          "line": 251
+        },
+        {
           "file": "information-security/information-security.md",
-          "line": 234
+          "line": 250
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 251
         }
       ]
     },
@@ -36635,19 +36660,19 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 232
+          "line": 250
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 236
+          "line": 255
         },
         {
           "file": "information-security/information-security.md",
-          "line": 234
+          "line": 250
         },
         {
           "file": "information-security/information-security.md",
-          "line": 237
+          "line": 255
         }
       ]
     },
@@ -37220,7 +37245,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 235
+          "line": 234
         }
       ]
     },
@@ -37234,7 +37259,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 235
+          "line": 234
         }
       ]
     },
@@ -37381,7 +37406,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 235
+          "line": 234
         },
         {
           "file": "truth-in-savings/truth-in-savings.md",
@@ -37414,9 +37439,10 @@
     "incident.scope": {
       "entity": "incident",
       "field": "scope",
-      "count": 2,
+      "count": 4,
       "policies": [
         "business-continuity-plan",
+        "e-commerce",
         "information-security"
       ],
       "occurrences": [
@@ -37425,20 +37451,27 @@
           "line": 156
         },
         {
+          "file": "e-commerce/e-commerce.md",
+          "line": 250
+        },
+        {
           "file": "information-security/information-security.md",
           "line": 201
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 250
         }
       ]
     },
     "incident.scope_initial": {
       "entity": "incident",
       "field": "scope_initial",
-      "count": 5,
+      "count": 4,
       "policies": [
         "business-continuity-plan",
         "collections",
         "e-commerce",
-        "information-security",
         "privacy"
       ],
       "occurrences": [
@@ -37453,10 +37486,6 @@
         {
           "file": "e-commerce/e-commerce.md",
           "line": 232
-        },
-        {
-          "file": "information-security/information-security.md",
-          "line": 234
         },
         {
           "file": "privacy/privacy.md",
@@ -37494,7 +37523,7 @@
     "incident.severity": {
       "entity": "incident",
       "field": "severity",
-      "count": 7,
+      "count": 8,
       "policies": [
         "business-continuity-plan",
         "collections",
@@ -37527,8 +37556,12 @@
           "line": 232
         },
         {
+          "file": "e-commerce/e-commerce.md",
+          "line": 250
+        },
+        {
           "file": "information-security/information-security.md",
-          "line": 234
+          "line": 250
         }
       ]
     },
@@ -37584,7 +37617,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 235
+          "line": 234
         }
       ]
     },
@@ -40238,7 +40271,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 415
+          "line": 433
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -40292,7 +40325,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 417
+          "line": 435
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -40437,7 +40470,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 417
+          "line": 435
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -40503,7 +40536,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 415
+          "line": 433
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -40573,11 +40606,11 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 409
+          "line": 427
         },
         {
           "file": "information-security/information-security.md",
-          "line": 415
+          "line": 433
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -40652,7 +40685,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 415
+          "line": 433
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -40710,7 +40743,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 409
+          "line": 427
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -40764,7 +40797,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 415
+          "line": 433
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -40819,7 +40852,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 417
+          "line": 435
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -40885,7 +40918,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 417
+          "line": 435
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -40951,11 +40984,11 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 409
+          "line": 427
         },
         {
           "file": "information-security/information-security.md",
-          "line": 417
+          "line": 435
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -47962,7 +47995,7 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 306
+          "line": 325
         },
         {
           "file": "information-security/information-security.md",
@@ -48271,7 +48304,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 382
+          "line": 400
         }
       ]
     },
@@ -48285,19 +48318,19 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 382
+          "line": 400
         },
         {
           "file": "information-security/information-security.md",
-          "line": 382
+          "line": 400
         },
         {
           "file": "information-security/information-security.md",
-          "line": 455
+          "line": 473
         },
         {
           "file": "information-security/information-security.md",
-          "line": 455
+          "line": 473
         }
       ]
     },
@@ -48311,7 +48344,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 455
+          "line": 473
         }
       ]
     },
@@ -48325,7 +48358,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 381
+          "line": 399
         }
       ]
     },
@@ -48339,7 +48372,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 381
+          "line": 399
         }
       ]
     },
@@ -48353,7 +48386,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 381
+          "line": 399
         }
       ]
     },
@@ -50810,7 +50843,7 @@
       "occurrences": [
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 317
+          "line": 336
         },
         {
           "file": "privacy/privacy.md",
@@ -51670,11 +51703,11 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 459
+          "line": 477
         },
         {
           "file": "information-security/information-security.md",
-          "line": 459
+          "line": 477
         }
       ]
     },
@@ -52484,7 +52517,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 419
+          "line": 437
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -52546,7 +52579,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 419
+          "line": 437
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -52606,11 +52639,11 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 471
+          "line": 489
         },
         {
           "file": "information-security/information-security.md",
-          "line": 471
+          "line": 489
         }
       ]
     },
@@ -52669,19 +52702,19 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 399
+          "line": 417
         },
         {
           "file": "information-security/information-security.md",
-          "line": 409
+          "line": 427
         },
         {
           "file": "information-security/information-security.md",
-          "line": 409
+          "line": 427
         },
         {
           "file": "information-security/information-security.md",
-          "line": 418
+          "line": 436
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -52776,7 +52809,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 399
+          "line": 417
         },
         {
           "file": "record-retention/record-retention.md",
@@ -52805,7 +52838,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 327
+          "line": 345
         },
         {
           "file": "record-retention/record-retention.md",
@@ -52918,11 +52951,11 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 416
+          "line": 434
         },
         {
           "file": "information-security/information-security.md",
-          "line": 416
+          "line": 434
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -53003,7 +53036,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 415
+          "line": 433
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -53083,7 +53116,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 417
+          "line": 435
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -53465,31 +53498,31 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 327
+          "line": 345
         },
         {
           "file": "information-security/information-security.md",
-          "line": 399
+          "line": 417
         },
         {
           "file": "information-security/information-security.md",
-          "line": 409
+          "line": 427
         },
         {
           "file": "information-security/information-security.md",
-          "line": 409
+          "line": 427
         },
         {
           "file": "information-security/information-security.md",
-          "line": 415
+          "line": 433
         },
         {
           "file": "information-security/information-security.md",
-          "line": 418
+          "line": 436
         },
         {
           "file": "information-security/information-security.md",
-          "line": 422
+          "line": 440
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -53754,7 +53787,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 327
+          "line": 345
         },
         {
           "file": "record-retention/record-retention.md",
@@ -53799,7 +53832,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 398
+          "line": 416
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -53880,19 +53913,19 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 327
+          "line": 345
         },
         {
           "file": "information-security/information-security.md",
-          "line": 398
+          "line": 416
         },
         {
           "file": "information-security/information-security.md",
-          "line": 409
+          "line": 427
         },
         {
           "file": "information-security/information-security.md",
-          "line": 420
+          "line": 438
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -54010,7 +54043,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 398
+          "line": 416
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -54163,19 +54196,19 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 409
+          "line": 427
         },
         {
           "file": "information-security/information-security.md",
-          "line": 418
+          "line": 436
         },
         {
           "file": "information-security/information-security.md",
-          "line": 418
+          "line": 436
         },
         {
           "file": "information-security/information-security.md",
-          "line": 422
+          "line": 440
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -54317,7 +54350,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 398
+          "line": 416
         }
       ]
     },
@@ -54835,7 +54868,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 251
+          "line": 269
         },
         {
           "file": "member/member.md",
@@ -54857,7 +54890,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 252
+          "line": 270
         }
       ]
     },
@@ -54871,7 +54904,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 252
+          "line": 270
         }
       ]
     },
@@ -54891,7 +54924,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 251
+          "line": 269
         },
         {
           "file": "member/member.md",
@@ -54929,7 +54962,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 253
+          "line": 271
         }
       ]
     },
@@ -54943,11 +54976,11 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 251
+          "line": 269
         },
         {
           "file": "information-security/information-security.md",
-          "line": 253
+          "line": 271
         }
       ]
     },
@@ -54962,7 +54995,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 253
+          "line": 271
         },
         {
           "file": "member/member.md",
@@ -54984,7 +55017,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 253
+          "line": 271
         }
       ]
     },
@@ -54999,7 +55032,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 251
+          "line": 269
         },
         {
           "file": "member/member.md",
@@ -55018,7 +55051,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 251
+          "line": 269
         },
         {
           "file": "member/member.md",
@@ -55040,7 +55073,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 251
+          "line": 269
         }
       ]
     },
@@ -55055,7 +55088,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 251
+          "line": 269
         },
         {
           "file": "member/member.md",
@@ -59398,7 +59431,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 252
+          "line": 270
         },
         {
           "file": "third-party-risk/third-party-risk.md",
@@ -59421,7 +59454,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 252
+          "line": 270
         }
       ]
     },
@@ -59895,7 +59928,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 447
+          "line": 465
         }
       ]
     },
@@ -59917,7 +59950,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 447
+          "line": 465
         }
       ]
     },
@@ -60057,15 +60090,15 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 447
+          "line": 465
         },
         {
           "file": "information-security/information-security.md",
-          "line": 461
+          "line": 479
         },
         {
           "file": "information-security/information-security.md",
-          "line": 461
+          "line": 479
         }
       ]
     },
@@ -60105,15 +60138,15 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 447
+          "line": 465
         },
         {
           "file": "information-security/information-security.md",
-          "line": 461
+          "line": 479
         },
         {
           "file": "information-security/information-security.md",
-          "line": 461
+          "line": 479
         }
       ]
     },
@@ -60131,7 +60164,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 447
+          "line": 465
         }
       ]
     },
@@ -60173,23 +60206,23 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 253
+          "line": 271
         },
         {
           "file": "information-security/information-security.md",
-          "line": 447
+          "line": 465
         },
         {
           "file": "information-security/information-security.md",
-          "line": 447
+          "line": 465
         },
         {
           "file": "information-security/information-security.md",
-          "line": 449
+          "line": 467
         },
         {
           "file": "information-security/information-security.md",
-          "line": 449
+          "line": 467
         }
       ]
     },
@@ -60430,7 +60463,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 325
+          "line": 343
         }
       ]
     },
@@ -60457,31 +60490,31 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 325
+          "line": 343
         },
         {
           "file": "information-security/information-security.md",
-          "line": 447
+          "line": 465
         },
         {
           "file": "information-security/information-security.md",
-          "line": 447
+          "line": 465
         },
         {
           "file": "information-security/information-security.md",
-          "line": 453
+          "line": 471
         },
         {
           "file": "information-security/information-security.md",
-          "line": 453
+          "line": 471
         },
         {
           "file": "information-security/information-security.md",
-          "line": 453
+          "line": 471
         },
         {
           "file": "information-security/information-security.md",
-          "line": 453
+          "line": 471
         }
       ]
     },
@@ -60495,7 +60528,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 453
+          "line": 471
         }
       ]
     },
@@ -60514,11 +60547,11 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 325
+          "line": 343
         },
         {
           "file": "information-security/information-security.md",
-          "line": 447
+          "line": 465
         }
       ]
     },
@@ -60541,15 +60574,15 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 325
+          "line": 343
         },
         {
           "file": "information-security/information-security.md",
-          "line": 447
+          "line": 465
         },
         {
           "file": "information-security/information-security.md",
-          "line": 453
+          "line": 471
         }
       ]
     },
@@ -60563,7 +60596,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 325
+          "line": 343
         }
       ]
     },
@@ -60577,7 +60610,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 326
+          "line": 344
         }
       ]
     },
@@ -60596,11 +60629,11 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 325
+          "line": 343
         },
         {
           "file": "information-security/information-security.md",
-          "line": 326
+          "line": 344
         }
       ]
     },
@@ -60619,11 +60652,11 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 326
+          "line": 344
         },
         {
           "file": "information-security/information-security.md",
-          "line": 453
+          "line": 471
         }
       ]
     },
@@ -60714,9 +60747,11 @@
     "sitrep.cadence_timer": {
       "entity": "sitrep",
       "field": "cadence_timer",
-      "count": 3,
+      "count": 7,
       "policies": [
-        "business-continuity-plan"
+        "business-continuity-plan",
+        "e-commerce",
+        "information-security"
       ],
       "occurrences": [
         {
@@ -60730,15 +60765,33 @@
         {
           "file": "business-continuity-plan/business-continuity-plan.md",
           "line": 357
+        },
+        {
+          "file": "e-commerce/e-commerce.md",
+          "line": 252
+        },
+        {
+          "file": "e-commerce/e-commerce.md",
+          "line": 252
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 252
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 252
         }
       ]
     },
     "sitrep.issued": {
       "entity": "sitrep",
       "field": "issued",
-      "count": 3,
+      "count": 7,
       "policies": [
-        "business-continuity-plan"
+        "business-continuity-plan",
+        "e-commerce",
+        "information-security"
       ],
       "occurrences": [
         {
@@ -60752,15 +60805,33 @@
         {
           "file": "business-continuity-plan/business-continuity-plan.md",
           "line": 158
+        },
+        {
+          "file": "e-commerce/e-commerce.md",
+          "line": 251
+        },
+        {
+          "file": "e-commerce/e-commerce.md",
+          "line": 252
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 251
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 252
         }
       ]
     },
     "sitrep.v1_timer": {
       "entity": "sitrep",
       "field": "v1_timer",
-      "count": 4,
+      "count": 10,
       "policies": [
-        "business-continuity-plan"
+        "business-continuity-plan",
+        "e-commerce",
+        "information-security"
       ],
       "occurrences": [
         {
@@ -60778,6 +60849,30 @@
         {
           "file": "business-continuity-plan/business-continuity-plan.md",
           "line": 357
+        },
+        {
+          "file": "e-commerce/e-commerce.md",
+          "line": 251
+        },
+        {
+          "file": "e-commerce/e-commerce.md",
+          "line": 251
+        },
+        {
+          "file": "e-commerce/e-commerce.md",
+          "line": 255
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 251
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 251
+        },
+        {
+          "file": "information-security/information-security.md",
+          "line": 255
         }
       ]
     },
@@ -60791,7 +60886,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 361
+          "line": 379
         }
       ]
     },
@@ -60805,7 +60900,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 363
+          "line": 381
         }
       ]
     },
@@ -60819,7 +60914,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 363
+          "line": 381
         }
       ]
     },
@@ -60833,7 +60928,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 362
+          "line": 380
         }
       ]
     },
@@ -60851,7 +60946,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 362
+          "line": 380
         }
       ]
     },
@@ -60865,7 +60960,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 362
+          "line": 380
         }
       ]
     },
@@ -60880,11 +60975,11 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 361
+          "line": 379
         },
         {
           "file": "information-security/information-security.md",
-          "line": 365
+          "line": 383
         },
         {
           "file": "truth-in-savings/truth-in-savings.md",
@@ -60902,7 +60997,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 361
+          "line": 379
         }
       ]
     },
@@ -60916,7 +61011,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 361
+          "line": 379
         }
       ]
     },
@@ -60930,11 +61025,11 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 362
+          "line": 380
         },
         {
           "file": "information-security/information-security.md",
-          "line": 365
+          "line": 383
         }
       ]
     },
@@ -60948,7 +61043,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 362
+          "line": 380
         }
       ]
     },
@@ -63088,7 +63183,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 380
+          "line": 398
         }
       ]
     },
@@ -63149,7 +63244,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 380
+          "line": 398
         },
         {
           "file": "record-retention/record-retention.md",
@@ -63183,7 +63278,7 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 268
+          "line": 287
         }
       ]
     },
@@ -63255,11 +63350,11 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 268
+          "line": 287
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 272
+          "line": 291
         },
         {
           "file": "electronic-payment-systems/electronic-payment-systems.md",
@@ -63279,7 +63374,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 380
+          "line": 398
         },
         {
           "file": "privacy/privacy.md",
@@ -63353,7 +63448,7 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 269
+          "line": 288
         },
         {
           "file": "electronic-payment-systems/electronic-payment-systems.md",
@@ -63405,7 +63500,7 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 269
+          "line": 288
         },
         {
           "file": "record-retention/record-retention.md",
@@ -63460,11 +63555,11 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 268
+          "line": 287
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 270
+          "line": 289
         },
         {
           "file": "electronic-payment-systems/electronic-payment-systems.md",
@@ -63600,11 +63695,11 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 269
+          "line": 288
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 272
+          "line": 291
         },
         {
           "file": "investment/investment.md",
@@ -63686,7 +63781,7 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 269
+          "line": 288
         },
         {
           "file": "electronic-payment-systems/electronic-payment-systems.md",
@@ -63736,11 +63831,11 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 269
+          "line": 288
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 272
+          "line": 291
         },
         {
           "file": "truth-in-savings/truth-in-savings.md",
@@ -63793,7 +63888,7 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 268
+          "line": 287
         },
         {
           "file": "fair-lending/fair-lending.md",
@@ -64011,7 +64106,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 379
+          "line": 397
         },
         {
           "file": "record-retention/record-retention.md",
@@ -64083,7 +64178,7 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 269
+          "line": 288
         },
         {
           "file": "investment/investment.md",
@@ -64162,7 +64257,7 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 270
+          "line": 289
         },
         {
           "file": "electronic-payment-systems/electronic-payment-systems.md",
@@ -64186,7 +64281,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 475
+          "line": 493
         },
         {
           "file": "record-retention/record-retention.md",
@@ -64218,7 +64313,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 379
+          "line": 397
         }
       ]
     },
@@ -64242,15 +64337,15 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 379
+          "line": 397
         },
         {
           "file": "information-security/information-security.md",
-          "line": 475
+          "line": 493
         },
         {
           "file": "information-security/information-security.md",
-          "line": 475
+          "line": 493
         },
         {
           "file": "privacy/privacy.md",
@@ -64314,7 +64409,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 380
+          "line": 398
         }
       ]
     },
@@ -64374,7 +64469,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 382
+          "line": 400
         }
       ]
     },
@@ -64393,7 +64488,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 382
+          "line": 400
         }
       ]
     },
@@ -64419,11 +64514,11 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 270
+          "line": 289
         },
         {
           "file": "information-security/information-security.md",
-          "line": 379
+          "line": 397
         },
         {
           "file": "investment/investment.md",
@@ -64483,7 +64578,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 379
+          "line": 397
         },
         {
           "file": "investment/investment.md",
@@ -64553,7 +64648,7 @@
       "occurrences": [
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 270
+          "line": 289
         },
         {
           "file": "electronic-payment-systems/electronic-payment-systems.md",
@@ -64714,7 +64809,7 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 302
+          "line": 321
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -64778,7 +64873,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 343
+          "line": 361
         }
       ]
     },
@@ -64842,7 +64937,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 343
+          "line": 361
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -64882,7 +64977,7 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 270
+          "line": 289
         },
         {
           "file": "electronic-payment-systems/electronic-payment-systems.md",
@@ -64890,7 +64985,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 343
+          "line": 361
         },
         {
           "file": "internal-controls/internal-controls.md",
@@ -65159,7 +65254,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 270
+          "line": 288
         },
         {
           "file": "third-party-risk/third-party-risk.md",
@@ -65245,11 +65340,11 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 271
+          "line": 289
         },
         {
           "file": "information-security/information-security.md",
-          "line": 271
+          "line": 289
         },
         {
           "file": "privacy/privacy.md",
@@ -65393,7 +65488,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 270
+          "line": 288
         }
       ]
     },
@@ -65407,7 +65502,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 270
+          "line": 288
         }
       ]
     },
@@ -65827,7 +65922,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 271
+          "line": 289
         },
         {
           "file": "third-party-risk/third-party-risk.md",
@@ -66276,7 +66371,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 269
+          "line": 287
         }
       ]
     },
@@ -66295,15 +66390,15 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 251
+          "line": 270
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 251
+          "line": 270
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 254
+          "line": 273
         }
       ]
     },
@@ -66318,15 +66413,15 @@
       "occurrences": [
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 251
+          "line": 270
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 251
+          "line": 270
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 254
+          "line": 273
         },
         {
           "file": "third-party-risk/third-party-risk.md",
@@ -66349,7 +66444,7 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 251
+          "line": 270
         }
       ]
     },
@@ -66369,7 +66464,7 @@
         },
         {
           "file": "e-commerce/e-commerce.md",
-          "line": 251
+          "line": 270
         },
         {
           "file": "third-party-risk/third-party-risk.md",
@@ -66934,7 +67029,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 271
+          "line": 289
         },
         {
           "file": "privacy/privacy.md",
@@ -67136,7 +67231,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 270
+          "line": 288
         },
         {
           "file": "privacy/privacy.md",
@@ -67257,7 +67352,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 270
+          "line": 288
         },
         {
           "file": "third-party-risk/third-party-risk.md",
@@ -67307,7 +67402,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 270
+          "line": 288
         },
         {
           "file": "third-party-risk/third-party-risk.md",
@@ -67781,7 +67876,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 269
+          "line": 287
         },
         {
           "file": "third-party-risk/third-party-risk.md",
@@ -67808,7 +67903,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 269
+          "line": 287
         },
         {
           "file": "third-party-risk/third-party-risk.md",
@@ -67836,7 +67931,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 269
+          "line": 287
         },
         {
           "file": "privacy/privacy.md",
@@ -67954,7 +68049,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 269
+          "line": 287
         },
         {
           "file": "third-party-risk/third-party-risk.md",
@@ -68246,7 +68341,7 @@
         },
         {
           "file": "information-security/information-security.md",
-          "line": 271
+          "line": 289
         },
         {
           "file": "privacy/privacy.md",
@@ -68326,7 +68421,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 269
+          "line": 287
         }
       ]
     },
@@ -68359,7 +68454,7 @@
       "occurrences": [
         {
           "file": "information-security/information-security.md",
-          "line": 269
+          "line": 287
         },
         {
           "file": "third-party-risk/third-party-risk.md",
