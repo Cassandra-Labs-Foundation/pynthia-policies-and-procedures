@@ -156,6 +156,21 @@ We use **Blnk Cloud** (managed): Blnk runs Postgres/Redis/Typesense; we consume
 the API only. Fully external to Supabase, so the "don't share a database"
 principle holds by construction.
 
+**Provisioned instance** (as of 2026-07-09):
+
+| | |
+|---|---|
+| Instance ID | `instance_3d29b1b3-6c55-4cd8-a6d7-3c08f5eae9cd` |
+| API base | `https://api.cloud.blnkfinance.com` |
+| [MCP endpoint](https://docs.blnkfinance.com/cloud/integrations/mcp) | `https://api.cloud.blnkfinance.com/mcp/instance_3d29b1b3-6c55-4cd8-a6d7-3c08f5eae9cd` |
+
+The **MCP** endpoint is read/query access for AI assistants (33 tools: ledgers,
+balances, transactions, identities, views, insights, search, queries) — auth via
+`Bearer <key>` with `mcp:read`/`mcp:write` scopes; all traffic proxied through
+Blnk Cloud (clients never hit Core directly). Separate from the REST + webhook
+integration the edge functions use. **API keys are never committed** — stored in
+Blnk Cloud creds / the developer's local MCP config, rotated on exposure.
+
 - **Provision** a Cloud [instance](https://docs.blnkfinance.com/cloud/instances/create)
   (7–10 min); use [branching](https://docs.blnkfinance.com/cloud/instances/branching)
   for a staging ledger and [whitelist](https://docs.blnkfinance.com/cloud/instances/whitelist)
