@@ -111,21 +111,39 @@ authorization controls automatically (money can't move until committed).
 
 ## 6. Sync architecture
 
-**Command path (Supabase → Blnk).** Backend services call Blnk on money events,
-then persist returned ids + mirrored status. Never write Blnk's DB directly.
+**Command path (Supabase → Blnk) — primary mirror.** Backend services call Blnk
+on money events, then persist returned ids + mirrored status. Never write Blnk's
+DB directly. Blnk's REST/MCP responses are **synchronous and complete**
+(`transaction_id`, `status`, `hash`, resulting ids), so the common-case mirror
+happens here, not via webhooks: persist the response fields on the originating
+row, then `GET /balances/{id}` to refresh `account.balance` after a move.
 
-**Event path (Blnk → Supabase).** A Supabase **Edge Function** `blnk-webhook`
-receives events (`transaction.applied|inflight|void|rejected|scheduled`,
-`balance.monitor`, `identity.created`, `reconciliation.completed|failed`,
-`bulk_transaction.*`), writes them to an **event inbox** (idempotent by event id),
-then updates the target row's mirrored `blnk_status` / `balance`. Feeds the
-existing `event` table and can raise `control_result` / `bsa_alert`.
+**Poll/reconcile path (pg_cron) — required, not a fallback.** A scheduled job:
+- re-polls rows in non-terminal `blnk_status` (QUEUED/INFLIGHT/SCHEDULED) via
+  `get_transaction_by_reference` and advances the mirror;
+- **balance-drift check**: Blnk balance vs Supabase mirror → alert on mismatch;
+- picks up async transitions webhooks would otherwise carry (scheduled txn
+  applies, inflight commits/voids by another actor, `balance.monitor` trips via
+  the balance-monitors API).
 
-**Reconciliation path.** Nightly: push processor/Fed statements into Blnk
-([batch upload](https://docs.blnkfinance.com/reconciliations/overview) or instant,
-`one_to_one`/`one_to_many`, `matching_rule_ids`); pull match results (stored in
-txn `meta_data.reconciled`) into `bookkeeping_entry`/recon tables. Also run a
-**balance-drift check**: Blnk balance vs Supabase mirror → alert on mismatch.
+**Event path (Blnk → Supabase) — support-gated optimization.** The deployed
+Edge Function `blnk-webhook` ingests global-webhook events
+(`transaction.applied|inflight|void|rejected|scheduled`, `balance.monitor`,
+`identity.created`, `reconciliation.completed|failed`, `bulk_transaction.*`)
+into the `core.blnk_event` inbox (idempotent by event id), then updates the
+target row. **Status: dormant.** Managed Blnk Cloud exposes **no self-serve UI**
+to set the global webhook URL (`BLNK_WEBHOOK_URL` / `notification.webhook.url`
+is instance env config; dashboard verified 2026-07-10 — Settings has API
+keys/Watch/MCP/Instances but no webhooks page; the Apps library is a different
+mechanism). Enabling requires a Blnk support request. Two caveats when enabled:
+global webhooks are **at-least-once** (inbox dedup already handles it) and
+**never retried on non-2xx** — a missed delivery is gone, which is why the
+pg_cron reconcile path stays authoritative regardless.
+
+**Reconciliation path (statements).** Nightly: push processor/Fed statements
+into Blnk ([batch upload](https://docs.blnkfinance.com/reconciliations/overview)
+or instant, `one_to_one`/`one_to_many`, `matching_rule_ids`); pull match results
+(stored in txn `meta_data.reconciled`) into `bookkeeping_entry`/recon tables.
 
 ## 7. Proposed Supabase schema changes (new migration)
 
@@ -174,8 +192,11 @@ principle holds by construction.
 | | |
 |---|---|
 | Instance ID | `instance_3d29b1b3-6c55-4cd8-a6d7-3c08f5eae9cd` |
-| API base | `https://api.cloud.blnkfinance.com` |
+| Cloud API base | `https://api.cloud.blnkfinance.com` |
+| Core REST base (command path) | `https://pynthia-pynthia-test.deploy.blnkfinance.com` |
 | [MCP endpoint](https://docs.blnkfinance.com/cloud/integrations/mcp) | `https://api.cloud.blnkfinance.com/mcp/instance_3d29b1b3-6c55-4cd8-a6d7-3c08f5eae9cd` |
+| Webhook receiver (deployed, dormant — see §6) | `https://jynsipdvrgqdkeqrlzcv.functions.supabase.co/blnk-webhook` |
+| Instance secret key | dashboard → instance details (webhook signing; → `BLNK_WEBHOOK_SECRET` when enabled) |
 
 The **MCP** endpoint is read/query access for AI assistants (33 tools: ledgers,
 balances, transactions, identities, views, insights, search, queries) — auth via
