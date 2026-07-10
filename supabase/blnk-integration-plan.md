@@ -61,9 +61,22 @@ they integrate over Blnk's REST API (writes) and Blnk webhooks (reads).
 Per Blnk's [money-movement map](https://docs.blnkfinance.com/ledgers/money-movement-map),
 model external parties as `@`-prefixed balances and group real balances by purpose:
 
-- **External / settlement balances** (`@`): `@FedWire`, `@ACHNetwork`, `@CardNetwork`, `@Cash`, `@Fees`, `@Revenue`, `@Suspense`.
+- **External / settlement balances** (`@`): `@FedWire`, `@ACHNetwork`, `@CardNetwork`, `@Cash`, `@Fees`, `@Revenue`, `@Suspense`. Blnk **auto-creates** these on first transaction reference — no upfront provisioning.
 - **Customer Ledger**: one balance per `account` (the customer's money).
 - **Bank Ledger**: FBO/settlement/GL-control balances (`fbo_position`).
+
+**Provisioned ledgers** (instance `instance_3d29b1b3…`, created 2026-07-10):
+
+| Ledger | `ledger_id` | Role |
+|---|---|---|
+| Customer Ledger | `ldg_7d83bb57-a8a0-4fd9-a67e-9cd5fbe0e3ba` | per-account customer balances |
+| Bank Ledger | `ldg_592fc16b-2989-4e00-9cfd-0caa213ade51` | FBO / settlement / GL-control |
+| General Ledger | `general_ledger_id` | Blnk default → GL-control |
+
+> **Idempotency note:** Blnk rejects an **identical request body** as `duplicate request`.
+> Money-movement writes dedup correctly via `reference` (row id → one txn); non-reference
+> setup calls (`create_ledger`/`create_balance`) must carry a unique nonce. The Phase-2
+> writer helper (§6 TODO) must stamp `reference` and vary setup nonces.
 
 Examples (source → destination):
 - **Open + fund account**: `@OpeningFunding → bln_customer` (balances start at 0, so opening deposits are transactions, not presets).
