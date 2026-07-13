@@ -1,0 +1,408 @@
+// blnk — shared writer client for Blnk Finance Core REST API.
+//
+// Writer contract: every Blnk write carries reference = table:id[:leg] and
+// meta_data.core_resource so webhooks/reconcilers can route ledger events back to
+// Postgres core rows, and duplicate POSTs are idempotent on reference.
+// Mirrors are returned for the caller to persist; this module never touches the DB.
+
+export interface BlnkConfig {
+  apiUrl: string;
+  apiKey: string;
+  fetchFn?: typeof fetch;
+}
+
+export function blnkConfigFromEnv(): BlnkConfig {
+  const apiUrl = Deno.env.get("BLNK_API_URL");
+  const apiKey = Deno.env.get("BLNK_API_KEY");
+  const missing: string[] = [];
+  if (!apiUrl) missing.push("BLNK_API_URL");
+  if (!apiKey) missing.push("BLNK_API_KEY");
+  if (missing.length) throw new Error(`missing env: ${missing.join(", ")}`);
+  return { apiUrl: apiUrl!, apiKey: apiKey! };
+}
+
+export class BlnkError extends Error {
+  readonly status: number;
+  readonly body: unknown;
+
+  constructor(message: string, status: number, body: unknown) {
+    super(message);
+    this.name = "BlnkError";
+    this.status = status;
+    this.body = body;
+  }
+}
+
+export interface CoreResource {
+  table: string;
+  id: string;
+}
+
+export function blnkReference(res: CoreResource, leg?: string): string {
+  return leg ? `${res.table}:${res.id}:${leg}` : `${res.table}:${res.id}`;
+}
+
+export function customerLedgerId(): string {
+  return Deno.env.get("BLNK_CUSTOMER_LEDGER_ID") ?? "ldg_7d83bb57-a8a0-4fd9-a67e-9cd5fbe0e3ba";
+}
+
+export function bankLedgerId(): string {
+  return Deno.env.get("BLNK_BANK_LEDGER_ID") ?? "ldg_592fc16b-2989-4e00-9cfd-0caa213ade51";
+}
+
+export interface BlnkTransaction {
+  transaction_id: string;
+  reference: string;
+  status: string;
+  amount?: number;
+  precise_amount?: number;
+  precision?: number;
+  currency?: string;
+  source?: string;
+  destination?: string;
+  hash?: string;
+  meta_data?: Record<string, unknown> | null;
+  [k: string]: unknown;
+}
+
+export interface BlnkBalance {
+  balance_id: string;
+  ledger_id?: string;
+  currency?: string;
+  balance?: number;
+  credit_balance?: number;
+  debit_balance?: number;
+  identity_id?: string;
+  meta_data?: Record<string, unknown> | null;
+  [k: string]: unknown;
+}
+
+export interface BlnkIdentity {
+  identity_id: string;
+  identity_type?: string;
+  meta_data?: Record<string, unknown> | null;
+  [k: string]: unknown;
+}
+
+export interface TransactionMirror {
+  blnk_transaction_id: string;
+  blnk_reference: string;
+  blnk_status: string;
+  synced_at: string;
+  // For core.card_authorization the caller maps blnk_transaction_id -> blnk_inflight_id.
+}
+
+export interface RecordTransactionParams {
+  coreResource: CoreResource;
+  amountCents: number;
+  currency: string;
+  source: string;
+  destination: string;
+  description: string; // Blnk rejects blank descriptions; required narration on every txn
+  inflight?: boolean;
+  leg?: string;
+  allowOverdraft?: boolean;
+  skipQueue?: boolean;
+  metaData?: Record<string, unknown>;
+}
+
+export interface RecordResult {
+  transaction: BlnkTransaction;
+  mirror: TransactionMirror;
+  deduped: boolean;
+}
+
+export interface CreateBalanceParams {
+  coreResource: CoreResource;
+  currency: string;
+  ledgerId?: string;
+  identityId?: string;
+  metaData?: Record<string, unknown>;
+}
+
+export interface BalanceMirror {
+  blnk_balance_id: string;
+  blnk_ledger_id?: string;
+  balance_synced_at: string;
+}
+
+export interface CreateIdentityParams {
+  coreResource: CoreResource;
+  identityType: "individual" | "organization";
+  fields?: Record<string, unknown>;
+  metaData?: Record<string, unknown>;
+}
+
+function baseUrl(cfg: BlnkConfig): string {
+  return cfg.apiUrl.replace(/\/+$/, "");
+}
+
+function fetchFn(cfg: BlnkConfig): typeof fetch {
+  return cfg.fetchFn ?? globalThis.fetch;
+}
+
+function validateAmountCents(amountCents: number): void {
+  if (!Number.isSafeInteger(amountCents) || amountCents <= 0) {
+    throw new RangeError(`amountCents must be a positive safe integer, got ${amountCents}`);
+  }
+}
+
+function stampMeta(
+  coreResource: CoreResource,
+  metaData?: Record<string, unknown>,
+): Record<string, unknown> {
+  return {
+    ...metaData,
+    core_resource: { table: coreResource.table, id: coreResource.id },
+  };
+}
+
+function errorText(body: unknown): string {
+  if (typeof body === "string") return body;
+  if (body && typeof body === "object") return JSON.stringify(body);
+  return String(body ?? "");
+}
+
+function isDuplicateReferenceError(status: number, body: unknown): boolean {
+  if (status < 400 || status >= 500) return false;
+  const text = errorText(body);
+  return /referen/i.test(text) && /(exist|duplicat|used)/i.test(text);
+}
+
+async function request<T>(
+  cfg: BlnkConfig,
+  method: string,
+  path: string,
+  body?: unknown,
+): Promise<T> {
+  const url = `${baseUrl(cfg)}${path}`;
+  const init: RequestInit = {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      "X-blnk-key": cfg.apiKey,
+    },
+  };
+  if (body !== undefined) init.body = JSON.stringify(body);
+
+  const res = await fetchFn(cfg)(url, init);
+  const text = await res.text();
+  let parsed: unknown = null;
+  if (text) {
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      parsed = text;
+    }
+  }
+
+  if (!res.ok) {
+    throw new BlnkError(
+      `Blnk ${method} ${path} failed: ${res.status}`,
+      res.status,
+      parsed,
+    );
+  }
+  return parsed as T;
+}
+
+export async function getTransactionByReference(
+  cfg: BlnkConfig,
+  reference: string,
+): Promise<BlnkTransaction | null> {
+  const data = await request<{ hits?: unknown }>(cfg, "POST", "/search/transactions", {
+    q: reference,
+    query_by: "reference",
+  });
+
+  const hits = data?.hits;
+  if (!Array.isArray(hits) || hits.length === 0) return null;
+
+  const first = hits[0];
+  if (!first || typeof first !== "object") return null;
+
+  const doc = (first as { document?: unknown }).document;
+  if (!doc || typeof doc !== "object") return null;
+
+  const txn = doc as BlnkTransaction;
+  // Typesense `q` matches fuzzily; the idempotency path needs an exact reference.
+  if (typeof txn.transaction_id !== "string" || txn.reference !== reference) {
+    return null;
+  }
+  return txn;
+}
+
+export function recordTransaction(
+  cfg: BlnkConfig,
+  p: RecordTransactionParams,
+): Promise<RecordResult> {
+  validateAmountCents(p.amountCents);
+  return recordTransactionInner(cfg, p);
+}
+
+async function recordTransactionInner(
+  cfg: BlnkConfig,
+  p: RecordTransactionParams,
+): Promise<RecordResult> {
+  const reference = blnkReference(p.coreResource, p.leg);
+  // Blnk rejects amount + precise_amount together; precise (integer cents) is authoritative.
+  const body: Record<string, unknown> = {
+    precise_amount: p.amountCents,
+    precision: 100,
+    currency: p.currency,
+    source: p.source,
+    destination: p.destination,
+    reference,
+    description: p.description,
+    meta_data: stampMeta(p.coreResource, p.metaData),
+    skip_queue: p.skipQueue ?? true,
+  };
+  if (p.inflight !== undefined) body.inflight = p.inflight;
+  if (p.allowOverdraft !== undefined) body.allow_overdraft = p.allowOverdraft;
+
+  const url = `${baseUrl(cfg)}/transactions`;
+  const init: RequestInit = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-blnk-key": cfg.apiKey,
+    },
+    body: JSON.stringify(body),
+  };
+
+  const res = await fetchFn(cfg)(url, init);
+  const text = await res.text();
+  let parsed: unknown = null;
+  if (text) {
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      parsed = text;
+    }
+  }
+
+  if (!res.ok) {
+    if (isDuplicateReferenceError(res.status, parsed)) {
+      const existing = await getTransactionByReference(cfg, reference);
+      if (existing) {
+        return {
+          transaction: existing,
+          mirror: transactionMirror(existing),
+          deduped: true,
+        };
+      }
+    }
+    throw new BlnkError(
+      `Blnk POST /transactions failed: ${res.status}`,
+      res.status,
+      parsed,
+    );
+  }
+
+  const transaction = parsed as BlnkTransaction;
+  return {
+    transaction,
+    mirror: transactionMirror(transaction),
+    deduped: false,
+  };
+}
+
+export function commitInflight(
+  cfg: BlnkConfig,
+  transactionId: string,
+  opts?: { amountCents?: number },
+): Promise<BlnkTransaction> {
+  if (opts?.amountCents !== undefined) validateAmountCents(opts.amountCents);
+  return commitInflightInner(cfg, transactionId, opts);
+}
+
+async function commitInflightInner(
+  cfg: BlnkConfig,
+  transactionId: string,
+  opts?: { amountCents?: number },
+): Promise<BlnkTransaction> {
+  const body: Record<string, unknown> = { status: "commit" };
+  if (opts?.amountCents !== undefined) {
+    body.amount = opts.amountCents / 100;
+  }
+  return await request<BlnkTransaction>(
+    cfg,
+    "PUT",
+    `/transactions/inflight/${transactionId}`,
+    body,
+  );
+}
+
+export async function voidInflight(
+  cfg: BlnkConfig,
+  transactionId: string,
+): Promise<BlnkTransaction> {
+  return await request<BlnkTransaction>(
+    cfg,
+    "PUT",
+    `/transactions/inflight/${transactionId}`,
+    { status: "void" },
+  );
+}
+
+export function transactionMirror(t: BlnkTransaction): TransactionMirror {
+  return {
+    blnk_transaction_id: t.transaction_id,
+    blnk_reference: t.reference,
+    blnk_status: t.status,
+    synced_at: new Date().toISOString(),
+  };
+}
+
+export async function createCustomerBalance(
+  cfg: BlnkConfig,
+  p: CreateBalanceParams,
+): Promise<{ balance: BlnkBalance; mirror: BalanceMirror }> {
+  const balance = await request<BlnkBalance>(cfg, "POST", "/balances", {
+    ledger_id: p.ledgerId ?? customerLedgerId(),
+    currency: p.currency,
+    ...(p.identityId ? { identity_id: p.identityId } : {}),
+    meta_data: stampMeta(p.coreResource, p.metaData),
+  });
+
+  return {
+    balance,
+    mirror: {
+      blnk_balance_id: balance.balance_id,
+      blnk_ledger_id: balance.ledger_id,
+      balance_synced_at: new Date().toISOString(),
+    },
+  };
+}
+
+export async function getBalance(
+  cfg: BlnkConfig,
+  balanceId: string,
+): Promise<BlnkBalance> {
+  return await request<BlnkBalance>(cfg, "GET", `/balances/${balanceId}`);
+}
+
+export function balanceMirror(
+  b: BlnkBalance,
+): { balance: number | null; balance_synced_at: string } {
+  return {
+    balance: typeof b.balance === "number" ? b.balance : null,
+    balance_synced_at: new Date().toISOString(),
+  };
+}
+
+export async function createIdentity(
+  cfg: BlnkConfig,
+  p: CreateIdentityParams,
+): Promise<{ identity: BlnkIdentity; mirror: { blnk_identity_id: string } }> {
+  const identity = await request<BlnkIdentity>(cfg, "POST", "/identities", {
+    identity_type: p.identityType,
+    ...p.fields,
+    meta_data: stampMeta(p.coreResource, p.metaData),
+  });
+
+  return {
+    identity,
+    mirror: { blnk_identity_id: identity.identity_id },
+  };
+}

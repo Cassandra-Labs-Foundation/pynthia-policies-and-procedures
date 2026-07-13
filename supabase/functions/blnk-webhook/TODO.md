@@ -76,13 +76,22 @@ need a re-driver, and balance mirrors need periodic drift correction.
   on mismatch (feeds recon controls);
 - alerts when failed-inbox volume crosses a threshold.
 
-## 6. Phase-2 writer contract (enforce upstream) — P1, not in this function
+## 6. Phase-2 writer contract (enforce upstream) — helper BUILT, adoption pending
 
-Every code path that creates a Blnk object must set
-`meta_data.core_resource = { table, id }` **and** `blnk_reference` = our row id,
-or events route via the `reference` fallback / land `failed`. Add a shared
-create-transaction helper that stamps both; add a check/test that money-movement
-writers use it.
+The shared helper exists: [`../_shared/blnk.ts`](../_shared/blnk.ts) (tests in
+`blnk.test.ts`). It enforces `reference = table:id[:leg]` +
+`meta_data.core_resource` on every write, sends integer-cents `precise_amount`
+only (Blnk rejects `amount`+`precise_amount` together; `description` is
+required), dedups duplicate references via exact-match search, and returns
+mirror objects for the caller to persist. Live-verified 2026-07-13
+(inflight → void round-trip on the dev instance).
+
+Remaining:
+- **Key scopes**: the command-path key needs `transactions:read` (by-id reads,
+  reconciler) and `search:write` (dedup-by-reference lookup) in addition to the
+  write scopes.
+- Adopt the helper in every money-movement writer as they're built; add a
+  check/test that writers don't call Blnk directly.
 
 ## 7. Hardening — P3
 
