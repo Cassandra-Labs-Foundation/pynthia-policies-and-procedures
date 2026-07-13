@@ -149,10 +149,12 @@ Deno.test("duplicate reference fetches existing transaction", async () => {
         document: {
           transaction_id: "txn_1",
           reference: "ach_transfer:abc",
-          status: "APPLIED",
+          status: "INFLIGHT", // stale index snapshot
         },
       }],
     }),
+    // authoritative by-id re-fetch wins over the stale search doc
+    jsonRes({ transaction_id: "txn_1", reference: "ach_transfer:abc", status: "VOID" }),
   ]);
 
   const result = await recordTransaction(cfg(stub), {
@@ -166,7 +168,10 @@ Deno.test("duplicate reference fetches existing transaction", async () => {
 
   assertEquals(result.deduped, true);
   assertEquals(result.mirror.blnk_transaction_id, "txn_1");
+  assertEquals(result.mirror.blnk_status, "VOID"); // refreshed, not the stale INFLIGHT
   assertEquals(stub.requests[1].url, "https://blnk.test/search/transactions");
+  assertEquals(stub.requests[2].url, "https://blnk.test/transactions/txn_1");
+  assertEquals(stub.requests[2].method, "GET");
 });
 
 Deno.test("duplicate reference but search empty throws BlnkError", async () => {

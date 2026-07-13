@@ -72,6 +72,10 @@ need a re-driver, and balance mirrors need periodic drift correction.
 **Do:** a scheduled job (pg_cron or a scheduled edge function) that:
 - re-dispatches `core.blnk_event` rows in `status IN ('received','failed')` older
   than N minutes (re-dispatch is idempotent);
+- **inflight resolution:** Blnk keeps a committed/voided inflight **parent** at
+  `status=INFLIGHT` forever (commit/void create child txns with
+  `parent_transaction` set) — rows stuck in mirrored `INFLIGHT` must be resolved
+  via child-transaction lookup, not the parent's status;
 - **drift check:** compare `account.balance` vs Blnk `GET /balances/{id}`, alert
   on mismatch (feeds recon controls);
 - alerts when failed-inbox volume crosses a threshold.

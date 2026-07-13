@@ -206,6 +206,13 @@ async function request<T>(
   return parsed as T;
 }
 
+export async function getTransaction(
+  cfg: BlnkConfig,
+  transactionId: string,
+): Promise<BlnkTransaction> {
+  return await request<BlnkTransaction>(cfg, "GET", `/transactions/${transactionId}`);
+}
+
 export async function getTransactionByReference(
   cfg: BlnkConfig,
   reference: string,
@@ -283,8 +290,20 @@ async function recordTransactionInner(
 
   if (!res.ok) {
     if (isDuplicateReferenceError(res.status, parsed)) {
-      const existing = await getTransactionByReference(cfg, reference);
-      if (existing) {
+      // Search is an eventually-consistent index: a just-created duplicate may not be
+      // indexed yet (caller retries later; the write was rejected, so retrying is safe).
+      // Re-fetch by id for authoritative state. NB Blnk inflight semantics: commit/void
+      // creates a CHILD transaction and the parent stays status=INFLIGHT forever, so a
+      // deduped inflight parent is not terminal truth — resolve via commit/void return
+      // values or child-transaction lookup (reconciler).
+      const indexed = await getTransactionByReference(cfg, reference);
+      if (indexed) {
+        let existing = indexed;
+        try {
+          existing = await getTransaction(cfg, indexed.transaction_id);
+        } catch {
+          // fall back to the index snapshot if the by-id read is unavailable
+        }
         return {
           transaction: existing,
           mirror: transactionMirror(existing),
