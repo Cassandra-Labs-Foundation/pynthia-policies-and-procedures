@@ -131,7 +131,7 @@ export function bankErrorResponse(requestId: string): Response {
 
 export function internalErrorResponse(requestId: string, err?: unknown): Response {
   if (err !== undefined) {
-    const msg = err instanceof Error ? err.message : String(err);
+    const msg = err instanceof Error ? err.message : JSON.stringify(err);
     console.error(`[${requestId}] internal error: ${msg}`);
   }
   return apiError(500, "internal_error", requestId, {
