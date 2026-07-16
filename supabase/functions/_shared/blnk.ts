@@ -218,6 +218,8 @@ export interface SearchTransactionsParams {
   queryBy: string;
   filterBy?: string; // Typesense filter, e.g. `parent_transaction:=txn_...`
   perPage?: number;
+  page?: number; // 1-based (Typesense)
+  sortBy?: string; // e.g. `created_at:desc`
 }
 
 export async function searchTransactions(
@@ -227,6 +229,8 @@ export async function searchTransactions(
   const body: Record<string, unknown> = { q: p.q, query_by: p.queryBy };
   if (p.filterBy !== undefined) body.filter_by = p.filterBy;
   if (p.perPage !== undefined) body.per_page = p.perPage;
+  if (p.page !== undefined) body.page = p.page;
+  if (p.sortBy !== undefined) body.sort_by = p.sortBy;
   const data = await request<{ hits?: unknown }>(cfg, "POST", "/search/transactions", body);
 
   const hits = data?.hits;

@@ -46,7 +46,14 @@ with the same header.
    recorded, and `balance_synced_at` is refreshed. On match, only
    `balance_synced_at` is updated.
 
-4. **Sync state** — upserts `blnk_sync_state` (`resource = reconcile`) with run
+4. **Missing mirrors** — walks recent Blnk transactions (bounded: up to 5 pages
+   × 100, cursor-tracked via `blnk_sync_state` `missing_mirror`). Flags via
+   `blnk.missing_mirror` events any transaction lacking a `core_resource` writer-
+   contract stamp, with an unrecognized `core_resource.table`, or whose mirror
+   row is missing from the corresponding core table (allowlist: `ach_transfer`,
+   `wire_transfer`, `transfer`, `inbound_payment`, `card_authorization`).
+
+5. **Sync state** — upserts `blnk_sync_state` (`resource = reconcile`) with run
    summary counts.
 
 Partial progress returns `200` with a non-empty `errors` array.

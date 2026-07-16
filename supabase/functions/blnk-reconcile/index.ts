@@ -12,10 +12,18 @@ import {
   searchTransactions,
   BlnkError,
   type BlnkConfig,
+  type BlnkTransaction,
 } from "../_shared/blnk.ts";
 
 const PENDING_STATUSES = ["QUEUED", "INFLIGHT", "SCHEDULED"] as const;
 const TXN_TABLES = ["ach_transfer", "wire_transfer", "transfer"] as const;
+const MIRROR_TABLES = [
+  "ach_transfer",
+  "wire_transfer",
+  "transfer",
+  "inbound_payment",
+  "card_authorization",
+] as const;
 
 interface TxnMirrorRow {
   id: string;
@@ -47,6 +55,7 @@ interface SweptCounts {
   transfer: number;
   card_authorization: number;
   balances: number;
+  blnk_transactions: number;
 }
 
 function json(body: unknown, status = 200): Response {
@@ -301,6 +310,174 @@ async function sweepBalances(
   }
 }
 
+async function emitMissingMirror(
+  db: SupabaseClient,
+  txn: BlnkTransaction,
+  txnId: string,
+  coreResource: { table?: string; id?: string } | undefined,
+  reason: string,
+  errors: SweepError[],
+  onMissing: () => void,
+): Promise<void> {
+  const { data: existing, error: dedupErr } = await db.schema("core").from("event")
+    .select("id")
+    .eq("code", "blnk.missing_mirror")
+    .eq("resource_id", txnId)
+    .limit(1);
+
+  if (dedupErr) {
+    errors.push({ table: "event", id: txnId, error: dedupErr.message });
+    return;
+  }
+  if (existing && existing.length > 0) return;
+
+  const createdAt = typeof txn.created_at === "string" ? txn.created_at : null;
+  const { error: insErr } = await db.schema("core").from("event").insert({
+    id: crypto.randomUUID(),
+    code: "blnk.missing_mirror",
+    type: "reconciliation",
+    resource_id: txnId,
+    payload: {
+      reason,
+      transaction_id: txnId,
+      reference: txn.reference ?? null,
+      core_resource: coreResource ?? null,
+      created_at: createdAt,
+    },
+    created_at: new Date().toISOString(),
+  });
+  if (insErr) {
+    errors.push({ table: "event", id: txnId, error: insErr.message });
+    return;
+  }
+  onMissing();
+}
+
+async function sweepMissingMirrors(
+  db: SupabaseClient,
+  cfg: BlnkConfig,
+  errors: SweepError[],
+  onSwept: (n: number) => void,
+  onMissing: () => void,
+): Promise<void> {
+  const { data: cursorRow, error: cursorErr } = await db.schema("core").from("blnk_sync_state")
+    .select("last_cursor")
+    .eq("resource", "missing_mirror")
+    .maybeSingle();
+
+  if (cursorErr) {
+    errors.push({ table: "blnk_sync_state", id: "missing_mirror", error: cursorErr.message });
+    return;
+  }
+
+  const effectiveCursor = (typeof cursorRow?.last_cursor === "string" && cursorRow.last_cursor)
+    ? cursorRow.last_cursor
+    : new Date(Date.now() - 24 * 3600 * 1000).toISOString();
+  const cursorMs = Date.parse(effectiveCursor);
+
+  const collected: BlnkTransaction[] = [];
+  let newestSeen: string | null = null;
+  let fetchedAny = false;
+  // Grace window: a txn's mirror write may still be in flight on the command
+  // path — too-young txns are neither examined nor cursor-advanced past, so the
+  // next run picks them up instead of flagging a false missing_mirror.
+  const eligibleMaxMs = Date.now() - 2 * 60 * 1000;
+
+  try {
+    const perPage = 100;
+    for (let page = 1; page <= 5; page++) {
+      const txns = await searchTransactions(cfg, {
+        q: "*",
+        queryBy: "reference",
+        sortBy: "created_at:desc",
+        perPage,
+        page,
+      });
+
+      if (txns.length === 0) break;
+      fetchedAny = true;
+
+      let oldestMsOnPage = Infinity;
+      for (const txn of txns) {
+        const createdAt = txn.created_at;
+        if (typeof createdAt !== "string") continue;
+        const ms = Date.parse(createdAt);
+        if (Number.isNaN(ms)) continue;
+
+        if (ms < oldestMsOnPage) oldestMsOnPage = ms;
+        if (ms > eligibleMaxMs) continue; // too young — leave for the next run
+        if (newestSeen === null || ms > Date.parse(newestSeen)) newestSeen = createdAt;
+        if (ms >= cursorMs) collected.push(txn);
+      }
+
+      if (txns.length < perPage) break;
+      if (oldestMsOnPage < cursorMs) break;
+    }
+  } catch (e) {
+    errors.push({ table: "blnk_search", id: "*", error: errMsg(e) });
+    return;
+  }
+
+  onSwept(collected.length);
+
+  for (const txn of collected) {
+    const txnId = txn.transaction_id;
+
+    const createdAt = txn.created_at;
+    if (typeof createdAt !== "string" || Number.isNaN(Date.parse(createdAt))) {
+      errors.push({ table: "blnk_search", id: txnId, error: "unparseable created_at" });
+      continue;
+    }
+
+    const parentTxn = txn.parent_transaction;
+    if (typeof parentTxn === "string" && parentTxn.length > 0) continue;
+
+    const metaData = txn.meta_data;
+    if (metaData?.synthetic === true) continue;
+
+    const coreResourceRaw = metaData?.core_resource;
+    const coreResource = (coreResourceRaw && typeof coreResourceRaw === "object")
+      ? coreResourceRaw as { table?: string; id?: string }
+      : undefined;
+
+    if (!coreResource?.table || !coreResource?.id) {
+      await emitMissingMirror(db, txn, txnId, coreResource, "no core_resource", errors, onMissing);
+      continue;
+    }
+
+    if (!(MIRROR_TABLES as readonly string[]).includes(coreResource.table)) {
+      await emitMissingMirror(db, txn, txnId, coreResource, "unknown table", errors, onMissing);
+      continue;
+    }
+
+    const { data, error } = await db.schema("core").from(coreResource.table)
+      .select("id")
+      .eq("id", coreResource.id)
+      .maybeSingle();
+
+    if (error) {
+      errors.push({ table: coreResource.table, id: coreResource.id, error: error.message });
+      continue;
+    }
+
+    if (data === null) {
+      await emitMissingMirror(db, txn, txnId, coreResource, "row missing", errors, onMissing);
+    }
+  }
+
+  const now = new Date().toISOString();
+  const newCursor = fetchedAny && newestSeen ? newestSeen : effectiveCursor;
+  const { error: upsertErr } = await db.schema("core").from("blnk_sync_state").upsert({
+    resource: "missing_mirror",
+    last_cursor: newCursor,
+    last_synced_at: now,
+    updated_at: now,
+  });
+  if (upsertErr) {
+    errors.push({ table: "blnk_sync_state", id: "missing_mirror", error: upsertErr.message });
+  }
+}
+
 Deno.serve(async (req: Request): Promise<Response> => {
   if (req.method !== "POST") return json({ error: "method not allowed" }, 405);
 
@@ -325,9 +502,11 @@ Deno.serve(async (req: Request): Promise<Response> => {
       transfer: 0,
       card_authorization: 0,
       balances: 0,
+      blnk_transactions: 0,
     };
     let advanced = 0;
     let drifts = 0;
+    let missingMirrors = 0;
 
     for (const table of TXN_TABLES) {
       await sweepTxnTable(
@@ -356,7 +535,15 @@ Deno.serve(async (req: Request): Promise<Response> => {
       () => { drifts++; },
     );
 
-    const summary = { swept, advanced, drifts, error_count: errors.length };
+    await sweepMissingMirrors(
+      db,
+      cfg,
+      errors,
+      (n) => { swept.blnk_transactions = n; },
+      () => { missingMirrors++; },
+    );
+
+    const summary = { swept, advanced, drifts, missing_mirrors: missingMirrors, error_count: errors.length };
     const now = new Date().toISOString();
     const { error: syncErr } = await db.schema("core").from("blnk_sync_state").upsert({
       resource: "reconcile",
@@ -366,7 +553,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     });
     if (syncErr) errors.push({ table: "blnk_sync_state", id: "reconcile", error: syncErr.message });
 
-    return json({ ok: true, swept, advanced, drifts, errors });
+    return json({ ok: true, swept, advanced, drifts, missing_mirrors: missingMirrors, errors });
   } catch (e) {
     return json({ ok: false, error: errMsg(e) }, 500);
   }

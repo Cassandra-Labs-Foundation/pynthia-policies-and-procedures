@@ -242,7 +242,12 @@ Blnk Cloud creds / the developer's local MCP config, rotated on exposure.
 2. **Balance authority — mirror.** Supabase `account.balance` is read-only,
    updated only from Blnk webhooks. Blnk is the sole source of truth; no dual-write.
 
-**11.2 PII residency — needs compliance sign-off**
+**11.2 PII residency — RESOLVED 2026-07-16: Option B**
+
+Decision: **authoritative PII lives in Supabase (our boundary, encrypted at
+rest); Blnk receives only tokenized/minimal fields** for ledger use. Identity
+writers must not send clear PII to Blnk beyond what ledger operation requires.
+Vendor DPA still required before production PII. Original analysis kept below.
 
 Both options tokenize PII in Blnk for the ledger; the question is where the
 *authoritative source* PII lives. With **Blnk Cloud** (a managed vendor), either
