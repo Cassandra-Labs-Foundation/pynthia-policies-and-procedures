@@ -213,30 +213,42 @@ export async function getTransaction(
   return await request<BlnkTransaction>(cfg, "GET", `/transactions/${transactionId}`);
 }
 
+export interface SearchTransactionsParams {
+  q: string;
+  queryBy: string;
+  filterBy?: string; // Typesense filter, e.g. `parent_transaction:=txn_...`
+  perPage?: number;
+}
+
+export async function searchTransactions(
+  cfg: BlnkConfig,
+  p: SearchTransactionsParams,
+): Promise<BlnkTransaction[]> {
+  const body: Record<string, unknown> = { q: p.q, query_by: p.queryBy };
+  if (p.filterBy !== undefined) body.filter_by = p.filterBy;
+  if (p.perPage !== undefined) body.per_page = p.perPage;
+  const data = await request<{ hits?: unknown }>(cfg, "POST", "/search/transactions", body);
+
+  const hits = data?.hits;
+  if (!Array.isArray(hits)) return [];
+  const out: BlnkTransaction[] = [];
+  for (const hit of hits) {
+    if (!hit || typeof hit !== "object") continue;
+    const doc = (hit as { document?: unknown }).document;
+    if (!doc || typeof doc !== "object") continue;
+    const txn = doc as BlnkTransaction;
+    if (typeof txn.transaction_id === "string") out.push(txn);
+  }
+  return out;
+}
+
 export async function getTransactionByReference(
   cfg: BlnkConfig,
   reference: string,
 ): Promise<BlnkTransaction | null> {
-  const data = await request<{ hits?: unknown }>(cfg, "POST", "/search/transactions", {
-    q: reference,
-    query_by: "reference",
-  });
-
-  const hits = data?.hits;
-  if (!Array.isArray(hits) || hits.length === 0) return null;
-
-  const first = hits[0];
-  if (!first || typeof first !== "object") return null;
-
-  const doc = (first as { document?: unknown }).document;
-  if (!doc || typeof doc !== "object") return null;
-
-  const txn = doc as BlnkTransaction;
+  const hits = await searchTransactions(cfg, { q: reference, queryBy: "reference" });
   // Typesense `q` matches fuzzily; the idempotency path needs an exact reference.
-  if (typeof txn.transaction_id !== "string" || txn.reference !== reference) {
-    return null;
-  }
-  return txn;
+  return hits.find((t) => t.reference === reference) ?? null;
 }
 
 export function recordTransaction(

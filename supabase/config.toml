@@ -12,3 +12,7 @@ extra_search_path = ["public", "core"]
 [functions.blnk-webhook]
 # Blnk signs its own webhooks (HMAC); there is no Supabase JWT to verify.
 verify_jwt = false
+
+[functions.blnk-reconcile]
+# Invoked by pg_cron via pg_net; authenticated with the X-Reconcile-Key shared secret.
+verify_jwt = false

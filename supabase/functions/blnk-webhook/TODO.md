@@ -64,21 +64,24 @@ value), and the current value.
 `applyTransaction`; for `failed`, mark inbox `failed` and raise a `finding`.
 Guard payload size; page if Blnk sends ids only (fetch details per id).
 
-## 5. Inbox reconciler / retry worker — P2
+## 5. Inbox reconciler / retry worker — reconciler BUILT, inbox re-dispatch pending
 
-**Why:** the function always 200s after storing; failed/again-transient events
-need a re-driver, and balance mirrors need periodic drift correction.
+**Built** ([`../blnk-reconcile/`](../blnk-reconcile/index.ts), scheduled by
+`20260702000600_blnk_reconcile_cron.sql` — pg_cron → pg_net every 5 min):
+non-terminal status sweep (ach/wire/transfer + card_authorization with inflight
+child resolution and committed-amount summing), balance-drift check emitting
+`core.event` code `blnk.balance_drift`, `blnk_sync_state` bookkeeping.
+**Still pending below:** inbox re-dispatch (waits on webhooks being enabled).
 
-**Do:** a scheduled job (pg_cron or a scheduled edge function) that:
-- re-dispatches `core.blnk_event` rows in `status IN ('received','failed')` older
+## 5b. Inbox re-dispatch — P2 (dormant until webhooks enabled)
+
+**Why:** the webhook function always 200s after storing; failed/transient events
+need a re-driver once webhooks are enabled.
+
+**Do:** extend `blnk-reconcile` to:
+- re-dispatch `core.blnk_event` rows in `status IN ('received','failed')` older
   than N minutes (re-dispatch is idempotent);
-- **inflight resolution:** Blnk keeps a committed/voided inflight **parent** at
-  `status=INFLIGHT` forever (commit/void create child txns with
-  `parent_transaction` set) — rows stuck in mirrored `INFLIGHT` must be resolved
-  via child-transaction lookup, not the parent's status;
-- **drift check:** compare `account.balance` vs Blnk `GET /balances/{id}`, alert
-  on mismatch (feeds recon controls);
-- alerts when failed-inbox volume crosses a threshold.
+- alert when failed-inbox volume crosses a threshold.
 
 ## 6. Phase-2 writer contract (enforce upstream) — helper BUILT, adoption pending
 
