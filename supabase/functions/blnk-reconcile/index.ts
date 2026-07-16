@@ -8,6 +8,7 @@ import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supa
 import {
   blnkConfigFromEnv,
   getTransaction,
+  getTransactionByReference,
   getBalance,
   searchTransactions,
   BlnkError,
@@ -56,6 +57,7 @@ interface SweptCounts {
   card_authorization: number;
   balances: number;
   blnk_transactions: number;
+  stuck_rows: number;
 }
 
 function json(body: unknown, status = 200): Response {
@@ -353,6 +355,76 @@ async function emitMissingMirror(
   onMissing();
 }
 
+// Recovery for rows whose Blnk write may have landed but whose mirror update never
+// did (crash between recordTransaction and the settle update): they carry a
+// blnk_reference breadcrumb with no blnk_transaction_id and are invisible to the
+// status sweep. Resolve via get-by-reference; flag unresolved stale rows for ops.
+async function sweepStuckRows(
+  db: SupabaseClient,
+  cfg: BlnkConfig,
+  errors: SweepError[],
+  onSwept: (n: number) => void,
+  onRecovered: () => void,
+): Promise<void> {
+  const staleMs = 30 * 60 * 1000;
+  for (const table of TXN_TABLES) {
+    const { data, error } = await db.schema("core").from(table)
+      .select("id, blnk_reference, synced_at")
+      .is("blnk_transaction_id", null)
+      .not("blnk_reference", "is", null)
+      .limit(25);
+
+    if (error) {
+      errors.push({ table, id: "*", error: error.message });
+      continue;
+    }
+
+    const rows = (data ?? []) as { id: string; blnk_reference: string; synced_at: string | null }[];
+    onSwept(rows.length);
+
+    for (const row of rows) {
+      try {
+        const txn = await getTransactionByReference(cfg, row.blnk_reference);
+        const now = new Date().toISOString();
+        if (txn) {
+          const { error: updErr } = await db.schema("core").from(table).update({
+            blnk_transaction_id: txn.transaction_id,
+            blnk_status: txn.status,
+            synced_at: now,
+          }).eq("id", row.id);
+          if (updErr) errors.push({ table, id: row.id, error: updErr.message });
+          else onRecovered();
+          continue;
+        }
+        // Not in Blnk: the write never landed. Flag for ops once the breadcrumb is stale
+        // (a live client retry may still resume it) — deduped like missing_mirror events.
+        const ageMs = row.synced_at ? Date.now() - Date.parse(row.synced_at) : Infinity;
+        if (ageMs > staleMs) {
+          const resourceId = `${table}:${row.id}`;
+          const { data: existing, error: dedupErr } = await db.schema("core").from("event")
+            .select("id").eq("code", "blnk.stuck_row").eq("resource_id", resourceId).limit(1);
+          if (dedupErr) {
+            errors.push({ table: "event", id: resourceId, error: dedupErr.message });
+            continue;
+          }
+          if (existing && existing.length > 0) continue;
+          const { error: insErr } = await db.schema("core").from("event").insert({
+            id: crypto.randomUUID(),
+            code: "blnk.stuck_row",
+            type: "reconciliation",
+            resource_id: resourceId,
+            payload: { table, id: row.id, blnk_reference: row.blnk_reference, synced_at: row.synced_at },
+            created_at: now,
+          });
+          if (insErr) errors.push({ table: "event", id: resourceId, error: insErr.message });
+        }
+      } catch (e) {
+        errors.push({ table, id: row.id, error: errMsg(e) });
+      }
+    }
+  }
+}
+
 async function sweepMissingMirrors(
   db: SupabaseClient,
   cfg: BlnkConfig,
@@ -503,10 +575,12 @@ Deno.serve(async (req: Request): Promise<Response> => {
       card_authorization: 0,
       balances: 0,
       blnk_transactions: 0,
+      stuck_rows: 0,
     };
     let advanced = 0;
     let drifts = 0;
     let missingMirrors = 0;
+    let recovered = 0;
 
     for (const table of TXN_TABLES) {
       await sweepTxnTable(
@@ -535,6 +609,14 @@ Deno.serve(async (req: Request): Promise<Response> => {
       () => { drifts++; },
     );
 
+    await sweepStuckRows(
+      db,
+      cfg,
+      errors,
+      (n) => { swept.stuck_rows += n; },
+      () => { recovered++; },
+    );
+
     await sweepMissingMirrors(
       db,
       cfg,
@@ -543,7 +625,10 @@ Deno.serve(async (req: Request): Promise<Response> => {
       () => { missingMirrors++; },
     );
 
-    const summary = { swept, advanced, drifts, missing_mirrors: missingMirrors, error_count: errors.length };
+    const summary = {
+      swept, advanced, drifts, recovered,
+      missing_mirrors: missingMirrors, error_count: errors.length,
+    };
     const now = new Date().toISOString();
     const { error: syncErr } = await db.schema("core").from("blnk_sync_state").upsert({
       resource: "reconcile",
@@ -553,7 +638,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     });
     if (syncErr) errors.push({ table: "blnk_sync_state", id: "reconcile", error: syncErr.message });
 
-    return json({ ok: true, swept, advanced, drifts, missing_mirrors: missingMirrors, errors });
+    return json({ ok: true, swept, advanced, drifts, recovered, missing_mirrors: missingMirrors, errors });
   } catch (e) {
     return json({ ok: false, error: errMsg(e) }, 500);
   }

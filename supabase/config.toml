@@ -16,3 +16,7 @@ verify_jwt = false
 [functions.blnk-reconcile]
 # Invoked by pg_cron via pg_net; authenticated with the X-Reconcile-Key shared secret.
 verify_jwt = false
+
+[functions.api]
+# Demo BaaS API slice; authenticated with X-Api-Key (DEMO_API_KEY secret).
+verify_jwt = false
