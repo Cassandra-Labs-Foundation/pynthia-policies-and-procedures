@@ -4,3 +4,5 @@
 .env.local
 __pycache__/
 *.pyc
+analytics/core.duckdb
+analytics/core.duckdb.wal
