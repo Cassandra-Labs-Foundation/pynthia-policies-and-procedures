@@ -20,6 +20,16 @@ a watermark-sync + Parquet archive comes later with the aggregator.
 3. `./analytics/duck.sh` — interactive shell with views ready, or
    `./analytics/duck.sh -f analytics/demo_queries.sql` for the canned demo.
 
+## Generating demo data
+
+`./analytics/seed.sh` drives the deployed `api` function to create synthetic
+accounts and a burst of book transfers that trips every control — velocity
+block, per-transaction CTR, insufficient funds, and (the interesting one) an
+**aggregate CTR**: three sub-$10k credits to one account that individually evade
+the per-transaction gate but sum past $10k in a day, so only `ctr_daily_inflow`
+flags them. Needs `DEMO_API_KEY` in `.env.local`. Re-runnable (fresh run-id per
+run; volume accumulates). Then run the demo queries above to see it.
+
 The local database file `analytics/core.duckdb` is a cache/workspace and is
 gitignored; views are re-created from `views.sql` on every launch.
 
