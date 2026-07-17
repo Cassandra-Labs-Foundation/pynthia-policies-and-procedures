@@ -1,0 +1,7144 @@
+{
+  "tables": {
+    "Account": {
+      "schema": "Account",
+      "table": "account",
+      "kind": "banking-core",
+      "description": "A ledger account holding a balance. Lifecycle open\u2194frozen\u2192closed (Decision 7); carries lock_type and dormancy state.",
+      "states": [
+        "open",
+        "frozen",
+        "closed"
+      ],
+      "inherited": [],
+      "endpoints": [
+        "GET /accounts",
+        "POST /accounts",
+        "GET /accounts/{id}",
+        "POST /accounts/{id}/transition"
+      ],
+      "has_own_id": true,
+      "columns": [
+        {
+          "name": "account_type",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "TIS-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "balance",
+          "type": "bigint",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "MB-05",
+            "MB-06",
+            "TIS-06"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "blnk_ledger_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RP-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "lock_type",
+          "type": "text",
+          "enum": [
+            "none",
+            "compliance",
+            "fraud",
+            "legal",
+            "admin"
+          ],
+          "note": null,
+          "controls": [
+            "MEM-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "maturity_date",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "TIS-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "maturity_disposition",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "TIS-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "opening_channel",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "TIS-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": [
+            "open",
+            "frozen",
+            "closed"
+          ],
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "closure_payout_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "MB-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "maturity_notice_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "TIS-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "adverse_action",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "death_flag",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "maturity_window",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "restriction",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "AccountNumber": {
+      "schema": "AccountNumber",
+      "table": "account_number",
+      "kind": "banking-core",
+      "description": "A routing/account-number pair issued against an Account \u2014 1:Many (Decision 2). Used for FBO attribution and external addressing (Decision 20).",
+      "states": [
+        "active",
+        "disabled",
+        "canceled"
+      ],
+      "inherited": [],
+      "endpoints": [
+        "GET /account-numbers",
+        "POST /account-numbers",
+        "GET /account-numbers/{id}",
+        "POST /account-numbers/{id}/transition"
+      ],
+      "has_own_id": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "account_id",
+          "type": "text",
+          "enum": null,
+          "note": "FK -> account",
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "routing_number",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "account_number",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "informational_entity_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": [
+            "active",
+            "disabled",
+            "canceled"
+          ],
+          "note": null,
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [
+        {
+          "column": "account_id",
+          "ref_table": "Account",
+          "soft_scalar": true
+        }
+      ],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "AchTransfer": {
+      "schema": "AchTransfer",
+      "table": "ach_transfer",
+      "kind": "banking-core",
+      "description": "An ACH credit or debit transfer. Lifecycle pending_approval\u2192submitted\u2192settled, with return/rejection handling.",
+      "states": [
+        "pending_approval",
+        "submitted",
+        "settled",
+        "returned",
+        "rejected",
+        "canceled"
+      ],
+      "inherited": [],
+      "endpoints": [
+        "GET /ach-transfers",
+        "POST /ach-transfers",
+        "GET /ach-transfers/{id}",
+        "POST /ach-transfers/{id}/transition"
+      ],
+      "has_own_id": false,
+      "columns": [
+        {
+          "name": "amount",
+          "type": "bigint",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "control_results",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "counterparty",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded Counterparty"
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": [
+            "pending_approval",
+            "submitted",
+            "settled",
+            "returned",
+            "rejected",
+            "canceled"
+          ],
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "window",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [
+        {
+          "column": "counterparty",
+          "detail_schema": "Counterparty",
+          "array": false
+        }
+      ],
+      "softrefs": []
+    },
+    "Address": {
+      "schema": "Address",
+      "table": "address",
+      "kind": "banking-core",
+      "description": "A postal address.",
+      "states": null,
+      "inherited": [],
+      "endpoints": [],
+      "has_own_id": false,
+      "columns": [
+        {
+          "name": "city",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "country",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "line1",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "PR-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "line2",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "ncoa_candidate",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "PR-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "postal_code",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "PR-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "region",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "ncoa_mismatch",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "BookkeepingEntry": {
+      "schema": "BookkeepingEntry",
+      "table": "bookkeeping_entry",
+      "kind": "banking-core",
+      "description": "A double-entry ledger posting.",
+      "states": null,
+      "inherited": [],
+      "endpoints": [],
+      "has_own_id": true,
+      "columns": [
+        {
+          "name": "account_code_5300",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "amount",
+          "type": "bigint",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "locked_amount",
+          "type": "bigint",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "running_balance",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "schedule_a_code",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RR-02"
+          ],
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "BsaAlert": {
+      "schema": "BsaAlert",
+      "table": "bsa_alert",
+      "kind": "banking-core",
+      "description": "A Bank Secrecy Act transaction-monitoring alert.",
+      "states": null,
+      "inherited": [],
+      "endpoints": [],
+      "has_own_id": true,
+      "columns": [
+        {
+          "name": "alert_type",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-06"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "details",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-06"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "entity_hash",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-06"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "event_id",
+          "type": "text",
+          "enum": null,
+          "note": "FK -> event",
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RP-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "requires_lookback",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-06"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "triage_timer",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-06"
+          ],
+          "provisional": false
+        }
+      ],
+      "fks": [
+        {
+          "column": "event_id",
+          "ref_table": "Event",
+          "soft_scalar": true
+        }
+      ],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "Card": {
+      "schema": "Card",
+      "table": "card",
+      "kind": "banking-core",
+      "description": "A payment card issued against an account.",
+      "states": null,
+      "inherited": [],
+      "endpoints": [
+        "GET /cards",
+        "POST /cards",
+        "GET /cards/{id}"
+      ],
+      "has_own_id": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "reissue_request",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "request_during_address_hold",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "MB-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "spend_controls",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "CardAuthorization": {
+      "schema": "CardAuthorization",
+      "table": "card_authorization",
+      "kind": "banking-core",
+      "description": "A card authorization request and its decision.",
+      "states": null,
+      "inherited": [],
+      "endpoints": [],
+      "has_own_id": true,
+      "columns": [
+        {
+          "name": "amount",
+          "type": "bigint",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "control_results",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "decline_reason",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "merchant",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "Case": {
+      "schema": "Case",
+      "table": "case",
+      "kind": "primitive",
+      "description": "An investigation or work case.",
+      "states": [
+        "opened",
+        "in_review",
+        "closed"
+      ],
+      "inherited": [
+        "OwnedEntity"
+      ],
+      "endpoints": [
+        "GET /cases",
+        "POST /cases",
+        "GET /cases/{id}",
+        "POST /cases/{id}/transition"
+      ],
+      "has_own_id": true,
+      "columns": [
+        {
+          "name": "owner_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-02",
+            "BSA-06",
+            "ERM-04",
+            "ERM-07",
+            "IC-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "audit",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded AuditDetail"
+        },
+        {
+          "name": "disclosure",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded DisclosureDetail"
+        },
+        {
+          "name": "escalation",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded EscalationDetail"
+        },
+        {
+          "name": "evidence",
+          "type": "jsonb",
+          "enum": null,
+          "controls": [
+            "BSA-06"
+          ],
+          "note": "array of Document (soft ref by id -> document)"
+        },
+        {
+          "name": "id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-06"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": [
+            "opened",
+            "in_review",
+            "closed"
+          ],
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "summary",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-06"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "tasks",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "type",
+          "type": "text",
+          "enum": [
+            "investigation",
+            "sar_decision",
+            "escalation",
+            "audit_engagement",
+            "sar_disclosure_request"
+          ],
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "sar_decision_timer",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-06",
+            "TPR-08"
+          ],
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [
+        {
+          "column": "audit",
+          "detail_schema": "AuditDetail",
+          "array": false
+        },
+        {
+          "column": "disclosure",
+          "detail_schema": "DisclosureDetail",
+          "array": false
+        },
+        {
+          "column": "escalation",
+          "detail_schema": "EscalationDetail",
+          "array": false
+        }
+      ],
+      "softrefs": [
+        {
+          "column": "evidence",
+          "ref_table": "Document"
+        }
+      ]
+    },
+    "ControlResult": {
+      "schema": "ControlResult",
+      "table": "control_result",
+      "kind": "primitive",
+      "description": "The recorded result of a control execution.",
+      "states": null,
+      "inherited": [],
+      "endpoints": [
+        "GET /control-results",
+        "GET /control-results/{id}"
+      ],
+      "has_own_id": true,
+      "columns": [
+        {
+          "name": "control_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "decision",
+          "type": "text",
+          "enum": [
+            "pass",
+            "hold",
+            "block",
+            "reject",
+            "clear"
+          ],
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "event",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "matched_lists",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "ofac",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded OfacControlContext"
+        },
+        {
+          "name": "score",
+          "type": "numeric",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "subject_ref",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-05"
+          ],
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [
+        {
+          "column": "ofac",
+          "detail_schema": "OfacControlContext",
+          "array": false
+        }
+      ],
+      "softrefs": []
+    },
+    "Document": {
+      "schema": "Document",
+      "table": "document",
+      "kind": "primitive",
+      "description": "A stored document or artifact.",
+      "states": null,
+      "inherited": [],
+      "endpoints": [
+        "GET /documents",
+        "POST /documents",
+        "GET /documents/{id}"
+      ],
+      "has_own_id": true,
+      "columns": [
+        {
+          "name": "attached",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IP-15"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "curriculum",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded Curriculum"
+        },
+        {
+          "name": "edd",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded EddFile"
+        },
+        {
+          "name": "id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "legal_hold_flag",
+          "type": "boolean",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "mi",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded MiCentralLog"
+        },
+        {
+          "name": "policy",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded PolicyDoc"
+        },
+        {
+          "name": "report",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded BoardPack"
+        },
+        {
+          "name": "retention_anchor",
+          "type": "date",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IP-15"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "retention_schedule",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IP-15"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "risk",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded RiskCatalogEntry"
+        },
+        {
+          "name": "subject_ref",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IP-15",
+            "LN-09",
+            "RII-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "type",
+          "type": "text",
+          "enum": [
+            "bo_certification",
+            "risk_profile",
+            "edd_file",
+            "risk_catalog",
+            "policy_version",
+            "mi_central_log",
+            "curriculum",
+            "audit_workpapers",
+            "board_pack",
+            "vendor_review",
+            "vendor_alert"
+          ],
+          "note": null,
+          "controls": [
+            "IP-15",
+            "LN-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "vendor",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded VendorReview"
+        },
+        {
+          "name": "vendor_alert",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded VendorAlert"
+        },
+        {
+          "name": "attachment_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IP-15",
+            "LN-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "required_set",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [
+        {
+          "column": "curriculum",
+          "detail_schema": "Curriculum",
+          "array": false
+        },
+        {
+          "column": "edd",
+          "detail_schema": "EddFile",
+          "array": false
+        },
+        {
+          "column": "mi",
+          "detail_schema": "MiCentralLog",
+          "array": false
+        },
+        {
+          "column": "policy",
+          "detail_schema": "PolicyDoc",
+          "array": false
+        },
+        {
+          "column": "report",
+          "detail_schema": "BoardPack",
+          "array": false
+        },
+        {
+          "column": "risk",
+          "detail_schema": "RiskCatalogEntry",
+          "array": false
+        },
+        {
+          "column": "vendor",
+          "detail_schema": "VendorReview",
+          "array": false
+        },
+        {
+          "column": "vendor_alert",
+          "detail_schema": "VendorAlert",
+          "array": false
+        }
+      ],
+      "softrefs": []
+    },
+    "Entity": {
+      "schema": "Entity",
+      "table": "entity",
+      "kind": "banking-core",
+      "description": "A legal person or organization (person, business, trust, or joint) that owns accounts.",
+      "states": [
+        "pending",
+        "active",
+        "disabled",
+        "archived"
+      ],
+      "inherited": [],
+      "endpoints": [
+        "GET /entities",
+        "POST /entities",
+        "GET /entities/{id}",
+        "POST /entities/{id}/transition",
+        "POST /entities/person",
+        "POST /entities/business",
+        "POST /entities/trust",
+        "POST /entities/joint"
+      ],
+      "has_own_id": true,
+      "columns": [
+        {
+          "name": "address",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "address_change",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "address_new",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "MB-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "address_previous",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "MB-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "contact",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "contact_preference",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "date_of_birth",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "disabled",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "email",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "EC-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "esign_consent",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "TIS-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "PR-01",
+            "PR-02",
+            "PR-04",
+            "PR-05",
+            "PR-11",
+            "PR-12",
+            "PR-17"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "jurisdiction",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "reg_e_opt_in",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "TIS-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": [
+            "pending",
+            "active",
+            "disabled",
+            "archived"
+          ],
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "tin",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "type",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "update",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "Event": {
+      "schema": "Event",
+      "table": "event",
+      "kind": "banking-core",
+      "description": "An immutable, append-only domain event (Decision 4).",
+      "states": null,
+      "inherited": [],
+      "endpoints": [
+        "GET /events"
+      ],
+      "has_own_id": true,
+      "columns": [
+        {
+          "name": "code",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IC-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "data",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "entity_hash",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "previous_data",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "resource_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IC-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "type",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "FboPosition": {
+      "schema": "FboPosition",
+      "table": "fbo_position",
+      "kind": "banking-core",
+      "description": "For-Benefit-Of position and balance for an aggregator instance (Decision 19).",
+      "states": null,
+      "inherited": [],
+      "endpoints": [],
+      "has_own_id": false,
+      "columns": [
+        {
+          "name": "balance",
+          "type": "bigint",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "Filing": {
+      "schema": "Filing",
+      "table": "filing",
+      "kind": "primitive",
+      "description": "A regulatory filing and its lifecycle (submit\u2192acknowledge).",
+      "states": [
+        "prepared",
+        "submitted",
+        "acknowledged",
+        "continuing",
+        "amended",
+        "nil_determined"
+      ],
+      "inherited": [],
+      "endpoints": [
+        "GET /filings",
+        "POST /filings",
+        "GET /filings/{id}",
+        "POST /filings/{id}/acknowledge",
+        "POST /filings/{id}/submit",
+        "POST /filings/{id}/transition"
+      ],
+      "has_own_id": true,
+      "columns": [
+        {
+          "name": "cmir",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded CmirData"
+        },
+        {
+          "name": "control_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "ctr",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded CtrData"
+        },
+        {
+          "name": "fbar",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded FbarData"
+        },
+        {
+          "name": "filed_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "filing_id",
+          "type": "text",
+          "enum": null,
+          "note": "FK -> filing",
+          "controls": [
+            "BSA-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "fincen_314a",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded Fincen314aData"
+        },
+        {
+          "name": "id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "ofac",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded OfacReportData"
+        },
+        {
+          "name": "sar",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded SarData"
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": [
+            "prepared",
+            "submitted",
+            "acknowledged",
+            "continuing",
+            "amended",
+            "nil_determined"
+          ],
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "type",
+          "type": "text",
+          "enum": [
+            "ctr",
+            "doep",
+            "sar",
+            "sar_continuing",
+            "cmir",
+            "fbar",
+            "ofac_blocking",
+            "ofac_annual",
+            "fincen_314a"
+          ],
+          "note": null,
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [
+        {
+          "column": "filing_id",
+          "ref_table": "Filing",
+          "soft_scalar": true
+        }
+      ],
+      "jsonb_detail": [
+        {
+          "column": "cmir",
+          "detail_schema": "CmirData",
+          "array": false
+        },
+        {
+          "column": "ctr",
+          "detail_schema": "CtrData",
+          "array": false
+        },
+        {
+          "column": "fbar",
+          "detail_schema": "FbarData",
+          "array": false
+        },
+        {
+          "column": "fincen_314a",
+          "detail_schema": "Fincen314aData",
+          "array": false
+        },
+        {
+          "column": "ofac",
+          "detail_schema": "OfacReportData",
+          "array": false
+        },
+        {
+          "column": "sar",
+          "detail_schema": "SarData",
+          "array": false
+        }
+      ],
+      "softrefs": []
+    },
+    "InboundPayment": {
+      "schema": "InboundPayment",
+      "table": "inbound_payment",
+      "kind": "banking-core",
+      "description": "An inbound payment routed to an instance.",
+      "states": null,
+      "inherited": [],
+      "endpoints": [],
+      "has_own_id": true,
+      "columns": [
+        {
+          "name": "amount",
+          "type": "bigint",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RP-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "originator",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "Incident": {
+      "schema": "Incident",
+      "table": "incident",
+      "kind": "domain",
+      "description": "An operational or security incident and its response.",
+      "states": [
+        "declared",
+        "responding",
+        "contained",
+        "postmortem",
+        "closed"
+      ],
+      "inherited": [],
+      "endpoints": [
+        "GET /incidents",
+        "POST /incidents",
+        "GET /incidents/{id}",
+        "PATCH /incidents/{id}",
+        "POST /incidents/{id}/transition"
+      ],
+      "has_own_id": true,
+      "columns": [
+        {
+          "name": "bsa_referral_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "PR-09",
+            "TPR-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "cco_signoff",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "checklist_first_hour",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BCP-06"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "comms_plan",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BCP-05",
+            "BCP-06",
+            "EC-10"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "contained",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BCP-13"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "containment_timer",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BCP-10"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "criminal_suspected",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "PR-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "data_scope",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BCP-10",
+            "COL-08",
+            "EC-10",
+            "IS-09",
+            "PR-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "MEM-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "detail",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "detection_source",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BCP-05",
+            "BCP-10",
+            "COL-08",
+            "EC-10",
+            "IS-09",
+            "PR-09",
+            "TPR-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "discovery_notes",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "facts",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BCP-10"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "ic_assignment_timer",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BCP-05",
+            "BCP-09",
+            "IS-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "impact_summary",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BCP-06",
+            "COL-08",
+            "FL-13",
+            "PR-10"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "legal_review",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "EC-10"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "member_notice_required",
+          "type": "boolean",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "member_notice_template",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BCP-10",
+            "COL-08",
+            "EC-10",
+            "IS-09",
+            "PR-09",
+            "TPR-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "misuse_determined",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "PR-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "misuse_likelihood",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-08",
+            "EC-10",
+            "IS-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "notice_content",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "EC-10",
+            "IS-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "notice_template_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "notification_determined",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BCP-10"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "quarterly_summary",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "recovered",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "reportability_assessment",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BCP-10"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "reportability_determination",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BCP-10",
+            "COL-08",
+            "PR-09",
+            "TPR-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "reportability_rationale",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IS-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "reportable_determined",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IS-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "root_cause",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BCP-13"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "sar_referred",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "PR-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "scope",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "PR-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "scope_initial",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BCP-06",
+            "EC-10",
+            "IS-09",
+            "TPR-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "severity",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BCP-05",
+            "COL-08",
+            "EC-10",
+            "FL-13",
+            "IS-09",
+            "PR-09",
+            "TPR-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": [
+            "declared",
+            "responding",
+            "contained",
+            "postmortem",
+            "closed"
+          ],
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "summary_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "PR-10"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "timeline",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BCP-06",
+            "BCP-13"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "triaged",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "ncua_notice_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BCP-10",
+            "COL-08",
+            "EC-10",
+            "IS-09",
+            "PR-09",
+            "TPR-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "notification_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BCP-10",
+            "COL-08",
+            "IS-09",
+            "PR-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "triage_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BCP-05",
+            "COL-08",
+            "EC-10",
+            "IS-09",
+            "PR-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "regulator_notification_due",
+          "type": "date",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BCP-11"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "collections",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "material",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "member_impact",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "member_notices",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "security",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "LegalHold": {
+      "schema": "LegalHold",
+      "table": "legal_hold",
+      "kind": "primitive",
+      "description": "A legal hold on records, with release handling.",
+      "states": null,
+      "inherited": [],
+      "endpoints": [
+        "GET /legal-holds",
+        "POST /legal-holds",
+        "POST /legal-holds/{id}/release"
+      ],
+      "has_own_id": true,
+      "columns": [
+        {
+          "name": "hold_scope",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IS-18",
+            "PR-08",
+            "RR-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "matter_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RR-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "matter_ref",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IS-18"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "placed_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "release_approved_by",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IS-18",
+            "RR-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "released",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "released_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "schedule_resumed",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IS-18"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "clear",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "Loan": {
+      "schema": "Loan",
+      "table": "loan",
+      "kind": "domain",
+      "description": "A booked loan on the ledger.",
+      "states": [
+        "booking_requested",
+        "booked",
+        "funded"
+      ],
+      "inherited": [],
+      "endpoints": [
+        "GET /loans",
+        "POST /loans",
+        "GET /loans/{id}",
+        "POST /loans/{id}/book",
+        "POST /loans/{id}/transition"
+      ],
+      "has_own_id": true,
+      "columns": [
+        {
+          "name": "accrued_interest",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "action_basis",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "LD-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "balance",
+          "type": "bigint",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "bankruptcy_case_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "booking_block_state",
+          "type": "text",
+          "enum": [
+            "open",
+            "cleared",
+            "blocked"
+          ],
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "charged_off",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "chargeoff_due_closed_end",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "CL-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "chargeoff_due_open_end",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "CL-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "chargeoff_month_end_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "classified_substandard",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "collateral_value",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "collectibility_assessment",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-02",
+            "COL-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "death_loss_estimable",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "CL-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "delinquency_day_10",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "delinquency_day_20",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "delinquency_day_30",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "delinquency_day_60",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "delinquency_day_90",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "delinquency_engine_run",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "delinquency_engine_schedule",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "dpd",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "CL-01",
+            "CL-02",
+            "CL-03",
+            "CL-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "dpd_reset",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "dpd_reset_eligibility_check",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "estate_claim_status",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "CL-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "estimated_recovery",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "foreclosure_impact_eval",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "funding_block_state",
+          "type": "text",
+          "enum": [
+            "open",
+            "cleared",
+            "blocked"
+          ],
+          "note": null,
+          "controls": [
+            "LN-11"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "grace_period_days",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "LC-06"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "io_term_months",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "last_payment_date",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "ltv",
+          "type": "numeric",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-03",
+            "LN-06"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "modified_schedule",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "nonaccrual_placed",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-01"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "past_due_amount",
+          "type": "bigint",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "product_type",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-02",
+            "COL-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "proposed_modification",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "repayment_evidence",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-03",
+            "COL-04",
+            "COL-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "risk_rating",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-01",
+            "COL-04",
+            "COL-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "well_secured_documented",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "workout_alternatives",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "bankruptcy_chargeoff_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "classification_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "courtesy_notice_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "days_past_due",
+          "type": "date",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-01",
+            "COL-02",
+            "COL-03",
+            "COL-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "fraud_chargeoff_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "nonaccrual_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "rating_review_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "re_valuation_due",
+          "type": "date",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "right_to_cure_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "second_reminder_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "status_memo_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "accrual",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "bankruptcy_notice",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "io_capitalization",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "modified_payment_3",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "re_writedown",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": null,
+          "note": "synthesized from x-states (no status property in spec)",
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "LoanApplication": {
+      "schema": "LoanApplication",
+      "table": "loan_application",
+      "kind": "domain",
+      "description": "A credit application and its decisioning.",
+      "states": [
+        "created",
+        "decisioned",
+        "counteroffer",
+        "final_action"
+      ],
+      "inherited": [],
+      "endpoints": [
+        "GET /loan-applications",
+        "POST /loan-applications",
+        "GET /loan-applications/{id}",
+        "PATCH /loan-applications/{id}",
+        "POST /loan-applications/{id}/counteroffer",
+        "POST /loan-applications/{id}/decision",
+        "POST /loan-applications/{id}/transition"
+      ],
+      "has_own_id": true,
+      "columns": [
+        {
+          "name": "action_basis",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FL-05",
+            "LN-03",
+            "LN-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "amount",
+          "type": "bigint",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "applicant",
+          "type": "jsonb",
+          "enum": null,
+          "controls": [
+            "FL-05"
+          ],
+          "note": "embedded Applicant"
+        },
+        {
+          "name": "atr_qm_result",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "LN-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "channel",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "LD-13"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "counteroffer_status",
+          "type": "text",
+          "enum": [
+            "none",
+            "issued",
+            "accepted",
+            "expired"
+          ],
+          "note": null,
+          "controls": [
+            "FL-05",
+            "LN-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "counteroffer_terms",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FL-05",
+            "LN-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "credit_structure",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "LN-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "data",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "LN-03",
+            "LN-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "decision",
+          "type": "jsonb",
+          "enum": null,
+          "controls": [
+            "LN-03",
+            "LN-07"
+          ],
+          "note": "embedded Decision"
+        },
+        {
+          "name": "decision_block_state",
+          "type": "text",
+          "enum": [
+            "open",
+            "cleared",
+            "blocked"
+          ],
+          "note": null,
+          "controls": [
+            "LN-14"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "doc_block_state",
+          "type": "text",
+          "enum": [
+            "open",
+            "cleared",
+            "blocked"
+          ],
+          "note": null,
+          "controls": [
+            "LN-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "dti",
+          "type": "numeric",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "LN-03",
+            "LN-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "employment",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "LD-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "final_action",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "LN-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "geography",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FL-06"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "gmi",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FL-02",
+            "LN-13"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "income_assets",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "LN-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "incomplete_aged",
+          "type": "boolean",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FL-05",
+            "LN-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "notified_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "option_shortfall_reason",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FL-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "oral_adverse_decision",
+          "type": "boolean",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "oral_statement",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FL-05",
+            "LN-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "parties",
+          "type": "jsonb",
+          "enum": null,
+          "controls": [
+            "LN-14"
+          ],
+          "note": "embedded LoanParty (array)"
+        },
+        {
+          "name": "prequal",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded Prequal"
+        },
+        {
+          "name": "product_code",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "LN-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "product_type",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FL-02",
+            "LN-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "requested_terms",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FL-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "aan_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FL-05",
+            "LN-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "counteroffer_aan_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FL-05",
+            "LN-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "decision_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "LN-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "adverse_action",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "decisioned",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "docs",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "incompleteness_notice",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "insider",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "thin_file",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": null,
+          "note": "synthesized from x-states (no status property in spec)",
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [
+        {
+          "column": "applicant",
+          "detail_schema": "Applicant",
+          "array": false
+        },
+        {
+          "column": "decision",
+          "detail_schema": "Decision",
+          "array": false
+        },
+        {
+          "column": "parties",
+          "detail_schema": "LoanParty",
+          "array": true
+        },
+        {
+          "column": "prequal",
+          "detail_schema": "Prequal",
+          "array": false
+        }
+      ],
+      "softrefs": []
+    },
+    "Originator": {
+      "schema": "Originator",
+      "table": "originator",
+      "kind": "banking-core",
+      "description": "The sending party of a transfer.",
+      "states": null,
+      "inherited": [
+        "PartyBase"
+      ],
+      "endpoints": [],
+      "has_own_id": false,
+      "columns": [
+        {
+          "name": "name",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-10"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "routing_number",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-10"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "reference",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "ProviderResult": {
+      "schema": "ProviderResult",
+      "table": "provider_result",
+      "kind": "banking-core",
+      "description": "A result returned by an external provider or vendor.",
+      "states": null,
+      "inherited": [],
+      "endpoints": [],
+      "has_own_id": false,
+      "columns": [
+        {
+          "name": "document_verified",
+          "type": "boolean",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "identity_verified",
+          "type": "boolean",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "Task": {
+      "schema": "Task",
+      "table": "task",
+      "kind": "primitive",
+      "description": "A unit of compliance or operational work. `type` is the generic verb; `subject` carries the domain.",
+      "states": [
+        "pending",
+        "due",
+        "completed",
+        "overdue"
+      ],
+      "inherited": [],
+      "endpoints": [
+        "GET /tasks",
+        "POST /tasks",
+        "GET /tasks/{id}",
+        "POST /tasks/{id}/complete",
+        "POST /tasks/{id}/transition"
+      ],
+      "has_own_id": true,
+      "columns": [
+        {
+          "name": "due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "retention",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded RetentionSpec"
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": [
+            "pending",
+            "due",
+            "completed",
+            "overdue"
+          ],
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "subject_ref",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "training",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded TrainingDetail"
+        },
+        {
+          "name": "type",
+          "type": "text",
+          "enum": [
+            "acknowledgement",
+            "activation",
+            "analysis",
+            "approval",
+            "assessment",
+            "attestation",
+            "audit",
+            "certification",
+            "chargeoff",
+            "check",
+            "classification",
+            "completion",
+            "compute",
+            "consolidation",
+            "decision",
+            "delivery",
+            "deprovision",
+            "disposal",
+            "distribution",
+            "escalation",
+            "exercise",
+            "expiry",
+            "filing",
+            "flag",
+            "hold",
+            "investigation",
+            "issuance",
+            "notice",
+            "onboarding",
+            "payment",
+            "plan",
+            "propagation",
+            "publish",
+            "purge",
+            "reconciliation",
+            "refresh",
+            "remediation",
+            "renewal",
+            "report",
+            "resolution",
+            "response",
+            "retention",
+            "review",
+            "revocation",
+            "simulation",
+            "submission",
+            "sweep",
+            "test",
+            "training",
+            "transition",
+            "triage",
+            "update",
+            "valuation",
+            "verification"
+          ],
+          "note": null,
+          "controls": [
+            "LP-14"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "subject",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [
+        {
+          "column": "retention",
+          "detail_schema": "RetentionSpec",
+          "array": false
+        },
+        {
+          "column": "training",
+          "detail_schema": "TrainingDetail",
+          "array": false
+        }
+      ],
+      "softrefs": []
+    },
+    "Transfer": {
+      "schema": "Transfer",
+      "table": "transfer",
+      "kind": "banking-core",
+      "description": "An on-us book transfer between internal accounts (Decision 8). External rails use AchTransfer / WireTransfer.",
+      "states": null,
+      "inherited": [],
+      "endpoints": [
+        "GET /transfers",
+        "POST /transfers",
+        "GET /transfers/{id}"
+      ],
+      "has_own_id": true,
+      "columns": [
+        {
+          "name": "amount",
+          "type": "bigint",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "beneficiary",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded Party"
+        },
+        {
+          "name": "counterparty",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded Party"
+        },
+        {
+          "name": "id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "originator",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded Party"
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": [
+            "pending_approval",
+            "submitted",
+            "settled",
+            "returned",
+            "rejected",
+            "canceled"
+          ],
+          "note": null,
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [
+        {
+          "column": "beneficiary",
+          "detail_schema": "Party",
+          "array": false
+        },
+        {
+          "column": "counterparty",
+          "detail_schema": "Party",
+          "array": false
+        },
+        {
+          "column": "originator",
+          "detail_schema": "Party",
+          "array": false
+        }
+      ],
+      "softrefs": []
+    },
+    "User": {
+      "schema": "User",
+      "table": "user",
+      "kind": "banking-core",
+      "description": "An operator or staff user of the system.",
+      "states": null,
+      "inherited": [],
+      "endpoints": [],
+      "has_own_id": true,
+      "columns": [
+        {
+          "name": "employment_status",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IC-05",
+            "IS-06",
+            "PR-06"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IC-05",
+            "IS-06",
+            "PR-06"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "role",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "CP-03",
+            "IS-06",
+            "IS-15"
+          ],
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "Verification": {
+      "schema": "Verification",
+      "table": "verification",
+      "kind": "banking-core",
+      "description": "An identity / KYC verification record.",
+      "states": [
+        "pending",
+        "approved",
+        "denied"
+      ],
+      "inherited": [],
+      "endpoints": [
+        "GET /verifications",
+        "POST /verifications",
+        "GET /verifications/{id}",
+        "POST /verifications/{id}/transition"
+      ],
+      "has_own_id": true,
+      "columns": [
+        {
+          "name": "alt_path_available",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "PR-16"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "biometric_consent_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "PR-16"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "biometric_declined",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "PR-16"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "biometric_purged",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "PR-16"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "cdd",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded CddProfile"
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "match_status",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-03",
+            "EC-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "ofac_result",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "pep",
+          "type": "jsonb",
+          "enum": null,
+          "controls": null,
+          "note": "embedded PepStatus"
+        },
+        {
+          "name": "provider",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "PR-16"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "provider_result",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": [
+            "pending",
+            "approved",
+            "denied"
+          ],
+          "note": null,
+          "controls": [
+            "BSA-03",
+            "MB-01"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "trust_level",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "type",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "biometric_purge_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "PR-16"
+          ],
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [
+        {
+          "column": "cdd",
+          "detail_schema": "CddProfile",
+          "array": false
+        },
+        {
+          "column": "pep",
+          "detail_schema": "PepStatus",
+          "array": false
+        }
+      ],
+      "softrefs": []
+    },
+    "WireTransfer": {
+      "schema": "WireTransfer",
+      "table": "wire_transfer",
+      "kind": "banking-core",
+      "description": "A domestic wire transfer. Lifecycle pending_approval\u2192submitted\u2192completed, with return-request handling.",
+      "states": [
+        "pending_approval",
+        "submitted",
+        "completed",
+        "return_requested",
+        "returned",
+        "rejected",
+        "canceled"
+      ],
+      "inherited": [],
+      "endpoints": [
+        "GET /wire-transfers",
+        "POST /wire-transfers",
+        "GET /wire-transfers/{id}",
+        "POST /wire-transfers/{id}/transition"
+      ],
+      "has_own_id": false,
+      "columns": [
+        {
+          "name": "amount",
+          "type": "bigint",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-10"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "beneficiary",
+          "type": "jsonb",
+          "enum": null,
+          "controls": [
+            "BSA-10"
+          ],
+          "note": "embedded Beneficiary"
+        },
+        {
+          "name": "control_results",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-10"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "imad",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-10"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "purpose",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-10"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "record_retained",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": [
+            "pending_approval",
+            "submitted",
+            "completed",
+            "return_requested",
+            "returned",
+            "rejected",
+            "canceled"
+          ],
+          "note": null,
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [
+        {
+          "column": "beneficiary",
+          "detail_schema": "Beneficiary",
+          "array": false
+        }
+      ],
+      "softrefs": []
+    },
+    "change": {
+      "schema": "change",
+      "table": "change",
+      "kind": "domain",
+      "description": "A change request tracked through review, deployment, and post-implementation review.",
+      "states": [
+        "requested",
+        "in_review",
+        "deployed",
+        "closed"
+      ],
+      "inherited": [],
+      "endpoints": [
+        "GET /changes",
+        "POST /changes",
+        "GET /changes/{id}",
+        "POST /changes/{id}/transition"
+      ],
+      "has_own_id": false,
+      "columns": [
+        {
+          "name": "backout_plan",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IC-05",
+            "IS-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "deployment_record",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IC-05",
+            "IS-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "emergency_approval_timer",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "emergency_justification",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IS-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "requested",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IC-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "rollback_plan",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IC-05",
+            "IS-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "test_evidence",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IC-05",
+            "IS-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "approver_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IC-05",
+            "IS-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "risk_rating",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IC-05",
+            "IS-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "cab_review_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IC-05",
+            "IS-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "post_review_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IC-05",
+            "IS-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "cab_decision",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "rfc",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": [
+            "requested",
+            "in_review",
+            "deployed",
+            "closed"
+          ],
+          "note": null,
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "coi": {
+      "schema": "coi",
+      "table": "coi",
+      "kind": "domain",
+      "description": "A conflict-of-interest disclosure tracked from disclosure through review to determination.",
+      "states": [
+        "disclosed",
+        "under_review",
+        "determined"
+      ],
+      "inherited": [],
+      "endpoints": [
+        "GET /cois",
+        "POST /cois",
+        "GET /cois/{id}",
+        "POST /cois/{id}/transition"
+      ],
+      "has_own_id": false,
+      "columns": [
+        {
+          "name": "adhoc_form",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "attestation_date",
+          "type": "date",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "attestation_signature",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "conflict_identified",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-02",
+            "RII-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "conflicted_matter_voted",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "determination_made",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "independent_review",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "interest_description",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-02",
+            "FD-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "matter_reference",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-02",
+            "FD-04",
+            "RII-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "questionnaire_responses",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "questionnaire_version",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-03",
+            "IP-16"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "recusal_noticed",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "recusal_record",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "register_entry_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "related_party",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-02",
+            "FD-03",
+            "RII-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "certification_due",
+          "type": "date",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "questionnaire_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-03",
+            "IP-16"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "adhoc_disclosure",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "annual_cycle",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": [
+            "disclosed",
+            "under_review",
+            "determined"
+          ],
+          "note": null,
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "complaint": {
+      "schema": "complaint",
+      "table": "complaint",
+      "kind": "domain",
+      "description": "A consumer or member complaint tracked from intake through investigation and resolution.",
+      "states": [
+        "received",
+        "investigating",
+        "resolved",
+        "closed"
+      ],
+      "inherited": [],
+      "endpoints": [
+        "GET /complaints",
+        "POST /complaints",
+        "GET /complaints/{id}",
+        "POST /complaints/{id}/transition"
+      ],
+      "has_own_id": false,
+      "columns": [
+        {
+          "name": "category",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-06",
+            "CP-08",
+            "FL-13",
+            "PR-10"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "final_response_pending",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "CL-06"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "investigation_notes",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-06",
+            "FL-13"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "member_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-06",
+            "CP-08",
+            "FL-13",
+            "PR-10"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "portal_due_date",
+          "type": "date",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "MB-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "root_cause_tag",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-06",
+            "CP-08",
+            "FL-13"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "trend_summary",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-06",
+            "CP-08",
+            "FL-13",
+            "PR-10"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "udaap_flag",
+          "type": "boolean",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-06",
+            "CP-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "channel",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-06",
+            "FL-13"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "narrative",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-06",
+            "CP-08",
+            "FL-13",
+            "MB-04",
+            "PR-10"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "ack_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-06",
+            "CP-08",
+            "FL-13",
+            "MB-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "final_response_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-06",
+            "MB-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "initial_response_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-06",
+            "FL-13"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "resolution_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-06"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "trend_review_due",
+          "type": "date",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-06",
+            "CP-08",
+            "FL-13"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "direct",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "privacy",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "regulator",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": [
+            "received",
+            "investigating",
+            "resolved",
+            "closed"
+          ],
+          "note": null,
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "dispute": {
+      "schema": "dispute",
+      "table": "dispute",
+      "kind": "domain",
+      "description": "A Regulation E error/dispute tracked from filing through investigation to resolution.",
+      "states": [
+        "filed",
+        "investigating",
+        "resolved",
+        "closed"
+      ],
+      "inherited": [],
+      "endpoints": [
+        "GET /disputes",
+        "POST /disputes",
+        "GET /disputes/{id}",
+        "POST /disputes/{id}/transition"
+      ],
+      "has_own_id": false,
+      "columns": [
+        {
+          "name": "basis",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-07",
+            "MB-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "category",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-07",
+            "MB-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "correction_amount",
+          "type": "bigint",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "MB-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "findings",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-07",
+            "MB-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "idtheft_report",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "COL-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "regulator_case_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "MB-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "regulator_routed",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "MB-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "investigation_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "MB-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "provisional_credit_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "MB-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "response_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "MB-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "rege_clock",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "regulator_response",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": [
+            "filed",
+            "investigating",
+            "resolved",
+            "closed"
+          ],
+          "note": null,
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "finding": {
+      "schema": "finding",
+      "table": "finding",
+      "kind": "domain",
+      "description": "An audit, examination, or compliance finding tracked through its remediation lifecycle.",
+      "states": [
+        "open",
+        "in_remediation",
+        "risk_accepted",
+        "closed"
+      ],
+      "inherited": [],
+      "endpoints": [
+        "GET /findings",
+        "POST /findings",
+        "GET /findings/{id}",
+        "POST /findings/{id}/transition"
+      ],
+      "has_own_id": false,
+      "columns": [
+        {
+          "name": "closure_evidence",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "AU-09",
+            "BCP-13",
+            "CP-07",
+            "IC-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "communicated",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "department",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "AU-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "identified",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "AU-03",
+            "AU-06",
+            "AU-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "implementation_date",
+          "type": "date",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "AU-06",
+            "AU-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "management_response",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "AU-06",
+            "CP-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "open_report",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "AU-07",
+            "CP-01",
+            "TPR-01"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "owner",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BCP-13",
+            "BSA-15",
+            "CP-06",
+            "EC-05",
+            "EC-06"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "remediation_evidence",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "AU-08",
+            "AU-09",
+            "BSA-15"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "remediation_status",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "AU-07",
+            "CP-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "responsible_party",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "AU-06",
+            "AU-07",
+            "AU-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "risk_acceptance_package",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "AU-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "risk_acceptance_rationale",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "AU-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "tracked",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "AU-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "AU-03",
+            "AU-05",
+            "AU-06",
+            "AU-07",
+            "BSA-15",
+            "CP-06",
+            "CP-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "risk_rating",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "AU-03",
+            "AU-06",
+            "AU-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "root_cause",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "AU-06",
+            "EC-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "severity",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "AU-07",
+            "CP-06",
+            "EC-05",
+            "EC-06"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "escalation_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "AU-07",
+            "FL-13",
+            "IC-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "monthly_review_due",
+          "type": "date",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "AU-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "quarterly_report_due",
+          "type": "date",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "AU-07",
+            "IC-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "response_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "AU-03",
+            "AU-06",
+            "AU-07",
+            "AU-08",
+            "AU-09",
+            "BCP-13",
+            "CP-06",
+            "CP-07",
+            "EC-05",
+            "EC-06",
+            "FL-13"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "aging_threshold",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "corrective_action",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "critical",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": [
+            "open",
+            "in_remediation",
+            "risk_accepted",
+            "closed"
+          ],
+          "note": null,
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "handover": {
+      "schema": "handover",
+      "table": "handover",
+      "kind": "domain",
+      "description": "A trustee/fiduciary handover tracked from initiation through provisioning to completion.",
+      "states": [
+        "initiated",
+        "provisioned",
+        "completed"
+      ],
+      "inherited": [],
+      "endpoints": [
+        "GET /handovers",
+        "POST /handovers",
+        "GET /handovers/{id}",
+        "POST /handovers/{id}/transition"
+      ],
+      "has_own_id": false,
+      "columns": [
+        {
+          "name": "access_scope",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RP-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "appointment_reference",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RP-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "appointment_status",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "personnel_roster",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RP-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "trustee_access_grant_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RP-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "trustee_access_provisioned",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RP-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "trustee_action",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RP-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "trustee_contact",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "trustee_credential_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RP-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "trustee_identity",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RP-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "access_expiry_due",
+          "type": "date",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RP-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "full_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RP-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "initial_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RP-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": [
+            "initiated",
+            "provisioned",
+            "completed"
+          ],
+          "note": null,
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "indemnification": {
+      "schema": "indemnification",
+      "table": "indemnification",
+      "kind": "domain",
+      "description": "An indemnification request tracked from filing through determination to payment.",
+      "states": [
+        "requested",
+        "under_review",
+        "determined",
+        "paid"
+      ],
+      "inherited": [],
+      "endpoints": [
+        "GET /indemnifications",
+        "POST /indemnifications",
+        "GET /indemnifications/{id}",
+        "POST /indemnifications/{id}/transition"
+      ],
+      "has_own_id": false,
+      "columns": [
+        {
+          "name": "advance.disbursed",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "advance.requested",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "advance_balance",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "claim.notified",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "conduct_record",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-03",
+            "RII-04",
+            "RII-06"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "counsel_opinion",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-04",
+            "RII-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "decision_body",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "decision_body.selected",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "defense_budget",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "defense_invoice",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "disposition_record",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-03",
+            "RII-04",
+            "RII-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "enforcement_status",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-06"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "expense_statement",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "federal_screen_result",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-03",
+            "RII-04",
+            "RII-05",
+            "RII-06"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "liability_terms",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-03",
+            "RII-04",
+            "RII-06",
+            "RII-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "matter.resolved_favorably",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "payment.blocked",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-04",
+            "RII-06"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "payment.disbursed",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-03",
+            "RII-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "recusal_record",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "repayment.demanded",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "request",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "request.routed",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-04",
+            "RII-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "standard_determination.made",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-04",
+            "RII-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "undertaking",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "legal_review",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-06"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "advance_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "determination_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-03",
+            "RII-04",
+            "RII-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "payment_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RII-03",
+            "RII-04",
+            "RII-05",
+            "RII-06"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": [
+            "requested",
+            "under_review",
+            "determined",
+            "paid"
+          ],
+          "note": null,
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "insider": {
+      "schema": "insider",
+      "table": "insider",
+      "kind": "domain",
+      "description": "A Regulation O insider-credit request tracked through board review to approval or denial.",
+      "states": [
+        "requested",
+        "board_review",
+        "approved",
+        "denied"
+      ],
+      "inherited": [],
+      "endpoints": [
+        "GET /insiders",
+        "POST /insiders",
+        "GET /insiders/{id}",
+        "POST /insiders/{id}/transition"
+      ],
+      "has_own_id": false,
+      "columns": [
+        {
+          "name": "aggregate_credit_amount",
+          "type": "bigint",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-05",
+            "LN-14"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "collateral_marketability",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "comparable_terms",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-05",
+            "LN-14"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "correspondent_credit_data",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "credit_extended",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "credit_threshold_exceeded",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "funded_terms",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-05",
+            "LN-14"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "limits_recomputed",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "officer_financial_statement",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "proposed_terms",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-05",
+            "LN-14"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "public_request",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "record_circulated",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "record_compiled",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "record_entry",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-03",
+            "LN-14"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "record_prior",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "loc_approval_expires_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "public_request_retention_expires_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "report_due",
+          "type": "date",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FD-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "board_approval",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "board_report",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "credit_application",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "public_disclosure",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "terms_parity",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": [
+            "requested",
+            "board_review",
+            "approved",
+            "denied"
+          ],
+          "note": null,
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "records_package": {
+      "schema": "records_package",
+      "table": "records_package",
+      "kind": "domain",
+      "description": "A records-production package tracked from request through assembly to completion.",
+      "states": [
+        "requested",
+        "building",
+        "complete",
+        "failed"
+      ],
+      "inherited": [],
+      "endpoints": [
+        "GET /records-packages",
+        "POST /records-packages",
+        "GET /records-packages/{id}",
+        "POST /records-packages/{id}/transition"
+      ],
+      "has_own_id": false,
+      "columns": [
+        {
+          "name": "artifact_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RP-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "checksum_chain",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IC-08",
+            "RP-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "failure_reason",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RP-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "manifest_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RP-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "rebuilt",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RP-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "requested",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "snapshot_as_of",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RP-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "snapshot_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RP-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "snapshot_schedule",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RP-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "complete_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RP-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "snapshot_due",
+          "type": "date",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RP-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "start_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RP-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": [
+            "requested",
+            "building",
+            "complete",
+            "failed"
+          ],
+          "note": null,
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "risk": {
+      "schema": "risk",
+      "table": "risk",
+      "kind": "domain",
+      "description": "A risk-register entry tracked through assessment into ongoing monitoring (remediation is a sub-process).",
+      "states": [
+        "registered",
+        "assessed",
+        "monitored",
+        "closed"
+      ],
+      "inherited": [
+        "OwnedEntity"
+      ],
+      "endpoints": [
+        "GET /risks",
+        "POST /risks",
+        "GET /risks/{id}",
+        "POST /risks/{id}/transition"
+      ],
+      "has_own_id": true,
+      "columns": [
+        {
+          "name": "owner_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-02",
+            "BSA-06",
+            "ERM-04",
+            "ERM-07",
+            "IC-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "assessment_results",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "AU-04",
+            "CP-04",
+            "TPR-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "assessment_scored",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "impact_score",
+          "type": "numeric",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-02",
+            "ERM-03",
+            "IS-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "inherent_rating",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "ERM-03",
+            "ERM-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "last_assessed_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "ERM-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "likelihood_score",
+          "type": "numeric",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-02",
+            "ERM-03",
+            "IS-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "poam_cycle",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "poam_status",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IS-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "reassessed",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "register_snapshot",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "ERM-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "registered",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "remediation_evidence",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IS-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "residual_rating",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-02",
+            "EC-01",
+            "ERM-03",
+            "ERM-04",
+            "IS-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "review_overdue",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "ERM-04",
+            "IS-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "threat_catalog",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BCP-02",
+            "IS-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "candidate_profile",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "CP-04",
+            "EC-01",
+            "IS-02",
+            "TPR-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-02",
+            "ERM-04"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "geography_factors",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BCP-02",
+            "TPR-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "ERM-02",
+            "ERM-04",
+            "IS-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "inherent_score",
+          "type": "numeric",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-02",
+            "CP-04",
+            "EC-01",
+            "TPR-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "partner_dependency",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "TPR-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "assessment_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "assessment_timer",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IS-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "product_assessment_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IS-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "reassessment_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-02",
+            "ERM-04",
+            "IS-02"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": [
+            "registered",
+            "assessed",
+            "monitored",
+            "closed"
+          ],
+          "note": null,
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "trade": {
+      "schema": "trade",
+      "table": "trade",
+      "kind": "domain",
+      "description": "An investment trade tracked from entry through confirmation to settlement.",
+      "states": [
+        "entered",
+        "confirmed",
+        "settled",
+        "blocked"
+      ],
+      "inherited": [],
+      "endpoints": [
+        "GET /trades",
+        "POST /trades",
+        "GET /trades/{id}",
+        "POST /trades/{id}/transition"
+      ],
+      "has_own_id": false,
+      "columns": [
+        {
+          "name": "blocked_prohibited",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IP-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "checklist_exception_raised",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IP-11"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "confirmation_matched",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "entered",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IP-05",
+            "IP-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "exception_raised",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "intermediary_blocked",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IP-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "intermediary_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IP-08"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "intermediary_validated",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "limit_blocked",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IP-07"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "pretrade_checklist",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IP-11"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "settlement_amount",
+          "type": "bigint",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IP-14"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "settlement_date",
+          "type": "date",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IP-14"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "sod_blocked",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IP-14"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "step_attempted",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IP-14"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "ticket",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IP-02",
+            "IP-14"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "valuation_support",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IP-11"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "reconciliation_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IP-14"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "instrument_type",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "IP-03"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "approval",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "confirmation_discrepancy",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "limit_warning",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "permissibility",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": [
+            "entered",
+            "confirmed",
+            "settled",
+            "blocked"
+          ],
+          "note": null,
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
+    "training": {
+      "schema": "training",
+      "table": "training",
+      "kind": "domain",
+      "description": "A training assignment tracked from assignment through completion, with lapse on overdue cycles.",
+      "states": [
+        "assigned",
+        "in_progress",
+        "completed",
+        "lapsed"
+      ],
+      "inherited": [],
+      "endpoints": [
+        "GET /trainings",
+        "POST /trainings",
+        "GET /trainings/{id}",
+        "POST /trainings/{id}/transition"
+      ],
+      "has_own_id": false,
+      "columns": [
+        {
+          "name": "assessment_score",
+          "type": "numeric",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "CC-11",
+            "CP-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "assignee_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "CAP-08",
+            "CC-11",
+            "CP-05",
+            "EC-08",
+            "EC-12",
+            "IP-16",
+            "PR-06",
+            "RR-09",
+            "TIS-10"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "completion_status",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "CP-05",
+            "EC-12",
+            "IP-16",
+            "RR-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "content_version",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-14",
+            "CAP-08",
+            "CC-11",
+            "CP-05",
+            "FL-11",
+            "IS-17",
+            "TIS-10"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "coverage_pct",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "CP-01",
+            "CP-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "curriculum_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "CAP-08",
+            "FD-10",
+            "PR-06"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "curriculum_map",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "EC-12"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "cycle_close_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "lapsed",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "CC-11",
+            "CP-05",
+            "EC-12",
+            "RR-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "module_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RR-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "proficiency.failed",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "CC-11",
+            "CP-05"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "refresher_curriculum",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "CP-05",
+            "EC-12"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "required_curriculum",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-14",
+            "CC-11",
+            "CP-05",
+            "EC-08",
+            "IS-17",
+            "RR-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "role_matrix",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "EC-12",
+            "FL-11"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "skills_inventory",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "EC-12"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "change_summary",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "FL-11"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "hire_date",
+          "type": "date",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-14",
+            "CC-11",
+            "CP-05",
+            "FL-11",
+            "IS-17"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "role_curriculum",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-14",
+            "CC-11",
+            "CP-05",
+            "CP-08",
+            "FL-11",
+            "IP-16",
+            "IS-17",
+            "TIS-10"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "annual_due",
+          "type": "date",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "EC-08",
+            "EC-12"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "annual_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-14",
+            "CAP-08",
+            "CC-11",
+            "CP-05",
+            "FD-10",
+            "FL-11",
+            "IP-16",
+            "IS-17",
+            "TIS-10"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "annual_timer",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-19"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "completion_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "CP-05",
+            "EC-12",
+            "IP-16",
+            "RR-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "new_hire_timer",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-19"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "newhire_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-14",
+            "CC-11",
+            "IS-17"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "onboarding_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "CP-05",
+            "FL-11",
+            "IP-16",
+            "PR-06"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "privacy_due",
+          "type": "date",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "PR-06"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "retention_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "RR-09"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "board_curriculum",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-14"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "annual_cycle",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "assignment",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "capital",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "content_trigger",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "refresh",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "remedial",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "session",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": true
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "enum": [
+            "assigned",
+            "in_progress",
+            "completed",
+            "lapsed"
+          ],
+          "note": null,
+          "controls": null,
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    }
+  },
+  "embedded": [
+    "Applicant",
+    "AuditDetail",
+    "Beneficiary",
+    "BoardPack",
+    "CddProfile",
+    "CmirData",
+    "Counterparty",
+    "CtrData",
+    "Curriculum",
+    "Decision",
+    "DisclosureDetail",
+    "EddFile",
+    "EscalationDetail",
+    "FbarData",
+    "Fincen314aData",
+    "LoanParty",
+    "MiCentralLog",
+    "OfacControlContext",
+    "OfacReportData",
+    "OfacResult",
+    "Party",
+    "PepStatus",
+    "PolicyDoc",
+    "Prequal",
+    "RetentionSpec",
+    "RiskCatalogEntry",
+    "SarData",
+    "TrainingDetail",
+    "VendorAlert",
+    "VendorReview"
+  ],
+  "notes": []
+}

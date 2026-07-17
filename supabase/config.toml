@@ -1,0 +1,22 @@
+# Supabase CLI config (minimal). Expand with `supabase init` if you need the
+# full default set. Only the settings this project depends on are pinned here.
+
+project_id = "cassandra-core"
+
+[api]
+# Expose the dedicated `core` schema to PostgREST so service-role clients (the
+# blnk-webhook edge function) can read/write it via supabase-js `.schema("core")`.
+schemas = ["public", "core"]
+extra_search_path = ["public", "core"]
+
+[functions.blnk-webhook]
+# Blnk signs its own webhooks (HMAC); there is no Supabase JWT to verify.
+verify_jwt = false
+
+[functions.blnk-reconcile]
+# Invoked by pg_cron via pg_net; authenticated with the X-Reconcile-Key shared secret.
+verify_jwt = false
+
+[functions.api]
+# Demo BaaS API slice; authenticated with X-Api-Key (DEMO_API_KEY secret).
+verify_jwt = false
