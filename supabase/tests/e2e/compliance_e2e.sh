@@ -136,6 +136,29 @@ check "wire NSF -> no inflight hold created (gate ran before Blnk)" \
   "$(sql "select case when count(*)=0 then 'no-row' else coalesce(max(blnk_transaction_id),'none') end from pg.core.wire_transfer where id='$WIRE_NSF_ID';")" "none"
 
 
+# ------------------------------------------------ cross-rail velocity evasion
+# CG-VEL-01 is a per-account DAILY cap. If it only summed core.transfer, wire
+# volume would never count -- so a member could send unlimited wires, or split
+# across rails, and never trip the cap. This walks the wire rail alone past
+# $25k and requires the gate to block.
+echo "-- 7. NON-COMPLIANT: velocity cap must span RAILS, not just book transfers --"
+XR=$(new_account 5000000 xrail)
+XR_BLOCKED="no"
+for i in 1 2 3 4 5; do
+  ST=$(api POST /payments/wire/prepare "xrail$i" "{\"source_account_id\":\"$XR\",\"amount_cents\":600000,\"beneficiary\":{\"name\":\"Acme Corp\"},\"purpose\":\"e2e xrail $i\"}")
+  if [ "$ST" = "422" ] && [ "$(jget type)" = "velocity_limit_exceeded" ]; then XR_BLOCKED="yes"; break; fi
+done
+check "wire-only volume past \$25k is blocked by CG-VEL-01" "$XR_BLOCKED" "yes"
+check "cross-rail velocity -> CG-VEL-01 block persisted for the account" \
+  "$(sql "select count(*)>0 from pg.core.control_result where control_id='CG-VEL-01' and decision='block' and subject_ref='$XR';")" "true"
+# and the mixed case: book volume must see prior wire volume
+MIX=$(new_account 5000000 mixed)
+api POST /payments/wire/prepare mix-w "{\"source_account_id\":\"$MIX\",\"amount_cents\":2000000,\"beneficiary\":{\"name\":\"Acme Corp\"},\"purpose\":\"e2e mixed wire\"}" >/dev/null
+ST=$(api POST /transfers mix-t "{\"source_account_id\":\"$MIX\",\"destination_account_id\":\"$RICH_A\",\"amount_cents\":600000,\"description\":\"e2e mixed book\"}")
+check "book transfer after a \$20k wire trips the cap (rails aggregate)" "$ST" "422"
+check "mixed-rail block is typed velocity_limit_exceeded" "$(jget type)" "velocity_limit_exceeded"
+
+
 echo
 echo "== $PASS passed, $FAIL failed =="
 [ "$FAIL" -eq 0 ] || exit 1

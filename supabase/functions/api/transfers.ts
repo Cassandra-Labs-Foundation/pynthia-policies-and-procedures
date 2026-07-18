@@ -80,16 +80,30 @@ export async function runGate(
   const sourceAccountId = sourceAccount.id;
   const transferId = resource.id;
 
-  // LIMITATION: daily velocity is summed over core.transfer only, so volume on
-  // other rails (wires) does not count toward the $25k cap and a customer could
-  // split across rails to evade it. Cross-rail aggregation is the follow-up.
+  // CG-VEL-01 is a per-account DAILY cap, so it must aggregate every rail the
+  // member can move money on. Summing only core.transfer would let them evade
+  // the cap by splitting across rails — or send unlimited wires, since wire
+  // volume would never count. Both tables key the source account the same way
+  // (`originator` -> {account_id}).
   const todayStart = `${new Date().toISOString().slice(0, 10)}T00:00:00.000Z`;
-  const { data: velocityRows, error: velErr } = await db.schema("core").from("transfer")
-    .select("amount")
-    .contains("originator", { account_id: sourceAccountId })
-    .in("status", ["pending_approval", "submitted", "settled"])
-    .neq("id", transferId)
-    .gte("created_at", todayStart);
+  const RAILS = ["transfer", "wire_transfer"] as const;
+  let velErr: { message: string } | null = null;
+  const railRows: { amount: number }[] = [];
+  for (const rail of RAILS) {
+    let q = db.schema("core").from(rail)
+      .select("amount")
+      .contains("originator", { account_id: sourceAccountId })
+      .in("status", ["pending_approval", "submitted", "settled", "completed"])
+      .gte("created_at", todayStart);
+    // Exclude the in-flight row only on ITS OWN rail. Applying .neq("id", ...)
+    // across rails sends a text id (tr_...) at wire_transfer.id (uuid) and
+    // Postgres errors on the cast — which took down book transfers entirely.
+    if (rail === resource.table) q = q.neq("id", transferId);
+    const { data, error } = await q;
+    if (error) { velErr = error; break; }
+    railRows.push(...((data ?? []) as { amount: number }[]));
+  }
+  const velocityRows = railRows;
 
   if (velErr) throw new Error(`velocity query: ${velErr.message}`);
 

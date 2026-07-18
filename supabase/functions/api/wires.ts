@@ -178,6 +178,9 @@ export async function postWirePrepare(
   const { error: insErr } = await db.schema("core").from("wire_transfer").upsert({
     id: wireId,
     amount,
+    // records whose money is leaving: needed for audit and for the per-account
+    // daily velocity aggregate, which spans rails.
+    originator: { account_id: sourceId },
     beneficiary,
     purpose: purposeText,
     status: "pending_approval",
