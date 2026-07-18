@@ -6,70 +6,8 @@
 //                        and the exact Blnk call each transition makes.
 // Level 3 (compliance) lives in supabase/tests/e2e/compliance_e2e.sh.
 import { assert, assertEquals } from "jsr:@std/assert@1";
-import { type BlnkConfig } from "../_shared/blnk.ts";
 import { postWireCancel, postWireConfirm, postWirePrepare } from "./wires.ts";
-
-// deno-lint-ignore no-explicit-any
-type Any = any;
-
-interface Recorded {
-  url: string;
-  method: string;
-  body: unknown;
-}
-
-function stubCfg(responses: Response[]): { cfg: BlnkConfig; sent: Recorded[] } {
-  const sent: Recorded[] = [];
-  let i = 0;
-  const fetchFn = (input: RequestInfo | URL, init?: RequestInit) => {
-    const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
-    sent.push({
-      url,
-      method: init?.method ?? "GET",
-      body: init?.body ? JSON.parse(init.body as string) : undefined,
-    });
-    return Promise.resolve(responses[i++] ?? new Response("{}", { status: 200 }));
-  };
-  // NB: the injection point is `fetchFn`, not `fetch`. Typed as BlnkConfig (no
-  // cast) precisely so a wrong field name fails to compile instead of silently
-  // falling through to the real network.
-  const cfg: BlnkConfig = { apiUrl: "https://blnk.test", apiKey: "k", fetchFn };
-  return { cfg, sent };
-}
-
-function json(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "content-type": "application/json" },
-  });
-}
-
-/**
- * Minimal chainable Supabase fake. `row` is what a select resolves to;
- * `updates` records what the handler wrote, so tests can assert the persisted
- * state transition rather than just the response body.
- */
-function stubDb(row: unknown) {
-  const updates: Record<string, unknown>[] = [];
-  const chain: Any = {
-    select: () => chain,
-    eq: () => chain,
-    update: (patch: Record<string, unknown>) => {
-      updates.push(patch);
-      return chain;
-    },
-    maybeSingle: () => Promise.resolve({ data: row, error: null }),
-    // after an update the handler re-selects; merge the patch so the response
-    // reflects the new state the same way Postgres would.
-    single: () =>
-      Promise.resolve({
-        data: { ...(row as Record<string, unknown>), ...Object.assign({}, ...updates) },
-        error: null,
-      }),
-  };
-  const db: Any = { schema: () => ({ from: () => chain }) };
-  return { db, updates };
-}
+import { type Any, json, req, reqWithoutIdempotencyKey, stubCfg, stubDb } from "./test_helpers.ts";
 
 const HELD_WIRE = {
   id: "w1",
@@ -83,28 +21,6 @@ const HELD_WIRE = {
   blnk_status: "INFLIGHT",
   created_at: "2026-07-18T00:00:00Z",
 };
-
-// Carries an Idempotency-Key by default: prepare guards on it before any
-// validation runs, so omitting it would short-circuit every validation test.
-function req(body?: unknown, headers: Record<string, string> = {}): Request {
-  return new Request("https://x/payments/wire/prepare", {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "Idempotency-Key": "idem-test",
-      ...headers,
-    },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
-}
-
-function reqWithoutIdempotencyKey(body: unknown): Request {
-  return new Request("https://x/payments/wire/prepare", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(body),
-  });
-}
 
 // ----------------------------------------------------------------- unit level
 
