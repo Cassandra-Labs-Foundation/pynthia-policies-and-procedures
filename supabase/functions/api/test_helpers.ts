@@ -109,3 +109,124 @@ export function reqWithoutIdempotencyKey(body: unknown, url = "https://x/payment
     body: JSON.stringify(body),
   });
 }
+
+export type IdemMode =
+  | "fresh"
+  | { kind: "conflict" }
+  | { kind: "replay"; status: number; body: unknown }
+  | { kind: "resume"; id: string };
+
+export interface ApiDbOpts {
+  /** row returned for a core.account lookup */
+  account?: unknown;
+  /** how claimIdempotency should resolve */
+  idem?: IdemMode;
+  /** row the writer table returns after its update...select().single() */
+  row?: Record<string, unknown>;
+  /** per-rail rows for the velocity sweep (contains "originator") */
+  outbound?: Record<string, { amount: number }[]>;
+  /** rows for the structuring sweep (contains "beneficiary") */
+  inbound?: { amount: number }[];
+}
+
+/**
+ * Table-aware Supabase fake covering a full writer happy path: the idempotency
+ * claim, the account lookup, the gate's aggregate sweeps, and the writer's own
+ * row.
+ *
+ * claimIdempotency is modelled faithfully rather than short-circuited — it
+ * inserts, and on a 23505 re-reads the stored row to decide replay vs conflict
+ * vs resume. The fake echoes back the request_hash from the attempted insert,
+ * so replay/resume resolve without the test having to recompute the writer's
+ * SHA-256 of the body.
+ */
+export function stubApiDb(opts: ApiDbOpts = {}) {
+  const idem = opts.idem ?? "fresh";
+  const inserts: { table: string; row: Record<string, unknown> }[] = [];
+  const updates: { table: string; patch: Record<string, unknown> }[] = [];
+  let attemptedHash = "";
+
+  const from = (table: string) => {
+    let predicate: "originator" | "beneficiary" | null = null;
+    const chain: Any = {
+      select: () => chain,
+      eq: () => chain,
+      in: () => chain,
+      neq: () => chain,
+      gte: () => chain,
+      order: () => chain,
+      contains: (col: string) => {
+        predicate = col === "beneficiary" ? "beneficiary" : "originator";
+        return chain;
+      },
+      insert: (row: Record<string, unknown>) => {
+        if (table === "idempotency_keys") {
+          attemptedHash = String(row.request_hash ?? "");
+          // a non-fresh claim means the key already exists -> unique violation
+          return Promise.resolve(
+            idem === "fresh"
+              ? { data: null, error: null }
+              : { data: null, error: { code: "23505", message: "duplicate key" } },
+          );
+        }
+        inserts.push({ table, row });
+        return Promise.resolve({ data: null, error: null });
+      },
+      upsert: (row: Record<string, unknown>) => {
+        inserts.push({ table, row });
+        return Promise.resolve({ data: null, error: null });
+      },
+      update: (patch: Record<string, unknown>) => {
+        updates.push({ table, patch });
+        return chain;
+      },
+      maybeSingle: () => {
+        if (table === "idempotency_keys") {
+          if (idem === "fresh") return Promise.resolve({ data: null, error: null });
+          if (idem.kind === "conflict") {
+            // a different body under the same key
+            return Promise.resolve({
+              data: { request_hash: `${attemptedHash}-different`, response_status: null },
+              error: null,
+            });
+          }
+          if (idem.kind === "replay") {
+            return Promise.resolve({
+              data: {
+                request_hash: attemptedHash,
+                response_status: idem.status,
+                response_body: idem.body,
+              },
+              error: null,
+            });
+          }
+          return Promise.resolve({
+            data: { request_hash: attemptedHash, response_status: null, blnk_reference: idem.id },
+            error: null,
+          });
+        }
+        if (table === "account") return Promise.resolve({ data: opts.account ?? null, error: null });
+        return Promise.resolve({ data: opts.row ?? null, error: null });
+      },
+      single: () =>
+        Promise.resolve({
+          data: {
+            ...(opts.row ?? {}),
+            ...Object.assign({}, ...updates.filter((u) => u.table === table).map((u) => u.patch)),
+          },
+          error: null,
+        }),
+      then: (res: (v: unknown) => unknown) =>
+        res({
+          data: predicate === "beneficiary"
+            ? (opts.inbound ?? [])
+            : (opts.outbound?.[table] ?? []),
+          error: null,
+        }),
+    };
+    return chain;
+  };
+
+  const db: Any = { schema: () => ({ from }) };
+  return { db, inserts, updates };
+}
