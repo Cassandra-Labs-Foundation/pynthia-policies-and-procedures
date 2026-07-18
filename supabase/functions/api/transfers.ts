@@ -73,7 +73,7 @@ export async function runGate(
   cfg: BlnkConfig,
   resource: GateResource,
   sourceAccount: AccountRow,
-  _destAccount: AccountRow | null,
+  destAccount: AccountRow | null,
   amountCents: number,
 ): Promise<GateOutcome> {
   const controlResults: ControlResultRef[] = [];
@@ -172,6 +172,62 @@ export async function runGate(
       details: `${resource.label} over $10,000 (${resource.type}_id=${transferId}, amount_cents=${amountCents})`,
     });
     if (bsaErr) throw new Error(`bsa_alert insert: ${bsaErr.message}`);
+  }
+
+  // CG-STR-01 — structuring / aggregate CTR.
+  //
+  // CG-STR-01 catches what CG-CTR-01 structurally cannot: the per-transaction
+  // gate sees one transfer at a time, so a member can stay under $10k on every
+  // single transfer and still move a reportable amount into one account in a
+  // day. Sum today's inflow to the destination and alert when the AGGREGATE
+  // crosses the line. Only evaluated when the per-txn gate stayed silent
+  // (amount <= $10k), so a single large transfer raises CG-CTR-01, not both.
+  //
+  // Wires have no destination account row (funds leave for @FedWire), so this
+  // is inherently book-side; outbound structuring is a separate control.
+  if (destAccount && amountCents <= 1_000_000) {
+    const { data: inflowRows, error: inErr } = await db.schema("core").from("transfer")
+      .select("amount")
+      .contains("beneficiary", { account_id: destAccount.id })
+      .in("status", ["pending_approval", "submitted", "settled"])
+      .neq("id", transferId)
+      .gte("created_at", todayStart);
+    if (inErr) throw new Error(`structuring query: ${inErr.message}`);
+
+    const priorInflow = (inflowRows ?? []).reduce(
+      (sum, row) => sum + (row as { amount: number }).amount,
+      0,
+    );
+    const aggregate = priorInflow + amountCents;
+
+    if (aggregate > 1_000_000) {
+      const crId = `cr_${crypto.randomUUID()}`;
+      const alertId = `alert_${crypto.randomUUID()}`;
+      const { error: crErr } = await db.schema("core").from("control_result").insert({
+        id: crId,
+        control_id: "CG-STR-01",
+        decision: "pass",
+        event: transferId,
+        subject_ref: destAccount.id,
+      });
+      if (crErr) throw new Error(`control_result insert (CG-STR-01): ${crErr.message}`);
+      controlResults.push({ control_id: "CG-STR-01", decision: "pass" });
+
+      // event_id stays null for the same FK reason as the CTR alert above.
+      const { error: bsaErr } = await db.schema("core").from("bsa_alert").insert({
+        id: alertId,
+        alert_type: "structuring",
+        status: "open",
+        requires_lookback: "true",
+        entity_hash: await sha256Hex(destAccount.id),
+        event_id: null,
+        details:
+          `aggregate inflow over $10,000 with no single transfer above it ` +
+          `(account_id=${destAccount.id}, daily_inflow_cents=${aggregate}, ` +
+          `this_${resource.type}_id=${transferId})`,
+      });
+      if (bsaErr) throw new Error(`bsa_alert insert (structuring): ${bsaErr.message}`);
+    }
   }
 
   const blnkBal = await getBalance(cfg, sourceAccount.blnk_balance_id!);

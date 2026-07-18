@@ -159,6 +159,29 @@ check "book transfer after a \$20k wire trips the cap (rails aggregate)" "$ST" "
 check "mixed-rail block is typed velocity_limit_exceeded" "$(jget type)" "velocity_limit_exceeded"
 
 
+# --------------------------------------------------- structuring / aggregate CTR
+# The per-transaction gate (CG-CTR-01) only sees one transfer at a time, so a
+# member can stay under $10k on every single transfer and still move a
+# reportable amount in a day. That is textbook structuring. Until now it was
+# visible only in the ctr_daily_inflow DuckDB view -- i.e. after the fact, in
+# analytics -- and nothing in the live path flagged it.
+echo "-- 8. NON-COMPLIANT: structuring -- 3x \$4k to one account aggregates past \$10k --"
+S1=$(new_account 5000000 str-1); S2=$(new_account 5000000 str-2); S3=$(new_account 5000000 str-3)
+DEST=$(new_account 10000 str-dest)
+api POST /transfers str1 "{\"source_account_id\":\"$S1\",\"destination_account_id\":\"$DEST\",\"amount_cents\":400000,\"description\":\"e2e struct 1\"}" >/dev/null
+api POST /transfers str2 "{\"source_account_id\":\"$S2\",\"destination_account_id\":\"$DEST\",\"amount_cents\":400000,\"description\":\"e2e struct 2\"}" >/dev/null
+# third crosses the aggregate line: 3 x $4,000 = $12,000 into one account today
+ST=$(api POST /transfers str3 "{\"source_account_id\":\"$S3\",\"destination_account_id\":\"$DEST\",\"amount_cents\":400000,\"description\":\"e2e struct 3\"}")
+check "structuring -> individual transfer still settles (alert-only)" "$ST" "201"
+check "structuring -> per-txn CG-CTR-01 stays silent (each < \$10k)" "$(jctl CG-CTR-01 pass)" "no"
+check "structuring -> CG-STR-01 reported on response"                "$(jctl CG-STR-01 pass)" "yes"
+STR_ID=$(jget id)
+check "structuring -> CG-STR-01 control_result persisted" \
+  "$(sql "select count(*)>0 from pg.core.control_result where event='$STR_ID' and control_id='CG-STR-01';")" "true"
+check "structuring -> bsa_alert raised against the receiving account" \
+  "$(sql "select count(*)>0 from pg.core.bsa_alert where alert_type='structuring' and '$DEST' <> '' and details like '%$DEST%';")" "true"
+
+
 echo
 echo "== $PASS passed, $FAIL failed =="
 [ "$FAIL" -eq 0 ] || exit 1
