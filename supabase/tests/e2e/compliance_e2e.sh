@@ -264,6 +264,37 @@ check "card NSF -> no hold placed (gate ran before Blnk)" \
   "$(sql "select case when count(*)=0 then 'no-row' else coalesce(max(blnk_inflight_id),'none') end from pg.core.card_authorization where id='$NSF_CARD';")" "none"
 
 
+# ------------------------------------------------- outbound structuring (STR-02)
+# CG-STR-01 watches inflow to a destination account. Wires/ACH/card have no
+# destination row -- funds leave for an @external balance -- so a member
+# structuring money OUT was invisible to it, and CG-VEL-01 only blocks the same
+# flow at $25k. This walks $12k out of one account in $4k wires: every single
+# transaction stays under the CTR line, and the day does not.
+echo "-- 15. NON-COMPLIANT: outbound structuring across wires (CG-STR-02) --"
+OB=$(new_account 5000000 outbound-str)
+api POST /payments/wire/prepare ob-1 "{\"source_account_id\":\"$OB\",\"amount_cents\":400000,\"beneficiary\":{\"name\":\"Acme Corp\"},\"purpose\":\"ob 1\"}" >/dev/null
+api POST /payments/wire/prepare ob-2 "{\"source_account_id\":\"$OB\",\"amount_cents\":400000,\"beneficiary\":{\"name\":\"Acme Corp\"},\"purpose\":\"ob 2\"}" >/dev/null
+# third wire takes the day to $12k
+ST=$(api POST /payments/wire/prepare ob-3 "{\"source_account_id\":\"$OB\",\"amount_cents\":400000,\"beneficiary\":{\"name\":\"Acme Corp\"},\"purpose\":\"ob 3\"}")
+check "outbound structuring -> wire still settles (alert-only)" "$ST" "201"
+check "outbound structuring -> per-txn CG-CTR-01 stays silent"  "$(jctl CG-CTR-01 pass)" "no"
+check "outbound structuring -> CG-STR-02 on response"           "$(jctl CG-STR-02 pass)" "yes"
+OB_ID=$(jget id)
+check "outbound structuring -> CG-STR-02 control_result persisted" \
+  "$(sql "select count(*)>0 from pg.core.control_result where event='$OB_ID' and control_id='CG-STR-02';")" "true"
+check "outbound structuring -> bsa_alert names the sending account" \
+  "$(sql "select count(*)>0 from pg.core.bsa_alert where alert_type='structuring' and '$OB' <> '' and details like '%OUTBOUND%' and details like '%$OB%';")" "true"
+
+echo "-- 16. outbound structuring aggregates across DIFFERENT rails --"
+XB=$(new_account 5000000 xrail-str)
+api POST /payments/ach xb-ach "{\"source_account_id\":\"$XB\",\"amount_cents\":400000,\"counterparty\":{\"name\":\"Acme Vendor\"}}" >/dev/null
+api POST /payments/card/authorize xb-card "{\"source_account_id\":\"$XB\",\"amount_cents\":400000,\"merchant\":\"Acme Coffee\"}" >/dev/null
+# a book transfer completes the $12k day across three different rails
+ST=$(api POST /transfers xb-book "{\"source_account_id\":\"$XB\",\"destination_account_id\":\"$RICH_A\",\"amount_cents\":400000,\"description\":\"xrail structuring\"}")
+check "cross-rail outbound structuring -> settles" "$ST" "201"
+check "cross-rail outbound structuring -> CG-STR-02 fires" "$(jctl CG-STR-02 pass)" "yes"
+
+
 echo
 echo "== $PASS passed, $FAIL failed =="
 [ "$FAIL" -eq 0 ] || exit 1

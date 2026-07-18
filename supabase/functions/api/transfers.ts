@@ -188,6 +188,47 @@ export async function runGate(
     if (bsaErr) throw new Error(`bsa_alert insert: ${bsaErr.message}`);
   }
 
+  // CG-STR-02 — OUTBOUND structuring.
+  //
+  // CG-STR-01 watches inflow to a destination account, but wires, ACH and card
+  // have no destination row (funds leave for an @external balance), so a member
+  // structuring money OUT was invisible to it. CG-VEL-01 blocks the same flow
+  // only at $25k; nothing watched the $10k reportability line on the way out.
+  //
+  // Reuses priorSum — the cross-rail daily outflow velocity already computed —
+  // so this costs no extra query. Only evaluated when the per-transaction gate
+  // stayed silent, and never on a blocked payment (velocity returns above).
+  if (amountCents <= 1_000_000 && priorSum + amountCents > 1_000_000) {
+    const crId = `cr_${crypto.randomUUID()}`;
+    const alertId = `alert_${crypto.randomUUID()}`;
+    const outflow = priorSum + amountCents;
+
+    const { error: crErr } = await db.schema("core").from("control_result").insert({
+      id: crId,
+      control_id: "CG-STR-02",
+      decision: "pass",
+      event: transferId,
+      subject_ref: sourceAccountId,
+    });
+    if (crErr) throw new Error(`control_result insert (CG-STR-02): ${crErr.message}`);
+    controlResults.push({ control_id: "CG-STR-02", decision: "pass" });
+
+    // event_id stays null for the same FK reason as the CTR alert above.
+    const { error: bsaErr } = await db.schema("core").from("bsa_alert").insert({
+      id: alertId,
+      alert_type: "structuring",
+      status: "open",
+      requires_lookback: "true",
+      entity_hash: await sha256Hex(sourceAccountId),
+      event_id: null,
+      details:
+        `aggregate OUTBOUND over $10,000 with no single transaction above it ` +
+        `(account_id=${sourceAccountId}, daily_outflow_cents=${outflow}, ` +
+        `this_${resource.type}_id=${transferId})`,
+    });
+    if (bsaErr) throw new Error(`bsa_alert insert (outbound structuring): ${bsaErr.message}`);
+  }
+
   // CG-STR-01 — structuring / aggregate CTR.
   //
   // CG-STR-01 catches what CG-CTR-01 structurally cannot: the per-transaction

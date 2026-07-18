@@ -110,18 +110,26 @@ call it is a compliance gap, not a TODO.
 |------------|----------------------------------------------------|---------------------------------|
 | CG-VEL-01  | Source daily outbound > $25k, **summed across rails** | **Block** — `422 velocity_limit_exceeded` |
 | CG-CTR-01  | Single transaction > $10k                          | **Alert only** — CTR BSA alert  |
-| CG-STR-01  | Daily inflow to one account > $10k with no single transaction above it | **Alert only** — structuring BSA alert |
+| CG-STR-01  | Daily **inflow** to one account > $10k with no single transaction above it | **Alert only** — structuring BSA alert |
+| CG-STR-02  | Daily **outflow** from one account > $10k, across rails, with no single transaction above it | **Alert only** — structuring BSA alert |
 | CG-NSF-01  | Source balance < amount                            | **Reject** — `422 insufficient_funds` |
 
 Velocity aggregates `transfer` + `wire_transfer` + `ach_transfer` via
 `originator -> {account_id}`, so a member cannot evade the daily cap by
 splitting across rails.
 
-CG-STR-01 catches what CG-CTR-01 structurally cannot: the per-transaction gate
-sees one transfer at a time, so staying under $10k on every transfer while
-moving a reportable amount in a day would otherwise go unflagged. It is
-evaluated only when the per-transaction gate stayed silent, and is book-side
-(wires/ACH have no destination account row).
+CG-STR-01 and CG-STR-02 catch what CG-CTR-01 structurally cannot: the
+per-transaction gate sees one transaction at a time, so staying under $10k on
+every one while moving a reportable amount in a day would otherwise go
+unflagged. Both are evaluated only when the per-transaction gate stayed silent.
+
+They differ by direction, because the two sides need different aggregation
+keys. CG-STR-01 sums **inflow to a destination account**, so it is book-side
+only — wires/ACH/card have no destination row, since funds leave for an
+`@external` balance. CG-STR-02 sums **outflow from the source account across
+every rail**, which is what catches an outbound structurer on exactly those
+rails. CG-VEL-01 watches the same outflow but only blocks at $25k; CG-STR-02
+covers the $10k reportability line beneath it.
 
 The gate runs **before** funds are held, so a blocked two-phase payment never
 creates an inflight hold.

@@ -254,3 +254,62 @@ Deno.test("the error envelope names the rail that was actually blocked", async (
   assertEquals((out.body as Any).resource_type, "card_authorization");
   assertEquals((out.body as Any).resource_id, "cauth_2");
 });
+
+// --------------------------------------------------------------- CG-STR-02
+// Outbound structuring. CG-STR-01 watches inflow to a destination account, but
+// wires/ACH/card have no destination row — funds leave for an @external
+// balance — so an outbound structurer was invisible to it. Velocity blocks at
+// $25k; nothing watched the $10k reportability line on the way out.
+
+Deno.test("outbound structuring fires when daily outflow aggregates past $10k under the line", async () => {
+  const { cfg } = stubCfg([balance(CENTS(50_000))]);
+  // two prior $4k wires today; this one takes the day to $12k
+  const { db, inserts } = stubGateDb({
+    outbound: { wire_transfer: [{ amount: CENTS(4_000) }, { amount: CENTS(4_000) }] },
+  });
+
+  const out = await runGate(db, cfg, TRANSFER_RESOURCE("tr_20"), ACCOUNT, null, CENTS(4_000));
+  assertEquals(out.blocked, false, "outbound structuring is alert-only");
+  assertEquals(controlIds(inserts), ["CG-STR-02"]);
+  assertEquals(alertTypes(inserts), ["structuring"]);
+});
+
+Deno.test("outbound structuring aggregates ACROSS rails", async () => {
+  const { cfg } = stubCfg([balance(CENTS(50_000))]);
+  const { db, inserts } = stubGateDb({
+    outbound: {
+      transfer: [{ amount: CENTS(3_000) }],
+      ach_transfer: [{ amount: CENTS(3_000) }],
+      card_authorization: [{ amount: CENTS(3_000) }],
+    },
+  });
+
+  await runGate(db, cfg, TRANSFER_RESOURCE("tr_21"), ACCOUNT, null, CENTS(2_000));
+  assertEquals(controlIds(inserts), ["CG-STR-02"], "splitting across rails must not hide it");
+});
+
+Deno.test("outbound structuring stays silent below the aggregate line", async () => {
+  const { cfg } = stubCfg([balance(CENTS(50_000))]);
+  const { db, inserts } = stubGateDb({ outbound: { transfer: [{ amount: CENTS(3_000) }] } });
+
+  await runGate(db, cfg, TRANSFER_RESOURCE("tr_22"), ACCOUNT, null, CENTS(3_000));
+  assertEquals(controlIds(inserts).length, 0);
+});
+
+Deno.test("a single large outbound raises CTR only, not outbound structuring", async () => {
+  const { cfg } = stubCfg([balance(CENTS(50_000))]);
+  const { db, inserts } = stubGateDb({ outbound: { transfer: [{ amount: CENTS(4_000) }] } });
+
+  await runGate(db, cfg, TRANSFER_RESOURCE("tr_23"), ACCOUNT, null, CENTS(11_000));
+  assertEquals(controlIds(inserts), ["CG-CTR-01"], "the per-txn gate already reports this one");
+});
+
+Deno.test("outbound structuring is not double-reported alongside a velocity block", async () => {
+  const { cfg } = stubCfg([]);
+  // already past the $25k cap: velocity blocks and short-circuits
+  const { db, inserts } = stubGateDb({ outbound: { transfer: [{ amount: CENTS(24_000) }] } });
+
+  const out = await runGate(db, cfg, TRANSFER_RESOURCE("tr_24"), ACCOUNT, null, CENTS(2_000));
+  assert(out.blocked);
+  assertEquals(controlIds(inserts), ["CG-VEL-01"], "a blocked payment reports the block, not both");
+});
