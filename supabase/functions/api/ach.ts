@@ -38,6 +38,7 @@ const ACH_RESOURCE = (id: string): GateResource => ({
   type: "ach_transfer",
   id,
   label: "outbound ACH",
+  rejectedStatus: "rejected",
 });
 
 export interface AchRow {

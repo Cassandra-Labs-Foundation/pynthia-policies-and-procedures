@@ -59,6 +59,13 @@ export interface GateResource {
   type: string;
   id: string;
   label: string;
+  /**
+   * Status a blocking control writes to this rail's row. Rails do not share a
+   * vocabulary: book/wire/ACH use 'rejected', but card_authorization's CHECK
+   * only permits 'declined' (cards decline, they do not reject). Writing the
+   * wrong one violates the constraint and throws instead of blocking cleanly.
+   */
+  rejectedStatus: string;
 }
 
 export const TRANSFER_RESOURCE = (id: string): GateResource => ({
@@ -66,6 +73,7 @@ export const TRANSFER_RESOURCE = (id: string): GateResource => ({
   type: "transfer",
   id,
   label: "book transfer",
+  rejectedStatus: "rejected",
 });
 
 export async function runGate(
@@ -86,14 +94,20 @@ export async function runGate(
   // volume would never count. Both tables key the source account the same way
   // (`originator` -> {account_id}).
   const todayStart = `${new Date().toISOString().slice(0, 10)}T00:00:00.000Z`;
-  const RAILS = ["transfer", "wire_transfer", "ach_transfer"] as const;
+  const RAILS = ["transfer", "wire_transfer", "ach_transfer", "card_authorization"] as const;
   let velErr: { message: string } | null = null;
   const railRows: { amount: number }[] = [];
   for (const rail of RAILS) {
     let q = db.schema("core").from(rail)
       .select("amount")
       .contains("originator", { account_id: sourceAccountId })
-      .in("status", ["pending_approval", "submitted", "settled", "completed"])
+      .in("status", [
+        // book / wire / ach
+        "pending_approval", "submitted", "settled", "completed",
+        // card_authorization uses its own vocabulary; an open or drawn-down
+        // hold is committed outbound volume for velocity purposes
+        "authorized", "partially_captured", "captured",
+      ])
       .gte("created_at", todayStart);
     // Exclude the in-flight row only on ITS OWN rail. Applying .neq("id", ...)
     // across rails sends a text id (tr_...) at wire_transfer.id (uuid) and
@@ -125,7 +139,7 @@ export async function runGate(
     controlResults.push({ control_id: "CG-VEL-01", decision: "block" });
 
     const { error: rejErr } = await db.schema("core").from(resource.table)
-      .update({ status: "rejected" })
+      .update({ status: resource.rejectedStatus })
       .eq("id", transferId);
     if (rejErr) throw new Error(`${resource.table} reject update (velocity): ${rejErr.message}`);
 
@@ -246,7 +260,7 @@ export async function runGate(
     controlResults.push({ control_id: "CG-NSF-01", decision: "reject" });
 
     const { error: rejErr } = await db.schema("core").from(resource.table)
-      .update({ status: "rejected" })
+      .update({ status: resource.rejectedStatus })
       .eq("id", transferId);
     if (rejErr) throw new Error(`${resource.table} reject update (NSF): ${rejErr.message}`);
 

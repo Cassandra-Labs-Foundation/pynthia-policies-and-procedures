@@ -38,6 +38,7 @@ const WIRE_RESOURCE = (id: string): GateResource => ({
   type: "wire_transfer",
   id,
   label: "outbound wire",
+  rejectedStatus: "rejected",
 });
 
 export interface WireRow {

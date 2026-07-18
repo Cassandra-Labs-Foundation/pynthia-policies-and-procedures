@@ -216,6 +216,54 @@ done
 check "ACH-only volume past \$25k is blocked by CG-VEL-01" "$AV_BLOCKED" "yes"
 
 
+# ------------------------------- cards: partial + incremental capture, gated
+echo "-- 12. CARD: authorize -> partial capture -> capture -> reverse remainder --"
+C_SRC=$(new_account 5000000 card-src)
+ST=$(api POST /payments/card/authorize card-auth "{\"source_account_id\":\"$C_SRC\",\"amount_cents\":100000,\"merchant\":\"Acme Coffee\"}")
+check "card authorize -> HTTP 201"        "$ST" "201"
+check "card authorize -> authorized"      "$(jget status)" "authorized"
+check "card authorize -> nothing captured yet" "$(jget captured_cents)" "0"
+CARD_ID=$(jget id)
+
+# capture $300 of a $1000 hold
+ST=$(api POST "/payments/card/$CARD_ID/capture" card-cap1 "{\"amount_cents\":30000}")
+check "partial capture -> HTTP 200"                "$ST" "200"
+check "partial capture -> partially_captured"      "$(jget status)" "partially_captured"
+check "partial capture -> captured_cents tracks"   "$(jget captured_cents)" "30000"
+check "partial capture -> remaining_cents tracks"  "$(jget remaining_cents)" "70000"
+
+# over-capture must be refused, not clamped
+ST=$(api POST "/payments/card/$CARD_ID/capture" card-cap-over "{\"amount_cents\":80000}")
+check "over-capture -> 422 refused (not clamped)"  "$ST" "422"
+check "over-capture -> typed capture_exceeds_authorization" "$(jget type)" "capture_exceeds_authorization"
+
+# incremental capture of the rest closes it out
+ST=$(api POST "/payments/card/$CARD_ID/capture" card-cap2 "{\"amount_cents\":70000}")
+check "incremental capture -> captured"            "$(jget status)" "captured"
+check "incremental capture -> full amount captured" "$(jget captured_cents)" "100000"
+check "re-capturing a captured auth replays"       "$(api POST "/payments/card/$CARD_ID/capture" card-cap3 "{}")" "200"
+
+echo "-- 13. CARD: reversing an under-captured hold releases the remainder --"
+ST=$(api POST /payments/card/authorize card-auth2 "{\"source_account_id\":\"$C_SRC\",\"amount_cents\":50000,\"merchant\":\"Acme Coffee\"}")
+CARD2=$(jget id)
+api POST "/payments/card/$CARD2/capture" card2-cap "{\"amount_cents\":20000}" >/dev/null
+ST=$(api POST "/payments/card/$CARD2/reverse" card2-rev "{\"reason\":\"merchant cancelled\"}")
+check "reverse from partially_captured -> HTTP 200" "$ST" "200"
+check "reverse -> reversed"                         "$(jget status)" "reversed"
+check "reverse -> already-captured amount retained" "$(jget captured_cents)" "20000"
+
+echo "-- 14. NON-COMPLIANT CARD: NSF must decline before any hold --"
+C_BROKE=$(new_account 10000 card-broke)
+ST=$(api POST /payments/card/authorize card-nsf "{\"source_account_id\":\"$C_BROKE\",\"amount_cents\":500000,\"merchant\":\"Acme Coffee\"}")
+check "card NSF -> HTTP 422"                          "$ST" "422"
+check "card NSF -> resource_type is card_authorization" "$(jget resource_type)" "card_authorization"
+NSF_CARD=$(jget resource_id)
+check "card NSF -> row marked declined"  \
+  "$(sql "select status from pg.core.card_authorization where id='$NSF_CARD';")" "declined"
+check "card NSF -> no hold placed (gate ran before Blnk)" \
+  "$(sql "select case when count(*)=0 then 'no-row' else coalesce(max(blnk_inflight_id),'none') end from pg.core.card_authorization where id='$NSF_CARD';")" "none"
+
+
 echo
 echo "== $PASS passed, $FAIL failed =="
 [ "$FAIL" -eq 0 ] || exit 1

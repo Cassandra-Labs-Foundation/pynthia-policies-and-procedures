@@ -7,6 +7,7 @@ import { getAccount, postAccount } from "./accounts.ts";
 import { getTransfer, postTransfer } from "./transfers.ts";
 import { postWireCancel, postWireConfirm, postWirePrepare } from "./wires.ts";
 import { postAch, postAchReturn, postAchSettle } from "./ach.ts";
+import { postCardAuthorize, postCardCapture, postCardReverse } from "./cards.ts";
 import {
   createDb,
   createRequestId,
@@ -104,6 +105,36 @@ const routes: Route[] = [
       const db = createDb();
       const cfg = blnkConfigFromEnv();
       return await postAchReturn(req, params.id, db, cfg, requestId);
+    },
+  },
+  {
+    method: "POST",
+    pattern: /^\/payments\/card\/authorize\/?$/,
+    paramNames: [],
+    handler: async (req, _params, requestId) => {
+      const db = createDb();
+      const cfg = blnkConfigFromEnv();
+      return await postCardAuthorize(req, db, cfg, requestId);
+    },
+  },
+  {
+    method: "POST",
+    pattern: /^\/payments\/card\/([^/]+)\/capture\/?$/,
+    paramNames: ["id"],
+    handler: async (req, params, requestId) => {
+      const db = createDb();
+      const cfg = blnkConfigFromEnv();
+      return await postCardCapture(req, params.id, db, cfg, requestId);
+    },
+  },
+  {
+    method: "POST",
+    pattern: /^\/payments\/card\/([^/]+)\/reverse\/?$/,
+    paramNames: ["id"],
+    handler: async (req, params, requestId) => {
+      const db = createDb();
+      const cfg = blnkConfigFromEnv();
+      return await postCardReverse(req, params.id, db, cfg, requestId);
     },
   },
   {
