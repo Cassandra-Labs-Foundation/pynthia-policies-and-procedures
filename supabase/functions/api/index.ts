@@ -6,6 +6,7 @@ import { blnkConfigFromEnv } from "../_shared/blnk.ts";
 import { getAccount, postAccount } from "./accounts.ts";
 import { getTransfer, postTransfer } from "./transfers.ts";
 import { postWireCancel, postWireConfirm, postWirePrepare } from "./wires.ts";
+import { postAch, postAchReturn, postAchSettle } from "./ach.ts";
 import {
   createDb,
   createRequestId,
@@ -73,6 +74,36 @@ const routes: Route[] = [
     handler: async (_req, params, requestId) => {
       const db = createDb();
       return await getTransfer(params.id, db, requestId);
+    },
+  },
+  {
+    method: "POST",
+    pattern: /^\/payments\/ach\/?$/,
+    paramNames: [],
+    handler: async (req, _params, requestId) => {
+      const db = createDb();
+      const cfg = blnkConfigFromEnv();
+      return await postAch(req, db, cfg, requestId);
+    },
+  },
+  {
+    method: "POST",
+    pattern: /^\/payments\/ach\/([^/]+)\/settle\/?$/,
+    paramNames: ["id"],
+    handler: async (req, params, requestId) => {
+      const db = createDb();
+      const cfg = blnkConfigFromEnv();
+      return await postAchSettle(req, params.id, db, cfg, requestId);
+    },
+  },
+  {
+    method: "POST",
+    pattern: /^\/payments\/ach\/([^/]+)\/return\/?$/,
+    paramNames: ["id"],
+    handler: async (req, params, requestId) => {
+      const db = createDb();
+      const cfg = blnkConfigFromEnv();
+      return await postAchReturn(req, params.id, db, cfg, requestId);
     },
   },
   {

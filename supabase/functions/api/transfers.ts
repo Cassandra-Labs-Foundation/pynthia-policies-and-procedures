@@ -86,7 +86,7 @@ export async function runGate(
   // volume would never count. Both tables key the source account the same way
   // (`originator` -> {account_id}).
   const todayStart = `${new Date().toISOString().slice(0, 10)}T00:00:00.000Z`;
-  const RAILS = ["transfer", "wire_transfer"] as const;
+  const RAILS = ["transfer", "wire_transfer", "ach_transfer"] as const;
   let velErr: { message: string } | null = null;
   const railRows: { amount: number }[] = [];
   for (const rail of RAILS) {

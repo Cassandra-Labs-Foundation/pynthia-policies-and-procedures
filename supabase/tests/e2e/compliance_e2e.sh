@@ -182,6 +182,40 @@ check "structuring -> bsa_alert raised against the receiving account" \
   "$(sql "select count(*)>0 from pg.core.bsa_alert where alert_type='structuring' and '$DEST' <> '' and details like '%$DEST%';")" "true"
 
 
+# ------------------------------------------------------- ACH: same gate applies
+echo "-- 9. NON-COMPLIANT ACH: >\$10k must raise a CTR alert, NSF must block --"
+ACH_SRC=$(new_account 5000000 ach-src)
+ST=$(api POST /payments/ach ach-ctr "{\"source_account_id\":\"$ACH_SRC\",\"amount_cents\":1100000,\"counterparty\":{\"name\":\"Acme Vendor\"},\"window\":\"next_day\"}")
+check "ACH CTR -> HTTP 201"                  "$ST" "201"
+check "ACH CTR -> held (submitted)"          "$(jget status)" "submitted"
+check "ACH CTR -> CG-CTR-01 on response"     "$(jctl CG-CTR-01 pass)" "yes"
+ACH_ID=$(jget id)
+check "ACH CTR -> bsa_alert raised for this ACH" \
+  "$(sql "select count(*)>0 from pg.core.bsa_alert where alert_type='ctr_threshold' and '$ACH_ID' <> '' and details like '%$ACH_ID%';")" "true"
+
+ACH_BROKE=$(new_account 10000 ach-broke)
+ST=$(api POST /payments/ach ach-nsf "{\"source_account_id\":\"$ACH_BROKE\",\"amount_cents\":500000,\"counterparty\":{\"name\":\"Acme Vendor\"}}")
+check "ACH NSF -> HTTP 422"                       "$ST" "422"
+check "ACH NSF -> resource_type is ach_transfer"  "$(jget resource_type)" "ach_transfer"
+ACH_NSF_ID=$(jget resource_id)
+check "ACH NSF -> no inflight hold created (gate ran before Blnk)" \
+  "$(sql "select case when count(*)=0 then 'no-row' else coalesce(max(blnk_transaction_id),'none') end from pg.core.ach_transfer where id='$ACH_NSF_ID';")" "none"
+
+echo "-- 10. ACH settle commits the hold --"
+ST=$(api POST "/payments/ach/$ACH_ID/settle" ach-settle "{}")
+check "ACH settle -> HTTP 200"   "$ST" "200"
+check "ACH settle -> settled"    "$(jget status)" "settled"
+
+echo "-- 11. ACH volume counts toward the cross-rail velocity cap --"
+AV=$(new_account 5000000 ach-vel)
+AV_BLOCKED="no"
+for i in 1 2 3 4 5; do
+  ST=$(api POST /payments/ach "achvel$i" "{\"source_account_id\":\"$AV\",\"amount_cents\":600000,\"counterparty\":{\"name\":\"Acme Vendor\"}}")
+  if [ "$ST" = "422" ] && [ "$(jget type)" = "velocity_limit_exceeded" ]; then AV_BLOCKED="yes"; break; fi
+done
+check "ACH-only volume past \$25k is blocked by CG-VEL-01" "$AV_BLOCKED" "yes"
+
+
 echo
 echo "== $PASS passed, $FAIL failed =="
 [ "$FAIL" -eq 0 ] || exit 1
