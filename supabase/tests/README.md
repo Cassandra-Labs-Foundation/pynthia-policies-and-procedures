@@ -84,3 +84,23 @@ python gen_tests.py ../../controls.json ../tests
 ```
 
 Edit `gen_tests.py`, not the `.sql` — the test files are generated artifacts.
+
+
+## e2e compliance harness
+
+`e2e/compliance_e2e.sh` drives the **deployed** api against real Blnk and
+asserts that non-compliant transactions are actually *flagged* — not merely
+rejected. Every negative case asserts on the durable evidence in the database
+(`core.control_result`, `core.bsa_alert`), never on the HTTP status alone: a
+control that silently fails to fire produces a false clean audit, which is worse
+than a crash.
+
+```bash
+./supabase/tests/e2e/compliance_e2e.sh     # 43 assertions
+```
+
+Covers, per rail: a compliant transaction that settles clean, NSF, per-txn CTR,
+daily velocity (including **cross-rail** evasion), and structuring/aggregate CTR.
+Needs `DEMO_API_KEY` + `SUPABASE_DB_URL` in `.env.local`, and `duckdb`.
+
+Re-runnable; it creates real synthetic accounts each run, so volume accumulates.

@@ -12,6 +12,10 @@ supabase/
     20260702000200_core_indexes.sql       btree indexes on *_id / status / created_at
     20260702000300_core_foreign_keys.sql  hard FK constraints — apply AFTER bulk load
     20260702000400_core_rls.sql           enable RLS (locked down by default)
+    20260702000500..000800                blnk mirror cols, reconcile cron, idempotency, grants
+    20260718000100_wire_originator.sql    wire_transfer.originator (audit + cross-rail velocity)
+    20260718000200_ach_card_originator.sql  same for ach_transfer + card_authorization
+    20260718000300_card_authorization_states.sql  CHECK over the card auth lifecycle
   tests/               pgTAP suite turning controls.json into database tests — see tests/README.md
   generate/
     extract_model.py   parses core-api.yaml -> model.json (relational model)
@@ -46,7 +50,11 @@ supabase link --project-ref <your-project-ref>
 supabase db push
 ```
 
-**Option B — SQL editor / psql**: run the 4 files in filename order. Skip
+> **Deploy order is load-bearing.** Apply migrations *before* deploying the edge
+> functions. `runGate` reads `originator` on every money movement, so shipping
+> the functions first breaks **book transfers too**, not just the new rail.
+
+**Option B — SQL editor / psql**: run the files in filename order. Skip
 `..._foreign_keys.sql` until after you bulk-load data, then apply it.
 
 Validated: all 4 migrations apply cleanly against Postgres (39 tables, 99
