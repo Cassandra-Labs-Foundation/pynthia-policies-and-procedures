@@ -33,6 +33,21 @@ const FEDWIRE_BALANCE = "@FedWire";
 // accounts.ts / transfers.ts.
 const CURRENCY = "USD";
 
+// This core is domestic-only (Fedwire). An international beneficiary is refused
+// at the edge rather than held and failed downstream: placing an inflight hold
+// for a wire that can never be sent strands the customer's funds until someone
+// notices. Detected by the markers an international instruction actually
+// carries — a SWIFT/BIC routing code, or a non-US beneficiary country.
+function internationalMarker(beneficiary: Record<string, unknown>): string | null {
+  if (isNonEmptyString(beneficiary.swift_code)) return "beneficiary.swift_code";
+  if (isNonEmptyString(beneficiary.bic)) return "beneficiary.bic";
+  const country = beneficiary.country;
+  if (isNonEmptyString(country) && country.trim().toUpperCase() !== "US") {
+    return `beneficiary.country=${country}`;
+  }
+  return null;
+}
+
 const WIRE_RESOURCE = (id: string): GateResource => ({
   table: "wire_transfer",
   type: "wire_transfer",
@@ -128,6 +143,16 @@ export async function postWirePrepare(
   const amount = amountCents as number;
   const sourceId = sourceAccountId as string;
   const purposeText = typeof purpose === "string" ? purpose : null;
+
+  // Refuse before the idempotency claim: an unsendable wire should not consume
+  // a key or create a row.
+  const marker = internationalMarker(beneficiary as Record<string, unknown>);
+  if (marker) {
+    return apiError(422, "international_wire_not_supported", requestId, {
+      title: "International Wire Not Supported",
+      detail: `this core sends domestic (Fedwire) wires only; saw ${marker}`,
+    });
+  }
 
   const requestHash = await sha256Hex(
     JSON.stringify({

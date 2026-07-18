@@ -152,3 +152,65 @@ Deno.test("confirm on an unknown wire is a 404", async () => {
   const res = await postWireConfirm(req(), "nope", db, cfg, "r11");
   assertEquals(res.status, 404);
 });
+
+// ------------------------------------------------------------ domestic only
+// The core is domestic-only (Fedwire). An international beneficiary must be
+// refused at the edge rather than held and then failed downstream: placing an
+// inflight hold for a wire that can never be sent strands the customer's funds
+// until someone notices.
+
+Deno.test("a beneficiary carrying a SWIFT/BIC code is refused", async () => {
+  const { cfg, sent } = stubCfg([]);
+  for (const field of ["swift_code", "bic"]) {
+    const { db } = stubDb(null);
+    const res = await postWirePrepare(
+      req({
+        source_account_id: "a1",
+        amount_cents: 100000,
+        beneficiary: { name: "Acme GmbH", [field]: "DEUTDEFF" },
+      }),
+      db,
+      cfg,
+      "rd1",
+    );
+    assertEquals(res.status, 422, `${field} must be refused`);
+    assertEquals((await res.json()).type, "international_wire_not_supported");
+  }
+  assertEquals(sent.length, 0, "an unsendable wire must never reach Blnk");
+});
+
+Deno.test("a non-US beneficiary country is refused", async () => {
+  const { cfg } = stubCfg([]);
+  const { db } = stubDb(null);
+  const res = await postWirePrepare(
+    req({
+      source_account_id: "a1",
+      amount_cents: 100000,
+      beneficiary: { name: "Acme GmbH", country: "DE" },
+    }),
+    db,
+    cfg,
+    "rd2",
+  );
+  assertEquals(res.status, 422);
+  assertEquals((await res.json()).type, "international_wire_not_supported");
+});
+
+Deno.test("an explicit US beneficiary is accepted (case-insensitive)", async () => {
+  for (const country of ["US", "us"]) {
+    const { cfg } = stubCfg([]);
+    const { db } = stubDb(null);
+    const res = await postWirePrepare(
+      req({
+        source_account_id: "a1",
+        amount_cents: 100000,
+        beneficiary: { name: "Acme Corp", country, routing_number: "021000021" },
+      }),
+      db,
+      cfg,
+      "rd3",
+    );
+    // proceeds past the domestic check (fails later on the null account lookup)
+    assertEquals(res.status === 422, false, `country ${country} must be accepted`);
+  }
+});

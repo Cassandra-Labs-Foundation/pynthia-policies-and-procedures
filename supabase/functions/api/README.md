@@ -69,6 +69,12 @@ curl -sS -X POST "$BASE/payments/wire/{id}/cancel"  -H "X-Api-Key: $DEMO_API_KEY
 `confirm` accepts an optional `{"amount_cents": N}` to settle for **less** than
 was held (partial commit); it must not exceed the held amount.
 
+**Domestic only.** This core sends Fedwire only. A beneficiary carrying a
+`swift_code`/`bic`, or a `country` other than `US`, is refused with
+`422 international_wire_not_supported` — *before* the idempotency claim, so an
+unsendable wire never consumes a key, creates a row, or strands funds in a hold
+that can never be sent.
+
 ### ACH — two-phase (Blnk inflight)
 
 Submission places a hold rather than moving funds: an entry can still be

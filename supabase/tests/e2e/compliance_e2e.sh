@@ -295,6 +295,21 @@ check "cross-rail outbound structuring -> settles" "$ST" "201"
 check "cross-rail outbound structuring -> CG-STR-02 fires" "$(jctl CG-STR-02 pass)" "yes"
 
 
+# ------------------------------------------------------ domestic-only wires
+echo "-- 17. A SWIFT / international wire must be refused (domestic only) --"
+DOM=$(new_account 5000000 domestic)
+ST=$(api POST /payments/wire/prepare intl-swift "{\"source_account_id\":\"$DOM\",\"amount_cents\":100000,\"beneficiary\":{\"name\":\"Acme GmbH\",\"swift_code\":\"DEUTDEFF\"},\"purpose\":\"intl\"}")
+check "SWIFT wire -> HTTP 422"                       "$ST" "422"
+check "SWIFT wire -> typed international_wire_not_supported" "$(jget type)" "international_wire_not_supported"
+ST=$(api POST /payments/wire/prepare intl-country "{\"source_account_id\":\"$DOM\",\"amount_cents\":100000,\"beneficiary\":{\"name\":\"Acme GmbH\",\"country\":\"DE\"},\"purpose\":\"intl\"}")
+check "non-US beneficiary country -> HTTP 422"       "$ST" "422"
+# refused before a row is created, so no stranded hold and no orphan row
+check "refused international wire creates NO wire row" \
+  "$(sql "select count(*) from pg.core.wire_transfer where cast(originator as varchar) like '%$DOM%';")" "0"
+ST=$(api POST /payments/wire/prepare domestic-ok "{\"source_account_id\":\"$DOM\",\"amount_cents\":100000,\"beneficiary\":{\"name\":\"Acme Corp\",\"country\":\"US\",\"routing_number\":\"021000021\"},\"purpose\":\"domestic\"}")
+check "explicit US beneficiary still settles"        "$ST" "201"
+
+
 echo
 echo "== $PASS passed, $FAIL failed =="
 [ "$FAIL" -eq 0 ] || exit 1
