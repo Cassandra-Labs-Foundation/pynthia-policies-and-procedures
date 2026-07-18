@@ -48,17 +48,41 @@ type GatePassed = { blocked: false; controlResults: ControlResultRef[] };
 
 export type GateOutcome = GateBlocked | GatePassed;
 
+/**
+ * Identifies the money-movement row being gated, so the same controls can run
+ * over any rail (book transfer, wire, …) instead of only `core.transfer`.
+ * `table` is where a blocking control writes the rejected status; `label` is
+ * the human phrasing used in the BSA alert narrative.
+ */
+export interface GateResource {
+  table: string;
+  type: string;
+  id: string;
+  label: string;
+}
+
+export const TRANSFER_RESOURCE = (id: string): GateResource => ({
+  table: "transfer",
+  type: "transfer",
+  id,
+  label: "book transfer",
+});
+
 export async function runGate(
   db: SupabaseClient,
   cfg: BlnkConfig,
-  transferId: string,
+  resource: GateResource,
   sourceAccount: AccountRow,
-  _destAccount: AccountRow,
+  _destAccount: AccountRow | null,
   amountCents: number,
 ): Promise<GateOutcome> {
   const controlResults: ControlResultRef[] = [];
   const sourceAccountId = sourceAccount.id;
+  const transferId = resource.id;
 
+  // LIMITATION: daily velocity is summed over core.transfer only, so volume on
+  // other rails (wires) does not count toward the $25k cap and a customer could
+  // split across rails to evade it. Cross-rail aggregation is the follow-up.
   const todayStart = `${new Date().toISOString().slice(0, 10)}T00:00:00.000Z`;
   const { data: velocityRows, error: velErr } = await db.schema("core").from("transfer")
     .select("amount")
@@ -86,10 +110,10 @@ export async function runGate(
     if (crErr) throw new Error(`control_result insert (CG-VEL-01): ${crErr.message}`);
     controlResults.push({ control_id: "CG-VEL-01", decision: "block" });
 
-    const { error: rejErr } = await db.schema("core").from("transfer")
+    const { error: rejErr } = await db.schema("core").from(resource.table)
       .update({ status: "rejected" })
       .eq("id", transferId);
-    if (rejErr) throw new Error(`transfer reject update (velocity): ${rejErr.message}`);
+    if (rejErr) throw new Error(`${resource.table} reject update (velocity): ${rejErr.message}`);
 
     return {
       blocked: true,
@@ -101,7 +125,7 @@ export async function runGate(
         detail: "Daily outbound transfer volume exceeds $25,000",
         doc_url: "https://api.cassandra.bank/docs/errors/velocity-limit-exceeded",
         resource_id: transferId,
-        resource_type: "transfer",
+        resource_type: resource.type,
       },
     };
   }
@@ -131,7 +155,7 @@ export async function runGate(
       requires_lookback: "true",
       entity_hash: entityHash,
       event_id: null,
-      details: `book transfer over $10,000 (transfer_id=${transferId}, amount_cents=${amountCents})`,
+      details: `${resource.label} over $10,000 (${resource.type}_id=${transferId}, amount_cents=${amountCents})`,
     });
     if (bsaErr) throw new Error(`bsa_alert insert: ${bsaErr.message}`);
   }
@@ -151,10 +175,10 @@ export async function runGate(
     if (crErr) throw new Error(`control_result insert (CG-NSF-01): ${crErr.message}`);
     controlResults.push({ control_id: "CG-NSF-01", decision: "reject" });
 
-    const { error: rejErr } = await db.schema("core").from("transfer")
+    const { error: rejErr } = await db.schema("core").from(resource.table)
       .update({ status: "rejected" })
       .eq("id", transferId);
-    if (rejErr) throw new Error(`transfer reject update (NSF): ${rejErr.message}`);
+    if (rejErr) throw new Error(`${resource.table} reject update (NSF): ${rejErr.message}`);
 
     const detail =
       `Insufficient funds: available $${dollarsFromCents(available)}, ` +
@@ -170,7 +194,7 @@ export async function runGate(
         detail,
         doc_url: "https://api.cassandra.bank/docs/errors/insufficient-funds",
         resource_id: transferId,
-        resource_type: "transfer",
+        resource_type: resource.type,
       },
     };
   }
@@ -433,7 +457,7 @@ export async function postTransfer(
   if (transferRow.status === "settled") {
     controlResults.push(...await loadControlResults(db, transferId));
   } else {
-    const gate = await runGate(db, cfg, transferId, sourceAccount, destAccount, amount);
+    const gate = await runGate(db, cfg, TRANSFER_RESOURCE(transferId), sourceAccount, destAccount, amount);
     if (gate.blocked) {
       const stored = { ...gate.body, request_id: requestId };
       await storeIdempotencyResponse(db, idempotencyKey, gate.status, stored);

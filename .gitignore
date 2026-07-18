@@ -6,3 +6,8 @@ __pycache__/
 *.pyc
 analytics/core.duckdb
 analytics/core.duckdb.wal
+
+# python venv for the schema generators
+supabase/generate/.venv/
+# supabase CLI scratch
+supabase/.temp/

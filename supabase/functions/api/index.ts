@@ -5,6 +5,7 @@
 import { blnkConfigFromEnv } from "../_shared/blnk.ts";
 import { getAccount, postAccount } from "./accounts.ts";
 import { getTransfer, postTransfer } from "./transfers.ts";
+import { postWireCancel, postWireConfirm, postWirePrepare } from "./wires.ts";
 import {
   createDb,
   createRequestId,
@@ -72,6 +73,36 @@ const routes: Route[] = [
     handler: async (_req, params, requestId) => {
       const db = createDb();
       return await getTransfer(params.id, db, requestId);
+    },
+  },
+  {
+    method: "POST",
+    pattern: /^\/payments\/wire\/prepare\/?$/,
+    paramNames: [],
+    handler: async (req, _params, requestId) => {
+      const db = createDb();
+      const cfg = blnkConfigFromEnv();
+      return await postWirePrepare(req, db, cfg, requestId);
+    },
+  },
+  {
+    method: "POST",
+    pattern: /^\/payments\/wire\/([^/]+)\/confirm\/?$/,
+    paramNames: ["id"],
+    handler: async (req, params, requestId) => {
+      const db = createDb();
+      const cfg = blnkConfigFromEnv();
+      return await postWireConfirm(req, params.id, db, cfg, requestId);
+    },
+  },
+  {
+    method: "POST",
+    pattern: /^\/payments\/wire\/([^/]+)\/cancel\/?$/,
+    paramNames: ["id"],
+    handler: async (req, params, requestId) => {
+      const db = createDb();
+      const cfg = blnkConfigFromEnv();
+      return await postWireCancel(req, params.id, db, cfg, requestId);
     },
   },
 ];

@@ -1,7 +1,7 @@
--- Control coverage — 172 in-scope controls
+-- Control coverage — 175 in-scope controls
 -- generated from controls.json + model.json — DO NOT EDIT BY HAND
 begin;
-select plan(932);
+select plan(937);
 
 
 -- AU-02 Audit Committee Governance and Independence  (in-scope fields: 1, gaps: 0, out-of-scope: 10)
@@ -545,6 +545,11 @@ select has_column('core', 'incident', 'reportability_assessment', 'EC-13: incide
 select has_column('core', 'incident', 'scope_initial', 'EC-13: incident.scope_initial -> incident.scope_initial');
 select has_column('core', 'incident', 'severity', 'EC-13: incident.severity -> incident.severity');
 
+-- SC-03 Enterprise Incident Declaration & First-Hour Response  (in-scope fields: 3, gaps: 0, out-of-scope: 2)
+select has_column('core', 'incident', 'contained', 'SC-03: incident.contained -> incident.contained');
+select has_column('core', 'incident', 'scope', 'SC-03: incident.scope -> incident.scope');
+select has_column('core', 'incident', 'severity', 'SC-03: incident.severity -> incident.severity');
+
 -- EC-12 Expertise and Training  (in-scope fields: 11, gaps: 0, out-of-scope: 0)
 select has_column('core', 'training', 'annual_due', 'EC-12: training.annual_due -> training.annual_due');
 select has_column('core', 'training', 'annual_due_at', 'EC-12: training.annual_due_at -> training.annual_due_at');
@@ -734,14 +739,15 @@ select has_column('core', 'incident', 'notification_due_at', 'SC-01: incident.no
 select has_column('core', 'incident', 'reportability_determination', 'SC-01: incident.reportability_determination -> incident.reportability_determination');
 select has_column('core', 'incident', 'reportability_rationale', 'SC-01: incident.reportability_rationale -> incident.reportability_rationale');
 
--- IS-19 Incident Declaration, IC Assignment & Post-Mortem  (in-scope fields: 7, gaps: 0, out-of-scope: 0)
-select has_column('core', 'incident', 'description', 'IS-19: incident.description -> incident.description');
-select has_column('core', 'incident', 'detection_source', 'IS-19: incident.detection_source -> incident.detection_source');
+-- IS-19 Incident Response Plan, Post-Mortem & Law Enforcement Coordination  (in-scope fields: 3, gaps: 0, out-of-scope: 0)
 select has_column('core', 'incident', 'recovered', 'IS-19: incident.recovered -> incident.recovered');
 select has_column('core', 'incident', 'root_cause', 'IS-19: incident.root_cause -> incident.root_cause');
-select has_column('core', 'incident', 'scope_initial', 'IS-19: incident.scope_initial -> incident.scope_initial');
-select has_column('core', 'incident', 'severity', 'IS-19: incident.severity -> incident.severity');
 select has_column('core', 'incident', 'timeline', 'IS-19: incident.timeline -> incident.timeline');
+
+-- SC-03 Enterprise Incident Declaration & First-Hour Response  (in-scope fields: 3, gaps: 0, out-of-scope: 2)
+select has_column('core', 'incident', 'contained', 'SC-03: incident.contained -> incident.contained');
+select has_column('core', 'incident', 'scope', 'SC-03: incident.scope -> incident.scope');
+select has_column('core', 'incident', 'severity', 'SC-03: incident.severity -> incident.severity');
 
 -- IS-10 Identity Theft Red Flags Program  (in-scope fields: 1, gaps: 0, out-of-scope: 7)
 select has_column('core', 'account', 'id', 'IS-10: account.id -> account.id');
@@ -1218,6 +1224,11 @@ select has_column('core', 'records_package', 'snapshot_due', 'RS-08: records_pac
 select has_column('core', 'records_package', 'snapshot_id', 'RS-08: records_package.snapshot_id -> records_package.snapshot_id');
 select has_column('core', 'records_package', 'snapshot_schedule', 'RS-08: records_package.snapshot_schedule -> records_package.snapshot_schedule');
 select has_column('core', 'records_package', 'start_due_at', 'RS-08: records_package.start_due_at -> records_package.start_due_at');
+
+-- SC-03 Enterprise Incident Declaration & First-Hour Response  (in-scope fields: 3, gaps: 0, out-of-scope: 2)
+select has_column('core', 'incident', 'contained', 'SC-03: incident.contained -> incident.contained');
+select has_column('core', 'incident', 'scope', 'SC-03: incident.scope -> incident.scope');
+select has_column('core', 'incident', 'severity', 'SC-03: incident.severity -> incident.severity');
 
 -- SC-01 NCUA Reportable Cyber-Incident & Member Notification  (in-scope fields: 6, gaps: 0, out-of-scope: 0)
 select has_column('core', 'incident', 'member_impact', 'SC-01: incident.member_impact -> incident.member_impact');
