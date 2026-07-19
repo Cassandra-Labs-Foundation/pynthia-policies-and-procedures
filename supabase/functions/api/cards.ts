@@ -1,6 +1,6 @@
 import { type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { type AccountRow } from "./accounts.ts";
-import { type GateResource, runGate } from "./transfers.ts";
+import { type GateResource, recordMovementArtifacts, runGate } from "./transfers.ts";
 import {
   type BlnkConfig,
   BlnkError,
@@ -43,13 +43,14 @@ export interface CardAuthRow {
   decline_reason: string | null;
   blnk_inflight_id: string | null;
   blnk_committed_amount: number | null;
+  originator?: { account_id?: string } | null;
   blnk_reference: string | null;
   blnk_status: string | null;
   created_at: string;
 }
 
 const CARD_COLS =
-  "id, amount, status, merchant, decline_reason, blnk_inflight_id, blnk_committed_amount, blnk_reference, blnk_status, created_at";
+  "id, amount, status, merchant, decline_reason, originator, blnk_inflight_id, blnk_committed_amount, blnk_reference, blnk_status, created_at";
 
 function cardResponse(
   row: CardAuthRow,
@@ -317,6 +318,32 @@ export async function postCardCapture(
     .select(CARD_COLS)
     .single();
   if (updErr) return internalErrorResponse(requestId, updErr);
+
+  // Each capture is its own money movement, so each gets its own evidence
+  // pair. The id embeds the post-capture RUNNING TOTAL: a resume retry of the
+  // same capture converges on the same rows (same total), while a further
+  // incremental capture (new total) gets fresh ones. The entry books the
+  // DELTA — summing a card's entries must equal what actually moved.
+  try {
+    await recordMovementArtifacts(db, {
+      bkeId: `bke_${authId}_captured_c${captured}`,
+      evtId: `evt_${authId}_captured_c${captured}`,
+      code: "card_authorization.captured",
+      resourceType: "card_authorization",
+      resourceId: authId,
+      amountCents: increment,
+      accountId: (row.originator as { account_id?: string } | null)?.account_id ?? null,
+      payload: {
+        captured_cents: increment,
+        captured_total_cents: captured,
+        remaining_cents: row.amount - captured,
+        merchant: row.merchant,
+        blnk_transaction_id: mirror.blnk_transaction_id,
+      },
+    });
+  } catch (artErr) {
+    console.error(`card movement artifacts failed for ${authId}: ${artErr}`);
+  }
 
   return jsonResponse(cardResponse(updated as CardAuthRow), 200, requestId);
 }

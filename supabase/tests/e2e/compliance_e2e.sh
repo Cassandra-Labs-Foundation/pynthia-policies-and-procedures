@@ -373,6 +373,42 @@ check "reason trail records the rejection" \
   "$(sql "select count(*) from pg.core.wire_transfer where id='$W2' and return_reason like '%rejected%';")" "1"
 
 
+# ------------------------- movement artifacts on every rail (31 follow-up)
+# Every money movement must leave its bookkeeping + event pair; holds/voids
+# leave none. Reuses this run's wire (completed then returned) and ACH
+# (settled then returned), plus a fresh card walk with exact capture totals.
+echo "-- 22. wire + ACH movements left their evidence pairs --"
+check "wire confirm -> bookkeeping entry" \
+  "$(sql "select count(*) from pg.core.bookkeeping_entry where id='bke_${WID}_completed';")" "1"
+check "wire confirm -> wire_transfer.completed event" \
+  "$(sql "select count(*) from pg.core.event where id='evt_${WID}_completed' and code='wire_transfer.completed';")" "1"
+check "wire accepted return -> reversal bookkeeping entry" \
+  "$(sql "select count(*) from pg.core.bookkeeping_entry where id='bke_${WID}_returned';")" "1"
+check "wire accepted return -> wire_transfer.returned event" \
+  "$(sql "select count(*) from pg.core.event where id='evt_${WID}_returned' and code='wire_transfer.returned';")" "1"
+check "ach settle -> evidence pair" \
+  "$(sql "select count(*) from pg.core.bookkeeping_entry where id='bke_${AID}_settled';")" "1"
+check "ach late return -> reversal evidence pair" \
+  "$(sql "select count(*) from pg.core.event where id='evt_${AID}_returned' and code='ach_transfer.returned';")" "1"
+
+echo "-- 23. each card capture books its own delta --"
+CA=$(new_account 5000000 card-art)
+ST=$(api POST /payments/card/authorize card-art "{\"source_account_id\":\"$CA\",\"amount_cents\":100000,\"merchant\":\"Evidence Cafe\"}")
+CID=$(jget id)
+check "authorize alone books nothing (hold, not movement)" \
+  "$(sql "select count(*) from pg.core.bookkeeping_entry where id like 'bke_${CID}%';")" "0"
+curl -sS -o /tmp/e2e_body -X POST "$API/payments/card/$CID/capture" "${AUTH[@]}" -d '{"amount_cents":30000}'
+check "first capture -> entry books the 30000 delta" \
+  "$(sql "select amount from pg.core.bookkeeping_entry where id='bke_${CID}_captured_c30000';")" "30000"
+curl -sS -o /tmp/e2e_body -X POST "$API/payments/card/$CID/capture" "${AUTH[@]}"
+check "final capture -> second entry books the 70000 delta" \
+  "$(sql "select amount from pg.core.bookkeeping_entry where id='bke_${CID}_captured_c100000';")" "70000"
+check "capture events carry the running total" \
+  "$(sql "select count(*) from pg.core.event where id='evt_${CID}_captured_c100000' and code='card_authorization.captured';")" "1"
+check "entries sum to what actually moved" \
+  "$(sql "select sum(amount) from pg.core.bookkeeping_entry where id like 'bke_${CID}_captured%';")" "100000"
+
+
 echo
 echo "== $PASS passed, $FAIL failed =="
 [ "$FAIL" -eq 0 ] || exit 1

@@ -53,6 +53,10 @@ export function json(body: unknown, status = 200): Response {
  */
 export function stubDb(row: unknown) {
   const updates: Record<string, unknown>[] = [];
+  // artifact/evidence writes (bookkeeping_entry, event, …) recorded separately
+  // so updates.at(-1) assertions on the money row stay stable
+  const upserts: { table: string; row: Record<string, unknown>; opts?: unknown }[] = [];
+  let currentTable = "";
   const chain: Any = {
     select: () => chain,
     eq: () => chain,
@@ -65,8 +69,8 @@ export function stubDb(row: unknown) {
       updates.push(patch);
       return Promise.resolve({ data: null, error: null });
     },
-    upsert: (patch: Record<string, unknown>) => {
-      updates.push(patch);
+    upsert: (patch: Record<string, unknown>, opts?: unknown) => {
+      upserts.push({ table: currentTable, row: patch, opts });
       return Promise.resolve({ data: null, error: null });
     },
     update: (patch: Record<string, unknown>) => {
@@ -81,8 +85,15 @@ export function stubDb(row: unknown) {
       }),
     then: (res: (v: unknown) => unknown) => res({ data: [], error: null }),
   };
-  const db: Any = { schema: () => ({ from: () => chain }) };
-  return { db, updates };
+  const db: Any = {
+    schema: () => ({
+      from: (table: string) => {
+        currentTable = table;
+        return chain;
+      },
+    }),
+  };
+  return { db, updates, upserts };
 }
 
 /** Request carrying an Idempotency-Key by default (writers guard on it first). */

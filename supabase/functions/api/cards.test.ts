@@ -153,3 +153,51 @@ Deno.test("reversing a fully captured authorization is a 409 — nothing is held
   assertEquals(res.status, 409);
   assert(sent.length === 0, "must not void a hold that was fully drawn down");
 });
+
+// ------------------------------------- movement artifacts (card-31 follow-up)
+// Each CAPTURE is its own money movement, so each gets its own evidence pair.
+// The id embeds the post-capture running total: a resume retry of the same
+// capture converges on the same rows, while a further incremental capture gets
+// new ones. Authorize (hold) and reverse (void of the remainder) move nothing.
+
+const AUTH_WITH_ORIGINATOR = { ...AUTH, originator: { account_id: "acct_src" } };
+
+Deno.test("a capture writes bookkeeping + captured event keyed by running total", async () => {
+  const { cfg } = stubCfg([committed()]);
+  const { db, upserts } = stubDb(AUTH_WITH_ORIGINATOR);
+
+  await postCardCapture(req({ amount_cents: 30000 }), "cauth_1", db, cfg, "ca1");
+  const bke = upserts.find((u) => u.table === "bookkeeping_entry");
+  assertEquals(bke?.row.id, "bke_cauth_1_captured_c30000");
+  assertEquals(bke?.row.amount, 30000, "the entry books the DELTA, not the total");
+  const evt = upserts.find((u) => u.table === "event");
+  assertEquals(evt?.row.id, "evt_cauth_1_captured_c30000");
+  assertEquals(evt?.row.code, "card_authorization.captured");
+  const payload = evt?.row.payload as Any;
+  assertEquals(payload.captured_cents, 30000);
+  assertEquals(payload.captured_total_cents, 30000);
+  assertEquals(payload.remaining_cents, 70000);
+});
+
+Deno.test("an incremental capture gets a distinct evidence pair", async () => {
+  const { cfg } = stubCfg([committed()]);
+  const { db, upserts } = stubDb({
+    ...AUTH_WITH_ORIGINATOR,
+    status: "partially_captured",
+    blnk_committed_amount: 30000,
+  });
+
+  await postCardCapture(req({ amount_cents: 70000 }), "cauth_1", db, cfg, "ca2");
+  const bke = upserts.find((u) => u.table === "bookkeeping_entry");
+  assertEquals(bke?.row.id, "bke_cauth_1_captured_c100000");
+  assertEquals(bke?.row.amount, 70000);
+  assertEquals((upserts.find((u) => u.table === "event")?.row.payload as Any).captured_total_cents, 100000);
+});
+
+Deno.test("reverse releases the remainder and books nothing", async () => {
+  const { cfg } = stubCfg([json({ transaction_id: "txn_hold", reference: "card_authorization:cauth_1", status: "VOID" })]);
+  const { db, upserts } = stubDb({ ...AUTH_WITH_ORIGINATOR, status: "partially_captured", blnk_committed_amount: 20000 });
+
+  await postCardReverse(req({ reason: "merchant cancelled" }), "cauth_1", db, cfg, "ca3");
+  assertEquals(upserts.length, 0, "voiding the uncaptured remainder moves no money");
+});

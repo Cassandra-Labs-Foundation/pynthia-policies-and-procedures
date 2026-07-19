@@ -1,6 +1,6 @@
 import { type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { type AccountRow } from "./accounts.ts";
-import { type GateResource, runGate } from "./transfers.ts";
+import { type GateResource, recordMovementArtifacts, runGate } from "./transfers.ts";
 import {
   type BlnkConfig,
   BlnkError,
@@ -304,7 +304,7 @@ async function resolveInflight(
   action: "confirm" | "cancel",
 ): Promise<Response> {
   const { data: wire, error: selErr } = await db.schema("core").from("wire_transfer")
-    .select("id, amount, status, beneficiary, purpose, imad, blnk_transaction_id, blnk_reference, blnk_status, created_at")
+    .select("id, amount, status, beneficiary, purpose, imad, originator, blnk_transaction_id, blnk_reference, blnk_status, created_at")
     .eq("id", wireId)
     .maybeSingle();
   if (selErr) return internalErrorResponse(requestId, selErr);
@@ -369,6 +369,30 @@ async function resolveInflight(
     .select("id, amount, status, beneficiary, purpose, imad, blnk_transaction_id, blnk_reference, blnk_status, created_at")
     .single();
   if (updErr) return internalErrorResponse(requestId, updErr);
+
+  // Confirm COMMITS the hold — money moved; a cancel voids it — nothing did.
+  // Best-effort: the commit is already final, so evidence failure must not 500.
+  if (action === "confirm") {
+    const movedCents = partialCents ?? (wire.amount as number);
+    try {
+      await recordMovementArtifacts(db, {
+        bkeId: `bke_${wireId}_completed`,
+        evtId: `evt_${wireId}_completed`,
+        code: "wire_transfer.completed",
+        resourceType: "wire_transfer",
+        resourceId: wireId,
+        amountCents: movedCents,
+        accountId: (wire.originator as { account_id?: string } | null)?.account_id ?? null,
+        payload: {
+          amount_cents: movedCents,
+          held_cents: wire.amount,
+          blnk_transaction_id: wire.blnk_transaction_id,
+        },
+      });
+    } catch (artErr) {
+      console.error(`wire movement artifacts failed for ${wireId}: ${artErr}`);
+    }
+  }
 
   return jsonResponse(wireResponse(updated as WireRow), 200, requestId);
 }
@@ -537,6 +561,26 @@ export async function postWireReturnResolve(
     .select(RETURN_COLS)
     .single();
   if (updErr) return internalErrorResponse(requestId, updErr);
+
+  // The reversal moved money back — it gets its own evidence pair.
+  try {
+    await recordMovementArtifacts(db, {
+      bkeId: `bke_${wireId}_returned`,
+      evtId: `evt_${wireId}_returned`,
+      code: "wire_transfer.returned",
+      resourceType: "wire_transfer",
+      resourceId: wireId,
+      amountCents: wire.amount as number,
+      accountId: originatorAccountId,
+      payload: {
+        amount_cents: wire.amount,
+        reason: wire.return_reason ?? null,
+        blnk_transaction_id: mirror.blnk_transaction_id,
+      },
+    });
+  } catch (artErr) {
+    console.error(`wire return artifacts failed for ${wireId}: ${artErr}`);
+  }
 
   return jsonResponse(wireResponse(updated as WireRow), 200, requestId);
 }

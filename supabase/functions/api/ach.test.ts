@@ -170,11 +170,17 @@ const SETTLED = {
 
 function dbWithAccount(row: unknown) {
   const updates: Record<string, unknown>[] = [];
+  const upserts: { table: string; row: Record<string, unknown>; opts?: unknown }[] = [];
+  let currentTable = "";
   const chain: Any = {
     select: () => chain,
     eq: () => chain,
     update: (p: Record<string, unknown>) => { updates.push(p); return chain; },
     insert: () => Promise.resolve({ data: null, error: null }),
+    upsert: (row: Record<string, unknown>, opts?: unknown) => {
+      upserts.push({ table: currentTable, row, opts });
+      return Promise.resolve({ data: null, error: null });
+    },
     maybeSingleQueue: [] as unknown[],
     // mirror the real .update(...).select().single(): return the UPDATED row,
     // not the stale one, or the response body lags the persisted state
@@ -194,8 +200,15 @@ function dbWithAccount(row: unknown) {
       error: null,
     });
   };
-  const db: Any = { schema: () => ({ from: () => chain }) };
-  return { db, updates };
+  const db: Any = {
+    schema: () => ({
+      from: (table: string) => {
+        currentTable = table;
+        return chain;
+      },
+    }),
+  };
+  return { db, updates, upserts };
 }
 
 Deno.test("a settled entry CAN be returned — returns arrive days later", async () => {
@@ -235,4 +248,49 @@ Deno.test("settling is still refused once returned", async () => {
   const { db } = stubDb({ ...HELD, status: "returned" });
   assertEquals((await postAchSettle(req(), "ach_1", db, cfg, "pr3")).status, 409);
   assertEquals(sent.length, 0);
+});
+
+// ------------------------------------- movement artifacts (card-31 follow-up)
+// Money moves on settle (commit) and on a post-settlement return (compensating
+// reversal). A pre-settlement return voids the hold — nothing moved, nothing
+// to book.
+
+const HELD_WITH_ORIGINATOR = { ...HELD, originator: { account_id: "acct_src" } };
+
+Deno.test("ach settle writes bookkeeping + ach_transfer.settled event", async () => {
+  const { cfg } = stubCfg([applied()]);
+  const { db, upserts } = stubDb(HELD_WITH_ORIGINATOR);
+
+  await postAchSettle(req(), "ach_1", db, cfg, "aa1");
+  const bke = upserts.find((u) => u.table === "bookkeeping_entry");
+  assertEquals(bke?.row.id, "bke_ach_1_settled");
+  assertEquals(bke?.row.amount, 250000);
+  const evt = upserts.find((u) => u.table === "event");
+  assertEquals(evt?.row.id, "evt_ach_1_settled");
+  assertEquals(evt?.row.code, "ach_transfer.settled");
+  assertEquals((evt?.opts as Any)?.ignoreDuplicates, true);
+});
+
+Deno.test("a pre-settlement return voids the hold and books nothing", async () => {
+  const { cfg } = stubCfg([voided()]);
+  const { db, upserts } = stubDb(HELD_WITH_ORIGINATOR);
+
+  await postAchReturn(req({ return_reason: "R01" }), "ach_1", db, cfg, "aa2");
+  assertEquals(upserts.length, 0, "no money moved; the row's returned status is the record");
+});
+
+Deno.test("a post-settlement return writes reversal artifacts", async () => {
+  const { cfg } = stubCfg([
+    json({ transaction_id: "txn_reversal", reference: "ach_transfer:ach_1:return", status: "APPLIED" }),
+  ]);
+  const { db, upserts } = dbWithAccount(SETTLED);
+
+  await postAchReturn(req({ return_reason: "R01" }), "ach_1", db, cfg, "aa3");
+  const bke = upserts.find((u) => u.table === "bookkeeping_entry");
+  assertEquals(bke?.row.id, "bke_ach_1_returned");
+  assertEquals(bke?.row.amount, 250000);
+  const evt = upserts.find((u) => u.table === "event");
+  assertEquals(evt?.row.id, "evt_ach_1_returned");
+  assertEquals(evt?.row.code, "ach_transfer.returned");
+  assertEquals((evt?.row.payload as Any).reason, "R01");
 });

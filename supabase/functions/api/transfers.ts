@@ -341,6 +341,59 @@ export async function runGate(
  * transfer is a within-shares reclassification (net zero at the GL level); the
  * entry records the movement against that line.
  */
+/**
+ * Evidence pair for a MONEY MOVEMENT: one bookkeeping entry + one event.
+ * Written wherever funds actually move — settle/confirm/capture and
+ * compensating reversals — and deliberately NOT for holds, voids or cancels
+ * (nothing moved, the row's status is the record).
+ *
+ * Ids are caller-chosen but must be DETERMINISTIC for the movement, and the
+ * writes ignore duplicates, so an idempotency RESUME retry converges on the
+ * same rows instead of double-counting the GL.
+ *
+ * Amounts are MAGNITUDES; direction lives in the event code/payload
+ * (`*.settled`/`*.completed`/`*.captured` = outbound or on-us,
+ * `*.returned` = funds moving back). account_code_5300 "018" (Total Shares &
+ * Deposits) is the demo GL line every member-money movement books against.
+ */
+export async function recordMovementArtifacts(
+  db: SupabaseClient,
+  p: {
+    bkeId: string;
+    evtId: string;
+    code: string; // e.g. "wire_transfer.completed"
+    resourceType: string;
+    resourceId: string;
+    amountCents: number;
+    accountId: string | null;
+    payload: Record<string, unknown>;
+  },
+): Promise<void> {
+  const { error: bkeErr } = await db.schema("core").from("bookkeeping_entry").upsert({
+    id: p.bkeId,
+    amount: p.amountCents,
+    account_code_5300: "018",
+  }, { onConflict: "id", ignoreDuplicates: true });
+  if (bkeErr) throw new Error(`bookkeeping_entry upsert: ${bkeErr.message}`);
+
+  const { error: evtErr } = await db.schema("core").from("event").upsert({
+    id: p.evtId,
+    code: p.code,
+    type: p.resourceType,
+    resource_id: p.resourceId,
+    // same convention as bsa_alert: sha256 of the acting account id
+    entity_hash: p.accountId ? await sha256Hex(p.accountId) : null,
+    payload: p.payload,
+    created_at: new Date().toISOString(),
+  }, { onConflict: "id", ignoreDuplicates: true });
+  if (evtErr) throw new Error(`event upsert: ${evtErr.message}`);
+}
+
+/**
+ * Card-31 evidence trio for the book-transfer rail: mirror (on the row) +
+ * bookkeeping entry + transfer.settled event. Thin wrapper so the original
+ * deterministic ids (bke_<id>, evt_<id>_settled) stay stable.
+ */
 export async function recordSettlementArtifacts(
   db: SupabaseClient,
   p: {
@@ -351,29 +404,21 @@ export async function recordSettlementArtifacts(
     blnkTransactionId: string | null;
   },
 ): Promise<void> {
-  const { error: bkeErr } = await db.schema("core").from("bookkeeping_entry").upsert({
-    id: `bke_${p.transferId}`,
-    amount: p.amountCents,
-    account_code_5300: "018",
-  }, { onConflict: "id", ignoreDuplicates: true });
-  if (bkeErr) throw new Error(`bookkeeping_entry upsert: ${bkeErr.message}`);
-
-  const { error: evtErr } = await db.schema("core").from("event").upsert({
-    id: `evt_${p.transferId}_settled`,
+  await recordMovementArtifacts(db, {
+    bkeId: `bke_${p.transferId}`,
+    evtId: `evt_${p.transferId}_settled`,
     code: "transfer.settled",
-    type: "transfer",
-    resource_id: p.transferId,
-    // same convention as bsa_alert: sha256 of the acting account id
-    entity_hash: await sha256Hex(p.sourceAccountId),
+    resourceType: "transfer",
+    resourceId: p.transferId,
+    amountCents: p.amountCents,
+    accountId: p.sourceAccountId,
     payload: {
       amount_cents: p.amountCents,
       source_account_id: p.sourceAccountId,
       destination_account_id: p.destAccountId,
       blnk_transaction_id: p.blnkTransactionId,
     },
-    created_at: new Date().toISOString(),
-  }, { onConflict: "id", ignoreDuplicates: true });
-  if (evtErr) throw new Error(`event upsert: ${evtErr.message}`);
+  });
 }
 
 async function loadControlResults(

@@ -1,6 +1,6 @@
 import { type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { type AccountRow } from "./accounts.ts";
-import { type GateResource, runGate } from "./transfers.ts";
+import { type GateResource, recordMovementArtifacts, runGate } from "./transfers.ts";
 import {
   type BlnkConfig,
   BlnkError,
@@ -394,6 +394,33 @@ async function resolveAch(
     .select(cols)
     .single();
   if (updErr) return internalErrorResponse(requestId, updErr);
+
+  // Evidence pair only where money MOVED: a settle commits the hold; a
+  // post-settlement return moves it back via the compensating reversal. A
+  // pre-settlement return merely voids the hold — nothing to book. Best-effort:
+  // the ledger action is already final, so evidence failure must not 500.
+  const movedMoney = action === "settle" || isPostSettlementReturn;
+  if (movedMoney) {
+    const verb = action === "settle" ? "settled" : "returned";
+    try {
+      await recordMovementArtifacts(db, {
+        bkeId: `bke_${achId}_${verb}`,
+        evtId: `evt_${achId}_${verb}`,
+        code: `ach_transfer.${verb}`,
+        resourceType: "ach_transfer",
+        resourceId: achId,
+        amountCents: ach.amount as number,
+        accountId: (ach.originator as { account_id?: string } | null)?.account_id ?? null,
+        payload: {
+          amount_cents: ach.amount,
+          ...(verb === "returned" ? { reason: returnReason ?? null } : {}),
+          blnk_transaction_id: mirror.blnk_transaction_id,
+        },
+      });
+    } catch (artErr) {
+      console.error(`ach movement artifacts failed for ${achId}: ${artErr}`);
+    }
+  }
 
   return jsonResponse(achResponse(updated as AchRow), 200, requestId);
 }

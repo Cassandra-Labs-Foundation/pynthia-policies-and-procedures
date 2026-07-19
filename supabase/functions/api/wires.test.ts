@@ -235,6 +235,8 @@ const COMPLETED_WIRE = {
 // like ach.test.ts dbWithAccount: 1st maybeSingle -> wire row, 2nd -> account
 function wireDbWithAccount(row: unknown) {
   const updates: Record<string, unknown>[] = [];
+  const upserts: { table: string; row: Record<string, unknown>; opts?: unknown }[] = [];
+  let currentTable = "";
   const chain: Any = {
     select: () => chain,
     eq: () => chain,
@@ -243,6 +245,10 @@ function wireDbWithAccount(row: unknown) {
       return chain;
     },
     insert: () => Promise.resolve({ data: null, error: null }),
+    upsert: (row: Record<string, unknown>, opts?: unknown) => {
+      upserts.push({ table: currentTable, row, opts });
+      return Promise.resolve({ data: null, error: null });
+    },
     single: () =>
       Promise.resolve({
         data: { ...(row as Record<string, unknown>), ...Object.assign({}, ...updates) },
@@ -258,8 +264,15 @@ function wireDbWithAccount(row: unknown) {
       error: null,
     });
   };
-  const db: Any = { schema: () => ({ from: () => chain }) };
-  return { db, updates };
+  const db: Any = {
+    schema: () => ({
+      from: (table: string) => {
+        currentTable = table;
+        return chain;
+      },
+    }),
+  };
+  return { db, updates, upserts };
 }
 
 Deno.test("a completed wire accepts a return request and records the reason", async () => {
@@ -366,4 +379,63 @@ Deno.test("resolving an already-returned wire replays", async () => {
   assertEquals(res.status, 200);
   assertEquals(res.headers.get("Idempotent-Replayed"), "true");
   assertEquals(sent.length, 0, "a replay must never post a second reversal");
+});
+
+// ------------------------------------- movement artifacts (card-31 follow-up)
+// Evidence rows land wherever money actually MOVES: confirm (commit) and an
+// accepted return (compensating reversal). A cancel voids an unspent hold —
+// no movement, no artifacts.
+
+const HELD_WITH_ORIGINATOR = { ...HELD_WIRE, originator: { account_id: "acct_src" } };
+
+Deno.test("wire confirm writes bookkeeping + wire_transfer.completed event", async () => {
+  const { cfg } = stubCfg([json({ transaction_id: "txn_held", reference: "wire_transfer:w1", status: "APPLIED" })]);
+  const { db, upserts } = stubDb(HELD_WITH_ORIGINATOR);
+
+  await postWireConfirm(req(), "w1", db, cfg, "wa1");
+  const bke = upserts.find((u) => u.table === "bookkeeping_entry");
+  assertEquals(bke?.row.id, "bke_w1_completed");
+  assertEquals(bke?.row.amount, 500000);
+  const evt = upserts.find((u) => u.table === "event");
+  assertEquals(evt?.row.id, "evt_w1_completed");
+  assertEquals(evt?.row.code, "wire_transfer.completed");
+  assertEquals(evt?.row.resource_id, "w1");
+  assertEquals((evt?.row.payload as Any).amount_cents, 500000);
+  assertEquals((evt?.opts as Any)?.ignoreDuplicates, true);
+});
+
+Deno.test("a partial confirm records the amount that actually moved", async () => {
+  const { cfg } = stubCfg([json({ transaction_id: "txn_held", reference: "wire_transfer:w1", status: "APPLIED" })]);
+  const { db, upserts } = stubDb(HELD_WITH_ORIGINATOR);
+
+  await postWireConfirm(req({ amount_cents: 200000 }), "w1", db, cfg, "wa2");
+  assertEquals(upserts.find((u) => u.table === "bookkeeping_entry")?.row.amount, 200000);
+  assertEquals((upserts.find((u) => u.table === "event")?.row.payload as Any).amount_cents, 200000);
+});
+
+Deno.test("wire cancel moves no money and writes no artifacts", async () => {
+  const { cfg } = stubCfg([json({ transaction_id: "txn_held", reference: "wire_transfer:w1", status: "VOID" })]);
+  const { db, upserts } = stubDb(HELD_WITH_ORIGINATOR);
+
+  await postWireCancel(req(), "w1", db, cfg, "wa3");
+  assertEquals(upserts.length, 0, "voiding an unspent hold is not a money movement");
+});
+
+Deno.test("an accepted wire return writes its own reversal artifacts", async () => {
+  const { cfg } = stubCfg([
+    json({ transaction_id: "txn_rev", reference: "wire_transfer:w1:return", status: "APPLIED" }),
+  ]);
+  const { db, upserts } = wireDbWithAccount({
+    ...COMPLETED_WIRE,
+    status: "return_requested",
+    return_reason: "beneficiary fraud claim",
+  });
+
+  await postWireReturnResolve(req({ outcome: "accepted" }), "w1", db, cfg, "wa4");
+  const bke = upserts.find((u) => u.table === "bookkeeping_entry");
+  assertEquals(bke?.row.id, "bke_w1_returned");
+  const evt = upserts.find((u) => u.table === "event");
+  assertEquals(evt?.row.id, "evt_w1_returned");
+  assertEquals(evt?.row.code, "wire_transfer.returned");
+  assertEquals((evt?.row.payload as Any).reason, "beneficiary fraud claim");
 });
