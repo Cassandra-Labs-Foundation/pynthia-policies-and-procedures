@@ -7,7 +7,7 @@
 //     middesk all work through the one adapter.
 import { assert, assertEquals } from "jsr:@std/assert@1";
 import { postVerification } from "./kyc.ts";
-import { type Any, req, stubApiDb } from "./test_helpers.ts";
+import { type Any, req, stubApiDb, TEST_CTX } from "./test_helpers.ts";
 
 const ENTITY = { id: "ent_1", type: "person", status: "active", name: "Ada Member" };
 const SDN_ENTITY = { id: "ent_bad", type: "person", status: "active", name: "SDN TEST SUBJECT" };
@@ -22,7 +22,7 @@ const controlRows = (inserts: { table: string; row: Any }[]) =>
 
 Deno.test("a KYC run returns a result through the adapter", async () => {
   const { db, inserts } = kycDb(ENTITY);
-  const res = await postVerification(req({}), "ent_1", db, "k1");
+  const res = await postVerification(req({}), "ent_1", db, "k1", TEST_CTX);
   assertEquals(res.status, 201);
   const b = await res.json();
   assertEquals(b.provider, "alloy", "default provider");
@@ -40,6 +40,7 @@ Deno.test("a partner attestation records its trust level", async () => {
     "ent_1",
     db,
     "k2",
+    TEST_CTX,
   );
   assertEquals(res.status, 201);
   const b = await res.json();
@@ -55,6 +56,7 @@ Deno.test("an unknown trust level is refused", async () => {
     "ent_1",
     db,
     "k3",
+    TEST_CTX,
   );
   assertEquals(res.status, 400);
 });
@@ -64,7 +66,7 @@ Deno.test("an unknown trust level is refused", async () => {
 Deno.test("simulations force approve and deny", async () => {
   for (const [simulate, expected] of [["approve", "approved"], ["deny", "denied"]] as const) {
     const { db } = kycDb(ENTITY);
-    const res = await postVerification(req({ simulate }), "ent_1", db, "k4");
+    const res = await postVerification(req({ simulate }), "ent_1", db, "k4", TEST_CTX);
     assertEquals((await res.json()).status, expected, `simulate=${simulate}`);
   }
 });
@@ -73,14 +75,14 @@ Deno.test("simulations force approve and deny", async () => {
 
 Deno.test("every run leaves OFAC evidence — including clean passes", async () => {
   const { db, inserts } = kycDb(ENTITY);
-  await postVerification(req({}), "ent_1", db, "k5");
+  await postVerification(req({}), "ent_1", db, "k5", TEST_CTX);
   assertEquals(controlRows(inserts), [{ id: "CG-OFAC-01", d: "pass" }],
     "a screen that leaves no evidence is indistinguishable from one that never ran");
 });
 
 Deno.test("an OFAC hit denies and raises the alert", async () => {
   const { db, inserts } = kycDb(SDN_ENTITY);
-  const res = await postVerification(req({}), "ent_bad", db, "k6");
+  const res = await postVerification(req({}), "ent_bad", db, "k6", TEST_CTX);
   assertEquals(res.status, 201);
   const b = await res.json();
   assertEquals(b.status, "denied");
@@ -96,6 +98,7 @@ Deno.test("a FULL-TRUST attestation cannot bypass the OFAC floor", async () => {
     "ent_bad",
     db,
     "k7",
+    TEST_CTX,
   );
   assertEquals((await res.json()).status, "denied", "floor control beats trust level");
   assertEquals(controlRows(inserts), [{ id: "CG-OFAC-01", d: "reject" }]);
@@ -103,7 +106,7 @@ Deno.test("a FULL-TRUST attestation cannot bypass the OFAC floor", async () => {
 
 Deno.test("a forced approve cannot bypass the OFAC floor either", async () => {
   const { db } = kycDb(SDN_ENTITY);
-  const res = await postVerification(req({ simulate: "approve" }), "ent_bad", db, "k8");
+  const res = await postVerification(req({ simulate: "approve" }), "ent_bad", db, "k8", TEST_CTX);
   assertEquals((await res.json()).status, "denied", "floor control beats simulation");
 });
 
@@ -112,7 +115,7 @@ Deno.test("a forced approve cannot bypass the OFAC floor either", async () => {
 Deno.test("alloy, socure and middesk all work through the one adapter", async () => {
   for (const provider of ["alloy", "socure", "middesk"]) {
     const { db, inserts } = kycDb(ENTITY);
-    const res = await postVerification(req({ provider }), "ent_1", db, "k9");
+    const res = await postVerification(req({ provider }), "ent_1", db, "k9", TEST_CTX);
     assertEquals(res.status, 201, provider);
     assertEquals((await res.json()).provider, provider);
     assertEquals(inserts.find((i) => i.table === "verification")?.row.provider, provider);
@@ -121,6 +124,6 @@ Deno.test("alloy, socure and middesk all work through the one adapter", async ()
 
 Deno.test("an unknown provider is refused, not silently defaulted", async () => {
   const { db } = kycDb(ENTITY);
-  const res = await postVerification(req({ provider: "experian" }), "ent_1", db, "k10");
+  const res = await postVerification(req({ provider: "experian" }), "ent_1", db, "k10", TEST_CTX);
   assertEquals(res.status, 400);
 });

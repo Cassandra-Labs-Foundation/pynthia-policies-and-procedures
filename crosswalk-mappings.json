@@ -1,0 +1,505 @@
+{
+  "_comment": [
+    "Hand-authored crosswalk assertions: which catalogue controls each implemented",
+    "CG-* control does or does not discharge.",
+    "",
+    "NOT GENERATED, AND CANNOT BE. controls.json has no field naming the mechanism",
+    "a control requires, and the CG-* namespace does not appear in it at all, so",
+    "there is nothing to join on. Every row here is a human judgment. The build",
+    "script validates that each cited catalogue id EXISTS and that the verdict",
+    "vocabulary is respected, so the file cannot drift into naming controls that",
+    "were renamed or removed \u2014 but it cannot check whether a judgment is right.",
+    "",
+    "BIAS: under-claim. Where a mapping is arguable, the weaker verdict is used",
+    "and the reasoning is written down. `discharges` asserts a control needs no",
+    "further work to satisfy the catalogue entry; nothing currently qualifies.",
+    "",
+    "VERDICTS",
+    "  discharges              fully satisfies the catalogue control",
+    "  partially_discharges    satisfies part; `gaps` says exactly what is missing",
+    "  related                 same subject area, does NOT discharge; `gaps` says why",
+    "  no_catalogue_counterpart  nothing in the catalogue corresponds to this control",
+    "",
+    "Every row carries `needs_review`. true means a compliance reviewer must",
+    "confirm before the row is relied on. Rows are unreviewed until `reviewed_by`",
+    "is filled in \u2014 an unreviewed row is a proposal, not a finding."
+  ],
+  "mappings": [
+    {
+      "cg_control": "CG-CTR-01",
+      "implementation": {
+        "source": "supabase/functions/api/transfers.ts",
+        "behaviour": "On any single money movement above $10,000 (1_000_000 cents) on any of the four rails, writes a control_result (decision 'pass') and opens a bsa_alert of type 'ctr_threshold' with requires_lookback=true. Does not block.",
+        "threshold_cents": 1000000
+      },
+      "claims": [
+        {
+          "catalogue_control": "BSA-08",
+          "catalogue_title": "Currency Transaction Reporting (CTR)",
+          "verdict": "related",
+          "needs_review": true,
+          "reviewed_by": null,
+          "rationale": "Shares the $10,000 threshold and the name, but is not the same control. A CTR obligation under 31 CFR 1010.311 attaches to CURRENCY transactions \u2014 physical cash in or out. CG-CTR-01 fires on book transfers, wires, ACH and card authorizations, none of which are currency transactions, so a CTR is not owed on any event it detects. Treating this as CTR coverage would claim a filing obligation is met that was never triggered, while leaving actual cash handling unmonitored.",
+          "gaps": [
+            "wrong transaction class: BSA-08 aggregates ctr.cash_in_total / ctr.cash_out_total; the core has no cash-handling surface at all",
+            "wrong aggregation unit: BSA-08 aggregates per person per business day; CG-CTR-01 evaluates a single transaction against one account",
+            "no filing: BSA-08 requires e-filing to FinCEN within 15 calendar days (ctr.filing_timer); nothing files",
+            "no exemptions: Phase I/II exemption handling, DOEP (FinCEN Form 110), annual exemption review are all absent",
+            "required inputs unavailable: entity.tin and entity.name are not joined to the transaction"
+          ],
+          "would_discharge_if": "the core gains a cash-handling surface, per-person aggregation via entity linkage, and a FinCEN filing path. That is BSA-08 being implemented, not CG-CTR-01 being extended."
+        },
+        {
+          "catalogue_control": "BSA-06",
+          "catalogue_title": "Transaction Monitoring & Case Management",
+          "verdict": "partially_discharges",
+          "needs_review": true,
+          "reviewed_by": null,
+          "rationale": "BSA-06's first rule triggers on bsa_alert.created with inputs alert_type, entity_hash, event_id and requires_lookback. CG-CTR-01 writes exactly that row shape, so it genuinely performs the rules-based detection half of BSA-06 for one alert class. Everything downstream of the alert is absent. UPDATED: the downstream half now exists \u2014 alerts carry a 2-business-day triage deadline, escalate to a real core.case, and reach a documented SAR/no-SAR decision, with a sweep that surfaces breached timers. bsa_alert.event_id is populated (OQ-05 resolved), so the alert joins back to its causing event as BSA-06 requires. Still not a full discharge: see gaps.",
+          "gaps": [
+            "covers three alert typologies (CTR threshold, inbound and outbound structuring) plus OFAC and unauthorized-ACH-return; BSA-06 expects monitoring across all typologies",
+            "model-based monitoring is absent \u2014 detection is rules-based only",
+            "no SAR committee: BSA-06 names BSA Officer + Compliance + counsel as the deciding body, and the actor model has no such roles (see OQ-08)",
+            "covers one alert_type only; BSA-06 expects monitoring across all typologies"
+          ]
+        }
+      ]
+    },
+    {
+      "cg_control": "CG-STR-01",
+      "implementation": {
+        "source": "supabase/functions/api/transfers.ts",
+        "behaviour": "Sums same-day INBOUND book transfers to a destination account; when the aggregate crosses $10,000 with no single transfer above it, writes a control_result and opens a bsa_alert of type 'structuring'. Book transfers only \u2014 wires/ACH/card have no destination account row.",
+        "threshold_cents": 1000000
+      },
+      "claims": [
+        {
+          "catalogue_control": "BSA-06",
+          "catalogue_title": "Transaction Monitoring & Case Management",
+          "verdict": "partially_discharges",
+          "needs_review": true,
+          "reviewed_by": null,
+          "rationale": "Same basis as CG-CTR-01: it is genuine rules-based detection producing a conforming bsa_alert row, which is BSA-06's trigger. It adds an aggregation typology the per-transaction gate structurally cannot see. UPDATED: the downstream half now exists \u2014 alerts carry a 2-business-day triage deadline, escalate to a real core.case, and reach a documented SAR/no-SAR decision, with a sweep that surfaces breached timers. bsa_alert.event_id is populated (OQ-05 resolved), so the alert joins back to its causing event as BSA-06 requires. Still not a full discharge: see gaps.",
+          "gaps": [
+            "covers three alert typologies (CTR threshold, inbound and outbound structuring) plus OFAC and unauthorized-ACH-return; BSA-06 expects monitoring across all typologies",
+            "model-based monitoring is absent \u2014 detection is rules-based only",
+            "no SAR committee: BSA-06 names BSA Officer + Compliance + counsel as the deciding body, and the actor model has no such roles (see OQ-08)",
+            "inbound book transfers only: a member receiving structured deposits by ACH is not seen, because ACH has no destination account row in this core",
+            "single-day window only; BSA-06 monitoring typically spans multi-day patterns",
+            "per-account, not per-person: splitting across two accounts owned by the same member evades it entirely"
+          ]
+        },
+        {
+          "catalogue_control": "BSA-07",
+          "catalogue_title": "SAR Filing & Confidentiality",
+          "verdict": "partially_discharges",
+          "needs_review": true,
+          "reviewed_by": null,
+          "rationale": "UPGRADED from 'related'. The filing DECISION now exists: a case reaches file or no_file, both require a documented rationale (an undocumented no-file is refused rather than stored, which is BSA-07's retention requirement), the 30/60-day clock runs from detection rather than triage, and a late decision is recorded as late instead of silently accepted. Confidentiality is enforced structurally: case management is closed to partner actors and returns 404 rather than 403, so the existence of a case is not disclosed.",
+          "gaps": [
+            "no actual FinCEN filing: sar.filed records the DECISION to file, not a submission",
+            "no continuing-activity SAR timer (sar.continuing_timer) \u2014 90-day continuing reviews absent",
+            "no 314(a)/(b) disclosure-request handling (sar.disclosure_request.received)",
+            "no SAR committee composition or Board reporting of filings",
+            "retention of SAR records and supporting documentation is not implemented"
+          ]
+        }
+      ]
+    },
+    {
+      "cg_control": "CG-STR-02",
+      "implementation": {
+        "source": "supabase/functions/api/transfers.ts",
+        "behaviour": "Same as CG-STR-01 but on OUTBOUND daily volume, reusing the cross-rail velocity sum. Covers all four rails, since it keys on the source account.",
+        "threshold_cents": 1000000
+      },
+      "claims": [
+        {
+          "catalogue_control": "BSA-06",
+          "catalogue_title": "Transaction Monitoring & Case Management",
+          "verdict": "partially_discharges",
+          "needs_review": true,
+          "reviewed_by": null,
+          "rationale": "As CG-STR-01. Broader than its inbound twin because it aggregates across all four rails rather than book transfers only. UPDATED: the downstream half now exists \u2014 alerts carry a 2-business-day triage deadline, escalate to a real core.case, and reach a documented SAR/no-SAR decision, with a sweep that surfaces breached timers. bsa_alert.event_id is populated (OQ-05 resolved), so the alert joins back to its causing event as BSA-06 requires. Still not a full discharge: see gaps.",
+          "gaps": [
+            "covers three alert typologies (CTR threshold, inbound and outbound structuring) plus OFAC and unauthorized-ACH-return; BSA-06 expects monitoring across all typologies",
+            "model-based monitoring is absent \u2014 detection is rules-based only",
+            "no SAR committee: BSA-06 names BSA Officer + Compliance + counsel as the deciding body, and the actor model has no such roles (see OQ-08)",
+            "single-day window only",
+            "per-account, not per-person"
+          ]
+        }
+      ]
+    },
+    {
+      "cg_control": "CG-OFAC-01",
+      "implementation": {
+        "source": "supabase/functions/api/kyc.ts",
+        "behaviour": "Runs first on every verification path and is decisive \u2014 no attestation, forced simulation outcome or provider choice can override it. Writes a control_result on EVERY run including clean passes. On a hit: denies the verification and opens a bsa_alert of type 'ofac'.",
+        "screening_function": "/\\bSDN\\b/i tested against entity.name"
+      },
+      "claims": [
+        {
+          "catalogue_control": "BSA-05",
+          "catalogue_title": "OFAC Screening & Holds",
+          "verdict": "related",
+          "needs_review": false,
+          "reviewed_by": null,
+          "rationale": "This is the mapping most at risk of being over-claimed, so it is stated bluntly: the enforcement MECHANISM is real and well built \u2014 always-on, unbypassable, evidence on every run \u2014 but the SCREEN is a sandbox stub. It matches the literal token 'SDN' in a name against no list at all. A control whose comparison set is empty cannot discharge a screening obligation no matter how sound the plumbing around it is. The mechanism is worth crediting; the coverage is zero.",
+          "gaps": [
+            "no sanctions list: matches a name marker, not SDN/CONS/NS-PLC or any other list; ofac.list_version is never recorded",
+            "not run on payments: BSA-05 triggers on wire_transfer.submitted for beneficiary and originator screening; CG-OFAC-01 runs only on verification, so no wire, ACH or card payment is screened at all",
+            "no 50% rule: entities 50%+ owned by a blocked person are not derived, though core.entity.owners holds the ownership data that would allow it",
+            "no hold: BSA-05 requires ofac.hold.placed and segregation of blocked funds; the verification is denied but no funds are held",
+            "no adjudication: no Sanctions Analyst routing, no 1-business-day SLA, no false-positive clearing with documented rationale",
+            "no reporting: OFAC Reporting System filing within 10 business days and the annual blocked-property report (by Sept 30) are absent",
+            "beneficial owners and counterparties are not screened, only the entity itself"
+          ],
+          "would_discharge_if": "a real list with version tracking is wired into ofacScreen(), screening is added at payment submission, and the hold/adjudication/reporting workflow exists. The always-on floor design means the first of those is a genuinely small change with a large coverage effect."
+        },
+        {
+          "catalogue_control": "LP-11",
+          "catalogue_title": "OFAC & Sanctions Gate (lending)",
+          "verdict": "related",
+          "needs_review": true,
+          "reviewed_by": null,
+          "rationale": "LP-11 gates loan origination on sanctions screening. The lending subsystem does not exist \u2014 core.loan and core.loan_application are schema-only with no writer \u2014 so there is no origination path for this control to gate. Listed so the mapping is not silently forgotten when lending is built.",
+          "gaps": [
+            "no lending subsystem: no writer for loan or loan_application",
+            "same screening-stub limitation as BSA-05"
+          ]
+        }
+      ]
+    },
+    {
+      "cg_control": "CG-VEL-01",
+      "implementation": {
+        "source": "supabase/functions/api/transfers.ts",
+        "behaviour": "Blocks any money movement that would push the source account's same-day outbound volume above $25,000, aggregated across all four rails. The only CG-* control that BLOCKS rather than observes.",
+        "threshold_cents": 2500000
+      },
+      "claims": [
+        {
+          "catalogue_control": null,
+          "verdict": "no_catalogue_counterpart",
+          "needs_review": true,
+          "reviewed_by": null,
+          "rationale": "No control among the 333 imposes a per-account daily transaction cap. Searching the catalogue for velocity / daily limit / transaction limit returns only MP-05 (Account Restrictions and Closures, which is about restricting an account after a member-conduct decision, not a standing volume ceiling) and TIS-02 (Pre-Opening Account Disclosures, which is about disclosing limits, not enforcing them). CG-VEL-01 is a safety-and-soundness engineering control the institution chose, not a policy obligation the corpus demands.",
+          "candidates_examined": [
+            "MP-05",
+            "TIS-02"
+          ],
+          "implication": "It should not appear in a regulatory coverage claim at all. If the $25,000 cap is intended to be a member-facing account limit, TIS-02 may create a DISCLOSURE obligation for it \u2014 that is the reverse direction from coverage and is worth a compliance opinion."
+        }
+      ]
+    },
+    {
+      "cg_control": "CG-NSF-01",
+      "implementation": {
+        "source": "supabase/functions/api/transfers.ts",
+        "behaviour": "Reads the live Blnk balance and rejects the movement when available funds are below the amount. Writes a control_result with decision 'reject'.",
+        "threshold_cents": null
+      },
+      "claims": [
+        {
+          "catalogue_control": null,
+          "verdict": "no_catalogue_counterpart",
+          "needs_review": true,
+          "reviewed_by": null,
+          "rationale": "Refusing to overdraw an account is basic ledger correctness, not a compliance control. The catalogue's overdraft-related controls are all about DISCLOSURE or COLLECTION, never about refusal: TIS-08 (Overdraft Service Disclosures) and TIS-05 (Periodic Statement Disclosures) govern what must be told to the member, and CO-10 (Overdraft Collections and Fee Waiver Practices) governs what happens after an overdraft occurs. None is discharged by declining the transaction.",
+          "candidates_examined": [
+            "TIS-08",
+            "TIS-05",
+            "CO-10"
+          ],
+          "implication": "Because this core refuses overdrafts outright, TIS-08 and CO-10 may be entirely inapplicable rather than unimplemented \u2014 there is no overdraft service to disclose and no overdraft to collect. That is a scoping question for compliance, and answering it would remove two controls from the backlog rather than adding them."
+        }
+      ]
+    },
+    {
+      "cg_control": "CG-CASH-01",
+      "implementation": {
+        "source": "supabase/functions/api/cash.ts",
+        "behaviour": "Records currency movement (cash_in/cash_out) against a person, aggregates per person per business day with cash-in and cash-out assessed SEPARATELY, opens a CTR obligation with a 15-calendar-day clock when either direction exceeds $10,000, and surfaces currency that cannot be attributed to a person as an explicit finding rather than dropping or mis-bucketing it.",
+        "threshold_cents": 1000000
+      },
+      "claims": [
+        {
+          "catalogue_control": "BSA-08",
+          "catalogue_title": "Currency Transaction Reporting (CTR)",
+          "verdict": "partially_discharges",
+          "needs_review": true,
+          "reviewed_by": null,
+          "rationale": "This is the first thing in the core that represents CURRENCY, which is what a CTR obligation under 31 CFR 1010.311 actually attaches to \u2014 and therefore the first control that can genuinely address BSA-08 (see OQ-01, where CG-CTR-01 was found to fire only on non-reportable electronic movements). It aggregates ctr.cash_in_total and ctr.cash_out_total per person per business day, keeps the two directions separate so a $6k deposit plus a $6k withdrawal does not manufacture a false obligation, fires ctr.threshold.reached (BSA-08's declared trigger), and starts the 15-day ctr.filing_timer. Currency that cannot be attributed to a person is counted and reported as unattributable rather than silently dropped or bucketed as its own person \u2014 both of which would understate the aggregate and hide obligations.",
+          "gaps": [
+            "no actual FinCEN transmission: ctr.filed records the DECISION and a reference, not a submission",
+            "no exemptions: Phase I/II handling, DOEP (FinCEN Form 110) and annual exemption review are absent \u2014 exemption_basis is stored but never evaluated (OQ-13)",
+            "entity.tin and entity.name are required inputs of BSA-08 and are reachable via the entity link, but the filing does not yet populate them",
+            "legacy accounts have no owning entity (OQ-12), so their currency is unattributable and no CTR determination exists for it \u2014 visible, but a real coverage hole",
+            "no backfilling coordination with the FinCEN Help Line",
+            "cash OPERATIONS controls (CP-01..CP-12: vault limits, dual control, reconciliation, over/short) are a separate domain built on this ledger and do not exist yet"
+          ],
+          "would_discharge_if": "a FinCEN transmission path, exemption evaluation, and complete entity linkage exist. The detection and timing half is now real."
+        }
+      ]
+    },
+    {
+      "cg_control": "CG-DUAL-01",
+      "implementation": {
+        "source": "supabase/functions/api/eps.ts",
+        "behaviour": "Maker-checker on payment origination. Wire dual control is unconditional (EPS-06 states it as required): a wire cannot reach 'completed' without an approver distinct from its preparer, enforced by ck_wire_dual_control_before_complete. ACH is threshold-based per client; with no configured limit the batch is recorded UNASSESSED rather than exempt or required, and appears in GET /eps/pending-approvals as such.",
+        "threshold_cents": null
+      },
+      "claims": [
+        {
+          "catalogue_control": "EPS-06",
+          "catalogue_title": "Dual Control for High-Risk Processes",
+          "verdict": "partially_discharges",
+          "needs_review": true,
+          "reviewed_by": null,
+          "rationale": "This control corrected the API rather than fitting into it. The two-phase wire prepare/confirm split looked like dual control and was not \u2014 it required two CALLS, not two PEOPLE, and any single token could do both. Confirm now demands a distinct approver, enforced by a CHECK constraint so it holds against service_role. The four-eyes rule is expressed once in core.payment_approval rather than repeated per table, which is the reusable form of what ck_case_four_eyes did bespokely for SAR decisions.",
+          "gaps": [
+            "the ACH per-client threshold is unconfigured, so ACH batches are UNASSESSED rather than assessed \u2014 the mechanism works, the policy values are missing (OQ-14)",
+            "no offline callback approval with PIN, which EPS-06 offers as the alternative to dual control for wires",
+            "no user limits below client limits \u2014 EPS-06 describes a two-level limit hierarchy and only the client level exists",
+            "no pre-defined file templates restricting file creation",
+            "internal Fedwire processing (Payments Exchange user ID / passcode / token) is not modelled",
+            "eps.pospay_exception.presented and eps.wire_release.requested have no writer"
+          ]
+        }
+      ]
+    },
+    {
+      "cg_control": "CG-GOV-01",
+      "implementation": {
+        "source": "supabase/functions/api/governance.ts",
+        "behaviour": "One obligation register for the catalogue's 83 time-based triggers. Each obligation carries a cadence and an optional anchor; the sweep fires the CONTROL'S OWN declared trigger code when it comes due, emits an overdue event when nobody completed it, and reports unanchored obligations as UNSCHEDULED \u2014 a distinct state from both 'not due' and 'overdue'. Completion advances from the DUE date, never from the completion date.",
+        "threshold_cents": null
+      },
+      "claims": [
+        {
+          "catalogue_control": "bsa:BSA-16",
+          "catalogue_title": "Independent Testing",
+          "verdict": "partially_discharges",
+          "needs_review": true,
+          "reviewed_by": null,
+          "rationale": "BSA-16's triggers are audit.cycle_timer, audit.report.issued and audit.remediation.due \u2014 a cadence, a deliverable and a follow-up clock. The calendar supplies the cadence half honestly: registering the obligation and anchoring it makes audit.cycle_timer fire when the cycle genuinely opens, with an overdue event if nobody acts. Cited by uid because control ids are not unique (OQ-11). Chosen as the single claim for this machinery rather than claiming all 83 time-triggered controls, because the register is empty until obligations are actually registered.",
+          "gaps": [
+            "the obligation is UNSCHEDULED until someone supplies the anchor date \u2014 the cadence is known, the cycle start is not (OQ-15)",
+            "audit.report.issued and audit.remediation.due have no writer: the calendar starts the cycle, nothing records the report or tracks remediation",
+            "no scope, no independence assessment, no auditor qualification checks",
+            "82 other time-triggered controls could use this machinery and none are registered, so none are claimed"
+          ],
+          "would_discharge_if": "the audit deliverable and remediation tracking exist, and the obligation is anchored to a real cycle start."
+        }
+      ]
+    },
+    {
+      "cg_control": "CG-LEND-01",
+      "implementation": {
+        "source": "supabase/functions/api/lending.ts",
+        "behaviour": "Loan origination spine. Records the final action on an application; queues an adverse action notice on any adverse outcome with the ECOA clock anchored on APPLICATION COMPLETION rather than the decision date; requires second-level review by a different actor before the notice may be issued; screens every loan party on add and blocks funding on a potential match. A sweep surfaces notices nobody sent and parties nobody screened.",
+        "threshold_cents": null
+      },
+      "claims": [
+        {
+          "catalogue_control": "lending:LP-07",
+          "catalogue_title": "Adverse Action & Notifications",
+          "verdict": "partially_discharges",
+          "needs_review": true,
+          "reviewed_by": null,
+          "rationale": "The AAN is queued automatically on an adverse decision (aan.queued), carries specific reasons enforced at decision time rather than reconstructed later, runs a 30-day ECOA clock anchored on completion, and cannot be issued without second-level review by a different actor \u2014 enforced by ck_aan_reviewed_before_issue because an issued notice cannot be recalled. The overdue sweep surfaces notices nobody sent.",
+          "gaps": [
+            "counteroffer EXPIRY does not queue a notice: LP-07 requires it and there is no counteroffer timer",
+            "ECOA content is recorded as flags (credit_score_disclosed, cra_disclosure_included) but never validated \u2014 nothing checks the notice actually contains what it claims",
+            "no fair-lending consistency check in the second review; the reviewer role is not constrained to Compliance or senior underwriting (the actor model has no such roles \u2014 same shape as OQ-08)",
+            "no delivery: aan.issued records the decision to issue, not transmission to the applicant"
+          ]
+        },
+        {
+          "catalogue_control": "lending:LP-11",
+          "catalogue_title": "OFAC & Sanctions Gate",
+          "verdict": "related",
+          "needs_review": true,
+          "reviewed_by": null,
+          "rationale": "The MECHANISM is real and was the architecturally missing half of OQ-02: parties are screened on add, a potential match blocks funding rather than the application, an alert is raised, and 'unscreened' is a distinct state from 'clear' so an unscreened party cannot be funded. But the screen it calls is still the sandbox stub \u2014 /\\bSDN\\b/i against a name, with no list and no ofac.list_version. Verdict stays `related` for the same reason CG-OFAC-01's does: a screen with an empty comparison set discharges nothing however sound the blocking around it is. Every party row records list_version NULL so the gap is visible in the data.",
+          "gaps": [
+            "no sanctions list and no list version \u2014 the screen is a stub (OQ-02, domain-blocked)",
+            "no 50% rule derivation for entity ownership",
+            "clearance of an apparent match has no documented-rationale requirement yet (loan_party.ofac_result is unwritten)",
+            "no re-screening when the list updates, because there is no list"
+          ],
+          "would_discharge_if": "a real versioned list is wired into ofacScreen(). The blocking, the alerting and the unscreened/clear distinction are already in place, so this is a genuinely small change with a large coverage effect."
+        }
+      ]
+    }
+  ],
+  "excluded": [
+    {
+      "cg_control": "CG-NOPE-99",
+      "reason": "Test sentinel, not a control. Exists so the gate's unknown-control path is exercised; never evaluated against real traffic."
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "OQ-01",
+      "severity": "high",
+      "question": "Is CG-CTR-01 misnamed, and does that misname a coverage claim?",
+      "finding": "A CTR obligation attaches to CURRENCY transactions. CG-CTR-01 fires only on electronic movements (book, wire, ACH, card), none of which are CTR-reportable. The control detects large electronic transfers \u2014 a legitimate monitoring signal \u2014 but its name asserts a filing regime it has nothing to do with.",
+      "why_it_matters": "The name alone is enough to produce a false coverage claim in a review: someone scanning for CTR coverage finds CG-CTR-01 and stops. Meanwhile actual cash handling, which is what BSA-08 governs, is unmonitored because the core has no cash surface at all.",
+      "asks_of_reviewer": "Confirm the reading, then decide whether to rename (e.g. CG-LGTXN-01) or to keep the name and record explicitly that it does not address BSA-08."
+    },
+    {
+      "id": "OQ-02",
+      "severity": "high",
+      "question": "Should CG-OFAC-01 be described as a control at all while its screen is a stub?",
+      "finding": "The enforcement mechanism is genuinely strong \u2014 always-on, unbypassable by attestation or forced outcome, evidence written on every run including clean passes. The screen underneath it is `/\\bSDN\\b/i` against the entity name. There is no list, no list version, and no screening at payment submission, which BSA-05 requires via wire_transfer.submitted.",
+      "why_it_matters": "This is the single most over-claimable row in the artifact. The plumbing looks like a finished control and reads like one in code review. An auditor who accepts the mechanism without inspecting ofacScreen() would conclude sanctions screening exists.",
+      "asks_of_reviewer": "Confirm `related` (not `partially_discharges`) is the right verdict while the list is absent. Also decide whether the OFAC floor should be marked non-production until a real list is wired \u2014 this interacts with roadmap item 50."
+    },
+    {
+      "id": "OQ-03",
+      "severity": "medium",
+      "question": "Two implemented controls answer to nothing in the catalogue. Is the catalogue incomplete, or are they out of scope?",
+      "finding": "CG-VEL-01 (daily $25k cap) and CG-NSF-01 (overdraft refusal) have no counterpart among the 333. The nearest catalogue entries govern disclosing or collecting overdrafts (TIS-08, TIS-05, CO-10) and restricting accounts after a conduct decision (MP-05) \u2014 none is discharged by refusing a transaction.",
+      "why_it_matters": "Either the corpus is missing safety-and-soundness controls it should contain, or these are engineering choices that should never appear in a compliance claim. The two readings lead to opposite backlog decisions.",
+      "asks_of_reviewer": "Decide which. If the latter, they should be excluded from coverage reporting entirely rather than sitting unmapped."
+    },
+    {
+      "id": "OQ-04",
+      "severity": "medium",
+      "question": "Does refusing overdrafts make TIS-08 and CO-10 inapplicable rather than unimplemented?",
+      "finding": "CG-NSF-01 declines any movement that would overdraw. If the product genuinely offers no overdraft service, there is nothing to disclose under TIS-08 and nothing to collect under CO-10.",
+      "why_it_matters": "This is the one place the crosswalk might REMOVE work from the backlog rather than add it. Two controls could be scoped out with a documented rationale instead of built.",
+      "asks_of_reviewer": "A scoping opinion. Note this is contingent on the product never offering overdraft, which is a business decision, not a code fact."
+    },
+    {
+      "id": "OQ-06",
+      "severity": "low",
+      "question": "The catalogue's own trigger vocabulary is inconsistent, which weakens reachability as a measure.",
+      "finding": "Some control_rules carry trigger_event: null (a rule with inputs and outputs but nothing that starts it). Others use namespaces that no subsystem could plausibly own. Reachability treats a null trigger as unreachable, which is conservative but conflates 'blocked on a subsystem' with 'the catalogue does not say'.",
+      "why_it_matters": "Reachability counts are only as good as the trigger declarations. The headline numbers are directionally right but should not be quoted to a decimal.",
+      "asks_of_reviewer": "None immediately \u2014 flagged so the numbers are not over-read. Fixing it means editing the policy corpus, not this artifact."
+    },
+    {
+      "id": "OQ-07",
+      "severity": "low",
+      "question": "Is BSA-21 'reachable' a coincidence worth acting on?",
+      "finding": "BSA-21 (Record Retention) is the only fully reachable control, solely because its one declared trigger is account.closed. It is not completable: it cannot emit record.retention_anchor or record.retention_clock_set, and no retention schedule, legal hold or disposal workflow exists.",
+      "why_it_matters": "It is the single row most likely to be mistaken for 'nearly done' by anyone reading the reachable count without the completable column.",
+      "asks_of_reviewer": "None. Recorded so the reachable=1 headline is not misread."
+    },
+    {
+      "id": "OQ-05",
+      "severity": "low",
+      "question": "RESOLVED \u2014 bsa_alert.event_id is populated.",
+      "finding": "raiseAlert() now writes the causing core.event first and points the alert at it. The event's code is bsa_alert.created, which is BSA-06's declared trigger, so raising an alert fires the event the catalogue says starts case management rather than merely resembling it. Alert ids are deterministic per D26.",
+      "why_it_matters": "Closed. Recorded here so the resolution is auditable rather than silently disappearing from the list.",
+      "asks_of_reviewer": "None \u2014 verification only."
+    },
+    {
+      "id": "OQ-08",
+      "severity": "low",
+      "question": "RESOLVED \u2014 segregation of duties is representable and enforced.",
+      "finding": "api_token.roles carries a closed four-value vocabulary (bsa_investigator, bsa_officer, bsa_compliance, bsa_counsel). core.case records opened_by and decided_by, and ck_case_four_eyes enforces that they differ. The constraint is a CHECK, so it holds against service_role and a psql session \u2014 RLS was not needed, because the property is relational (two columns must differ) rather than row-visibility.",
+      "why_it_matters": "Closed. Deliberately not a general RBAC system: four named roles, two hardcoded gates, one constraint.",
+      "asks_of_reviewer": "Confirm the four roles match how the institution actually staffs these duties."
+    },
+    {
+      "id": "OQ-09",
+      "severity": "medium",
+      "question": "BSA-07's SAR committee is recorded but not enforced. Is that the right line?",
+      "finding": "case.concurred_by records who concurred in a filing decision, but nothing enforces quorum or committee composition. A SAR can be filed by a lone BSA Officer with no concurrence at all.",
+      "why_it_matters": "BSA-07 says a committee of BSA Officer, Compliance and counsel 'makes the filing decision'. Whether that is a system obligation or an organizational one is a genuine judgment: enforcing quorum in software would block a legitimate filing when counsel is unavailable, and the deadline does not pause for that.",
+      "asks_of_reviewer": "Decide whether quorum should be enforced, advisory, or left organizational. The data to enforce it is already being captured either way."
+    },
+    {
+      "id": "OQ-10",
+      "severity": "medium",
+      "question": "Retention clocks are only set for two record classes, so most of BSA-21's schedule has no writer.",
+      "finding": "setRetentionClocks fires on account.closed and creates cip_identity and beneficial_owner records \u2014 the two classes anchored on closure. The other seven classes (CIP verification, CTR, SAR, monetary instrument, wire transfer, CMIR, OFAC blocked) anchor on their own creation dates and would need a clock set at the point each record is made. Those hook points mostly do not exist yet: there is no CTR filing, no monetary instrument log, no CMIR.",
+      "why_it_matters": "The retention MECHANISM is complete and enforced \u2014 schedule, holds, three-condition disposal, irreversibility. What is partial is coverage: a wire transfer today starts no retention clock, so SC-02's lifecycle applies to nothing on that rail. Reading 'retention is implemented' off the mechanism would over-claim.",
+      "asks_of_reviewer": "None immediately. Recorded so BSA-21's crosswalk verdict is not read as broader than it is; each remaining class arrives with its own subsystem."
+    },
+    {
+      "id": "OQ-11",
+      "severity": "medium",
+      "question": "PARTLY RESOLVED \u2014 control_id collisions are a CORPUS defect, not an extractor bug.",
+      "finding": "Diagnosed at source. capitalization.md line 39 defines '## CP-01 - Capital Adequacy Targets'; cash.md line 47 defines '## CP-01 - Governance and Delegation'. Both policy documents independently chose the CP- prefix, and the extractor is reading exactly what is written \u2014 it is not merging anything. Ten ids collide (CP-01..CP-10). Separately, STATUS.md records the cash policy as carrying controls CA-01..CA-12, and no CA- id exists in cash.md at all: the cash regeneration appears to have changed its control prefix from CA- to CP- and that is what created the collision with capitalization.",
+      "why_it_matters": "Containment is now in place \u2014 the extractor emits a globally unique `uid` (policy:control_id), reports collisions in controls.json, and the crosswalk refuses a claim citing a colliding bare id while accepting a uid-qualified one. 333 rows now carry 333 distinct uids. But the underlying corpus is still wrong: two documents claim the same control numbers, and any human citing 'CP-03' in a memo or an examination response is ambiguous in a way no tooling can fix.",
+      "asks_of_reviewer": "Decide which policy renumbers. STATUS.md suggests cash was meant to be CA-, so restoring that is the smaller change. Also worth adding a prefix-collision check to the regeneration pipeline, since this was introduced by a regeneration and nobody noticed."
+    },
+    {
+      "id": "OQ-12",
+      "severity": "high",
+      "question": "Accounts have no owning entity, which blocks per-person cash aggregation.",
+      "finding": "BSA-08 aggregates cash 'per person per business day' and names entity.name and entity.tin as required inputs. core.account had no link to core.entity of any kind. Migration 20260719001300 adds account.entity_id (nullable, FK) and POST /accounts now accepts it, but EXISTING accounts are unlinked and cannot be backfilled truthfully \u2014 nothing in the data says which member owns which account, and inventing the link would fabricate a member relationship.",
+      "why_it_matters": "This was found while sequencing cash and it changed the order. Building cash without it would aggregate per ACCOUNT, which is the exact defect already recorded against CG-STR-01 ('splitting across two accounts owned by the same member evades it entirely') \u2014 reproduced at birth, in the one control where that evasion IS the behaviour being detected. Linking accounts also retroactively lets CG-STR-01/02 move from per-account to per-entity.",
+      "asks_of_reviewer": "Existing accounts need linking by someone who knows the answer, or the demo accounts discarded. Until then entity_id stays nullable and unlinked accounts sit outside CTR aggregation. Query them with: select count(*) from core.account where entity_id is null;"
+    },
+    {
+      "id": "OQ-13",
+      "severity": "medium",
+      "question": "CTR exemptions are stored but never evaluated.",
+      "finding": "BSA-08 describes Phase I exemptions (banks, government entities, listed companies) and Phase II (eligible non-listed businesses, payroll customers) with DOEP filing on FinCEN Form 110 and annual eligibility review. core.ctr_filing has an exemption_basis column and nothing reads it \u2014 every threshold crossing opens a filing obligation regardless of whether the person is exempt.",
+      "why_it_matters": "Failing OPEN, which is the safe direction: an exempt customer generates a CTR obligation that a human can dismiss, rather than an exempt determination silently suppressing a filing that was actually owed. But it means the CTR queue will contain avoidable work, and the annual exemption review (ctr.exemption.review.due) has no writer at all.",
+      "asks_of_reviewer": "Whether Pynthia intends to operate exemptions at all. Many small institutions do not, in which case this is scoped out rather than unimplemented \u2014 the same question as OQ-04 on overdraft."
+    },
+    {
+      "id": "OQ-14",
+      "severity": "high",
+      "question": "Per-client ACH dual-control thresholds and exposure limits are unset, so ACH batches are UNASSESSED.",
+      "finding": "EPS-06 says dual control is 'recommended for clients originating over $50,000 per batch' and that 'client exposure limits are assigned by the Credit Union'. Both the threshold and whether it applies are per-client configuration this repo does not hold. The mechanism is built (PUT /eps/client-limits/{partner_id}) and until it is called for a partner, that partner's ACH batches carry dual_control_status='unassessed' and appear in GET /eps/pending-approvals under a separate unassessed count with an explicit warning.",
+      "why_it_matters": "Unassessed is deliberately not 'exempt' and not 'required'. Treating an unconfigured client as exempt fails OPEN \u2014 a $2m batch would originate with no second pair of eyes and nothing would say so. Treating it as required fails closed on a number nobody chose and blocks every client until configured. Both were mutation-tested. The $50,000 figure in the policy is explicitly a recommendation, not a rule, so it must not be hardcoded as one.",
+      "asks_of_reviewer": "The actual per-client thresholds, or a decision that a single institution-wide default applies. Once set via the endpoint, every subsequent batch is assessed; existing unassessed rows stay unassessed because re-deciding them retroactively would be inventing a determination that was never made."
+    },
+    {
+      "id": "OQ-15",
+      "severity": "high",
+      "question": "The governance calendar has no anchor dates, so every obligation is UNSCHEDULED.",
+      "finding": "83 of the catalogue's triggers are time-based and share one shape, so one register serves them all. But a cadence needs an anchor \u2014 when the fiscal year starts, when the last board review happened, when the training cycle opens. Those are facts only the institution holds. An obligation registered without one is UNSCHEDULED: it never comes due, and POST /governance/calendar/sweep reports it under a separate count with an explicit warning rather than letting it sit among the not-due.",
+      "why_it_matters": "Unscheduled is the most dangerous absence in the repo so far, because it is INVISIBLE BY SHAPE. An overdue obligation appears on a list. An unscheduled one has nothing outstanding \u2014 from any distance it looks exactly like an obligation that is up to date. That is why it gets its own count and its own warning rather than being folded into 'not due'.",
+      "asks_of_reviewer": "Anchor dates per obligation, and which of the 83 time-triggered controls are live obligations at all. Registering all 83 automatically was deliberately NOT done \u2014 it would assert the institution has 83 live obligations, which nobody has said."
+    },
+    {
+      "id": "OQ-16",
+      "severity": "medium",
+      "question": "The eps governance controls do NOT fall out of the obligation register \u2014 my resequencing rationale was wrong.",
+      "finding": "Tier D was resequenced ahead of loan on the argument that the governance-calendar machinery would unlock the remaining eps controls too. It does not. Only 3 of ~30 triggers across EPS-01/03/04/08/09/10/11 are timer-shaped (eps.vendor_dd_cycle.opened, eps.training_annual_cycle.opened, eps.training_employee_cycle.opened). The rest are WORKFLOW triggers \u2014 eps.proposal.submitted, eps.control_review.opened, eps.board_report.delivered, eps.deployment.scheduled \u2014 which need proposal, review, board-reporting and deployment pipelines, not a calendar.",
+      "why_it_matters": "Tier D was still correct to build: it is honest, cheap and serves 83 catalogue triggers. But it does not shorten eps, and no work was manufactured to pretend otherwise. Registering the 3 timer-shaped eps obligations was also declined because registration is configuration nobody has supplied (OQ-15) and would have produced two more deeply-incomplete controls for appearance.",
+      "asks_of_reviewer": "None. Recorded because the resequencing argument is in the session record and was wrong; the eps governance controls remain unbuilt and need their own subsystems."
+    },
+    {
+      "id": "OQ-17",
+      "severity": "low",
+      "question": "core.payment_approval is now misnamed \u2014 it is a general four-eyes register.",
+      "finding": "The table was introduced for EPS-06 payment dual control. LP-07's adverse-action second review is the third use of the same property, and its resource_type enum now carries adverse_action_notice, which is not a payment. Two of the three domains using it are not payments.",
+      "why_it_matters": "Naming debt only \u2014 the constraint and behaviour are correct. But a table called payment_approval holding adverse action notices will mislead the next reader, and the rename is FREE right now because the migration has never been applied.",
+      "asks_of_reviewer": "None; engineering cleanup. Rename to four_eyes_approval before first apply, or accept the name and document it."
+    },
+    {
+      "id": "OQ-18",
+      "severity": "medium",
+      "question": "The four money rails hardcode db.schema(\"core\") and take no scope parameter.",
+      "finding": "transfers.ts, wires.ts, ach.ts and cards.ts write to core unconditionally. Every module built afterwards \u2014 bsa, cash, retention, governance, lending, eps, primitives \u2014 takes `scope: EvidenceScope`. Found by the drill, which could not point the rails at sim and had to seed both schemas.",
+      "why_it_matters": "Six modules can be exercised in isolation and four cannot. Any future work that needs the rails driven against a substrate \u2014 a larger drill, a tenant migration rehearsal, a replay harness \u2014 hits this first. It is also an inconsistency a new contributor will trip over, since the rails look like the reference implementation.",
+      "asks_of_reviewer": "None; engineering. Thread `scope` through the four rails the way every later module does."
+    },
+    {
+      "id": "OQ-19",
+      "severity": "medium",
+      "question": "The gate returns on the FIRST blocking control, so only one control_result is ever written.",
+      "finding": "Drill case RAIL-02 moved an amount that was both over the $25k velocity cap and beyond the available balance. runGate evaluates velocity first and returns immediately, so CG-VEL-01 wrote evidence and CG-NSF-01 never ran. The transaction was correctly refused; the evidence record shows one control firing where two would have.",
+      "why_it_matters": "An examiner asking 'did NSF checking run on this transaction' finds no control_result for it, and cannot distinguish 'ran and passed' from 'never ran'. That is the exact ambiguity control_result exists to remove \u2014 the same reasoning that made CG-OFAC-01 write evidence on clean passes. The refusal is right; the evidence is incomplete.",
+      "asks_of_reviewer": "Whether the gate should evaluate ALL controls and return the aggregate, rather than short-circuit. Evaluating all costs an extra Blnk balance call on a doomed transaction; short-circuiting costs evidence completeness."
+    },
+    {
+      "id": "OQ-20",
+      "severity": "low",
+      "question": "Repeated attempts against the velocity cap leave no aggregate signal.",
+      "finding": "A rejected transaction correctly does not count toward same-day volume, so an actor blocked at $27k can immediately succeed with a smaller amount. Each rejection is individually evidenced, but nothing detects 'this account attempted eight blocked movements today'.",
+      "why_it_matters": "Attempted volume is a stronger evasion signal than settled volume, and repeatedly probing a cap is exactly the behaviour structuring detection is meant to catch. Not a defect in CG-VEL-01 \u2014 counting rejected attempts toward the cap would lock a member out after one mistake \u2014 but a gap between the two controls.",
+      "asks_of_reviewer": "Whether repeated velocity rejections should raise their own alert typology."
+    }
+  ]
+}

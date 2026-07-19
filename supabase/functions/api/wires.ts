@@ -23,6 +23,11 @@ import {
   validationError,
   type ValidationErrorItem,
 } from "./lib.ts";
+import { scopeToPartner } from "./ownership.ts";
+import { openApproval, wireDualControl } from "./eps.ts";
+import { provenanceFor } from "./bsa.ts";
+import { startRetentionFor } from "./retention.ts";
+import { type PartnerContext } from "./auth.ts";
 
 // Outbound wires leave the customer balance for the Fed settlement rail. Blnk
 // auto-creates `@`-prefixed external balances on first reference, so there is
@@ -103,6 +108,7 @@ export async function postWirePrepare(
   db: SupabaseClient,
   cfg: BlnkConfig,
   requestId: string,
+  ctx: PartnerContext,
 ): Promise<Response> {
   const idempotencyKey = req.headers.get("Idempotency-Key");
   if (!idempotencyKey) {
@@ -168,7 +174,7 @@ export async function postWirePrepare(
 
   const freshWireId = crypto.randomUUID();
   const claim = await claimIdempotency(
-    db,
+    db, ctx.idempotencyScope,
     idempotencyKey,
     requestHash,
     freshWireId,
@@ -213,6 +219,12 @@ export async function postWirePrepare(
     beneficiary,
     purpose: purposeText,
     status: "pending_approval",
+    partner_id: ctx.ownerPartnerId,
+    // EPS-06: wire dual control is REQUIRED, unconditionally. Recorded on the
+    // row at creation so a wire can never reach `completed` without it — see
+    // ck_wire_dual_control_before_complete.
+    dual_control_status: "required",
+    created_by: ctx.tokenId,
   });
   if (insErr) return internalErrorResponse(requestId, insErr);
 
@@ -222,12 +234,12 @@ export async function postWirePrepare(
   // A wire has no destination account row (funds leave for @FedWire), hence null.
   let gate;
   try {
-    gate = await runGate(db, cfg, WIRE_RESOURCE(wireId), account as AccountRow, null, amount);
+    gate = await runGate(db, cfg, WIRE_RESOURCE(wireId), account as AccountRow, null, amount, ctx);
   } catch (err) {
     return internalErrorResponse(requestId, err);
   }
   if (gate.blocked) {
-    await storeIdempotencyResponse(db, idempotencyKey, gate.status, gate.body);
+    await storeIdempotencyResponse(db, ctx.idempotencyScope, idempotencyKey, gate.status, gate.body);
     return jsonResponse(gate.body, gate.status, requestId);
   }
 
@@ -260,12 +272,51 @@ export async function postWirePrepare(
       synced_at: mirror.synced_at,
     })
     .eq("id", wireId)
-    .select("id, amount, status, beneficiary, purpose, imad, blnk_transaction_id, blnk_reference, blnk_status, created_at")
+    .select("id, amount, status, beneficiary, purpose, imad, dual_control_status, created_by, blnk_transaction_id, blnk_reference, blnk_status, created_at")
     .single();
   if (updErr) return internalErrorResponse(requestId, updErr);
 
+  // The maker-checker record. Opened here rather than at confirm so the
+  // originator is captured at the moment they originated, not inferred later.
+  try {
+    await openApproval(db, {
+      resourceType: "wire_transfer",
+      resourceId: wireId,
+      createdBy: ctx.tokenId,
+      decision: wireDualControl(),
+      ctx,
+    });
+  } catch (apprErr) {
+    console.error(`wire approval record failed for ${wireId}: ${apprErr}`);
+  }
+
+  // EPS-06's second declared trigger, same reasoning as ach_transfer.created.
+  try {
+    await db.schema("core").from("event").upsert({
+      id: `evt_${wireId}_submitted`,
+      code: "wire_transfer.submitted",
+      resource_type: "wire_transfer",
+      resource_id: `wire_transfer:${wireId}`,
+      payload: {
+        amount_cents: amount,
+        dual_control_status: "required",
+        created_by: ctx.tokenId,
+      },
+      provenance: provenanceFor("core", ctx),
+    }, { onConflict: "id", ignoreDuplicates: true });
+  } catch (evtErr) {
+    console.error(`wire_transfer.submitted event failed for ${wireId}: ${evtErr}`);
+  }
+
+  // BSA-21: wire transfer records retain 5 years from when the record was made.
+  try {
+    await startRetentionFor(db, "wire_transfer", wireId, new Date(), "core", ctx);
+  } catch (e) {
+    console.error(`wire retention clock failed for ${wireId}: ${e}`);
+  }
+
   const responseBody = wireResponse(updated as WireRow, gate.controlResults);
-  await storeIdempotencyResponse(db, idempotencyKey, 201, responseBody);
+  await storeIdempotencyResponse(db, ctx.idempotencyScope, idempotencyKey, 201, responseBody);
   return jsonResponse(responseBody, 201, requestId);
 }
 
@@ -280,8 +331,9 @@ export async function postWireConfirm(
   db: SupabaseClient,
   cfg: BlnkConfig,
   requestId: string,
+  ctx: PartnerContext,
 ): Promise<Response> {
-  return await resolveInflight(req, wireId, db, cfg, requestId, "confirm");
+  return await resolveInflight(req, wireId, db, cfg, requestId, ctx, "confirm");
 }
 
 /** POST /payments/wire/{id}/cancel — void the hold and release the funds. */
@@ -291,8 +343,9 @@ export async function postWireCancel(
   db: SupabaseClient,
   cfg: BlnkConfig,
   requestId: string,
+  ctx: PartnerContext,
 ): Promise<Response> {
-  return await resolveInflight(req, wireId, db, cfg, requestId, "cancel");
+  return await resolveInflight(req, wireId, db, cfg, requestId, ctx, "cancel");
 }
 
 async function resolveInflight(
@@ -301,12 +354,15 @@ async function resolveInflight(
   db: SupabaseClient,
   cfg: BlnkConfig,
   requestId: string,
+  ctx: PartnerContext,
   action: "confirm" | "cancel",
 ): Promise<Response> {
-  const { data: wire, error: selErr } = await db.schema("core").from("wire_transfer")
-    .select("id, amount, status, beneficiary, purpose, imad, originator, blnk_transaction_id, blnk_reference, blnk_status, created_at")
-    .eq("id", wireId)
-    .maybeSingle();
+  const { data: wire, error: selErr } = await scopeToPartner(
+    db.schema("core").from("wire_transfer")
+      .select("id, amount, status, beneficiary, purpose, imad, originator, blnk_transaction_id, blnk_reference, blnk_status, created_at")
+      .eq("id", wireId),
+    ctx,
+  ).maybeSingle();
   if (selErr) return internalErrorResponse(requestId, selErr);
   if (!wire) return notFoundResponse(requestId, "wire_transfer", wireId);
 
@@ -328,6 +384,27 @@ async function resolveInflight(
       title: "Not Held",
       detail: "wire has no inflight Blnk transaction to resolve",
     });
+  }
+
+  // EPS-06. The prepare/confirm split was two CALLS, not two PEOPLE — anyone
+  // holding a token could prepare and immediately confirm. A wire may only be
+  // confirmed once a DIFFERENT actor has approved it.
+  if (action === "confirm") {
+    const dcs = (wire as Record<string, unknown>).dual_control_status;
+    if (dcs === "rejected") {
+      return apiError(409, "dual_control_rejected", requestId, {
+        title: "Dual Control Rejected",
+        detail: `wire ${wireId} was rejected by its second approver and cannot be confirmed`,
+      });
+    }
+    if (dcs !== "approved" && dcs !== "not_required") {
+      return apiError(409, "dual_control_required", requestId, {
+        title: "Dual Control Required",
+        detail:
+          `wire ${wireId} needs a second approver before it can be confirmed ` +
+          `(EPS-06); POST /payments/wire/${wireId}/approve as a different actor`,
+      });
+    }
   }
 
   let partialCents: number | undefined;
@@ -393,7 +470,7 @@ async function resolveInflight(
       synced_at: mirror.synced_at,
     })
     .eq("id", wireId)
-    .select("id, amount, status, beneficiary, purpose, imad, blnk_transaction_id, blnk_reference, blnk_status, created_at")
+    .select("id, amount, status, beneficiary, purpose, imad, dual_control_status, created_by, blnk_transaction_id, blnk_reference, blnk_status, created_at")
     .single();
   if (updErr) return internalErrorResponse(requestId, updErr);
 
@@ -425,6 +502,124 @@ async function resolveInflight(
 }
 
 
+/**
+ * POST /payments/wire/{id}/reject — the network refused the wire (card 38).
+ *
+ * 'rejected' has been in the wire_transfer status CHECK since the core schema,
+ * but the only way to reach it was a runGate block at prepare — i.e. WE refused
+ * it. There was no path for the Fed or the beneficiary bank refusing a wire we
+ * successfully submitted, which is the far more common rejection in practice
+ * (bad beneficiary account, closed institution, OFAC hit downstream).
+ *
+ * Distinct from all three neighbouring transitions, and the distinctions are
+ * load-bearing rather than cosmetic:
+ *   cancel — we withdrew it            (submitted -> canceled)
+ *   reject — the network refused it    (submitted -> rejected)
+ *   return — it settled, then came back (completed -> returned, via reversal)
+ * Reject and cancel both void the hold and move no money, so they are ledger
+ * -identical; they stay separate states because "our decision" and "their
+ * decision" answer different questions in a Reg J / UCC 4A dispute.
+ */
+export async function postWireReject(
+  req: Request,
+  wireId: string,
+  db: SupabaseClient,
+  cfg: BlnkConfig,
+  requestId: string,
+  ctx: PartnerContext,
+): Promise<Response> {
+  const cols =
+    "id, amount, status, beneficiary, purpose, imad, originator, return_reason, blnk_transaction_id, blnk_reference, blnk_status, created_at";
+  const { data: wire, error: selErr } = await scopeToPartner(
+    db.schema("core").from("wire_transfer")
+      .select(cols)
+      .eq("id", wireId),
+    ctx,
+  ).maybeSingle();
+  if (selErr) return internalErrorResponse(requestId, selErr);
+  if (!wire) return notFoundResponse(requestId, "wire_transfer", wireId);
+
+  if (wire.status === "rejected") {
+    return jsonResponse(wireResponse(wire as WireRow), 200, requestId, {
+      "Idempotent-Replayed": "true",
+    });
+  }
+  // Only an in-flight submission can be rejected. A completed wire that comes
+  // back is a RETURN — it needs a compensating reversal, not a void, because
+  // the funds already left.
+  if (wire.status !== "submitted") {
+    return apiError(409, "invalid_state", requestId, {
+      title: "Invalid State",
+      detail:
+        `wire_transfer ${wireId} is ${wire.status}; only a submitted wire can be rejected — ` +
+        `a completed wire must be returned`,
+    });
+  }
+  if (!wire.blnk_transaction_id) {
+    return apiError(409, "not_held", requestId, {
+      title: "Not Held",
+      detail: "wire has no inflight Blnk transaction to release",
+    });
+  }
+
+  const body = await parseJsonBody(req).catch(() => null);
+  const rawReason = body && typeof body === "object"
+    ? (body as Record<string, unknown>).reason
+    : undefined;
+  if (!isNonEmptyString(rawReason)) {
+    return validationError(requestId, [{
+      type: "missing_field",
+      field: "reason",
+      message: "a rejection reason is required (e.g. beneficiary account closed)",
+    }]);
+  }
+
+  try {
+    await voidInflight(cfg, wire.blnk_transaction_id);
+  } catch (err) {
+    if (err instanceof BlnkError) return bankErrorResponse(requestId);
+    return internalErrorResponse(requestId, err);
+  }
+
+  const { data: updated, error: updErr } = await db.schema("core").from("wire_transfer")
+    .update({
+      status: "rejected",
+      // shares the column with the return trail; both are "why this wire did
+      // not end up where it was sent"
+      return_reason: rawReason,
+      synced_at: new Date().toISOString(),
+    })
+    .eq("id", wireId)
+    .select(cols)
+    .single();
+  if (updErr) return internalErrorResponse(requestId, updErr);
+
+  // No bookkeeping entry — the hold was voided, nothing moved. The event fires
+  // because a rejection releases held funds and the originator's downstream
+  // systems need to know the wire is dead rather than still in flight.
+  try {
+    await recordMovementArtifacts(db, {
+      bkeId: `bke_${wireId}_rejected`,
+      evtId: `evt_${wireId}_rejected`,
+      code: "wire_transfer.rejected",
+      resourceType: "wire_transfer",
+      resourceId: wireId,
+      amountCents: 0,
+      accountId: (wire.originator as { account_id?: string } | null)?.account_id ?? null,
+      payload: {
+        reason: rawReason,
+        released_cents: wire.amount,
+        blnk_transaction_id: wire.blnk_transaction_id,
+      },
+    });
+  } catch (artErr) {
+    console.error(`wire rejection artifacts failed for ${wireId}: ${artErr}`);
+  }
+
+  return jsonResponse(wireResponse(updated as WireRow), 200, requestId);
+}
+
+
 // ------------------------------------------------------------- wire returns
 //
 // Card 37: "a return request resolves to RETURNED or COMPLETED with reasons."
@@ -446,6 +641,7 @@ export async function postWireReturn(
   db: SupabaseClient,
   cfg: BlnkConfig,
   requestId: string,
+  ctx: PartnerContext,
 ): Promise<Response> {
   const body = await parseJsonBody(req).catch(() => null);
   const reason = body && typeof body === "object"
@@ -459,10 +655,12 @@ export async function postWireReturn(
     }]);
   }
 
-  const { data: wire, error: selErr } = await db.schema("core").from("wire_transfer")
-    .select(RETURN_COLS)
-    .eq("id", wireId)
-    .maybeSingle();
+  const { data: wire, error: selErr } = await scopeToPartner(
+    db.schema("core").from("wire_transfer")
+      .select(RETURN_COLS)
+      .eq("id", wireId),
+    ctx,
+  ).maybeSingle();
   if (selErr) return internalErrorResponse(requestId, selErr);
   if (!wire) return notFoundResponse(requestId, "wire_transfer", wireId);
 
@@ -500,6 +698,7 @@ export async function postWireReturnResolve(
   db: SupabaseClient,
   cfg: BlnkConfig,
   requestId: string,
+  ctx: PartnerContext,
 ): Promise<Response> {
   const body = await parseJsonBody(req).catch(() => null);
   const rec = body && typeof body === "object" ? body as Record<string, unknown> : {};
@@ -512,10 +711,12 @@ export async function postWireReturnResolve(
     }]);
   }
 
-  const { data: wire, error: selErr } = await db.schema("core").from("wire_transfer")
-    .select(RETURN_COLS)
-    .eq("id", wireId)
-    .maybeSingle();
+  const { data: wire, error: selErr } = await scopeToPartner(
+    db.schema("core").from("wire_transfer")
+      .select(RETURN_COLS)
+      .eq("id", wireId),
+    ctx,
+  ).maybeSingle();
   if (selErr) return internalErrorResponse(requestId, selErr);
   if (!wire) return notFoundResponse(requestId, "wire_transfer", wireId);
 

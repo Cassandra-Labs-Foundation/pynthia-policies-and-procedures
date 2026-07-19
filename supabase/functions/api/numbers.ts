@@ -16,6 +16,8 @@ import {
   sha256Hex,
   validationError,
 } from "./lib.ts";
+import { scopeToPartner } from "./ownership.ts";
+import { type PartnerContext } from "./auth.ts";
 
 // Demo ABA with a VALID checksum (3(d1+d4+d7)+7(d2+d5+d8)+(d3+d6+d9) ≡ 0 mod 10)
 // but an obviously fake prefix — never a real institution's number.
@@ -72,12 +74,15 @@ export async function postAccountNumber(
   accountId: string,
   db: SupabaseClient,
   requestId: string,
+  ctx: PartnerContext,
 ): Promise<Response> {
   const raw = await parseJsonBody(req).catch(() => null);
   const cuDirect = !!(raw && typeof raw === "object" && (raw as Record<string, unknown>).cu_direct === true);
 
-  const { data: acct, error: selErr } = await db.schema("core").from("account")
-    .select("id, status").eq("id", accountId).maybeSingle();
+  const { data: acct, error: selErr } = await scopeToPartner(
+    db.schema("core").from("account").select("id, status").eq("id", accountId),
+    ctx,
+  ).maybeSingle();
   if (selErr) return internalErrorResponse(requestId, selErr);
   if (!acct) return notFoundResponse(requestId, "account", accountId);
 
@@ -113,7 +118,20 @@ export async function getAccountNumbers(
   accountId: string,
   db: SupabaseClient,
   requestId: string,
+  ctx: PartnerContext,
 ): Promise<Response> {
+  // account_number carries no partner_id: it reaches its owner through
+  // fk_account_number_account_id, the one link in this schema where a join is
+  // both correct and indexed (idx_account_number_account_id). Confirming the
+  // PARENT is owned is what confines the list — a 404 rather than an empty
+  // page, so a foreign account id is indistinguishable from a missing one.
+  const { data: parent, error: parentErr } = await scopeToPartner(
+    db.schema("core").from("account").select("id").eq("id", accountId),
+    ctx,
+  ).maybeSingle();
+  if (parentErr) return internalErrorResponse(requestId, parentErr);
+  if (!parent) return notFoundResponse(requestId, "account", accountId);
+
   const { data, error } = await db.schema("core").from("account_number")
     .select(NUMBER_COLS).eq("account_id", accountId)
     .order("created_at", { ascending: false }).limit(200);
@@ -127,6 +145,7 @@ export async function postNumberTransition(
   numberId: string,
   db: SupabaseClient,
   requestId: string,
+  ctx: PartnerContext,
 ): Promise<Response> {
   const raw = await parseJsonBody(req).catch(() => null);
   const to = raw && typeof raw === "object" ? (raw as Record<string, unknown>).to : undefined;
@@ -142,6 +161,18 @@ export async function postNumberTransition(
     .select(NUMBER_COLS).eq("id", numberId).maybeSingle();
   if (selErr) return internalErrorResponse(requestId, selErr);
   if (!num) return notFoundResponse(requestId, "account_number", numberId);
+
+  // Derived ownership again: resolve the parent account under the partner
+  // predicate. Reported as a missing NUMBER, not a missing account — the
+  // caller asked about a number, and naming the account would confirm one
+  // exists behind an id they cannot see.
+  const { data: owner, error: ownerErr } = await scopeToPartner(
+    db.schema("core").from("account").select("id")
+      .eq("id", String((num as Record<string, unknown>).account_id)),
+    ctx,
+  ).maybeSingle();
+  if (ownerErr) return internalErrorResponse(requestId, ownerErr);
+  if (!owner) return notFoundResponse(requestId, "account_number", numberId);
 
   const from = String((num as Record<string, unknown>).status);
   if (!(TRANSITIONS[from] ?? []).includes(to)) {

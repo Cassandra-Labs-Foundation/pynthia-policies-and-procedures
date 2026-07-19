@@ -21,8 +21,15 @@ jobs:
           deno check supabase/functions/api/index.ts
           deno check supabase/functions/blnk-webhook/index.ts
           deno check supabase/functions/blnk-reconcile/index.ts
+          deno check supabase/functions/aggregator/index.ts
       - name: Hermetic suite (unit + behavioral)
         run: deno test --allow-net --allow-env supabase/functions/
+      - name: Drill regression gate — a case that passed yesterday must pass today
+        run: deno run --allow-all supabase/functions/drill/run.ts --check
+
+      - name: Crosswalk integrity — no over-claims, no stale catalogue ids
+        run: python3 scripts/build_crosswalk.py --check
+
       - name: Float guard — amounts are integer minor units, everywhere
         run: |
           set -e

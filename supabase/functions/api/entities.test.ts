@@ -6,7 +6,7 @@
 import { assert, assertEquals } from "jsr:@std/assert@1";
 import { getEntities, postEntity, postEntityOwner, postEntityTransition } from "./entities.ts";
 import { postAccountLock, postAccountTransition } from "./accounts.ts";
-import { type Any, req, stubApiDb } from "./test_helpers.ts";
+import { type Any, req, stubApiDb, OPS_CTX, TEST_CTX } from "./test_helpers.ts";
 
 const PERSON = { type: "person", name: "Ada Member", date_of_birth: "1990-01-01" };
 
@@ -14,7 +14,7 @@ const PERSON = { type: "person", name: "Ada Member", date_of_birth: "1990-01-01"
 
 Deno.test("a person is created and starts PENDING", async () => {
   const { db, inserts } = stubApiDb({});
-  const res = await postEntity(req(PERSON), db, "e1");
+  const res = await postEntity(req(PERSON), db, "e1", TEST_CTX);
   assertEquals(res.status, 201);
   const b = await res.json();
   assertEquals(b.status, "pending");
@@ -31,7 +31,7 @@ Deno.test("business, trust and joint all create with their required fields", asy
   ];
   for (const body of bodies) {
     const { db } = stubApiDb({});
-    const res = await postEntity(req(body), db, "e2");
+    const res = await postEntity(req(body), db, "e2", TEST_CTX);
     assertEquals(res.status, 201, `${body.type} must create`);
     assertEquals((await res.json()).type, body.type);
   }
@@ -47,7 +47,7 @@ Deno.test("per-type required fields are enforced", async () => {
   ];
   for (const body of bad) {
     const { db } = stubApiDb({});
-    const res = await postEntity(req(body), db, "e3");
+    const res = await postEntity(req(body), db, "e3", TEST_CTX);
     assertEquals(res.status, 400, JSON.stringify(body));
   }
 });
@@ -70,19 +70,35 @@ function listDb(rows: unknown[]) {
 
 Deno.test("the unified list returns mixed types and filters by type", async () => {
   const { db, calls } = listDb([]);
-  await getEntities(new Request("https://x/entities?type=business"), db, "e4");
+  await getEntities(new Request("https://x/entities?type=business"), db, "e4", TEST_CTX);
   assertEquals(
     calls.filter((c) => c.fn === "eq").map((c) => `${c.args[0]}=${c.args[1]}`),
-    ["type=business"],
+    // the partner predicate is always present and always FIRST — a caller's
+    // ?type= can narrow their page but can never widen it past their own rows
+    ["partner_id=ptnr_test", "type=business"],
   );
   const { db: db2, calls: c2 } = listDb([]);
-  await getEntities(new Request("https://x/entities"), db2, "e5");
-  assertEquals(c2.filter((c) => c.fn === "eq").length, 0, "no filter -> mixed types");
+  await getEntities(new Request("https://x/entities"), db2, "e5", TEST_CTX);
+  assertEquals(
+    c2.filter((c) => c.fn === "eq").map((c) => `${c.args[0]}=${c.args[1]}`),
+    ["partner_id=ptnr_test"],
+    "no type filter -> mixed types, but still one partner's",
+  );
+});
+
+Deno.test("an ops actor lists across partners — D23 gives it full access", async () => {
+  const { db, calls } = listDb([]);
+  await getEntities(new Request("https://x/entities"), db, "e4b", OPS_CTX);
+  assertEquals(
+    calls.filter((c) => c.fn === "eq").length,
+    0,
+    "confining ops would break the cross-fintech visibility the role exists for",
+  );
 });
 
 Deno.test("an unknown type filter is refused", async () => {
   const { db } = listDb([]);
-  const res = await getEntities(new Request("https://x/entities?type=llc"), db, "e6");
+  const res = await getEntities(new Request("https://x/entities?type=llc"), db, "e6", TEST_CTX);
   assertEquals(res.status, 400);
 });
 
@@ -92,7 +108,7 @@ Deno.test("a legal transition updates status and emits an event", async () => {
   const { db, inserts, updates } = stubApiDb({
     row: { id: "ent_1", type: "person", status: "pending", name: "Ada" },
   });
-  const res = await postEntityTransition(req({ to: "active" }), "ent_1", db, "e7");
+  const res = await postEntityTransition(req({ to: "active" }), "ent_1", db, "e7", TEST_CTX);
   assertEquals(res.status, 200);
   assertEquals((await res.json()).status, "active");
   assertEquals(updates.find((u) => u.table === "entity")?.patch.status, "active");
@@ -105,7 +121,7 @@ Deno.test("an illegal transition is a 409 and emits nothing", async () => {
   const { db, inserts } = stubApiDb({
     row: { id: "ent_1", type: "person", status: "archived", name: "Ada" },
   });
-  const res = await postEntityTransition(req({ to: "active" }), "ent_1", db, "e8");
+  const res = await postEntityTransition(req({ to: "active" }), "ent_1", db, "e8", TEST_CTX);
   assertEquals(res.status, 409);
   assertEquals((await res.json()).type, "invalid_state");
   assertEquals(inserts.filter((i) => i.table === "event").length, 0);
@@ -121,7 +137,7 @@ Deno.test("the machine walks pending -> active -> disabled -> archived", async (
   ];
   for (const [from, to] of legal) {
     const { db } = stubApiDb({ row: { id: "e", type: "person", status: from } });
-    const res = await postEntityTransition(req({ to }), "e", db, "e9");
+    const res = await postEntityTransition(req({ to }), "e", db, "e9", TEST_CTX);
     assertEquals(res.status, 200, `${from} -> ${to} must be legal`);
   }
   const illegal: [string, string][] = [
@@ -131,7 +147,7 @@ Deno.test("the machine walks pending -> active -> disabled -> archived", async (
   ];
   for (const [from, to] of illegal) {
     const { db } = stubApiDb({ row: { id: "e", type: "person", status: from } });
-    const res = await postEntityTransition(req({ to }), "e", db, "e10");
+    const res = await postEntityTransition(req({ to }), "e", db, "e10", TEST_CTX);
     assertEquals(res.status, 409, `${from} -> ${to} must be illegal`);
   }
 });
@@ -147,6 +163,7 @@ Deno.test("a business records a 25% beneficial owner", async () => {
     "ent_biz",
     db,
     "e11",
+    TEST_CTX,
   );
   assertEquals(res.status, 200);
   const owners = updates.find((u) => u.table === "entity")?.patch.owners as Any;
@@ -160,6 +177,7 @@ Deno.test("a person cannot have beneficial owners", async () => {
     "ent_p",
     db,
     "e12",
+    TEST_CTX,
   );
   assertEquals(res.status, 409);
 });
@@ -172,6 +190,7 @@ Deno.test("ownership percent is bounded 0-100", async () => {
       "b",
       db,
       "e13",
+      TEST_CTX,
     );
     assertEquals(res.status, 400, `percent ${percent} must be refused`);
   }
@@ -188,6 +207,7 @@ Deno.test("a compliance lock leaves account state intact and is logged", async (
     "acct_1",
     db,
     "e14",
+    TEST_CTX,
   );
   assertEquals(res.status, 200);
   const patch = updates.find((u) => u.table === "account")?.patch as Any;
@@ -202,7 +222,7 @@ Deno.test("unlock restores none and is logged too", async () => {
   const { db, inserts } = stubApiDb({
     account: { id: "acct_1", status: "open", lock_type: "compliance" },
   });
-  const res = await postAccountLock(req({ lock_type: "none" }), "acct_1", db, "e15");
+  const res = await postAccountLock(req({ lock_type: "none" }), "acct_1", db, "e15", TEST_CTX);
   assertEquals(res.status, 200);
   assertEquals(inserts.find((i) => i.table === "event")?.row.code, "account.unlocked");
 });
@@ -213,13 +233,13 @@ Deno.test("account machine: open <-> frozen, both -> closed, closed terminal", a
   const legal: [string, string][] = [["open", "frozen"], ["frozen", "open"], ["open", "closed"], ["frozen", "closed"]];
   for (const [from, to] of legal) {
     const { db, inserts } = stubApiDb({ account: { id: "a", status: from, lock_type: "none" } });
-    const res = await postAccountTransition(req({ to }), "a", db, "e16");
+    const res = await postAccountTransition(req({ to }), "a", db, "e16", TEST_CTX);
     assertEquals(res.status, 200, `${from} -> ${to} must be legal`);
     assertEquals(inserts.find((i) => i.table === "event")?.row.code, `account.${to}`);
   }
   for (const [from, to] of [["closed", "open"], ["closed", "frozen"]] as [string, string][]) {
     const { db } = stubApiDb({ account: { id: "a", status: from, lock_type: "none" } });
-    const res = await postAccountTransition(req({ to }), "a", db, "e17");
+    const res = await postAccountTransition(req({ to }), "a", db, "e17", TEST_CTX);
     assertEquals(res.status, 409, `${from} -> ${to} must be illegal`);
   }
 });

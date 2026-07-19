@@ -1,0 +1,316 @@
+{
+  "_comment": [
+    "Inventory of every event code the core can actually emit, with provenance.",
+    "",
+    "Hand-maintained, because a grep cannot resolve the templated codes",
+    "(`ach_transfer.${verb}`) without knowing each template's value set. Every",
+    "entry cites the source line it comes from so a reviewer can check it, and",
+    "scripts/build_crosswalk.py --check re-greps the source for LITERAL codes and",
+    "reports any that are missing here, so drift in the easy half is caught",
+    "automatically.",
+    "",
+    "This file is the denominator of the reachability view. Adding a code here",
+    "that the core does not really emit inflates reachability and is exactly the",
+    "kind of over-claim this artifact exists to prevent."
+  ],
+  "literal": [
+    {
+      "code": "transfer.settled",
+      "source": "supabase/functions/api/transfers.ts"
+    },
+    {
+      "code": "wire_transfer.completed",
+      "source": "supabase/functions/api/wires.ts"
+    },
+    {
+      "code": "wire_transfer.rejected",
+      "source": "supabase/functions/api/wires.ts"
+    },
+    {
+      "code": "wire_transfer.returned",
+      "source": "supabase/functions/api/wires.ts"
+    },
+    {
+      "code": "ach_transfer.noc_received",
+      "source": "supabase/functions/api/ach.ts"
+    },
+    {
+      "code": "card_authorization.captured",
+      "source": "supabase/functions/api/cards.ts"
+    },
+    {
+      "code": "card_authorization.expired",
+      "source": "supabase/functions/api/cards.ts"
+    },
+    {
+      "code": "entity.created",
+      "source": "supabase/functions/api/entities.ts"
+    },
+    {
+      "code": "entity.owner_added",
+      "source": "supabase/functions/api/entities.ts"
+    },
+    {
+      "code": "account.locked",
+      "source": "supabase/functions/api/accounts.ts"
+    },
+    {
+      "code": "account.unlocked",
+      "source": "supabase/functions/api/accounts.ts"
+    },
+    {
+      "code": "blnk.mirror_recovered",
+      "source": "supabase/functions/blnk-reconcile/sweeps.ts"
+    },
+    {
+      "code": "blnk.balance_drift",
+      "source": "supabase/functions/blnk-reconcile/sweeps.ts"
+    },
+    {
+      "code": "blnk.missing_mirror",
+      "source": "supabase/functions/blnk-reconcile/sweeps.ts"
+    },
+    {
+      "code": "blnk.stuck_row",
+      "source": "supabase/functions/blnk-reconcile/sweeps.ts"
+    },
+    {
+      "code": "bsa_alert.created",
+      "source": "supabase/functions/api/bsa.ts",
+      "note": "raiseAlert \u2014 BSA-06's declared trigger; emitted by every alert site (OQ-05)"
+    },
+    {
+      "code": "bsa_alert.triaged",
+      "source": "supabase/functions/api/bsa.ts"
+    },
+    {
+      "code": "bsa_alert.triage_overdue",
+      "source": "supabase/functions/api/bsa.ts",
+      "note": "negative case: emitted by the timer sweep for an alert nobody triaged"
+    },
+    {
+      "code": "case.opened",
+      "source": "supabase/functions/api/bsa.ts"
+    },
+    {
+      "code": "case.investigation_complete",
+      "source": "supabase/functions/api/bsa.ts",
+      "note": "BSA-06's second declared trigger"
+    },
+    {
+      "code": "case.sar_decision_overdue",
+      "source": "supabase/functions/api/bsa.ts",
+      "note": "negative case: emitted by the timer sweep"
+    },
+    {
+      "code": "sar.filed",
+      "source": "supabase/functions/api/bsa.ts"
+    },
+    {
+      "code": "sar.decision_no_file",
+      "source": "supabase/functions/api/bsa.ts"
+    },
+    {
+      "code": "bsa_alert.triage.timer",
+      "source": "supabase/functions/api/bsa.ts",
+      "note": "the 2-business-day clock starting"
+    },
+    {
+      "code": "case.sar.decision.timer",
+      "source": "supabase/functions/api/bsa.ts",
+      "note": "the 30/60-day SAR clock starting"
+    },
+    {
+      "code": "record.retention_clock_set",
+      "source": "supabase/functions/api/retention.ts",
+      "note": "BSA-21's produced event; fired on account.closed"
+    },
+    {
+      "code": "record.retention_anchor",
+      "source": "supabase/functions/api/retention.ts"
+    },
+    {
+      "code": "legal_hold.created",
+      "source": "supabase/functions/api/retention.ts",
+      "note": "SC-02 trigger"
+    },
+    {
+      "code": "disposal.held",
+      "source": "supabase/functions/api/retention.ts",
+      "note": "SC-02: hold suspends queued disposal"
+    },
+    {
+      "code": "legal_hold.clear.confirmed",
+      "source": "supabase/functions/api/retention.ts",
+      "note": "SC-02 trigger"
+    },
+    {
+      "code": "disposal.clock_resumed",
+      "source": "supabase/functions/api/retention.ts"
+    },
+    {
+      "code": "disposal.scheduled",
+      "source": "supabase/functions/api/retention.ts"
+    },
+    {
+      "code": "destruction_log.entry.created",
+      "source": "supabase/functions/api/retention.ts"
+    },
+    {
+      "code": "record.destroyed",
+      "source": "supabase/functions/api/retention.ts"
+    },
+    {
+      "code": "record.destruction.certified",
+      "source": "supabase/functions/api/retention.ts"
+    },
+    {
+      "code": "ctr.threshold.reached",
+      "source": "supabase/functions/api/cash.ts",
+      "note": "BSA-08's declared trigger \u2014 per-person daily currency aggregate over $10k"
+    },
+    {
+      "code": "ctr.filing.timer",
+      "source": "supabase/functions/api/cash.ts",
+      "note": "the 15-calendar-day FinCEN clock starting"
+    },
+    {
+      "code": "ctr.filed",
+      "source": "supabase/functions/api/cash.ts"
+    },
+    {
+      "code": "ctr.filing_overdue",
+      "source": "supabase/functions/api/cash.ts",
+      "note": "negative case: a CTR owed and never filed"
+    },
+    {
+      "code": "eps.wire.second_approval",
+      "source": "supabase/functions/api/eps.ts",
+      "note": "EPS-06's produced event for the wire approval"
+    },
+    {
+      "code": "eps.dual_control.decided",
+      "source": "supabase/functions/api/eps.ts"
+    },
+    {
+      "code": "eps.client_limit.changed",
+      "source": "supabase/functions/api/eps.ts",
+      "note": "EPS-06: client exposure limits assigned by the Credit Union"
+    },
+    {
+      "code": "ach_transfer.created",
+      "source": "supabase/functions/api/ach.ts",
+      "note": "EPS-06 trigger \u2014 the entry was always created, just never announced"
+    },
+    {
+      "code": "wire_transfer.submitted",
+      "source": "supabase/functions/api/wires.ts",
+      "note": "EPS-06 + BSA-05 + BSA-10 trigger"
+    },
+    {
+      "code": "governance.obligation.completed",
+      "source": "supabase/functions/api/governance.ts"
+    },
+    {
+      "code": "governance.obligation.overdue",
+      "source": "supabase/functions/api/governance.ts",
+      "note": "negative case: an obligation that came due and nobody completed"
+    },
+    {
+      "code": "loan_party.added",
+      "source": "supabase/functions/api/lending.ts",
+      "note": "LP-11 trigger"
+    },
+    {
+      "code": "loan_party.ofac.escalated",
+      "source": "supabase/functions/api/lending.ts"
+    },
+    {
+      "code": "application.final_action.recorded",
+      "source": "supabase/functions/api/lending.ts",
+      "note": "LP-03/LP-09 trigger"
+    },
+    {
+      "code": "aan.queued",
+      "source": "supabase/functions/api/lending.ts",
+      "note": "LP-07 produced"
+    },
+    {
+      "code": "aan.issued",
+      "source": "supabase/functions/api/lending.ts"
+    },
+    {
+      "code": "aan.notice_overdue",
+      "source": "supabase/functions/api/lending.ts",
+      "note": "negative case: an ECOA notice nobody sent"
+    }
+  ],
+  "templated": [
+    {
+      "template": "ach_transfer.${verb}",
+      "source": "supabase/functions/api/ach.ts:488",
+      "expands_to": [
+        "ach_transfer.settled",
+        "ach_transfer.returned"
+      ],
+      "note": "verb is 'settled' | 'returned'; only emitted where money MOVED, so a pre-settlement return emits nothing"
+    },
+    {
+      "template": "entity.${to}",
+      "source": "supabase/functions/api/entities.ts",
+      "expands_to": [
+        "entity.active",
+        "entity.disabled",
+        "entity.archived"
+      ],
+      "note": "targets of the entity state machine (pending is the initial state, never a transition TARGET, so entity.pending is never emitted)"
+    },
+    {
+      "template": "account.${to}",
+      "source": "supabase/functions/api/accounts.ts",
+      "expands_to": [
+        "account.frozen",
+        "account.closed",
+        "account.open"
+      ],
+      "note": "ACCOUNT_TRANSITIONS targets: open<->frozen, both -> closed"
+    },
+    {
+      "template": "account_number.${to}",
+      "source": "supabase/functions/api/numbers.ts:191",
+      "expands_to": [
+        "account_number.active",
+        "account_number.disabled",
+        "account_number.canceled"
+      ]
+    },
+    {
+      "template": "verification.${status}",
+      "source": "supabase/functions/api/kyc.ts:158",
+      "expands_to": [
+        "verification.approved",
+        "verification.denied"
+      ]
+    }
+  ],
+  "_deliberately_excluded": {
+    "what": "The 83 time-based trigger codes the governance calendar can fire.",
+    "why": [
+      "postCalendarSweep emits String(row.trigger_code) \u2014 whatever code a REGISTERED",
+      "obligation carries. So the core can technically emit audit.cycle_timer,",
+      "training.annual_cycle.opened, vendor.annual.review.due_at and 80 others.",
+      "",
+      "Listing them here would move dozens of controls to 'reachable' on the",
+      "strength of a CAPABILITY nobody has exercised. Reachability is meant to",
+      "answer 'can the core fire this control's trigger', and the honest answer",
+      "for an unregistered obligation is no \u2014 the machinery exists, the",
+      "obligation does not.",
+      "",
+      "This is the single largest opportunity in the repo to inflate the coverage",
+      "numbers with one JSON edit, which is exactly why it is refused. If these",
+      "are ever added it must be driven by what is actually REGISTERED on a real",
+      "instance, not by what the code is capable of. See BLUEPRINT 5a."
+    ],
+    "codes_available_if_registered": 83
+  }
+}

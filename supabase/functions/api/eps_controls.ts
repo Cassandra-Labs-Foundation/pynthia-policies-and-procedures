@@ -1,0 +1,249 @@
+// EPS authentication and fraud controls (EPS-05, EPS-07).
+//
+// EPS-05 and EPS-07 are one shape, not two: a decision taken against a member
+// or a transaction, which may raise an exception someone must resolve before a
+// cutoff. Building them as separate auth and fraud stacks would have expressed
+// the same lifecycle twice.
+
+import { type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { type PartnerContext } from "./auth.ts";
+import { type EvidenceScope, provenanceFor } from "./bsa.ts";
+import {
+  apiError, internalErrorResponse, jsonResponse, parseJsonBody, validationError,
+} from "./lib.ts";
+
+/** EPS-05: consecutive failures before the account locks. */
+export const AUTH_LOCKOUT_THRESHOLD = 3;
+const SWEEP_LIMIT = 200;
+
+async function emit(
+  db: SupabaseClient, scope: EvidenceScope, id: string, code: string,
+  rType: string, rId: string, payload: Record<string, unknown>, ctx?: PartnerContext,
+): Promise<void> {
+  const { error } = await db.schema(scope).from("event").upsert({
+    id, code, resource_type: rType, resource_id: `${rType}:${rId}`,
+    payload, provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id", ignoreDuplicates: true });
+  if (error) throw new Error(`eps event (${code}): ${error.message}`);
+}
+
+/**
+ * POST /eps/auth {subject_ref, channel, outcome, challenge_method?}
+ *
+ * The lockout is applied HERE, in the same write that records the failure that
+ * crossed the threshold. A design where the count is recorded and a sweep locks
+ * out later leaves a window in which the threshold is breached and the account
+ * is still open, which is the window an attacker uses.
+ */
+export async function postAuthEvent(
+  req: Request, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  const subject = typeof body.subject_ref === "string" ? body.subject_ref : "";
+  const channel = typeof body.channel === "string" ? body.channel : "";
+  const outcome = typeof body.outcome === "string" ? body.outcome : "";
+  if (!subject || !channel || !["success", "failure"].includes(outcome)) {
+    return validationError(requestId, [{
+      field: "outcome", type: "invalid",
+      message: "subject_ref, channel and outcome (success|failure) are required",
+    }]);
+  }
+
+  const { data: priorRows } = await db.schema(scope).from("eps_auth_event")
+    .select("id, subject_ref, decision, failure_count")
+    // Ordered by failure_count, NOT created_at: consecutive attempts land in
+    // the same millisecond and a timestamp sort returns them in an arbitrary
+    // order, so the count never reaches the lockout threshold. Found by the
+    // drill — EPS-05 produced 5/6 with the lockout silently missing.
+    .eq("subject_ref", subject).order("failure_count", { ascending: false }).limit(1);
+  const prior = ((priorRows ?? []) as unknown as Array<Record<string, unknown>>)[0];
+  const priorCount = typeof prior?.failure_count === "number" ? prior.failure_count : 0;
+
+  const failureCount = outcome === "failure" ? priorCount + 1 : 0;
+  const challengeMethod = typeof body.challenge_method === "string" ? body.challenge_method : null;
+
+  let decision: string;
+  if (outcome === "success") decision = "allowed";
+  else if (failureCount >= AUTH_LOCKOUT_THRESHOLD) decision = "locked_out";
+  else if (challengeMethod) decision = "challenged";
+  else decision = "denied";
+
+  // A challenge with no stated method is not an authentication control, and the
+  // schema refuses it. Refusing here gives the caller the reason.
+  if (decision === "challenged" && !challengeMethod) {
+    return apiError(409, "challenge_method_required", requestId, {
+      detail: "a challenge decision must record how the member was challenged",
+    });
+  }
+
+  const now = new Date().toISOString();
+  const id = `epsauth_${subject}_${failureCount}_${outcome}`;
+  const { data, error } = await db.schema(scope).from("eps_auth_event").upsert({
+    id, subject_ref: subject, channel, decision, failure_count: failureCount,
+    challenge_method: challengeMethod,
+    locked_out_at: decision === "locked_out" ? now : null,
+    provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id" }).select("id, subject_ref, decision, failure_count").maybeSingle();
+  if (error) return internalErrorResponse(requestId, error.message);
+
+  await emit(db, scope, `ev_${id}_dec`, "eps.auth.decided", "eps_auth", id, { decision }, ctx);
+  await emit(db, scope, `ev_${id}_cnt`, "eps.auth.failure_count", "eps_auth", id, {
+    failure_count: failureCount,
+  }, ctx);
+  if (decision === "challenged") {
+    await emit(db, scope, `ev_${id}_ch`, "eps.auth.challenged", "eps_auth", id, {
+      challenge_method: challengeMethod,
+    }, ctx);
+  }
+  if (decision === "locked_out") {
+    await emit(db, scope, `ev_${id}_lo`, "eps.auth_lockout.applied", "eps_auth", id, {
+      failure_count: failureCount,
+    }, ctx);
+  }
+  return jsonResponse({ data }, 201, requestId);
+}
+
+/** POST /eps/card-controls {card_ref, control_type, new_value, applied_by} */
+export async function postCardControl(
+  req: Request, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  const cardRef = typeof body.card_ref === "string" ? body.card_ref : "";
+  const controlType = typeof body.control_type === "string" ? body.control_type : "";
+  const newValue = typeof body.new_value === "string" ? body.new_value : "";
+  const appliedBy = typeof body.applied_by === "string" ? body.applied_by : "";
+  if (!cardRef || !controlType || !newValue || !appliedBy) {
+    return validationError(requestId, [{
+      field: "card_ref", type: "required",
+      message: "card_ref, control_type, new_value and applied_by are required",
+    }]);
+  }
+
+  const { data: priorRows } = await db.schema(scope).from("eps_card_control")
+    .select("id, card_ref, control_type, new_value")
+    .eq("card_ref", cardRef).eq("control_type", controlType)
+    .order("created_at", { ascending: false }).limit(1);
+  const prior = ((priorRows ?? []) as unknown as Array<Record<string, unknown>>)[0];
+  const previousValue = typeof prior?.new_value === "string" ? prior.new_value : null;
+
+  const id = `epscc_${cardRef}_${controlType}_${newValue}`;
+  const { data, error } = await db.schema(scope).from("eps_card_control").upsert({
+    id, card_ref: cardRef, control_type: controlType, applied_by: appliedBy,
+    previous_value: previousValue, new_value: newValue,
+    provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id" }).select("id, card_ref, control_type, previous_value, new_value")
+    .maybeSingle();
+  if (error) return internalErrorResponse(requestId, error.message);
+
+  await emit(db, scope, `ev_${id}_app`, "eps.card_control.applied", "eps_card_control", id, {
+    control_type: controlType, new_value: newValue,
+  }, ctx);
+  // A CHANGE is only a change if there was a previous value. Emitting
+  // `changed` on first application would report a modification that never
+  // happened.
+  if (previousValue !== null && previousValue !== newValue) {
+    await emit(db, scope, `ev_${id}_chg`, "eps.card_control.changed", "eps_card_control", id, {
+      previous_value: previousValue, new_value: newValue,
+    }, ctx);
+  }
+  return jsonResponse({ data }, 201, requestId);
+}
+
+/** POST /eps/pospay {account_ref, item_ref, amount_cents, reason, cutoff_at} */
+export async function postPospayException(
+  req: Request, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  const account = typeof body.account_ref === "string" ? body.account_ref : "";
+  const item = typeof body.item_ref === "string" ? body.item_ref : "";
+  const amount = typeof body.amount_cents === "number" ? body.amount_cents : NaN;
+  const reason = typeof body.reason === "string" ? body.reason : "";
+  const cutoff = typeof body.cutoff_at === "string" ? body.cutoff_at : "";
+  if (!account || !item || !Number.isFinite(amount) || !reason || !cutoff) {
+    return validationError(requestId, [{
+      field: "item_ref", type: "required",
+      message: "account_ref, item_ref, amount_cents, reason and cutoff_at are required",
+    }]);
+  }
+
+  const id = `epspp_${item}`;
+  const { data, error } = await db.schema(scope).from("eps_pospay_exception").upsert({
+    id, account_ref: account, item_ref: item, amount_cents: amount, reason,
+    decision_cutoff_at: cutoff, provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id" }).select("id, item_ref, amount_cents, decision, decision_cutoff_at")
+    .maybeSingle();
+  if (error) return internalErrorResponse(requestId, error.message);
+
+  await emit(db, scope, `ev_${id}_pres`, "eps.pospay_exception.presented", "eps_pospay", id, {
+    amount_cents: amount, reason, decision_cutoff_at: cutoff,
+  }, ctx);
+  return jsonResponse({ data }, 201, requestId);
+}
+
+/** POST /eps/pospay/:id/decide {decision, decided_by} */
+export async function postPospayDecision(
+  req: Request, exceptionId: string, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  const decision = typeof body.decision === "string" ? body.decision : "";
+  const decidedBy = typeof body.decided_by === "string" ? body.decided_by : "";
+  if (!["pay", "return"].includes(decision) || !decidedBy) {
+    return validationError(requestId, [{
+      field: "decision", type: "invalid",
+      message: "decision (pay|return) and decided_by are required",
+    }]);
+  }
+
+  const { data, error } = await db.schema(scope).from("eps_pospay_exception")
+    .update({
+      decision, decided_by: decidedBy, decided_at: new Date().toISOString(),
+    }).eq("id", exceptionId).select("id, decision, decided_by").maybeSingle();
+  if (error) return internalErrorResponse(requestId, error.message);
+
+  await emit(db, scope, `ev_${exceptionId}_dec`, "eps.pospay_exception.decided", "eps_pospay",
+    exceptionId, { decision, decided_by: decidedBy }, ctx);
+  return jsonResponse({ data }, 200, requestId);
+}
+
+/**
+ * POST /eps/fraud-review — the periodic trend review, plus the undecided
+ * positive-pay sweep.
+ *
+ * An undecided exception past its cutoff PAYS BY DEFAULT. That is the whole
+ * risk, so it is reported as its own count rather than folded into a total —
+ * same reasoning as `undetermined` incidents and `unassessed` capital triggers.
+ */
+export async function postFraudTrendReview(
+  _req: Request, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const nowIso = new Date().toISOString();
+  const { data: rows, error } = await db.schema(scope).from("eps_pospay_exception")
+    .select("id, decision, decision_cutoff_at, amount_cents")
+    .order("decision_cutoff_at", { ascending: true }).limit(SWEEP_LIMIT);
+  if (error) return internalErrorResponse(requestId, error.message);
+
+  const excs = (rows ?? []) as unknown as Array<Record<string, unknown>>;
+  const paidByDefault: string[] = [];
+  for (const e of excs) {
+    if (!e.decision && String(e.decision_cutoff_at) < nowIso) paidByDefault.push(e.id as string);
+  }
+
+  await emit(db, scope, `ev_fraudrev_${nowIso.slice(0, 10)}`, "eps.fraud_trend_review.completed",
+    "eps_pospay", "review", { examined: excs.length }, ctx);
+
+  return jsonResponse({
+    data: {
+      examined: excs.length,
+      undecided_past_cutoff: paidByDefault.length,
+      undecided_past_cutoff_ids: paidByDefault,
+      note: paidByDefault.length > 0
+        ? "these exceptions passed their cutoff undecided and pay by default"
+        : undefined,
+    },
+  }, 200, requestId);
+}

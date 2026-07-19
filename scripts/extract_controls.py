@@ -255,6 +255,25 @@ def parse_events_table(section: str) -> list[dict]:
 DEADLINE_ENFORCED_RE = re.compile(r"\(\s*enforced by[^)]*\)", re.IGNORECASE)
 
 
+def id_collisions(controls):
+    """control_ids that name more than one DISTINCT control.
+
+    Distinguished from mere replication: shared controls (SC-01, SC-02) are
+    copied verbatim into every policy that references them, which is expected
+    and harmless. A COLLISION is one id carrying different titles, which means
+    any downstream consumer keying on control_id resolves to whichever copy it
+    happened to load last.
+    """
+    by_id = {}
+    for c in controls:
+        by_id.setdefault(c["control_id"], {})[c["title"]] = c["policy"]
+    return {
+        cid: [{"title": t, "policy": p} for t, p in sorted(titles.items())]
+        for cid, titles in by_id.items()
+        if len(titles) > 1
+    }
+
+
 def normalize_rules(control_id: str, policy: str, events: list[dict],
                     actions: set[str], task_types: set[str]) -> list[dict]:
     """Project parsed EVENTS rows into flat, DB-ready control_rule records.
@@ -424,6 +443,20 @@ def build(root: str) -> dict:
             statuses = parsed.pop("_all_status")
 
             controls.append({
+                # Globally unique key. control_id ALONE IS NOT UNIQUE: the
+                # policy documents assign ids per-document, and two documents
+                # have independently chosen the same prefix. capitalization.md
+                # defines "CP-01 - Capital Adequacy Targets"; cash.md defines
+                # "CP-01 - Governance and Delegation". They are unrelated
+                # controls that collide.
+                #
+                # This is a CORPUS naming collision, not an extraction bug --
+                # the extractor is reading exactly what is written. So the fix
+                # here is not to rename anything (that would make the artifact
+                # disagree with the document a human is reading) but to publish
+                # a key that is unique regardless of what the documents do.
+                # Machines join on `uid`; humans still cite `control_id`.
+                "uid": f"{slug}:{hm.group('id')}",
                 "control_id": hm.group("id"),
                 "title": hm.group("title").strip(),
                 "anchor": hm.group("anchor"),
@@ -468,9 +501,12 @@ def build(root: str) -> dict:
             "repo_root": os.path.basename(os.path.abspath(root)),
             "api_model": api_meta,
         },
+        "id_collisions": id_collisions(controls),
         "stats": {
             "policies": len(policies_seen),
             "controls": len(controls),
+            "distinct_uids": len({c["uid"] for c in controls}),
+            "colliding_control_ids": len(id_collisions(controls)),
             "event_rows": n_events,
             "control_rules": n_rules,
             "unique_api_codes": len(all_codes),

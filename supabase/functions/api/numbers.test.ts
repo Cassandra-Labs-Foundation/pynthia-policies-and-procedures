@@ -6,7 +6,7 @@
 // status). 29 the number state machine rejects illegal transitions.
 import { assert, assertEquals } from "jsr:@std/assert@1";
 import { luhnCheckDigit, mintAccountNumber, postAccountNumber, postNumberTransition, ROUTING_NUMBER } from "./numbers.ts";
-import { type Any, req, stubApiDb } from "./test_helpers.ts";
+import { type Any, req, stubApiDb, TEST_CTX } from "./test_helpers.ts";
 
 // ------------------------------------------------------------- 26: format
 
@@ -59,7 +59,7 @@ const ACCOUNT = { id: "acct_1", status: "open", lock_type: "none" };
 
 Deno.test("minting stores an active number bound to the account", async () => {
   const { db, inserts } = mintDb({ account: ACCOUNT });
-  const res = await postAccountNumber(req({}), "acct_1", db, "n1");
+  const res = await postAccountNumber(req({}), "acct_1", db, "n1", TEST_CTX);
   assertEquals(res.status, 201);
   const row = inserts[0].row;
   assertEquals(row.account_id, "acct_1");
@@ -71,14 +71,14 @@ Deno.test("minting stores an active number bound to the account", async () => {
 Deno.test("a mint collision retries with a fresh number instead of failing", async () => {
   // uniqueness spans canceled rows too, so collisions are expected and benign
   const { db, inserts } = mintDb({ account: ACCOUNT, conflicts: 2 });
-  const res = await postAccountNumber(req({}), "acct_1", db, "n2");
+  const res = await postAccountNumber(req({}), "acct_1", db, "n2", TEST_CTX);
   assertEquals(res.status, 201);
   assertEquals(inserts.length, 1, "exactly one row lands after retries");
 });
 
 Deno.test("minting on an unknown account is a 404", async () => {
   const { db } = mintDb({});
-  assertEquals((await postAccountNumber(req({}), "nope", db, "n3")).status, 404);
+  assertEquals((await postAccountNumber(req({}), "nope", db, "n3", TEST_CTX)).status, 404);
 });
 
 // --------------------------------------------------- 29: number transitions
@@ -91,14 +91,20 @@ Deno.test("number machine: active <-> disabled, both -> canceled, canceled termi
     ["disabled", "canceled"],
   ];
   for (const [from, to] of legal) {
-    const { db, inserts } = stubApiDb({ row: { id: "can_1", account_id: "acct_1", status: from } });
-    const res = await postNumberTransition(req({ to }), "can_1", db, "n4");
+    const { db, inserts } = stubApiDb({
+      row: { id: "can_1", account_id: "acct_1", status: from },
+      account: { id: "acct_1", partner_id: "ptnr_test" },
+    });
+    const res = await postNumberTransition(req({ to }), "can_1", db, "n4", TEST_CTX);
     assertEquals(res.status, 200, `${from} -> ${to} must be legal`);
     assertEquals(inserts.find((i) => i.table === "event")?.row.code, `account_number.${to}`);
   }
   for (const [from, to] of [["canceled", "active"], ["canceled", "disabled"]] as [string, string][]) {
-    const { db } = stubApiDb({ row: { id: "can_1", account_id: "acct_1", status: from } });
-    const res = await postNumberTransition(req({ to }), "can_1", db, "n5");
+    const { db } = stubApiDb({
+      row: { id: "can_1", account_id: "acct_1", status: from },
+      account: { id: "acct_1", partner_id: "ptnr_test" },
+    });
+    const res = await postNumberTransition(req({ to }), "can_1", db, "n5", TEST_CTX);
     assertEquals(res.status, 409, `${from} -> ${to} must stay illegal — canceled is forever`);
   }
 });

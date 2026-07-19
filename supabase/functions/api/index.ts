@@ -7,35 +7,62 @@ import {
   postAccountLock,
   postAccountTransition, getAccount, postAccount } from "./accounts.ts";
 import { getTransfer, postTransfer } from "./transfers.ts";
-import { postWireCancel, postWireConfirm, postWirePrepare, postWireReturn, postWireReturnResolve } from "./wires.ts";
+import {
+  postWireCancel,
+  postWireConfirm,
+  postWirePrepare,
+  postWireReject,
+  postWireReturn,
+  postWireReturnResolve,
+} from "./wires.ts";
 import { getControlResults } from "./controls.ts";
 import { getChangelog } from "./platform.ts";
 import { postSandboxReset } from "./sandbox.ts";
+import { postSimulate } from "./simulate.ts";
+import { getCase, postAlertTriage, postCaseDecision, postTimerSweep } from "./bsa.ts";
+import { postDisposalSweep, postDisposeRecord, postHoldRelease, postLegalHold } from "./retention.ts";
+import { getCashAggregation, postCashTransaction, postCtrFile, postCtrSweep } from "./cash.ts";
+import { getPendingApprovals, postPaymentApproval, putClientLimit } from "./eps.ts";
+import { getObligations, postCalendarSweep, postObligation, postObligationComplete } from "./governance.ts";
+import { postAanIssue, postLendingSweep, postLoanDecision, postLoanParty } from "./lending.ts";
+import {
+  postAttestation,
+  postObservation,
+  postWorkItem,
+  postWorkItemClose,
+  postWorkItemSweep,
+  putThreshold,
+} from "./primitives.ts";
 import { getEntities, getEntity, postEntity, postEntityOwner, postEntityTransition } from "./entities.ts";
 import { getAccountNumbers, postAccountNumber, postNumberTransition } from "./numbers.ts";
 import { postVerification } from "./kyc.ts";
 import { postDeliverEvents, postEventSink } from "./events.ts";
-import { postAch, postAchReturn, postAchSettle } from "./ach.ts";
-import { postCardAuthorize, postCardCapture, postCardReverse } from "./cards.ts";
+import { postAch, postAchNoc, postAchReturn, postAchSettle } from "./ach.ts";
+import { postCardAuthorize, postCardCapture, postCardExpire, postCardReverse } from "./cards.ts";
 import {
-  apiError,
   createDb,
   createRequestId,
   internalErrorResponse,
   methodNotAllowedResponse,
   misconfiguredResponse,
   notFoundResponse,
-  timingSafeEqual,
-  unauthorizedResponse,
 } from "./lib.ts";
+import { authenticate, type EndpointScope, type PartnerContext } from "./auth.ts";
 
 type RouteHandler = (
   req: Request,
   params: Record<string, string>,
   requestId: string,
+  ctx: PartnerContext,
 ) => Promise<Response>;
 
-interface Route {
+/**
+ * Every route declares its own scope identity (card 45). `endpoint` is the
+ * stable name a token's allowlist is written against — note it carries `{id}`
+ * placeholders rather than the concrete path, so scope can never be widened by
+ * choosing a particular resource id.
+ */
+interface Route extends EndpointScope {
   method: string;
   pattern: RegExp;
   paramNames: string[];
@@ -52,164 +79,481 @@ const routes: Route[] = [
   {
     method: "POST",
     pattern: /^\/accounts\/?$/,
+    endpoint: "POST /accounts",
+    tier: "write",
     paramNames: [],
-    handler: async (req, _params, requestId) => {
+    handler: async (req, _params, requestId, ctx) => {
       const db = createDb();
       const cfg = blnkConfigFromEnv();
-      return await postAccount(req, db, cfg, requestId);
+      return await postAccount(req, db, cfg, requestId, ctx);
     },
   },
   {
     method: "GET",
     pattern: /^\/accounts\/([^/]+)\/?$/,
+    endpoint: "GET /accounts/{id}",
+    tier: "read",
     paramNames: ["id"],
-    handler: async (_req, params, requestId) => {
+    handler: async (_req, params, requestId, ctx) => {
       const db = createDb();
-      return await getAccount(params.id, db, requestId);
+      return await getAccount(params.id, db, requestId, ctx);
     },
   },
   {
     method: "POST",
     pattern: /^\/transfers\/?$/,
+    endpoint: "POST /transfers",
+    tier: "write",
     paramNames: [],
-    handler: async (req, _params, requestId) => {
+    handler: async (req, _params, requestId, ctx) => {
       const db = createDb();
       const cfg = blnkConfigFromEnv();
-      return await postTransfer(req, db, cfg, requestId);
+      return await postTransfer(req, db, cfg, requestId, ctx);
     },
   },
   {
     method: "POST",
     pattern: /^\/events\/deliver\/?$/,
+    endpoint: "POST /events/deliver",
+    tier: "write",
+    actors: ["pynthia_ops"],
     paramNames: [],
-    handler: async (req, _params, requestId) => await postDeliverEvents(req, createDb(), requestId),
+    handler: async (req, _params, requestId, _ctx) => await postDeliverEvents(req, createDb(), requestId),
   },
   {
     method: "POST",
     pattern: /^\/sandbox\/event-sink\/?$/,
+    endpoint: "POST /sandbox/event-sink",
+    tier: "write",
+    actors: ["pynthia_ops"],
     paramNames: [],
-    handler: (_req, _params, requestId) => Promise.resolve(postEventSink(requestId)),
+    handler: (_req, _params, requestId, _ctx) => Promise.resolve(postEventSink(requestId)),
   },
   {
     method: "POST",
     pattern: /^\/sandbox\/reset\/?$/,
+    endpoint: "POST /sandbox/reset",
+    tier: "write",
+    actors: ["pynthia_ops"],
     paramNames: [],
-    handler: async (req, _params, requestId) => {
+    handler: async (req, _params, requestId, _ctx) => {
       const db = createDb();
       const cfg = blnkConfigFromEnv();
       return await postSandboxReset(req, db, cfg, requestId);
     },
   },
-  // Card 09: /sandbox/simulate/* — the spec's simulation surface. The card
-  // rail is live, so its simulate routes ALIAS the real handlers; everything
-  // else under simulate/ is an explicit typed 501 until its phase fills it.
+  // Cards 09 / 35 / 38 / 44: /sandbox/simulate/* — the spec's simulation
+  // surface. One catch-all hands the remaining path to simulate.ts, which owns
+  // the alias table mapping each simulated lifecycle step onto the REAL writer
+  // (so the gate and its control_result evidence run exactly as in production)
+  // and returns the typed 501 for anything not yet simulated.
   {
     method: "POST",
-    pattern: /^\/sandbox\/simulate\/card\/authorize\/?$/,
-    paramNames: [],
-    handler: async (req, _params, requestId) => {
+    pattern: /^\/sandbox\/simulate(\/.*)?$/,
+    endpoint: "POST /sandbox/simulate",
+    tier: "write",
+    paramNames: ["rest"],
+    handler: async (req, params, requestId, ctx) => {
       const db = createDb();
       const cfg = blnkConfigFromEnv();
-      return await postCardAuthorize(req, db, cfg, requestId);
+      return await postSimulate(req, params.rest ?? "/", db, cfg, requestId, ctx);
     },
-  },
-  {
-    method: "POST",
-    pattern: /^\/sandbox\/simulate\/card\/([^/]+)\/settle\/?$/,
-    paramNames: ["id"],
-    handler: async (req, params, requestId) => {
-      const db = createDb();
-      const cfg = blnkConfigFromEnv();
-      return await postCardCapture(req, params.id, db, cfg, requestId);
-    },
-  },
-  {
-    method: "POST",
-    pattern: /^\/sandbox\/simulate\/(?:.+)$/,
-    paramNames: [],
-    handler: (_req, _params, requestId) =>
-      Promise.resolve(apiError(501, "not_implemented", requestId, {
-        title: "Not Implemented",
-        detail: "simulation stub; filled in a later phase",
-      })),
   },
   {
     method: "POST",
     pattern: /^\/entities\/?$/,
+    endpoint: "POST /entities",
+    tier: "write",
     paramNames: [],
-    handler: async (req, _params, requestId) => await postEntity(req, createDb(), requestId),
+    handler: async (req, _params, requestId, ctx) => await postEntity(req, createDb(), requestId, ctx),
   },
   {
     method: "GET",
     pattern: /^\/entities\/?$/,
+    endpoint: "GET /entities",
+    tier: "read",
     paramNames: [],
-    handler: async (req, _params, requestId) => await getEntities(req, createDb(), requestId),
+    handler: async (req, _params, requestId, ctx) => await getEntities(req, createDb(), requestId, ctx),
   },
   {
     method: "POST",
     pattern: /^\/entities\/([^/]+)\/verifications\/?$/,
+    endpoint: "POST /entities/{id}/verifications",
+    tier: "write",
     paramNames: ["id"],
-    handler: async (req, params, requestId) => await postVerification(req, params.id, createDb(), requestId),
+    handler: async (req, params, requestId, ctx) => await postVerification(req, params.id, createDb(), requestId, ctx),
   },
   {
     method: "POST",
     pattern: /^\/entities\/([^/]+)\/transition\/?$/,
+    endpoint: "POST /entities/{id}/transition",
+    tier: "write",
     paramNames: ["id"],
-    handler: async (req, params, requestId) => await postEntityTransition(req, params.id, createDb(), requestId),
+    handler: async (req, params, requestId, ctx) => await postEntityTransition(req, params.id, createDb(), requestId, ctx),
   },
   {
     method: "POST",
     pattern: /^\/entities\/([^/]+)\/owners\/?$/,
+    endpoint: "POST /entities/{id}/owners",
+    tier: "write",
     paramNames: ["id"],
-    handler: async (req, params, requestId) => await postEntityOwner(req, params.id, createDb(), requestId),
+    handler: async (req, params, requestId, ctx) => await postEntityOwner(req, params.id, createDb(), requestId, ctx),
   },
   {
     method: "GET",
     pattern: /^\/entities\/([^/]+)\/?$/,
+    endpoint: "GET /entities/{id}",
+    tier: "read",
     paramNames: ["id"],
-    handler: async (_req, params, requestId) => await getEntity(params.id, createDb(), requestId),
+    handler: async (_req, params, requestId, ctx) => await getEntity(params.id, createDb(), requestId, ctx),
   },
   {
     method: "POST",
     pattern: /^\/accounts\/([^/]+)\/numbers\/?$/,
+    endpoint: "POST /accounts/{id}/numbers",
+    tier: "write",
     paramNames: ["id"],
-    handler: async (req, params, requestId) => await postAccountNumber(req, params.id, createDb(), requestId),
+    handler: async (req, params, requestId, ctx) => await postAccountNumber(req, params.id, createDb(), requestId, ctx),
   },
   {
     method: "GET",
     pattern: /^\/accounts\/([^/]+)\/numbers\/?$/,
+    endpoint: "GET /accounts/{id}/numbers",
+    tier: "read",
     paramNames: ["id"],
-    handler: async (_req, params, requestId) => await getAccountNumbers(params.id, createDb(), requestId),
+    handler: async (_req, params, requestId, ctx) => await getAccountNumbers(params.id, createDb(), requestId, ctx),
   },
   {
     method: "POST",
     pattern: /^\/accounts\/([^/]+)\/lock\/?$/,
+    endpoint: "POST /accounts/{id}/lock",
+    tier: "write",
     paramNames: ["id"],
-    handler: async (req, params, requestId) => await postAccountLock(req, params.id, createDb(), requestId),
+    handler: async (req, params, requestId, ctx) => await postAccountLock(req, params.id, createDb(), requestId, ctx),
   },
   {
     method: "POST",
     pattern: /^\/accounts\/([^/]+)\/transition\/?$/,
+    endpoint: "POST /accounts/{id}/transition",
+    tier: "write",
     paramNames: ["id"],
-    handler: async (req, params, requestId) => await postAccountTransition(req, params.id, createDb(), requestId),
+    handler: async (req, params, requestId, ctx) => await postAccountTransition(req, params.id, createDb(), requestId, ctx),
   },
   {
     method: "POST",
     pattern: /^\/account-numbers\/([^/]+)\/transition\/?$/,
+    endpoint: "POST /account-numbers/{id}/transition",
+    tier: "write",
     paramNames: ["id"],
-    handler: async (req, params, requestId) => await postNumberTransition(req, params.id, createDb(), requestId),
+    handler: async (req, params, requestId, ctx) => await postNumberTransition(req, params.id, createDb(), requestId, ctx),
   },
   {
     method: "GET",
     pattern: /^\/changelog\/?$/,
+    endpoint: "GET /changelog",
+    tier: "read",
     paramNames: [],
-    handler: (_req, _params, requestId) => Promise.resolve(getChangelog(requestId)),
+    handler: (_req, _params, requestId, _ctx) => Promise.resolve(getChangelog(requestId)),
+  },
+  // The recurring control primitives (BLUEPRINT §5e). Generic by design: these
+  // serve controls across all 26 policies rather than any one domain.
+  {
+    method: "POST", pattern: /^\/primitives\/work-items\/?$/, paramNames: [],
+    endpoint: "POST /primitives/work-items", tier: "write",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, _p, rid, ctx) => await postWorkItem(req, createDb(), rid, ctx),
+  },
+  {
+    method: "POST", pattern: /^\/primitives\/work-items\/sweep\/?$/, paramNames: [],
+    endpoint: "POST /primitives/work-items/sweep", tier: "write",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, _p, rid, ctx) => await postWorkItemSweep(req, createDb(), rid, ctx),
+  },
+  {
+    method: "POST", pattern: /^\/primitives\/work-items\/([^/]+)\/close\/?$/, paramNames: ["id"],
+    endpoint: "POST /primitives/work-items/{id}/close", tier: "write",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, p, rid, ctx) => await postWorkItemClose(req, p.id, createDb(), rid, ctx),
+  },
+  {
+    method: "PUT", pattern: /^\/primitives\/thresholds\/([^/]+)\/?$/, paramNames: ["id"],
+    endpoint: "PUT /primitives/thresholds/{id}", tier: "write",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, p, rid, ctx) => await putThreshold(req, p.id, createDb(), rid, ctx),
+  },
+  {
+    method: "POST", pattern: /^\/primitives\/thresholds\/([^/]+)\/observe\/?$/, paramNames: ["id"],
+    endpoint: "POST /primitives/thresholds/{id}/observe", tier: "write",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, p, rid, ctx) => await postObservation(req, p.id, createDb(), rid, ctx),
+  },
+  {
+    method: "POST", pattern: /^\/primitives\/attestations\/?$/, paramNames: [],
+    endpoint: "POST /primitives/attestations", tier: "write",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, _p, rid, ctx) => await postAttestation(req, createDb(), rid, ctx),
+  },
+  // Lending origination spine (LP-03 / LP-07 / LP-11). Partners MAY originate;
+  // the four-eyes check on AAN issuance is what they cannot bypass.
+  {
+    method: "POST",
+    pattern: /^\/lending\/applications\/([^/]+)\/parties\/?$/,
+    paramNames: ["id"],
+    endpoint: "POST /lending/applications/{id}/parties",
+    tier: "write",
+    handler: async (req, params, requestId, ctx) =>
+      await postLoanParty(req, params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST",
+    pattern: /^\/lending\/applications\/([^/]+)\/decision\/?$/,
+    paramNames: ["id"],
+    endpoint: "POST /lending/applications/{id}/decision",
+    tier: "write",
+    handler: async (req, params, requestId, ctx) =>
+      await postLoanDecision(req, params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST",
+    pattern: /^\/lending\/aan\/([^/]+)\/issue\/?$/,
+    paramNames: ["id"],
+    endpoint: "POST /lending/aan/{id}/issue",
+    tier: "write",
+    handler: async (req, params, requestId, ctx) =>
+      await postAanIssue(req, params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST",
+    pattern: /^\/lending\/sweep\/?$/,
+    paramNames: [],
+    endpoint: "POST /lending/sweep",
+    tier: "write",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, _params, requestId, ctx) =>
+      await postLendingSweep(req, createDb(), requestId, ctx),
+  },
+  // Governance calendar (Tier D). 83 of the catalogue's triggers are
+  // time-based and identical in shape, so one register serves all of them.
+  {
+    method: "POST",
+    pattern: /^\/governance\/obligations\/?$/,
+    paramNames: [],
+    endpoint: "POST /governance/obligations",
+    tier: "write",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, _params, requestId, ctx) =>
+      await postObligation(req, createDb(), requestId, ctx),
+  },
+  {
+    method: "GET",
+    pattern: /^\/governance\/obligations\/?$/,
+    paramNames: [],
+    endpoint: "GET /governance/obligations",
+    tier: "read",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, _params, requestId, ctx) =>
+      await getObligations(req, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST",
+    pattern: /^\/governance\/calendar\/sweep\/?$/,
+    paramNames: [],
+    endpoint: "POST /governance/calendar/sweep",
+    tier: "write",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, _params, requestId, ctx) =>
+      await postCalendarSweep(req, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST",
+    pattern: /^\/governance\/obligations\/([^/]+)\/complete\/?$/,
+    paramNames: ["id"],
+    endpoint: "POST /governance/obligations/{id}/complete",
+    tier: "write",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, params, requestId, ctx) =>
+      await postObligationComplete(req, params.id, createDb(), requestId, ctx),
+  },
+  // EPS-06 dual control. The approve routes are the second pair of eyes; the
+  // four-eyes rule is enforced by ck_payment_approval_four_eyes underneath.
+  {
+    method: "POST",
+    pattern: /^\/payments\/wire\/([^/]+)\/approve\/?$/,
+    paramNames: ["id"],
+    endpoint: "POST /payments/wire/{id}/approve",
+    tier: "write",
+    handler: async (req, params, requestId, ctx) =>
+      await postPaymentApproval(req, "wire_transfer", params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST",
+    pattern: /^\/payments\/ach\/([^/]+)\/approve\/?$/,
+    paramNames: ["id"],
+    endpoint: "POST /payments/ach/{id}/approve",
+    tier: "write",
+    handler: async (req, params, requestId, ctx) =>
+      await postPaymentApproval(req, "ach_transfer", params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "GET",
+    pattern: /^\/eps\/pending-approvals\/?$/,
+    paramNames: [],
+    endpoint: "GET /eps/pending-approvals",
+    tier: "read",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, _params, requestId, ctx) =>
+      await getPendingApprovals(req, createDb(), requestId, ctx),
+  },
+  {
+    method: "PUT",
+    pattern: /^\/eps\/client-limits\/([^/]+)\/?$/,
+    paramNames: ["id"],
+    endpoint: "PUT /eps/client-limits/{id}",
+    tier: "write",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, params, requestId, ctx) =>
+      await putClientLimit(req, params.id, createDb(), requestId, ctx),
+  },
+  // Cash + CTR (BSA-08). Cash handling is the credit union's own operation;
+  // partners get 404, as with case management and retention.
+  {
+    method: "POST",
+    pattern: /^\/cash\/transactions\/?$/,
+    paramNames: [],
+    endpoint: "POST /cash/transactions",
+    tier: "write",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, _params, requestId, ctx) =>
+      await postCashTransaction(req, createDb(), requestId, ctx),
+  },
+  {
+    method: "GET",
+    pattern: /^\/cash\/aggregation\/?$/,
+    paramNames: [],
+    endpoint: "GET /cash/aggregation",
+    tier: "read",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, _params, requestId, ctx) =>
+      await getCashAggregation(req, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST",
+    pattern: /^\/cash\/ctr\/sweep\/?$/,
+    paramNames: [],
+    endpoint: "POST /cash/ctr/sweep",
+    tier: "write",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, _params, requestId, ctx) =>
+      await postCtrSweep(req, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST",
+    pattern: /^\/cash\/ctr\/([^/]+)\/file\/?$/,
+    paramNames: ["id"],
+    endpoint: "POST /cash/ctr/{id}/file",
+    tier: "write",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, params, requestId, ctx) =>
+      await postCtrFile(req, params.id, createDb(), requestId, ctx),
+  },
+  // Record retention (BSA-21 / SC-02). Compliance + Records Management own
+  // this; partners get 404 for the same reason as case management.
+  {
+    method: "POST",
+    pattern: /^\/retention\/holds\/?$/,
+    paramNames: [],
+    endpoint: "POST /retention/holds",
+    tier: "write",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, _params, requestId, ctx) =>
+      await postLegalHold(req, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST",
+    pattern: /^\/retention\/holds\/([^/]+)\/release\/?$/,
+    paramNames: ["id"],
+    endpoint: "POST /retention/holds/{id}/release",
+    tier: "write",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, params, requestId, ctx) =>
+      await postHoldRelease(req, params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST",
+    pattern: /^\/retention\/disposal\/sweep\/?$/,
+    paramNames: [],
+    endpoint: "POST /retention/disposal/sweep",
+    tier: "write",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, _params, requestId, ctx) =>
+      await postDisposalSweep(req, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST",
+    pattern: /^\/retention\/records\/([^/]+)\/dispose\/?$/,
+    paramNames: ["id"],
+    endpoint: "POST /retention/records/{id}/dispose",
+    tier: "write",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, params, requestId, ctx) =>
+      await postDisposeRecord(req, params.id, createDb(), requestId, ctx),
+  },
+  // BSA case management (BSA-06/07). Closed to partner actors: case management
+  // is the chartered credit union's obligation, and under BSA-07 the existence
+  // of a case is itself confidential — so a partner gets 404, never 403.
+  {
+    method: "POST",
+    pattern: /^\/bsa\/alerts\/([^/]+)\/triage\/?$/,
+    paramNames: ["id"],
+    endpoint: "POST /bsa/alerts/{id}/triage",
+    tier: "write",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, params, requestId, ctx) =>
+      await postAlertTriage(req, params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST",
+    pattern: /^\/bsa\/cases\/([^/]+)\/decision\/?$/,
+    paramNames: ["id"],
+    endpoint: "POST /bsa/cases/{id}/decision",
+    tier: "write",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, params, requestId, ctx) =>
+      await postCaseDecision(req, params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST",
+    pattern: /^\/bsa\/timers\/sweep\/?$/,
+    paramNames: [],
+    endpoint: "POST /bsa/timers/sweep",
+    tier: "write",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, _params, requestId, ctx) =>
+      await postTimerSweep(req, createDb(), requestId, ctx),
+  },
+  {
+    method: "GET",
+    pattern: /^\/bsa\/cases\/([^/]+)\/?$/,
+    paramNames: ["id"],
+    endpoint: "GET /bsa/cases/{id}",
+    tier: "read",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (_req, params, requestId, ctx) =>
+      await getCase(params.id, createDb(), requestId, ctx),
   },
   {
     method: "GET",
     pattern: /^\/control-results\/?$/,
+    endpoint: "GET /control-results",
+    tier: "read",
+    // NOT partner-scoped, deliberately. control_result is the INSTANCE's
+    // compliance record: CTR aggregation, structuring detection and BSA
+    // reporting are obligations of the chartered credit union across every
+    // fintech it hosts. Narrowing this per partner would fragment exactly the
+    // view the controls exist to produce. See ownership.ts
+    // INSTANCE_SCOPED_TABLES.
     paramNames: [],
-    handler: async (req, _params, requestId) => {
+    handler: async (req, _params, requestId, _ctx) => {
       const db = createDb();
       return await getControlResults(req, db, requestId);
     },
@@ -217,100 +561,156 @@ const routes: Route[] = [
   {
     method: "GET",
     pattern: /^\/transfers\/([^/]+)\/?$/,
+    endpoint: "GET /transfers/{id}",
+    tier: "read",
     paramNames: ["id"],
-    handler: async (_req, params, requestId) => {
+    handler: async (_req, params, requestId, ctx) => {
       const db = createDb();
-      return await getTransfer(params.id, db, requestId);
+      return await getTransfer(params.id, db, requestId, ctx);
     },
   },
   {
     method: "POST",
     pattern: /^\/payments\/ach\/?$/,
+    endpoint: "POST /payments/ach",
+    tier: "write",
     paramNames: [],
-    handler: async (req, _params, requestId) => {
+    handler: async (req, _params, requestId, ctx) => {
       const db = createDb();
       const cfg = blnkConfigFromEnv();
-      return await postAch(req, db, cfg, requestId);
+      return await postAch(req, db, cfg, requestId, ctx);
     },
   },
   {
     method: "POST",
     pattern: /^\/payments\/ach\/([^/]+)\/settle\/?$/,
+    endpoint: "POST /payments/ach/{id}/settle",
+    tier: "write",
     paramNames: ["id"],
-    handler: async (req, params, requestId) => {
+    handler: async (req, params, requestId, ctx) => {
       const db = createDb();
       const cfg = blnkConfigFromEnv();
-      return await postAchSettle(req, params.id, db, cfg, requestId);
+      return await postAchSettle(req, params.id, db, cfg, requestId, ctx);
     },
   },
   {
     method: "POST",
     pattern: /^\/payments\/ach\/([^/]+)\/return\/?$/,
+    endpoint: "POST /payments/ach/{id}/return",
+    tier: "write",
     paramNames: ["id"],
-    handler: async (req, params, requestId) => {
+    handler: async (req, params, requestId, ctx) => {
       const db = createDb();
       const cfg = blnkConfigFromEnv();
-      return await postAchReturn(req, params.id, db, cfg, requestId);
+      return await postAchReturn(req, params.id, db, cfg, requestId, ctx);
+    },
+  },
+  {
+    method: "POST",
+    pattern: /^\/payments\/ach\/([^/]+)\/noc\/?$/,
+    endpoint: "POST /payments/ach/{id}/noc",
+    tier: "write",
+    paramNames: ["id"],
+    handler: async (req, params, requestId, ctx) => {
+      // no Blnk config: a notification of change moves no money
+      const db = createDb();
+      return await postAchNoc(req, params.id, db, requestId, ctx);
     },
   },
   {
     method: "POST",
     pattern: /^\/payments\/card\/authorize\/?$/,
+    endpoint: "POST /payments/card/authorize",
+    tier: "realtime",
     paramNames: [],
-    handler: async (req, _params, requestId) => {
+    handler: async (req, _params, requestId, ctx) => {
       const db = createDb();
       const cfg = blnkConfigFromEnv();
-      return await postCardAuthorize(req, db, cfg, requestId);
+      return await postCardAuthorize(req, db, cfg, requestId, ctx);
     },
   },
   {
     method: "POST",
     pattern: /^\/payments\/card\/([^/]+)\/capture\/?$/,
+    endpoint: "POST /payments/card/{id}/capture",
+    tier: "realtime",
     paramNames: ["id"],
-    handler: async (req, params, requestId) => {
+    handler: async (req, params, requestId, ctx) => {
       const db = createDb();
       const cfg = blnkConfigFromEnv();
-      return await postCardCapture(req, params.id, db, cfg, requestId);
+      return await postCardCapture(req, params.id, db, cfg, requestId, ctx);
     },
   },
   {
     method: "POST",
     pattern: /^\/payments\/card\/([^/]+)\/reverse\/?$/,
+    endpoint: "POST /payments/card/{id}/reverse",
+    tier: "realtime",
     paramNames: ["id"],
-    handler: async (req, params, requestId) => {
+    handler: async (req, params, requestId, ctx) => {
       const db = createDb();
       const cfg = blnkConfigFromEnv();
-      return await postCardReverse(req, params.id, db, cfg, requestId);
+      return await postCardReverse(req, params.id, db, cfg, requestId, ctx);
+    },
+  },
+  {
+    method: "POST",
+    pattern: /^\/payments\/card\/([^/]+)\/expire\/?$/,
+    endpoint: "POST /payments/card/{id}/expire",
+    tier: "realtime",
+    paramNames: ["id"],
+    handler: async (req, params, requestId, ctx) => {
+      const db = createDb();
+      const cfg = blnkConfigFromEnv();
+      return await postCardExpire(req, params.id, db, cfg, requestId, ctx);
     },
   },
   {
     method: "POST",
     pattern: /^\/payments\/wire\/prepare\/?$/,
+    endpoint: "POST /payments/wire/prepare",
+    tier: "write",
     paramNames: [],
-    handler: async (req, _params, requestId) => {
+    handler: async (req, _params, requestId, ctx) => {
       const db = createDb();
       const cfg = blnkConfigFromEnv();
-      return await postWirePrepare(req, db, cfg, requestId);
+      return await postWirePrepare(req, db, cfg, requestId, ctx);
     },
   },
   {
     method: "POST",
     pattern: /^\/payments\/wire\/([^/]+)\/confirm\/?$/,
+    endpoint: "POST /payments/wire/{id}/confirm",
+    tier: "write",
     paramNames: ["id"],
-    handler: async (req, params, requestId) => {
+    handler: async (req, params, requestId, ctx) => {
       const db = createDb();
       const cfg = blnkConfigFromEnv();
-      return await postWireConfirm(req, params.id, db, cfg, requestId);
+      return await postWireConfirm(req, params.id, db, cfg, requestId, ctx);
     },
   },
   {
     method: "POST",
     pattern: /^\/payments\/wire\/([^/]+)\/cancel\/?$/,
+    endpoint: "POST /payments/wire/{id}/cancel",
+    tier: "write",
     paramNames: ["id"],
-    handler: async (req, params, requestId) => {
+    handler: async (req, params, requestId, ctx) => {
       const db = createDb();
       const cfg = blnkConfigFromEnv();
-      return await postWireCancel(req, params.id, db, cfg, requestId);
+      return await postWireCancel(req, params.id, db, cfg, requestId, ctx);
+    },
+  },
+  {
+    method: "POST",
+    pattern: /^\/payments\/wire\/([^/]+)\/reject\/?$/,
+    endpoint: "POST /payments/wire/{id}/reject",
+    tier: "write",
+    paramNames: ["id"],
+    handler: async (req, params, requestId, ctx) => {
+      const db = createDb();
+      const cfg = blnkConfigFromEnv();
+      return await postWireReject(req, params.id, db, cfg, requestId, ctx);
     },
   },
   // return/resolve must precede the bare return pattern nowhere — distinct
@@ -318,21 +718,25 @@ const routes: Route[] = [
   {
     method: "POST",
     pattern: /^\/payments\/wire\/([^/]+)\/return\/resolve\/?$/,
+    endpoint: "POST /payments/wire/{id}/return/resolve",
+    tier: "write",
     paramNames: ["id"],
-    handler: async (req, params, requestId) => {
+    handler: async (req, params, requestId, ctx) => {
       const db = createDb();
       const cfg = blnkConfigFromEnv();
-      return await postWireReturnResolve(req, params.id, db, cfg, requestId);
+      return await postWireReturnResolve(req, params.id, db, cfg, requestId, ctx);
     },
   },
   {
     method: "POST",
     pattern: /^\/payments\/wire\/([^/]+)\/return\/?$/,
+    endpoint: "POST /payments/wire/{id}/return",
+    tier: "write",
     paramNames: ["id"],
-    handler: async (req, params, requestId) => {
+    handler: async (req, params, requestId, ctx) => {
       const db = createDb();
       const cfg = blnkConfigFromEnv();
-      return await postWireReturn(req, params.id, db, cfg, requestId);
+      return await postWireReturn(req, params.id, db, cfg, requestId, ctx);
     },
   },
 ];
@@ -360,20 +764,24 @@ function matchRoute(path: string, method: string): { route: Route; params: Recor
 Deno.serve(async (req: Request): Promise<Response> => {
   const requestId = createRequestId();
 
-  const demoKey = Deno.env.get("DEMO_API_KEY");
-  if (!demoKey) {
-    return misconfiguredResponse(requestId, "server misconfigured: DEMO_API_KEY unset");
-  }
-
-  const apiKey = req.headers.get("X-Api-Key");
-  if (!apiKey || !(await timingSafeEqual(apiKey, demoKey))) {
-    return unauthorizedResponse(requestId);
+  // The instance this process IS (card 51). Read from the environment, never
+  // from the request: a caller-supplied instance id would let any token claim
+  // to belong here. Absent config fails closed — an instance that does not
+  // know its own identity cannot decide whether a token is foreign.
+  const instanceId = Deno.env.get("INSTANCE_ID");
+  if (!instanceId) {
+    return misconfiguredResponse(requestId, "server misconfigured: INSTANCE_ID unset");
   }
 
   const url = new URL(req.url);
   const path = stripFunctionPrefix(url.pathname);
   const matched = matchRoute(path, req.method);
 
+  // Route resolution BEFORE auth, because the scope check needs to know which
+  // endpoint is being asked for. The 404/405 below therefore leak the shape of
+  // the route table to an unauthenticated caller — an accepted trade: the route
+  // table is public API surface documented in the README, and the alternative
+  // (authenticate against an unknown scope) cannot be done coherently.
   if (matched === "not_found") {
     return notFoundResponse(requestId, "route", path);
   }
@@ -381,8 +789,28 @@ Deno.serve(async (req: Request): Promise<Response> => {
     return methodNotAllowedResponse(requestId);
   }
 
+  const db = createDb();
+  const auth = await authenticate(
+    req,
+    db,
+    matched.route,
+    instanceId,
+    requestId,
+    {
+      key: Deno.env.get("DEMO_API_KEY"),
+      // opt-OUT rather than opt-in, so an existing deployment keeps working on
+      // upgrade; production sets this to "false". See auth.ts.
+      enabled: Deno.env.get("ALLOW_DEMO_KEY") !== "false",
+    },
+  );
+  if (!auth.ok) return auth.response;
+
   try {
-    return await matched.route.handler(req, matched.params, requestId);
+    const res = await matched.route.handler(req, matched.params, requestId, auth.ctx);
+    // D14: surface which tier the request was billed against, so partners can
+    // reconcile their own usage. The limits themselves are a separate card.
+    res.headers.set("X-RateLimit-Tier", matched.route.tier);
+    return res;
   } catch (e) {
     return internalErrorResponse(requestId, e);
   }

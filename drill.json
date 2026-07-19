@@ -1,0 +1,738 @@
+{
+  "meta": {
+    "generator": "supabase/functions/drill/run.ts",
+    "seed": 20260719,
+    "frozen_clock": "2026-07-19T12:00:00.000Z",
+    "deterministic": true,
+    "what_this_is_not": "A DRILL IS NOT COVERAGE. These results describe machinery exercised against a SYNTHETIC institution that supplied its own configuration. A real institution has supplied none of it. Nothing here may be read as a control being satisfied. Regulatory coverage lives in CROSSWALK.md and is measured in reachable/completable."
+  },
+  "summary": {
+    "cases": 60,
+    "drill_passed": 60,
+    "drill_failed": 0,
+    "drill_not_runnable": 0,
+    "negatives": 46,
+    "constraint_violations": 0,
+    "distinct_controls_touched": 19,
+    "policies_touched": 12
+  },
+  "fidelity": {
+    "unenforced_by_the_fake": [
+      {
+        "what": "Foreign keys (fk_cash_transaction_entity, fk_account_entity, fk_loan_party_application, …)",
+        "why_it_matters": "The drill can reference an entity or application id that does not exist and nothing will object. Referential integrity is NOT exercised."
+      },
+      {
+        "what": "UNIQUE constraints (uq_ctr_entity_date, uq_payment_approval_resource, uq_aan_application, …)",
+        "why_it_matters": "Duplicate-suppression is modelled only where a writer passes ignoreDuplicates; a genuine unique violation would surface in Postgres and not here."
+      },
+      {
+        "what": "The immutability triggers (freeze_provenance, freeze_disposal, freeze_attestation)",
+        "why_it_matters": "The drill cannot prove that provenance is unchangeable, that a disposal cannot be reversed, or that an attestation cannot be edited. Those are trigger-enforced and trigger behaviour is not simulated."
+      },
+      {
+        "what": "NOT NULL on partner_id and the FK to core.partner",
+        "why_it_matters": "An unowned row is representable here and is not in the real schema."
+      },
+      {
+        "what": "Transactionality",
+        "why_it_matters": "Every write here commits independently. A handler that fails halfway leaves partial state in the drill where Postgres might roll back, so multi-write atomicity is not proven."
+      },
+      {
+        "what": "Type and range coercion (numeric precision, timestamptz normalisation, enum CHECKs on status columns)",
+        "why_it_matters": "Status vocabularies are enforced by CHECK in the schema but compared as plain strings here, so a typo'd status would be caught by Postgres and not by the drill."
+      }
+    ],
+    "enforced_by_the_fake": [
+      "ck_case_four_eyes",
+      "ck_payment_approval_four_eyes",
+      "ck_record_disposal_not_held",
+      "ck_record_disposal_after_expiry",
+      "ck_record_disposal_approved",
+      "ck_aan_reviewed_before_issue",
+      "ck_wire_dual_control_before_complete",
+      "ck_work_item_adverse_rationale",
+      "ck_obligation_due_iff_anchored",
+      "ck_ctr_filed_has_ref",
+      "ck_aan_has_reasons",
+      "ck_threshold_warn_before_limit"
+    ]
+  },
+  "inventory_cross_reference": {
+    "note": "Codes fired during a DRILL are not grounds for adding anything to crosswalk-emitted-events.json. A synthetic obligation firing audit.cycle_timer is the drill exercising the machinery, not the core emitting the code for a real institution. See BLUEPRINT 5c.",
+    "fired_and_already_in_inventory": [
+      "aan.notice_overdue",
+      "aan.queued",
+      "application.final_action.recorded",
+      "bsa_alert.created",
+      "bsa_alert.triage.timer",
+      "bsa_alert.triage_overdue",
+      "bsa_alert.triaged",
+      "case.investigation_complete",
+      "case.opened",
+      "case.sar.decision.timer",
+      "ctr.filing.timer",
+      "ctr.filing_overdue",
+      "ctr.threshold.reached",
+      "disposal.held",
+      "eps.client_limit.changed",
+      "eps.wire.second_approval",
+      "governance.obligation.completed",
+      "governance.obligation.overdue",
+      "legal_hold.created",
+      "loan_party.added",
+      "loan_party.ofac.escalated",
+      "record.retention_anchor",
+      "record.retention_clock_set",
+      "sar.filed"
+    ],
+    "fired_and_NOT_in_inventory": [
+      "attestation.recorded",
+      "audit.cycle_timer",
+      "inbound.opened",
+      "request.opened",
+      "task.opened",
+      "task.overdue",
+      "threshold.breached"
+    ]
+  },
+  "results": [
+    {
+      "id": "GOV-01",
+      "controls": [
+        "bsa:BSA-16"
+      ],
+      "kind": "positive",
+      "what": "an anchored obligation registers with a real due date",
+      "status": "drill_passed",
+      "expected": "scheduled",
+      "actual": "scheduled"
+    },
+    {
+      "id": "GOV-02",
+      "controls": [
+        "audit:AU-01"
+      ],
+      "kind": "negative",
+      "what": "an obligation with no anchor is UNSCHEDULED, not merely not-due",
+      "status": "drill_passed",
+      "expected": "unscheduled",
+      "actual": "unscheduled"
+    },
+    {
+      "id": "GOV-03",
+      "controls": [
+        "bsa:BSA-16",
+        "audit:AU-01"
+      ],
+      "kind": "negative",
+      "what": "the sweep separates OVERDUE from UNSCHEDULED and fires the control's own trigger",
+      "status": "drill_passed",
+      "expected": "overdue=1 unscheduled=1 fired_own_code=true",
+      "actual": "overdue=1 unscheduled=1 fired_own_code=true"
+    },
+    {
+      "id": "GOV-04",
+      "controls": [
+        "bsa:BSA-16"
+      ],
+      "kind": "positive",
+      "what": "completion advances from the DUE date, so lateness cannot stretch the cadence",
+      "status": "drill_passed",
+      "expected": "2027-01-01",
+      "actual": "2027-01-01"
+    },
+    {
+      "id": "CASH-01",
+      "controls": [
+        "bsa:BSA-08"
+      ],
+      "kind": "positive",
+      "what": "per-person daily currency aggregation crosses $10k and opens a CTR",
+      "status": "drill_passed",
+      "expected": "ctr_opened",
+      "actual": "ctr_opened"
+    },
+    {
+      "id": "CASH-02",
+      "controls": [
+        "bsa:BSA-08"
+      ],
+      "kind": "negative",
+      "what": "cash-in and cash-out are NOT summed into a false obligation",
+      "status": "drill_passed",
+      "expected": "no_ctr",
+      "actual": "no_ctr"
+    },
+    {
+      "id": "CASH-03",
+      "controls": [
+        "bsa:BSA-08"
+      ],
+      "kind": "negative",
+      "what": "currency on an unlinked account is UNATTRIBUTABLE, not dropped and not self-bucketed",
+      "status": "drill_passed",
+      "expected": "unattributable_alerted",
+      "actual": "unattributable_alerted"
+    },
+    {
+      "id": "CASH-04",
+      "controls": [
+        "bsa:BSA-08"
+      ],
+      "kind": "negative",
+      "what": "a day containing unattributable currency reports complete=false",
+      "status": "drill_passed",
+      "expected": "incomplete",
+      "actual": "incomplete"
+    },
+    {
+      "id": "CASH-05",
+      "controls": [
+        "bsa:BSA-08"
+      ],
+      "kind": "negative",
+      "what": "a CTR cannot be marked filed without a FinCEN reference",
+      "status": "drill_passed",
+      "expected": "refused",
+      "actual": "refused"
+    },
+    {
+      "id": "CASH-06",
+      "controls": [
+        "bsa:BSA-08"
+      ],
+      "kind": "negative",
+      "what": "STRUCTURING ACROSS TWO ACCOUNTS OF ONE MEMBER — does per-person aggregation catch it?",
+      "status": "drill_passed",
+      "expected": "caught_per_person",
+      "actual": "caught_per_person"
+    },
+    {
+      "id": "CASH-07",
+      "controls": [
+        "bsa:BSA-08"
+      ],
+      "kind": "negative",
+      "what": "a CTR that was owed and nobody filed is surfaced, alongside standing unattributable currency",
+      "status": "drill_passed",
+      "expected": "overdue_and_unattributable",
+      "actual": "overdue_and_unattributable"
+    },
+    {
+      "id": "BSA-01",
+      "controls": [
+        "bsa:BSA-06"
+      ],
+      "kind": "positive",
+      "what": "an alert escalates to a case and starts the SAR clock from detection",
+      "status": "drill_passed",
+      "expected": "case_opened",
+      "actual": "case_opened"
+    },
+    {
+      "id": "BSA-02",
+      "controls": [
+        "bsa:BSA-06"
+      ],
+      "kind": "negative",
+      "what": "the investigator who opened a case cannot decide it (four-eyes)",
+      "status": "drill_passed",
+      "expected": "refused_409",
+      "actual": "refused_409"
+    },
+    {
+      "id": "BSA-03",
+      "controls": [
+        "bsa:BSA-07"
+      ],
+      "kind": "negative",
+      "what": "a no-file SAR decision without rationale is refused",
+      "status": "drill_passed",
+      "expected": "refused_400",
+      "actual": "refused_400"
+    },
+    {
+      "id": "BSA-04",
+      "controls": [
+        "bsa:BSA-07"
+      ],
+      "kind": "negative",
+      "what": "a SAR decision past its deadline is recorded as LATE, not silently accepted",
+      "status": "drill_passed",
+      "expected": "late_recorded",
+      "actual": "late_recorded"
+    },
+    {
+      "id": "BSA-05",
+      "controls": [
+        "bsa:BSA-06"
+      ],
+      "kind": "negative",
+      "what": "an untriaged alert past its 2-day clock is surfaced by the sweep",
+      "status": "drill_passed",
+      "expected": "breach_surfaced",
+      "actual": "breach_surfaced"
+    },
+    {
+      "id": "RET-01",
+      "controls": [
+        "bsa:BSA-21"
+      ],
+      "kind": "positive",
+      "what": "closing an account starts the 5-year retention clock",
+      "status": "drill_passed",
+      "expected": "clock_set",
+      "actual": "clock_set"
+    },
+    {
+      "id": "RET-02",
+      "controls": [
+        "shared-controls:SC-02"
+      ],
+      "kind": "negative",
+      "what": "a legal hold blocks destruction even after retention expires",
+      "status": "drill_passed",
+      "expected": "refused_409_hold",
+      "actual": "refused_409_hold"
+    },
+    {
+      "id": "RET-03",
+      "controls": [
+        "shared-controls:SC-02"
+      ],
+      "kind": "negative",
+      "what": "a record still inside its retention period cannot be destroyed",
+      "status": "drill_passed",
+      "expected": "refused_409_unexpired",
+      "actual": "refused_409_unexpired"
+    },
+    {
+      "id": "RET-04",
+      "controls": [
+        "shared-controls:SC-02"
+      ],
+      "kind": "positive",
+      "what": "a hold placed on a subject propagates to its records in the same call",
+      "status": "drill_passed",
+      "expected": "propagated",
+      "actual": "propagated"
+    },
+    {
+      "id": "EPS-01",
+      "controls": [
+        "electronic-payment-systems:EPS-06"
+      ],
+      "kind": "negative",
+      "what": "the originator of a payment cannot approve it (four-eyes)",
+      "status": "drill_passed",
+      "expected": "refused_409",
+      "actual": "refused_409"
+    },
+    {
+      "id": "EPS-02",
+      "controls": [
+        "electronic-payment-systems:EPS-06"
+      ],
+      "kind": "positive",
+      "what": "a second actor can approve, and both actors are recorded",
+      "status": "drill_passed",
+      "expected": "approved_two_actors",
+      "actual": "approved_two_actors"
+    },
+    {
+      "id": "EPS-03",
+      "controls": [
+        "electronic-payment-systems:EPS-06"
+      ],
+      "kind": "positive",
+      "what": "client limits can be configured, which is what ends the unassessed state",
+      "status": "drill_passed",
+      "expected": "configured",
+      "actual": "configured"
+    },
+    {
+      "id": "LEND-01",
+      "controls": [
+        "lending:LP-11"
+      ],
+      "kind": "negative",
+      "what": "an OFAC potential match blocks FUNDING (not the application)",
+      "status": "drill_passed",
+      "expected": "funding_blocked",
+      "actual": "funding_blocked"
+    },
+    {
+      "id": "LEND-02",
+      "controls": [
+        "lending:LP-11"
+      ],
+      "kind": "negative",
+      "what": "every screen records that its list version is unknown (the stub is visible in the data)",
+      "status": "drill_passed",
+      "expected": "list_version_null",
+      "actual": "list_version_null"
+    },
+    {
+      "id": "LEND-03",
+      "controls": [
+        "lending:LP-07"
+      ],
+      "kind": "negative",
+      "what": "an adverse decision without specific reasons is refused",
+      "status": "drill_passed",
+      "expected": "refused_400",
+      "actual": "refused_400"
+    },
+    {
+      "id": "LEND-04",
+      "controls": [
+        "lending:LP-07"
+      ],
+      "kind": "positive",
+      "what": "a denial queues an AAN with the ECOA clock anchored on COMPLETION",
+      "status": "drill_passed",
+      "expected": "2026-07-01",
+      "actual": "2026-07-01"
+    },
+    {
+      "id": "LEND-05",
+      "controls": [
+        "lending:LP-07"
+      ],
+      "kind": "negative",
+      "what": "an AAN cannot be issued without second-level review",
+      "status": "drill_passed",
+      "expected": "refused_409",
+      "actual": "refused_409"
+    },
+    {
+      "id": "LEND-06",
+      "controls": [
+        "lending:LP-07"
+      ],
+      "kind": "negative",
+      "what": "an ECOA notice nobody sent is surfaced by the sweep",
+      "status": "drill_passed",
+      "expected": "overdue_surfaced",
+      "actual": "overdue_surfaced"
+    },
+    {
+      "id": "LEND-07",
+      "controls": [
+        "lending:LP-11"
+      ],
+      "kind": "negative",
+      "what": "an UNSCREENED party is reported as a standing gap, not treated as clear",
+      "status": "drill_passed",
+      "expected": "unscreened_reported",
+      "actual": "unscreened_reported"
+    },
+    {
+      "id": "PRIM-01",
+      "controls": [
+        "third-party-risk:TR-01"
+      ],
+      "kind": "positive",
+      "what": "a work item opens against a control in a policy with no bespoke code",
+      "status": "drill_passed",
+      "expected": "opened_deadlined",
+      "actual": "opened_deadlined"
+    },
+    {
+      "id": "PRIM-02",
+      "controls": [
+        "information-security:IS-01"
+      ],
+      "kind": "negative",
+      "what": "an UNDEADLINED work item is flagged, not silently current",
+      "status": "drill_passed",
+      "expected": "undeadlined_warned",
+      "actual": "undeadlined_warned"
+    },
+    {
+      "id": "PRIM-03",
+      "controls": [
+        "cash:CP-01"
+      ],
+      "kind": "negative",
+      "what": "a request cannot close without recording what was decided",
+      "status": "drill_passed",
+      "expected": "refused_400",
+      "actual": "refused_400"
+    },
+    {
+      "id": "PRIM-04",
+      "controls": [
+        "cash:CP-01"
+      ],
+      "kind": "negative",
+      "what": "an adverse outcome requires a documented reason",
+      "status": "drill_passed",
+      "expected": "refused_400",
+      "actual": "refused_400"
+    },
+    {
+      "id": "PRIM-05",
+      "controls": [
+        "bsa:BSA-11"
+      ],
+      "kind": "negative",
+      "what": "inbound correspondence must record its source and ARRIVAL time",
+      "status": "drill_passed",
+      "expected": "refused_400",
+      "actual": "refused_400"
+    },
+    {
+      "id": "PRIM-06",
+      "controls": [
+        "bsa:BSA-11"
+      ],
+      "kind": "positive",
+      "what": "inbound correspondence with a source and arrival time is accepted",
+      "status": "drill_passed",
+      "expected": "opened",
+      "actual": "opened"
+    },
+    {
+      "id": "PRIM-07",
+      "controls": [
+        "liquidity:LQ-01"
+      ],
+      "kind": "negative",
+      "what": "an observation against an unconfigured threshold is UNASSESSED",
+      "status": "drill_passed",
+      "expected": "unassessed",
+      "actual": "unassessed"
+    },
+    {
+      "id": "PRIM-08",
+      "controls": [
+        "capitalization:CP-01"
+      ],
+      "kind": "negative",
+      "what": "a configured threshold detects a breach and emits an event",
+      "status": "drill_passed",
+      "expected": "breach",
+      "actual": "breach"
+    },
+    {
+      "id": "PRIM-09",
+      "controls": [
+        "director-fiduciary-duties:DF-01"
+      ],
+      "kind": "positive",
+      "what": "an attestation records the AUTHENTICATED actor, not a payload claim",
+      "status": "drill_passed",
+      "expected": "tok_ops",
+      "actual": "tok_ops"
+    },
+    {
+      "id": "PRIM-10",
+      "controls": [
+        "compliance:CM-01"
+      ],
+      "kind": "negative",
+      "what": "the work-item sweep separates OVERDUE from UNDEADLINED",
+      "status": "drill_passed",
+      "expected": "both_reported",
+      "actual": "both_reported"
+    },
+    {
+      "id": "RAIL-01",
+      "controls": [],
+      "kind": "positive",
+      "what": "a book transfer settles and writes control evidence",
+      "status": "drill_passed",
+      "expected": "settled",
+      "actual": "settled"
+    },
+    {
+      "id": "RAIL-02",
+      "controls": [],
+      "kind": "negative",
+      "what": "a transfer that is BOTH over-velocity and unaffordable reports only the FIRST control",
+      "status": "drill_passed",
+      "expected": "velocity_limit_exceeded",
+      "actual": "velocity_limit_exceeded"
+    },
+    {
+      "id": "RAIL-03",
+      "controls": [
+        "bsa:BSA-06"
+      ],
+      "kind": "negative",
+      "what": "CG-CTR-01 raises an alert on a single movement over $10k",
+      "status": "drill_passed",
+      "expected": "ctr_alert_raised",
+      "actual": "ctr_alert_raised"
+    },
+    {
+      "id": "RAIL-04",
+      "controls": [],
+      "kind": "negative",
+      "what": "CG-VEL-01 blocks across rails, and a REJECTED attempt does not count toward volume",
+      "status": "drill_passed",
+      "expected": "third_blocked_then_headroom",
+      "actual": "third_blocked_then_headroom"
+    },
+    {
+      "id": "RAIL-05",
+      "controls": [
+        "electronic-payment-systems:EPS-06"
+      ],
+      "kind": "negative",
+      "what": "a wire cannot be confirmed by its preparer (EPS-06, end to end)",
+      "status": "drill_passed",
+      "expected": "dual_control_required",
+      "actual": "dual_control_required"
+    },
+    {
+      "id": "RAIL-06",
+      "controls": [
+        "electronic-payment-systems:EPS-06"
+      ],
+      "kind": "positive",
+      "what": "the same wire confirms once a DIFFERENT actor approves it",
+      "status": "drill_passed",
+      "expected": "completed",
+      "actual": "completed"
+    },
+    {
+      "id": "RAIL-07",
+      "controls": [],
+      "kind": "negative",
+      "what": "an international wire is refused before it consumes an idempotency key",
+      "status": "drill_passed",
+      "expected": "international_wire_not_supported",
+      "actual": "international_wire_not_supported"
+    },
+    {
+      "id": "RAIL-08",
+      "controls": [],
+      "kind": "negative",
+      "what": "an ACH return code outside the NACHA set is refused",
+      "status": "drill_passed",
+      "expected": "400",
+      "actual": "400"
+    },
+    {
+      "id": "RAIL-09",
+      "controls": [
+        "bsa:BSA-06"
+      ],
+      "kind": "negative",
+      "what": "an unauthorized ACH return (R10) raises a BSA alert; R01 does not",
+      "status": "drill_passed",
+      "expected": "r10_alerted_r01_not",
+      "actual": "r10_alerted_r01_not"
+    },
+    {
+      "id": "RAIL-10",
+      "controls": [],
+      "kind": "negative",
+      "what": "a card authorization cannot be captured beyond the held amount",
+      "status": "drill_passed",
+      "expected": "capture_exceeds_authorization",
+      "actual": "capture_exceeds_authorization"
+    },
+    {
+      "id": "RAIL-11",
+      "controls": [],
+      "kind": "negative",
+      "what": "an expired card auth reports zero remaining, not the full amount",
+      "status": "drill_passed",
+      "expected": "0",
+      "actual": "0"
+    },
+    {
+      "id": "ENT-01",
+      "controls": [
+        "bsa:BSA-03"
+      ],
+      "kind": "negative",
+      "what": "an OFAC hit on verification denies and raises an alert (CG-OFAC-01 floor)",
+      "status": "drill_passed",
+      "expected": "denied_alerted",
+      "actual": "denied_alerted"
+    },
+    {
+      "id": "ENT-02",
+      "controls": [
+        "bsa:BSA-03"
+      ],
+      "kind": "negative",
+      "what": "a full-trust partner attestation cannot bypass the OFAC floor",
+      "status": "drill_passed",
+      "expected": "denied",
+      "actual": "denied"
+    },
+    {
+      "id": "OWN-01",
+      "controls": [],
+      "kind": "negative",
+      "what": "a partner cannot read another partner's account (404, not 403)",
+      "status": "drill_passed",
+      "expected": "404",
+      "actual": "404"
+    },
+    {
+      "id": "OWN-02",
+      "controls": [],
+      "kind": "negative",
+      "what": "a partner cannot settle another partner's ACH entry",
+      "status": "drill_passed",
+      "expected": "404",
+      "actual": "404"
+    },
+    {
+      "id": "ACC-01",
+      "controls": [
+        "bsa:BSA-07"
+      ],
+      "kind": "negative",
+      "what": "a partner cannot see that a BSA case exists (404, not 403)",
+      "status": "drill_passed",
+      "expected": "404",
+      "actual": "404"
+    },
+    {
+      "id": "ACC-02",
+      "controls": [
+        "bsa:BSA-08"
+      ],
+      "kind": "negative",
+      "what": "a partner cannot reach cash handling",
+      "status": "drill_passed",
+      "expected": "404",
+      "actual": "404"
+    },
+    {
+      "id": "ACC-03",
+      "controls": [],
+      "kind": "negative",
+      "what": "a partner cannot set its own dual-control threshold",
+      "status": "drill_passed",
+      "expected": "404",
+      "actual": "404"
+    },
+    {
+      "id": "PROV-02",
+      "controls": [],
+      "kind": "negative",
+      "what": "every row the drill wrote is stamped simulated",
+      "status": "drill_passed",
+      "expected": "all_simulated",
+      "actual": "all_simulated"
+    },
+    {
+      "id": "PROV-03",
+      "controls": [],
+      "kind": "negative",
+      "what": "no CHECK constraint was violated anywhere in the run",
+      "status": "drill_passed",
+      "expected": "no_violations",
+      "actual": "no_violations"
+    }
+  ]
+}

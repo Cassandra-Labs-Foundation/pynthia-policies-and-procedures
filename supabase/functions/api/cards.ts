@@ -23,6 +23,8 @@ import {
   validationError,
   type ValidationErrorItem,
 } from "./lib.ts";
+import { scopeToPartner } from "./ownership.ts";
+import { type PartnerContext } from "./auth.ts";
 
 const CARD_NETWORK_BALANCE = "@CardNetwork";
 const CURRENCY = "USD";
@@ -57,13 +59,20 @@ function cardResponse(
   controlResults?: { control_id: string; decision: string }[],
 ): Record<string, unknown> {
   const captured = row.blnk_committed_amount ?? 0;
+  // Once the hold is gone there is nothing left to capture, so the remainder is
+  // zero REGARDLESS of the arithmetic. Deriving it from amount - captured alone
+  // reported a reversed or expired $1,000 auth as still having $1,000
+  // available: the hold had been voided in Blnk, but the API kept advertising
+  // it as capturable. 'declined' never placed a hold at all.
+  const holdReleased = row.status === "reversed" || row.status === "expired" ||
+    row.status === "declined";
   return {
     id: row.id,
     status: row.status,
     amount_cents: row.amount,
     captured_cents: captured,
     // what is still held and could yet be captured or released
-    remaining_cents: Math.max(0, row.amount - captured),
+    remaining_cents: holdReleased ? 0 : Math.max(0, row.amount - captured),
     merchant: row.merchant,
     decline_reason: row.decline_reason,
     blnk_inflight_id: row.blnk_inflight_id,
@@ -85,6 +94,7 @@ export async function postCardAuthorize(
   db: SupabaseClient,
   cfg: BlnkConfig,
   requestId: string,
+  ctx: PartnerContext,
 ): Promise<Response> {
   const idempotencyKey = req.headers.get("Idempotency-Key");
   if (!idempotencyKey) {
@@ -131,7 +141,7 @@ export async function postCardAuthorize(
 
   const freshId = `cauth_${crypto.randomUUID()}`;
   const claim = await claimIdempotency(
-    db,
+    db, ctx.idempotencyScope,
     idempotencyKey,
     requestHash,
     freshId,
@@ -172,13 +182,14 @@ export async function postCardAuthorize(
     merchant: merchantName,
     status: "authorized",
     blnk_committed_amount: 0,
+    partner_id: ctx.ownerPartnerId,
   });
   if (insErr) return internalErrorResponse(requestId, insErr);
 
   // Gate before the hold, same as every other rail.
   let gate;
   try {
-    gate = await runGate(db, cfg, CARD_RESOURCE(authId), account as AccountRow, null, amount);
+    gate = await runGate(db, cfg, CARD_RESOURCE(authId), account as AccountRow, null, amount, ctx);
   } catch (err) {
     return internalErrorResponse(requestId, err);
   }
@@ -191,7 +202,7 @@ export async function postCardAuthorize(
         decline_reason: String((gate.body as Record<string, unknown>).type ?? "declined"),
       })
       .eq("id", authId);
-    await storeIdempotencyResponse(db, idempotencyKey, gate.status, gate.body);
+    await storeIdempotencyResponse(db, ctx.idempotencyScope, idempotencyKey, gate.status, gate.body);
     return jsonResponse(gate.body, gate.status, requestId);
   }
 
@@ -227,7 +238,7 @@ export async function postCardAuthorize(
   if (updErr) return internalErrorResponse(requestId, updErr);
 
   const responseBody = cardResponse(updated as CardAuthRow, gate.controlResults);
-  await storeIdempotencyResponse(db, idempotencyKey, 201, responseBody);
+  await storeIdempotencyResponse(db, ctx.idempotencyScope, idempotencyKey, 201, responseBody);
   return jsonResponse(responseBody, 201, requestId);
 }
 
@@ -246,11 +257,14 @@ export async function postCardCapture(
   db: SupabaseClient,
   cfg: BlnkConfig,
   requestId: string,
+  ctx: PartnerContext,
 ): Promise<Response> {
-  const { data: auth, error: selErr } = await db.schema("core").from("card_authorization")
-    .select(CARD_COLS)
-    .eq("id", authId)
-    .maybeSingle();
+  const { data: auth, error: selErr } = await scopeToPartner(
+    db.schema("core").from("card_authorization")
+      .select(CARD_COLS)
+      .eq("id", authId),
+    ctx,
+  ).maybeSingle();
   if (selErr) return internalErrorResponse(requestId, selErr);
   if (!auth) return notFoundResponse(requestId, "card_authorization", authId);
 
@@ -349,6 +363,106 @@ export async function postCardCapture(
 }
 
 /**
+ * POST /payments/card/{id}/expire — the uncaptured hold aged out (card 44).
+ *
+ * 'expired' has been in the status CHECK since 20260718000300 and postCardReverse
+ * already treats it as terminal, but nothing ever SET it: an auth the merchant
+ * never captured sat 'authorized' forever, holding member funds and pinning the
+ * amount inside the CG-VEL-01 daily aggregate (which counts open holds).
+ *
+ * Ledger-identical to a reversal — both void the inflight and release the
+ * remainder — but kept a separate terminal state because the cause differs and
+ * the ops side reads them differently: a reversal is someone's decision, an
+ * expiry is the absence of one. Collapsing them would make "merchants who never
+ * capture" unqueryable.
+ */
+export async function postCardExpire(
+  // unused: an expiry carries no caller-supplied reason — that is what makes it
+  // an expiry rather than a reversal. Kept in the signature so every rail
+  // transition has one shape for the simulate dispatcher to call.
+  _req: Request,
+  authId: string,
+  db: SupabaseClient,
+  cfg: BlnkConfig,
+  requestId: string,
+  ctx: PartnerContext,
+): Promise<Response> {
+  const { data: auth, error: selErr } = await scopeToPartner(
+    db.schema("core").from("card_authorization")
+      .select(CARD_COLS)
+      .eq("id", authId),
+    ctx,
+  ).maybeSingle();
+  if (selErr) return internalErrorResponse(requestId, selErr);
+  if (!auth) return notFoundResponse(requestId, "card_authorization", authId);
+
+  const row = auth as CardAuthRow;
+  if (row.status === "expired") {
+    return jsonResponse(cardResponse(row), 200, requestId, { "Idempotent-Replayed": "true" });
+  }
+  // A fully captured auth has no hold left to age out, and a reversed one was
+  // already released deliberately — neither is an expiry.
+  if (row.status !== "authorized" && row.status !== "partially_captured") {
+    return apiError(409, "invalid_state", requestId, {
+      title: "Invalid State",
+      detail: `card_authorization ${authId} is ${row.status}; only an open hold can expire`,
+    });
+  }
+  if (!row.blnk_inflight_id) {
+    return apiError(409, "not_held", requestId, {
+      title: "Not Held",
+      detail: "authorization has no inflight Blnk transaction to expire",
+    });
+  }
+
+  try {
+    await voidInflight(cfg, row.blnk_inflight_id);
+  } catch (err) {
+    if (err instanceof BlnkError) return bankErrorResponse(requestId);
+    return internalErrorResponse(requestId, err);
+  }
+
+  const captured = row.blnk_committed_amount ?? 0;
+  const released = row.amount - captured;
+
+  const { data: updated, error: updErr } = await db.schema("core").from("card_authorization")
+    .update({
+      status: "expired",
+      decline_reason: "authorization_expired",
+      synced_at: new Date().toISOString(),
+    })
+    .eq("id", authId)
+    .select(CARD_COLS)
+    .single();
+  if (updErr) return internalErrorResponse(requestId, updErr);
+
+  // Unlike a capture, an expiry books no bookkeeping entry against the member —
+  // the released remainder never left. The EVENT still matters: releasing a hold
+  // changes available balance, and a partially-captured auth expiring is the
+  // only signal that the uncaptured remainder is now permanently unclaimable.
+  try {
+    await recordMovementArtifacts(db, {
+      bkeId: `bke_${authId}_expired`,
+      evtId: `evt_${authId}_expired`,
+      code: "card_authorization.expired",
+      resourceType: "card_authorization",
+      resourceId: authId,
+      amountCents: 0,
+      accountId: (row.originator as { account_id?: string } | null)?.account_id ?? null,
+      payload: {
+        released_cents: released,
+        captured_total_cents: captured,
+        merchant: row.merchant,
+      },
+    });
+  } catch (artErr) {
+    console.error(`card expiry artifacts failed for ${authId}: ${artErr}`);
+  }
+
+  return jsonResponse(cardResponse(updated as CardAuthRow), 200, requestId);
+}
+
+/**
  * POST /payments/card/{id}/reverse
  *
  * Voids the remaining hold. Allowed from partially_captured too — releasing the
@@ -361,11 +475,14 @@ export async function postCardReverse(
   db: SupabaseClient,
   cfg: BlnkConfig,
   requestId: string,
+  ctx: PartnerContext,
 ): Promise<Response> {
-  const { data: auth, error: selErr } = await db.schema("core").from("card_authorization")
-    .select(CARD_COLS)
-    .eq("id", authId)
-    .maybeSingle();
+  const { data: auth, error: selErr } = await scopeToPartner(
+    db.schema("core").from("card_authorization")
+      .select(CARD_COLS)
+      .eq("id", authId),
+    ctx,
+  ).maybeSingle();
   if (selErr) return internalErrorResponse(requestId, selErr);
   if (!auth) return notFoundResponse(requestId, "card_authorization", authId);
 

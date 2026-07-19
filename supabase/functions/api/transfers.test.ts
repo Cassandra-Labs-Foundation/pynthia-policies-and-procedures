@@ -62,6 +62,12 @@ function stubGateDb(opts: GateDbOpts = {}) {
         inserts.push({ table, row });
         return Promise.resolve({ data: null, error: null });
       },
+      // raiseAlert upserts the causing core.event and the alert itself, so the
+      // gate stub has to model upsert as well as insert (OQ-05 fix)
+      upsert: (row: Record<string, unknown>) => {
+        inserts.push({ table, row });
+        return Promise.resolve({ data: null, error: null });
+      },
       update: (patch: Record<string, unknown>) => {
         updates.push({ table, patch });
         return chain;

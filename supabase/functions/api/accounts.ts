@@ -21,6 +21,9 @@ import {
   validationError,
   type ValidationErrorItem,
 } from "./lib.ts";
+import { scopeToPartner } from "./ownership.ts";
+import { setRetentionClocks } from "./retention.ts";
+import { type PartnerContext } from "./auth.ts";
 
 export interface AccountRow {
   id: string;
@@ -39,12 +42,17 @@ export async function postAccount(
   db: SupabaseClient,
   cfg: BlnkConfig,
   requestId: string,
+  ctx: PartnerContext,
 ): Promise<Response> {
   const raw = await parseJsonBody(req);
   const body = (raw && typeof raw === "object") ? raw as Record<string, unknown> : {};
 
   const accountType = isNonEmptyString(body.account_type) ? body.account_type : "checking";
   const openingDeposit = body.opening_deposit_cents;
+  // Owning member. Optional at the API boundary because existing callers do not
+  // send it, but see 20260719001300: cash (BSA-08) aggregates per PERSON, so an
+  // account with no entity cannot participate in CTR aggregation at all.
+  const entityId = body.entity_id;
 
   const errors: ValidationErrorItem[] = [];
   if (openingDeposit !== undefined) {
@@ -65,6 +73,13 @@ export async function postAccount(
       message: "required header when opening_deposit_cents is present",
     });
   }
+  if (entityId !== undefined && !isNonEmptyString(entityId)) {
+    errors.push({
+      type: "invalid_value",
+      field: "entity_id",
+      message: "must be a non-empty string naming the owning entity",
+    });
+  }
   if (errors.length) return validationError(requestId, errors);
 
   const freshId = `acct_${crypto.randomUUID()}`;
@@ -77,7 +92,7 @@ export async function postAccount(
       account_type: accountType,
       opening_deposit_cents: typeof openingDeposit === "number" ? openingDeposit : null,
     });
-    const claim = await claimIdempotency(db, idempotencyKey, requestHash, freshId, "POST /accounts");
+    const claim = await claimIdempotency(db, ctx.idempotencyScope, idempotencyKey, requestHash, freshId, "POST /accounts");
 
     if (claim.kind === "replay") {
       return jsonResponse(
@@ -98,10 +113,12 @@ export async function postAccount(
 
   const createdAt = new Date().toISOString();
 
-  const { data: existing, error: fetchErr } = await db.schema("core").from("account")
-    .select("id, account_type, balance, blnk_ledger_id, blnk_balance_id, balance_synced_at, lock_type, status, created_at")
-    .eq("id", accountId)
-    .maybeSingle();
+  const { data: existing, error: fetchErr } = await scopeToPartner(
+    db.schema("core").from("account")
+      .select("id, account_type, balance, blnk_ledger_id, blnk_balance_id, balance_synced_at, lock_type, status, created_at")
+      .eq("id", accountId),
+    ctx,
+  ).maybeSingle();
   if (fetchErr) throw new Error(`account fetch: ${fetchErr.message}`);
 
   let account = existing as AccountRow | null;
@@ -114,6 +131,8 @@ export async function postAccount(
       lock_type: "none",
       balance: 0,
       created_at: createdAt,
+      partner_id: ctx.ownerPartnerId,
+      entity_id: isNonEmptyString(entityId) ? entityId : null,
     });
     if (insErr) throw new Error(`account insert: ${insErr.message}`);
     account = {
@@ -187,7 +206,7 @@ export async function postAccount(
     };
 
     if (idemKeyToStore) {
-      await storeIdempotencyResponse(db, idemKeyToStore, 201, successBody);
+      await storeIdempotencyResponse(db, ctx.idempotencyScope, idemKeyToStore, 201, successBody);
     }
 
     return jsonResponse(successBody, 201, requestId);
@@ -201,11 +220,14 @@ export async function getAccount(
   accountId: string,
   db: SupabaseClient,
   requestId: string,
+  ctx: PartnerContext,
 ): Promise<Response> {
-  const { data, error } = await db.schema("core").from("account")
-    .select("id, account_type, status, balance, balance_synced_at, blnk_balance_id, created_at")
-    .eq("id", accountId)
-    .maybeSingle();
+  const { data, error } = await scopeToPartner(
+    db.schema("core").from("account")
+      .select("id, account_type, status, balance, balance_synced_at, blnk_balance_id, created_at")
+      .eq("id", accountId),
+    ctx,
+  ).maybeSingle();
 
   if (error) return internalErrorResponse(requestId, error);
   if (!data) return notFoundResponse(requestId, "account", accountId);
@@ -251,6 +273,7 @@ export async function postAccountLock(
   accountId: string,
   db: SupabaseClient,
   requestId: string,
+  ctx: PartnerContext,
 ): Promise<Response> {
   const raw = await parseJsonBody(req).catch(() => null);
   const body = raw && typeof raw === "object" ? raw as Record<string, unknown> : {};
@@ -263,8 +286,10 @@ export async function postAccountLock(
     }]);
   }
 
-  const { data: acct, error: selErr } = await db.schema("core").from("account")
-    .select("id, status, lock_type").eq("id", accountId).maybeSingle();
+  const { data: acct, error: selErr } = await scopeToPartner(
+    db.schema("core").from("account").select("id, status, lock_type").eq("id", accountId),
+    ctx,
+  ).maybeSingle();
   if (selErr) return internalErrorResponse(requestId, selErr);
   if (!acct) return notFoundResponse(requestId, "account", accountId);
 
@@ -293,6 +318,7 @@ export async function postAccountTransition(
   accountId: string,
   db: SupabaseClient,
   requestId: string,
+  ctx: PartnerContext,
 ): Promise<Response> {
   const raw = await parseJsonBody(req).catch(() => null);
   const to = raw && typeof raw === "object" ? (raw as Record<string, unknown>).to : undefined;
@@ -304,8 +330,10 @@ export async function postAccountTransition(
     }]);
   }
 
-  const { data: acct, error: selErr } = await db.schema("core").from("account")
-    .select("id, status, lock_type").eq("id", accountId).maybeSingle();
+  const { data: acct, error: selErr } = await scopeToPartner(
+    db.schema("core").from("account").select("id, status, lock_type").eq("id", accountId),
+    ctx,
+  ).maybeSingle();
   if (selErr) return internalErrorResponse(requestId, selErr);
   if (!acct) return notFoundResponse(requestId, "account", accountId);
 
@@ -322,5 +350,17 @@ export async function postAccountTransition(
   if (updErr) return internalErrorResponse(requestId, updErr);
 
   await emitAccountEvent(db, `account.${to}`, accountId, { from, to });
+
+  // BSA-21: closing an account starts the retention clock on its
+  // closure-anchored records (CIP identity, beneficial owners). Best-effort —
+  // the closure itself is already committed, and a failed clock is recoverable
+  // by re-running the sweep, whereas failing the closure is not.
+  if (to === "closed") {
+    try {
+      await setRetentionClocks(db, accountId, new Date());
+    } catch (retErr) {
+      console.error(`retention clocks failed for ${accountId}: ${retErr}`);
+    }
+  }
   return jsonResponse({ id: accountId, status: to }, 200, requestId);
 }

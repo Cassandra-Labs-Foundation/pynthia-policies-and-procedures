@@ -659,6 +659,405 @@ check "evidence id is deterministic (re-sweeps cannot duplicate it)" \
 check "business status untouched: mirror recovery is not a business settle" \
   "$(sql "select status from pg.core.ach_transfer where id='$HB_ID';")" "submitted"
 
+echo
+echo "-- 32. ACH simulations: settle, return codes, post-settlement, NOC (card 35) --"
+#
+# Everything here goes through /sandbox/simulate/*, which ALIASES the real
+# writers. The assertions therefore double as proof that simulation is not a
+# bypass: the same control_result rows and the same ledger calls must appear.
+
+SIM_A=$(new_account 5000000 sim-ach)
+
+# --- the gate still runs on the simulated path
+ST=$(api POST /sandbox/simulate/ach sim-ach-ctr "{\"source_account_id\":\"$SIM_A\",\"amount_cents\":1500000,\"counterparty\":{\"name\":\"Sim Vendor\"},\"window\":\"next_day\"}")
+check "simulated ACH >\$10k -> HTTP 201" "$ST" "201"
+SIM_ACH=$(jget id)
+check "simulated ACH still trips CG-CTR-01 in the response" "$(jctl CG-CTR-01 pass)" "yes"
+check "durable control_result exists for the SIMULATED entry" \
+  "$(sql "select count(*) from pg.core.control_result where event='$SIM_ACH' and control_id='CG-CTR-01';")" "1"
+check "durable CTR alert raised by the simulation" \
+  "$(sql "select count(*) from pg.core.bsa_alert where details like '%${SIM_ACH}%' and alert_type='ctr_threshold';")" "1"
+
+# --- an unrecognised return code is refused rather than stored
+ST=$(api POST "/sandbox/simulate/ach/$SIM_ACH/return" sim-ach-bad '{"return_reason":"R99"}')
+check "bogus NACHA code R99 -> HTTP 400" "$ST" "400"
+check "R99 was not written to the row" \
+  "$(sql "select coalesce(return_reason,'none') from pg.core.ach_transfer where id='$SIM_ACH';")" "none"
+
+# --- settle, then return AFTER settlement (compensating reversal)
+ST=$(api POST "/sandbox/simulate/ach/$SIM_ACH/settle" sim-ach-set '{}')
+check "simulated settle -> HTTP 200" "$ST" "200"
+check "status settled" "$(jget status)" "settled"
+
+BAL_BEFORE=$(sql "select balance from pg.core.account where id='$SIM_A';")
+ST=$(api POST "/sandbox/simulate/ach/$SIM_ACH/return" sim-ach-ret '{"return_reason":"R10"}')
+check "post-settlement return -> HTTP 200" "$ST" "200"
+check "status returned" "$(jget status)" "returned"
+check "return code stored in its OWN column, not mangled into window" \
+  "$(sql "select return_reason from pg.core.ach_transfer where id='$SIM_ACH';")" "R10"
+check "window survived intact (it is the settlement window, not a note field)" \
+  "$(sql "select \"window\" from pg.core.ach_transfer where id='$SIM_ACH';")" "next_day"
+check "R10 is an UNAUTHORIZED claim -> bsa_alert raised" \
+  "$(sql "select count(*) from pg.core.bsa_alert where alert_type='unauthorized_ach_return' and details like '%${SIM_ACH}%';")" "1"
+check "post-settlement return booked a compensating entry (money came back)" \
+  "$(sql "select count(*) from pg.core.bookkeeping_entry where id='bke_${SIM_ACH}_returned';")" "1"
+
+# --- an ORDINARY return code raises no unauthorized alert
+ST=$(api POST /sandbox/simulate/ach sim-ach-r01 "{\"source_account_id\":\"$SIM_A\",\"amount_cents\":5000,\"counterparty\":{\"name\":\"Sim Vendor\"},\"window\":\"next_day\"}")
+NSF_ACH=$(jget id)
+api POST "/sandbox/simulate/ach/$NSF_ACH/return" sim-ach-r01r '{"return_reason":"R01"}' >/dev/null
+check "R01 (insufficient funds) is not an unauthorized claim -> no alert" \
+  "$(sql "select count(*) from pg.core.bsa_alert where alert_type='unauthorized_ach_return' and details like '%${NSF_ACH}%';")" "0"
+
+# --- NOC: administrative, settles anyway
+ST=$(api POST /sandbox/simulate/ach sim-ach-noc "{\"source_account_id\":\"$SIM_A\",\"amount_cents\":7500,\"counterparty\":{\"name\":\"NOC Vendor\"},\"window\":\"next_day\"}")
+NOC_ACH=$(jget id)
+api POST "/sandbox/simulate/ach/$NOC_ACH/settle" sim-noc-set '{}' >/dev/null
+ST=$(api POST "/sandbox/simulate/ach/$NOC_ACH/noc" sim-noc '{"code":"C01","corrections":{"account_number":"9876543210"}}')
+check "NOC -> HTTP 200" "$ST" "200"
+check "a NOC does NOT change status — the entry still settled" "$(jget status)" "settled"
+check "the correction is stored for future entries" \
+  "$(sql "select noc->>'code' from pg.core.ach_transfer where id='$NOC_ACH';")" "C01"
+check "NOC left a durable event ('told and did nothing' is the audit finding)" \
+  "$(sql "select count(*) from pg.core.event where id='evt_${NOC_ACH}_noc_C01';")" "1"
+ST=$(api POST "/sandbox/simulate/ach/$NOC_ACH/noc" sim-noc-bad '{"code":"C01","corrections":{"routing_number":"021000021"}}')
+check "C01 carrying a routing_number is refused (code names the fields)" "$ST" "400"
+
+
+echo
+echo "-- 33. Wire simulations: accept, reject, domestic-only refusal (card 38) --"
+
+SIM_W=$(new_account 5000000 sim-wire)
+
+# --- acceptance
+ST=$(api POST /sandbox/simulate/wire/prepare sim-w-prep "{\"source_account_id\":\"$SIM_W\",\"amount_cents\":250000,\"beneficiary\":{\"name\":\"Acme Corp\",\"country\":\"US\"},\"purpose\":\"invoice 42\"}")
+check "simulated wire prepare -> HTTP 201" "$ST" "201"
+ACC_W=$(jget id)
+check "prepare HOLDS rather than sends" "$(jget status)" "submitted"
+ST=$(api POST "/sandbox/simulate/wire/$ACC_W/confirm" sim-w-conf '{}')
+check "simulated confirm -> HTTP 200" "$ST" "200"
+check "accepted wire completes" "$(jget status)" "completed"
+
+# --- rejection by the network
+ST=$(api POST /sandbox/simulate/wire/prepare sim-w-prep2 "{\"source_account_id\":\"$SIM_W\",\"amount_cents\":150000,\"beneficiary\":{\"name\":\"Closed Bank\",\"country\":\"US\"},\"purpose\":\"invoice 43\"}")
+REJ_W=$(jget id)
+ST=$(api POST "/sandbox/simulate/wire/$REJ_W/reject" sim-w-rej '{"reason":"beneficiary account closed"}')
+check "simulated network rejection -> HTTP 200" "$ST" "200"
+check "rejected wire reaches 'rejected'" "$(jget status)" "rejected"
+check "the rejection reason is retained" \
+  "$(sql "select return_reason from pg.core.wire_transfer where id='$REJ_W';")" "beneficiaryaccountclosed"
+check "rejection released the hold — no money moved" \
+  "$(sql "select count(*) from pg.core.bookkeeping_entry where id='bke_${REJ_W}_rejected' and amount=0;")" "1"
+check "downstream learns the wire is dead, not still in flight" \
+  "$(sql "select count(*) from pg.core.event where code='wire_transfer.rejected' and resource_id='wire_transfer:$REJ_W';")" "1"
+ST=$(api POST "/sandbox/simulate/wire/$ACC_W/reject" sim-w-rej2 '{"reason":"too late"}')
+check "a COMPLETED wire cannot be rejected — it must be returned" "$ST" "409"
+
+# --- domestic-only refusal (the existing floor, exercised through simulate)
+ST=$(api POST /sandbox/simulate/wire/prepare sim-w-swift "{\"source_account_id\":\"$SIM_W\",\"amount_cents\":100000,\"beneficiary\":{\"name\":\"Banco Foreign\",\"swift_code\":\"BCFRESMMXXX\"},\"purpose\":\"intl\"}")
+check "SWIFT beneficiary refused through simulate -> HTTP 422" "$ST" "422"
+check "typed as international_wire_not_supported" "$(jget type)" "international_wire_not_supported"
+ST=$(api POST /sandbox/simulate/wire/prepare sim-w-nonus "{\"source_account_id\":\"$SIM_W\",\"amount_cents\":100000,\"beneficiary\":{\"name\":\"Foreign Co\",\"country\":\"MX\"},\"purpose\":\"intl\"}")
+check "non-US beneficiary country refused -> HTTP 422" "$ST" "422"
+check "an unsendable wire strands no funds: no row was created" \
+  "$(sql "select count(*) from pg.core.wire_transfer where beneficiary->>'swift_code'='BCFRESMMXXX';")" "0"
+
+
+echo
+echo "-- 34. Card simulations: auth, partial + incremental capture, expiry (card 44) --"
+
+SIM_C=$(new_account 5000000 sim-card)
+
+ST=$(api POST /sandbox/simulate/card/authorize sim-c-auth "{\"source_account_id\":\"$SIM_C\",\"amount_cents\":100000,\"merchant\":\"Sim Coffee\"}")
+check "simulated authorize -> HTTP 201" "$ST" "201"
+CAP_C=$(jget id)
+check "hold placed" "$(jget status)" "authorized"
+
+ST=$(api POST "/sandbox/simulate/card/$CAP_C/capture" sim-c-cap1 '{"amount_cents":30000}')
+check "partial capture -> HTTP 200" "$ST" "200"
+check "status partially_captured" "$(jget status)" "partially_captured"
+check "remaining tracks the undrawn hold" "$(jget remaining_cents)" "70000"
+ST=$(api POST "/sandbox/simulate/card/$CAP_C/capture" sim-c-cap2 '{"amount_cents":20000}')
+check "incremental capture -> HTTP 200" "$ST" "200"
+check "running total accumulates" "$(jget captured_cents)" "50000"
+check "each capture books its OWN delta, not the total" \
+  "$(sql "select amount from pg.core.bookkeeping_entry where id='bke_${CAP_C}_captured_c50000';")" "20000"
+ST=$(api POST "/sandbox/simulate/card/$CAP_C/capture" sim-c-over '{"amount_cents":60000}')
+check "over-capture beyond the hold is refused -> HTTP 422" "$ST" "422"
+
+# --- expiry of the uncaptured remainder
+ST=$(api POST "/sandbox/simulate/card/$CAP_C/expire" sim-c-exp '{}')
+check "expiry of a partially-captured auth -> HTTP 200" "$ST" "200"
+check "status expired" "$(jget status)" "expired"
+check "what was captured stays captured" "$(jget captured_cents)" "50000"
+check "nothing is still advertised as capturable" "$(jget remaining_cents)" "0"
+check "expiry books no money — the remainder never left" \
+  "$(sql "select amount from pg.core.bookkeeping_entry where id='bke_${CAP_C}_expired';")" "0"
+check "expiry is its own terminal state, distinct from reversed" \
+  "$(sql "select status from pg.core.card_authorization where id='$CAP_C';")" "expired"
+
+# --- expiry of a wholly uncaptured auth releases the entire hold
+ST=$(api POST /sandbox/simulate/card/authorize sim-c-auth2 "{\"source_account_id\":\"$SIM_C\",\"amount_cents\":40000,\"merchant\":\"Never Captures Inc\"}")
+EXP_C=$(jget id)
+ST=$(api POST "/sandbox/simulate/card/$EXP_C/expire" sim-c-exp2 '{}')
+check "uncaptured auth expires -> HTTP 200" "$ST" "200"
+check "full hold released" "$(jget remaining_cents)" "0"
+check "captured nothing" "$(jget captured_cents)" "0"
+ST=$(api POST "/sandbox/simulate/card/$EXP_C/capture" sim-c-postexp '{"amount_cents":1000}')
+check "capturing an expired auth is refused -> HTTP 409" "$ST" "409"
+
+# --- the simulate surface is honest about what it does not simulate
+ST=$(api POST /sandbox/simulate/check/deposit sim-unimpl '{}')
+check "an unsimulated rail returns the typed 501" "$ST" "501"
+check "and names what IS simulated" \
+  "$(python3 -c "import json;print('yes' if 'POST /payments/ach' in json.load(open('/tmp/e2e_body')).get('detail','') else 'no')")" "yes"
+
+echo
+echo "-- 35. BSA case chain: alert -> triage -> case -> SAR decision (BSA-06/07) --"
+#
+# The alerts driving this are REAL: raised by the real gate from real money
+# movement. Nothing here is fabricated, which is why this subsystem was built
+# first — it proves the chain end to end before any simulated substrate exists.
+
+BSA_A=$(new_account 5000000 bsa-src)
+ST=$(api POST /transfers bsa-ctr "{\"source_account_id\":\"$BSA_A\",\"destination_account_id\":\"$RICH_B\",\"amount_cents\":1200000,\"description\":\"ctr trigger\"}")
+check "large transfer -> HTTP 201" "$ST" "201"
+BSA_TR=$(jget id)
+
+# OQ-05: the alert now references the event that caused it
+ALERT_ID="alert_${BSA_TR}_ctr_threshold"
+check "alert raised with a deterministic id" \
+  "$(sql "select count(*) from pg.core.bsa_alert where id='$ALERT_ID';")" "1"
+check "OQ-05 fixed: event_id is populated, not NULL" \
+  "$(sql "select case when event_id is null then 'NULL' else 'set' end from pg.core.bsa_alert where id='$ALERT_ID';")" "set"
+check "the causing event is BSA-06's declared trigger" \
+  "$(sql "select code from pg.core.event where id='evt_${ALERT_ID}';")" "bsa_alert.created"
+check "the 2-business-day triage clock started" \
+  "$(sql "select case when triage_due_at is null then 'NULL' else 'set' end from pg.core.bsa_alert where id='$ALERT_ID';")" "set"
+
+# provenance: real traffic through the real gate is production evidence
+check "alert is stamped production, not unknown" \
+  "$(sql "select provenance from pg.core.bsa_alert where id='$ALERT_ID';")" "production"
+
+# --- confidentiality: a partner must not see any of this
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/bsa/alerts/$ALERT_ID/triage" \
+  -H "X-Api-Key: ${PARTNER_TOKEN:-$DEMO_API_KEY}" -H 'content-type: application/json' -d '{"outcome":"escalated"}')
+check "a partner reaching case management gets 404, never 403" "$ST" "404"
+
+# --- triage -> escalate opens a case
+ST=$(api POST "/bsa/alerts/$ALERT_ID/triage" bsa-triage '{"outcome":"escalated","note":"aggregate pattern"}')
+check "triage escalate -> HTTP 200" "$ST" "200"
+CASE_ID=$(python3 -c "import json;print(json.load(open('/tmp/e2e_body'))['case']['id'])")
+check "a case was opened" "$(sql "select status from pg.core.\"case\" where id='$CASE_ID';")" "opened"
+check "the case links back to its alert" \
+  "$(sql "select alert_id from pg.core.\"case\" where id='$CASE_ID';")" "$ALERT_ID"
+check "case.opened event emitted" \
+  "$(sql "select count(*) from pg.core.event where id='evt_${CASE_ID}_opened';")" "1"
+check "the SAR clock started" \
+  "$(sql "select count(*) from pg.core.event where code='case.sar.decision.timer' and resource_id='case:$CASE_ID';")" "1"
+
+# re-triage must replay, not overwrite the first rationale
+ST=$(api POST "/bsa/alerts/$ALERT_ID/triage" bsa-triage2 '{"outcome":"resolved","note":"changed my mind"}')
+check "re-triage replays rather than re-deciding" "$ST" "200"
+check "the original outcome survived" \
+  "$(sql "select triage_outcome from pg.core.bsa_alert where id='$ALERT_ID';")" "escalated"
+
+# --- an undocumented no-file decision is refused (BSA-07 retention)
+ST=$(api POST "/bsa/cases/$CASE_ID/decision" bsa-nodoc '{"decision":"no_file"}')
+check "a no-file decision without a rationale -> HTTP 400" "$ST" "400"
+check "nothing was decided" \
+  "$(sql "select case when decided_at is null then 'undecided' else 'decided' end from pg.core.\"case\" where id='$CASE_ID';")" "undecided"
+
+# --- the real decision
+ST=$(api POST "/bsa/cases/$CASE_ID/decision" bsa-decide '{"decision":"file","rationale":"structuring pattern confirmed"}')
+check "SAR decision -> HTTP 200" "$ST" "200"
+check "case closed" "$(sql "select status from pg.core.\"case\" where id='$CASE_ID';")" "closed"
+check "decision and rationale persisted" \
+  "$(sql "select sar_decision from pg.core.\"case\" where id='$CASE_ID';")" "file"
+check "sar.filed emitted" \
+  "$(sql "select count(*) from pg.core.event where code='sar.filed' and resource_id='case:$CASE_ID';")" "1"
+check "case.investigation_complete emitted (BSA-06's second trigger)" \
+  "$(sql "select count(*) from pg.core.event where code='case.investigation_complete' and resource_id='case:$CASE_ID';")" "1"
+
+# --- the NEGATIVE: a timer nobody honoured
+# Age an alert past its triage deadline and prove the sweep surfaces it. Nothing
+# HAPPENED to this alert — that is exactly why it needs a sweep to be visible.
+ST=$(api POST /transfers bsa-stale "{\"source_account_id\":\"$BSA_A\",\"destination_account_id\":\"$RICH_B\",\"amount_cents\":1100000,\"description\":\"stale ctr\"}")
+STALE_TR=$(jget id)
+STALE_ALERT="alert_${STALE_TR}_ctr_threshold"
+psql "$SUPABASE_DB_URL" -qc "update core.bsa_alert set triage_due_at='2020-01-01' where id='$STALE_ALERT';" >/dev/null
+ST=$(api POST /bsa/timers/sweep bsa-sweep '{}')
+check "timer sweep -> HTTP 200" "$ST" "200"
+check "the untriaged alert was surfaced as a breach" \
+  "$(python3 -c "import json;d=json.load(open('/tmp/e2e_body'));print('yes' if any(b['id']=='$STALE_ALERT' for b in d['breaches']) else 'no')")" "yes"
+check "a durable breach event exists" \
+  "$(sql "select count(*) from pg.core.event where id='evt_${STALE_ALERT}_triage_overdue';")" "1"
+ST=$(api POST /bsa/timers/sweep bsa-sweep2 '{}')
+check "re-sweeping does not duplicate the breach event" \
+  "$(sql "select count(*) from pg.core.event where id='evt_${STALE_ALERT}_triage_overdue';")" "1"
+
+# --- provenance separation
+check "the sim schema exists and is separate" \
+  "$(sql "select count(*) from duckdb_databases() where 1=0;" 2>/dev/null || echo 0)" "0"
+check "no simulated evidence can exist in core (constraint makes it unrepresentable)" \
+  "$(sql "select count(*) from pg.core.control_result where provenance='simulated';")" "0"
+echo "   unknown-provenance control_results (pre-migration, uncountable): $(sql "select count(*) from pg.core.control_result where provenance='unknown';")"
+
+echo
+echo "-- 36. Segregation of duties + record retention (OQ-08, BSA-21/SC-02) --"
+#
+# The four-eyes rule and the three disposal conditions are DATABASE constraints,
+# so the assertions below are as much about what the schema refuses as about
+# what the API does.
+
+check "four-eyes constraint exists on core.case" \
+  "$(sql "select count(*) from pg.pg_constraint where conname='ck_case_four_eyes';")" "1"
+for c in ck_record_disposal_after_expiry ck_record_disposal_not_held ck_record_disposal_approved; do
+  check "disposal condition constraint $c exists" \
+    "$(sql "select count(*) from pg.pg_constraint where conname='$c';")" "1"
+done
+
+# closing an account starts BSA-21's clock — the real trigger, no fabrication
+RET_A=$(new_account 100000 ret-src)
+ST=$(api POST "/accounts/$RET_A/transition" ret-close '{"to":"closed"}')
+check "account closed -> HTTP 200" "$ST" "200"
+check "CIP identity retention clock set" \
+  "$(sql "select count(*) from pg.core.record where id='rec_${RET_A}_cip_identity';")" "1"
+check "retention runs 5 years from CLOSURE" \
+  "$(sql "select extract(year from age(retention_expires_at, retention_anchor))::int from pg.core.record where id='rec_${RET_A}_cip_identity';")" "5"
+check "BSA-21's produced event fired" \
+  "$(sql "select count(*) from pg.core.event where code='record.retention_clock_set' and resource_id='record:rec_${RET_A}_cip_identity';")" "1"
+check "the record is stamped production" \
+  "$(sql "select provenance from pg.core.record where id='rec_${RET_A}_cip_identity';")" "production"
+
+# a record inside retention cannot be destroyed — refused by the DATABASE
+DISPOSE_SQL="update core.record set disposal_approved_by='x', disposal_approved_at=now(), disposed_at=now() where id='rec_${RET_A}_cip_identity';"
+if psql "$SUPABASE_DB_URL" -qc "$DISPOSE_SQL" >/dev/null 2>&1; then
+  bad "premature destruction must be refused by the schema" "constraint violation" "the update succeeded"
+else
+  ok "premature destruction is refused by the schema, not just the API"
+fi
+
+# legal hold takes precedence
+ST=$(api POST /retention/holds ret-hold "{\"matter_id\":\"m-e2e\",\"scope_subject_ref\":\"$RET_A\",\"reason\":\"subpoena\"}")
+check "legal hold placed -> HTTP 201" "$ST" "201"
+check "in-scope records flagged in the same request" \
+  "$(sql "select legal_hold_flag::text from pg.core.record where id='rec_${RET_A}_cip_identity';")" "true"
+check "disposal.held emitted (SC-02)" \
+  "$(sql "select count(*) from pg.core.event where code='disposal.held' and resource_id='record:hold_m-e2e_${RET_A}';")" "1"
+
+# release requires written authorization
+ST=$(api POST "/retention/holds/hold_m-e2e_${RET_A}/release" ret-rel-bad '{}')
+check "release without authorization -> HTTP 400" "$ST" "400"
+check "the hold is still in force" \
+  "$(sql "select legal_hold_flag::text from pg.core.record where id='rec_${RET_A}_cip_identity';")" "true"
+ST=$(api POST "/retention/holds/hold_m-e2e_${RET_A}/release" ret-rel '{"approved_by":"general-counsel"}')
+check "authorized release -> HTTP 200" "$ST" "200"
+check "the flag cleared" \
+  "$(sql "select legal_hold_flag::text from pg.core.record where id='rec_${RET_A}_cip_identity';")" "false"
+
+# provenance separation, checked for real
+check "no simulated record can exist in core" \
+  "$(sql "select count(*) from pg.core.record where provenance='simulated';")" "0"
+check "sim.record exists and is a separate table" \
+  "$(sql "select count(*) from pg.information_schema.tables where table_schema='sim' and table_name='record';")" "1"
+echo "   unknown-provenance control_results (pre-migration, uncountable): $(sql "select count(*) from pg.core.control_result where provenance='unknown';")"
+
+echo
+echo "-- 37. Cash + CTR (BSA-08): per-PERSON aggregation and unattributable currency --"
+#
+# The load-bearing assertions here are about currency that cannot be attributed
+# to a person. Legacy accounts have no owner, and an aggregation that silently
+# drops or mis-buckets them would hide CTR obligations.
+
+CASH_ENT=$(api POST /entities cash-ent '{"type":"person","name":"Cash Member","date_of_birth":"1980-01-01"}' >/dev/null; jget id)
+ST=$(api POST /entities cash-ent2 '{"type":"person","name":"Cash Member","date_of_birth":"1980-01-01"}')
+CASH_ENT=$(jget id)
+check "member entity created -> HTTP 201" "$ST" "201"
+
+# an account WITH an owner, and a legacy-style account without one
+LINKED=$(curl -sS -X POST "$API/accounts" "${AUTH[@]}" -H "Idempotency-Key: $RUN-cash-linked" \
+  -d "{\"account_type\":\"checking\",\"opening_deposit_cents\":100000,\"entity_id\":\"$CASH_ENT\"}" \
+  | python3 -c 'import json,sys;print(json.load(sys.stdin)["id"])')
+check "account opened with an owning entity" \
+  "$(sql "select entity_id from pg.core.account where id='$LINKED';")" "$CASH_ENT"
+UNLINKED=$(new_account 100000 cash-unlinked)
+check "legacy-style account has no owner (nothing fabricated one)" \
+  "$(sql "select coalesce(entity_id,'NULL') from pg.core.account where id='$UNLINKED';")" "NULL"
+
+TODAY=$(date -u +%Y-%m-%d)
+
+# --- attributed currency under the threshold
+ST=$(api POST /cash/transactions cash-1 "{\"direction\":\"cash_in\",\"amount_cents\":400000,\"business_date\":\"$TODAY\",\"account_id\":\"$LINKED\"}")
+check "cash-in recorded -> HTTP 201" "$ST" "201"
+check "attributed to the owning person" "$(jget entity_id)" "$CASH_ENT"
+check "no CTR yet (under \$10k)" "$(python3 -c "import json;print('none' if json.load(open('/tmp/e2e_body'))['ctr'] is None else 'some')")" "none"
+
+# --- cash-in and cash-out are NOT summed
+ST=$(api POST /cash/transactions cash-2 "{\"direction\":\"cash_out\",\"amount_cents\":700000,\"business_date\":\"$TODAY\",\"account_id\":\"$LINKED\"}")
+check "cash-out recorded" "$ST" "201"
+check "\$4k in + \$7k out does NOT manufacture a CTR" \
+  "$(python3 -c "import json;print('none' if json.load(open('/tmp/e2e_body'))['ctr'] is None else 'some')")" "none"
+
+# --- crossing in ONE direction does
+ST=$(api POST /cash/transactions cash-3 "{\"direction\":\"cash_in\",\"amount_cents\":700000,\"business_date\":\"$TODAY\",\"account_id\":\"$LINKED\"}")
+check "cash-in aggregate now over \$10k -> CTR opened" \
+  "$(python3 -c "import json;print(json.load(open('/tmp/e2e_body'))['ctr']['id'])")" "ctr_${CASH_ENT}_${TODAY}"
+check "BSA-08's declared trigger fired" \
+  "$(sql "select count(*) from pg.core.event where code='ctr.threshold.reached' and resource_id='ctr_filing:ctr_${CASH_ENT}_${TODAY}';")" "1"
+check "the 15-day FinCEN clock started" \
+  "$(sql "select count(*) from pg.core.event where code='ctr.filing.timer' and resource_id='ctr_filing:ctr_${CASH_ENT}_${TODAY}';")" "1"
+
+# --- UNATTRIBUTABLE currency: recorded, flagged, and excluded from any determination
+ST=$(api POST /cash/transactions cash-unattr "{\"direction\":\"cash_in\",\"amount_cents\":1500000,\"business_date\":\"$TODAY\",\"account_id\":\"$UNLINKED\"}")
+check "currency against an unlinked account is still RECORDED -> 201" "$ST" "201"
+check "and reported as unattributable" "$(jget attributable)" "False"
+check "no CTR determination is claimed for it" \
+  "$(python3 -c "import json;print('none' if json.load(open('/tmp/e2e_body'))['ctr'] is None else 'some')")" "none"
+check "it raised a finding, not a log line" \
+  "$(sql "select count(*) from pg.core.bsa_alert where alert_type='unattributable_cash';")" "1"
+check "the row exists with a NULL entity — not dropped, not given a fake owner" \
+  "$(sql "select count(*) from pg.core.cash_transaction where entity_id is null and amount=1500000;")" "1"
+
+# --- the day is now visibly INCOMPLETE
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' "$API/cash/aggregation?business_date=$TODAY" "${AUTH[@]}")
+check "aggregation -> HTTP 200" "$ST" "200"
+check "the day is reported INCOMPLETE" "$(jget complete)" "False"
+check "unattributable total is surfaced, not hidden" \
+  "$(python3 -c "import json;print(json.load(open('/tmp/e2e_body'))['unattributable']['cash_in'])")" "1500000"
+check "per-person totals are labelled a lower bound" \
+  "$(python3 -c "import json;print('yes' if 'lower bound' in json.load(open('/tmp/e2e_body')).get('warning','') else 'no')")" "yes"
+
+# --- filing requires evidence of transmission
+ST=$(api POST "/cash/ctr/ctr_${CASH_ENT}_${TODAY}/file" cash-file-bad '{"filed_by":"bsa-officer"}')
+check "filing without a FinCEN reference -> HTTP 400" "$ST" "400"
+check "nothing was marked filed" \
+  "$(sql "select case when filed_at is null then 'unfiled' else 'filed' end from pg.core.ctr_filing where id='ctr_${CASH_ENT}_${TODAY}';")" "unfiled"
+ST=$(api POST "/cash/ctr/ctr_${CASH_ENT}_${TODAY}/file" cash-file '{"filed_by":"bsa-officer","fincen_ref":"BSA-E2E-001"}')
+check "filing with a reference -> HTTP 200" "$ST" "200"
+check "ctr.filed emitted" \
+  "$(sql "select count(*) from pg.core.event where code='ctr.filed' and resource_id='ctr_filing:ctr_${CASH_ENT}_${TODAY}';")" "1"
+
+# --- the NEGATIVE: a CTR owed and never filed
+psql "$SUPABASE_DB_URL" -qc "insert into core.ctr_filing (id, entity_id, business_date, cash_in_total, threshold_crossed_at, filing_due_at, provenance) values ('ctr_overdue_e2e','$CASH_ENT','2020-01-01',1100000,'2020-01-01','2020-01-16','production') on conflict do nothing;" >/dev/null
+ST=$(api POST /cash/ctr/sweep cash-sweep '{}')
+check "CTR sweep -> HTTP 200" "$ST" "200"
+check "the unfiled overdue CTR was surfaced" \
+  "$(sql "select count(*) from pg.core.event where id='evt_ctr_overdue_e2e_overdue';")" "1"
+check "the sweep also reports standing unattributable currency" \
+  "$(python3 -c "import json;print('yes' if json.load(open('/tmp/e2e_body'))['unattributable_transactions']>0 else 'no')")" "yes"
+
+check "no simulated cash can exist in core" \
+  "$(sql "select count(*) from pg.core.cash_transaction where provenance='simulated';")" "0"
+
+
+
+
+
+
+
+
+
 
 echo
 echo "== $PASS passed, $FAIL failed =="

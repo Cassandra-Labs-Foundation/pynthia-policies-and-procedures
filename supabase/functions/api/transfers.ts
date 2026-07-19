@@ -7,6 +7,7 @@ import {
   recordTransaction,
 } from "../_shared/blnk.ts";
 import { type AccountRow } from "./accounts.ts";
+import { provenanceFor, raiseAlert } from "./bsa.ts";
 import {
   apiError,
   bankErrorResponse,
@@ -23,6 +24,8 @@ import {
   validationError,
   type ValidationErrorItem,
 } from "./lib.ts";
+import { scopeToPartner } from "./ownership.ts";
+import { type PartnerContext } from "./auth.ts";
 
 export interface TransferRow {
   id: string;
@@ -83,6 +86,7 @@ export async function runGate(
   sourceAccount: AccountRow,
   destAccount: AccountRow | null,
   amountCents: number,
+  ctx?: PartnerContext,
 ): Promise<GateOutcome> {
   const controlResults: ControlResultRef[] = [];
   const sourceAccountId = sourceAccount.id;
@@ -93,6 +97,15 @@ export async function runGate(
   // the cap by splitting across rails — or send unlimited wires, since wire
   // volume would never count. Both tables key the source account the same way
   // (`originator` -> {account_id}).
+  // DO NOT add a partner_id predicate to the sweeps below. Every rail now
+  // carries an owner, so scoping them looks like an obvious tightening — it is
+  // the opposite. CTR aggregation and structuring detection are obligations of
+  // the chartered credit union across every fintech it hosts, and a narrowed
+  // aggregate fails OPEN: it returns fewer rows, the threshold is never
+  // reached, and the control still writes a clean passing control_result. A
+  // cap that never trips is indistinguishable from a cap that was never
+  // exceeded. Confinement belongs at the API boundary (ownership.ts), which is
+  // where the caller is; this is the bank's own view of its own book.
   const todayStart = `${new Date().toISOString().slice(0, 10)}T00:00:00.000Z`;
   const RAILS = ["transfer", "wire_transfer", "ach_transfer", "card_authorization"] as const;
   let velErr: { message: string } | null = null;
@@ -129,6 +142,9 @@ export async function runGate(
     const crId = `cr_${crypto.randomUUID()}`;
     const { error: crErr } = await db.schema("core").from("control_result").insert({
       id: crId,
+      // evidence written under the shared bootstrap credential is
+      // `demo`: real evaluation of manufactured traffic (seed.sh)
+      provenance: provenanceFor("core", ctx),
       control_id: "CG-VEL-01",
       decision: "block",
       event: transferId,
@@ -160,11 +176,13 @@ export async function runGate(
 
   if (amountCents > 1_000_000) {
     const crId = `cr_${crypto.randomUUID()}`;
-    const alertId = `alert_${crypto.randomUUID()}`;
     const entityHash = await sha256Hex(sourceAccountId);
 
     const { error: crErr } = await db.schema("core").from("control_result").insert({
       id: crId,
+      // evidence written under the shared bootstrap credential is
+      // `demo`: real evaluation of manufactured traffic (seed.sh)
+      provenance: provenanceFor("core", ctx),
       control_id: "CG-CTR-01",
       decision: "pass",
       event: transferId,
@@ -173,19 +191,16 @@ export async function runGate(
     if (crErr) throw new Error(`control_result insert (CG-CTR-01): ${crErr.message}`);
     controlResults.push({ control_id: "CG-CTR-01", decision: "pass" });
 
-    // event_id has fk_bsa_alert_event_id -> core.event(id), and no core.event row is ever
-    // created for a transfer, so event_id must stay null here (the transfer id is carried
-    // in details instead) or every insert violates the FK and is silently dropped.
-    const { error: bsaErr } = await db.schema("core").from("bsa_alert").insert({
-      id: alertId,
-      alert_type: "ctr_threshold",
-      status: "open",
-      requires_lookback: "true",
-      entity_hash: entityHash,
-      event_id: null,
+    // raiseAlert writes the causing core.event FIRST and points the alert at it,
+    // so event_id is populated (OQ-05). It used to be forced NULL by the FK.
+    await raiseAlert(db, {
+      ctx,
+      alertType: "ctr_threshold",
+      entityHash,
+      causeType: resource.type,
+      causeId: transferId,
       details: `${resource.label} over $10,000 (${resource.type}_id=${transferId}, amount_cents=${amountCents})`,
     });
-    if (bsaErr) throw new Error(`bsa_alert insert: ${bsaErr.message}`);
   }
 
   // CG-STR-02 — OUTBOUND structuring.
@@ -200,11 +215,13 @@ export async function runGate(
   // stayed silent, and never on a blocked payment (velocity returns above).
   if (amountCents <= 1_000_000 && priorSum + amountCents > 1_000_000) {
     const crId = `cr_${crypto.randomUUID()}`;
-    const alertId = `alert_${crypto.randomUUID()}`;
     const outflow = priorSum + amountCents;
 
     const { error: crErr } = await db.schema("core").from("control_result").insert({
       id: crId,
+      // evidence written under the shared bootstrap credential is
+      // `demo`: real evaluation of manufactured traffic (seed.sh)
+      provenance: provenanceFor("core", ctx),
       control_id: "CG-STR-02",
       decision: "pass",
       event: transferId,
@@ -213,20 +230,17 @@ export async function runGate(
     if (crErr) throw new Error(`control_result insert (CG-STR-02): ${crErr.message}`);
     controlResults.push({ control_id: "CG-STR-02", decision: "pass" });
 
-    // event_id stays null for the same FK reason as the CTR alert above.
-    const { error: bsaErr } = await db.schema("core").from("bsa_alert").insert({
-      id: alertId,
-      alert_type: "structuring",
-      status: "open",
-      requires_lookback: "true",
-      entity_hash: await sha256Hex(sourceAccountId),
-      event_id: null,
+    await raiseAlert(db, {
+      ctx,
+      alertType: "structuring",
+      entityHash: await sha256Hex(sourceAccountId),
+      causeType: resource.type,
+      causeId: transferId,
       details:
         `aggregate OUTBOUND over $10,000 with no single transaction above it ` +
         `(account_id=${sourceAccountId}, daily_outflow_cents=${outflow}, ` +
         `this_${resource.type}_id=${transferId})`,
     });
-    if (bsaErr) throw new Error(`bsa_alert insert (outbound structuring): ${bsaErr.message}`);
   }
 
   // CG-STR-01 — structuring / aggregate CTR.
@@ -257,9 +271,11 @@ export async function runGate(
 
     if (aggregate > 1_000_000) {
       const crId = `cr_${crypto.randomUUID()}`;
-      const alertId = `alert_${crypto.randomUUID()}`;
       const { error: crErr } = await db.schema("core").from("control_result").insert({
         id: crId,
+        // evidence written under the shared bootstrap credential is
+        // `demo`: real evaluation of manufactured traffic (seed.sh)
+        provenance: provenanceFor("core", ctx),
         control_id: "CG-STR-01",
         decision: "pass",
         event: transferId,
@@ -268,20 +284,17 @@ export async function runGate(
       if (crErr) throw new Error(`control_result insert (CG-STR-01): ${crErr.message}`);
       controlResults.push({ control_id: "CG-STR-01", decision: "pass" });
 
-      // event_id stays null for the same FK reason as the CTR alert above.
-      const { error: bsaErr } = await db.schema("core").from("bsa_alert").insert({
-        id: alertId,
-        alert_type: "structuring",
-        status: "open",
-        requires_lookback: "true",
-        entity_hash: await sha256Hex(destAccount.id),
-        event_id: null,
+      await raiseAlert(db, {
+      ctx,
+        alertType: "structuring",
+        entityHash: await sha256Hex(destAccount.id),
+        causeType: resource.type,
+        causeId: transferId,
         details:
           `aggregate inflow over $10,000 with no single transfer above it ` +
           `(account_id=${destAccount.id}, daily_inflow_cents=${aggregate}, ` +
           `this_${resource.type}_id=${transferId})`,
       });
-      if (bsaErr) throw new Error(`bsa_alert insert (structuring): ${bsaErr.message}`);
     }
   }
 
@@ -292,6 +305,9 @@ export async function runGate(
     const crId = `cr_${crypto.randomUUID()}`;
     const { error: crErr } = await db.schema("core").from("control_result").insert({
       id: crId,
+      // evidence written under the shared bootstrap credential is
+      // `demo`: real evaluation of manufactured traffic (seed.sh)
+      provenance: provenanceFor("core", ctx),
       control_id: "CG-NSF-01",
       decision: "reject",
       event: transferId,
@@ -538,6 +554,7 @@ export async function postTransfer(
   db: SupabaseClient,
   cfg: BlnkConfig,
   requestId: string,
+  ctx: PartnerContext,
 ): Promise<Response> {
   const idempotencyKey = req.headers.get("Idempotency-Key");
   if (!idempotencyKey) {
@@ -597,7 +614,7 @@ export async function postTransfer(
   });
 
   const freshTransferId = `tr_${crypto.randomUUID()}`;
-  const claim = await claimIdempotency(db, idempotencyKey, requestHash, freshTransferId, "POST /transfers");
+  const claim = await claimIdempotency(db, ctx.idempotencyScope, idempotencyKey, requestHash, freshTransferId, "POST /transfers");
 
   if (claim.kind === "replay") {
     return jsonResponse(
@@ -620,24 +637,26 @@ export async function postTransfer(
   const sourceCheck = await validateAccount(db, sourceId);
   if (!sourceCheck.ok) {
     const stored = { ...sourceCheck.body, request_id: requestId };
-    await storeIdempotencyResponse(db, idempotencyKey, 422, stored);
+    await storeIdempotencyResponse(db, ctx.idempotencyScope, idempotencyKey, 422, stored);
     return errorResponse(422, requestId, sourceCheck.body);
   }
 
   const destCheck = await validateAccount(db, destId);
   if (!destCheck.ok) {
     const stored = { ...destCheck.body, request_id: requestId };
-    await storeIdempotencyResponse(db, idempotencyKey, 422, stored);
+    await storeIdempotencyResponse(db, ctx.idempotencyScope, idempotencyKey, 422, stored);
     return errorResponse(422, requestId, destCheck.body);
   }
 
   const sourceAccount = sourceCheck.account;
   const destAccount = destCheck.account;
 
-  const { data: existingTransfer, error: xferFetchErr } = await db.schema("core").from("transfer")
-    .select("id, amount, status, originator, beneficiary, counterparty, blnk_transaction_id, blnk_reference, blnk_status, synced_at, created_at")
-    .eq("id", transferId)
-    .maybeSingle();
+  const { data: existingTransfer, error: xferFetchErr } = await scopeToPartner(
+    db.schema("core").from("transfer")
+      .select("id, amount, status, originator, beneficiary, counterparty, blnk_transaction_id, blnk_reference, blnk_status, synced_at, created_at")
+      .eq("id", transferId),
+    ctx,
+  ).maybeSingle();
   if (xferFetchErr) throw new Error(`transfer fetch: ${xferFetchErr.message}`);
 
   let transferRow = existingTransfer as TransferRow | null;
@@ -652,6 +671,7 @@ export async function postTransfer(
       beneficiary: { account_id: destId },
       counterparty: null,
       created_at: createdAt,
+      partner_id: ctx.ownerPartnerId,
     });
     if (insErr) throw new Error(`transfer insert: ${insErr.message}`);
     transferRow = {
@@ -677,10 +697,10 @@ export async function postTransfer(
   if (transferRow.status === "settled") {
     controlResults.push(...await loadControlResults(db, transferId));
   } else {
-    const gate = await runGate(db, cfg, TRANSFER_RESOURCE(transferId), sourceAccount, destAccount, amount);
+    const gate = await runGate(db, cfg, TRANSFER_RESOURCE(transferId), sourceAccount, destAccount, amount, ctx);
     if (gate.blocked) {
       const stored = { ...gate.body, request_id: requestId };
-      await storeIdempotencyResponse(db, idempotencyKey, gate.status, stored);
+      await storeIdempotencyResponse(db, ctx.idempotencyScope, idempotencyKey, gate.status, stored);
       return errorResponse(gate.status, requestId, gate.body);
     }
     controlResults.push(...gate.controlResults);
@@ -780,7 +800,7 @@ export async function postTransfer(
   };
   if (warnings.length) successBody.meta = { warnings };
 
-  await storeIdempotencyResponse(db, idempotencyKey, 201, successBody);
+  await storeIdempotencyResponse(db, ctx.idempotencyScope, idempotencyKey, 201, successBody);
   return jsonResponse(successBody, 201, requestId);
 }
 
@@ -788,11 +808,14 @@ export async function getTransfer(
   transferId: string,
   db: SupabaseClient,
   requestId: string,
+  ctx: PartnerContext,
 ): Promise<Response> {
-  const { data, error } = await db.schema("core").from("transfer")
-    .select("id, status, amount, originator, beneficiary, blnk_transaction_id, blnk_status, created_at")
-    .eq("id", transferId)
-    .maybeSingle();
+  const { data, error } = await scopeToPartner(
+    db.schema("core").from("transfer")
+      .select("id, status, amount, originator, beneficiary, blnk_transaction_id, blnk_status, created_at")
+      .eq("id", transferId),
+    ctx,
+  ).maybeSingle();
 
   if (error) return internalErrorResponse(requestId, error);
   if (!data) return notFoundResponse(requestId, "transfer", transferId);

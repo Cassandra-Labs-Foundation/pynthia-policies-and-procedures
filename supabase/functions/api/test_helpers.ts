@@ -5,6 +5,7 @@
 // against the deployed function and real Blnk.
 
 import { type BlnkConfig } from "../_shared/blnk.ts";
+import { type PartnerContext } from "./auth.ts";
 
 // deno-lint-ignore no-explicit-any
 export type Any = any;
@@ -95,6 +96,51 @@ export function stubDb(row: unknown) {
   };
   return { db, updates, upserts };
 }
+
+/**
+ * Partner context for writer tests (card 45).
+ *
+ * Every writer that claims an Idempotency-Key now needs one, because the key is
+ * namespaced per partner. Tests that care about CONFINEMENT build their own
+ * with a different partnerId; everything else uses this.
+ */
+export const TEST_CTX: PartnerContext = {
+  tokenId: "tok_test",
+  tokenPrefix: "cass_pt_test",
+  actorType: "partner",
+  roles: [],
+  partnerId: "ptnr_test",
+  instanceId: "inst_test",
+  idempotencyScope: "ptnr_test",
+  ownerPartnerId: "ptnr_test",
+  evidenceProvenance: "production",
+};
+
+/** A second partner on the same instance — for cross-partner isolation tests. */
+export const OTHER_CTX: PartnerContext = {
+  ...TEST_CTX,
+  tokenId: "tok_other",
+  partnerId: "ptnr_other",
+  idempotencyScope: "ptnr_other",
+  ownerPartnerId: "ptnr_other",
+  evidenceProvenance: "production",
+};
+
+/**
+ * An ops actor: not confined to a partner's rows (D23), but still stamps an
+ * owner on what it creates because partner_id is NOT NULL.
+ */
+export const OPS_CTX: PartnerContext = {
+  tokenId: "tok_ops",
+  tokenPrefix: "cass_ops",
+  actorType: "pynthia_ops",
+  roles: [],
+  partnerId: null,
+  instanceId: "inst_test",
+  idempotencyScope: "token:tok_ops",
+  ownerPartnerId: "ptnr_test",
+  evidenceProvenance: "production",
+};
 
 /** Request carrying an Idempotency-Key by default (writers guard on it first). */
 export function req(
@@ -241,3 +287,41 @@ export function stubApiDb(opts: ApiDbOpts = {}) {
   const db: Any = { schema: () => ({ from }) };
   return { db, inserts, updates };
 }
+
+/**
+ * The two BSA duty roles, as separate actors. Separate TOKEN IDS is the point:
+ * the four-eyes rule compares actors, so a test that reused one id would pass
+ * for the wrong reason.
+ */
+export const INVESTIGATOR_CTX: PartnerContext = {
+  ...OPS_CTX,
+  tokenId: "tok_investigator",
+  roles: ["bsa_investigator"],
+  idempotencyScope: "token:tok_investigator",
+};
+
+export const OFFICER_CTX: PartnerContext = {
+  ...OPS_CTX,
+  tokenId: "tok_officer",
+  roles: ["bsa_officer"],
+  idempotencyScope: "token:tok_officer",
+};
+
+/** One actor holding both roles — the case the separation must still refuse. */
+export const DUAL_ROLE_CTX: PartnerContext = {
+  ...OPS_CTX,
+  tokenId: "tok_dual",
+  roles: ["bsa_investigator", "bsa_officer"],
+  idempotencyScope: "token:tok_dual",
+};
+
+/**
+ * A request authenticated with the shared bootstrap DEMO_API_KEY — what
+ * analytics/seed.sh uses. Its evidence is real evaluation of manufactured
+ * traffic, so it must never count toward coverage.
+ */
+export const DEMO_KEY_CTX: PartnerContext = {
+  ...OPS_CTX,
+  tokenId: "tok_demo_bootstrap",
+  evidenceProvenance: "demo",
+};

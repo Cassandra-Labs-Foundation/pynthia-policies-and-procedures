@@ -14,7 +14,7 @@ import { assert, assertEquals } from "jsr:@std/assert@1";
 import { postWirePrepare } from "./wires.ts";
 import { postAch } from "./ach.ts";
 import { postCardAuthorize } from "./cards.ts";
-import { type Any, json, req, stubApiDb, stubCfg } from "./test_helpers.ts";
+import { type Any, json, req, stubApiDb, stubCfg, TEST_CTX } from "./test_helpers.ts";
 
 const ACCOUNT = {
   id: "acct_src",
@@ -57,7 +57,7 @@ Deno.test("wire prepare holds funds and lands submitted", async () => {
   const { cfg, sent } = stubCfg([gatePasses(), inflight("wire_transfer:w1")]);
   const { db, inserts, updates } = stubApiDb({ account: ACCOUNT, row: { id: "w1", amount: 250_000 } });
 
-  const res = await postWirePrepare(req(WIRE_BODY), db, cfg, "r1");
+  const res = await postWirePrepare(req(WIRE_BODY), db, cfg, "r1", TEST_CTX);
   assertEquals(res.status, 201);
   assertEquals((await res.json()).status, "submitted");
 
@@ -80,7 +80,7 @@ Deno.test("wire prepare runs the gate BEFORE placing the hold", async () => {
   const { cfg, sent } = stubCfg([json({ balance: 100, currency: "USD" })]);
   const { db } = stubApiDb({ account: ACCOUNT, row: { id: "w1" } });
 
-  const res = await postWirePrepare(req(WIRE_BODY), db, cfg, "r2");
+  const res = await postWirePrepare(req(WIRE_BODY), db, cfg, "r2", TEST_CTX);
   assertEquals(res.status, 422);
   assertEquals(
     sent.some((s) => s.url.endsWith("/transactions")),
@@ -94,7 +94,7 @@ Deno.test("wire prepare replays a completed claim without touching Blnk", async 
   const stored = { id: "w1", status: "submitted" };
   const { db } = stubApiDb({ account: ACCOUNT, idem: { kind: "replay", status: 201, body: stored } });
 
-  const res = await postWirePrepare(req(WIRE_BODY), db, cfg, "r3");
+  const res = await postWirePrepare(req(WIRE_BODY), db, cfg, "r3", TEST_CTX);
   assertEquals(res.status, 201);
   assertEquals(res.headers.get("Idempotent-Replayed"), "true");
   assertEquals(await res.json(), stored);
@@ -105,7 +105,7 @@ Deno.test("wire prepare 409s when the same key arrives with a different body", a
   const { cfg, sent } = stubCfg([]);
   const { db } = stubApiDb({ account: ACCOUNT, idem: { kind: "conflict" } });
 
-  const res = await postWirePrepare(req(WIRE_BODY), db, cfg, "r4");
+  const res = await postWirePrepare(req(WIRE_BODY), db, cfg, "r4", TEST_CTX);
   assertEquals(res.status, 409);
   assertEquals((await res.json()).type, "idempotency_key_reused");
   assertEquals(sent.length, 0);
@@ -119,7 +119,7 @@ Deno.test("wire prepare resumes an interrupted claim on the ORIGINAL id", async 
     row: { id: "w_orig" },
   });
 
-  const res = await postWirePrepare(req(WIRE_BODY), db, cfg, "r5");
+  const res = await postWirePrepare(req(WIRE_BODY), db, cfg, "r5", TEST_CTX);
   assertEquals(res.status, 201);
   // reusing the interrupted id keeps the Blnk reference stable, which is what
   // stops a retry from double-holding the same funds
@@ -130,7 +130,7 @@ Deno.test("wire prepare resumes an interrupted claim on the ORIGINAL id", async 
 Deno.test("wire prepare 404s an unknown source account before any Blnk call", async () => {
   const { cfg, sent } = stubCfg([]);
   const { db } = stubApiDb({ account: null });
-  const res = await postWirePrepare(req(WIRE_BODY), db, cfg, "r6");
+  const res = await postWirePrepare(req(WIRE_BODY), db, cfg, "r6", TEST_CTX);
   assertEquals(res.status, 404);
   assertEquals(sent.length, 0);
 });
@@ -138,7 +138,7 @@ Deno.test("wire prepare 404s an unknown source account before any Blnk call", as
 Deno.test("wire prepare 409s an account with no Blnk balance provisioned", async () => {
   const { cfg } = stubCfg([]);
   const { db } = stubApiDb({ account: { ...ACCOUNT, blnk_balance_id: null } });
-  const res = await postWirePrepare(req(WIRE_BODY), db, cfg, "r7");
+  const res = await postWirePrepare(req(WIRE_BODY), db, cfg, "r7", TEST_CTX);
   assertEquals(res.status, 409);
   assertEquals((await res.json()).type, "account_not_provisioned");
 });
@@ -149,7 +149,7 @@ Deno.test("ach submit holds funds toward the ACH network and lands submitted", a
   const { cfg, sent } = stubCfg([gatePasses(), inflight("ach_transfer:a1")]);
   const { db, inserts } = stubApiDb({ account: ACCOUNT, row: { id: "a1", amount: 250_000 } });
 
-  const res = await postAch(req(ACH_BODY), db, cfg, "r8");
+  const res = await postAch(req(ACH_BODY), db, cfg, "r8", TEST_CTX);
   assertEquals(res.status, 201);
   assertEquals((await res.json()).status, "submitted");
 
@@ -166,7 +166,7 @@ Deno.test("ach submit defaults the settlement window when none is given", async 
   const { db, inserts } = stubApiDb({ account: ACCOUNT, row: { id: "a2" } });
 
   const { window: _omitted, ...noWindow } = ACH_BODY;
-  await postAch(req(noWindow), db, cfg, "r9");
+  await postAch(req(noWindow), db, cfg, "r9", TEST_CTX);
   assertEquals(inserts.find((i) => i.table === "ach_transfer")?.row.window, "next_day");
 });
 
@@ -174,7 +174,7 @@ Deno.test("ach submit runs the gate BEFORE placing the hold", async () => {
   const { cfg, sent } = stubCfg([json({ balance: 100, currency: "USD" })]);
   const { db } = stubApiDb({ account: ACCOUNT, row: { id: "a1" } });
 
-  assertEquals((await postAch(req(ACH_BODY), db, cfg, "r10")).status, 422);
+  assertEquals((await postAch(req(ACH_BODY), db, cfg, "r10", TEST_CTX)).status, 422);
   assertEquals(sent.some((s) => s.url.endsWith("/transactions")), false);
 });
 
@@ -187,7 +187,7 @@ Deno.test("card authorize places a hold with nothing captured yet", async () => 
     row: { id: "c1", amount: 100_000, status: "authorized", blnk_committed_amount: 0 },
   });
 
-  const res = await postCardAuthorize(req(CARD_BODY), db, cfg, "r11");
+  const res = await postCardAuthorize(req(CARD_BODY), db, cfg, "r11", TEST_CTX);
   assertEquals(res.status, 201);
   const b = await res.json();
   assertEquals(b.status, "authorized");
@@ -205,7 +205,7 @@ Deno.test("a gate-blocked authorization is recorded as declined with a reason", 
   const { cfg, sent } = stubCfg([json({ balance: 100, currency: "USD" })]);
   const { db, updates } = stubApiDb({ account: ACCOUNT, row: { id: "c1" } });
 
-  const res = await postCardAuthorize(req(CARD_BODY), db, cfg, "r12");
+  const res = await postCardAuthorize(req(CARD_BODY), db, cfg, "r12", TEST_CTX);
   assertEquals(res.status, 422);
   assertEquals(sent.some((s) => s.url.endsWith("/transactions")), false);
 
@@ -218,7 +218,7 @@ Deno.test("card authorize requires a merchant", async () => {
   const { cfg } = stubCfg([]);
   const { db } = stubApiDb({ account: ACCOUNT });
   const { merchant: _omitted, ...noMerchant } = CARD_BODY;
-  const res = await postCardAuthorize(req(noMerchant), db, cfg, "r13");
+  const res = await postCardAuthorize(req(noMerchant), db, cfg, "r13", TEST_CTX);
   assertEquals(res.status, 400);
   assert((await res.json()).errors.some((e: Any) => e.field === "merchant"));
 });

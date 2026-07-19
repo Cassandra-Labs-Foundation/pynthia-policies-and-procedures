@@ -15,6 +15,8 @@ import {
   validationError,
   type ValidationErrorItem,
 } from "./lib.ts";
+import { scopeToPartner, withOwner } from "./ownership.ts";
+import { type PartnerContext } from "./auth.ts";
 
 const TYPES = ["person", "business", "trust", "joint"] as const;
 type EntityType = typeof TYPES[number];
@@ -81,6 +83,7 @@ export async function postEntity(
   req: Request,
   db: SupabaseClient,
   requestId: string,
+  ctx: PartnerContext,
 ): Promise<Response> {
   const raw = await parseJsonBody(req).catch(() => null);
   const body = raw && typeof raw === "object" ? raw as Record<string, unknown> : {};
@@ -115,7 +118,7 @@ export async function postEntity(
     address: isNonEmptyString(body.address) ? body.address : null,
     owners: [],
   };
-  const { error } = await db.schema("core").from("entity").insert(row);
+  const { error } = await db.schema("core").from("entity").insert(withOwner(row, ctx));
   if (error) return internalErrorResponse(requestId, error);
 
   await emitEntityEvent(db, "entity.created", "entity", id, { type, name: body.name });
@@ -127,6 +130,7 @@ export async function getEntities(
   req: Request,
   db: SupabaseClient,
   requestId: string,
+  ctx: PartnerContext,
 ): Promise<Response> {
   const q = new URL(req.url).searchParams;
   const errors: ValidationErrorItem[] = [];
@@ -148,8 +152,12 @@ export async function getEntities(
   }
   if (errors.length) return validationError(requestId, errors);
 
-  let query = db.schema("core").from("entity")
-    .select(ENTITY_COLS)
+  // scoped before the type/cursor filters so a partner's page can never
+  // contain another partner's entity, whatever the query string asks for
+  let query = scopeToPartner(
+    db.schema("core").from("entity").select(ENTITY_COLS),
+    ctx,
+  )
     .order("created_at", { ascending: false })
     .limit(limit + 1);
   if (type) query = query.eq("type", type);
@@ -173,9 +181,12 @@ export async function getEntity(
   entityId: string,
   db: SupabaseClient,
   requestId: string,
+  ctx: PartnerContext,
 ): Promise<Response> {
-  const { data, error } = await db.schema("core").from("entity")
-    .select(ENTITY_COLS).eq("id", entityId).maybeSingle();
+  const { data, error } = await scopeToPartner(
+    db.schema("core").from("entity").select(ENTITY_COLS).eq("id", entityId),
+    ctx,
+  ).maybeSingle();
   if (error) return internalErrorResponse(requestId, error);
   if (!data) return notFoundResponse(requestId, "entity", entityId);
   return jsonResponse(entityResponse(data as Record<string, unknown>), 200, requestId);
@@ -187,6 +198,7 @@ export async function postEntityTransition(
   entityId: string,
   db: SupabaseClient,
   requestId: string,
+  ctx: PartnerContext,
 ): Promise<Response> {
   const raw = await parseJsonBody(req).catch(() => null);
   const to = raw && typeof raw === "object" ? (raw as Record<string, unknown>).to : undefined;
@@ -198,8 +210,10 @@ export async function postEntityTransition(
     }]);
   }
 
-  const { data: ent, error: selErr } = await db.schema("core").from("entity")
-    .select(ENTITY_COLS).eq("id", entityId).maybeSingle();
+  const { data: ent, error: selErr } = await scopeToPartner(
+    db.schema("core").from("entity").select(ENTITY_COLS).eq("id", entityId),
+    ctx,
+  ).maybeSingle();
   if (selErr) return internalErrorResponse(requestId, selErr);
   if (!ent) return notFoundResponse(requestId, "entity", entityId);
 
@@ -225,6 +239,7 @@ export async function postEntityOwner(
   entityId: string,
   db: SupabaseClient,
   requestId: string,
+  ctx: PartnerContext,
 ): Promise<Response> {
   const raw = await parseJsonBody(req).catch(() => null);
   const body = raw && typeof raw === "object" ? raw as Record<string, unknown> : {};
@@ -247,8 +262,10 @@ export async function postEntityOwner(
   }
   if (errors.length) return validationError(requestId, errors);
 
-  const { data: ent, error: selErr } = await db.schema("core").from("entity")
-    .select(ENTITY_COLS).eq("id", entityId).maybeSingle();
+  const { data: ent, error: selErr } = await scopeToPartner(
+    db.schema("core").from("entity").select(ENTITY_COLS).eq("id", entityId),
+    ctx,
+  ).maybeSingle();
   if (selErr) return internalErrorResponse(requestId, selErr);
   if (!ent) return notFoundResponse(requestId, "entity", entityId);
 

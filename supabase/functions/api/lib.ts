@@ -73,8 +73,9 @@ export function validationError(requestId: string, errors: ValidationErrorItem[]
 }
 
 // Card 03: one version constant, stamped on EVERY response by the single
-// response builder below. Tracks core-api.yaml (v3.0.0).
-export const API_VERSION = "3.0.0";
+// response builder below. Major bumped to 4 by card 45: the shared X-Api-Key
+// is gone, which is a breaking change for every existing caller.
+export const API_VERSION = "4.0.0";
 
 export function jsonResponse(
   body: unknown,
@@ -97,13 +98,6 @@ export function misconfiguredResponse(requestId: string, message: string): Respo
   return apiError(500, "misconfigured", requestId, {
     title: "Misconfigured",
     detail: message,
-  });
-}
-
-export function unauthorizedResponse(requestId: string): Response {
-  return apiError(401, "unauthorized", requestId, {
-    title: "Unauthorized",
-    detail: "Invalid or missing X-Api-Key",
   });
 }
 
@@ -208,14 +202,27 @@ export type IdempotencyClaim =
   | { kind: "resume"; transferId: string }
   | { kind: "conflict" };
 
+/**
+ * Claim an Idempotency-Key for one partner.
+ *
+ * `partnerId` partitions the keyspace and is NOT optional (card 45). The key
+ * alone used to be the primary key, so two partners sending the same
+ * Idempotency-Key — 'order-42' and the like, derived from their own order
+ * numbers — collided, and the second one replayed the FIRST one's cached
+ * response body: account ids, amounts, counterparties. Every lookup below
+ * therefore filters on both columns; filtering on the key alone would restore
+ * the leak even with the composite primary key in place.
+ */
 export async function claimIdempotency(
   db: SupabaseClient,
+  partnerId: string,
   idempotencyKey: string,
   requestHash: string,
   transferId: string,
   endpoint: string,
 ): Promise<IdempotencyClaim> {
   const { error: insErr } = await db.schema("core").from("idempotency_keys").insert({
+    partner_id: partnerId,
     idempotency_key: idempotencyKey,
     endpoint,
     request_hash: requestHash,
@@ -231,6 +238,7 @@ export async function claimIdempotency(
 
   const { data, error: fetchErr } = await db.schema("core").from("idempotency_keys")
     .select("idempotency_key, endpoint, request_hash, response_status, response_body, blnk_reference")
+    .eq("partner_id", partnerId)
     .eq("idempotency_key", idempotencyKey)
     .maybeSingle();
 
@@ -254,12 +262,16 @@ export async function claimIdempotency(
 
 export async function storeIdempotencyResponse(
   db: SupabaseClient,
+  partnerId: string,
   idempotencyKey: string,
   responseStatus: number,
   responseBody: unknown,
 ): Promise<void> {
   const { error } = await db.schema("core").from("idempotency_keys")
     .update({ response_status: responseStatus, response_body: responseBody })
+    // both columns: without the partner predicate this writes one partner's
+    // response body onto every partner's row that happens to share the key
+    .eq("partner_id", partnerId)
     .eq("idempotency_key", idempotencyKey);
   if (error) throw new Error(`idempotency update: ${error.message}`);
 }

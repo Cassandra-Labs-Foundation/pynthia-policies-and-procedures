@@ -1,0 +1,1374 @@
+{
+  "_comment": [
+    "Lorenzo's scoping decision: which controls a software system can actually",
+    "observe and enforce.",
+    "",
+    "IN  = the credit union's financial position, the transactions flowing through",
+    "      the core, or the members themselves.",
+    "OUT = organisational process \u2014 board governance, staff training, HR, policy",
+    "      review calendars, vendor management workflow, internal audit process,",
+    "      business continuity planning. These are REAL obligations discharged by",
+    "      people and paperwork; building software to assert they happened is",
+    "      theatre.",
+    "",
+    "Scoped-out controls are MARKED, never deleted, so the decision is reversible",
+    "and the shape of the whole obligation stays legible. The out-of-scope count",
+    "is reported next to the in-scope one for the same reason.",
+    "",
+    "`judgment_call: true` marks the 19 that genuinely straddled the line. Those",
+    "are the ones to overrule first."
+  ],
+  "scope": {
+    "audit:AU-01": {
+      "verdict": "out",
+      "why": "organisational process: board, policy"
+    },
+    "audit:AU-02": {
+      "verdict": "out",
+      "why": "organisational process: audit"
+    },
+    "audit:AU-03": {
+      "verdict": "out",
+      "why": "organisational process: audit"
+    },
+    "audit:AU-04": {
+      "verdict": "out",
+      "why": "organisational process: audit"
+    },
+    "audit:AU-05": {
+      "verdict": "out",
+      "why": "organisational process: audit"
+    },
+    "audit:AU-06": {
+      "verdict": "out",
+      "why": "organisational process: audit"
+    },
+    "audit:AU-07": {
+      "verdict": "out",
+      "why": "organisational process: finding"
+    },
+    "audit:AU-08": {
+      "verdict": "out",
+      "why": "mixed, process majority (3v1): audit,finding"
+    },
+    "audit:AU-09": {
+      "verdict": "out",
+      "why": "organisational process: audit, finding"
+    },
+    "audit:AU-10": {
+      "verdict": "out",
+      "why": "organisational process: audit"
+    },
+    "audit:SC-02": {
+      "verdict": "in",
+      "why": "technical: disposal, legal_hold, record"
+    },
+    "basel-ii-standardized-approach-framework:BA-01": {
+      "verdict": "in",
+      "why": "technical: capital"
+    },
+    "basel-ii-standardized-approach-framework:BA-02": {
+      "verdict": "in",
+      "why": "technical: capital"
+    },
+    "basel-ii-standardized-approach-framework:BA-03": {
+      "verdict": "in",
+      "why": "technical: rwa"
+    },
+    "basel-ii-standardized-approach-framework:BA-04": {
+      "verdict": "in",
+      "why": "technical: loan, rwa"
+    },
+    "basel-ii-standardized-approach-framework:BA-05": {
+      "verdict": "in",
+      "why": "mixed, technical majority (3v2): liquidity"
+    },
+    "basel-ii-standardized-approach-framework:BA-06": {
+      "verdict": "in",
+      "why": "technical: capital"
+    },
+    "basel-ii-standardized-approach-framework:BA-07": {
+      "verdict": "in",
+      "why": "technical: capital"
+    },
+    "basel-ii-standardized-approach-framework:BA-08": {
+      "verdict": "in",
+      "why": "mixed, technical majority (3v1): alco,capital"
+    },
+    "bsa:BSA-01": {
+      "verdict": "out",
+      "why": "organisational process: governance, policy, reporting"
+    },
+    "bsa:BSA-02": {
+      "verdict": "out",
+      "why": "organisational process: policy, risk"
+    },
+    "bsa:BSA-03": {
+      "verdict": "in",
+      "why": "technical: account, application, verification"
+    },
+    "bsa:BSA-04": {
+      "verdict": "in",
+      "why": "mixed, technical majority (4v1): application,cdd"
+    },
+    "bsa:BSA-05": {
+      "verdict": "in",
+      "why": "technical: ofac, verification, wire_transfer"
+    },
+    "bsa:BSA-06": {
+      "verdict": "in",
+      "why": "technical: bsa_alert, case"
+    },
+    "bsa:BSA-07": {
+      "verdict": "in",
+      "why": "technical: case, sar"
+    },
+    "bsa:BSA-08": {
+      "verdict": "in",
+      "why": "technical: ctr"
+    },
+    "bsa:BSA-09": {
+      "verdict": "in",
+      "why": "technical: mi, monetary_instrument"
+    },
+    "bsa:BSA-10": {
+      "verdict": "in",
+      "why": "technical: wire_transfer"
+    },
+    "bsa:BSA-11": {
+      "verdict": "in",
+      "why": "technical: regulator"
+    },
+    "bsa:BSA-12": {
+      "verdict": "in",
+      "why": "technical: cmir"
+    },
+    "bsa:BSA-13": {
+      "verdict": "in",
+      "why": "technical: fbar"
+    },
+    "bsa:BSA-14": {
+      "verdict": "in",
+      "why": "technical: escalation"
+    },
+    "bsa:BSA-15": {
+      "verdict": "out",
+      "why": "organisational process: employee, training"
+    },
+    "bsa:BSA-16": {
+      "verdict": "out",
+      "why": "organisational process: audit"
+    },
+    "bsa:BSA-17": {
+      "verdict": "in",
+      "why": "technical: application, edd"
+    },
+    "bsa:BSA-18": {
+      "verdict": "in",
+      "why": "technical: pep, verification"
+    },
+    "bsa:BSA-19": {
+      "verdict": "in",
+      "why": "technical: regulatory"
+    },
+    "bsa:BSA-20": {
+      "verdict": "out",
+      "why": "organisational process: vendor"
+    },
+    "bsa:BSA-21": {
+      "verdict": "in",
+      "why": "technical: account"
+    },
+    "bsa:SC-02": {
+      "verdict": "in",
+      "why": "technical: disposal, legal_hold, record"
+    },
+    "business-continuity-plan:BC-01": {
+      "verdict": "out",
+      "why": "organisational process: bcp, board, org"
+    },
+    "business-continuity-plan:BC-02": {
+      "verdict": "out",
+      "why": "BCP hazard assessment is a planning exercise; the system holds no hazard data",
+      "judgment_call": true
+    },
+    "business-continuity-plan:BC-03": {
+      "verdict": "out",
+      "why": "organisational process: bia, org"
+    },
+    "business-continuity-plan:BC-04": {
+      "verdict": "out",
+      "why": "organisational process: exercise"
+    },
+    "business-continuity-plan:BC-05": {
+      "verdict": "in",
+      "why": "technical: incident"
+    },
+    "business-continuity-plan:BC-06": {
+      "verdict": "in",
+      "why": "technical: incident"
+    },
+    "business-continuity-plan:BC-07": {
+      "verdict": "in",
+      "why": "technical: incident"
+    },
+    "business-continuity-plan:BC-08": {
+      "verdict": "out",
+      "why": "organisational process: site"
+    },
+    "business-continuity-plan:BC-09": {
+      "verdict": "in",
+      "why": "technical: incident"
+    },
+    "business-continuity-plan:BC-11": {
+      "verdict": "in",
+      "why": "technical: incident"
+    },
+    "business-continuity-plan:BC-12": {
+      "verdict": "out",
+      "why": "organisational process: staffing"
+    },
+    "business-continuity-plan:BC-13": {
+      "verdict": "in",
+      "why": "technical: incident"
+    },
+    "business-continuity-plan:BC-14": {
+      "verdict": "out",
+      "why": "organisational process: vendor"
+    },
+    "business-continuity-plan:BC-15": {
+      "verdict": "in",
+      "why": "mixed, technical majority (2v1): incident"
+    },
+    "business-continuity-plan:SC-01": {
+      "verdict": "in",
+      "why": "technical: incident"
+    },
+    "capitalization:CP-01": {
+      "verdict": "in",
+      "why": "technical: capital"
+    },
+    "capitalization:CP-02": {
+      "verdict": "in",
+      "why": "technical: capital"
+    },
+    "capitalization:CP-03": {
+      "verdict": "in",
+      "why": "technical: capital"
+    },
+    "capitalization:CP-04": {
+      "verdict": "in",
+      "why": "technical: capital"
+    },
+    "capitalization:CP-05": {
+      "verdict": "in",
+      "why": "technical: capital"
+    },
+    "capitalization:CP-06": {
+      "verdict": "in",
+      "why": "technical: capital"
+    },
+    "capitalization:CP-07": {
+      "verdict": "in",
+      "why": "technical: capital"
+    },
+    "capitalization:CP-08": {
+      "verdict": "in",
+      "why": "technical: capital"
+    },
+    "capitalization:CP-09": {
+      "verdict": "in",
+      "why": "technical: capital"
+    },
+    "capitalization:CP-10": {
+      "verdict": "in",
+      "why": "technical: capital"
+    },
+    "cash:CP-01": {
+      "verdict": "in",
+      "why": "mixed, technical majority (3v1): cash"
+    },
+    "cash:CP-02": {
+      "verdict": "out",
+      "why": "organisational process: policy, scope_registry"
+    },
+    "cash:CP-03": {
+      "verdict": "in",
+      "why": "technical: cash"
+    },
+    "cash:CP-04": {
+      "verdict": "in",
+      "why": "technical: cash"
+    },
+    "cash:CP-05": {
+      "verdict": "in",
+      "why": "mixed, technical majority (4v1): cash"
+    },
+    "cash:CP-06": {
+      "verdict": "in",
+      "why": "technical: cash, gl"
+    },
+    "cash:CP-07": {
+      "verdict": "in",
+      "why": "technical: cash"
+    },
+    "cash:CP-08": {
+      "verdict": "in",
+      "why": "technical: cash"
+    },
+    "cash:CP-09": {
+      "verdict": "in",
+      "why": "technical: cash"
+    },
+    "cash:CP-10": {
+      "verdict": "in",
+      "why": "technical: cash"
+    },
+    "cash:CP-11": {
+      "verdict": "out",
+      "why": "organisational process: employee, training"
+    },
+    "cash:CP-12": {
+      "verdict": "in",
+      "why": "technical: cash, record"
+    },
+    "charitable-donation-accounts:CDA-01": {
+      "verdict": "in",
+      "why": "technical: cda"
+    },
+    "charitable-donation-accounts:CDA-02": {
+      "verdict": "in",
+      "why": "technical: cda"
+    },
+    "charitable-donation-accounts:CDA-03": {
+      "verdict": "in",
+      "why": "technical: cda"
+    },
+    "charitable-donation-accounts:CDA-04": {
+      "verdict": "in",
+      "why": "technical: cda"
+    },
+    "charitable-donation-accounts:CDA-05": {
+      "verdict": "in",
+      "why": "technical: cda"
+    },
+    "charitable-donation-accounts:CDA-06": {
+      "verdict": "in",
+      "why": "technical: cda"
+    },
+    "charitable-donation-accounts:CDA-07": {
+      "verdict": "in",
+      "why": "technical: cda"
+    },
+    "charitable-donation-accounts:CDA-08": {
+      "verdict": "in",
+      "why": "technical: cda"
+    },
+    "charitable-donation-accounts:CDA-09": {
+      "verdict": "in",
+      "why": "technical: cda"
+    },
+    "charitable-donation-accounts:CDA-10": {
+      "verdict": "in",
+      "why": "technical: cda"
+    },
+    "charitable-donation-accounts:CDA-11": {
+      "verdict": "in",
+      "why": "technical: cda"
+    },
+    "charitable-donation-accounts:CDA-12": {
+      "verdict": "in",
+      "why": "technical: cda"
+    },
+    "charitable-donation-accounts:CDA-13": {
+      "verdict": "in",
+      "why": "technical: cda"
+    },
+    "charitable-donation-accounts:CDA-14": {
+      "verdict": "in",
+      "why": "technical: cda"
+    },
+    "collections:CO-01": {
+      "verdict": "in",
+      "why": "technical: collections"
+    },
+    "collections:CO-02": {
+      "verdict": "in",
+      "why": "technical: collections, loan"
+    },
+    "collections:CO-03": {
+      "verdict": "in",
+      "why": "technical: loan"
+    },
+    "collections:CO-04": {
+      "verdict": "in",
+      "why": "technical: loan"
+    },
+    "collections:CO-05": {
+      "verdict": "in",
+      "why": "technical: collections, member"
+    },
+    "collections:CO-06": {
+      "verdict": "in",
+      "why": "technical: complaint"
+    },
+    "collections:CO-07": {
+      "verdict": "in",
+      "why": "technical: furnishing"
+    },
+    "collections:CO-09": {
+      "verdict": "in",
+      "why": "technical: loan"
+    },
+    "collections:CO-10": {
+      "verdict": "in",
+      "why": "technical: overdraft"
+    },
+    "collections:CO-11": {
+      "verdict": "in",
+      "why": "technical: incident"
+    },
+    "collections:SC-01": {
+      "verdict": "in",
+      "why": "technical: incident"
+    },
+    "compliance:CM-01": {
+      "verdict": "out",
+      "why": "organisational process: compliance"
+    },
+    "compliance:CM-02": {
+      "verdict": "out",
+      "why": "scoping which laws apply is legal analysis, not observation",
+      "judgment_call": true
+    },
+    "compliance:CM-03": {
+      "verdict": "out",
+      "why": "organisational process: compliance"
+    },
+    "compliance:CM-04": {
+      "verdict": "out",
+      "why": "organisational process: compliance"
+    },
+    "compliance:CM-05": {
+      "verdict": "out",
+      "why": "organisational process: employee, monitoring, training"
+    },
+    "compliance:CM-06": {
+      "verdict": "out",
+      "why": "organisational process: monitoring"
+    },
+    "compliance:CM-07": {
+      "verdict": "out",
+      "why": "organisational process: audit"
+    },
+    "compliance:CM-08": {
+      "verdict": "in",
+      "why": "technical: complaint, regulatory"
+    },
+    "compliance:CM-09": {
+      "verdict": "out",
+      "why": "mixed, process majority (2v1): policy"
+    },
+    "director-fiduciary-duties:DF-01": {
+      "verdict": "out",
+      "why": "organisational process: training"
+    },
+    "director-fiduciary-duties:DF-02": {
+      "verdict": "out",
+      "why": "organisational process: board, coi"
+    },
+    "director-fiduciary-duties:DF-03": {
+      "verdict": "out",
+      "why": "organisational process: coi"
+    },
+    "director-fiduciary-duties:DF-04": {
+      "verdict": "out",
+      "why": "organisational process: board, coi"
+    },
+    "director-fiduciary-duties:DF-05": {
+      "verdict": "in",
+      "why": "technical: loan_application"
+    },
+    "director-fiduciary-duties:DF-06": {
+      "verdict": "in",
+      "why": "technical: affiliate"
+    },
+    "director-fiduciary-duties:DF-07": {
+      "verdict": "out",
+      "why": "organisational process: gift"
+    },
+    "director-fiduciary-duties:DF-08": {
+      "verdict": "out",
+      "why": "organisational process: corp_opportunity"
+    },
+    "director-fiduciary-duties:DF-09": {
+      "verdict": "in",
+      "why": "insider lending IS observable \u2014 loans to insiders are rows in the core",
+      "judgment_call": true
+    },
+    "director-fiduciary-duties:DF-10": {
+      "verdict": "out",
+      "why": "organisational process: policy, training"
+    },
+    "e-commerce:EC-01": {
+      "verdict": "in",
+      "why": "safeguarding member information is a technical control over member data",
+      "judgment_call": true
+    },
+    "e-commerce:EC-02": {
+      "verdict": "in",
+      "why": "technical: access"
+    },
+    "e-commerce:EC-03": {
+      "verdict": "in",
+      "why": "technical: ecommerce"
+    },
+    "e-commerce:EC-04": {
+      "verdict": "in",
+      "why": "technical: ecommerce, member_credential"
+    },
+    "e-commerce:EC-05": {
+      "verdict": "in",
+      "why": "technical: firewall"
+    },
+    "e-commerce:EC-06": {
+      "verdict": "in",
+      "why": "technical: tls"
+    },
+    "e-commerce:EC-07": {
+      "verdict": "in",
+      "why": "technical: ecommerce"
+    },
+    "e-commerce:EC-08": {
+      "verdict": "in",
+      "why": "technical: antivirus"
+    },
+    "e-commerce:EC-09": {
+      "verdict": "in",
+      "why": "intrusion detection is technical; the pen-test CADENCE inside it is not \u2014 split control",
+      "judgment_call": true
+    },
+    "e-commerce:EC-11": {
+      "verdict": "out",
+      "why": "organisational process: bia, drill, vendor"
+    },
+    "e-commerce:EC-12": {
+      "verdict": "out",
+      "why": "organisational process: employee, training"
+    },
+    "e-commerce:EC-13": {
+      "verdict": "in",
+      "why": "technical: incident"
+    },
+    "e-commerce:SC-01": {
+      "verdict": "in",
+      "why": "technical: incident"
+    },
+    "e-commerce:SC-03": {
+      "verdict": "in",
+      "why": "technical: incident"
+    },
+    "electronic-payment-systems:EPS-01": {
+      "verdict": "in",
+      "why": "technical: eps"
+    },
+    "electronic-payment-systems:EPS-03": {
+      "verdict": "in",
+      "why": "technical: eps"
+    },
+    "electronic-payment-systems:EPS-04": {
+      "verdict": "in",
+      "why": "technical: eps"
+    },
+    "electronic-payment-systems:EPS-05": {
+      "verdict": "in",
+      "why": "technical: eps"
+    },
+    "electronic-payment-systems:EPS-06": {
+      "verdict": "in",
+      "why": "technical: ach_transfer, eps, wire_transfer"
+    },
+    "electronic-payment-systems:EPS-07": {
+      "verdict": "in",
+      "why": "technical: eps"
+    },
+    "electronic-payment-systems:EPS-08": {
+      "verdict": "in",
+      "why": "technical: eps"
+    },
+    "electronic-payment-systems:EPS-09": {
+      "verdict": "in",
+      "why": "mixed, technical majority (6v1): eps"
+    },
+    "electronic-payment-systems:EPS-10": {
+      "verdict": "in",
+      "why": "technical: eps"
+    },
+    "electronic-payment-systems:EPS-11": {
+      "verdict": "in",
+      "why": "technical: eps"
+    },
+    "electronic-payment-systems:SC-01": {
+      "verdict": "in",
+      "why": "technical: incident"
+    },
+    "enterprise-risk-management:ERM-01": {
+      "verdict": "out",
+      "why": "organisational process: risk_appetite"
+    },
+    "enterprise-risk-management:ERM-02": {
+      "verdict": "out",
+      "why": "organisational process: product"
+    },
+    "enterprise-risk-management:ERM-03": {
+      "verdict": "out",
+      "why": "a risk scoring methodology is a document, not a system behaviour",
+      "judgment_call": true
+    },
+    "enterprise-risk-management:ERM-04": {
+      "verdict": "out",
+      "why": "organisational process: product, risk"
+    },
+    "enterprise-risk-management:ERM-05": {
+      "verdict": "out",
+      "why": "organisational process: risk_appetite"
+    },
+    "enterprise-risk-management:ERM-06": {
+      "verdict": "in",
+      "why": "technical: risk_breach"
+    },
+    "enterprise-risk-management:ERM-07": {
+      "verdict": "in",
+      "why": "technical: risk_acceptance"
+    },
+    "enterprise-risk-management:ERM-08": {
+      "verdict": "out",
+      "why": "organisational process: risk_report"
+    },
+    "fair-lending:FL-01": {
+      "verdict": "out",
+      "why": "mixed, process majority (2v1): compliance"
+    },
+    "fair-lending:FL-02": {
+      "verdict": "in",
+      "why": "technical: application"
+    },
+    "fair-lending:FL-03": {
+      "verdict": "in",
+      "why": "technical: loan_application"
+    },
+    "fair-lending:FL-04": {
+      "verdict": "in",
+      "why": "technical: application, appraisal"
+    },
+    "fair-lending:FL-05": {
+      "verdict": "in",
+      "why": "technical: account, loan_application"
+    },
+    "fair-lending:FL-06": {
+      "verdict": "in",
+      "why": "technical: analytics, application"
+    },
+    "fair-lending:FL-07": {
+      "verdict": "out",
+      "why": "organisational process: advertising"
+    },
+    "fair-lending:FL-08": {
+      "verdict": "in",
+      "why": "technical: application, loan_application"
+    },
+    "fair-lending:FL-09": {
+      "verdict": "out",
+      "why": "organisational process: vendor"
+    },
+    "fair-lending:FL-10": {
+      "verdict": "in",
+      "why": "mixed, technical majority (2v1): analytics"
+    },
+    "fair-lending:FL-11": {
+      "verdict": "out",
+      "why": "organisational process: employee, training"
+    },
+    "fair-lending:FL-12": {
+      "verdict": "in",
+      "why": "technical: loan_application"
+    },
+    "fair-lending:FL-13": {
+      "verdict": "in",
+      "why": "mixed, technical majority (3v1): complaint"
+    },
+    "fair-lending:SC-02": {
+      "verdict": "in",
+      "why": "technical: disposal, legal_hold, record"
+    },
+    "information-security:IS-01": {
+      "verdict": "out",
+      "why": "infosec governance and board oversight is process",
+      "judgment_call": true
+    },
+    "information-security:IS-02": {
+      "verdict": "out",
+      "why": "organisational process: product, risk"
+    },
+    "information-security:IS-03": {
+      "verdict": "in",
+      "why": "technical: security"
+    },
+    "information-security:IS-04": {
+      "verdict": "out",
+      "why": "organisational process: change"
+    },
+    "information-security:IS-05": {
+      "verdict": "in",
+      "why": "technical: vuln"
+    },
+    "information-security:IS-06": {
+      "verdict": "in",
+      "why": "access control and authentication is the most technical control in the corpus",
+      "judgment_call": true
+    },
+    "information-security:IS-07": {
+      "verdict": "in",
+      "why": "technical: record, tls"
+    },
+    "information-security:IS-08": {
+      "verdict": "in",
+      "why": "technical: incident"
+    },
+    "information-security:IS-10": {
+      "verdict": "in",
+      "why": "technical: security"
+    },
+    "information-security:IS-11": {
+      "verdict": "out",
+      "why": "organisational process: vendor"
+    },
+    "information-security:IS-12": {
+      "verdict": "out",
+      "why": "organisational process: employee"
+    },
+    "information-security:IS-13": {
+      "verdict": "in",
+      "why": "technical: ai"
+    },
+    "information-security:IS-14": {
+      "verdict": "in",
+      "why": "technical: record"
+    },
+    "information-security:IS-15": {
+      "verdict": "out",
+      "why": "acceptable use is an HR policy enforced by people",
+      "judgment_call": true
+    },
+    "information-security:IS-16": {
+      "verdict": "out",
+      "why": "organisational process: socialmedia"
+    },
+    "information-security:IS-17": {
+      "verdict": "out",
+      "why": "organisational process: employee, training"
+    },
+    "information-security:IS-18": {
+      "verdict": "out",
+      "why": "no declared trigger \u2014 nothing for a system to observe"
+    },
+    "information-security:IS-19": {
+      "verdict": "in",
+      "why": "technical: incident"
+    },
+    "information-security:SC-01": {
+      "verdict": "in",
+      "why": "technical: incident"
+    },
+    "information-security:SC-02": {
+      "verdict": "in",
+      "why": "technical: disposal, legal_hold, record"
+    },
+    "information-security:SC-03": {
+      "verdict": "in",
+      "why": "technical: incident"
+    },
+    "internal-controls:IC-01": {
+      "verdict": "out",
+      "why": "organisational process: governance"
+    },
+    "internal-controls:IC-02": {
+      "verdict": "in",
+      "why": "technical: access"
+    },
+    "internal-controls:IC-03": {
+      "verdict": "out",
+      "why": "organisational process: authority"
+    },
+    "internal-controls:IC-04": {
+      "verdict": "in",
+      "why": "technical: gl"
+    },
+    "internal-controls:IC-05": {
+      "verdict": "out",
+      "why": "mixed, process majority (4v1): change,employee"
+    },
+    "internal-controls:IC-06": {
+      "verdict": "in",
+      "why": "system overrides and exceptions are recorded and enforceable in the core",
+      "judgment_call": true
+    },
+    "internal-controls:IC-07": {
+      "verdict": "out",
+      "why": "organisational process: deficiency, governance, monitoring"
+    },
+    "internal-controls:IC-08": {
+      "verdict": "in",
+      "why": "technical: record"
+    },
+    "internal-controls:SC-02": {
+      "verdict": "in",
+      "why": "technical: disposal, legal_hold, record"
+    },
+    "investment:IP-01": {
+      "verdict": "out",
+      "why": "mixed, process majority (3v1): policy"
+    },
+    "investment:IP-02": {
+      "verdict": "in",
+      "why": "technical: portfolio, trade"
+    },
+    "investment:IP-03": {
+      "verdict": "in",
+      "why": "technical: regulatory, trade"
+    },
+    "investment:IP-04": {
+      "verdict": "in",
+      "why": "technical: position"
+    },
+    "investment:IP-05": {
+      "verdict": "in",
+      "why": "technical: security"
+    },
+    "investment:IP-06": {
+      "verdict": "in",
+      "why": "technical: liquidity, position"
+    },
+    "investment:IP-07": {
+      "verdict": "in",
+      "why": "technical: concentration, trade"
+    },
+    "investment:IP-08": {
+      "verdict": "in",
+      "why": "technical: trade"
+    },
+    "investment:IP-09": {
+      "verdict": "in",
+      "why": "technical: repo"
+    },
+    "investment:IP-10": {
+      "verdict": "in",
+      "why": "technical: position, security"
+    },
+    "investment:IP-11": {
+      "verdict": "in",
+      "why": "technical: trade"
+    },
+    "investment:IP-12": {
+      "verdict": "in",
+      "why": "technical: portfolio"
+    },
+    "investment:IP-13": {
+      "verdict": "in",
+      "why": "portfolio performance against benchmarks is financial position",
+      "judgment_call": true
+    },
+    "investment:IP-14": {
+      "verdict": "in",
+      "why": "technical: trade"
+    },
+    "investment:IP-15": {
+      "verdict": "in",
+      "why": "investment recordkeeping is data retention \u2014 the core holds the records",
+      "judgment_call": true
+    },
+    "investment:IP-16": {
+      "verdict": "out",
+      "why": "organisational process: coi, employee, training"
+    },
+    "investment:IP-17": {
+      "verdict": "in",
+      "why": "liquidity stress testing operates on the institution's actual position",
+      "judgment_call": true
+    },
+    "investment:IP-18": {
+      "verdict": "out",
+      "why": "mixed, process majority (2v1): policy"
+    },
+    "investment:SC-02": {
+      "verdict": "in",
+      "why": "technical: disposal, legal_hold, record"
+    },
+    "lending:LP-01": {
+      "verdict": "out",
+      "why": "organisational process: authority"
+    },
+    "lending:LP-02": {
+      "verdict": "in",
+      "why": "technical: loan_application"
+    },
+    "lending:LP-03": {
+      "verdict": "in",
+      "why": "technical: application, loan_application"
+    },
+    "lending:LP-04": {
+      "verdict": "in",
+      "why": "technical: aan, credit_report, credit_score"
+    },
+    "lending:LP-05": {
+      "verdict": "in",
+      "why": "technical: loan_application"
+    },
+    "lending:LP-06": {
+      "verdict": "in",
+      "why": "technical: appraisal, collateral"
+    },
+    "lending:LP-07": {
+      "verdict": "in",
+      "why": "technical: aan, loan_account, loan_application"
+    },
+    "lending:LP-08": {
+      "verdict": "in",
+      "why": "technical: loan_exception"
+    },
+    "lending:LP-09": {
+      "verdict": "in",
+      "why": "technical: application, loan"
+    },
+    "lending:LP-10": {
+      "verdict": "in",
+      "why": "technical: loan_pricing"
+    },
+    "lending:LP-11": {
+      "verdict": "in",
+      "why": "technical: loan_party"
+    },
+    "lending:LP-12": {
+      "verdict": "in",
+      "why": "technical: fair_lending, prequal"
+    },
+    "lending:LP-13": {
+      "verdict": "in",
+      "why": "technical: analytics, fair_lending"
+    },
+    "lending:LP-14": {
+      "verdict": "in",
+      "why": "technical: loan_application"
+    },
+    "lending:SC-02": {
+      "verdict": "in",
+      "why": "technical: disposal, legal_hold, record"
+    },
+    "liquidity:LQ-01": {
+      "verdict": "out",
+      "why": "organisational process: policy"
+    },
+    "liquidity:LQ-02": {
+      "verdict": "in",
+      "why": "technical: liquidity"
+    },
+    "liquidity:LQ-03": {
+      "verdict": "in",
+      "why": "technical: liquidity"
+    },
+    "liquidity:LQ-04": {
+      "verdict": "in",
+      "why": "technical: ewi, stress"
+    },
+    "liquidity:LQ-05": {
+      "verdict": "in",
+      "why": "technical: ewi, stress"
+    },
+    "liquidity:LQ-06": {
+      "verdict": "in",
+      "why": "technical: alco, liquidity"
+    },
+    "liquidity:LQ-07": {
+      "verdict": "in",
+      "why": "technical: liquidity"
+    },
+    "liquidity:LQ-08": {
+      "verdict": "in",
+      "why": "technical: gl"
+    },
+    "liquidity:LQ-09": {
+      "verdict": "in",
+      "why": "technical: collateral"
+    },
+    "liquidity:LQ-10": {
+      "verdict": "out",
+      "why": "organisational process: cfp"
+    },
+    "liquidity:LQ-11": {
+      "verdict": "in",
+      "why": "regulatory notification is TRIGGERED by a financial threshold the core can compute",
+      "judgment_call": true
+    },
+    "liquidity:LQ-12": {
+      "verdict": "out",
+      "why": "organisational process: cfp"
+    },
+    "liquidity:LQ-13": {
+      "verdict": "in",
+      "why": "technical: regulator"
+    },
+    "liquidity:LQ-14": {
+      "verdict": "out",
+      "why": "organisational process: drill"
+    },
+    "liquidity:LQ-15": {
+      "verdict": "out",
+      "why": "no declared trigger \u2014 nothing for a system to observe"
+    },
+    "liquidity:LQ-16": {
+      "verdict": "out",
+      "why": "organisational process: catalogue"
+    },
+    "liquidity:LQ-17": {
+      "verdict": "in",
+      "why": "technical: alco"
+    },
+    "liquidity:SC-02": {
+      "verdict": "in",
+      "why": "technical: disposal, legal_hold, record"
+    },
+    "member:MP-01": {
+      "verdict": "in",
+      "why": "technical: member, verification"
+    },
+    "member:MP-02": {
+      "verdict": "in",
+      "why": "technical: card, member, verification"
+    },
+    "member:MP-03": {
+      "verdict": "in",
+      "why": "technical: disclosure, member"
+    },
+    "member:MP-04": {
+      "verdict": "in",
+      "why": "technical: complaint, dispute"
+    },
+    "member:MP-05": {
+      "verdict": "in",
+      "why": "technical: account"
+    },
+    "member:MP-06": {
+      "verdict": "in",
+      "why": "technical: member"
+    },
+    "member:MP-07": {
+      "verdict": "in",
+      "why": "technical: member, verification"
+    },
+    "member:MP-08": {
+      "verdict": "in",
+      "why": "technical: record"
+    },
+    "member:MP-09": {
+      "verdict": "in",
+      "why": "technical: service"
+    },
+    "privacy:PR-01": {
+      "verdict": "in",
+      "why": "technical: entity, privacy"
+    },
+    "privacy:PR-02": {
+      "verdict": "in",
+      "why": "technical: privacy"
+    },
+    "privacy:PR-03": {
+      "verdict": "in",
+      "why": "mixed, technical majority (2v1): disclosure,privacy"
+    },
+    "privacy:PR-04": {
+      "verdict": "in",
+      "why": "technical: access"
+    },
+    "privacy:PR-05": {
+      "verdict": "in",
+      "why": "technical: address, furnishing"
+    },
+    "privacy:PR-06": {
+      "verdict": "out",
+      "why": "mixed, process majority (3v1): employee,training"
+    },
+    "privacy:PR-07": {
+      "verdict": "out",
+      "why": "organisational process: vendor"
+    },
+    "privacy:PR-08": {
+      "verdict": "in",
+      "why": "technical: disposal, legal_hold, record"
+    },
+    "privacy:PR-10": {
+      "verdict": "in",
+      "why": "technical: complaint, incident, privacy"
+    },
+    "privacy:PR-11": {
+      "verdict": "in",
+      "why": "technical: privacy"
+    },
+    "privacy:PR-12": {
+      "verdict": "in",
+      "why": "technical: privacy, web"
+    },
+    "privacy:PR-13": {
+      "verdict": "in",
+      "why": "technical: analytics"
+    },
+    "privacy:PR-14": {
+      "verdict": "in",
+      "why": "technical: web"
+    },
+    "privacy:PR-15": {
+      "verdict": "in",
+      "why": "technical: connection"
+    },
+    "privacy:PR-16": {
+      "verdict": "in",
+      "why": "technical: verification"
+    },
+    "privacy:PR-17": {
+      "verdict": "in",
+      "why": "technical: privacy"
+    },
+    "privacy:PR-18": {
+      "verdict": "in",
+      "why": "technical: incident"
+    },
+    "privacy:SC-01": {
+      "verdict": "in",
+      "why": "technical: incident"
+    },
+    "record-retention:RR-01": {
+      "verdict": "in",
+      "why": "technical: record, record_class"
+    },
+    "record-retention:RR-02": {
+      "verdict": "in",
+      "why": "technical: record"
+    },
+    "record-retention:RR-03": {
+      "verdict": "in",
+      "why": "technical: disposal, record"
+    },
+    "record-retention:RR-04": {
+      "verdict": "in",
+      "why": "technical: destruction_log, records"
+    },
+    "record-retention:RR-05": {
+      "verdict": "in",
+      "why": "technical: legal_hold, record"
+    },
+    "record-retention:RR-06": {
+      "verdict": "in",
+      "why": "core processor and archive retention is data the system holds",
+      "judgment_call": true
+    },
+    "record-retention:RR-07": {
+      "verdict": "in",
+      "why": "technical: record"
+    },
+    "record-retention:RR-08": {
+      "verdict": "in",
+      "why": "technical: cdd"
+    },
+    "record-retention:RR-09": {
+      "verdict": "in",
+      "why": "technical: records"
+    },
+    "record-retention:RR-10": {
+      "verdict": "out",
+      "why": "mixed, process majority (3v1): training"
+    },
+    "record-retention:RR-11": {
+      "verdict": "in",
+      "why": "technical: record, records"
+    },
+    "record-retention:RR-12": {
+      "verdict": "in",
+      "why": "technical: records"
+    },
+    "reimbursement-insurance-indemnification:RII-01": {
+      "verdict": "out",
+      "why": "expense reimbursement is an HR/finance process",
+      "judgment_call": true
+    },
+    "reimbursement-insurance-indemnification:RII-02": {
+      "verdict": "out",
+      "why": "organisational process: insurance"
+    },
+    "reimbursement-insurance-indemnification:RII-03": {
+      "verdict": "out",
+      "why": "organisational process: indemnification"
+    },
+    "reimbursement-insurance-indemnification:RII-04": {
+      "verdict": "out",
+      "why": "organisational process: indemnification"
+    },
+    "reimbursement-insurance-indemnification:RII-05": {
+      "verdict": "out",
+      "why": "organisational process: indemnification"
+    },
+    "reimbursement-insurance-indemnification:RII-06": {
+      "verdict": "out",
+      "why": "organisational process: indemnification"
+    },
+    "reimbursement-insurance-indemnification:RII-07": {
+      "verdict": "out",
+      "why": "organisational process: coi, indemnification"
+    },
+    "reimbursement-insurance-indemnification:RII-08": {
+      "verdict": "out",
+      "why": "mixed, process majority (2v1): indemnification,insurance"
+    },
+    "reimbursement-insurance-indemnification:RII-09": {
+      "verdict": "out",
+      "why": "indemnification recordkeeping is legal paperwork",
+      "judgment_call": true
+    },
+    "resolution:RS-01": {
+      "verdict": "out",
+      "why": "organisational process: scope_registry"
+    },
+    "resolution:RS-02": {
+      "verdict": "in",
+      "why": "technical: ewi"
+    },
+    "resolution:RS-03": {
+      "verdict": "in",
+      "why": "technical: safe_mode"
+    },
+    "resolution:RS-04": {
+      "verdict": "in",
+      "why": "technical: account_freeze"
+    },
+    "resolution:RS-05": {
+      "verdict": "in",
+      "why": "technical: institution_freeze"
+    },
+    "resolution:RS-06": {
+      "verdict": "in",
+      "why": "technical: institution_freeze"
+    },
+    "resolution:RS-07": {
+      "verdict": "out",
+      "why": "organisational process: handover"
+    },
+    "resolution:RS-08": {
+      "verdict": "in",
+      "why": "technical: records_package"
+    },
+    "resolution:RS-09": {
+      "verdict": "out",
+      "why": "organisational process: resolution_test"
+    },
+    "resolution:RS-10": {
+      "verdict": "out",
+      "why": "resolution plan review cadence is governance",
+      "judgment_call": true
+    },
+    "shared-controls:SC-01": {
+      "verdict": "in",
+      "why": "technical: incident"
+    },
+    "shared-controls:SC-02": {
+      "verdict": "in",
+      "why": "technical: disposal, legal_hold, record"
+    },
+    "shared-controls:SC-03": {
+      "verdict": "in",
+      "why": "technical: incident"
+    },
+    "third-party-risk:SC-01": {
+      "verdict": "in",
+      "why": "technical: incident"
+    },
+    "third-party-risk:TR-01": {
+      "verdict": "out",
+      "why": "organisational process: governance, vendor"
+    },
+    "third-party-risk:TR-02": {
+      "verdict": "out",
+      "why": "organisational process: vendor"
+    },
+    "third-party-risk:TR-03": {
+      "verdict": "out",
+      "why": "organisational process: vendor"
+    },
+    "third-party-risk:TR-04": {
+      "verdict": "out",
+      "why": "organisational process: vendor"
+    },
+    "third-party-risk:TR-05": {
+      "verdict": "out",
+      "why": "organisational process: vendor"
+    },
+    "third-party-risk:TR-06": {
+      "verdict": "out",
+      "why": "organisational process: vendor"
+    },
+    "third-party-risk:TR-07": {
+      "verdict": "out",
+      "why": "organisational process: vendor"
+    },
+    "third-party-risk:TR-09": {
+      "verdict": "out",
+      "why": "organisational process: vendor"
+    },
+    "third-party-risk:TR-10": {
+      "verdict": "out",
+      "why": "organisational process: vendor"
+    },
+    "third-party-risk:TR-11": {
+      "verdict": "out",
+      "why": "organisational process: vendor"
+    },
+    "truth-in-savings:TIS-01": {
+      "verdict": "in",
+      "why": "technical: disclosure, privacy"
+    },
+    "truth-in-savings:TIS-02": {
+      "verdict": "in",
+      "why": "technical: account, member"
+    },
+    "truth-in-savings:TIS-03": {
+      "verdict": "in",
+      "why": "technical: disclosure"
+    },
+    "truth-in-savings:TIS-04": {
+      "verdict": "in",
+      "why": "technical: account, disclosure"
+    },
+    "truth-in-savings:TIS-05": {
+      "verdict": "in",
+      "why": "periodic statements are GENERATED from transactions the core owns",
+      "judgment_call": true
+    },
+    "truth-in-savings:TIS-06": {
+      "verdict": "in",
+      "why": "mixed, technical majority (2v1): interest"
+    },
+    "truth-in-savings:TIS-07": {
+      "verdict": "out",
+      "why": "organisational process: advertising"
+    },
+    "truth-in-savings:TIS-08": {
+      "verdict": "in",
+      "why": "technical: fee"
+    },
+    "truth-in-savings:TIS-09": {
+      "verdict": "in",
+      "why": "technical: record"
+    },
+    "truth-in-savings:TIS-10": {
+      "verdict": "out",
+      "why": "mixed, process majority (3v2): monitoring,training"
+    }
+  }
+}

@@ -21,6 +21,10 @@ import {
   validationError,
   type ValidationErrorItem,
 } from "./lib.ts";
+import { scopeToPartner } from "./ownership.ts";
+import { raiseAlert } from "./bsa.ts";
+import { startRetentionFor } from "./retention.ts";
+import { type PartnerContext } from "./auth.ts";
 
 interface KycDecision {
   decision: "approved" | "denied";
@@ -55,6 +59,7 @@ export async function postVerification(
   entityId: string,
   db: SupabaseClient,
   requestId: string,
+  ctx: PartnerContext,
 ): Promise<Response> {
   const raw = await parseJsonBody(req).catch(() => null);
   const body = raw && typeof raw === "object" ? raw as Record<string, unknown> : {};
@@ -89,8 +94,10 @@ export async function postVerification(
   }
   if (errors.length) return validationError(requestId, errors);
 
-  const { data: ent, error: selErr } = await db.schema("core").from("entity")
-    .select("id, type, name, status").eq("id", entityId).maybeSingle();
+  const { data: ent, error: selErr } = await scopeToPartner(
+    db.schema("core").from("entity").select("id, type, name, status").eq("id", entityId),
+    ctx,
+  ).maybeSingle();
   if (selErr) return internalErrorResponse(requestId, selErr);
   if (!ent) return notFoundResponse(requestId, "entity", entityId);
   const entity = ent as Record<string, unknown>;
@@ -99,6 +106,16 @@ export async function postVerification(
   const ofac = ofacScreen(String(entity.name ?? ""));
   const verificationId = `ver_${crypto.randomUUID()}`;
   const entityHash = await sha256Hex(entityId);
+
+  // BSA-21: a CIP verification record retains 5 years from when it was MADE,
+  // and an OFAC screen result retains 10 years. Hooked here because this is
+  // the point the record comes into existence.
+  try {
+    await startRetentionFor(db, "cip_verification", verificationId, new Date(), "core", ctx);
+    await startRetentionFor(db, "ofac_blocked", verificationId, new Date(), "core", ctx);
+  } catch (retErr) {
+    console.error(`verification retention clock failed: ${retErr}`);
+  }
 
   const { error: crErr } = await db.schema("core").from("control_result").insert({
     id: `cr_${crypto.randomUUID()}`,
@@ -114,16 +131,14 @@ export async function postVerification(
   if (ofac === "hit") {
     status = "denied";
     providerRaw = { skipped: "ofac floor denied before provider ran" };
-    const { error: bsaErr } = await db.schema("core").from("bsa_alert").insert({
-      id: `alert_${crypto.randomUUID()}`,
-      alert_type: "ofac",
-      status: "open",
-      requires_lookback: "true",
-      entity_hash: entityHash,
-      event_id: null,
+    await raiseAlert(db, {
+      ctx,
+      alertType: "ofac",
+      entityHash,
+      causeType: "verification",
+      causeId: verificationId,
       details: `OFAC hit during verification (entity=${entityId}, verification=${verificationId})`,
     });
-    if (bsaErr) return internalErrorResponse(requestId, bsaErr);
   } else if (trustLevel === "full") {
     // full-trust partner attestation stands in for a provider run — but never
     // for the screen above

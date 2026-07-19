@@ -8,7 +8,7 @@
 // opening deposit.
 import { assertEquals } from "jsr:@std/assert@1";
 import { getAccount, postAccount } from "./accounts.ts";
-import { type Any, req, reqWithoutIdempotencyKey, stubCfg, stubDb } from "./test_helpers.ts";
+import { type Any, json, req, reqWithoutIdempotencyKey, stubApiDb, stubCfg, stubDb, TEST_CTX } from "./test_helpers.ts";
 
 const ACCOUNT_ROW = {
   id: "acct_1",
@@ -28,7 +28,7 @@ Deno.test("opening deposit must be a positive integer", async () => {
   const { cfg } = stubCfg([]);
   for (const bad of [0, -100, 12.5]) {
     const { db } = stubDb(null);
-    const res = await postAccount(req({ opening_deposit_cents: bad }), db, cfg, "r1");
+    const res = await postAccount(req({ opening_deposit_cents: bad }), db, cfg, "r1", TEST_CTX);
     assertEquals(res.status, 400, `opening deposit ${bad} must be rejected`);
     const b = await res.json();
     assertEquals(
@@ -47,6 +47,7 @@ Deno.test("a funded open REQUIRES an Idempotency-Key — money is moving", async
     db,
     cfg,
     "r2",
+    TEST_CTX,
   );
   assertEquals(res.status, 400);
   const b = await res.json();
@@ -60,7 +61,7 @@ Deno.test("a funded open REQUIRES an Idempotency-Key — money is moving", async
 Deno.test("a non-numeric opening deposit is rejected rather than coerced", async () => {
   const { cfg } = stubCfg([]);
   const { db } = stubDb(null);
-  const res = await postAccount(req({ opening_deposit_cents: "10000" }), db, cfg, "r3");
+  const res = await postAccount(req({ opening_deposit_cents: "10000" }), db, cfg, "r3", TEST_CTX);
   assertEquals(res.status, 400);
 });
 
@@ -73,6 +74,7 @@ Deno.test("validation reports the deposit and the missing key together, not one 
     db,
     cfg,
     "r4",
+    TEST_CTX,
   );
   assertEquals(res.status, 400);
   const fields = (await res.json()).errors.map((e: Any) => e.field).sort();
@@ -85,7 +87,7 @@ Deno.test("an unfunded open does NOT require an Idempotency-Key", async () => {
   const { cfg } = stubCfg([]);
   const { db } = stubDb(null);
 
-  const res = await postAccount(reqWithoutIdempotencyKey({}), db, cfg, "r5");
+  const res = await postAccount(reqWithoutIdempotencyKey({}), db, cfg, "r5", TEST_CTX);
   // no money moves, so the key is optional — must not be a validation failure
   assertEquals(
     res.status === 400 &&
@@ -96,7 +98,7 @@ Deno.test("an unfunded open does NOT require an Idempotency-Key", async () => {
 
 Deno.test("GET returns the account with its mirrored balance", async () => {
   const { db } = stubDb(ACCOUNT_ROW);
-  const res = await getAccount("acct_1", db, "r6");
+  const res = await getAccount("acct_1", db, "r6", TEST_CTX);
   assertEquals(res.status, 200);
   const b = await res.json();
   assertEquals(b.id, "acct_1");
@@ -105,5 +107,46 @@ Deno.test("GET returns the account with its mirrored balance", async () => {
 
 Deno.test("GET on an unknown account is a 404", async () => {
   const { db } = stubDb(null);
-  assertEquals((await getAccount("nope", db, "r7")).status, 404);
+  assertEquals((await getAccount("nope", db, "r7", TEST_CTX)).status, 404);
+});
+
+// ------------------------------- owning entity (cash / BSA-08 prerequisite)
+
+Deno.test("an account can be opened owned by an entity", async () => {
+  const { cfg } = stubCfg([
+    json({ ledger_id: "l1" }), json({ balance_id: "b1" }), json({ transaction_id: "t1" }),
+  ]);
+  const { db, inserts } = stubApiDb({ idem: "fresh" });
+  await postAccount(
+    req({ account_type: "checking", opening_deposit_cents: 1000, entity_id: "ent_1" }),
+    db, cfg, "e1", TEST_CTX,
+  );
+  const acct = inserts.find((i) => i.table === "account");
+  assertEquals(acct?.row.entity_id, "ent_1");
+});
+
+Deno.test("an account opened without an entity records NULL, not a fabricated owner", async () => {
+  // Deliberate: inventing a member relationship to satisfy NOT NULL would be
+  // worse than the null. BSA-08 aggregation simply cannot include this account
+  // until someone who knows the answer links it.
+  const { cfg } = stubCfg([
+    json({ ledger_id: "l1" }), json({ balance_id: "b1" }), json({ transaction_id: "t1" }),
+  ]);
+  const { db, inserts } = stubApiDb({ idem: "fresh" });
+  await postAccount(
+    req({ account_type: "checking", opening_deposit_cents: 1000 }), db, cfg, "e2", TEST_CTX,
+  );
+  assertEquals(inserts.find((i) => i.table === "account")?.row.entity_id, null);
+});
+
+Deno.test("a non-string entity_id is refused rather than coerced", async () => {
+  const { cfg } = stubCfg([]);
+  for (const bad of [7, "", {}, []]) {
+    const { db } = stubApiDb({ idem: "fresh" });
+    const res = await postAccount(
+      req({ account_type: "checking", opening_deposit_cents: 1000, entity_id: bad }),
+      db, cfg, "e3", TEST_CTX,
+    );
+    assertEquals(res.status, 400, `entity_id=${JSON.stringify(bad)} must be refused`);
+  }
 });

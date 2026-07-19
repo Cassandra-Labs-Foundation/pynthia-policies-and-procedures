@@ -1,7 +1,7 @@
 {
   "meta": {
     "generator": "scripts/extract_controls.py",
-    "generated_at": "2026-07-18T22:11:53+00:00",
+    "generated_at": "2026-07-19T20:42:13+00:00",
     "repo_root": "pynthia-policies-and-procedures",
     "api_model": {
       "spec_title": "Cassandra Banking Core API",
@@ -11,9 +11,113 @@
       "entities": 275
     }
   },
+  "id_collisions": {
+    "CP-01": [
+      {
+        "title": "Capital Adequacy Targets",
+        "policy": "capitalization"
+      },
+      {
+        "title": "Governance and Delegation",
+        "policy": "cash"
+      }
+    ],
+    "CP-02": [
+      {
+        "title": "Capital Components and Measurement",
+        "policy": "capitalization"
+      },
+      {
+        "title": "Scope and Applicability",
+        "policy": "cash"
+      }
+    ],
+    "CP-03": [
+      {
+        "title": "Enterprise Cash Limit",
+        "policy": "cash"
+      },
+      {
+        "title": "PCA Thresholds and Internal Triggers",
+        "policy": "capitalization"
+      }
+    ],
+    "CP-04": [
+      {
+        "title": "Capital Conservation Buffer",
+        "policy": "capitalization"
+      },
+      {
+        "title": "Location and Device Cash Limits",
+        "policy": "cash"
+      }
+    ],
+    "CP-05": [
+      {
+        "title": "Capital Planning",
+        "policy": "capitalization"
+      },
+      {
+        "title": "Dual Control, Keys, and Combinations",
+        "policy": "cash"
+      }
+    ],
+    "CP-06": [
+      {
+        "title": "Capital Stress Testing",
+        "policy": "capitalization"
+      },
+      {
+        "title": "Reconciliation and GL Controls",
+        "policy": "cash"
+      }
+    ],
+    "CP-07": [
+      {
+        "title": "Over/Short Monitoring",
+        "policy": "cash"
+      },
+      {
+        "title": "Quarterly Monitoring and Reporting",
+        "policy": "capitalization"
+      }
+    ],
+    "CP-08": [
+      {
+        "title": "ATM/ITM, Night-Drop, and Shipments",
+        "policy": "cash"
+      },
+      {
+        "title": "Contingency Actions and Escalation",
+        "policy": "capitalization"
+      }
+    ],
+    "CP-09": [
+      {
+        "title": "Capital Actions Governance",
+        "policy": "capitalization"
+      },
+      {
+        "title": "Surprise Cash Counts and Audits",
+        "policy": "cash"
+      }
+    ],
+    "CP-10": [
+      {
+        "title": "Internal Capital Adequacy Assessment (ICAAP)",
+        "policy": "capitalization"
+      },
+      {
+        "title": "Seasonal Deviations and Exceptions",
+        "policy": "cash"
+      }
+    ]
+  },
   "stats": {
     "policies": 27,
     "controls": 333,
+    "distinct_uids": 333,
+    "colliding_control_ids": 10,
     "event_rows": 1232,
     "control_rules": 1232,
     "unique_api_codes": 2933,
@@ -23,6 +127,7 @@
   },
   "controls": [
     {
+      "uid": "audit:AU-01",
       "control_id": "AU-01",
       "title": "Board of Directors Oversight",
       "anchor": "au-01-board-of-directors-oversight",
@@ -242,6 +347,7 @@
       }
     },
     {
+      "uid": "audit:AU-02",
       "control_id": "AU-02",
       "title": "Audit Committee Governance and Independence",
       "anchor": "au-02-audit-committee-governance-and-independence",
@@ -667,6 +773,7 @@
       }
     },
     {
+      "uid": "audit:AU-03",
       "control_id": "AU-03",
       "title": "Internal Auditor Independence and Reporting",
       "anchor": "au-03-internal-auditor-independence-and-reporting",
@@ -1011,6 +1118,7 @@
       }
     },
     {
+      "uid": "audit:AU-04",
       "control_id": "AU-04",
       "title": "Risk-Based Audit Scope and Frequency",
       "anchor": "au-04-risk-based-audit-scope-and-frequency",
@@ -1358,6 +1466,7 @@
       }
     },
     {
+      "uid": "audit:AU-05",
       "control_id": "AU-05",
       "title": "Audit Types and Network Assessments",
       "anchor": "au-05-audit-types-and-network-assessments",
@@ -1702,6 +1811,7 @@
       }
     },
     {
+      "uid": "audit:AU-06",
       "control_id": "AU-06",
       "title": "Audit Reporting and Work Papers",
       "anchor": "au-06-audit-reporting-and-work-papers",
@@ -2002,6 +2112,7 @@
       }
     },
     {
+      "uid": "audit:AU-07",
       "control_id": "AU-07",
       "title": "Finding Tracking and Escalation",
       "anchor": "au-07-finding-tracking-and-escalation",
@@ -2401,6 +2512,7 @@
       }
     },
     {
+      "uid": "audit:AU-08",
       "control_id": "AU-08",
       "title": "Management Response and Risk Acceptance",
       "anchor": "au-08-management-response-and-risk-acceptance",
@@ -2776,6 +2888,7 @@
       }
     },
     {
+      "uid": "audit:AU-09",
       "control_id": "AU-09",
       "title": "Follow-Up Audits",
       "anchor": "au-09-follow-up-audits",
@@ -3119,6 +3232,7 @@
       }
     },
     {
+      "uid": "audit:AU-10",
       "control_id": "AU-10",
       "title": "Work Paper Retention and Physical Control",
       "anchor": "au-10-work-paper-retention-and-physical-control",
@@ -3367,6 +3481,7 @@
       }
     },
     {
+      "uid": "audit:SC-02",
       "control_id": "SC-02",
       "title": "Record-Retention Lifecycle Mechanics",
       "anchor": "sc-02-record-retention-lifecycle-mechanics",
@@ -3934,6 +4049,7 @@
       }
     },
     {
+      "uid": "basel-ii-standardized-approach-framework:BA-01",
       "control_id": "BA-01",
       "title": "Minimum Capital Requirements",
       "anchor": "ba-01-minimum-capital-requirements",
@@ -4370,6 +4486,7 @@
       }
     },
     {
+      "uid": "basel-ii-standardized-approach-framework:BA-02",
       "control_id": "BA-02",
       "title": "Components of Capital",
       "anchor": "ba-02-components-of-capital",
@@ -4681,6 +4798,7 @@
       }
     },
     {
+      "uid": "basel-ii-standardized-approach-framework:BA-03",
       "control_id": "BA-03",
       "title": "Risk-Weighted Assets Computation",
       "anchor": "ba-03-risk-weighted-assets-computation",
@@ -4980,6 +5098,7 @@
       }
     },
     {
+      "uid": "basel-ii-standardized-approach-framework:BA-04",
       "control_id": "BA-04",
       "title": "Risk-Weight Schedule",
       "anchor": "ba-04-risk-weight-schedule",
@@ -5305,6 +5424,7 @@
       }
     },
     {
+      "uid": "basel-ii-standardized-approach-framework:BA-05",
       "control_id": "BA-05",
       "title": "Liquidity Requirements",
       "anchor": "ba-05-liquidity-requirements",
@@ -5782,6 +5902,7 @@
       }
     },
     {
+      "uid": "basel-ii-standardized-approach-framework:BA-06",
       "control_id": "BA-06",
       "title": "Buffer Ratios",
       "anchor": "ba-06-buffer-ratios",
@@ -6177,6 +6298,7 @@
       }
     },
     {
+      "uid": "basel-ii-standardized-approach-framework:BA-07",
       "control_id": "BA-07",
       "title": "Pillar 2 ICAAP and Stress Testing",
       "anchor": "ba-07-pillar-2-icaap-and-stress-testing",
@@ -6617,6 +6739,7 @@
       }
     },
     {
+      "uid": "basel-ii-standardized-approach-framework:BA-08",
       "control_id": "BA-08",
       "title": "Monitoring, Reporting, and Pillar 3 Disclosures",
       "anchor": "ba-08-monitoring-reporting-and-pillar-3-disclosures",
@@ -7133,6 +7256,7 @@
       }
     },
     {
+      "uid": "bsa:BSA-01",
       "control_id": "BSA-01",
       "title": "Governance & Delegation",
       "anchor": "bsa-01-governance--delegation",
@@ -7443,6 +7567,7 @@
       }
     },
     {
+      "uid": "bsa:BSA-02",
       "control_id": "BSA-02",
       "title": "Enterprise BSA/AML Risk Assessment",
       "anchor": "bsa-02-enterprise-bsaaml-risk-assessment",
@@ -7705,6 +7830,7 @@
       }
     },
     {
+      "uid": "bsa:BSA-03",
       "control_id": "BSA-03",
       "title": "Customer Identification Program (CIP)",
       "anchor": "bsa-03-customer-identification-program-cip",
@@ -8077,6 +8203,7 @@
       }
     },
     {
+      "uid": "bsa:BSA-04",
       "control_id": "BSA-04",
       "title": "Customer Due Diligence & Enhanced Due Diligence",
       "anchor": "bsa-04-customer-due-diligence--enhanced-due-diligence",
@@ -8536,6 +8663,7 @@
       }
     },
     {
+      "uid": "bsa:BSA-05",
       "control_id": "BSA-05",
       "title": "OFAC Screening & Holds",
       "anchor": "bsa-05-ofac-screening--holds",
@@ -8999,6 +9127,7 @@
       }
     },
     {
+      "uid": "bsa:BSA-06",
       "control_id": "BSA-06",
       "title": "Transaction Monitoring & Case Management",
       "anchor": "bsa-06-transaction-monitoring--case-management",
@@ -9302,6 +9431,7 @@
       }
     },
     {
+      "uid": "bsa:BSA-07",
       "control_id": "BSA-07",
       "title": "SAR Filing & Confidentiality",
       "anchor": "bsa-07-sar-filing--confidentiality",
@@ -9621,6 +9751,7 @@
       }
     },
     {
+      "uid": "bsa:BSA-08",
       "control_id": "BSA-08",
       "title": "Currency Transaction Reporting (CTR)",
       "anchor": "bsa-08-currency-transaction-reporting-ctr",
@@ -9908,6 +10039,7 @@
       }
     },
     {
+      "uid": "bsa:BSA-09",
       "control_id": "BSA-09",
       "title": "Monetary Instruments Log",
       "anchor": "bsa-09-monetary-instruments-log",
@@ -10151,6 +10283,7 @@
       }
     },
     {
+      "uid": "bsa:BSA-10",
       "control_id": "BSA-10",
       "title": "Travel Rule (Wires ≥$3,000)",
       "anchor": "bsa-10-travel-rule-wires-3000",
@@ -10408,6 +10541,7 @@
       }
     },
     {
+      "uid": "bsa:BSA-11",
       "control_id": "BSA-11",
       "title": "Information Sharing (314(a)/314(b))",
       "anchor": "bsa-11-information-sharing-314a314b",
@@ -10621,6 +10755,7 @@
       }
     },
     {
+      "uid": "bsa:BSA-12",
       "control_id": "BSA-12",
       "title": "CMIR (Cross-Border Currency)",
       "anchor": "bsa-12-cmir-cross-border-currency",
@@ -10811,6 +10946,7 @@
       }
     },
     {
+      "uid": "bsa:BSA-13",
       "control_id": "BSA-13",
       "title": "FBAR",
       "anchor": "bsa-13-fbar",
@@ -11003,6 +11139,7 @@
       }
     },
     {
+      "uid": "bsa:BSA-14",
       "control_id": "BSA-14",
       "title": "Escalation Pathway",
       "anchor": "bsa-14-escalation-pathway",
@@ -11262,6 +11399,7 @@
       }
     },
     {
+      "uid": "bsa:BSA-15",
       "control_id": "BSA-15",
       "title": "Training",
       "anchor": "bsa-15-training",
@@ -11635,6 +11773,7 @@
       }
     },
     {
+      "uid": "bsa:BSA-16",
       "control_id": "BSA-16",
       "title": "Independent Testing",
       "anchor": "bsa-16-independent-testing",
@@ -11915,6 +12054,7 @@
       }
     },
     {
+      "uid": "bsa:BSA-17",
       "control_id": "BSA-17",
       "title": "High-Risk Categories (MSB, Correspondent, Private Banking)",
       "anchor": "bsa-17-high-risk-categories-msb-correspondent-private-banking",
@@ -12168,6 +12308,7 @@
       }
     },
     {
+      "uid": "bsa:BSA-18",
       "control_id": "BSA-18",
       "title": "PEP Screening & EDD",
       "anchor": "bsa-18-pep-screening--edd",
@@ -12488,6 +12629,7 @@
       }
     },
     {
+      "uid": "bsa:BSA-19",
       "control_id": "BSA-19",
       "title": "FinCEN Special Measures & GTOs",
       "anchor": "bsa-19-fincen-special-measures--gtos",
@@ -12744,6 +12886,7 @@
       }
     },
     {
+      "uid": "bsa:BSA-20",
       "control_id": "BSA-20",
       "title": "Prepaid Access & Third-Party Vendors",
       "anchor": "bsa-20-prepaid-access--third-party-vendors",
@@ -13040,6 +13183,7 @@
       }
     },
     {
+      "uid": "bsa:BSA-21",
       "control_id": "BSA-21",
       "title": "Record Retention",
       "anchor": "bsa-21-record-retention",
@@ -13218,6 +13362,7 @@
       }
     },
     {
+      "uid": "bsa:SC-02",
       "control_id": "SC-02",
       "title": "Record-Retention Lifecycle Mechanics",
       "anchor": "sc-02-record-retention-lifecycle-mechanics",
@@ -13785,6 +13930,7 @@
       }
     },
     {
+      "uid": "business-continuity-plan:BC-01",
       "control_id": "BC-01",
       "title": "Governance and Roles",
       "anchor": "bc-01-governance-and-roles",
@@ -14108,6 +14254,7 @@
       }
     },
     {
+      "uid": "business-continuity-plan:BC-02",
       "control_id": "BC-02",
       "title": "Risk Assessment (Hazards by Region)",
       "anchor": "bc-02-risk-assessment-hazards-by-region",
@@ -14331,6 +14478,7 @@
       }
     },
     {
+      "uid": "business-continuity-plan:BC-03",
       "control_id": "BC-03",
       "title": "Business Impact Analysis (BIA)",
       "anchor": "bc-03-business-impact-analysis",
@@ -14577,6 +14725,7 @@
       }
     },
     {
+      "uid": "business-continuity-plan:BC-04",
       "control_id": "BC-04",
       "title": "Training, Testing, and Exercises",
       "anchor": "bc-04-training-testing-and-exercises",
@@ -14935,6 +15084,7 @@
       }
     },
     {
+      "uid": "business-continuity-plan:BC-05",
       "control_id": "BC-05",
       "title": "Monitoring, Detection, and Severity",
       "anchor": "bc-05-monitoring-detection-and-severity",
@@ -15276,6 +15426,7 @@
       }
     },
     {
+      "uid": "business-continuity-plan:BC-06",
       "control_id": "BC-06",
       "title": "Incident Declaration and Initial Actions",
       "anchor": "bc-06-incident-declaration-and-initial-actions",
@@ -15597,6 +15748,7 @@
       }
     },
     {
+      "uid": "business-continuity-plan:BC-07",
       "control_id": "BC-07",
       "title": "Data Backup, Restore, and RTO/RPO",
       "anchor": "bc-07-data-backup-restore-and-rtorpo",
@@ -15956,6 +16108,7 @@
       }
     },
     {
+      "uid": "business-continuity-plan:BC-08",
       "control_id": "BC-08",
       "title": "Alternate Site and Remote Operations",
       "anchor": "bc-08-alternate-site-and-remote-operations",
@@ -16266,6 +16419,7 @@
       }
     },
     {
+      "uid": "business-continuity-plan:BC-09",
       "control_id": "BC-09",
       "title": "Major IT Failure Response",
       "anchor": "bc-09-major-it-failure-response",
@@ -16579,6 +16733,7 @@
       }
     },
     {
+      "uid": "business-continuity-plan:SC-01",
       "control_id": "SC-01",
       "title": "NCUA Reportable Cyber-Incident & Member Notification",
       "anchor": "sc-01-ncua-reportable-cyber-incident-member-notification",
@@ -16782,6 +16937,7 @@
       }
     },
     {
+      "uid": "business-continuity-plan:BC-15",
       "control_id": "BC-15",
       "title": "Security/Privacy Incident Containment, Legal Consult & Vendor Coordination",
       "anchor": "bc-15-security-privacy-incident-containment-legal-consult-vendor-coordination",
@@ -17086,6 +17242,7 @@
       }
     },
     {
+      "uid": "business-continuity-plan:BC-11",
       "control_id": "BC-11",
       "title": "Communications and Notification Tree",
       "anchor": "bc-11-communications-and-notification-tree",
@@ -17461,6 +17618,7 @@
       }
     },
     {
+      "uid": "business-continuity-plan:BC-12",
       "control_id": "BC-12",
       "title": "People Continuity and Pandemic",
       "anchor": "bc-12-people-continuity-and-pandemic",
@@ -17720,6 +17878,7 @@
       }
     },
     {
+      "uid": "business-continuity-plan:BC-13",
       "control_id": "BC-13",
       "title": "Post-Incident Review (PIR)",
       "anchor": "bc-13-post-incident-review",
@@ -18058,6 +18217,7 @@
       }
     },
     {
+      "uid": "business-continuity-plan:BC-14",
       "control_id": "BC-14",
       "title": "Vendor Contingency Management",
       "anchor": "bc-14-vendor-contingency-management",
@@ -18413,6 +18573,7 @@
       }
     },
     {
+      "uid": "capitalization:CP-01",
       "control_id": "CP-01",
       "title": "Capital Adequacy Targets",
       "anchor": "cp-01-capital-adequacy-targets",
@@ -18620,6 +18781,7 @@
       }
     },
     {
+      "uid": "capitalization:CP-02",
       "control_id": "CP-02",
       "title": "Capital Components and Measurement",
       "anchor": "cp-02-capital-components-and-measurement",
@@ -18814,6 +18976,7 @@
       }
     },
     {
+      "uid": "capitalization:CP-03",
       "control_id": "CP-03",
       "title": "PCA Thresholds and Internal Triggers",
       "anchor": "cp-03-pca-thresholds-and-internal-triggers",
@@ -19081,6 +19244,7 @@
       }
     },
     {
+      "uid": "capitalization:CP-04",
       "control_id": "CP-04",
       "title": "Capital Conservation Buffer",
       "anchor": "cp-04-capital-conservation-buffer",
@@ -19363,6 +19527,7 @@
       }
     },
     {
+      "uid": "capitalization:CP-05",
       "control_id": "CP-05",
       "title": "Capital Planning",
       "anchor": "cp-05-capital-planning",
@@ -19647,6 +19812,7 @@
       }
     },
     {
+      "uid": "capitalization:CP-06",
       "control_id": "CP-06",
       "title": "Capital Stress Testing",
       "anchor": "cp-06-capital-stress-testing",
@@ -19923,6 +20089,7 @@
       }
     },
     {
+      "uid": "capitalization:CP-07",
       "control_id": "CP-07",
       "title": "Quarterly Monitoring and Reporting",
       "anchor": "cp-07-quarterly-monitoring-and-reporting",
@@ -20137,6 +20304,7 @@
       }
     },
     {
+      "uid": "capitalization:CP-08",
       "control_id": "CP-08",
       "title": "Contingency Actions and Escalation",
       "anchor": "cp-08-contingency-actions-and-escalation",
@@ -20436,6 +20604,7 @@
       }
     },
     {
+      "uid": "capitalization:CP-09",
       "control_id": "CP-09",
       "title": "Capital Actions Governance",
       "anchor": "cp-09-capital-actions-governance",
@@ -20775,6 +20944,7 @@
       }
     },
     {
+      "uid": "capitalization:CP-10",
       "control_id": "CP-10",
       "title": "Internal Capital Adequacy Assessment (ICAAP)",
       "anchor": "cp-10-internal-capital-adequacy-assessment-icaap",
@@ -21114,6 +21284,7 @@
       }
     },
     {
+      "uid": "cash:CP-01",
       "control_id": "CP-01",
       "title": "Governance and Delegation",
       "anchor": "cp-01-governance-and-delegation",
@@ -21493,6 +21664,7 @@
       }
     },
     {
+      "uid": "cash:CP-02",
       "control_id": "CP-02",
       "title": "Scope and Applicability",
       "anchor": "cp-02-scope-and-applicability",
@@ -21755,6 +21927,7 @@
       }
     },
     {
+      "uid": "cash:CP-03",
       "control_id": "CP-03",
       "title": "Enterprise Cash Limit",
       "anchor": "cp-03-enterprise-cash-limit",
@@ -22091,6 +22264,7 @@
       }
     },
     {
+      "uid": "cash:CP-04",
       "control_id": "CP-04",
       "title": "Location and Device Cash Limits",
       "anchor": "cp-04-location-and-device-cash-limits",
@@ -22432,6 +22606,7 @@
       }
     },
     {
+      "uid": "cash:CP-05",
       "control_id": "CP-05",
       "title": "Dual Control, Keys, and Combinations",
       "anchor": "cp-05-dual-control-keys-and-combinations",
@@ -22828,6 +23003,7 @@
       }
     },
     {
+      "uid": "cash:CP-06",
       "control_id": "CP-06",
       "title": "Reconciliation and GL Controls",
       "anchor": "cp-06-reconciliation-and-gl-controls",
@@ -23160,6 +23336,7 @@
       }
     },
     {
+      "uid": "cash:CP-07",
       "control_id": "CP-07",
       "title": "Over/Short Monitoring",
       "anchor": "cp-07-overshort-monitoring",
@@ -23569,6 +23746,7 @@
       }
     },
     {
+      "uid": "cash:CP-08",
       "control_id": "CP-08",
       "title": "ATM/ITM, Night-Drop, and Shipments",
       "anchor": "cp-08-atmitm-night-drop-and-shipments",
@@ -23997,6 +24175,7 @@
       }
     },
     {
+      "uid": "cash:CP-09",
       "control_id": "CP-09",
       "title": "Surprise Cash Counts and Audits",
       "anchor": "cp-09-surprise-cash-counts-and-audits",
@@ -24337,6 +24516,7 @@
       }
     },
     {
+      "uid": "cash:CP-10",
       "control_id": "CP-10",
       "title": "Seasonal Deviations and Exceptions",
       "anchor": "cp-10-seasonal-deviations-and-exceptions",
@@ -24645,6 +24825,7 @@
       }
     },
     {
+      "uid": "cash:CP-11",
       "control_id": "CP-11",
       "title": "Training and Competency",
       "anchor": "cp-11-training-and-competency",
@@ -25054,6 +25235,7 @@
       }
     },
     {
+      "uid": "cash:CP-12",
       "control_id": "CP-12",
       "title": "Monitoring, Reporting, and Recordkeeping",
       "anchor": "cp-12-monitoring-reporting-and-recordkeeping",
@@ -25478,6 +25660,7 @@
       }
     },
     {
+      "uid": "charitable-donation-accounts:CDA-01",
       "control_id": "CDA-01",
       "title": "Governance & Board Oversight",
       "anchor": "cda-01-governance-board-oversight",
@@ -25775,6 +25958,7 @@
       }
     },
     {
+      "uid": "charitable-donation-accounts:CDA-02",
       "control_id": "CDA-02",
       "title": "Definitions & Central Glossary",
       "anchor": "cda-02-definitions-central-glossary",
@@ -25910,6 +26094,7 @@
       }
     },
     {
+      "uid": "charitable-donation-accounts:CDA-03",
       "control_id": "CDA-03",
       "title": "Structure & Segregation",
       "anchor": "cda-03-structure-segregation",
@@ -26047,6 +26232,7 @@
       }
     },
     {
+      "uid": "charitable-donation-accounts:CDA-04",
       "control_id": "CDA-04",
       "title": "Trustee & Manager Qualification",
       "anchor": "cda-04-trustee-manager-qualification",
@@ -26321,6 +26507,7 @@
       }
     },
     {
+      "uid": "charitable-donation-accounts:CDA-05",
       "control_id": "CDA-05",
       "title": "Written Agreement (Required Clauses A–D)",
       "anchor": "cda-05-written-agreement-required-clauses",
@@ -26534,6 +26721,7 @@
       }
     },
     {
+      "uid": "charitable-donation-accounts:CDA-06",
       "control_id": "CDA-06",
       "title": "Funding Cap (Monitoring & Cure)",
       "anchor": "cda-06-funding-cap-monitoring-cure",
@@ -26826,6 +27014,7 @@
       }
     },
     {
+      "uid": "charitable-donation-accounts:CDA-07",
       "control_id": "CDA-07",
       "title": "Investment Strategy & Risk Limits",
       "anchor": "cda-07-investment-strategy-risk-limits",
@@ -27023,6 +27212,7 @@
       }
     },
     {
+      "uid": "charitable-donation-accounts:CDA-08",
       "control_id": "CDA-08",
       "title": "Charity Eligibility & Giving Rules",
       "anchor": "cda-08-charity-eligibility-giving-rules",
@@ -27247,6 +27437,7 @@
       }
     },
     {
+      "uid": "charitable-donation-accounts:CDA-09",
       "control_id": "CDA-09",
       "title": "Accounting, Reporting & Records",
       "anchor": "cda-09-accounting-reporting-records",
@@ -27522,6 +27713,7 @@
       }
     },
     {
+      "uid": "charitable-donation-accounts:CDA-10",
       "control_id": "CDA-10",
       "title": "Third-Party Risk Management",
       "anchor": "cda-10-third-party-risk-management",
@@ -27793,6 +27985,7 @@
       }
     },
     {
+      "uid": "charitable-donation-accounts:CDA-11",
       "control_id": "CDA-11",
       "title": "Internal Controls & Testing",
       "anchor": "cda-11-internal-controls-testing",
@@ -28156,6 +28349,7 @@
       }
     },
     {
+      "uid": "charitable-donation-accounts:CDA-12",
       "control_id": "CDA-12",
       "title": "Termination",
       "anchor": "cda-12-termination",
@@ -28419,6 +28613,7 @@
       }
     },
     {
+      "uid": "charitable-donation-accounts:CDA-13",
       "control_id": "CDA-13",
       "title": "Conflicts & Affiliate Fees",
       "anchor": "cda-13-conflicts-affiliate-fees",
@@ -28684,6 +28879,7 @@
       }
     },
     {
+      "uid": "charitable-donation-accounts:CDA-14",
       "control_id": "CDA-14",
       "title": "Communications & Accessibility",
       "anchor": "cda-14-communications-accessibility",
@@ -28857,6 +29053,7 @@
       }
     },
     {
+      "uid": "collections:CO-01",
       "control_id": "CO-01",
       "title": "Collections Governance & Scope",
       "anchor": "co-01-collections-governance-and-scope",
@@ -29238,6 +29435,7 @@
       }
     },
     {
+      "uid": "collections:CO-02",
       "control_id": "CO-02",
       "title": "Delinquency Monitoring & Early-Stage Collections",
       "anchor": "co-02-delinquency-monitoring-and-early-stage-collections",
@@ -29739,6 +29937,7 @@
       }
     },
     {
+      "uid": "collections:CO-03",
       "control_id": "CO-03",
       "title": "Retail Credit Classification & Charge-Offs",
       "anchor": "co-03-retail-credit-classification-and-charge-offs",
@@ -30372,6 +30571,7 @@
       }
     },
     {
+      "uid": "collections:CO-04",
       "control_id": "CO-04",
       "title": "Forbearance, Extensions, Workouts & TDRs",
       "anchor": "co-04-forbearance-extensions-workouts-and-tdrs",
@@ -30736,6 +30936,7 @@
       }
     },
     {
+      "uid": "collections:CO-05",
       "control_id": "CO-05",
       "title": "Consumer Protection in Collections Communications",
       "anchor": "co-05-consumer-protection-in-collections-communications",
@@ -31122,6 +31323,7 @@
       }
     },
     {
+      "uid": "collections:CO-06",
       "control_id": "CO-06",
       "title": "Consumer Complaint Intake & Resolution",
       "anchor": "co-06-consumer-complaint-intake-and-resolution",
@@ -31605,6 +31807,7 @@
       }
     },
     {
+      "uid": "collections:CO-07",
       "control_id": "CO-07",
       "title": "Credit Reporting & Dispute Handling",
       "anchor": "co-07-credit-reporting-and-dispute-handling",
@@ -31984,6 +32187,7 @@
       }
     },
     {
+      "uid": "collections:SC-01",
       "control_id": "SC-01",
       "title": "NCUA Reportable Cyber-Incident & Member Notification",
       "anchor": "sc-01-ncua-reportable-cyber-incident-member-notification",
@@ -32187,6 +32391,7 @@
       }
     },
     {
+      "uid": "collections:CO-11",
       "control_id": "CO-11",
       "title": "Collections-Data Incident Logging & Triage",
       "anchor": "co-11-collections-data-incident-logging-and-triage",
@@ -32410,6 +32615,7 @@
       }
     },
     {
+      "uid": "collections:CO-09",
       "control_id": "CO-09",
       "title": "Problem Loans, Nonaccrual & Foreclosure Governance",
       "anchor": "co-09-problem-loans-nonaccrual-and-foreclosure-governance",
@@ -32768,6 +32974,7 @@
       }
     },
     {
+      "uid": "collections:CO-10",
       "control_id": "CO-10",
       "title": "Overdraft Collections and Fee Waiver Practices",
       "anchor": "co-10-overdraft-collections-and-fee-waiver-practices",
@@ -33145,6 +33352,7 @@
       }
     },
     {
+      "uid": "compliance:CM-01",
       "control_id": "CM-01",
       "title": "Governance and Board Reporting Line",
       "anchor": "cm-01-governance-and-board-reporting-line",
@@ -33429,6 +33637,7 @@
       }
     },
     {
+      "uid": "compliance:CM-02",
       "control_id": "CM-02",
       "title": "Scope of Applicable Laws",
       "anchor": "cm-02-scope-of-applicable-laws",
@@ -33684,6 +33893,7 @@
       }
     },
     {
+      "uid": "compliance:CM-03",
       "control_id": "CM-03",
       "title": "Roles and Responsibilities",
       "anchor": "cm-03-roles-and-responsibilities",
@@ -33931,6 +34141,7 @@
       }
     },
     {
+      "uid": "compliance:CM-04",
       "control_id": "CM-04",
       "title": "Compliance Risk Assessment",
       "anchor": "cm-04-compliance-risk-assessment",
@@ -34132,6 +34343,7 @@
       }
     },
     {
+      "uid": "compliance:CM-05",
       "control_id": "CM-05",
       "title": "Training Standards",
       "anchor": "cm-05-training-standards",
@@ -34590,6 +34802,7 @@
       }
     },
     {
+      "uid": "compliance:CM-06",
       "control_id": "CM-06",
       "title": "Monitoring and Assurance Reviews",
       "anchor": "cm-06-monitoring-and-assurance-reviews",
@@ -34916,6 +35129,7 @@
       }
     },
     {
+      "uid": "compliance:CM-07",
       "control_id": "CM-07",
       "title": "Independent Audit",
       "anchor": "cm-07-independent-audit",
@@ -35269,6 +35483,7 @@
       }
     },
     {
+      "uid": "compliance:CM-08",
       "control_id": "CM-08",
       "title": "Regulatory Change and Complaint Management",
       "anchor": "cm-08-regulatory-change-and-complaint-management",
@@ -35685,6 +35900,7 @@
       }
     },
     {
+      "uid": "compliance:CM-09",
       "control_id": "CM-09",
       "title": "Policy and CMS Review Cadence",
       "anchor": "cm-09-policy-and-cms-review-cadence",
@@ -36031,6 +36247,7 @@
       }
     },
     {
+      "uid": "director-fiduciary-duties:DF-01",
       "control_id": "DF-01",
       "title": "Fiduciary Duties Defined",
       "anchor": "df-01-fiduciary-duties-defined",
@@ -36401,6 +36618,7 @@
       }
     },
     {
+      "uid": "director-fiduciary-duties:DF-02",
       "control_id": "DF-02",
       "title": "Conflict Identification and General Duties",
       "anchor": "df-02-conflict-identification-and-general-duties",
@@ -36690,6 +36908,7 @@
       }
     },
     {
+      "uid": "director-fiduciary-duties:DF-03",
       "control_id": "DF-03",
       "title": "Annual and Continuing Disclosure",
       "anchor": "df-03-annual-and-continuing-disclosure",
@@ -37142,6 +37361,7 @@
       }
     },
     {
+      "uid": "director-fiduciary-duties:DF-04",
       "control_id": "DF-04",
       "title": "Conflict Management, Recusal, and Board Determination",
       "anchor": "df-04-conflict-management-recusal-and-board-determination",
@@ -37424,6 +37644,7 @@
       }
     },
     {
+      "uid": "director-fiduciary-duties:DF-05",
       "control_id": "DF-05",
       "title": "Insider Transactions (Reg O / 12 CFR §701.21(d))",
       "anchor": "df-05-insider-transactions-reg-o--12-cfr-70121d",
@@ -37886,6 +38107,7 @@
       }
     },
     {
+      "uid": "director-fiduciary-duties:DF-06",
       "control_id": "DF-06",
       "title": "Transactions with Affiliates (Reg W)",
       "anchor": "df-06-transactions-with-affiliates-reg-w",
@@ -38303,6 +38525,7 @@
       }
     },
     {
+      "uid": "director-fiduciary-duties:DF-07",
       "control_id": "DF-07",
       "title": "Bank Bribery, Gifts, and Kickbacks",
       "anchor": "df-07-bank-bribery-gifts-and-kickbacks",
@@ -38558,6 +38781,7 @@
       }
     },
     {
+      "uid": "director-fiduciary-duties:DF-08",
       "control_id": "DF-08",
       "title": "Corporate Opportunity and Tie-Ins",
       "anchor": "df-08-corporate-opportunity-and-tie-ins",
@@ -38833,6 +39057,7 @@
       }
     },
     {
+      "uid": "director-fiduciary-duties:DF-09",
       "control_id": "DF-09",
       "title": "Recordkeeping and Reporting",
       "anchor": "df-09-recordkeeping-and-reporting",
@@ -39107,6 +39332,7 @@
       }
     },
     {
+      "uid": "director-fiduciary-duties:DF-10",
       "control_id": "DF-10",
       "title": "Training, Acknowledgment, and Enforcement",
       "anchor": "df-10-training-acknowledgment-and-enforcement",
@@ -39627,6 +39853,7 @@
       }
     },
     {
+      "uid": "e-commerce:EC-01",
       "control_id": "EC-01",
       "title": "Safeguarding Member Information",
       "anchor": "ec-01-safeguarding-member-information",
@@ -39853,6 +40080,7 @@
       }
     },
     {
+      "uid": "e-commerce:EC-02",
       "control_id": "EC-02",
       "title": "Network and Data Access Controls",
       "anchor": "ec-02-network-and-data-access-controls",
@@ -40218,6 +40446,7 @@
       }
     },
     {
+      "uid": "e-commerce:EC-03",
       "control_id": "EC-03",
       "title": "User Authentication and Enrollment",
       "anchor": "ec-03-user-authentication-and-enrollment",
@@ -40619,6 +40848,7 @@
       }
     },
     {
+      "uid": "e-commerce:EC-04",
       "control_id": "EC-04",
       "title": "Member Password Standards",
       "anchor": "ec-04-member-password-standards",
@@ -40966,6 +41196,7 @@
       }
     },
     {
+      "uid": "e-commerce:EC-05",
       "control_id": "EC-05",
       "title": "Firewalls",
       "anchor": "ec-05-firewalls",
@@ -41263,6 +41494,7 @@
       }
     },
     {
+      "uid": "e-commerce:EC-06",
       "control_id": "EC-06",
       "title": "Encryption",
       "anchor": "ec-06-encryption",
@@ -41552,6 +41784,7 @@
       }
     },
     {
+      "uid": "e-commerce:EC-07",
       "control_id": "EC-07",
       "title": "Transaction Verification",
       "anchor": "ec-07-transaction-verification",
@@ -41741,6 +41974,7 @@
       }
     },
     {
+      "uid": "e-commerce:EC-08",
       "control_id": "EC-08",
       "title": "Virus Protection",
       "anchor": "ec-08-virus-protection",
@@ -41930,6 +42164,7 @@
       }
     },
     {
+      "uid": "e-commerce:EC-09",
       "control_id": "EC-09",
       "title": "Security Monitoring, Penetration Testing, and Intrusion Detection",
       "anchor": "ec-09-security-monitoring-penetration-testing-and-intrusion-detection",
@@ -42392,6 +42627,7 @@
       }
     },
     {
+      "uid": "e-commerce:SC-01",
       "control_id": "SC-01",
       "title": "NCUA Reportable Cyber-Incident & Member Notification",
       "anchor": "sc-01-ncua-reportable-cyber-incident-member-notification",
@@ -42595,6 +42831,7 @@
       }
     },
     {
+      "uid": "e-commerce:EC-13",
       "control_id": "EC-13",
       "title": "Breach Detection, Liability Assessment & External Comms Gating",
       "anchor": "ec-13-breach-detection-liability-assessment-external-comms-gating",
@@ -42885,6 +43122,7 @@
       }
     },
     {
+      "uid": "e-commerce:SC-03",
       "control_id": "SC-03",
       "title": "Enterprise Incident Declaration & First-Hour Response",
       "anchor": "sc-03-enterprise-incident-declaration-first-hour-response",
@@ -43214,6 +43452,7 @@
       }
     },
     {
+      "uid": "e-commerce:EC-11",
       "control_id": "EC-11",
       "title": "Contingency Planning and Business Continuity",
       "anchor": "ec-11-contingency-planning-and-business-continuity",
@@ -43538,6 +43777,7 @@
       }
     },
     {
+      "uid": "e-commerce:EC-12",
       "control_id": "EC-12",
       "title": "Expertise and Training",
       "anchor": "ec-12-expertise-and-training",
@@ -43839,6 +44079,7 @@
       }
     },
     {
+      "uid": "electronic-payment-systems:EPS-01",
       "control_id": "EPS-01",
       "title": "Planning and Feasibility Analysis",
       "anchor": "eps-01-planning-and-feasibility-analysis",
@@ -44226,6 +44467,7 @@
       }
     },
     {
+      "uid": "electronic-payment-systems:SC-01",
       "control_id": "SC-01",
       "title": "NCUA Reportable Cyber-Incident & Member Notification",
       "anchor": "sc-01-ncua-reportable-cyber-incident-member-notification",
@@ -44429,6 +44671,7 @@
       }
     },
     {
+      "uid": "electronic-payment-systems:EPS-11",
       "control_id": "EPS-11",
       "title": "Payment-Incident Detection & BCP Testing",
       "anchor": "eps-11-payment-incident-detection-bcp-testing",
@@ -44713,6 +44956,7 @@
       }
     },
     {
+      "uid": "electronic-payment-systems:EPS-03",
       "control_id": "EPS-03",
       "title": "Internal Routines and Controls",
       "anchor": "eps-03-internal-routines-and-controls",
@@ -45064,6 +45308,7 @@
       }
     },
     {
+      "uid": "electronic-payment-systems:EPS-04",
       "control_id": "EPS-04",
       "title": "Management Supervision and Oversight",
       "anchor": "eps-04-management-supervision-and-oversight",
@@ -45375,6 +45620,7 @@
       }
     },
     {
+      "uid": "electronic-payment-systems:EPS-05",
       "control_id": "EPS-05",
       "title": "Authentication Controls",
       "anchor": "eps-05-authentication-controls",
@@ -45718,6 +45964,7 @@
       }
     },
     {
+      "uid": "electronic-payment-systems:EPS-06",
       "control_id": "EPS-06",
       "title": "Dual Control for High-Risk Processes",
       "anchor": "eps-06-dual-control-for-high-risk-processes",
@@ -46195,6 +46442,7 @@
       }
     },
     {
+      "uid": "electronic-payment-systems:EPS-07",
       "control_id": "EPS-07",
       "title": "Electronic Fraud Protection Systems",
       "anchor": "eps-07-electronic-fraud-protection-systems",
@@ -46534,6 +46782,7 @@
       }
     },
     {
+      "uid": "electronic-payment-systems:EPS-08",
       "control_id": "EPS-08",
       "title": "Vendor Due Diligence",
       "anchor": "eps-08-vendor-due-diligence",
@@ -46899,6 +47148,7 @@
       }
     },
     {
+      "uid": "electronic-payment-systems:EPS-09",
       "control_id": "EPS-09",
       "title": "Expertise and Training",
       "anchor": "eps-09-expertise-and-training",
@@ -47495,6 +47745,7 @@
       }
     },
     {
+      "uid": "electronic-payment-systems:EPS-10",
       "control_id": "EPS-10",
       "title": "Pre-Deployment Testing",
       "anchor": "eps-10-pre-deployment-testing",
@@ -47853,6 +48104,7 @@
       }
     },
     {
+      "uid": "enterprise-risk-management:ERM-01",
       "control_id": "ERM-01",
       "title": "Enterprise Risk Appetite Statement",
       "anchor": "erm-01-enterprise-risk-appetite-statement",
@@ -48144,6 +48396,7 @@
       }
     },
     {
+      "uid": "enterprise-risk-management:ERM-02",
       "control_id": "ERM-02",
       "title": "Risk Taxonomy & Categories",
       "anchor": "erm-02-risk-taxonomy--categories",
@@ -48431,6 +48684,7 @@
       }
     },
     {
+      "uid": "enterprise-risk-management:ERM-03",
       "control_id": "ERM-03",
       "title": "Risk Scoring Matrix & Rating Scale",
       "anchor": "erm-03-risk-scoring-matrix--rating-scale",
@@ -48679,6 +48933,7 @@
       }
     },
     {
+      "uid": "enterprise-risk-management:ERM-04",
       "control_id": "ERM-04",
       "title": "Risk Assessment & Register Maintenance",
       "anchor": "erm-04-risk-assessment--register-maintenance",
@@ -49045,6 +49300,7 @@
       }
     },
     {
+      "uid": "enterprise-risk-management:ERM-05",
       "control_id": "ERM-05",
       "title": "Key Risk Indicators & Thresholds",
       "anchor": "erm-05-key-risk-indicators--thresholds",
@@ -49417,6 +49673,7 @@
       }
     },
     {
+      "uid": "enterprise-risk-management:ERM-06",
       "control_id": "ERM-06",
       "title": "Risk Appetite Breach Escalation & Incident Management",
       "anchor": "erm-06-risk-appetite-breach-escalation--incident-management",
@@ -49869,6 +50126,7 @@
       }
     },
     {
+      "uid": "enterprise-risk-management:ERM-07",
       "control_id": "ERM-07",
       "title": "Risk Acceptance & Exceptions",
       "anchor": "erm-07-risk-acceptance--exceptions",
@@ -50312,6 +50570,7 @@
       }
     },
     {
+      "uid": "enterprise-risk-management:ERM-08",
       "control_id": "ERM-08",
       "title": "Risk Reporting & Governance Oversight",
       "anchor": "erm-08-risk-reporting--governance-oversight",
@@ -50581,6 +50840,7 @@
       }
     },
     {
+      "uid": "fair-lending:FL-01",
       "control_id": "FL-01",
       "title": "Prohibition & Protected Bases",
       "anchor": "fl-01-prohibition--protected-bases",
@@ -50883,6 +51143,7 @@
       }
     },
     {
+      "uid": "fair-lending:FL-02",
       "control_id": "FL-02",
       "title": "Permissible Inquiries",
       "anchor": "fl-02-permissible-inquiries",
@@ -51109,6 +51370,7 @@
       }
     },
     {
+      "uid": "fair-lending:FL-03",
       "control_id": "FL-03",
       "title": "Evaluation & Pricing Rules",
       "anchor": "fl-03-evaluation--pricing-rules",
@@ -51461,6 +51723,7 @@
       }
     },
     {
+      "uid": "fair-lending:FL-04",
       "control_id": "FL-04",
       "title": "Appraisal Independence & ROV",
       "anchor": "fl-04-appraisal-independence--rov",
@@ -51818,6 +52081,7 @@
       }
     },
     {
+      "uid": "fair-lending:FL-05",
       "control_id": "FL-05",
       "title": "Action-Taken Notices",
       "anchor": "fl-05-action-taken-notices",
@@ -52277,6 +52541,7 @@
       }
     },
     {
+      "uid": "fair-lending:FL-06",
       "control_id": "FL-06",
       "title": "Government Monitoring (GMI/HMDA)",
       "anchor": "fl-06-government-monitoring-gmihmda",
@@ -52665,6 +52930,7 @@
       }
     },
     {
+      "uid": "fair-lending:FL-07",
       "control_id": "FL-07",
       "title": "Advertising & Fair Housing",
       "anchor": "fl-07-advertising--fair-housing",
@@ -53010,6 +53276,7 @@
       }
     },
     {
+      "uid": "fair-lending:FL-08",
       "control_id": "FL-08",
       "title": "LO Compensation & Anti-Steering",
       "anchor": "fl-08-lo-compensation--anti-steering",
@@ -53398,6 +53665,7 @@
       }
     },
     {
+      "uid": "fair-lending:FL-09",
       "control_id": "FL-09",
       "title": "Third-Party Fair-Lending Oversight",
       "anchor": "fl-09-third-party-fair-lending-oversight",
@@ -53775,6 +54043,7 @@
       }
     },
     {
+      "uid": "fair-lending:FL-10",
       "control_id": "FL-10",
       "title": "Monitoring & Disparity Reviews",
       "anchor": "fl-10-monitoring--disparity-reviews",
@@ -54101,6 +54370,7 @@
       }
     },
     {
+      "uid": "fair-lending:FL-11",
       "control_id": "FL-11",
       "title": "Training",
       "anchor": "fl-11-training",
@@ -54457,6 +54727,7 @@
       }
     },
     {
+      "uid": "fair-lending:FL-12",
       "control_id": "FL-12",
       "title": "Record Retention",
       "anchor": "fl-12-record-retention",
@@ -54739,6 +55010,7 @@
       }
     },
     {
+      "uid": "fair-lending:SC-02",
       "control_id": "SC-02",
       "title": "Record-Retention Lifecycle Mechanics",
       "anchor": "sc-02-record-retention-lifecycle-mechanics",
@@ -55306,6 +55578,7 @@
       }
     },
     {
+      "uid": "fair-lending:FL-13",
       "control_id": "FL-13",
       "title": "Complaint Monitoring",
       "anchor": "fl-13-complaint-monitoring",
@@ -55960,6 +56233,7 @@
       }
     },
     {
+      "uid": "information-security:IS-01",
       "control_id": "IS-01",
       "title": "Governance and Oversight",
       "anchor": "is-01-governance-and-oversight",
@@ -56169,6 +56443,7 @@
       }
     },
     {
+      "uid": "information-security:IS-02",
       "control_id": "IS-02",
       "title": "Enterprise Risk Assessment",
       "anchor": "is-02-enterprise-risk-assessment",
@@ -56457,6 +56732,7 @@
       }
     },
     {
+      "uid": "information-security:IS-03",
       "control_id": "IS-03",
       "title": "Asset Inventory and Classification",
       "anchor": "is-03-asset-inventory-and-classification",
@@ -56661,6 +56937,7 @@
       }
     },
     {
+      "uid": "information-security:IS-04",
       "control_id": "IS-04",
       "title": "Change Management and Configuration Control",
       "anchor": "is-04-change-management-and-configuration-control",
@@ -56959,6 +57236,7 @@
       }
     },
     {
+      "uid": "information-security:IS-05",
       "control_id": "IS-05",
       "title": "Vulnerability and Penetration Testing",
       "anchor": "is-05-vulnerability-and-penetration-testing",
@@ -57241,6 +57519,7 @@
       }
     },
     {
+      "uid": "information-security:IS-06",
       "control_id": "IS-06",
       "title": "Access Control and Authentication",
       "anchor": "is-06-access-control-and-authentication",
@@ -57614,6 +57893,7 @@
       }
     },
     {
+      "uid": "information-security:IS-07",
       "control_id": "IS-07",
       "title": "Data Protection, Encryption, and Disposal",
       "anchor": "is-07-data-protection-encryption-and-disposal",
@@ -57901,6 +58181,7 @@
       }
     },
     {
+      "uid": "information-security:IS-08",
       "control_id": "IS-08",
       "title": "Backup and Disaster Recovery",
       "anchor": "is-08-backup-and-disaster-recovery",
@@ -58250,6 +58531,7 @@
       }
     },
     {
+      "uid": "information-security:SC-01",
       "control_id": "SC-01",
       "title": "NCUA Reportable Cyber-Incident & Member Notification",
       "anchor": "sc-01-ncua-reportable-cyber-incident-member-notification",
@@ -58453,6 +58735,7 @@
       }
     },
     {
+      "uid": "information-security:IS-19",
       "control_id": "IS-19",
       "title": "Incident Response Plan, Post-Mortem & Law Enforcement Coordination",
       "anchor": "is-19-incident-response-plan-post-mortem-law-enforcement-coordination",
@@ -58568,6 +58851,7 @@
       }
     },
     {
+      "uid": "information-security:SC-03",
       "control_id": "SC-03",
       "title": "Enterprise Incident Declaration & First-Hour Response",
       "anchor": "sc-03-enterprise-incident-declaration-first-hour-response",
@@ -58897,6 +59181,7 @@
       }
     },
     {
+      "uid": "information-security:IS-10",
       "control_id": "IS-10",
       "title": "Identity Theft Red Flags Program",
       "anchor": "is-10-identity-theft-red-flags-program",
@@ -59196,6 +59481,7 @@
       }
     },
     {
+      "uid": "information-security:IS-11",
       "control_id": "IS-11",
       "title": "Vendor Information Security Diligence",
       "anchor": "is-11-vendor-information-security-diligence",
@@ -59489,6 +59775,7 @@
       }
     },
     {
+      "uid": "information-security:IS-12",
       "control_id": "IS-12",
       "title": "Physical Security and Facilities",
       "anchor": "is-12-physical-security-and-facilities",
@@ -59834,6 +60121,7 @@
       }
     },
     {
+      "uid": "information-security:IS-13",
       "control_id": "IS-13",
       "title": "AI Governance and Usage Disclosure",
       "anchor": "is-13-ai-governance-and-usage-disclosure",
@@ -60182,6 +60470,7 @@
       }
     },
     {
+      "uid": "information-security:IS-14",
       "control_id": "IS-14",
       "title": "Logging, Monitoring, and Alerting",
       "anchor": "is-14-logging-monitoring-and-alerting",
@@ -60446,6 +60735,7 @@
       }
     },
     {
+      "uid": "information-security:IS-15",
       "control_id": "IS-15",
       "title": "Acceptable Use and Communications Systems",
       "anchor": "is-15-acceptable-use-and-communications-systems",
@@ -60713,6 +61003,7 @@
       }
     },
     {
+      "uid": "information-security:IS-16",
       "control_id": "IS-16",
       "title": "Social Media",
       "anchor": "is-16-social-media",
@@ -60967,6 +61258,7 @@
       }
     },
     {
+      "uid": "information-security:IS-17",
       "control_id": "IS-17",
       "title": "Training, Awareness, and Testing",
       "anchor": "is-17-training-awareness-and-testing",
@@ -61321,6 +61613,7 @@
       }
     },
     {
+      "uid": "information-security:IS-18",
       "control_id": "IS-18",
       "title": "Records Management and Retention",
       "anchor": "is-18-records-management-and-retention",
@@ -61501,6 +61794,7 @@
       }
     },
     {
+      "uid": "information-security:SC-02",
       "control_id": "SC-02",
       "title": "Record-Retention Lifecycle Mechanics",
       "anchor": "sc-02-record-retention-lifecycle-mechanics",
@@ -62068,6 +62362,7 @@
       }
     },
     {
+      "uid": "internal-controls:IC-01",
       "control_id": "IC-01",
       "title": "Control Environment and Governance",
       "anchor": "ic-01-control-environment-and-governance",
@@ -62351,6 +62646,7 @@
       }
     },
     {
+      "uid": "internal-controls:IC-02",
       "control_id": "IC-02",
       "title": "Segregation of Duties",
       "anchor": "ic-02-segregation-of-duties",
@@ -62714,6 +63010,7 @@
       }
     },
     {
+      "uid": "internal-controls:IC-03",
       "control_id": "IC-03",
       "title": "Authorization and Approval Limits",
       "anchor": "ic-03-authorization-and-approval-limits",
@@ -63046,6 +63343,7 @@
       }
     },
     {
+      "uid": "internal-controls:IC-04",
       "control_id": "IC-04",
       "title": "Reconciliations",
       "anchor": "ic-04-reconciliations",
@@ -63410,6 +63708,7 @@
       }
     },
     {
+      "uid": "internal-controls:IC-05",
       "control_id": "IC-05",
       "title": "Access and Change Controls",
       "anchor": "ic-05-access-and-change-controls",
@@ -63893,6 +64192,7 @@
       }
     },
     {
+      "uid": "internal-controls:IC-06",
       "control_id": "IC-06",
       "title": "Exception and Override Management",
       "anchor": "ic-06-exception-and-override-management",
@@ -64309,6 +64609,7 @@
       }
     },
     {
+      "uid": "internal-controls:IC-07",
       "control_id": "IC-07",
       "title": "Monitoring and Self-Assessment",
       "anchor": "ic-07-monitoring-and-self-assessment",
@@ -64754,6 +65055,7 @@
       }
     },
     {
+      "uid": "internal-controls:IC-08",
       "control_id": "IC-08",
       "title": "Audit Trail and Recordkeeping",
       "anchor": "ic-08-audit-trail-and-recordkeeping",
@@ -65003,6 +65305,7 @@
       }
     },
     {
+      "uid": "internal-controls:SC-02",
       "control_id": "SC-02",
       "title": "Record-Retention Lifecycle Mechanics",
       "anchor": "sc-02-record-retention-lifecycle-mechanics",
@@ -65570,6 +65873,7 @@
       }
     },
     {
+      "uid": "investment:IP-01",
       "control_id": "IP-01",
       "title": "Policy Record and Review Cycle",
       "anchor": "ip-01-policy-record-and-review-cycle",
@@ -66045,6 +66349,7 @@
       }
     },
     {
+      "uid": "investment:IP-02",
       "control_id": "IP-02",
       "title": "Governance, Board Oversight, and Delegations",
       "anchor": "ip-02-governance-board-oversight-and-delegations",
@@ -66586,6 +66891,7 @@
       }
     },
     {
+      "uid": "investment:IP-03",
       "control_id": "IP-03",
       "title": "Permissible Investments and Prohibited Activities",
       "anchor": "ip-03-permissible-investments-and-prohibited-activities",
@@ -66963,6 +67269,7 @@
       }
     },
     {
+      "uid": "investment:IP-04",
       "control_id": "IP-04",
       "title": "Interest Rate Risk and ALM Integration",
       "anchor": "ip-04-interest-rate-risk-and-alm-integration",
@@ -67373,6 +67680,7 @@
       }
     },
     {
+      "uid": "investment:IP-05",
       "control_id": "IP-05",
       "title": "Credit Risk Standards and Downgrade Management",
       "anchor": "ip-05-credit-risk-standards-and-downgrade-management",
@@ -67809,6 +68117,7 @@
       }
     },
     {
+      "uid": "investment:IP-06",
       "control_id": "IP-06",
       "title": "Liquidity and Marketability Limits",
       "anchor": "ip-06-liquidity-and-marketability-limits",
@@ -68164,6 +68473,7 @@
       }
     },
     {
+      "uid": "investment:IP-07",
       "control_id": "IP-07",
       "title": "Concentration and Counterparty Limits",
       "anchor": "ip-07-concentration-and-counterparty-limits",
@@ -68518,6 +68828,7 @@
       }
     },
     {
+      "uid": "investment:IP-08",
       "control_id": "IP-08",
       "title": "Approved Brokers, Dealers, and Safekeepers",
       "anchor": "ip-08-approved-brokers-dealers-and-safekeepers",
@@ -68888,6 +69199,7 @@
       }
     },
     {
+      "uid": "investment:IP-09",
       "control_id": "IP-09",
       "title": "Repurchase and Reverse Repurchase Agreements",
       "anchor": "ip-09-repurchase-and-reverse-repurchase-agreements",
@@ -69249,6 +69561,7 @@
       }
     },
     {
+      "uid": "investment:IP-10",
       "control_id": "IP-10",
       "title": "Valuation, Accounting, and Fair-Value Measurement",
       "anchor": "ip-10-valuation-accounting-and-fair-value-measurement",
@@ -69688,6 +70001,7 @@
       }
     },
     {
+      "uid": "investment:IP-11",
       "control_id": "IP-11",
       "title": "Pre-Purchase Due Diligence and Exceptions",
       "anchor": "ip-11-pre-purchase-due-diligence-and-exceptions",
@@ -69970,6 +70284,7 @@
       }
     },
     {
+      "uid": "investment:IP-12",
       "control_id": "IP-12",
       "title": "Ongoing Monitoring, Reporting, and Stress Testing",
       "anchor": "ip-12-ongoing-monitoring-reporting-and-stress-testing",
@@ -70285,6 +70600,7 @@
       }
     },
     {
+      "uid": "investment:IP-13",
       "control_id": "IP-13",
       "title": "Performance Measurement and Benchmarks",
       "anchor": "ip-13-performance-measurement-and-benchmarks",
@@ -70509,6 +70825,7 @@
       }
     },
     {
+      "uid": "investment:IP-14",
       "control_id": "IP-14",
       "title": "Trade Execution, Controls, and Segregation of Duties",
       "anchor": "ip-14-trade-execution-controls-and-segregation-of-duties",
@@ -70905,6 +71222,7 @@
       }
     },
     {
+      "uid": "investment:IP-15",
       "control_id": "IP-15",
       "title": "Recordkeeping and Documentation Retention",
       "anchor": "ip-15-recordkeeping-and-documentation-retention",
@@ -71114,6 +71432,7 @@
       }
     },
     {
+      "uid": "investment:SC-02",
       "control_id": "SC-02",
       "title": "Record-Retention Lifecycle Mechanics",
       "anchor": "sc-02-record-retention-lifecycle-mechanics",
@@ -71681,6 +72000,7 @@
       }
     },
     {
+      "uid": "investment:IP-16",
       "control_id": "IP-16",
       "title": "Training, Competency, and Conflicts of Interest",
       "anchor": "ip-16-training-competency-and-conflicts-of-interest",
@@ -72200,6 +72520,7 @@
       }
     },
     {
+      "uid": "investment:IP-17",
       "control_id": "IP-17",
       "title": "Contingency Planning and Liquidity Stress Events",
       "anchor": "ip-17-contingency-planning-and-liquidity-stress-events",
@@ -72543,6 +72864,7 @@
       }
     },
     {
+      "uid": "investment:IP-18",
       "control_id": "IP-18",
       "title": "Policy Review, Amendments, and Version Control",
       "anchor": "ip-18-policy-review-amendments-and-version-control",
@@ -72881,6 +73203,7 @@
       }
     },
     {
+      "uid": "lending:LP-01",
       "control_id": "LP-01",
       "title": "Governance, Roles & Program Scope",
       "anchor": "lp-01-governance-roles--program-scope",
@@ -73260,6 +73583,7 @@
       }
     },
     {
+      "uid": "lending:LP-02",
       "control_id": "LP-02",
       "title": "Product Eligibility & Prohibited Practices",
       "anchor": "lp-02-product-eligibility--prohibited-practices",
@@ -73542,6 +73866,7 @@
       }
     },
     {
+      "uid": "lending:LP-03",
       "control_id": "LP-03",
       "title": "Applications, Acceptance & Denial Standards",
       "anchor": "lp-03-applications-acceptance--denial-standards",
@@ -73944,6 +74269,7 @@
       }
     },
     {
+      "uid": "lending:LP-04",
       "control_id": "LP-04",
       "title": "Credit Scoring & Adverse Credit History",
       "anchor": "lp-04-credit-scoring--adverse-credit-history",
@@ -74288,6 +74614,7 @@
       }
     },
     {
+      "uid": "lending:LP-05",
       "control_id": "LP-05",
       "title": "ATR/QM & Mortgage Underwriting",
       "anchor": "lp-05-atrqm--mortgage-underwriting",
@@ -74546,6 +74873,7 @@
       }
     },
     {
+      "uid": "lending:LP-06",
       "control_id": "LP-06",
       "title": "Appraisals, Valuations & Collateral",
       "anchor": "lp-06-appraisals-valuations--collateral",
@@ -75019,6 +75347,7 @@
       }
     },
     {
+      "uid": "lending:LP-07",
       "control_id": "LP-07",
       "title": "Adverse Action & Notifications",
       "anchor": "lp-07-adverse-action--notifications",
@@ -75463,6 +75792,7 @@
       }
     },
     {
+      "uid": "lending:LP-08",
       "control_id": "LP-08",
       "title": "Exceptions, Mitigating Factors & Overrides",
       "anchor": "lp-08-exceptions-mitigating-factors--overrides",
@@ -75797,6 +76127,7 @@
       }
     },
     {
+      "uid": "lending:LP-09",
       "control_id": "LP-09",
       "title": "Documentation, Recordkeeping & Retention",
       "anchor": "lp-09-documentation-recordkeeping--retention",
@@ -76002,6 +76333,7 @@
       }
     },
     {
+      "uid": "lending:SC-02",
       "control_id": "SC-02",
       "title": "Record-Retention Lifecycle Mechanics",
       "anchor": "sc-02-record-retention-lifecycle-mechanics",
@@ -76569,6 +76901,7 @@
       }
     },
     {
+      "uid": "lending:LP-10",
       "control_id": "LP-10",
       "title": "Pricing, Rate Sheets & HPML Controls",
       "anchor": "lp-10-pricing-rate-sheets--hpml-controls",
@@ -76997,6 +77330,7 @@
       }
     },
     {
+      "uid": "lending:LP-11",
       "control_id": "LP-11",
       "title": "OFAC & Sanctions Gate",
       "anchor": "lp-11-ofac--sanctions-gate",
@@ -77314,6 +77648,7 @@
       }
     },
     {
+      "uid": "lending:LP-12",
       "control_id": "LP-12",
       "title": "Prequalification, Marketing & Steering Controls",
       "anchor": "lp-12-prequalification-marketing--steering-controls",
@@ -77747,6 +78082,7 @@
       }
     },
     {
+      "uid": "lending:LP-13",
       "control_id": "LP-13",
       "title": "Fair Lending Risk Assessment & Monitoring",
       "anchor": "lp-13-fair-lending-risk-assessment--monitoring",
@@ -78233,6 +78569,7 @@
       }
     },
     {
+      "uid": "lending:LP-14",
       "control_id": "LP-14",
       "title": "Insider Lending & Employee Conflicts",
       "anchor": "lp-14-insider-lending--employee-conflicts",
@@ -78562,6 +78899,7 @@
       }
     },
     {
+      "uid": "liquidity:LQ-01",
       "control_id": "LQ-01",
       "title": "Policy Scope & Risk Appetite",
       "anchor": "lq-01-policy-scope--risk-appetite",
@@ -78769,6 +79107,7 @@
       }
     },
     {
+      "uid": "liquidity:LQ-02",
       "control_id": "LQ-02",
       "title": "Maturity Mismatch Limits",
       "anchor": "lq-02-maturity-mismatch-limits",
@@ -79060,6 +79399,7 @@
       }
     },
     {
+      "uid": "liquidity:LQ-03",
       "control_id": "LQ-03",
       "title": "Liquid Assets Ratio Bands",
       "anchor": "lq-03-liquid-assets-ratio-bands",
@@ -79284,6 +79624,7 @@
       }
     },
     {
+      "uid": "liquidity:LQ-04",
       "control_id": "LQ-04",
       "title": "Survival Horizon & Coverage Days",
       "anchor": "lq-04-survival-horizon--coverage-days",
@@ -79505,6 +79846,7 @@
       }
     },
     {
+      "uid": "liquidity:LQ-05",
       "control_id": "LQ-05",
       "title": "Stress Testing",
       "anchor": "lq-05-stress-testing",
@@ -79790,6 +80132,7 @@
       }
     },
     {
+      "uid": "liquidity:LQ-06",
       "control_id": "LQ-06",
       "title": "Funding Concentration & Counterparty Limits",
       "anchor": "lq-06-funding-concentration--counterparty-limits",
@@ -80076,6 +80419,7 @@
       }
     },
     {
+      "uid": "liquidity:LQ-07",
       "control_id": "LQ-07",
       "title": "Reporting Cadence",
       "anchor": "lq-07-reporting-cadence",
@@ -80378,6 +80722,7 @@
       }
     },
     {
+      "uid": "liquidity:LQ-08",
       "control_id": "LQ-08",
       "title": "Data Quality & Model Governance",
       "anchor": "lq-08-data-quality--model-governance",
@@ -80733,6 +81078,7 @@
       }
     },
     {
+      "uid": "liquidity:LQ-09",
       "control_id": "LQ-09",
       "title": "Contingent Federal Liquidity Access",
       "anchor": "lq-09-contingent-federal-liquidity-access",
@@ -81034,6 +81380,7 @@
       }
     },
     {
+      "uid": "liquidity:LQ-10",
       "control_id": "LQ-10",
       "title": "CFP Activation & Escalation Ladder",
       "anchor": "lq-10-cfp-activation--escalation-ladder",
@@ -81404,6 +81751,7 @@
       }
     },
     {
+      "uid": "liquidity:LQ-11",
       "control_id": "LQ-11",
       "title": "Regulatory Notification",
       "anchor": "lq-11-regulatory-notification",
@@ -81611,6 +81959,7 @@
       }
     },
     {
+      "uid": "liquidity:LQ-12",
       "control_id": "LQ-12",
       "title": "External Communications & Stakeholder Matrix",
       "anchor": "lq-12-external-communications--stakeholder-matrix",
@@ -81861,6 +82210,7 @@
       }
     },
     {
+      "uid": "liquidity:LQ-13",
       "control_id": "LQ-13",
       "title": "Regulator Liaison Protocols",
       "anchor": "lq-13-regulator-liaison-protocols",
@@ -82106,6 +82456,7 @@
       }
     },
     {
+      "uid": "liquidity:LQ-14",
       "control_id": "LQ-14",
       "title": "Liquidity Drills & After-Action Reviews",
       "anchor": "lq-14-liquidity-drills--after-action-reviews",
@@ -82388,6 +82739,7 @@
       }
     },
     {
+      "uid": "liquidity:LQ-15",
       "control_id": "LQ-15",
       "title": "Documentation & Retention",
       "anchor": "lq-15-documentation--retention",
@@ -82509,6 +82861,7 @@
       }
     },
     {
+      "uid": "liquidity:SC-02",
       "control_id": "SC-02",
       "title": "Record-Retention Lifecycle Mechanics",
       "anchor": "sc-02-record-retention-lifecycle-mechanics",
@@ -83076,6 +83429,7 @@
       }
     },
     {
+      "uid": "liquidity:LQ-16",
       "control_id": "LQ-16",
       "title": "Definitions & Ratios Catalogue",
       "anchor": "lq-16-definitions--ratios-catalogue",
@@ -83320,6 +83674,7 @@
       }
     },
     {
+      "uid": "liquidity:LQ-17",
       "control_id": "LQ-17",
       "title": "Wholesale / Listing-Service Deposits Guardrails",
       "anchor": "lq-17-wholesale--listing-service-deposits-guardrails",
@@ -83591,6 +83946,7 @@
       }
     },
     {
+      "uid": "member:MP-01",
       "control_id": "MP-01",
       "title": "Membership Eligibility and Onboarding",
       "anchor": "mp-01-membership-eligibility-and-onboarding",
@@ -84006,6 +84362,7 @@
       }
     },
     {
+      "uid": "member:MP-02",
       "control_id": "MP-02",
       "title": "Account Maintenance and Change of Address",
       "anchor": "mp-02-account-maintenance-and-change-of-address",
@@ -84493,6 +84850,7 @@
       }
     },
     {
+      "uid": "member:MP-03",
       "control_id": "MP-03",
       "title": "Member Communications and Preferences",
       "anchor": "mp-03-member-communications-and-preferences",
@@ -84831,6 +85189,7 @@
       }
     },
     {
+      "uid": "member:MP-04",
       "control_id": "MP-04",
       "title": "Member Disputes and Dispute Resolution",
       "anchor": "mp-04-member-disputes-and-dispute-resolution",
@@ -85451,6 +85810,7 @@
       }
     },
     {
+      "uid": "member:MP-05",
       "control_id": "MP-05",
       "title": "Account Restrictions and Closures",
       "anchor": "mp-05-account-restrictions-and-closures",
@@ -85843,6 +86203,7 @@
       }
     },
     {
+      "uid": "member:MP-06",
       "control_id": "MP-06",
       "title": "Member Expulsion",
       "anchor": "mp-06-member-expulsion",
@@ -86275,6 +86636,7 @@
       }
     },
     {
+      "uid": "member:MP-07",
       "control_id": "MP-07",
       "title": "Member Death and Estate Handling",
       "anchor": "mp-07-member-death-and-estate-handling",
@@ -86610,6 +86972,7 @@
       }
     },
     {
+      "uid": "member:MP-08",
       "control_id": "MP-08",
       "title": "Member Records and Privacy",
       "anchor": "mp-08-member-records-and-privacy",
@@ -86918,6 +87281,7 @@
       }
     },
     {
+      "uid": "member:MP-09",
       "control_id": "MP-09",
       "title": "Member Service Standards",
       "anchor": "mp-09-member-service-standards",
@@ -87263,6 +87627,7 @@
       }
     },
     {
+      "uid": "privacy:PR-01",
       "control_id": "PR-01",
       "title": "Privacy Notice Lifecycle",
       "anchor": "pr-01-privacy-notice-lifecycle",
@@ -87630,6 +87995,7 @@
       }
     },
     {
+      "uid": "privacy:PR-02",
       "control_id": "PR-02",
       "title": "Opt-Out Capture and Honoring",
       "anchor": "pr-02-opt-out-capture-and-honoring",
@@ -87971,6 +88337,7 @@
       }
     },
     {
+      "uid": "privacy:PR-03",
       "control_id": "PR-03",
       "title": "Permissible Disclosures and Exceptions",
       "anchor": "pr-03-permissible-disclosures-and-exceptions",
@@ -88234,6 +88601,7 @@
       }
     },
     {
+      "uid": "privacy:PR-04",
       "control_id": "PR-04",
       "title": "Member Access and Authentication",
       "anchor": "pr-04-member-access-and-authentication",
@@ -88577,6 +88945,7 @@
       }
     },
     {
+      "uid": "privacy:PR-05",
       "control_id": "PR-05",
       "title": "Data Accuracy and Corrections",
       "anchor": "pr-05-data-accuracy-and-corrections",
@@ -88953,6 +89322,7 @@
       }
     },
     {
+      "uid": "privacy:PR-06",
       "control_id": "PR-06",
       "title": "Employee Access Minimization and Training",
       "anchor": "pr-06-employee-access-minimization-and-training",
@@ -89329,6 +89699,7 @@
       }
     },
     {
+      "uid": "privacy:PR-07",
       "control_id": "PR-07",
       "title": "Third-Party Oversight and Contracts",
       "anchor": "pr-07-third-party-oversight-and-contracts",
@@ -89644,6 +90015,7 @@
       }
     },
     {
+      "uid": "privacy:PR-08",
       "control_id": "PR-08",
       "title": "Secure Disposal of NPPI",
       "anchor": "pr-08-secure-disposal-of-nppi",
@@ -89966,6 +90338,7 @@
       }
     },
     {
+      "uid": "privacy:SC-01",
       "control_id": "SC-01",
       "title": "NCUA Reportable Cyber-Incident & Member Notification",
       "anchor": "sc-01-ncua-reportable-cyber-incident-member-notification",
@@ -90169,6 +90542,7 @@
       }
     },
     {
+      "uid": "privacy:PR-18",
       "control_id": "PR-18",
       "title": "Incident Detection, Classification & SAR Referral",
       "anchor": "pr-18-incident-detection-classification-sar-referral",
@@ -90463,6 +90837,7 @@
       }
     },
     {
+      "uid": "privacy:PR-10",
       "control_id": "PR-10",
       "title": "Recordkeeping, Complaints, and Board Reporting",
       "anchor": "pr-10-recordkeeping-complaints-and-board-reporting",
@@ -90813,6 +91188,7 @@
       }
     },
     {
+      "uid": "privacy:PR-11",
       "control_id": "PR-11",
       "title": "Website Posting and E-SIGN Delivery",
       "anchor": "pr-11-website-posting-and-e-sign-delivery",
@@ -91094,6 +91470,7 @@
       }
     },
     {
+      "uid": "privacy:PR-12",
       "control_id": "PR-12",
       "title": "State Privacy Rights: Universal Floor",
       "anchor": "pr-12-state-privacy-rights-universal-floor",
@@ -91434,6 +91811,7 @@
       }
     },
     {
+      "uid": "privacy:PR-13",
       "control_id": "PR-13",
       "title": "Anonymization and Aggregation",
       "anchor": "pr-13-anonymization-and-aggregation",
@@ -91690,6 +92068,7 @@
       }
     },
     {
+      "uid": "privacy:PR-14",
       "control_id": "PR-14",
       "title": "Cookies and Online Tracking",
       "anchor": "pr-14-cookies-and-online-tracking",
@@ -92040,6 +92419,7 @@
       }
     },
     {
+      "uid": "privacy:PR-15",
       "control_id": "PR-15",
       "title": "Third-Party App and Account Connections",
       "anchor": "pr-15-third-party-app-and-account-connections",
@@ -92311,6 +92691,7 @@
       }
     },
     {
+      "uid": "privacy:PR-16",
       "control_id": "PR-16",
       "title": "Biometric Data for KYC",
       "anchor": "pr-16-biometric-data-for-kyc",
@@ -92588,6 +92969,7 @@
       }
     },
     {
+      "uid": "privacy:PR-17",
       "control_id": "PR-17",
       "title": "Children's Data",
       "anchor": "pr-17-childrens-data",
@@ -92807,6 +93189,7 @@
       }
     },
     {
+      "uid": "record-retention:RR-01",
       "control_id": "RR-01",
       "title": "Retention Schedule and Clock Setting",
       "anchor": "rr-01-retention-schedule-and-clock-setting",
@@ -93128,6 +93511,7 @@
       }
     },
     {
+      "uid": "record-retention:RR-02",
       "control_id": "RR-02",
       "title": "Retention Methods and Electronic-Record Integrity",
       "anchor": "rr-02-retention-methods-and-electronic-record-integrity",
@@ -93365,6 +93749,7 @@
       }
     },
     {
+      "uid": "record-retention:RR-03",
       "control_id": "RR-03",
       "title": "Document Destruction",
       "anchor": "rr-03-document-destruction",
@@ -93642,6 +94027,7 @@
       }
     },
     {
+      "uid": "record-retention:RR-04",
       "control_id": "RR-04",
       "title": "Destruction Logging and Storage Labeling",
       "anchor": "rr-04-destruction-logging-and-storage-labeling",
@@ -93958,6 +94344,7 @@
       }
     },
     {
+      "uid": "record-retention:RR-05",
       "control_id": "RR-05",
       "title": "Legal Holds",
       "anchor": "rr-05-legal-holds",
@@ -94266,6 +94653,7 @@
       }
     },
     {
+      "uid": "record-retention:RR-06",
       "control_id": "RR-06",
       "title": "Core Processor and Email Archive Retention",
       "anchor": "rr-06-core-processor-and-email-archive-retention",
@@ -94507,6 +94895,7 @@
       }
     },
     {
+      "uid": "record-retention:RR-07",
       "control_id": "RR-07",
       "title": "BSA/AML Anonymization and Extended Analytical Retention",
       "anchor": "rr-07-bsaaml-anonymization-and-extended-analytical-retention",
@@ -94756,6 +95145,7 @@
       }
     },
     {
+      "uid": "record-retention:RR-08",
       "control_id": "RR-08",
       "title": "CDD Refresh Cycle and Stale-Record Disposition",
       "anchor": "rr-08-cdd-refresh-cycle-and-stale-record-disposition",
@@ -95004,6 +95394,7 @@
       }
     },
     {
+      "uid": "record-retention:RR-09",
       "control_id": "RR-09",
       "title": "Annual Policy and Schedule Review",
       "anchor": "rr-09-annual-policy-and-schedule-review",
@@ -95268,6 +95659,7 @@
       }
     },
     {
+      "uid": "record-retention:RR-10",
       "control_id": "RR-10",
       "title": "Training",
       "anchor": "rr-10-training",
@@ -95593,6 +95985,7 @@
       }
     },
     {
+      "uid": "record-retention:RR-11",
       "control_id": "RR-11",
       "title": "Permanent Record Governance",
       "anchor": "rr-11-permanent-record-governance",
@@ -95854,6 +96247,7 @@
       }
     },
     {
+      "uid": "record-retention:RR-12",
       "control_id": "RR-12",
       "title": "Responsibility and Administration",
       "anchor": "rr-12-responsibility-and-administration",
@@ -96069,6 +96463,7 @@
       }
     },
     {
+      "uid": "reimbursement-insurance-indemnification:RII-01",
       "control_id": "RII-01",
       "title": "Business Expense Reimbursement",
       "anchor": "rii-01-business-expense-reimbursement",
@@ -96404,6 +96799,7 @@
       }
     },
     {
+      "uid": "reimbursement-insurance-indemnification:RII-02",
       "control_id": "RII-02",
       "title": "Insurance Program Maintenance",
       "anchor": "rii-02-insurance-program-maintenance",
@@ -96729,6 +97125,7 @@
       }
     },
     {
+      "uid": "reimbursement-insurance-indemnification:RII-03",
       "control_id": "RII-03",
       "title": "Mandatory Indemnification",
       "anchor": "rii-03-mandatory-indemnification",
@@ -97078,6 +97475,7 @@
       }
     },
     {
+      "uid": "reimbursement-insurance-indemnification:RII-04",
       "control_id": "RII-04",
       "title": "Permissive Indemnification",
       "anchor": "rii-04-permissive-indemnification",
@@ -97471,6 +97869,7 @@
       }
     },
     {
+      "uid": "reimbursement-insurance-indemnification:RII-05",
       "control_id": "RII-05",
       "title": "Advancement of Expenses",
       "anchor": "rii-05-advancement-of-expenses",
@@ -97798,6 +98197,7 @@
       }
     },
     {
+      "uid": "reimbursement-insurance-indemnification:RII-06",
       "control_id": "RII-06",
       "title": "Indemnification Exclusions",
       "anchor": "rii-06-indemnification-exclusions",
@@ -97990,6 +98390,7 @@
       }
     },
     {
+      "uid": "reimbursement-insurance-indemnification:RII-07",
       "control_id": "RII-07",
       "title": "Decision Process and Conflicts",
       "anchor": "rii-07-decision-process-and-conflicts",
@@ -98273,6 +98674,7 @@
       }
     },
     {
+      "uid": "reimbursement-insurance-indemnification:RII-08",
       "control_id": "RII-08",
       "title": "Claims Procedures",
       "anchor": "rii-08-claims-procedures",
@@ -98600,6 +99002,7 @@
       }
     },
     {
+      "uid": "reimbursement-insurance-indemnification:RII-09",
       "control_id": "RII-09",
       "title": "Recordkeeping",
       "anchor": "rii-09-recordkeeping",
@@ -99020,6 +99423,7 @@
       }
     },
     {
+      "uid": "resolution:RS-01",
       "control_id": "RS-01",
       "title": "Policy Scope Registry",
       "anchor": "rs-01-policy-scope-registry",
@@ -99295,6 +99699,7 @@
       }
     },
     {
+      "uid": "resolution:RS-02",
       "control_id": "RS-02",
       "title": "Early-Warning Indicators",
       "anchor": "rs-02-early-warning-indicators",
@@ -99655,6 +100060,7 @@
       }
     },
     {
+      "uid": "resolution:RS-03",
       "control_id": "RS-03",
       "title": "Safe-Mode Transaction Controls",
       "anchor": "rs-03-safe-mode-transaction-controls",
@@ -100002,6 +100408,7 @@
       }
     },
     {
+      "uid": "resolution:RS-04",
       "control_id": "RS-04",
       "title": "Targeted Account Freeze",
       "anchor": "rs-04-targeted-account-freeze",
@@ -100313,6 +100720,7 @@
       }
     },
     {
+      "uid": "resolution:RS-05",
       "control_id": "RS-05",
       "title": "Institution-Wide Freeze",
       "anchor": "rs-05-institution-wide-freeze",
@@ -100648,6 +101056,7 @@
       }
     },
     {
+      "uid": "resolution:RS-06",
       "control_id": "RS-06",
       "title": "Next-Business-Day Member Availability",
       "anchor": "rs-06-next-business-day-member-availability",
@@ -100903,6 +101312,7 @@
       }
     },
     {
+      "uid": "resolution:RS-07",
       "control_id": "RS-07",
       "title": "Trustee/Conservator Handover",
       "anchor": "rs-07-trustee-conservator-handover",
@@ -101300,6 +101710,7 @@
       }
     },
     {
+      "uid": "resolution:RS-08",
       "control_id": "RS-08",
       "title": "Records Preservation for Resolution",
       "anchor": "rs-08-records-preservation-for-resolution",
@@ -101652,6 +102063,7 @@
       }
     },
     {
+      "uid": "resolution:RS-09",
       "control_id": "RS-09",
       "title": "Testing and Validation",
       "anchor": "rs-09-testing-and-validation",
@@ -102042,6 +102454,7 @@
       }
     },
     {
+      "uid": "resolution:RS-10",
       "control_id": "RS-10",
       "title": "Governance and Review Cadence",
       "anchor": "rs-10-governance-and-review-cadence",
@@ -102367,6 +102780,7 @@
       }
     },
     {
+      "uid": "shared-controls:SC-03",
       "control_id": "SC-03",
       "title": "Enterprise Incident Declaration & First-Hour Response",
       "anchor": "sc-03-enterprise-incident-declaration-first-hour-response",
@@ -102696,6 +103110,7 @@
       }
     },
     {
+      "uid": "shared-controls:SC-01",
       "control_id": "SC-01",
       "title": "NCUA Reportable Cyber-Incident & Member Notification",
       "anchor": "sc-01-ncua-reportable-cyber-incident-member-notification",
@@ -102899,6 +103314,7 @@
       }
     },
     {
+      "uid": "shared-controls:SC-02",
       "control_id": "SC-02",
       "title": "Record-Retention Lifecycle Mechanics",
       "anchor": "sc-02-record-retention-lifecycle-mechanics",
@@ -103466,6 +103882,7 @@
       }
     },
     {
+      "uid": "third-party-risk:TR-01",
       "control_id": "TR-01",
       "title": "Governance & Accountability",
       "anchor": "tr-01-governance-accountability",
@@ -103764,6 +104181,7 @@
       }
     },
     {
+      "uid": "third-party-risk:TR-02",
       "control_id": "TR-02",
       "title": "Vendor Inventory & Criticality Classification",
       "anchor": "tr-02-vendor-inventory-criticality-classification",
@@ -104039,6 +104457,7 @@
       }
     },
     {
+      "uid": "third-party-risk:TR-03",
       "control_id": "TR-03",
       "title": "Risk Assessment & Planning",
       "anchor": "tr-03-risk-assessment-planning",
@@ -104287,6 +104706,7 @@
       }
     },
     {
+      "uid": "third-party-risk:TR-04",
       "control_id": "TR-04",
       "title": "Due Diligence & AML/KYC Expectations",
       "anchor": "tr-04-due-diligence-amlkyc-expectations",
@@ -104526,6 +104946,7 @@
       }
     },
     {
+      "uid": "third-party-risk:TR-05",
       "control_id": "TR-05",
       "title": "Contract Standards & Regulatory Clauses",
       "anchor": "tr-05-contract-standards-regulatory-clauses",
@@ -104836,6 +105257,7 @@
       }
     },
     {
+      "uid": "third-party-risk:TR-06",
       "control_id": "TR-06",
       "title": "Outsourcing of Core & Capital-Impacting Functions",
       "anchor": "tr-06-outsourcing-of-core-capital-impacting-functions",
@@ -105132,6 +105554,7 @@
       }
     },
     {
+      "uid": "third-party-risk:TR-07",
       "control_id": "TR-07",
       "title": "Ongoing Monitoring, Performance & Risk Reporting",
       "anchor": "tr-07-ongoing-monitoring-performance-risk-reporting",
@@ -105505,6 +105928,7 @@
       }
     },
     {
+      "uid": "third-party-risk:SC-01",
       "control_id": "SC-01",
       "title": "NCUA Reportable Cyber-Incident & Member Notification",
       "anchor": "sc-01-ncua-reportable-cyber-incident-member-notification",
@@ -105708,6 +106132,7 @@
       }
     },
     {
+      "uid": "third-party-risk:TR-11",
       "control_id": "TR-11",
       "title": "Vendor Incident Notification, Internal Triage & SAR Referral",
       "anchor": "tr-11-vendor-incident-notification-internal-triage-sar-referral",
@@ -105994,6 +106419,7 @@
       }
     },
     {
+      "uid": "third-party-risk:TR-09",
       "control_id": "TR-09",
       "title": "Termination & Exit Strategy",
       "anchor": "tr-09-termination-exit-strategy",
@@ -106246,6 +106672,7 @@
       }
     },
     {
+      "uid": "third-party-risk:TR-10",
       "control_id": "TR-10",
       "title": "Key Third-Party Owners & RACI",
       "anchor": "tr-10-key-third-party-owners-raci",
@@ -106477,6 +106904,7 @@
       }
     },
     {
+      "uid": "truth-in-savings:TIS-01",
       "control_id": "TIS-01",
       "title": "Disclosure Standards",
       "anchor": "tis-01-disclosure-standards",
@@ -106735,6 +107163,7 @@
       }
     },
     {
+      "uid": "truth-in-savings:TIS-02",
       "control_id": "TIS-02",
       "title": "Pre-Opening Account Disclosures",
       "anchor": "tis-02-pre-opening-account-disclosures",
@@ -107054,6 +107483,7 @@
       }
     },
     {
+      "uid": "truth-in-savings:TIS-03",
       "control_id": "TIS-03",
       "title": "Change-in-Terms Notices",
       "anchor": "tis-03-change-in-terms-notices",
@@ -107313,6 +107743,7 @@
       }
     },
     {
+      "uid": "truth-in-savings:TIS-04",
       "control_id": "TIS-04",
       "title": "Maturity Notices",
       "anchor": "tis-04-maturity-notices",
@@ -107580,6 +108011,7 @@
       }
     },
     {
+      "uid": "truth-in-savings:TIS-05",
       "control_id": "TIS-05",
       "title": "Periodic Statement Disclosures",
       "anchor": "tis-05-periodic-statement-disclosures",
@@ -107767,6 +108199,7 @@
       }
     },
     {
+      "uid": "truth-in-savings:TIS-06",
       "control_id": "TIS-06",
       "title": "Interest Calculation",
       "anchor": "tis-06-interest-calculation",
@@ -108043,6 +108476,7 @@
       }
     },
     {
+      "uid": "truth-in-savings:TIS-07",
       "control_id": "TIS-07",
       "title": "Advertising Review",
       "anchor": "tis-07-advertising-review",
@@ -108350,6 +108784,7 @@
       }
     },
     {
+      "uid": "truth-in-savings:TIS-08",
       "control_id": "TIS-08",
       "title": "Overdraft Service Disclosures",
       "anchor": "tis-08-overdraft-service-disclosures",
@@ -108641,6 +109076,7 @@
       }
     },
     {
+      "uid": "truth-in-savings:TIS-09",
       "control_id": "TIS-09",
       "title": "Recordkeeping",
       "anchor": "tis-09-recordkeeping",
@@ -108908,6 +109344,7 @@
       }
     },
     {
+      "uid": "truth-in-savings:TIS-10",
       "control_id": "TIS-10",
       "title": "Training and Monitoring",
       "anchor": "tis-10-training-and-monitoring",
