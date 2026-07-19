@@ -409,6 +409,52 @@ check "entries sum to what actually moved" \
   "$(sql "select sum(amount) from pg.core.bookkeeping_entry where id like 'bke_${CID}_captured%';")" "100000"
 
 
+# ------------------------------------ money conservation (card 33)
+# Conservation must be checked against the LEDGER (Blnk), not our mirrors: a
+# fresh pair of accounts walks every rail, then their authoritative balances
+# must equal the arithmetic prediction and NO inflight residue may survive a
+# terminal state. Residue = member funds stranded in a hold nobody will ever
+# commit or void — invisible to mirror-based checks.
+blnk_bal() { # blnk_bal <account_id> <field>
+  local bid
+  bid=$(sql "select blnk_balance_id from pg.core.account where id='$1';")
+  curl -sS "$BLNK_API_URL/balances/$bid" -H "X-blnk-key: $BLNK_API_KEY" \
+  | python3 -c "import json,sys;d=json.load(sys.stdin);print(int(d.get('$2') or 0))"
+}
+echo "-- 24. conservation: every rail, then the ledger must add up --"
+CA=$(new_account 1000000 cons-a)   # $10,000
+CB=$(new_account 500000  cons-b)   # $5,000
+# book: CA -> CB $1,000 (stays inside the instance)
+api POST /transfers cons-book "{\"source_account_id\":\"$CA\",\"destination_account_id\":\"$CB\",\"amount_cents\":100000,\"description\":\"cons book\"}" >/dev/null
+# wire out $2,000, confirmed in full, then returned -> net zero
+api POST /payments/wire/prepare cons-w1 "{\"source_account_id\":\"$CA\",\"amount_cents\":200000,\"beneficiary\":{\"name\":\"Acme\",\"country\":\"US\"},\"purpose\":\"cons wire\"}" >/dev/null
+CW1=$(jget id)
+curl -sS -o /tmp/e2e_body -X POST "$API/payments/wire/$CW1/confirm" "${AUTH[@]}"
+curl -sS -o /tmp/e2e_body -X POST "$API/payments/wire/$CW1/return" "${AUTH[@]}" -d '{"reason":"conservation walk"}'
+curl -sS -o /tmp/e2e_body -X POST "$API/payments/wire/$CW1/return/resolve" "${AUTH[@]}" -d '{"outcome":"accepted"}'
+# wire held at $1,000 but confirmed for only $400 -> the $600 remainder must be RELEASED
+api POST /payments/wire/prepare cons-w2 "{\"source_account_id\":\"$CA\",\"amount_cents\":100000,\"beneficiary\":{\"name\":\"Acme\",\"country\":\"US\"},\"purpose\":\"cons partial\"}" >/dev/null
+CW2=$(jget id)
+curl -sS -o /tmp/e2e_body -X POST "$API/payments/wire/$CW2/confirm" "${AUTH[@]}" -d '{"amount_cents":40000}'
+# ACH out $500 settled then returned late -> net zero
+api POST /payments/ach cons-ach "{\"source_account_id\":\"$CA\",\"amount_cents\":50000,\"counterparty\":{\"name\":\"Acme\"},\"window\":\"next_day\"}" >/dev/null
+CACH=$(jget id)
+curl -sS -o /tmp/e2e_body -X POST "$API/payments/ach/$CACH/settle" "${AUTH[@]}"
+curl -sS -o /tmp/e2e_body -X POST "$API/payments/ach/$CACH/return" "${AUTH[@]}" -d '{"return_reason":"R01"}'
+# card $300 authorized, captured $100 + $200 (fully drawn)
+api POST /payments/card/authorize cons-card "{\"source_account_id\":\"$CA\",\"amount_cents\":30000,\"merchant\":\"Cons Cafe\"}" >/dev/null
+CCARD=$(jget id)
+curl -sS -o /tmp/e2e_body -X POST "$API/payments/card/$CCARD/capture" "${AUTH[@]}" -d '{"amount_cents":10000}'
+curl -sS -o /tmp/e2e_body -X POST "$API/payments/card/$CCARD/capture" "${AUTH[@]}" -d '{"amount_cents":20000}'
+# the ledger must now add up exactly:
+#   CA = 10000 - 1000(book) - 400(partial wire) - 300(card) = $8,300
+#   CB =  5000 + 1000(book)                                 = $6,000
+check "CA ledger balance conserves (830000c)"  "$(blnk_bal "$CA" balance)" "830000"
+check "CB ledger balance conserves (600000c)"  "$(blnk_bal "$CB" balance)" "600000"
+check "CA has NO stranded inflight residue"    "$(blnk_bal "$CA" inflight_debit_balance)" "0"
+check "CB has NO stranded inflight residue"    "$(blnk_bal "$CB" inflight_debit_balance)" "0"
+
+
 echo
 echo "== $PASS passed, $FAIL failed =="
 [ "$FAIL" -eq 0 ] || exit 1

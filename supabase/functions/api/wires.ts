@@ -358,6 +358,20 @@ async function resolveInflight(
     return internalErrorResponse(requestId, err);
   }
 
+  // A partial confirm is TERMINAL — the wire settles for less. Blnk keeps the
+  // unconfirmed remainder held in inflight_debit_balance after a partial
+  // commit, so without this void it is stranded forever: member money that is
+  // neither spendable nor releasable. Found by the conservation sweep ($600
+  // residue). Best-effort: the commit is final either way, and the sweep's
+  // inflight-residue check surfaces a failed release.
+  if (action === "confirm" && partialCents !== undefined && partialCents < wire.amount) {
+    try {
+      await voidInflight(cfg, wire.blnk_transaction_id);
+    } catch (voidErr) {
+      console.error(`remainder release failed for wire ${wireId}: ${voidErr}`);
+    }
+  }
+
   const mirror = transactionMirror(blnkTxn);
   const { data: updated, error: updErr } = await db.schema("core").from("wire_transfer")
     .update({

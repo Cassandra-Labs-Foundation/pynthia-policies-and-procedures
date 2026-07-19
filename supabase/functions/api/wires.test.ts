@@ -439,3 +439,43 @@ Deno.test("an accepted wire return writes its own reversal artifacts", async () 
   assertEquals(evt?.row.code, "wire_transfer.returned");
   assertEquals((evt?.row.payload as Any).reason, "beneficiary fraud claim");
 });
+
+// -------------------------------------- partial-confirm residue (card 33)
+// Found by the conservation sweep: confirming a wire for LESS than was held
+// left the remainder in inflight_debit_balance forever — $600 of member money
+// stranded with no path to release. A partial confirm is terminal (the wire
+// settles for less), so the unconfirmed remainder must be VOIDED.
+
+Deno.test("a partial confirm releases the unconfirmed remainder", async () => {
+  const { cfg, sent } = stubCfg([
+    json({ transaction_id: "txn_held", reference: "wire_transfer:w1", status: "APPLIED" }),
+    json({ transaction_id: "txn_held", reference: "wire_transfer:w1", status: "VOID" }),
+  ]);
+  const { db } = stubDb(HELD_WITH_ORIGINATOR); // held 500000
+
+  const res = await postWireConfirm(req({ amount_cents: 200000 }), "w1", db, cfg, "pr1");
+  assertEquals(res.status, 200);
+  assertEquals(sent.length, 2, "commit the partial, then void the remainder");
+  assertEquals((sent[0].body as Any).status, "commit");
+  assertEquals((sent[1].body as Any).status, "void");
+});
+
+Deno.test("a full confirm voids nothing — there is no remainder", async () => {
+  const { cfg, sent } = stubCfg([
+    json({ transaction_id: "txn_held", reference: "wire_transfer:w1", status: "APPLIED" }),
+  ]);
+  const { db } = stubDb(HELD_WITH_ORIGINATOR);
+
+  await postWireConfirm(req(), "w1", db, cfg, "pr2");
+  assertEquals(sent.length, 1, "nothing left to void after a full commit");
+});
+
+Deno.test("a confirm for exactly the held amount is a full confirm", async () => {
+  const { cfg, sent } = stubCfg([
+    json({ transaction_id: "txn_held", reference: "wire_transfer:w1", status: "APPLIED" }),
+  ]);
+  const { db } = stubDb(HELD_WITH_ORIGINATOR);
+
+  await postWireConfirm(req({ amount_cents: 500000 }), "w1", db, cfg, "pr3");
+  assertEquals(sent.length, 1, "amount == held must not trigger a void");
+});
