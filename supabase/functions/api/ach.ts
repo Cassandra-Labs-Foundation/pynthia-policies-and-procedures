@@ -224,7 +224,7 @@ export async function postAch(
   }
 
   const cols =
-    "id, amount, status, counterparty, window, blnk_transaction_id, blnk_reference, blnk_status, created_at";
+    "id, amount, status, counterparty, window, originator, blnk_transaction_id, blnk_reference, blnk_status, created_at";
   const { data: updated, error: updErr } = await db.schema("core").from("ach_transfer")
     .update({
       status: "submitted",
@@ -278,7 +278,7 @@ async function resolveAch(
   action: "settle" | "return",
 ): Promise<Response> {
   const cols =
-    "id, amount, status, counterparty, window, blnk_transaction_id, blnk_reference, blnk_status, created_at";
+    "id, amount, status, counterparty, window, originator, blnk_transaction_id, blnk_reference, blnk_status, created_at";
   const { data: ach, error: selErr } = await db.schema("core").from("ach_transfer")
     .select(cols)
     .eq("id", achId)
@@ -295,12 +295,18 @@ async function resolveAch(
       "Idempotent-Replayed": "true",
     });
   }
-  if (ach.status !== "submitted") {
+  // An ACH return can legitimately arrive AFTER settlement — R01s and
+  // unauthorized-debit returns come back days later. So 'settled' is a valid
+  // starting point for a return, though not for a settle.
+  const allowed = action === "settle" ? ["submitted"] : ["submitted", "settled"];
+  if (!allowed.includes(ach.status)) {
     return apiError(409, "invalid_state", requestId, {
       title: "Invalid State",
-      detail: `ach_transfer ${achId} is ${ach.status}; only 'submitted' can be ${action}ed`,
+      detail:
+        `ach_transfer ${achId} is ${ach.status}; only ${allowed.map((s) => `'${s}'`).join(" or ")} can be ${action}ed`,
     });
   }
+  const isPostSettlementReturn = action === "return" && ach.status === "settled";
   if (!ach.blnk_transaction_id) {
     return apiError(409, "not_held", requestId, {
       title: "Not Held",
@@ -326,9 +332,47 @@ async function resolveAch(
 
   let blnkTxn;
   try {
-    blnkTxn = action === "settle"
-      ? await commitInflight(cfg, ach.blnk_transaction_id)
-      : await voidInflight(cfg, ach.blnk_transaction_id);
+    if (isPostSettlementReturn) {
+      // The hold was already committed, so there is nothing left to void: the
+      // funds have moved. Undo it with a compensating entry in the opposite
+      // direction rather than mutating settled history, which keeps the ledger
+      // append-only and leaves both legs visible to an auditor.
+      const originatorAccountId = (ach.originator as { account_id?: string } | null)?.account_id;
+      if (!originatorAccountId) {
+        return apiError(409, "not_reversible", requestId, {
+          title: "Not Reversible",
+          detail: "settled ACH entry has no originator account to credit back",
+        });
+      }
+      const { data: acct, error: acctErr } = await db.schema("core").from("account")
+        .select("id, blnk_balance_id")
+        .eq("id", originatorAccountId)
+        .maybeSingle();
+      if (acctErr) return internalErrorResponse(requestId, acctErr);
+      if (!acct?.blnk_balance_id) {
+        return apiError(409, "not_reversible", requestId, {
+          title: "Not Reversible",
+          detail: "originating account has no Blnk balance to credit back",
+        });
+      }
+      const reversal = await recordTransaction(cfg, {
+        // ':return' leg keeps the reference unique, so the reversal cannot be
+        // mistaken for a duplicate of the original entry
+        coreResource: { table: "ach_transfer", id: achId },
+        leg: "return",
+        amountCents: ach.amount as number,
+        currency: CURRENCY,
+        source: ACH_NETWORK_BALANCE,
+        destination: acct.blnk_balance_id as string,
+        description: `ACH return${returnReason ? ` (${returnReason})` : ""}`,
+        inflight: false,
+      });
+      blnkTxn = reversal.transaction;
+    } else {
+      blnkTxn = action === "settle"
+        ? await commitInflight(cfg, ach.blnk_transaction_id)
+        : await voidInflight(cfg, ach.blnk_transaction_id);
+    }
   } catch (err) {
     if (err instanceof BlnkError) return bankErrorResponse(requestId);
     return internalErrorResponse(requestId, err);

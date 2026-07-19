@@ -153,3 +153,86 @@ Deno.test("resolving an unknown entry is a 404", async () => {
   const { db } = stubDb(null);
   assertEquals((await postAchSettle(req(), "nope", db, cfg, "r13")).status, 404);
 });
+
+// --------------------------------------------- post-settlement return (R01)
+// Card 34's done criteria requires SUBMITTED -> SETTLED -> RETURNED. An ACH
+// return routinely arrives days after settlement (R01, unauthorized debit), so
+// 'settled' must be a valid starting point for a return. It cannot be a void:
+// the hold is already committed and the money has moved, so it needs a
+// compensating entry in the opposite direction.
+
+const SETTLED = {
+  ...HELD,
+  status: "settled",
+  originator: { account_id: "acct_src" },
+  blnk_status: "APPLIED",
+};
+
+function dbWithAccount(row: unknown) {
+  const updates: Record<string, unknown>[] = [];
+  const chain: Any = {
+    select: () => chain,
+    eq: () => chain,
+    update: (p: Record<string, unknown>) => { updates.push(p); return chain; },
+    insert: () => Promise.resolve({ data: null, error: null }),
+    maybeSingleQueue: [] as unknown[],
+    // mirror the real .update(...).select().single(): return the UPDATED row,
+    // not the stale one, or the response body lags the persisted state
+    single: () =>
+      Promise.resolve({
+        data: { ...(row as Record<string, unknown>), ...Object.assign({}, ...updates) },
+        error: null,
+      }),
+    then: (r: (v: unknown) => unknown) => r({ data: [], error: null }),
+  };
+  let call = 0;
+  chain.maybeSingle = () => {
+    call += 1;
+    // first lookup is the ach row, second is the originating account
+    return Promise.resolve({
+      data: call === 1 ? row : { id: "acct_src", blnk_balance_id: "bln_src" },
+      error: null,
+    });
+  };
+  const db: Any = { schema: () => ({ from: () => chain }) };
+  return { db, updates };
+}
+
+Deno.test("a settled entry CAN be returned — returns arrive days later", async () => {
+  const { cfg, sent } = stubCfg([
+    json({ transaction_id: "txn_reversal", reference: "ach_transfer:ach_1:return", status: "APPLIED" }),
+  ]);
+  const { db, updates } = dbWithAccount(SETTLED);
+
+  const res = await postAchReturn(req({ return_reason: "R01" }), "ach_1", db, cfg, "pr1");
+  assertEquals(res.status, 200);
+  assertEquals((await res.json()).status, "returned");
+  assertEquals(updates.at(-1)?.status, "returned");
+});
+
+Deno.test("a post-settlement return REVERSES rather than voiding", async () => {
+  const { cfg, sent } = stubCfg([
+    json({ transaction_id: "txn_reversal", reference: "ach_transfer:ach_1:return", status: "APPLIED" }),
+  ]);
+  const { db } = dbWithAccount(SETTLED);
+
+  await postAchReturn(req({ return_reason: "R01" }), "ach_1", db, cfg, "pr2");
+
+  // a new transaction, not a PUT against the committed hold
+  const call = sent[0];
+  assertEquals(call.method, "POST");
+  assertEquals(call.url.endsWith("/transactions"), true);
+  // money flows back FROM the network TO the member
+  assertEquals((call.body as Any).source, "@ACHNetwork");
+  assertEquals((call.body as Any).destination, "bln_src");
+  assertEquals((call.body as Any).inflight, false);
+  // ':return' leg keeps it distinct from the original entry's reference
+  assertEquals((call.body as Any).reference, "ach_transfer:ach_1:return");
+});
+
+Deno.test("settling is still refused once returned", async () => {
+  const { cfg, sent } = stubCfg([]);
+  const { db } = stubDb({ ...HELD, status: "returned" });
+  assertEquals((await postAchSettle(req(), "ach_1", db, cfg, "pr3")).status, 409);
+  assertEquals(sent.length, 0);
+});

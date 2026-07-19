@@ -310,6 +310,27 @@ ST=$(api POST /payments/wire/prepare domestic-ok "{\"source_account_id\":\"$DOM\
 check "explicit US beneficiary still settles"        "$ST" "201"
 
 
+# --------------------------------------- ACH walks the full state machine
+# Card 34: PENDING_APPROVAL -> SUBMITTED -> SETTLED -> RETURNED. The last hop is
+# the one that matters: an ACH return arrives days AFTER settlement (R01,
+# unauthorized debit). The hold is already committed by then, so it cannot be
+# voided -- it must be undone by a compensating entry.
+echo "-- 18. ACH: a SETTLED entry can still be returned (R01 arrives late) --"
+AS=$(new_account 5000000 ach-settle)
+ST=$(api POST /payments/ach ach-full "{\"source_account_id\":\"$AS\",\"amount_cents\":150000,\"counterparty\":{\"name\":\"Acme Vendor\"},\"window\":\"next_day\"}")
+check "ACH submit -> HTTP 201"        "$ST" "201"
+check "ACH submit -> submitted"       "$(jget status)" "submitted"
+AID=$(jget id)
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/payments/ach/$AID/settle" "${AUTH[@]}")
+check "ACH settle -> settled"         "$(jget status)" "settled"
+# now the late return, against an entry that has already settled
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/payments/ach/$AID/return" "${AUTH[@]}" -d '{"return_reason":"R01"}')
+check "post-settlement return -> HTTP 200" "$ST" "200"
+check "post-settlement return -> returned" "$(jget status)" "returned"
+check "row reaches returned in the database" \
+  "$(sql "select status from pg.core.ach_transfer where id='$AID';")" "returned"
+
+
 echo
 echo "== $PASS passed, $FAIL failed =="
 [ "$FAIL" -eq 0 ] || exit 1
