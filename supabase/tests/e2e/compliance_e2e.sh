@@ -592,6 +592,26 @@ check "the OFAC hit raised its alert" \
   "$(sql "select count(*)>0 from pg.core.bsa_alert where alert_type='ofac' and details like '%$SDNENT%';")" "true"
 
 
+# ------------------------------------------- events outbox + worker (16)
+echo "-- 30. outbox: an event lands, the worker delivers it --"
+api POST /entities outbox-p "{\"type\":\"person\",\"name\":\"Outbox Demo\",\"date_of_birth\":\"1991-01-01\"}" >/dev/null
+OENT=$(jget id)
+check "the event landed in the outbox undelivered" \
+  "$(sql "select count(*) from pg.core.event where resource_id='$OENT' and code='entity.created' and delivered_at is null;")" "1"
+# the sweep is oldest-first and capped, so loop until this run's event clears
+# the queue (bounded — a stuck queue still fails the next assertion)
+for i in 1 2 3 4 5 6 7 8 9 10; do
+  ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/events/deliver" "${AUTH[@]}" -d '{}')
+  DONE_YET=$(sql "select count(*) from pg.core.event where resource_id='$OENT' and delivered_at is not null;")
+  [ "$DONE_YET" = "1" ] && break
+done
+check "worker sweep -> HTTP 200"             "$ST" "200"
+check "the event is now marked delivered" \
+  "$(sql "select count(*) from pg.core.event where resource_id='$OENT' and code='entity.created' and delivered_at is not null;")" "1"
+check "the worker is on the cron schedule" \
+  "$(sql "select count(*) from pg.cron.job where jobname='event-worker';")" "1"
+
+
 echo
 echo "== $PASS passed, $FAIL failed =="
 [ "$FAIL" -eq 0 ] || exit 1

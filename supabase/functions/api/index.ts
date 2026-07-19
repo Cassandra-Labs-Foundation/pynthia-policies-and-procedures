@@ -14,6 +14,7 @@ import { postSandboxReset } from "./sandbox.ts";
 import { getEntities, getEntity, postEntity, postEntityOwner, postEntityTransition } from "./entities.ts";
 import { getAccountNumbers, postAccountNumber, postNumberTransition } from "./numbers.ts";
 import { postVerification } from "./kyc.ts";
+import { postDeliverEvents, postEventSink } from "./events.ts";
 import { postAch, postAchReturn, postAchSettle } from "./ach.ts";
 import { postCardAuthorize, postCardCapture, postCardReverse } from "./cards.ts";
 import {
@@ -76,6 +77,18 @@ const routes: Route[] = [
       const cfg = blnkConfigFromEnv();
       return await postTransfer(req, db, cfg, requestId);
     },
+  },
+  {
+    method: "POST",
+    pattern: /^\/events\/deliver\/?$/,
+    paramNames: [],
+    handler: async (req, _params, requestId) => await postDeliverEvents(req, createDb(), requestId),
+  },
+  {
+    method: "POST",
+    pattern: /^\/sandbox\/event-sink\/?$/,
+    paramNames: [],
+    handler: (_req, _params, requestId) => Promise.resolve(postEventSink(requestId)),
   },
   {
     method: "POST",
