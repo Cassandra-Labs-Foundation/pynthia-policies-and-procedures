@@ -565,6 +565,33 @@ check "uniqueness spans every status (DB-wide, no pair ever reused)" \
   "$(sql "select count(*) - count(distinct routing_number || ':' || account_number) from pg.core.account_number;")" "0"
 
 
+# ------------------------------------------------ KYC + OFAC floor (39-42)
+echo "-- 29. KYC: adapter, sims, providers, and the OFAC floor --"
+api POST /entities kyc-p "{\"type\":\"person\",\"name\":\"Grace Applicant\",\"date_of_birth\":\"1992-03-03\"}" >/dev/null
+KENT=$(jget id)
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/entities/$KENT/verifications" "${AUTH[@]}" -d '{}')
+check "KYC run -> 201 through the adapter"    "$ST" "201"
+check "default provider approved"             "$(jget status)" "approved"
+KVER=$(jget id)
+check "clean pass still leaves OFAC evidence" \
+  "$(sql "select count(*) from pg.core.control_result where event='$KVER' and control_id='CG-OFAC-01' and decision='pass';")" "1"
+curl -sS -o /tmp/e2e_body -X POST "$API/entities/$KENT/verifications" "${AUTH[@]}" -d '{"simulate":"deny"}'
+check "simulated deny is denied"              "$(jget status)" "denied"
+for P in socure middesk; do
+  curl -sS -o /tmp/e2e_body -X POST "$API/entities/$KENT/verifications" "${AUTH[@]}" -d "{\"provider\":\"$P\"}"
+  check "provider $P works through the adapter" "$(jget provider)" "$P"
+done
+api POST /entities kyc-sdn "{\"type\":\"person\",\"name\":\"SDN TEST SUBJECT\",\"date_of_birth\":\"1980-01-01\"}" >/dev/null
+SDNENT=$(jget id)
+curl -sS -o /tmp/e2e_body -X POST "$API/entities/$SDNENT/verifications" "${AUTH[@]}" -d '{"attestation":{"partner":"fintech-x","trust_level":"full"}}'
+check "OFAC hit denies EVEN with full-trust attestation" "$(jget status)" "denied"
+SDNVER=$(jget id)
+check "the floor rejection is evidenced" \
+  "$(sql "select count(*) from pg.core.control_result where event='$SDNVER' and control_id='CG-OFAC-01' and decision='reject';")" "1"
+check "the OFAC hit raised its alert" \
+  "$(sql "select count(*)>0 from pg.core.bsa_alert where alert_type='ofac' and details like '%$SDNENT%';")" "true"
+
+
 echo
 echo "== $PASS passed, $FAIL failed =="
 [ "$FAIL" -eq 0 ] || exit 1
