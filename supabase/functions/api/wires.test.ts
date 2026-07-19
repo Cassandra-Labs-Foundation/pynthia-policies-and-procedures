@@ -479,3 +479,21 @@ Deno.test("a confirm for exactly the held amount is a full confirm", async () =>
   await postWireConfirm(req({ amount_cents: 500000 }), "w1", db, cfg, "pr3");
   assertEquals(sent.length, 1, "amount == held must not trigger a void");
 });
+
+Deno.test("remainder release survives a transient void failure by retrying", async () => {
+  // The conservation sweep caught the single-attempt release flaking: the void
+  // can race the commit inside Blnk, the catch swallowed it, and the remainder
+  // stranded anyway — the exact bug the fix was for, back as a coin-flip.
+  const { cfg, sent } = stubCfg([
+    json({ transaction_id: "txn_held", reference: "wire_transfer:w1", status: "APPLIED" }),
+    json({ error: "still processing" }, 500),
+    json({ transaction_id: "txn_held", reference: "wire_transfer:w1", status: "VOID" }),
+  ]);
+  const { db } = stubDb(HELD_WITH_ORIGINATOR);
+
+  const res = await postWireConfirm(req({ amount_cents: 200000 }), "w1", db, cfg, "rt1");
+  assertEquals(res.status, 200);
+  assertEquals(sent.length, 3, "commit, failed void, retried void");
+  assertEquals((sent[1].body as Any).status, "void");
+  assertEquals((sent[2].body as Any).status, "void");
+});

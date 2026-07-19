@@ -365,10 +365,23 @@ async function resolveInflight(
   // residue). Best-effort: the commit is final either way, and the sweep's
   // inflight-residue check surfaces a failed release.
   if (action === "confirm" && partialCents !== undefined && partialCents < wire.amount) {
-    try {
-      await voidInflight(cfg, wire.blnk_transaction_id);
-    } catch (voidErr) {
-      console.error(`remainder release failed for wire ${wireId}: ${voidErr}`);
+    // The void can race the commit inside Blnk and fail transiently; a single
+    // best-effort attempt let the remainder strand anyway (caught by the
+    // conservation sweep flaking with the exact pre-fix signature). Retry with
+    // a short backoff; if it still fails, log loudly — the sweep's residue
+    // check is the tripwire for a stranded hold.
+    let released = false;
+    for (let attempt = 1; attempt <= 3 && !released; attempt++) {
+      try {
+        await voidInflight(cfg, wire.blnk_transaction_id);
+        released = true;
+      } catch (voidErr) {
+        if (attempt === 3) {
+          console.error(`remainder release failed for wire ${wireId} after ${attempt} attempts: ${voidErr}`);
+        } else {
+          await new Promise((r) => setTimeout(r, 250 * attempt));
+        }
+      }
     }
   }
 
