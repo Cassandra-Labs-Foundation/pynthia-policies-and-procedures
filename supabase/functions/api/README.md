@@ -97,6 +97,20 @@ Re-settling an already-settled entry **replays** (`Idempotent-Replayed: true`)
 rather than erroring, so duplicate settlement notifications are safe. Resolving
 a row that is not `submitted` is `409 invalid_state`.
 
+### GET /control-results
+
+The standalone query surface for control evidence (inline `control_results`
+show what fired on one request; this queries across requests). Newest first.
+
+```bash
+curl -sS "$BASE/control-results?control_id=CG-VEL-01&decision=block&limit=20" \
+  -H "X-Api-Key: $DEMO_API_KEY"
+```
+
+Filters: `control_id`, `decision` (pass|hold|block|reject|clear), `subject_ref`
+(account id), `event` (resource id). `limit` 1-200, default 50. An unknown
+`decision` is a 400, never an empty "no findings".
+
 ## Idempotency (POST /transfers)
 
 `request_hash` is a SHA-256 hex digest of the canonical transfer body. Same

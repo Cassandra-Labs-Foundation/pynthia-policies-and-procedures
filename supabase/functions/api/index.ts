@@ -6,6 +6,7 @@ import { blnkConfigFromEnv } from "../_shared/blnk.ts";
 import { getAccount, postAccount } from "./accounts.ts";
 import { getTransfer, postTransfer } from "./transfers.ts";
 import { postWireCancel, postWireConfirm, postWirePrepare, postWireReturn, postWireReturnResolve } from "./wires.ts";
+import { getControlResults } from "./controls.ts";
 import { postAch, postAchReturn, postAchSettle } from "./ach.ts";
 import { postCardAuthorize, postCardCapture, postCardReverse } from "./cards.ts";
 import {
@@ -66,6 +67,15 @@ const routes: Route[] = [
       const db = createDb();
       const cfg = blnkConfigFromEnv();
       return await postTransfer(req, db, cfg, requestId);
+    },
+  },
+  {
+    method: "GET",
+    pattern: /^\/control-results\/?$/,
+    paramNames: [],
+    handler: async (req, _params, requestId) => {
+      const db = createDb();
+      return await getControlResults(req, db, requestId);
     },
   },
   {

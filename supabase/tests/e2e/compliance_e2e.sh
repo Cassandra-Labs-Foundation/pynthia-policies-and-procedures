@@ -455,6 +455,25 @@ check "CA has NO stranded inflight residue"    "$(blnk_bal "$CA" inflight_debit_
 check "CB has NO stranded inflight residue"    "$(blnk_bal "$CB" inflight_debit_balance)" "0"
 
 
+# ---------------------------------- GET /control-results (card 47)
+# The standalone query surface must AGREE with both the inline results and the
+# database — three views of the same evidence, no drift between them.
+echo "-- 25. control results surface via GET and agree with DB + inline --"
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' "$API/control-results?event=$CTR_ID" "${AUTH[@]}")
+check "GET by event -> HTTP 200" "$ST" "200"
+check "GET by event -> carries the CG-CTR-01 that surfaced inline" \
+  "$(python3 -c "import json;d=json.load(open('/tmp/e2e_body'));print('yes' if any(r['control_id']=='CG-CTR-01' for r in d['data']) else 'no')")" "yes"
+check "GET by event -> row count agrees with the database" \
+  "$(python3 -c "import json;d=json.load(open('/tmp/e2e_body'));print(len(d['data']))")" \
+  "$(sql "select count(*) from pg.core.control_result where event='$CTR_ID';")"
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' "$API/control-results?control_id=CG-VEL-01&decision=block&subject_ref=$RICH_B" "${AUTH[@]}")
+check "GET filtered to this run's velocity block finds it" \
+  "$(python3 -c "import json;d=json.load(open('/tmp/e2e_body'));print(len(d['data']))")" \
+  "$(sql "select count(*) from pg.core.control_result where control_id='CG-VEL-01' and decision='block' and subject_ref='$RICH_B';")"
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' "$API/control-results?decision=maybe" "${AUTH[@]}")
+check "an unknown decision is refused (400), never an empty 'no findings'" "$ST" "400"
+
+
 echo
 echo "== $PASS passed, $FAIL failed =="
 [ "$FAIL" -eq 0 ] || exit 1
