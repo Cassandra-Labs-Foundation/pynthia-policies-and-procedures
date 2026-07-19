@@ -327,6 +327,55 @@ export async function runGate(
   return { blocked: false, controlResults };
 }
 
+/**
+ * Card-31 evidence trio: one settled transfer must leave (1) the mirror on the
+ * transfer row, (2) a bookkeeping entry, (3) a `transfer.settled` event. The
+ * mirror was always written; this records the other two.
+ *
+ * Ids are DETERMINISTIC (`bke_<id>`, `evt_<id>_settled`) and the writes are
+ * duplicate-ignoring upserts, so the idempotency RESUME path — a retry
+ * re-running settlement after a mid-flight crash — converges on the same rows
+ * instead of double-counting the GL record.
+ *
+ * account_code_5300 "018" = NCUA 5300 Total Shares & Deposits: an on-us book
+ * transfer is a within-shares reclassification (net zero at the GL level); the
+ * entry records the movement against that line.
+ */
+export async function recordSettlementArtifacts(
+  db: SupabaseClient,
+  p: {
+    transferId: string;
+    amountCents: number;
+    sourceAccountId: string;
+    destAccountId: string;
+    blnkTransactionId: string | null;
+  },
+): Promise<void> {
+  const { error: bkeErr } = await db.schema("core").from("bookkeeping_entry").upsert({
+    id: `bke_${p.transferId}`,
+    amount: p.amountCents,
+    account_code_5300: "018",
+  }, { onConflict: "id", ignoreDuplicates: true });
+  if (bkeErr) throw new Error(`bookkeeping_entry upsert: ${bkeErr.message}`);
+
+  const { error: evtErr } = await db.schema("core").from("event").upsert({
+    id: `evt_${p.transferId}_settled`,
+    code: "transfer.settled",
+    type: "transfer",
+    resource_id: p.transferId,
+    // same convention as bsa_alert: sha256 of the acting account id
+    entity_hash: await sha256Hex(p.sourceAccountId),
+    payload: {
+      amount_cents: p.amountCents,
+      source_account_id: p.sourceAccountId,
+      destination_account_id: p.destAccountId,
+      blnk_transaction_id: p.blnkTransactionId,
+    },
+    created_at: new Date().toISOString(),
+  }, { onConflict: "id", ignoreDuplicates: true });
+  if (evtErr) throw new Error(`event upsert: ${evtErr.message}`);
+}
+
 async function loadControlResults(
   db: SupabaseClient,
   transferId: string,
@@ -578,6 +627,7 @@ export async function postTransfer(
   }
 
   const controlResults: ControlResultRef[] = [];
+  let artifactsWarning: string | null = null;
 
   if (transferRow.status === "settled") {
     controlResults.push(...await loadControlResults(db, transferId));
@@ -632,6 +682,20 @@ export async function postTransfer(
         blnk_status: mirror.blnk_status,
         synced_at: mirror.synced_at,
       };
+
+      // Money has moved; evidence rows are best-effort + reconciler-recoverable.
+      try {
+        await recordSettlementArtifacts(db, {
+          transferId,
+          amountCents: amount,
+          sourceAccountId: sourceId,
+          destAccountId: destId,
+          blnkTransactionId: mirror.blnk_transaction_id,
+        });
+      } catch (artErr) {
+        console.error(`settlement artifacts failed for ${transferId}: ${artErr}`);
+        artifactsWarning = "failed to record settlement artifacts";
+      }
     } catch (e) {
       if (e instanceof BlnkError) {
         const ref = blnkReference({ table: "transfer", id: transferId });
@@ -647,6 +711,7 @@ export async function postTransfer(
   }
 
   const warnings: string[] = [];
+  if (artifactsWarning) warnings.push(artifactsWarning);
   try {
     await refreshAccountBalance(db, cfg, sourceAccount);
   } catch {

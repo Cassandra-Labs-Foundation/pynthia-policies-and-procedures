@@ -142,7 +142,7 @@ export interface ApiDbOpts {
  */
 export function stubApiDb(opts: ApiDbOpts = {}) {
   const idem = opts.idem ?? "fresh";
-  const inserts: { table: string; row: Record<string, unknown> }[] = [];
+  const inserts: { table: string; row: Record<string, unknown>; opts?: unknown }[] = [];
   const updates: { table: string; patch: Record<string, unknown> }[] = [];
   let attemptedHash = "";
 
@@ -172,8 +172,8 @@ export function stubApiDb(opts: ApiDbOpts = {}) {
         inserts.push({ table, row });
         return Promise.resolve({ data: null, error: null });
       },
-      upsert: (row: Record<string, unknown>) => {
-        inserts.push({ table, row });
+      upsert: (row: Record<string, unknown>, opts?: unknown) => {
+        inserts.push({ table, row, opts });
         return Promise.resolve({ data: null, error: null });
       },
       update: (patch: Record<string, unknown>) => {

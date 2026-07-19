@@ -313,3 +313,55 @@ Deno.test("outbound structuring is not double-reported alongside a velocity bloc
   assert(out.blocked);
   assertEquals(controlIds(inserts), ["CG-VEL-01"], "a blocked payment reports the block, not both");
 });
+
+// ---------------------------------------------- settlement artifacts (card 31)
+// "One transfer produces a mirror row, a bookkeeping entry, and a transfer.*
+// event." The mirror always existed; these pin the other two. Ids are
+// deterministic so the idempotency RESUME path (a retry re-running settlement)
+// upserts the same rows instead of duplicating the GL record.
+import { recordSettlementArtifacts } from "./transfers.ts";
+import { stubApiDb } from "./test_helpers.ts";
+
+const ARTIFACT_ARGS = {
+  transferId: "tr_1",
+  amountCents: 25000,
+  sourceAccountId: "acct_a",
+  destAccountId: "acct_b",
+  blnkTransactionId: "txn_1",
+};
+
+Deno.test("a settled transfer writes its bookkeeping entry", async () => {
+  const { db, inserts } = stubApiDb({});
+  await recordSettlementArtifacts(db, ARTIFACT_ARGS);
+  const bke = inserts.find((i) => i.table === "bookkeeping_entry");
+  assertEquals(bke?.row.id, "bke_tr_1");
+  assertEquals(bke?.row.amount, 25000);
+  // a book transfer is a within-shares reclassification: 5300 acct 018
+  assertEquals(bke?.row.account_code_5300, "018");
+});
+
+Deno.test("a settled transfer writes a transfer.settled event", async () => {
+  const { db, inserts } = stubApiDb({});
+  await recordSettlementArtifacts(db, ARTIFACT_ARGS);
+  const evt = inserts.find((i) => i.table === "event");
+  assertEquals(evt?.row.id, "evt_tr_1_settled");
+  assertEquals(evt?.row.code, "transfer.settled");
+  assertEquals(evt?.row.type, "transfer");
+  assertEquals(evt?.row.resource_id, "tr_1");
+  const payload = evt?.row.payload as Any;
+  assertEquals(payload.amount_cents, 25000);
+  assertEquals(payload.source_account_id, "acct_a");
+  assertEquals(payload.destination_account_id, "acct_b");
+  assertEquals(payload.blnk_transaction_id, "txn_1");
+  // entity_hash matches the bsa_alert convention (sha256 of the account id)
+  assert(typeof evt?.row.entity_hash === "string" && (evt.row.entity_hash as string).length === 64);
+});
+
+Deno.test("settlement artifacts are duplicate-ignoring upserts (resume-safe)", async () => {
+  const { db, inserts } = stubApiDb({});
+  await recordSettlementArtifacts(db, ARTIFACT_ARGS);
+  for (const t of ["bookkeeping_entry", "event"]) {
+    const rec = inserts.find((i) => i.table === t);
+    assertEquals((rec?.opts as Any)?.ignoreDuplicates, true, `${t} must ignore duplicates`);
+  }
+});
