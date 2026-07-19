@@ -3,12 +3,16 @@
 // Auth: X-Api-Key = DEMO_API_KEY (verify_jwt = false). See README.
 
 import { blnkConfigFromEnv } from "../_shared/blnk.ts";
-import { getAccount, postAccount } from "./accounts.ts";
+import {
+  postAccountLock,
+  postAccountTransition, getAccount, postAccount } from "./accounts.ts";
 import { getTransfer, postTransfer } from "./transfers.ts";
 import { postWireCancel, postWireConfirm, postWirePrepare, postWireReturn, postWireReturnResolve } from "./wires.ts";
 import { getControlResults } from "./controls.ts";
 import { getChangelog } from "./platform.ts";
 import { postSandboxReset } from "./sandbox.ts";
+import { getEntities, getEntity, postEntity, postEntityOwner, postEntityTransition } from "./entities.ts";
+import { getAccountNumbers, postAccountNumber, postNumberTransition } from "./numbers.ts";
 import { postAch, postAchReturn, postAchSettle } from "./ach.ts";
 import { postCardAuthorize, postCardCapture, postCardReverse } from "./cards.ts";
 import {
@@ -114,6 +118,66 @@ const routes: Route[] = [
         title: "Not Implemented",
         detail: "simulation stub; filled in a later phase",
       })),
+  },
+  {
+    method: "POST",
+    pattern: /^\/entities\/?$/,
+    paramNames: [],
+    handler: async (req, _params, requestId) => await postEntity(req, createDb(), requestId),
+  },
+  {
+    method: "GET",
+    pattern: /^\/entities\/?$/,
+    paramNames: [],
+    handler: async (req, _params, requestId) => await getEntities(req, createDb(), requestId),
+  },
+  {
+    method: "POST",
+    pattern: /^\/entities\/([^/]+)\/transition\/?$/,
+    paramNames: ["id"],
+    handler: async (req, params, requestId) => await postEntityTransition(req, params.id, createDb(), requestId),
+  },
+  {
+    method: "POST",
+    pattern: /^\/entities\/([^/]+)\/owners\/?$/,
+    paramNames: ["id"],
+    handler: async (req, params, requestId) => await postEntityOwner(req, params.id, createDb(), requestId),
+  },
+  {
+    method: "GET",
+    pattern: /^\/entities\/([^/]+)\/?$/,
+    paramNames: ["id"],
+    handler: async (_req, params, requestId) => await getEntity(params.id, createDb(), requestId),
+  },
+  {
+    method: "POST",
+    pattern: /^\/accounts\/([^/]+)\/numbers\/?$/,
+    paramNames: ["id"],
+    handler: async (req, params, requestId) => await postAccountNumber(req, params.id, createDb(), requestId),
+  },
+  {
+    method: "GET",
+    pattern: /^\/accounts\/([^/]+)\/numbers\/?$/,
+    paramNames: ["id"],
+    handler: async (_req, params, requestId) => await getAccountNumbers(params.id, createDb(), requestId),
+  },
+  {
+    method: "POST",
+    pattern: /^\/accounts\/([^/]+)\/lock\/?$/,
+    paramNames: ["id"],
+    handler: async (req, params, requestId) => await postAccountLock(req, params.id, createDb(), requestId),
+  },
+  {
+    method: "POST",
+    pattern: /^\/accounts\/([^/]+)\/transition\/?$/,
+    paramNames: ["id"],
+    handler: async (req, params, requestId) => await postAccountTransition(req, params.id, createDb(), requestId),
+  },
+  {
+    method: "POST",
+    pattern: /^\/account-numbers\/([^/]+)\/transition\/?$/,
+    paramNames: ["id"],
+    handler: async (req, params, requestId) => await postNumberTransition(req, params.id, createDb(), requestId),
   },
   {
     method: "GET",
@@ -254,24 +318,23 @@ const routes: Route[] = [
 ];
 
 function matchRoute(path: string, method: string): { route: Route; params: Record<string, string> } | "not_found" | "method_not_allowed" {
-  let pathMatch: Route | null = null;
-  let pathParams: Record<string, string> = {};
-
+  // Keep scanning past a path match with the wrong method: one pattern can
+  // legitimately serve several methods from separate routes (POST /entities
+  // creates, GET /entities lists). Breaking on the first path match made every
+  // later same-pattern route unreachable — surfaced as a 405 on GET /entities.
+  let sawPathMatch = false;
   for (const route of routes) {
     const m = path.match(route.pattern);
     if (!m) continue;
-    pathMatch = route;
-    pathParams = {};
+    sawPathMatch = true;
+    if (route.method !== method) continue;
+    const params: Record<string, string> = {};
     route.paramNames.forEach((name, i) => {
-      pathParams[name] = m[i + 1];
+      params[name] = m[i + 1];
     });
-    break;
+    return { route, params };
   }
-
-  if (!pathMatch) return "not_found";
-
-  if (pathMatch.method !== method) return "method_not_allowed";
-  return { route: pathMatch, params: pathParams };
+  return sawPathMatch ? "method_not_allowed" : "not_found";
 }
 
 Deno.serve(async (req: Request): Promise<Response> => {

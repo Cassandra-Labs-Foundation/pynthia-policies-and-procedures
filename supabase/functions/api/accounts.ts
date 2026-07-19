@@ -16,6 +16,7 @@ import {
   jsonResponse,
   notFoundResponse,
   parseJsonBody,
+  sha256Hex,
   storeIdempotencyResponse,
   validationError,
   type ValidationErrorItem,
@@ -210,4 +211,116 @@ export async function getAccount(
   if (!data) return notFoundResponse(requestId, "account", accountId);
 
   return jsonResponse(data, 200, requestId);
+}
+
+// ------------------------------------------------- locks + transitions (24/29)
+
+// Card 24: a lock constrains USE without touching the lifecycle — a frozen
+// account is a state change, a locked one is a restriction overlaid on
+// whatever state it is in. That distinction is why lock never writes status.
+const LOCK_TYPES = ["none", "compliance", "fraud", "legal", "admin"];
+
+// Card 29 (account half): open <-> frozen, both -> closed, closed forever.
+const ACCOUNT_TRANSITIONS: Record<string, string[]> = {
+  open: ["frozen", "closed"],
+  frozen: ["open", "closed"],
+  closed: [],
+};
+
+async function emitAccountEvent(
+  db: SupabaseClient,
+  code: string,
+  accountId: string,
+  payload: Record<string, unknown>,
+): Promise<void> {
+  const { error } = await db.schema("core").from("event").insert({
+    id: `evt_${crypto.randomUUID()}`,
+    code,
+    type: "account",
+    resource_id: accountId,
+    entity_hash: await sha256Hex(accountId),
+    payload,
+    created_at: new Date().toISOString(),
+  });
+  if (error) console.error(`event emit failed (${code} ${accountId}): ${error.message}`);
+}
+
+/** POST /accounts/{id}/lock {lock_type, reason?} — card 24. `none` unlocks. */
+export async function postAccountLock(
+  req: Request,
+  accountId: string,
+  db: SupabaseClient,
+  requestId: string,
+): Promise<Response> {
+  const raw = await parseJsonBody(req).catch(() => null);
+  const body = raw && typeof raw === "object" ? raw as Record<string, unknown> : {};
+  const lockType = body.lock_type;
+  if (!isNonEmptyString(lockType) || !LOCK_TYPES.includes(lockType)) {
+    return validationError(requestId, [{
+      type: "invalid_value",
+      field: "lock_type",
+      message: `must be one of: ${LOCK_TYPES.join(", ")}`,
+    }]);
+  }
+
+  const { data: acct, error: selErr } = await db.schema("core").from("account")
+    .select("id, status, lock_type").eq("id", accountId).maybeSingle();
+  if (selErr) return internalErrorResponse(requestId, selErr);
+  if (!acct) return notFoundResponse(requestId, "account", accountId);
+
+  const { error: updErr } = await db.schema("core").from("account")
+    .update({ lock_type: lockType }).eq("id", accountId);
+  if (updErr) return internalErrorResponse(requestId, updErr);
+
+  // logged, with the state it deliberately did NOT touch in the payload
+  await emitAccountEvent(db, lockType === "none" ? "account.unlocked" : "account.locked", accountId, {
+    lock_type: lockType,
+    previous_lock: (acct as Record<string, unknown>).lock_type ?? "none",
+    status_untouched: (acct as Record<string, unknown>).status,
+    reason: isNonEmptyString(body.reason) ? body.reason : null,
+  });
+
+  return jsonResponse({
+    id: accountId,
+    status: (acct as Record<string, unknown>).status,
+    lock_type: lockType,
+  }, 200, requestId);
+}
+
+/** POST /accounts/{id}/transition {to} — card 29 (account half). */
+export async function postAccountTransition(
+  req: Request,
+  accountId: string,
+  db: SupabaseClient,
+  requestId: string,
+): Promise<Response> {
+  const raw = await parseJsonBody(req).catch(() => null);
+  const to = raw && typeof raw === "object" ? (raw as Record<string, unknown>).to : undefined;
+  if (!isNonEmptyString(to) || !(to in ACCOUNT_TRANSITIONS)) {
+    return validationError(requestId, [{
+      type: "invalid_value",
+      field: "to",
+      message: `must be one of: ${Object.keys(ACCOUNT_TRANSITIONS).join(", ")}`,
+    }]);
+  }
+
+  const { data: acct, error: selErr } = await db.schema("core").from("account")
+    .select("id, status, lock_type").eq("id", accountId).maybeSingle();
+  if (selErr) return internalErrorResponse(requestId, selErr);
+  if (!acct) return notFoundResponse(requestId, "account", accountId);
+
+  const from = String((acct as Record<string, unknown>).status);
+  if (!(ACCOUNT_TRANSITIONS[from] ?? []).includes(to)) {
+    return apiError(409, "invalid_state", requestId, {
+      title: "Invalid State",
+      detail: `account ${accountId} is ${from}; legal transitions: ${(ACCOUNT_TRANSITIONS[from] ?? []).join(", ") || "(none — closed is forever)"}`,
+    });
+  }
+
+  const { error: updErr } = await db.schema("core").from("account")
+    .update({ status: to }).eq("id", accountId);
+  if (updErr) return internalErrorResponse(requestId, updErr);
+
+  await emitAccountEvent(db, `account.${to}`, accountId, { from, to });
+  return jsonResponse({ id: accountId, status: to }, 200, requestId);
 }

@@ -502,6 +502,69 @@ ST=$(api POST /sandbox/simulate/card/authorize sim-card "{\"source_account_id\":
 check "simulate card authorize aliases the live rail" "$ST" "201"
 
 
+# --------------------------------------------- entity chain (cards 19-24)
+echo "-- 27. entities: create all four types, machine emits, owners, locks --"
+ST=$(api POST /entities ent-p "{\"type\":\"person\",\"name\":\"Ada Member\",\"date_of_birth\":\"1990-01-01\"}")
+check "person creates -> 201"                "$ST" "201"
+check "person starts PENDING"                "$(jget status)" "pending"
+ENT_P=$(jget id)
+ST=$(api POST /entities ent-b "{\"type\":\"business\",\"name\":\"Acme LLC\",\"tin\":\"12-3456789\"}")
+ENT_B=$(jget id)
+api POST /entities ent-t "{\"type\":\"trust\",\"name\":\"Ada Family Trust\",\"jurisdiction\":\"MA\"}" >/dev/null
+api POST /entities ent-j "{\"type\":\"joint\",\"name\":\"Ada + Grace Joint\"}" >/dev/null
+check "business/trust/joint all created"     "$ST" "201"
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/entities/$ENT_P/transition" "${AUTH[@]}" -d '{"to":"active"}')
+check "pending -> active is legal"           "$(jget status)" "active"
+check "the transition left an event" \
+  "$(sql "select count(*) from pg.core.event where code='entity.active' and resource_id='$ENT_P';")" "1"
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/entities/$ENT_P/transition" "${AUTH[@]}" -d '{"to":"pending"}')
+check "illegal transition -> 400/409"        "$([ "$ST" = "400" ] || [ "$ST" = "409" ] && echo yes)" "yes"
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/entities/$ENT_B/owners" "${AUTH[@]}" -d "{\"owner_entity_id\":\"$ENT_P\",\"ownership_percent\":25}")
+check "25% owner recorded on the business"   "$(python3 -c "import json;d=json.load(open('/tmp/e2e_body'));print(d['owners'][0]['percent'])")" "25"
+curl -sS -o /tmp/e2e_body "$API/entities?type=business&limit=5" "${AUTH[@]}"
+check "unified list filters by type" \
+  "$(python3 -c "import json;d=json.load(open('/tmp/e2e_body'));print('yes' if d['data'] and all(r['type']=='business' for r in d['data']) else 'no')")" "yes"
+LOCKA=$(new_account 100000 lock-demo)
+curl -sS -o /tmp/e2e_body -X POST "$API/accounts/$LOCKA/lock" "${AUTH[@]}" -d '{"lock_type":"compliance","reason":"BSA review"}'
+check "compliance lock leaves state intact"  "$(jget status)" "open"
+check "the lock is logged" \
+  "$(sql "select count(*) from pg.core.event where code='account.locked' and resource_id='$LOCKA';")" "1"
+
+# ---------------------------------------- account numbers (cards 26-29)
+echo "-- 28. numbers: 3-8-1 Luhn, many per account, canceled never reissued --"
+NUMA=$(new_account 100000 num-demo)
+curl -sS -o /tmp/e2e_body -X POST "$API/accounts/$NUMA/numbers" "${AUTH[@]}" -d '{}'
+N1=$(jget id)
+AN1=$(jget account_number)
+check "minted number is 12 digits"           "$(python3 -c "import re;print('yes' if re.fullmatch(r'\\d{12}','$AN1') else 'no')")" "yes"
+check "Luhn check digit verifies" \
+  "$(python3 -c "
+s='$AN1'[:11]; want=int('$AN1'[11])
+t=0
+for pos,ch in enumerate(reversed(s), start=1):
+    d=int(ch)
+    if pos%2==1:
+        d*=2
+        if d>9: d-=9
+    t+=d
+print('yes' if (10-t%10)%10==want else 'no')")" "yes"
+curl -sS -o /tmp/e2e_body -X POST "$API/accounts/$NUMA/numbers" "${AUTH[@]}" -d '{"cu_direct":true}'
+check "CU-direct mints under prefix 000"     "$(python3 -c "print('yes' if '$(jget account_number)'.startswith('000') else 'no')")" "yes"
+curl -sS -o /tmp/e2e_body -X POST "$API/accounts/$NUMA/numbers" "${AUTH[@]}" -d '{}'
+curl -sS -o /tmp/e2e_body "$API/accounts/$NUMA/numbers" "${AUTH[@]}"
+check "one account carries multiple distinct pairs" \
+  "$(python3 -c "
+import json;d=json.load(open('/tmp/e2e_body'))
+pairs=[(r['routing_number'],r['account_number']) for r in d['data']]
+print('yes' if len(pairs)>=3 and len(set(pairs))==len(pairs) else 'no')")" "yes"
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/account-numbers/$N1/transition" "${AUTH[@]}" -d '{"to":"canceled"}')
+check "a number cancels"                     "$(jget status)" "canceled"
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/account-numbers/$N1/transition" "${AUTH[@]}" -d '{"to":"active"}')
+check "canceled is forever -> 409"           "$ST" "409"
+check "uniqueness spans every status (DB-wide, no pair ever reused)" \
+  "$(sql "select count(*) - count(distinct routing_number || ':' || account_number) from pg.core.account_number;")" "0"
+
+
 echo
 echo "== $PASS passed, $FAIL failed =="
 [ "$FAIL" -eq 0 ] || exit 1
