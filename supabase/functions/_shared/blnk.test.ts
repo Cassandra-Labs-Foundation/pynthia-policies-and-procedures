@@ -280,7 +280,7 @@ Deno.test("inflight record, commit, and void", async () => {
   await commitInflight(cfg(commitStub), "txn_9", { amountCents: 5000 });
   assertEquals(commitStub.requests[0].url, "https://blnk.test/transactions/inflight/txn_9");
   assertEquals(commitStub.requests[0].method, "PUT");
-  assertEquals(commitStub.requests[0].body, { status: "commit", amount: 50 });
+  assertEquals(commitStub.requests[0].body, { status: "commit", precise_amount: 5000 }); // integer minor units
 
   const voidStub = stubFetch([
     jsonRes({ transaction_id: "txn_9", reference: "t:1", status: "VOID" }),

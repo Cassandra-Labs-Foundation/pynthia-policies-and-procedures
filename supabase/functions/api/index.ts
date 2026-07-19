@@ -7,9 +7,12 @@ import { getAccount, postAccount } from "./accounts.ts";
 import { getTransfer, postTransfer } from "./transfers.ts";
 import { postWireCancel, postWireConfirm, postWirePrepare, postWireReturn, postWireReturnResolve } from "./wires.ts";
 import { getControlResults } from "./controls.ts";
+import { getChangelog } from "./platform.ts";
+import { postSandboxReset } from "./sandbox.ts";
 import { postAch, postAchReturn, postAchSettle } from "./ach.ts";
 import { postCardAuthorize, postCardCapture, postCardReverse } from "./cards.ts";
 import {
+  apiError,
   createDb,
   createRequestId,
   internalErrorResponse,
@@ -68,6 +71,55 @@ const routes: Route[] = [
       const cfg = blnkConfigFromEnv();
       return await postTransfer(req, db, cfg, requestId);
     },
+  },
+  {
+    method: "POST",
+    pattern: /^\/sandbox\/reset\/?$/,
+    paramNames: [],
+    handler: async (req, _params, requestId) => {
+      const db = createDb();
+      const cfg = blnkConfigFromEnv();
+      return await postSandboxReset(req, db, cfg, requestId);
+    },
+  },
+  // Card 09: /sandbox/simulate/* — the spec's simulation surface. The card
+  // rail is live, so its simulate routes ALIAS the real handlers; everything
+  // else under simulate/ is an explicit typed 501 until its phase fills it.
+  {
+    method: "POST",
+    pattern: /^\/sandbox\/simulate\/card\/authorize\/?$/,
+    paramNames: [],
+    handler: async (req, _params, requestId) => {
+      const db = createDb();
+      const cfg = blnkConfigFromEnv();
+      return await postCardAuthorize(req, db, cfg, requestId);
+    },
+  },
+  {
+    method: "POST",
+    pattern: /^\/sandbox\/simulate\/card\/([^/]+)\/settle\/?$/,
+    paramNames: ["id"],
+    handler: async (req, params, requestId) => {
+      const db = createDb();
+      const cfg = blnkConfigFromEnv();
+      return await postCardCapture(req, params.id, db, cfg, requestId);
+    },
+  },
+  {
+    method: "POST",
+    pattern: /^\/sandbox\/simulate\/(?:.+)$/,
+    paramNames: [],
+    handler: (_req, _params, requestId) =>
+      Promise.resolve(apiError(501, "not_implemented", requestId, {
+        title: "Not Implemented",
+        detail: "simulation stub; filled in a later phase",
+      })),
+  },
+  {
+    method: "GET",
+    pattern: /^\/changelog\/?$/,
+    paramNames: [],
+    handler: (_req, _params, requestId) => Promise.resolve(getChangelog(requestId)),
   },
   {
     method: "GET",

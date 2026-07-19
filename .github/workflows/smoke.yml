@@ -1,0 +1,59 @@
+# Card 10: the smoke gate, run against the DEPLOYED instance. Manual +
+# weekly, not per-push: it exercises live infrastructure and (optionally)
+# the destructive reset round-trip.
+name: smoke
+on:
+  workflow_dispatch:
+    inputs:
+      destructive_reset:
+        description: "Run the full reset round-trip (WIPES instance tables)"
+        type: boolean
+        default: false
+  schedule:
+    - cron: "0 13 * * 1"
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    env:
+      API: https://jynsipdvrgqdkeqrlzcv.functions.supabase.co/api
+      KEY: ${{ secrets.DEMO_API_KEY }}
+    steps:
+      - name: Error envelope (card 02)
+        run: |
+          body=$(curl -sS "$API/definitely-not-a-route" -H "X-Api-Key: $KEY")
+          echo "$body" | python3 -c "
+          import json,sys; d=json.load(sys.stdin)
+          assert d['type']=='not_found' and d['request_id'] and d['doc_url'].startswith('https'), d"
+      - name: Version header + changelog (card 03)
+        run: |
+          curl -sSi "$API/changelog" -H "X-Api-Key: $KEY" | grep -i "x-api-version:"
+          curl -sS "$API/changelog" -H "X-Api-Key: $KEY" | python3 -c "
+          import json,sys; d=json.load(sys.stdin); assert d['data'][0]['version']"
+      - name: Pagination walks forward (card 04)
+        run: |
+          p1=$(curl -sS "$API/control-results?limit=1" -H "X-Api-Key: $KEY")
+          # URL-encode: timestamptz cursors carry '+00:00'
+          after=$(echo "$p1" | python3 -c "import json,sys,urllib.parse;d=json.load(sys.stdin);assert d['has_more'];print(urllib.parse.quote(d['next_after']))")
+          p2=$(curl -sS "$API/control-results?limit=1&after=$after" -H "X-Api-Key: $KEY")
+          python3 -c "
+          import json,sys
+          a=json.loads('''$p1'''); b=json.loads('''$p2''')
+          assert a['data'][0]['id'] != b['data'][0]['id'], 'page 2 must advance'"
+      - name: Reset guard (card 08, non-destructive)
+        run: |
+          code=$(curl -sS -o /dev/null -w '%{http_code}' -X POST "$API/sandbox/reset" \
+            -H "X-Api-Key: $KEY" -H "content-type: application/json" -d '{}')
+          test "$code" = "400"
+      - name: Reset round-trip (card 08/10, destructive — opt-in)
+        if: ${{ inputs.destructive_reset }}
+        run: |
+          curl -sS -X POST "$API/sandbox/reset" -H "X-Api-Key: $KEY" \
+            -H "content-type: application/json" -d '{"confirm":"RESET"}' \
+            | python3 -c "import json,sys;d=json.load(sys.stdin);assert d['reset'] is True, d"
+          # slate is usable again: open an account and move money on it
+          acct=$(curl -sS -X POST "$API/accounts" -H "X-Api-Key: $KEY" \
+            -H "content-type: application/json" -H "Idempotency-Key: smoke-$GITHUB_RUN_ID" \
+            -d '{"account_type":"checking","opening_deposit_cents":100000}' \
+            | python3 -c "import json,sys;print(json.load(sys.stdin)['id'])")
+          test -n "$acct"

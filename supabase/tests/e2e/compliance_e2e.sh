@@ -474,6 +474,34 @@ ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' "$API/control-results?decision=
 check "an unknown decision is refused (400), never an empty 'no findings'" "$ST" "400"
 
 
+# --------------------------------- phase-0 platform surface (02/03/04/08/09)
+echo "-- 26. platform: envelope, version, changelog, pagination, guards --"
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' "$API/definitely-not-a-route" "${AUTH[@]}")
+check "unknown route -> 404 typed envelope"     "$ST" "404"
+check "envelope carries type/request_id/doc_url" \
+  "$(python3 -c "import json;d=json.load(open('/tmp/e2e_body'));print('yes' if d.get('type')=='not_found' and d.get('request_id') and str(d.get('doc_url','')).startswith('https') else 'no')")" "yes"
+VH=$(curl -sSi "$API/changelog" "${AUTH[@]}" | grep -ci "x-api-version:")
+check "X-API-Version header on responses"       "$VH" "1"
+curl -sS -o /tmp/e2e_body "$API/changelog" "${AUTH[@]}"
+check "changelog leads with the current version" \
+  "$(python3 -c "import json;d=json.load(open('/tmp/e2e_body'));print(d['data'][0]['version'])")" "3.0.0"
+curl -sS -o /tmp/e2e_body "$API/control-results?limit=1" "${AUTH[@]}"
+# URL-encode: timestamptz cursors carry '+00:00', and a raw '+' decodes to a space
+PAGE_AFTER=$(python3 -c "import json,urllib.parse;d=json.load(open('/tmp/e2e_body'));print(urllib.parse.quote(d['next_after']) if d['has_more'] else '')")
+PAGE1_ID=$(python3 -c "import json;d=json.load(open('/tmp/e2e_body'));print(d['data'][0]['id'])")
+check "page 1 signals has_more with a cursor"   "$([ -n "$PAGE_AFTER" ] && echo yes)" "yes"
+curl -sS -o /tmp/e2e_body "$API/control-results?limit=1&after=$PAGE_AFTER" "${AUTH[@]}"
+check "page 2 advances past page 1" \
+  "$(python3 -c "import json;d=json.load(open('/tmp/e2e_body'));print('yes' if d['data'] and d['data'][0]['id'] != '$PAGE1_ID' else 'no')")" "yes"
+ST=$(curl -sS -o /dev/null -w '%{http_code}' -X POST "$API/sandbox/reset" "${AUTH[@]}" -d '{}')
+check "reset without confirm token -> 400"      "$ST" "400"
+ST=$(curl -sS -o /dev/null -w '%{http_code}' -X POST "$API/sandbox/simulate/wire/whatever" "${AUTH[@]}" -d '{}')
+check "unfilled simulate route -> typed 501"    "$ST" "501"
+SIM=$(new_account 200000 sim-alias)
+ST=$(api POST /sandbox/simulate/card/authorize sim-card "{\"source_account_id\":\"$SIM\",\"amount_cents\":10000,\"merchant\":\"Sim Cafe\"}")
+check "simulate card authorize aliases the live rail" "$ST" "201"
+
+
 echo
 echo "== $PASS passed, $FAIL failed =="
 [ "$FAIL" -eq 0 ] || exit 1

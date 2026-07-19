@@ -358,7 +358,10 @@ async function commitInflightInner(
 ): Promise<BlnkTransaction> {
   const body: Record<string, unknown> = { status: "commit" };
   if (opts?.amountCents !== undefined) {
-    body.amount = opts.amountCents / 100;
+    // Integer minor units, like every other money field. Sending major units
+    // meant a division whose result is a FLOAT (40001/100 = 400.01 in IEEE
+    // terms) on the money path — caught by the phase-0 float guard.
+    body.precise_amount = opts.amountCents;
   }
   return await request<BlnkTransaction>(
     cfg,

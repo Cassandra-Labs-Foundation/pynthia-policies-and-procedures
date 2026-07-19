@@ -72,6 +72,10 @@ export function validationError(requestId: string, errors: ValidationErrorItem[]
   return jsonResponse({ status: 400, type: "validation_error", request_id: requestId, errors }, 400, requestId);
 }
 
+// Card 03: one version constant, stamped on EVERY response by the single
+// response builder below. Tracks core-api.yaml (v3.0.0).
+export const API_VERSION = "3.0.0";
+
 export function jsonResponse(
   body: unknown,
   status = 200,
@@ -83,6 +87,7 @@ export function jsonResponse(
     headers: {
       "content-type": "application/json",
       "X-Request-Id": requestId,
+      "X-API-Version": API_VERSION,
       ...extraHeaders,
     },
   });
@@ -153,7 +158,7 @@ export function isNonEmptyString(v: unknown): v is string {
 }
 
 export function dollarsFromCents(cents: number): string {
-  return (cents / 100).toFixed(2);
+  return (cents / 100).toFixed(2); // float-ok: display-only, never serialized as money
 }
 
 // ---- idempotency (D6) -------------------------------------------------------

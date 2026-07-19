@@ -143,7 +143,7 @@ Deno.test("confirm passes a valid partial amount through to the commit", async (
   const res = await postWireConfirm(req({ amount_cents: 250000 }), "w1", db, cfg, "r10");
   assertEquals(res.status, 200);
   // helper converts integer cents -> major units on the wire
-  assertEquals((sent[0].body as Any).amount, 2500);
+  assertEquals((sent[0].body as Any).precise_amount, 250000); // integer minor units
 });
 
 Deno.test("confirm on an unknown wire is a 404", async () => {

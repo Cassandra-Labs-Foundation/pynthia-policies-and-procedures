@@ -56,7 +56,8 @@ Deno.test("newest results come first, capped at the default limit", async () => 
   const order = calls.find((c) => c.fn === "order");
   assertEquals(order?.args[0], "created_at");
   assertEquals((order?.args[1] as Any)?.ascending, false);
-  assertEquals(calls.find((c) => c.fn === "limit")?.args[0], 50);
+  // limit+1: the endpoint over-fetches one probe row to answer has_more
+  assertEquals(calls.find((c) => c.fn === "limit")?.args[0], 51);
 });
 
 Deno.test("every documented filter narrows the query", async () => {
@@ -86,7 +87,7 @@ Deno.test("an unknown decision value is refused, not silently empty", async () =
 Deno.test("limit is honored within bounds and refused outside them", async () => {
   const { db, calls } = stubQueryDb([]);
   await getControlResults(get("?limit=10"), db, "r5");
-  assertEquals(calls.find((c) => c.fn === "limit")?.args[0], 10);
+  assertEquals(calls.find((c) => c.fn === "limit")?.args[0], 11); // +1 probe row
 
   for (const bad of ["0", "-5", "201", "ten", "2.5"]) {
     const { db: db2 } = stubQueryDb([]);

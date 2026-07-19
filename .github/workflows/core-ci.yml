@@ -1,0 +1,49 @@
+# Phase-0 gate (cards 01/05/06): every push must typecheck, pass the hermetic
+# suite, keep floats off the money path, and apply the full migration chain to
+# a clean database. The compliance harness (live Blnk) runs from smoke.yml.
+name: core-ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  typecheck-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Typecheck every function entrypoint
+        run: |
+          deno check supabase/functions/api/index.ts
+          deno check supabase/functions/blnk-webhook/index.ts
+          deno check supabase/functions/blnk-reconcile/index.ts
+      - name: Hermetic suite (unit + behavioral)
+        run: deno test --allow-net --allow-env supabase/functions/
+      - name: Float guard — amounts are integer minor units, everywhere
+        run: |
+          set -e
+          # no float parsing anywhere near the functions
+          if grep -rnE "parseFloat" supabase/functions --include='*.ts' | grep -v ".test.ts"; then
+            echo "::error::parseFloat on the money path"; exit 1
+          fi
+          # no float math on amounts outside explicitly-marked display code
+          if grep -rnE "(amount|cents)[a-zA-Z_]*.*(/ *100[^0-9]|toFixed)" supabase/functions --include='*.ts' \
+            | grep -v ".test.ts" | grep -v "float-ok" | grep -v "precision"; then
+            echo "::error::float arithmetic on an amount; serialize integer minor units"; exit 1
+          fi
+
+  migrations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Apply the full migration chain to a clean database
+        run: |
+          supabase db start
+          supabase db reset --no-seed || supabase db reset

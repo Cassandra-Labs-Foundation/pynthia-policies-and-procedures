@@ -37,8 +37,9 @@ Deno.test("capture with no body captures the entire remaining hold", async () =>
   assertEquals(b.status, "captured");
   assertEquals(b.captured_cents, 100000);
   assertEquals(b.remaining_cents, 0);
-  // helper converts integer cents -> major units on the wire
-  assertEquals((sent[0].body as Any).amount, 1000);
+  // integer minor units on the wire — floats never touch the money path
+  assertEquals((sent[0].body as Any).precise_amount, 100000);
+  assertEquals((sent[0].body as Any).amount, undefined);
 });
 
 Deno.test("partial capture moves to partially_captured and tracks the remainder", async () => {
