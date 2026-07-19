@@ -227,12 +227,42 @@ export interface DrillDb {
  * transaction that should have been blocked, which is the precise failure mode
  * a low-fidelity fake produces: it proves less than it appears to, silently.
  */
-function applyDefaults(row: Any, now: string): Any {
+function applyDefaults(row: Any, table: string, now: string): Any {
   const out = { ...row };
   if (out.created_at === undefined) out.created_at = now;
   if (out.updated_at === undefined) out.updated_at = now;
+  for (const [col, val] of Object.entries(COLUMN_DEFAULTS[table] ?? {})) {
+    if (out[col] === undefined) out[col] = val;
+  }
   return out;
 }
+
+/**
+ * NON-TIMESTAMP column defaults the real schema applies.
+ *
+ * FOUND THE SECOND WAY ROUND: a `cda` row inserted without `book_value_cents`
+ * read back as `undefined` here and as `0` in Postgres, so an aggregate over
+ * book value summed to NaN in the double and to a number in production. Same
+ * failure shape as the `created_at` gap that let CG-VEL-01 report a pass — a
+ * default the schema supplies and the map does not.
+ *
+ * Only defaults that a WRITER relies on are listed. A default nobody reads
+ * back cannot change a result, and listing every one would make this a second
+ * copy of the schema that drifts silently.
+ */
+const COLUMN_DEFAULTS: Record<string, Record<string, Any>> = {
+  cda: {
+    book_value_cents: 0, status: "proposed",
+    clause_named_charities: false, clause_strategy_risk: false,
+    clause_gaap_accounting: false, clause_distribution_frequency: false,
+  },
+  cda_vendor: { qualified: false, registration_status: "unknown" },
+  cda_distribution_window: { total_return_cents: 0, distributed_cents: 0, coverage_bp: 0 },
+  cda_cap_test: { excess_cents: 0 },
+  cda_reconciliation: { account_789h_mapped: false },
+  cda_termination: { closing_distribution_cents: 0 },
+  cda_glossary_term: { active: true },
+};
 
 /**
  * Wraps a builder so that ANY method the real PostgREST client supports but
@@ -350,7 +380,7 @@ export function makeDrillDb(): DrillDb {
             // NOTE: `chain` is returned via strict() below; add new methods HERE.
 
             insert(rawRow: Any) {
-              const row = applyDefaults(rawRow, new Date().toISOString());
+              const row = applyDefaults(rawRow, table, new Date().toISOString());
               const v = check(schema, table, row);
               if (v) {
                 violations.push(v);
@@ -366,7 +396,7 @@ export function makeDrillDb(): DrillDb {
               // and a fake that does not forces production code to contort
               // around the test harness rather than the other way round.
               const run = (): Any => {
-                const row = applyDefaults(rawRow, new Date().toISOString());
+                const row = applyDefaults(rawRow, table, new Date().toISOString());
                 const idx = rows[key].findIndex((r) => r.id === row.id);
                 if (idx >= 0) {
                   if (opts?.ignoreDuplicates) return { data: rows[key][idx], error: null };

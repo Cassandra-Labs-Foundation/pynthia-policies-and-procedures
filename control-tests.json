@@ -9,14 +9,14 @@
     "total": 333,
     "in_scope": 225,
     "scoped_out": 108,
-    "in_scope_green": 33,
-    "in_scope_red": 192,
+    "in_scope_green": 46,
+    "in_scope_red": 179,
     "scope_note": "Scoped-out controls are real obligations discharged by people and paperwork. This system covers the technical controls; the organisational ones are not claimed.",
-    "green": 34,
-    "red": 299,
-    "pct_green": 10.2,
+    "green": 47,
+    "red": 286,
+    "pct_green": 14.1,
     "red_by_reason": {
-      "trigger fires but produced events missing": 167,
+      "trigger fires but produced events missing": 154,
       "no writer: loan_application.*": 8,
       "no writer: vendor.*": 6,
       "no writer: loan.*": 4,
@@ -102,12 +102,13 @@
       "no writer: interest.*": 1,
       "no writer: disclosure.*": 1
     },
-    "inputs_unverifiable_total": 1467,
+    "inputs_unverifiable_total": 1391,
     "green_by_fire_path": {
-      "real_writer": 30,
+      "real_writer": 43,
       "generic_echo": 4
     },
     "green_by_policy": {
+      "charitable-donation-accounts": 13,
       "capitalization": 8,
       "basel-ii-standardized-approach-framework": 3,
       "electronic-payment-systems": 3,
@@ -3524,13 +3525,17 @@
       "policy": "charitable-donation-accounts",
       "control_id": "CDA-01",
       "title": "Governance & Board Oversight",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cda.board_decision.recorded",
         "cda.board_escalation.issued",
         "cda.board_packet.issued"
       ],
-      "observed": [],
+      "observed": [
+        "cda.board_decision.recorded",
+        "cda.board_escalation.issued",
+        "cda.board_packet.issued"
+      ],
       "triggers": [
         "cda.audit_cycle.opened",
         "cda.policy.expired",
@@ -3546,9 +3551,7 @@
         "cda.portfolio_performance",
         "cda.window_coverage_pct"
       ],
-      "inputs_supplied": [],
-      "inputs_unverifiable": [
-        "board.resolution_id",
+      "inputs_supplied": [
         "cda.policy_expiry_at",
         "cda.policy_version",
         "cda.actions.blocked",
@@ -3557,8 +3560,10 @@
         "cda.portfolio_performance",
         "cda.window_coverage_pct"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/3: missing cda.board_decision.recorded, cda.board_escalation.issued, cda.board_packet.issued"
+      "inputs_unverifiable": [
+        "board.resolution_id"
+      ],
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -3567,12 +3572,15 @@
       "policy": "charitable-donation-accounts",
       "control_id": "CDA-02",
       "title": "Definitions & Central Glossary",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cda.glossary.attested",
         "cda.glossary.updated"
       ],
-      "observed": [],
+      "observed": [
+        "cda.glossary.attested",
+        "cda.glossary.updated"
+      ],
       "triggers": [
         "cda.glossary_change.proposed"
       ],
@@ -3581,14 +3589,13 @@
         "cda.glossary_term",
         "cda.glossary_version"
       ],
-      "inputs_supplied": [],
-      "inputs_unverifiable": [
+      "inputs_supplied": [
         "cda.glossary_citation",
         "cda.glossary_term",
         "cda.glossary_version"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/2: missing cda.glossary.attested, cda.glossary.updated"
+      "inputs_unverifiable": [],
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -3597,12 +3604,15 @@
       "policy": "charitable-donation-accounts",
       "control_id": "CDA-03",
       "title": "Structure & Segregation",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cda.evidence_packet.filed",
         "cda.funding_gate_evaluated"
       ],
-      "observed": [],
+      "observed": [
+        "cda.evidence_packet.filed",
+        "cda.funding_gate_evaluated"
+      ],
       "triggers": [
         "cda.evidence_packet.filed"
       ],
@@ -3612,15 +3622,14 @@
         "cda.structure_selected",
         "cda.structure_type"
       ],
-      "inputs_supplied": [],
-      "inputs_unverifiable": [
+      "inputs_supplied": [
         "cda.account_label",
         "cda.custodian_statement",
         "cda.structure_selected",
         "cda.structure_type"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/2: missing cda.evidence_packet.filed, cda.funding_gate_evaluated"
+      "inputs_unverifiable": [],
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -3629,13 +3638,17 @@
       "policy": "charitable-donation-accounts",
       "control_id": "CDA-04",
       "title": "Trustee & Manager Qualification",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cda.vendor_qualified",
         "cda.vendor_review.completed",
         "cda.board_escalation.issued"
       ],
-      "observed": [],
+      "observed": [
+        "cda.vendor_qualified",
+        "cda.vendor_review.completed",
+        "cda.board_escalation.issued"
+      ],
       "triggers": [
         "cda.vendor_onboarding.started",
         "cda.vendor_review.completed",
@@ -3649,8 +3662,7 @@
         "cda.vendor_issue_details",
         "cda.vendor_registration_lapsed"
       ],
-      "inputs_supplied": [],
-      "inputs_unverifiable": [
+      "inputs_supplied": [
         "cda.vendor_registration_evidence",
         "cda.vendor_registration_status",
         "cda.vendor_regulator",
@@ -3658,8 +3670,8 @@
         "cda.vendor_issue_details",
         "cda.vendor_registration_lapsed"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/3: missing cda.vendor_qualified, cda.vendor_review.completed, cda.board_escalation.issued"
+      "inputs_unverifiable": [],
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -3668,13 +3680,17 @@
       "policy": "charitable-donation-accounts",
       "control_id": "CDA-05",
       "title": "Written Agreement (Required Clauses A–D)",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cda.agreement.validated",
         "cda.funding_gate_evaluated",
         "cda.board_decision.recorded"
       ],
-      "observed": [],
+      "observed": [
+        "cda.agreement.validated",
+        "cda.funding_gate_evaluated",
+        "cda.board_decision.recorded"
+      ],
       "triggers": [
         "cda.agreement.submitted",
         "cda.agreement_amendment.proposed"
@@ -3686,16 +3702,15 @@
         "cda.agreement_strategy_clause",
         "cda.agreement_redline"
       ],
-      "inputs_supplied": [],
-      "inputs_unverifiable": [
+      "inputs_supplied": [
         "cda.agreement.validated",
         "cda.agreement_distribution_clause",
         "cda.agreement_gaap_clause",
         "cda.agreement_strategy_clause",
         "cda.agreement_redline"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/3: missing cda.agreement.validated, cda.funding_gate_evaluated, cda.board_decision.recorded"
+      "inputs_unverifiable": [],
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -3704,14 +3719,19 @@
       "policy": "charitable-donation-accounts",
       "control_id": "CDA-06",
       "title": "Funding Cap (Monitoring & Cure)",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cda.cap.certified",
         "cda.cap_test.completed",
         "cda.funding_gate_evaluated",
         "cda.cap_breach_cured"
       ],
-      "observed": [],
+      "observed": [
+        "cda.cap.certified",
+        "cda.cap_test.completed",
+        "cda.funding_gate_evaluated",
+        "cda.cap_breach_cured"
+      ],
       "triggers": [
         "cda.cap_test.scheduled",
         "cda.funding.requested",
@@ -3725,8 +3745,7 @@
         "cda.cap_excess_amount",
         "cda.cure_plan"
       ],
-      "inputs_supplied": [],
-      "inputs_unverifiable": [
+      "inputs_supplied": [
         "cda.aggregate_book_value",
         "cda.cap_buffer_pct",
         "cda.net_worth",
@@ -3734,8 +3753,8 @@
         "cda.cap_excess_amount",
         "cda.cure_plan"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/4: missing cda.cap.certified, cda.cap_test.completed, cda.funding_gate_evaluated, cda.cap_breach_cured"
+      "inputs_unverifiable": [],
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -3744,12 +3763,15 @@
       "policy": "charitable-donation-accounts",
       "control_id": "CDA-07",
       "title": "Investment Strategy & Risk Limits",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cda.pretrade_check.completed",
         "cda.posttrade_check.completed"
       ],
-      "observed": [],
+      "observed": [
+        "cda.pretrade_check.completed",
+        "cda.posttrade_check.completed"
+      ],
       "triggers": [
         "cda.trade.proposed",
         "cda.posttrade_check.scheduled"
@@ -3760,15 +3782,14 @@
         "cda.trade_details",
         "cda.portfolio_composition"
       ],
-      "inputs_supplied": [],
-      "inputs_unverifiable": [
+      "inputs_supplied": [
         "cda.overlay_limits",
         "cda.strategy_limits",
         "cda.trade_details",
         "cda.portfolio_composition"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/2: missing cda.pretrade_check.completed, cda.posttrade_check.completed"
+      "inputs_unverifiable": [],
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -3777,12 +3798,15 @@
       "policy": "charitable-donation-accounts",
       "control_id": "CDA-08",
       "title": "Charity Eligibility & Giving Rules",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cda.distribution.executed",
         "cda.distribution_window.alert"
       ],
-      "observed": [],
+      "observed": [
+        "cda.distribution.executed",
+        "cda.distribution_window.alert"
+      ],
       "triggers": [
         "cda.distribution.proposed",
         "cda.distribution_cycle.opened"
@@ -3797,8 +3821,7 @@
         "cda.distributions_cumulative",
         "cda.window_close_at"
       ],
-      "inputs_supplied": [],
-      "inputs_unverifiable": [
+      "inputs_supplied": [
         "cda.distribution_amount",
         "cda.donee.validated",
         "cda.donee_ein",
@@ -3808,8 +3831,8 @@
         "cda.distributions_cumulative",
         "cda.window_close_at"
       ],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "produced 0/2: missing cda.distribution.executed, cda.distribution_window.alert"
+      "inputs_unverifiable": [],
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -3818,13 +3841,17 @@
       "policy": "charitable-donation-accounts",
       "control_id": "CDA-09",
       "title": "Accounting, Reporting & Records",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cda.reconciliation.completed",
         "cda.call_report.mapped",
         "cda.board_packet.issued"
       ],
-      "observed": [],
+      "observed": [
+        "cda.reconciliation.completed",
+        "cda.call_report.mapped",
+        "cda.board_packet.issued"
+      ],
       "triggers": [
         "cda.month.closed",
         "cda.call_report_cycle.opened",
@@ -3837,16 +3864,15 @@
         "cda.portfolio_performance",
         "cda.preparer_id"
       ],
-      "inputs_supplied": [],
-      "inputs_unverifiable": [
+      "inputs_supplied": [
         "cda.custodian_statement",
         "cda.gl_balances",
         "cda.account_789h_mapping",
         "cda.portfolio_performance",
         "cda.preparer_id"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/3: missing cda.reconciliation.completed, cda.call_report.mapped, cda.board_packet.issued"
+      "inputs_unverifiable": [],
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -3861,7 +3887,9 @@
         "cda.vendor_contract.drafted",
         "cda.board_escalation.issued"
       ],
-      "observed": [],
+      "observed": [
+        "cda.board_escalation.issued"
+      ],
       "triggers": [
         "cda.vendor_dd.completed",
         "cda.vendor_contract.drafted",
@@ -3878,8 +3906,7 @@
         "cda.vendor_contract.validated",
         "cda.vendor_issue_details"
       ],
-      "inputs_supplied": [],
-      "inputs_unverifiable": [
+      "inputs_supplied": [
         "cda.vendor_bcp_dr",
         "cda.vendor_dd_file",
         "cda.vendor_fee_disclosures",
@@ -3890,8 +3917,9 @@
         "cda.vendor_contract.validated",
         "cda.vendor_issue_details"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/3: missing cda.vendor_dd.completed, cda.vendor_contract.drafted, cda.board_escalation.issued"
+      "inputs_unverifiable": [],
+      "fire_path": "real_writer",
+      "blocked_on": "produced 1/3: missing cda.vendor_dd.completed, cda.vendor_contract.drafted"
     },
     {
       "scoped_out": false,
@@ -3900,7 +3928,7 @@
       "policy": "charitable-donation-accounts",
       "control_id": "CDA-11",
       "title": "Internal Controls & Testing",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cda.dual_approval.recorded",
         "cda.valuation_review.completed",
@@ -3908,7 +3936,13 @@
         "cda.audit_report.issued",
         "cda.remediation.closed"
       ],
-      "observed": [],
+      "observed": [
+        "cda.dual_approval.recorded",
+        "cda.valuation_review.completed",
+        "cda.audit_finding.logged",
+        "cda.audit_report.issued",
+        "cda.remediation.closed"
+      ],
       "triggers": [
         "cda.distribution.proposed",
         "cda.quarter.closed",
@@ -3924,8 +3958,7 @@
         "cda.remediation_owner",
         "cda.remediation.due_at"
       ],
-      "inputs_supplied": [],
-      "inputs_unverifiable": [
+      "inputs_supplied": [
         "cda.approver_id",
         "cda.distribution_amount",
         "cda.independent_pricing",
@@ -3934,8 +3967,8 @@
         "cda.remediation_owner",
         "cda.remediation.due_at"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/5: missing cda.dual_approval.recorded, cda.valuation_review.completed, cda.audit_finding.logged, cda.audit_report.issued"
+      "inputs_unverifiable": [],
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -3944,13 +3977,17 @@
       "policy": "charitable-donation-accounts",
       "control_id": "CDA-12",
       "title": "Termination",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cda.closing_distribution.executed",
         "cda.inkind_transfer.proposed",
         "cda.termination_report.issued"
       ],
-      "observed": [],
+      "observed": [
+        "cda.closing_distribution.executed",
+        "cda.inkind_transfer.proposed",
+        "cda.termination_report.issued"
+      ],
       "triggers": [
         "cda.termination.approved",
         "cda.inkind_transfer.proposed",
@@ -3964,8 +4001,7 @@
         "cda.permissibility_determination",
         "cda.final_accounting"
       ],
-      "inputs_supplied": [],
-      "inputs_unverifiable": [
+      "inputs_supplied": [
         "cda.distribution_shortfall",
         "cda.total_return_cumulative",
         "cda.asset_details",
@@ -3973,8 +4009,8 @@
         "cda.permissibility_determination",
         "cda.final_accounting"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/3: missing cda.closing_distribution.executed, cda.inkind_transfer.proposed, cda.termination_report.issued"
+      "inputs_unverifiable": [],
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -3983,13 +4019,17 @@
       "policy": "charitable-donation-accounts",
       "control_id": "CDA-13",
       "title": "Conflicts & Affiliate Fees",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cda.fee_screen.completed",
         "cda.fee_review.completed",
         "cda.conflict.escalated"
       ],
-      "observed": [],
+      "observed": [
+        "cda.fee_screen.completed",
+        "cda.fee_review.completed",
+        "cda.conflict.escalated"
+      ],
       "triggers": [
         "cda.fee_payment.proposed",
         "cda.quarter.closed",
@@ -4000,14 +4040,13 @@
         "cda.fee_payee",
         "cda.conflict_details"
       ],
-      "inputs_supplied": [],
-      "inputs_unverifiable": [
+      "inputs_supplied": [
         "cda.fee_amount",
         "cda.fee_payee",
         "cda.conflict_details"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/3: missing cda.fee_screen.completed, cda.fee_review.completed, cda.conflict.escalated"
+      "inputs_unverifiable": [],
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -4016,12 +4055,15 @@
       "policy": "charitable-donation-accounts",
       "control_id": "CDA-14",
       "title": "Communications & Accessibility",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cda.communication.approved",
         "cda.communication.published"
       ],
-      "observed": [],
+      "observed": [
+        "cda.communication.approved",
+        "cda.communication.published"
+      ],
       "triggers": [
         "cda.communication.drafted",
         "cda.communication.published"
@@ -4031,14 +4073,13 @@
         "cda.wcag_checklist",
         "cda.communication_archived"
       ],
-      "inputs_supplied": [],
-      "inputs_unverifiable": [
+      "inputs_supplied": [
         "cda.communication_draft",
         "cda.wcag_checklist",
         "cda.communication_archived"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/2: missing cda.communication.approved, cda.communication.published"
+      "inputs_unverifiable": [],
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,

@@ -96,6 +96,315 @@ async function runEpsAuthFraud(env: FireEnv): Promise<void> {
   await postFraudTrendReview(R({}), env.db, "d", env.actors.ops);
 }
 
+/**
+ * The whole CDA programme, driven end to end.
+ *
+ * Board adoption -> qualified trustee -> segregated structure -> agreement
+ * clauses A-D -> funding through the gate -> cap test -> a real cap BREACH
+ * caused by net worth falling -> a cure that actually reduces the aggregate ->
+ * distributions -> overlays and trades -> reconciliation -> quarter packet ->
+ * programme audit -> termination. Nothing is handed a code to emit.
+ *
+ * Roughly half of the calls below are NEGATIVES that must be refused: an
+ * unlabelled account, an agreement missing clause C, funding against an
+ * unqualified vendor, a distribution to an unvalidated donee, a $60k
+ * distribution self-approved by its proposer, a trade with no overlay
+ * configured, an affiliate fee, a non-permissible in-kind asset. Each is
+ * expected to 409, and each writes the refusal as evidence — a gate that only
+ * records what it permitted cannot be audited.
+ */
+async function runCdaLifecycle(env: FireEnv): Promise<void> {
+  // The harness fires every trigger a control declares, so a control with four
+  // triggers would otherwise run this four times against the same ledger. The
+  // lifecycle is a single narrative with a real cap breach and cure in it;
+  // replaying it would re-supersede the policy adoption and block everything.
+  if ((env.rows["core.cda"] ?? []).length > 0) return;
+
+  const ops = env.actors.ops;
+  const compliance = { ...ops, tokenId: "tok_cda_compliance", roles: ["bsa_compliance"] };
+
+  // --- CDA-01: Board adoption. Everything else is gated on this being live.
+  await postCdaPolicyAdoption(
+    R({ policy_version: "v1.0", board_resolution_id: "board-2026-014", adopted_at: "2026-06-16T00:00:00.000Z" }),
+    env.db, "d", compliance,
+  );
+
+  // net worth, from the capital subsystem rather than supplied: $7.5m of $50m
+  await postCapitalPosition(
+    R({ as_of_date: "2026-03-31", net_worth_cents: 750_000_000, total_assets_cents: 5_000_000_000 }),
+    env.db, "d", ops,
+  );
+
+  // --- CDA-04: one qualified trustee, one that must NOT qualify.
+  await postCdaVendor(
+    R({
+      name: "Northgate Trust", role: "trustee", regulator: "occ",
+      registration_status: "active", registration_evidence_ref: "occ-cert-2026",
+    }),
+    env.db, "d", compliance,
+  );
+  // NEGATIVE: an adviser with no registration evidence. Qualification is
+  // derived, so this cannot be waved through by asserting it.
+  await postCdaVendor(
+    R({ name: "Harbor Advisors", role: "discretionary_manager", regulator: "sec", registration_status: "active" }),
+    env.db, "d", compliance,
+  );
+  // and a lapse detected on annual review, which must escalate to the Board
+  await postCdaVendorReview(
+    R({ registration_status: "lapsed" }), "cdaven_northgatetrust", env.db, "d", compliance,
+  );
+  // restore it, so the rest of the programme runs against a qualified trustee
+  await postCdaVendorReview(
+    R({ registration_status: "active", registration_evidence_ref: "occ-cert-2026" }),
+    "cdaven_northgatetrust", env.db, "d", compliance,
+  );
+
+  // --- CDA-03: structure and segregation.
+  await postCda(
+    R({
+      id: "cda_main", vendor_id: "cdaven_northgatetrust",
+      structure_type: "segregated_custodial",
+      account_label: "Pynthia Charitable Donation Account",
+      custodian_statement_ref: "cust-stmt-2026Q2",
+    }),
+    env.db, "d", compliance,
+  );
+  // NEGATIVE: a CDA whose label does not designate it as one. §721.3(b)(2)(i)
+  // requires the designation, not merely a name.
+  await postCda(
+    R({
+      id: "cda_unlabelled", vendor_id: "cdaven_harboradvisors",
+      structure_type: "spe_trust", account_label: "Investment Sub-Account",
+    }),
+    env.db, "d", compliance,
+  );
+
+  // --- CDA-05: clauses A-D.
+  await postCdaAgreement(
+    R({
+      clauses: {
+        clause_named_charities: true, clause_strategy_risk: true,
+        clause_gaap_accounting: true, clause_distribution_frequency: true,
+      },
+      amendment: { redline_ref: "redline-3", board_resolution_id: "board-2026-021" },
+    }),
+    "cda_main", env.db, "d", compliance,
+  );
+  // NEGATIVE: missing the GAAP clause.
+  await postCdaAgreement(
+    R({
+      clauses: {
+        clause_named_charities: true, clause_strategy_risk: true,
+        clause_distribution_frequency: true,
+      },
+    }),
+    "cda_unlabelled", env.db, "d", compliance,
+  );
+
+  // --- CDA-06: funding through the gate. 5% of $7.5m is $375k; this is $250k.
+  await postCdaFunding(R({ amount_cents: 25_000_000 }), "cda_main", env.db, "d", ops);
+  // NEGATIVE: the unlabelled CDA fails four conditions at once, and the
+  // refusal must name all of them rather than the first.
+  await postCdaFunding(R({ amount_cents: 1_000_00 }), "cda_unlabelled", env.db, "d", ops);
+
+  await postCdaCapTest(
+    R({ as_of_date: "2026-06-30", certified_by: "controller_01" }), env.db, "d", compliance,
+  );
+
+  // --- CDA-06 breach: net worth FALLS to $4m. Nothing about the CDA changed;
+  // the same $250k is now 6.25% of net worth. This is how cap breaches
+  // actually happen, and it is why the cap test cannot be a funding-time check
+  // alone.
+  await postCapitalPosition(
+    R({ as_of_date: "2026-09-30", net_worth_cents: 400_000_000, total_assets_cents: 5_000_000_000 }),
+    env.db, "d", ops,
+  );
+  await postCdaCapTest(
+    R({ as_of_date: "2026-09-30", certified_by: "controller_01" }), env.db, "d", compliance,
+  );
+
+  // --- CDA-08: the five-year window, opened with a real Total Return.
+  await postCdaDistributionWindow(
+    R({
+      opened_at: "2026-01-01T00:00:00.000Z", closes_at: "2031-01-01T00:00:00.000Z",
+      total_return_cents: 20_000_000,
+    }),
+    "cda_main", env.db, "d", compliance,
+  );
+
+  // NEGATIVE: an unvalidated donee. No EIN, no IRS status.
+  await postCdaDistribution(
+    R({
+      donee_name: "Unknown Foundation", amount_cents: 1_000_00,
+      proposed_by: "ops_1", approved_by: "ops_2", window_id: "cdawin_cda_main_1767225600000",
+    }),
+    "cda_main", env.db, "d", ops,
+  );
+  // NEGATIVE: $60k self-approved. Two calls by one token is not two people.
+  await postCdaDistribution(
+    R({
+      donee_name: "Riverside Food Bank", donee_ein: "12-3456789", donee_irs_status: "501c3",
+      amount_cents: 6_000_000, proposed_by: "ops_1", approved_by: "ops_1",
+    }),
+    "cda_main", env.db, "d", ops,
+  );
+  // the real one, dual-approved. It also drops book value under the 5% cap.
+  await postCdaDistribution(
+    R({
+      donee_name: "Riverside Food Bank", donee_ein: "12-3456789", donee_irs_status: "501c3",
+      amount_cents: 6_000_000, proposed_by: "ops_1", approved_by: "ops_2",
+      window_id: "cdawin_cda_main_1767225600000",
+    }),
+    "cda_main", env.db, "d", ops,
+  );
+  // a sub-threshold one, which is logged with SINGLE approval rather than
+  // silently omitted
+  await postCdaDistribution(
+    R({
+      donee_name: "Riverside Food Bank", donee_ein: "12-3456789", donee_irs_status: "501c3",
+      amount_cents: 250_00, proposed_by: "ops_1",
+      window_id: "cdawin_cda_main_1767225600000",
+    }),
+    "cda_main", env.db, "d", ops,
+  );
+
+  // --- CDA-06 cure: the aggregate is now genuinely back under 5%.
+  await postCdaCapCure(
+    R({ cure_plan: "distributed $60,250 to Riverside Food Bank" }),
+    "cdacap_20260930", env.db, "d", compliance,
+  );
+
+  // --- CDA-07: Board overlays, then a clean trade and a concentrated one.
+  await putCdaOverlay(
+    R({ limit_bp: 2500, approved_by: "board-2026-014" }),
+    "cda_main", "single_issuer", env.db, "d", compliance,
+  );
+  await postCdaTrade(
+    R({ issuer: "US Treasury", sector: "sovereign", amount_cents: 2_000_000 }),
+    "cda_main", env.db, "d", ops,
+  );
+  // NEGATIVE: 25%+ of the book in one issuer.
+  await postCdaTrade(
+    R({ issuer: "Single Corp", sector: "corporate", amount_cents: 20_000_000 }),
+    "cda_main", env.db, "d", ops,
+  );
+  await postCdaPosttradeCheck(R({ period: "2026-09" }), "cda_main", env.db, "d", compliance);
+
+  // --- CDA-09: reconciliation, then the 789H mapping that hangs off it.
+  await postCdaReconciliation(
+    R({ period: "2026-08", gl_balance_cents: 18_750_000, custodian_balance_cents: 18_750_000 }),
+    "cda_main", env.db, "d", compliance,
+  );
+  // NEGATIVE: books that do not agree.
+  await postCdaReconciliation(
+    R({ period: "2026-09", gl_balance_cents: 18_750_000, custodian_balance_cents: 18_749_100 }),
+    "cda_main", env.db, "d", compliance,
+  );
+  await postCdaCallReportMapping(
+    R({ cycle: "2026Q3", account_789h_mapping: "789H" }), "cda_main", env.db, "d", compliance,
+  );
+
+  // --- CDA-13: a permitted fee and an affiliate one that must be refused.
+  await postCdaFeePayment(
+    R({ payee: "Northgate Trust", amount_cents: 12_500 }), "cda_main", env.db, "d", ops,
+  );
+  await postCdaFeePayment(
+    R({ payee: "Pynthia Credit Union", amount_cents: 40_000 }), "cda_main", env.db, "d", ops,
+  );
+
+  // --- CDA-11: quarterly valuation review on independent pricing.
+  await postCdaValuationReview(
+    R({
+      period: "2026Q3", independent_pricing_ref: "bloomberg-2026Q3",
+      portfolio_composition: { us_treasury: 2_000_000 },
+    }),
+    "cda_main", env.db, "d", compliance,
+  );
+
+  // --- CDA-01 / CDA-09 / CDA-13: the quarterly packet, assembled from the
+  // tables rather than from a supplied summary.
+  await postCdaQuarterClose(
+    R({ quarter: "2026Q3", preparer_id: "controller_01" }), env.db, "d", compliance,
+  );
+
+  // --- CDA-11: the annual programme audit and its remediation.
+  await postCdaAuditCycle(
+    R({
+      cycle_year: 2026,
+      findings: [{ summary: "cap test evidence not retained", remediation_owner: "controller_01", due_days: 60 }],
+    }),
+    env.db, "d", compliance,
+  );
+  await postCdaFindingClose(
+    R({ closure_evidence_ref: "remediation-pack-2026-1" }), "cdafind_2026_0", env.db, "d", compliance,
+  );
+
+  // --- CDA-02: a glossary change, versioned against the prior active term.
+  await postCdaGlossaryChange(
+    R({
+      term: "Total Return", definition: "income plus realised and unrealised gains",
+      citation: "12 CFR 721.3(b)(2)", attested_by: "compliance_01",
+    }),
+    env.db, "d", compliance,
+  );
+
+  // --- CDA-14: draft, approve, publish; and a page that fails the checklist.
+  await postCdaCommunication(
+    R({ title: "CDA Program", draft_ref: "draft-cda-1" }), env.db, "d", compliance,
+  );
+  // NEGATIVE: Marketing approval alone, with a failing WCAG checklist.
+  await postCdaCommunicationApproval(
+    R({ wcag_checklist_passed: false, marketing_approved_by: "mktg_01" }),
+    "cdacom_cdaprogram", env.db, "d", compliance,
+  );
+  await postCdaCommunicationApproval(
+    R({
+      wcag_checklist_passed: true, marketing_approved_by: "mktg_01",
+      compliance_approved_by: "compliance_01",
+    }),
+    "cdacom_cdaprogram", env.db, "d", compliance,
+  );
+  await postCdaCommunicationPublish(
+    R({ archived_ref: "archive-cda-1" }), "cdacom_cdaprogram", env.db, "d", compliance,
+  );
+
+  // --- CDA-12: termination, closing distribution, in-kind, close.
+  await postCdaTermination(
+    R({ approved_by: "board-2026-031", final_accounting_ref: "final-2026" }),
+    "cda_main", env.db, "d", compliance,
+  );
+  // the >=51% closing distribution: 20% was distributed in-window, so this
+  // takes cumulative coverage over the threshold
+  await postCdaDistribution(
+    R({
+      donee_name: "Riverside Food Bank", donee_ein: "12-3456789", donee_irs_status: "501c3",
+      amount_cents: 4_500_000, kind: "closing", proposed_by: "ops_1", approved_by: "ops_2",
+      window_id: "cdawin_cda_main_1767225600000",
+    }),
+    "cda_main", env.db, "d", ops,
+  );
+  await postCdaInkindTransfer(
+    R({ asset_class: "us_treasury", amount_cents: 1_000_000, determination_ref: "part703-det-1" }),
+    "cda_main", env.db, "d", compliance,
+  );
+  // NEGATIVE: an asset with no Part 703 basis must be liquidated, not received.
+  await postCdaInkindTransfer(
+    R({ asset_class: "private_equity_fund", amount_cents: 500_000, determination_ref: "part703-det-2" }),
+    "cda_main", env.db, "d", compliance,
+  );
+  await postCdaClose(
+    R({ final_accounting_ref: "final-accounting-2026" }), "cda_main", env.db, "d", compliance,
+  );
+
+  // --- CDA-01's negative half: let the adoption lapse and confirm the sweep
+  // blocks the programme. Done LAST because it blocks everything above it.
+  const pol = (env.rows["core.cda_policy"] ?? []).find((p: Any) => p.id === "cdapol_v10");
+  if (pol) pol.expires_at = "2026-01-01T00:00:00.000Z";
+  await postCdaPolicySweep(R({}), env.db, "d", compliance);
+  // and a funding attempt against an expired policy, which must be refused
+  await postCdaFunding(R({ amount_cents: 1_000_00 }), "cda_main", env.db, "d", ops);
+}
+
 async function runCapitalLifecycle(env: FireEnv): Promise<void> {
   // A WELL-CAPITALIZED position with a configured internal trigger. The trigger
   // sits above the statutory floor, so this position is compliant with NCUA and
@@ -229,6 +538,15 @@ import {
   postPospayException,
 } from "../api/eps_controls.ts";
 import { postIssueCard } from "../api/cards.ts";
+import {
+  postCda, postCdaAgreement, postCdaAuditCycle, postCdaCallReportMapping, postCdaCapCure,
+  postCdaCapTest, postCdaClose, postCdaCommunication, postCdaCommunicationApproval,
+  postCdaCommunicationPublish, postCdaDistribution, postCdaDistributionWindow,
+  postCdaFeePayment, postCdaFindingClose, postCdaFunding, postCdaGlossaryChange,
+  postCdaInkindTransfer, postCdaPolicyAdoption, postCdaPolicySweep, postCdaPosttradeCheck,
+  postCdaQuarterClose, postCdaReconciliation, postCdaTermination, postCdaTrade,
+  postCdaValuationReview, postCdaVendor, postCdaVendorReview, putCdaOverlay,
+} from "../api/cda.ts";
 import {
   postCapitalDocument, postCapitalPosition, postCapitalSweep, postCapitalTarget,
   postNwrp, postRwaRun,
@@ -536,6 +854,38 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   "eps.pospay_exception.decided": (env) => runEpsAuthFraud(env),
   "eps.fraud_trend_review.completed": (env) => runEpsAuthFraud(env),
   "eps.auth.failure_count": (env) => runEpsAuthFraud(env),
+  // Every cda trigger runs the one programme lifecycle. Three of these
+  // (`*_cycle.opened`) would otherwise match TIMER_RE and be fired through the
+  // governance calendar, which would register an obligation and emit nothing a
+  // CDA control declares — a control can only pass here by the programme
+  // actually running.
+  "cda.audit_cycle.opened": (env) => runCdaLifecycle(env),
+  "cda.policy.expired": (env) => runCdaLifecycle(env),
+  "cda.quarter.closed": (env) => runCdaLifecycle(env),
+  "cda.month.closed": (env) => runCdaLifecycle(env),
+  "cda.call_report_cycle.opened": (env) => runCdaLifecycle(env),
+  "cda.glossary_change.proposed": (env) => runCdaLifecycle(env),
+  "cda.evidence_packet.filed": (env) => runCdaLifecycle(env),
+  "cda.vendor_onboarding.started": (env) => runCdaLifecycle(env),
+  "cda.vendor_review.completed": (env) => runCdaLifecycle(env),
+  "cda.vendor_issue.flagged": (env) => runCdaLifecycle(env),
+  "cda.agreement.submitted": (env) => runCdaLifecycle(env),
+  "cda.agreement_amendment.proposed": (env) => runCdaLifecycle(env),
+  "cda.cap_test.scheduled": (env) => runCdaLifecycle(env),
+  "cda.funding.requested": (env) => runCdaLifecycle(env),
+  "cda.cap.breached": (env) => runCdaLifecycle(env),
+  "cda.trade.proposed": (env) => runCdaLifecycle(env),
+  "cda.posttrade_check.scheduled": (env) => runCdaLifecycle(env),
+  "cda.distribution.proposed": (env) => runCdaLifecycle(env),
+  "cda.distribution_cycle.opened": (env) => runCdaLifecycle(env),
+  "cda.audit_finding.logged": (env) => runCdaLifecycle(env),
+  "cda.termination.approved": (env) => runCdaLifecycle(env),
+  "cda.inkind_transfer.proposed": (env) => runCdaLifecycle(env),
+  "cda.account.closed": (env) => runCdaLifecycle(env),
+  "cda.fee_payment.proposed": (env) => runCdaLifecycle(env),
+  "cda.fee_conflict.flagged": (env) => runCdaLifecycle(env),
+  "cda.communication.drafted": (env) => runCdaLifecycle(env),
+  "cda.communication.published": (env) => runCdaLifecycle(env),
   "incident.declared": (env) => runIncidentLifecycle(env),
   "incident.detected": (env) => runIncidentLifecycle(env),
   "incident.sev1.detected": (env) => runIncidentLifecycle(env),

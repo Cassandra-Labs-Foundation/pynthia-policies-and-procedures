@@ -119,6 +119,13 @@ async function main() {
     "cash_transaction", "ctr_filing", "obligation", "obligation_completion",
     "work_item", "threshold", "threshold_observation", "attestation",
     "loan_party", "adverse_action_notice", "payment_approval", "client_limit",
+    // Adding `cda` here is what makes the cda controls' declared inputs
+    // CHECKABLE instead of unverifiable. Before it, all 60-odd cda.* inputs
+    // graded as un-checkable and every cda control could go green on produced
+    // events alone. See the instrument caveat in BLUEPRINT §5h: the check is
+    // object-granular, so this binds `a cda row must exist` and not the
+    // individual field.
+    "cda",
   ]) knownTables.add(t);
 
   // Scope marks live in a checked-in file and are applied HERE, so regenerating

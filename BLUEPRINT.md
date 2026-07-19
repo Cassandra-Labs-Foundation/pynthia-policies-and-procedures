@@ -1019,3 +1019,94 @@ behaviour (bsa:BSA-07, record-retention:RR-03, the three SC-03 incident controls
 were deliberately LEFT IN. Wrongly scoping OUT is invisible — the control silently
 stops being counted. Wrongly leaving one IN is a visible red row someone will look
 at. Bias accordingly.
+
+### cda (CDA-*) — 13 of 13 green, predicted 5. THE PREDICTION BROKE UPWARD.
+
+Second prediction to break, and in the opposite direction from eps. The eps
+miss was a denominator error (§5g); this one is a different mistake and worth
+separating, because "the model is unreliable" is the wrong lesson to draw.
+
+**Why 5 was too low: cda had no verbs AND no noun.** The prediction was made by
+analogy with domains where some machinery already existed and the question was
+how much of it fitted. cda had nothing at all — no account, no agreement, no
+donee, no book value — so every one of the 13 read identically red
+("produced 0/N") and looked like 13 independent problems. They were one problem.
+Once the noun existed, twelve of the thirteen were consequences of it rather
+than separate builds.
+
+**The generalisation, which is the useful half:** a domain where every control
+fails for the SAME reason is cheap, and a domain where they fail for different
+reasons is expensive. The red-line text already carries this signal and nobody
+was reading it that way. cda's 13 reds had 1 distinct blocked_on shape; the
+remaining 179 have dozens. Sizing should read the DISTRIBUTION of red reasons,
+not the count of red rows. That is a better estimator than either the namespace
+tally (§5g) or the control count.
+
+CDA-10 stays red and is correctly scoped out (vendor lifecycle diligence).
+
+**§721.3(b)(2) is a CONJUNCTION, so there is one gate and not four checks.**
+Four controls (CDA-01 adoption, CDA-03 segregation, CDA-05 clauses A–D, CDA-06
+the 5% cap) each declare `cda.funding_gate_evaluated`, which invites four
+independent checks at four call sites. Failing any one forfeits Part 703 relief
+for the whole account, so `evaluateFundingGate` evaluates all of them on every
+request and returns each verdict separately. The refusal names every condition
+that failed, not the first — the same defect OQ-19 records against `runGate`,
+avoided here rather than reproduced.
+
+**Fourth instance of the ordering-assumption class (§5g), caught by design.**
+§721.3(b)(2)(iii) caps AGGREGATE book value. The natural implementation tests
+the aggregate, records the funding, and moves on — which permits every breach
+exactly once, because the amount under test is not in the number being tested.
+The projected aggregate is `current + requested`, computed before any write.
+The same shape appears in CDA-07: concentration is measured AFTER the proposed
+trade, or the first breach of every overlay is permitted. First time this class
+was anticipated instead of found by a failing drill.
+
+**Two defects the NEGATIVE tests found, both invisible on the happy path:**
+
+1. **Wall-clock-derived primary keys.** Five writers built ids from
+   `Date.now()`. Under the drill's frozen clock every distribution in one run
+   collided, so `ignoreDuplicates` silently dropped four of five events and
+   CDA-12 read red for a reason that had nothing to do with CDA-12. In
+   production the collision is rarer but not impossible, and the failure is
+   worse: a dropped evidence row for a real distribution. The house convention
+   is `crypto.randomUUID()`; these were the deviation.
+2. **A shortfall alert that fired on window CREATION.** Every five-year window
+   opens at 0% coverage, so alerting on "below 51%" made the alert mean "a
+   window exists". The condition is now a shortfall that is either MEASURED
+   (giving has happened, so the ratio says something) or RUNNING OUT (inside
+   the final year). Both halves are load-bearing: the second is what catches a
+   window where nobody ever distributed at all.
+
+**Harness gap, third strike on column defaults.** `fake_db` applied only
+`created_at`/`updated_at`, so a `cda` row inserted without `book_value_cents`
+read back `undefined` where Postgres gives `0`, and an aggregate over book
+value summed to NaN in the double. Exactly the shape that let CG-VEL-01 report
+a pass. Now a declared `COLUMN_DEFAULTS` map, deliberately listing only the
+defaults a writer READS BACK — a full copy of the schema would drift silently.
+
+**Anti-vacuity: 12 mutations, 12 caught.** Each load-bearing rule was broken in
+turn (gate always permits, cap tests the current aggregate, dual control
+ignores self-approval, the affiliate blocklist never matches, vendor
+qualification always true, in-kind needs no determination, the shortfall never
+raises, an expired policy does not block, any label files the packet, any
+clause subset validates, a cure needs no actual reduction, an unassessed
+overlay clears a trade) and the suite went red for every one.
+
+### §5h — INSTRUMENT CAVEAT: `required_inputs` grading is OBJECT-granular
+
+`controls_test_run.ts` grades a declared input `obj.field` by asking whether any
+row was written to a table named `obj`. It never looks at `field`.
+
+For most domains this is a weak but real constraint. For cda it very nearly
+collapsed to nothing: all ~60 declared inputs are `cda.*`, so they resolve to
+ONE object, and before `cda` was added to `knownTables` every one of them
+graded as *unverifiable* — meaning all 13 controls could have gone green on
+produced events alone. Adding the table binds "a cda row must exist" and no
+more.
+
+**This is a ceiling on what a green means, and it is not specific to cda.** Any
+domain whose corpus names its inputs under a single namespace gets the same
+collapse. Column-level grading would be strictly stronger and is worth doing,
+but it would re-grade all 333 controls at once and should be run as its own
+change with the flipped rows reported — not folded into a domain build.
