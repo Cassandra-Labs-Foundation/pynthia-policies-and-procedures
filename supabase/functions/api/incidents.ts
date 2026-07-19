@@ -310,7 +310,10 @@ export async function postMemberImpact(
   try {
     await emit(db, scope, `evt_${id}_impact`, "incident.member_impact.confirmed", id, {}, ctx);
     await emit(db, scope, `evt_${id}_notices`, "incident.member_notices.sent", id,
-      { template: rec.template }, ctx);
+      // privacy:SC-01 declares `incident.notice_template_id`, not the template's
+      // display name. Emitting only the name meant the notice could not be tied
+      // back to a specific approved template version after the fact.
+      { member_notice_template: rec.template, notice_template_id: rec.template }, ctx);
   } catch (e) {
     console.error(`member impact events failed for ${id}: ${e}`);
   }

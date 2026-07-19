@@ -97,7 +97,7 @@ export async function activePolicy(
   db: SupabaseClient, scope: EvidenceScope,
 ): Promise<Record<string, Any> | null> {
   const { data, error } = await db.schema(scope).from("cda_policy")
-    .select("id, policy_version, adopted_at, expires_at, superseded_at, board_resolution_id")
+    .select("id, policy_version, adopted_at, policy_expiry_at, superseded_at, board_resolution_id")
     .is("superseded_at", null)
     .order("adopted_at", { ascending: false })
     .limit(1);
@@ -119,7 +119,7 @@ export async function programmeBlockReason(
 ): Promise<string | null> {
   const p = await activePolicy(db, scope);
   if (!p) return "policy_not_adopted";
-  if (new Date(String(p.expires_at)).getTime() <= now.getTime()) return "policy_expired";
+  if (new Date(String(p.policy_expiry_at)).getTime() <= now.getTime()) return "policy_expired";
   return null;
 }
 
@@ -161,18 +161,18 @@ export async function postCdaPolicyAdoption(
     policy_version: body.policy_version,
     board_resolution_id: body.board_resolution_id,
     adopted_at: adoptedAt.toISOString(),
-    expires_at: expires.toISOString(),
+    policy_expiry_at: expires.toISOString(),
     // re-recording an adoption reactivates it; leaving this out would let an
     // upsert of the same version silently inherit the supersession set above
     superseded_at: null,
     provenance: provenanceFor(scope, ctx),
-  }, { onConflict: "id" }).select("id, policy_version, adopted_at, expires_at").maybeSingle();
+  }, { onConflict: "id" }).select("id, policy_version, adopted_at, policy_expiry_at").maybeSingle();
   if (error) return internalErrorResponse(requestId, error.message);
 
   await emit(db, scope, `ev_${id}_adopt`, "cda.board_decision.recorded", id, {
     policy_version: body.policy_version,
     board_resolution_id: body.board_resolution_id,
-    expires_at: expires.toISOString(),
+    policy_expiry_at: expires.toISOString(),
   }, ctx);
 
   return jsonResponse({ data }, 201, requestId);
@@ -201,7 +201,7 @@ export async function postCdaPolicySweep(
   const p = await activePolicy(db, scope);
   const id = p ? String(p.id) : "cdapol_none";
   await emit(db, scope, `ev_${id}_expired`, "cda.policy.expired", id, {
-    reason, expires_at: p?.expires_at ?? null,
+    reason, policy_expiry_at: p?.policy_expiry_at ?? null,
   }, ctx);
   await emit(db, scope, `ev_${id}_blocked`, "cda.actions.blocked", id, { reason }, ctx);
   await emit(db, scope, `ev_${id}_esc`, "cda.board_escalation.issued", id, {
@@ -285,7 +285,8 @@ export async function postCdaVendor(
     // vendor that silently fails to qualify is indistinguishable from one
     // nobody assessed.
     await emit(db, scope, `ev_${id}_unqual`, "cda.vendor_issue.flagged", id, {
-      reason, registration_status: status,
+      vendor_issue_details: { reason, regulator, registration_status: status },
+      vendor_registration_status: status,
     }, ctx);
   }
   return jsonResponse({ data }, 201, requestId);
@@ -342,6 +343,9 @@ export async function postCdaVendorReview(
     }, ctx);
     await emit(db, scope, `ev_${vendorId}_venesc`, "cda.board_escalation.issued", vendorId, {
       reason: "vendor_registration_lapsed",
+      vendor_issue_details: {
+        previous_status: v.registration_status, new_status: status, vendor_id: vendorId,
+      },
       escalation_due_at: plusDays(now, VENDOR_ESCALATION_DAYS),
     }, ctx);
   }
@@ -415,10 +419,10 @@ export async function postCda(
 }
 
 const CLAUSES = [
-  ["clause_named_charities", "A_named_qualified_charities"],
-  ["clause_strategy_risk", "B_investment_strategy_and_risk"],
-  ["clause_gaap_accounting", "C_gaap_accounting"],
-  ["clause_distribution_frequency", "D_distribution_frequency"],
+  ["agreement_named_charities_clause", "A_named_qualified_charities"],
+  ["agreement_strategy_clause", "B_investment_strategy_and_risk"],
+  ["agreement_gaap_clause", "C_gaap_accounting"],
+  ["agreement_distribution_clause", "D_distribution_frequency"],
 ] as const;
 
 /**
@@ -452,8 +456,14 @@ export async function postCdaAgreement(
   const allPresent = missing.length === 0;
   const now = new Date();
 
+  // Clause (B) carries the agreement's strategy/risk parameters. They are
+  // stored on validation because CDA-07's pre-trade check must consult the
+  // AGREEMENT's limits and not only the Board's overlays — two different
+  // sources of authority that the corpus names separately.
+  const strategyLimits = (body.strategy_limits ?? {}) as Record<string, unknown>;
   const { error } = await db.schema(scope).from("cda").update({
     ...present,
+    strategy_limits: strategyLimits,
     agreement_validated_at: allPresent ? now.toISOString() : null,
     updated_at: now.toISOString(),
   }).eq("id", cdaId);
@@ -482,7 +492,7 @@ export async function postCdaAgreement(
       }]);
     }
     await emit(db, scope, `ev_${cdaId}_amend`, "cda.board_decision.recorded", cdaId, {
-      redline_ref: amendment.redline_ref ?? null,
+      agreement_redline: amendment.agreement_redline ?? amendment.redline_ref ?? null,
       board_resolution_id: amendment.board_resolution_id,
     }, ctx);
   }
@@ -860,7 +870,7 @@ export async function postCdaTrade(
   }
 
   const { data: rec } = await db.schema(scope).from("cda")
-    .select("id, book_value_cents").eq("id", cdaId).maybeSingle();
+    .select("id, book_value_cents, strategy_limits").eq("id", cdaId).maybeSingle();
   if (!rec) return notFoundResponse(requestId, "cda", cdaId);
 
   const { data: overlays } = await db.schema(scope).from("cda_overlay")
@@ -897,6 +907,7 @@ export async function postCdaTrade(
 
   await emit(db, scope, `ev_${id}_pre`, "cda.pretrade_check.completed", cdaId, {
     verdict, breached_overlays: breached, overlay_limits: list.length,
+    strategy_limits: rec.strategy_limits ?? {},
     trade_details: { issuer: body.issuer, amount_cents: amount },
   }, ctx);
 
@@ -1028,6 +1039,7 @@ async function recomputeWindowCoverage(
           Math.ceil((totalReturn * MIN_DISTRIBUTION_COVERAGE_BP) / 10000) - distributed,
         window_close_at: w.closes_at,
         distributions_cumulative: distributed,
+        total_return_cumulative: totalReturn,
       }, ctx);
   }
   return { coverageBp, short };
@@ -1091,6 +1103,17 @@ export async function postCdaDistribution(
     blockReasons.push(approvedBy ? "dual_approval_self_approved" : "dual_approval_missing");
   }
 
+  // §721.3(b)(2)(iv) measures distributions against cumulative TOTAL RETURN, so
+  // the figure travels with the distribution rather than only with the window
+  // recompute — a distribution event that does not carry the denominator
+  // cannot be checked against the 51% rule after the fact.
+  let windowTotalReturn: number | null = null;
+  if (isNonEmptyString(body.window_id)) {
+    const { data: w } = await db.schema(scope).from("cda_distribution_window")
+      .select("id, total_return_cents").eq("id", body.window_id).maybeSingle();
+    windowTotalReturn = w ? Number(w.total_return_cents ?? 0) : null;
+  }
+
   const now = new Date();
   const id = `cdadist_${cdaId}_${crypto.randomUUID()}`;
   const decision = blockReasons.length === 0 ? "executed" : "blocked";
@@ -1133,7 +1156,7 @@ export async function postCdaDistribution(
     kind === "closing" ? "cda.closing_distribution.executed" : "cda.distribution.executed",
     cdaId, {
       distribution_amount: amount, donee_name: body.donee_name, donee_ein: ein,
-      dual_approval: needsDual,
+      dual_approval: needsDual, total_return_cumulative: windowTotalReturn,
     }, ctx);
   // CDA-11 logs the sub-threshold ones too — "no dual approval recorded" must
   // not be ambiguous between "below the threshold" and "the rule was skipped".

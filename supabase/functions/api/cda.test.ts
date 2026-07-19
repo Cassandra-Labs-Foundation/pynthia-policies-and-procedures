@@ -93,8 +93,8 @@ async function seedProgramme(opts: { netWorthCents?: number } = {}) {
   await postCdaAgreement(
     req({
       clauses: {
-        clause_named_charities: true, clause_strategy_risk: true,
-        clause_gaap_accounting: true, clause_distribution_frequency: true,
+        agreement_named_charities_clause: true, agreement_strategy_clause: true,
+        agreement_gaap_clause: true, agreement_distribution_clause: true,
       },
     }),
     "cda_main", db, "t", CTX,
@@ -110,7 +110,7 @@ Deno.test("CDA-01: an expired adoption blocks funding — the policy is a gate, 
 
   // expire it, then try again
   const pol = dbx.rows["core.cda_policy"][0];
-  pol.expires_at = "2026-01-01T00:00:00.000Z";
+  pol.policy_expiry_at = "2026-01-01T00:00:00.000Z";
 
   const res = await postCdaFunding(req({ amount_cents: 1_000_00 }), "cda_main", db, "t", CTX);
   assertEquals(res.status, 409);
@@ -134,7 +134,7 @@ Deno.test("CDA-01: NO adoption at all blocks too — absence is not permission",
 
 Deno.test("CDA-01: the sweep escalates a lapse without waiting for a transaction", async () => {
   const { dbx, db } = await seedProgramme();
-  dbx.rows["core.cda_policy"][0].expires_at = "2026-01-01T00:00:00.000Z";
+  dbx.rows["core.cda_policy"][0].policy_expiry_at = "2026-01-01T00:00:00.000Z";
 
   const res = await postCdaPolicySweep(req({}), db, "t", CTX);
   assertEquals(res.status, 200);
@@ -240,8 +240,8 @@ Deno.test("CDA-05: a missing clause names ITSELF — the refusal is per-clause",
   const res = await postCdaAgreement(
     req({
       clauses: {
-        clause_named_charities: true, clause_strategy_risk: true,
-        clause_distribution_frequency: true,
+        agreement_named_charities_clause: true, agreement_strategy_clause: true,
+        agreement_distribution_clause: true,
       },
     }),
     "cda_main", db, "t", CTX,
@@ -255,7 +255,7 @@ Deno.test("CDA-05: a missing clause names ITSELF — the refusal is per-clause",
 Deno.test("CDA-05: an unvalidated agreement blocks funding", async () => {
   const { db } = await seedProgramme();
   await postCdaAgreement(
-    req({ clauses: { clause_named_charities: true } }), "cda_main", db, "t", CTX,
+    req({ clauses: { agreement_named_charities_clause: true } }), "cda_main", db, "t", CTX,
   );
   const v = await evaluateFundingGate(db, "core", "cda_main", 1_000_00, null, new Date());
   assert(v.reasons.includes("agreement_clauses_unvalidated"));
@@ -266,8 +266,8 @@ Deno.test("CDA-05: an amendment with no Board resolution is refused", async () =
   const res = await postCdaAgreement(
     req({
       clauses: {
-        clause_named_charities: true, clause_strategy_risk: true,
-        clause_gaap_accounting: true, clause_distribution_frequency: true,
+        agreement_named_charities_clause: true, agreement_strategy_clause: true,
+        agreement_gaap_clause: true, agreement_distribution_clause: true,
       },
       amendment: { redline_ref: "r1" },
     }),

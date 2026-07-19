@@ -1107,6 +1107,84 @@ more.
 
 **This is a ceiling on what a green means, and it is not specific to cda.** Any
 domain whose corpus names its inputs under a single namespace gets the same
-collapse. Column-level grading would be strictly stronger and is worth doing,
-but it would re-grade all 333 controls at once and should be run as its own
-change with the flipped rows reported — not folded into a domain build.
+collapse.
+
+### §5h RESOLVED — column-level grading, and the one row it flipped
+
+Done as its own change, before any further domain was built, so that nothing
+after it is graded under the weaker instrument.
+
+An input `obj.field` now counts as supplied when the run wrote a row in an
+object named `obj` AND the datum appears — as a populated column, or as a key
+in an emitted event payload. Both sides reduce to TOKEN SETS and the test is
+containment, with the column's tokens including its table's. So
+`cda.vendor_registration_status` is satisfied by `cda_vendor.registration_status`
+and by nothing accidental: every word the corpus used has to be accounted for.
+
+**Why token containment and not string equality.** The first version compared
+names literally and flipped 16 rows. Inspecting them showed two different
+causes wearing one label: controls where the datum genuinely was not supplied,
+and controls where the corpus and the schema simply name the same fact
+differently (`policy_expiry_at` vs `expires_at`, `member_notice_template` vs
+`member_notices`). Failing the second kind grades the CORPUS, not the run — the
+mistake OQ-06 and OQ-22 already record about trigger vocabulary. Payload keys
+count because several declared inputs are COMPUTED (`cda.aggregate_book_value`,
+`cash.overshort.amount`) and are legitimately carried on the evidence rather
+than stored; requiring a column would fail a control for computing the thing
+correctly. One normalisation only: a trailing plural is stripped. Anything
+beyond that starts inventing synonyms.
+
+**Result: 46 -> 45. Exactly one row flipped and stayed flipped.**
+
+| row | why | verdict |
+|---|---|---|
+| `collections:CO-11` | `incident.description`, `incident.data_scope`, `incident.detection_source` are never written by the incident writer; `incident.collections` names nothing interpretable | **was never green** |
+
+The other fifteen initial flips resolved into work rather than losses, and that
+work is the actual value of the change:
+
+- **Four cda columns were renamed to the corpus's vocabulary**
+  (`agreement_gaap_clause`, `policy_expiry_at`, …). The catalogue names these
+  fields and the grader now checks them by name, so a schema that renames the
+  specification's terms turns every check into a translation exercise.
+- **CDA-07 was conflating two declared inputs.** `cda.overlay_limits` (Board-set
+  risk caps) and `cda.strategy_limits` (clause B of the written agreement) are
+  different sources of authority and the corpus names them separately. The
+  pre-trade check consulted only the overlays — i.e. it was not checking the
+  agreement it is bound by. Found only because the stricter grader asked for
+  `strategy_limits` by name.
+- **Three declared inputs were being accepted and discarded**:
+  `cda.vendor_issue_details` (an escalation carrying only a reason code),
+  `cda.total_return_cumulative` (a distribution event with no denominator, so
+  the 51% rule could not be checked after the fact), and
+  `incident.notice_template_id` (the notice's display name but not the id, so a
+  notice could not be tied to an approved template version).
+
+**Do not read 45 < 46 as a regression.** It is the same system measured more
+honestly, plus four real defects fixed. The headline number is now weakly
+column-bound rather than object-bound; it is still not a proof that each field
+held the RIGHT value, and that ceiling remains.
+
+### The fourth-instance guard on `fake_db` column defaults
+
+Three sessions had lost time to the same gap and each fix was another hand-written
+column. `COLUMN_DEFAULTS` is now PARSED from `supabase/migrations/*.sql` at load,
+so a column added with a default is modelled the moment the migration exists.
+Function-call defaults (`now()`, `gen_random_uuid()`) are deliberately excluded —
+they are not constants and pretending otherwise is a different lie. If the
+migrations cannot be read the map is empty and the double behaves exactly as
+before, so the guard degrades rather than throwing inside unrelated tests.
+
+**The parser was wrong on its first pass, in the way this file is always wrong.**
+The value pattern captured "everything up to the next comma", and an inline
+`default 0 check ("x" >= 0)` contains no comma — so every column declared with a
+trailing CHECK silently produced no default, including the very
+`book_value_cents` that motivated the change. Now the value is a bounded token.
+
+**A blanket rename broke an unrelated control, and only the artifact caught it.**
+Applying the `expires_at -> policy_expiry_at` rename with a global
+search-and-replace also rewrote the retention firer's `retention_expires_at`,
+so the disposal sweep matched nothing and **nine replicas of SC-02 went red**
+for a reason that had nothing to do with SC-02 or with the grading change.
+Nothing in the unit suite noticed — 474 tests stayed green throughout. The
+control artifact is the only instrument in this repo that would have caught it.

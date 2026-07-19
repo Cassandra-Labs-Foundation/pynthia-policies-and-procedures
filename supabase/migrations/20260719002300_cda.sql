@@ -37,6 +37,12 @@
 
 -- ------------------------------------------------------------------ policy
 --
+-- Column names here follow the CORPUS's vocabulary (`policy_expiry_at`,
+-- `agreement_gaap_clause`) rather than a tidier internal one. That is
+-- deliberate: the control catalogue names these fields, the input grader now
+-- checks them by name, and a schema that renames the specification's terms
+-- makes every such check a translation exercise.
+--
 -- CDA-01: "If the policy lapses, all CDA actions (funding, trades,
 -- distributions) are blocked until re-adoption is recorded." That is a
 -- cross-cutting gate, not a reporting line, so the adoption register is a
@@ -48,13 +54,13 @@ create table if not exists "core"."cda_policy" (
   "board_resolution_id" text not null,
   -- an adoption with no expiry could never lapse, which is the failure this
   -- control exists to prevent
-  "expires_at" timestamptz not null,
+  "policy_expiry_at" timestamptz not null,
   "superseded_at" timestamptz,
   "provenance" text not null default 'production',
   "created_at" timestamptz not null default now(),
   "updated_at" timestamptz not null default now(),
   constraint "ck_cda_policy_expiry_after_adoption"
-    check ("expires_at" > "adopted_at")
+    check ("policy_expiry_at" > "adopted_at")
 );
 
 -- ------------------------------------------------------------------ vendor
@@ -104,11 +110,17 @@ create table if not exists "core"."cda" (
   -- CDA-05 §721.3(b)(2)(v): clauses A-D. Stored as four separate booleans, not
   -- one `agreement_validated`, because "which clause is missing" is the whole
   -- content of the refusal.
-  "clause_named_charities" boolean not null default false,
-  "clause_strategy_risk" boolean not null default false,
-  "clause_gaap_accounting" boolean not null default false,
-  "clause_distribution_frequency" boolean not null default false,
+  "agreement_named_charities_clause" boolean not null default false,
+  "agreement_strategy_clause" boolean not null default false,
+  "agreement_gaap_clause" boolean not null default false,
+  "agreement_distribution_clause" boolean not null default false,
   "agreement_validated_at" timestamptz,
+  -- CDA-07 declares `cda.strategy_limits` SEPARATELY from `cda.overlay_limits`,
+  -- and collapsing the two lost a distinction the policy actually draws: the
+  -- overlays are Board-set risk caps, the strategy limits are clause (B) of the
+  -- written agreement. A pre-trade check that consults only the overlays is not
+  -- checking the agreement it is bound by.
+  "strategy_limits" jsonb not null default '{}'::jsonb,
 
   "book_value_cents" bigint not null default 0 check ("book_value_cents" >= 0),
   "status" text not null default 'proposed'
@@ -125,8 +137,8 @@ create table if not exists "core"."cda" (
   -- clause C.
   constraint "ck_cda_agreement_all_clauses"
     check ("agreement_validated_at" is null or (
-      "clause_named_charities" and "clause_strategy_risk"
-      and "clause_gaap_accounting" and "clause_distribution_frequency"
+      "agreement_named_charities_clause" and "agreement_strategy_clause"
+      and "agreement_gaap_clause" and "agreement_distribution_clause"
     )),
   -- CDA-03: the packet is the structure type, the label AND the custodial
   -- statement. Any one missing means it is not filed.

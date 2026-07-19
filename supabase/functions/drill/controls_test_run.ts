@@ -195,16 +195,106 @@ async function main() {
     );
     const observed = expected.filter((e) => emitted.has(e));
 
-    // which declared inputs were actually supplied by the run
+    // WHICH DECLARED INPUTS WERE ACTUALLY SUPPLIED — graded at COLUMN level.
+    //
+    // This used to ask only whether a table named `obj` had been written to,
+    // ignoring `field` entirely. That is far too weak for any domain whose
+    // corpus names every input under one namespace: cda declares ~60 inputs
+    // and all of them are `cda.*`, so the whole check collapsed to a single
+    // boolean ("does a cda row exist"). See BLUEPRINT §5h.
+    //
+    // An input `obj.field` now counts as supplied when the run wrote a row in
+    // an object named `obj` AND the datum `field` actually appears — either as
+    // a populated column on one of those rows, or as a key in an emitted event
+    // payload. The second half is necessary and not a loophole: plenty of
+    // declared inputs are COMPUTED (`cda.aggregate_book_value`,
+    // `cash.overshort.amount`) and are legitimately carried on the evidence
+    // rather than stored, so requiring a column would fail controls for
+    // computing the thing correctly.
     const touchedObjects = new Set<string>();
     for (const [k, rs] of Object.entries(dbx.rows)) {
       if (!rs.length) continue;
       touchedObjects.add(k.split(".")[1]);
     }
+
+    /**
+     * DOES THE RUN CARRY THIS DATUM?
+     *
+     * Matching declared-input names to column names literally does not work,
+     * and failing a control because of it would grade the CORPUS rather than
+     * the run — the same mistake OQ-06 and OQ-22 record about trigger
+     * vocabulary. The corpus writes `cda.vendor_registration_status`; the
+     * schema writes `cda_vendor.registration_status`. Those are the same fact.
+     *
+     * So both sides are reduced to TOKEN SETS and the test is containment: the
+     * input's tokens must all appear in some populated column, where a
+     * column's tokens include its TABLE's tokens. `cda.vendor_registration_status`
+     * -> {cda, vendor, registration, status} is covered by
+     * `cda_vendor.registration_status` -> {cda, vendor, registration, status}.
+     *
+     * This is hard to satisfy accidentally: every word the corpus used has to
+     * be accounted for by a column that actually holds a value. It is NOT
+     * satisfiable by writing an unrelated row, which is what the old
+     * object-level check permitted.
+     */
+    // A trailing plural is stripped on both sides. The corpus says
+    // `incident.member_notice_template` and the writer emits
+    // `incident.member_notices.sent`; those are the same fact and failing a
+    // control on the 's' would, again, be grading the corpus. This is the ONLY
+    // normalisation applied — anything beyond it starts inventing synonyms.
+    const stem = (w: string): string =>
+      w.length > 3 && w.endsWith("s") && !w.endsWith("ss") ? w.slice(0, -1) : w;
+    const tokens = (s: string): Set<string> =>
+      new Set(
+        s.toLowerCase().split(/[^a-z0-9]+/).filter((x) => x.length > 0).map(stem),
+      );
+
+    /** token sets of every populated column, table tokens folded in */
+    const candidates: Set<string>[] = [];
+    for (const [k, rs] of Object.entries(dbx.rows)) {
+      if (!rs.length) continue;
+      const table = k.split(".")[1];
+      const tTok = tokens(table);
+      const cols = new Set<string>();
+      for (const r of rs) {
+        for (const [c, v] of Object.entries(r as Record<string, unknown>)) {
+          if (v !== null && v !== undefined && v !== "") cols.add(c);
+        }
+      }
+      for (const c of cols) candidates.push(new Set([...tTok, ...tokens(c)]));
+    }
+    // and every event payload key, folded with its event code — a computed
+    // input (`cda.aggregate_book_value`, `cash.overshort.amount`) is carried on
+    // the evidence rather than stored, and requiring a column would fail a
+    // control for computing the thing correctly
+    for (const e of (dbx.rows["core.event"] ?? []).concat(dbx.rows["sim.event"] ?? [])) {
+      const cTok = tokens(String((e as Any).code));
+      const walk = (v: unknown, depth: number): void => {
+        if (depth > 3 || v === null || typeof v !== "object") return;
+        if (Array.isArray(v)) {
+          for (const x of v) walk(x, depth + 1);
+          return;
+        }
+        for (const [k, x] of Object.entries(v as Record<string, unknown>)) {
+          if (x !== null && x !== undefined && x !== "") {
+            candidates.push(new Set([...cTok, ...tokens(k)]));
+          }
+          walk(x, depth + 1);
+        }
+      };
+      walk((e as Any).payload, 0);
+    }
+
+    const supplied = (i: string): boolean => {
+      if (!touchedObjects.has(i.split(".")[0])) return false;
+      const want = tokens(i);
+      return candidates.some((c) => [...want].every((w) => c.has(w)));
+    };
+
     const checkable = requiredInputs.filter((i) => knownTables.has(i.split(".")[0]));
     const unverifiable = requiredInputs.filter((i) => !knownTables.has(i.split(".")[0]));
-    const inputsSupplied = checkable.filter((i) => touchedObjects.has(i.split(".")[0]));
-    const inputsMissing = checkable.filter((i) => !touchedObjects.has(i.split(".")[0]));
+    const inputsSupplied = checkable.filter(supplied);
+    const inputsMissing = checkable.filter((i) => !supplied(i));
 
     const green = expected.length > 0 &&
       observed.length === expected.length &&

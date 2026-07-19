@@ -9,12 +9,12 @@
     "total": 333,
     "in_scope": 225,
     "scoped_out": 108,
-    "in_scope_green": 46,
-    "in_scope_red": 179,
+    "in_scope_green": 45,
+    "in_scope_red": 180,
     "scope_note": "Scoped-out controls are real obligations discharged by people and paperwork. This system covers the technical controls; the organisational ones are not claimed.",
-    "green": 47,
-    "red": 286,
-    "pct_green": 14.1,
+    "green": 46,
+    "red": 287,
+    "pct_green": 13.8,
     "red_by_reason": {
       "trigger fires but produced events missing": 154,
       "no writer: loan_application.*": 8,
@@ -49,6 +49,7 @@
       "no writer: monetary_instrument.*": 1,
       "no writer: pep.*": 1,
       "no writer: furnishing.*": 1,
+      "inputs not supplied: incident.collections, incident.data_scope, incident.description, incident.detection_source": 1,
       "no writer: affiliate.*": 1,
       "no writer: corp_opportunity.*": 1,
       "no writer: policy.*": 1,
@@ -104,7 +105,7 @@
     },
     "inputs_unverifiable_total": 1391,
     "green_by_fire_path": {
-      "real_writer": 43,
+      "real_writer": 42,
       "generic_echo": 4
     },
     "green_by_policy": {
@@ -114,10 +115,10 @@
       "electronic-payment-systems": 3,
       "audit": 2,
       "bsa": 2,
-      "collections": 2,
       "information-security": 2,
       "shared-controls": 2,
       "business-continuity-plan": 1,
+      "collections": 1,
       "e-commerce": 1,
       "fair-lending": 1,
       "internal-controls": 1,
@@ -1228,10 +1229,7 @@
         "member.id"
       ],
       "inputs_supplied": [
-        "entity.address",
-        "entity.date_of_birth",
-        "entity.name",
-        "entity.tin"
+        "entity.name"
       ],
       "inputs_unverifiable": [
         "member.id"
@@ -1321,10 +1319,7 @@
         "ofac.blocked_property"
       ],
       "inputs_supplied": [
-        "entity.address",
-        "entity.date_of_birth",
         "entity.name",
-        "entity.tin",
         "wire_transfer.amount"
       ],
       "inputs_unverifiable": [
@@ -1441,8 +1436,7 @@
         "entity.tin"
       ],
       "inputs_supplied": [
-        "entity.name",
-        "entity.tin"
+        "entity.name"
       ],
       "inputs_unverifiable": [
         "ctr.cash_in_total",
@@ -1786,8 +1780,6 @@
         "pep.subject_role"
       ],
       "inputs_supplied": [
-        "entity.address",
-        "entity.date_of_birth",
         "entity.name"
       ],
       "inputs_unverifiable": [
@@ -2130,9 +2122,7 @@
         "incident.comms_plan"
       ],
       "inputs_supplied": [
-        "incident.scope_initial",
-        "incident.severity",
-        "incident.comms_plan"
+        "incident.severity"
       ],
       "inputs_unverifiable": [
         "oncall.ic_rotation"
@@ -2174,7 +2164,6 @@
         "incident.severity"
       ],
       "inputs_supplied": [
-        "incident.scope",
         "incident.severity"
       ],
       "inputs_unverifiable": [],
@@ -2361,9 +2350,6 @@
         "vendor.incident_scope"
       ],
       "inputs_supplied": [
-        "incident.data_scope",
-        "incident.description",
-        "incident.detection_source",
         "incident.severity",
         "incident.member_impact"
       ],
@@ -2473,11 +2459,7 @@
         "incident.root_cause",
         "incident.timeline"
       ],
-      "inputs_supplied": [
-        "incident.impact_summary",
-        "incident.root_cause",
-        "incident.timeline"
-      ],
+      "inputs_supplied": [],
       "inputs_unverifiable": [],
       "fire_path": "generic_echo",
       "blocked_on": "produced 0/7: missing pir.draft_timer, cap.approval.timer, cap.item.created, pir.drafted"
@@ -3907,14 +3889,6 @@
         "cda.vendor_issue_details"
       ],
       "inputs_supplied": [
-        "cda.vendor_bcp_dr",
-        "cda.vendor_dd_file",
-        "cda.vendor_fee_disclosures",
-        "cda.vendor_financials",
-        "cda.vendor_soc_iso",
-        "cda.contract_termination_clause",
-        "cda.contract_transfer_steps",
-        "cda.vendor_contract.validated",
         "cda.vendor_issue_details"
       ],
       "inputs_unverifiable": [],
@@ -4170,9 +4144,7 @@
         "loan.collectibility_assessment",
         "loan.workout_alternatives"
       ],
-      "inputs_supplied": [
-        "entity.contact"
-      ],
+      "inputs_supplied": [],
       "inputs_unverifiable": [
         "collections.template",
         "member.id",
@@ -4220,9 +4192,7 @@
         "collateral.cost_to_sell",
         "collateral.fair_value"
       ],
-      "inputs_supplied": [
-        "account.death_flag"
-      ],
+      "inputs_supplied": [],
       "inputs_unverifiable": [
         "collateral.cost_to_sell",
         "collateral.fair_value"
@@ -4444,7 +4414,7 @@
       "policy": "collections",
       "control_id": "CO-11",
       "title": "Collections-Data Incident Logging & Triage",
-      "status": "green",
+      "status": "red",
       "expected": [
         "incident.created",
         "incident.classified",
@@ -4470,17 +4440,12 @@
         "incident.severity"
       ],
       "inputs_supplied": [
-        "incident.collections",
-        "incident.data_scope",
-        "incident.description",
-        "incident.detection_source",
         "incident.member_impact",
-        "incident.reportability_assessment",
-        "incident.scope_initial",
         "incident.severity"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer"
+      "fire_path": "real_writer",
+      "blocked_on": "inputs not supplied: incident.collections, incident.data_scope, incident.description, incident.detection_source"
     },
     {
       "scoped_out": false,
@@ -5111,10 +5076,7 @@
         "insider.funded_terms",
         "insider.terms_parity"
       ],
-      "inputs_supplied": [
-        "loan_application.applicant",
-        "loan_application.insider"
-      ],
+      "inputs_supplied": [],
       "inputs_unverifiable": [
         "covered_person.id",
         "cu.unimpaired_capital_surplus",
@@ -5454,9 +5416,7 @@
         "member_credential.password_hash",
         "member_credential.security_questions"
       ],
-      "inputs_supplied": [
-        "entity.email"
-      ],
+      "inputs_supplied": [],
       "inputs_unverifiable": [
         "enrollment.applicant_identity",
         "enrollment.channel",
@@ -5748,14 +5708,8 @@
         "incident.comms_plan"
       ],
       "inputs_supplied": [
-        "incident.detection_source",
-        "incident.scope_initial",
         "incident.severity",
-        "incident.data_scope",
-        "incident.facts",
-        "incident.legal_review",
-        "incident.member_impact",
-        "incident.comms_plan"
+        "incident.member_impact"
       ],
       "inputs_unverifiable": [
         "comms.holding_statement"
@@ -5797,7 +5751,6 @@
         "incident.severity"
       ],
       "inputs_supplied": [
-        "incident.scope",
         "incident.severity"
       ],
       "inputs_unverifiable": [],
@@ -6776,10 +6729,7 @@
         "loan_application.channel",
         "loan_application.product_type"
       ],
-      "inputs_supplied": [
-        "loan_application.channel",
-        "loan_application.product_type"
-      ],
+      "inputs_supplied": [],
       "inputs_unverifiable": [
         "applicant.state"
       ],
@@ -6815,10 +6765,7 @@
         "pricing.proposed_price",
         "pricing.sheet_price"
       ],
-      "inputs_supplied": [
-        "loan_application.action_basis",
-        "loan_application.income_assets"
-      ],
+      "inputs_supplied": [],
       "inputs_unverifiable": [
         "decision.model_id",
         "decision.score_block",
@@ -6857,9 +6804,7 @@
         "appraisal.document",
         "valuation.bias_screen_rules"
       ],
-      "inputs_supplied": [
-        "loan_application.product_type"
-      ],
+      "inputs_supplied": [],
       "inputs_unverifiable": [
         "appraisal.document",
         "valuation.bias_screen_rules"
@@ -6900,14 +6845,7 @@
         "applicant.business_revenue_tier",
         "loan_application.oral_statement"
       ],
-      "inputs_supplied": [
-        "loan_application.action_basis",
-        "loan_application.adverse_action",
-        "loan_application.incompleteness_notice",
-        "account.adverse_action",
-        "loan_application.counteroffer_terms",
-        "loan_application.oral_statement"
-      ],
+      "inputs_supplied": [],
       "inputs_unverifiable": [
         "decision.score_block",
         "applicant.business_revenue_tier"
@@ -6942,9 +6880,7 @@
         "application.first_lien",
         "loan_application.geography"
       ],
-      "inputs_supplied": [
-        "loan_application.geography"
-      ],
+      "inputs_supplied": [],
       "inputs_unverifiable": [
         "application.first_lien"
       ],
@@ -7019,9 +6955,7 @@
         "application.option_selection",
         "application.option_waiver"
       ],
-      "inputs_supplied": [
-        "loan_application.option_shortfall_reason"
-      ],
+      "inputs_supplied": [],
       "inputs_unverifiable": [
         "lo_comp.basis_analysis",
         "lo_comp.plan_terms",
@@ -7555,9 +7489,7 @@
         "it.blast_radius_isolated",
         "restore.test_env"
       ],
-      "inputs_supplied": [
-        "incident.scope"
-      ],
+      "inputs_supplied": [],
       "inputs_unverifiable": [
         "backup.catalog",
         "backup.job_detail",
@@ -7623,11 +7555,7 @@
         "incident.root_cause",
         "incident.timeline"
       ],
-      "inputs_supplied": [
-        "incident.recovered",
-        "incident.root_cause",
-        "incident.timeline"
-      ],
+      "inputs_supplied": [],
       "inputs_unverifiable": [],
       "fire_path": "real_writer",
       "blocked_on": "produced 0/1: missing incident.postmortem.completed"
@@ -7666,7 +7594,6 @@
         "incident.severity"
       ],
       "inputs_supplied": [
-        "incident.scope",
         "incident.severity"
       ],
       "inputs_unverifiable": [],
@@ -9331,10 +9258,7 @@
         "credit_config.fico_bands",
         "credit_config.ltv_matrix"
       ],
-      "inputs_supplied": [
-        "loan_application.product_code",
-        "loan_application.product_type"
-      ],
+      "inputs_supplied": [],
       "inputs_unverifiable": [
         "credit_config.approval_id",
         "credit_config.dti_tiers",
@@ -9387,15 +9311,7 @@
         "loan_application.gmi"
       ],
       "inputs_supplied": [
-        "loan_application.atr_qm_result",
-        "loan_application.data",
-        "loan_application.dti",
-        "loan_application.income_assets",
-        "loan_application.action_basis",
-        "loan_application.id",
-        "loan_application.incomplete_aged",
-        "loan_application.channel",
-        "loan_application.gmi"
+        "loan_application.id"
       ],
       "inputs_unverifiable": [
         "credit_report.freshness",
@@ -9439,10 +9355,7 @@
         "credit_report.score_disclosure",
         "loan_application.action_basis"
       ],
-      "inputs_supplied": [
-        "loan_application.thin_file",
-        "loan_application.action_basis"
-      ],
+      "inputs_supplied": [],
       "inputs_unverifiable": [
         "credit_report.freshness",
         "credit_report.report_date",
@@ -9480,11 +9393,7 @@
         "loan_application.dti",
         "loan_application.product_type"
       ],
-      "inputs_supplied": [
-        "loan_application.atr_qm_result",
-        "loan_application.dti",
-        "loan_application.product_type"
-      ],
+      "inputs_supplied": [],
       "inputs_unverifiable": [
         "application.first_lien",
         "credit_config.dti_tiers"
@@ -9532,9 +9441,7 @@
         "valuation.report"
       ],
       "inputs_supplied": [
-        "loan_application.id",
-        "loan_application.product_code",
-        "loan_application.applicant"
+        "loan_application.id"
       ],
       "inputs_unverifiable": [
         "application.first_lien",
@@ -9582,15 +9489,7 @@
         "loan_application.oral_statement",
         "loan_account.action_basis"
       ],
-      "inputs_supplied": [
-        "loan_application.action_basis",
-        "loan_application.applicant",
-        "loan_application.gmi",
-        "loan_application.counteroffer_status",
-        "loan_application.counteroffer_terms",
-        "loan_application.oral_adverse_decision",
-        "loan_application.oral_statement"
-      ],
+      "inputs_supplied": [],
       "inputs_unverifiable": [
         "credit_report.score_disclosure",
         "loan_account.action_basis"
@@ -9665,11 +9564,7 @@
         "credit_package.validated",
         "loan_application.doc_block_state"
       ],
-      "inputs_supplied": [
-        "loan_application.gmi",
-        "loan_application.notified_at",
-        "loan_application.doc_block_state"
-      ],
+      "inputs_supplied": [],
       "inputs_unverifiable": [
         "application.final_action",
         "credit_package.schema",
@@ -9825,11 +9720,7 @@
         "ofac_result.matched_lists",
         "loan_party.ofac_result"
       ],
-      "inputs_supplied": [
-        "loan_party.contact",
-        "loan_party.identity",
-        "loan_party.ofac_result"
-      ],
+      "inputs_supplied": [],
       "inputs_unverifiable": [
         "ofac.list_version",
         "ofac_result.match_score",
@@ -9970,10 +9861,7 @@
         "insider.proposed_terms",
         "insider.board_approval"
       ],
-      "inputs_supplied": [
-        "loan_application.applicant",
-        "loan_application.insider"
-      ],
+      "inputs_supplied": [],
       "inputs_unverifiable": [
         "covered_person.roster"
       ],
@@ -10733,10 +10621,7 @@
         "verification.status"
       ],
       "inputs_supplied": [
-        "entity.date_of_birth",
         "entity.name",
-        "entity.tin",
-        "entity.contact",
         "verification.provider",
         "verification.type",
         "verification.provider_result",
@@ -10783,10 +10668,7 @@
         "card.reissue_request",
         "member.address.hold.expires_at"
       ],
-      "inputs_supplied": [
-        "entity.address_new",
-        "entity.address_previous"
-      ],
+      "inputs_supplied": [],
       "inputs_unverifiable": [
         "member.id",
         "redflag.address_reissue_match",
@@ -10887,7 +10769,6 @@
         "complaint.udaap_flag"
       ],
       "inputs_supplied": [
-        "entity.contact",
         "account.balance"
       ],
       "inputs_unverifiable": [],
@@ -10922,8 +10803,6 @@
       ],
       "inputs_supplied": [
         "account.lock_type",
-        "account.restriction",
-        "entity.contact",
         "account.balance",
         "account.status"
       ],
@@ -10967,7 +10846,6 @@
         "member.amounts_owed"
       ],
       "inputs_supplied": [
-        "entity.contact",
         "account.balance"
       ],
       "inputs_unverifiable": [
@@ -11170,8 +11048,7 @@
         "entity.jurisdiction"
       ],
       "inputs_supplied": [
-        "entity.id",
-        "entity.jurisdiction"
+        "entity.id"
       ],
       "inputs_unverifiable": [
         "privacy.optout_channel",
@@ -11513,12 +11390,6 @@
         "incident.id"
       ],
       "inputs_supplied": [
-        "incident.description",
-        "incident.detection_source",
-        "incident.scope_initial",
-        "incident.criminal_suspected",
-        "incident.data_scope",
-        "incident.material",
         "incident.member_impact",
         "incident.id"
       ],
@@ -11634,8 +11505,7 @@
         "web.visitor_jurisdiction"
       ],
       "inputs_supplied": [
-        "entity.id",
-        "entity.jurisdiction"
+        "entity.id"
       ],
       "inputs_unverifiable": [
         "privacy.state_request_type",
@@ -13023,7 +12893,6 @@
         "incident.severity"
       ],
       "inputs_supplied": [
-        "incident.scope",
         "incident.severity"
       ],
       "inputs_unverifiable": [],
@@ -13541,9 +13410,7 @@
         "member.delivery_channel",
         "member.id"
       ],
-      "inputs_supplied": [
-        "entity.esign_consent"
-      ],
+      "inputs_supplied": [],
       "inputs_unverifiable": [
         "advertising.approval_id",
         "advertising.medium",
@@ -13592,9 +13459,6 @@
       ],
       "inputs_supplied": [
         "account.account_type",
-        "account.opening_channel",
-        "account.restriction",
-        "entity.esign_consent",
         "account.id"
       ],
       "inputs_unverifiable": [
@@ -13674,10 +13538,7 @@
       ],
       "inputs_supplied": [
         "account.account_type",
-        "account.id",
-        "account.maturity_date",
-        "account.maturity_disposition",
-        "account.maturity_window"
+        "account.id"
       ],
       "inputs_unverifiable": [
         "disclosure.template_id",
@@ -13833,7 +13694,6 @@
       ],
       "inputs_supplied": [
         "account.id",
-        "entity.reg_e_opt_in",
         "account.balance"
       ],
       "inputs_unverifiable": [

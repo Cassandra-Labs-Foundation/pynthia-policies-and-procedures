@@ -183,10 +183,11 @@ async function runCdaLifecycle(env: FireEnv): Promise<void> {
   await postCdaAgreement(
     R({
       clauses: {
-        clause_named_charities: true, clause_strategy_risk: true,
-        clause_gaap_accounting: true, clause_distribution_frequency: true,
+        agreement_named_charities_clause: true, agreement_strategy_clause: true,
+        agreement_gaap_clause: true, agreement_distribution_clause: true,
       },
-      amendment: { redline_ref: "redline-3", board_resolution_id: "board-2026-021" },
+      strategy_limits: { max_duration_years: 5, min_rating: "investment_grade" },
+      amendment: { agreement_redline: "redline-3", board_resolution_id: "board-2026-021" },
     }),
     "cda_main", env.db, "d", compliance,
   );
@@ -194,8 +195,8 @@ async function runCdaLifecycle(env: FireEnv): Promise<void> {
   await postCdaAgreement(
     R({
       clauses: {
-        clause_named_charities: true, clause_strategy_risk: true,
-        clause_distribution_frequency: true,
+        agreement_named_charities_clause: true, agreement_strategy_clause: true,
+        agreement_distribution_clause: true,
       },
     }),
     "cda_unlabelled", env.db, "d", compliance,
@@ -399,7 +400,7 @@ async function runCdaLifecycle(env: FireEnv): Promise<void> {
   // --- CDA-01's negative half: let the adoption lapse and confirm the sweep
   // blocks the programme. Done LAST because it blocks everything above it.
   const pol = (env.rows["core.cda_policy"] ?? []).find((p: Any) => p.id === "cdapol_v10");
-  if (pol) pol.expires_at = "2026-01-01T00:00:00.000Z";
+  if (pol) pol.policy_expiry_at = "2026-01-01T00:00:00.000Z";
   await postCdaPolicySweep(R({}), env.db, "d", compliance);
   // and a funding attempt against an expired policy, which must be refused
   await postCdaFunding(R({ amount_cents: 1_000_00 }), "cda_main", env.db, "d", ops);

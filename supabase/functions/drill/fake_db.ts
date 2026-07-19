@@ -238,32 +238,87 @@ function applyDefaults(row: Any, table: string, now: string): Any {
 }
 
 /**
- * NON-TIMESTAMP column defaults the real schema applies.
+ * NON-TIMESTAMP column defaults, DERIVED FROM THE MIGRATIONS at load time.
  *
- * FOUND THE SECOND WAY ROUND: a `cda` row inserted without `book_value_cents`
- * read back as `undefined` here and as `0` in Postgres, so an aggregate over
- * book value summed to NaN in the double and to a number in production. Same
- * failure shape as the `created_at` gap that let CG-VEL-01 report a pass — a
- * default the schema supplies and the map does not.
+ * THIS IS THE FOURTH-INSTANCE GUARD. The same gap has now cost three separate
+ * sessions: `created_at` (CG-VEL-01 could not fire at all and the drill
+ * reported PASS), `.lt()` on the sweep, and `book_value_cents` reading
+ * `undefined` where Postgres gives `0`. Each was patched one column at a time
+ * as it was discovered, which guarantees a next one — the double falls behind
+ * silently and nothing about its numbers changes when it does.
  *
- * Only defaults that a WRITER relies on are listed. A default nobody reads
- * back cannot change a result, and listing every one would make this a second
- * copy of the schema that drifts silently.
+ * So the defaults are no longer written down here. They are PARSED out of
+ * `supabase/migrations/*.sql`, which means a column added to the schema with a
+ * default is modelled the moment the migration exists, without anyone
+ * remembering to mirror it.
+ *
+ * Deliberately NOT derived: anything whose default is a function call
+ * (`now()`, `gen_random_uuid()`) or an expression. Those are not constants and
+ * pretending they are would be a different lie; `now()` is already special-cased
+ * above. If the parser cannot read the migrations at all (no fs permission) it
+ * yields an empty map and the double behaves exactly as it did before — the
+ * guard degrades to the old behaviour rather than throwing in an unrelated test.
  */
-const COLUMN_DEFAULTS: Record<string, Record<string, Any>> = {
-  cda: {
-    book_value_cents: 0, status: "proposed",
-    clause_named_charities: false, clause_strategy_risk: false,
-    clause_gaap_accounting: false, clause_distribution_frequency: false,
-  },
-  cda_vendor: { qualified: false, registration_status: "unknown" },
-  cda_distribution_window: { total_return_cents: 0, distributed_cents: 0, coverage_bp: 0 },
-  cda_cap_test: { excess_cents: 0 },
-  cda_reconciliation: { account_789h_mapped: false },
-  cda_termination: { closing_distribution_cents: 0 },
-  cda_glossary_term: { active: true },
-};
+function parseColumnDefaults(): Record<string, Record<string, Any>> {
+  const out: Record<string, Record<string, Any>> = {};
+  let files: string[];
+  const dir = new URL("../../migrations/", import.meta.url);
+  try {
+    files = [...Deno.readDirSync(dir)]
+      .filter((e) => e.isFile && e.name.endsWith(".sql"))
+      .map((e) => e.name).sort();
+  } catch {
+    return out; // no read permission — degrade, do not throw
+  }
 
+  // `create table if not exists "core"."x" ( ... );` — only core, because sim
+  // mirrors are `like ... including all` and inherit whatever core declares.
+  const tableRe =
+    /create table if not exists\s+"core"\."([a-z_]+)"\s*\(([\s\S]*?)\n\);/g;
+  // `"col" <type> [not null] default <literal>` — the value is captured as a
+  // BOUNDED token (quoted string, number, boolean, or function call) rather
+  // than "everything up to the next comma". A trailing inline `check (...)`
+  // contains no comma, so the greedy form swallowed it and every column
+  // declared `default 0 check (...)` silently produced no default at all —
+  // which is how `book_value_cents` got missed on the first pass of this very
+  // parser.
+  const colRe =
+    /^\s*"([a-z_0-9]+)"\s+[a-z0-9_ \[\]()]+?\s+(?:not null\s+)?default\s+('[^']*'|-?\d+(?:\.\d+)?|true|false|[a-z_]+\([^)]*\))/gim;
+
+  for (const name of files) {
+    let sql: string;
+    try {
+      sql = Deno.readTextFileSync(new URL(name, dir));
+    } catch {
+      continue;
+    }
+    for (const t of sql.matchAll(tableRe)) {
+      const table = t[1];
+      const body = t[2];
+      for (const c of body.matchAll(colRe)) {
+        const col = c[1];
+        const lit = c[2].trim().replace(/\s+$/, "");
+        const val = literal(lit);
+        if (val === undefined) continue; // function call or expression
+        (out[table] ??= {})[col] = val;
+      }
+    }
+  }
+  return out;
+}
+
+/** A SQL default that is genuinely a constant, or `undefined` if it is not. */
+function literal(lit: string): Any {
+  const s = lit.replace(/::[a-z_ ]+(\[\])?$/i, "").trim();
+  if (/^'([^']*)'$/.test(s)) return s.slice(1, -1);
+  if (/^-?\d+$/.test(s)) return Number(s);
+  if (/^-?\d+\.\d+$/.test(s)) return Number(s);
+  if (/^true$/i.test(s)) return true;
+  if (/^false$/i.test(s)) return false;
+  return undefined;
+}
+
+const COLUMN_DEFAULTS: Record<string, Record<string, Any>> = parseColumnDefaults();
 /**
  * Wraps a builder so that ANY method the real PostgREST client supports but
  * this double does not throws loudly instead of returning undefined.
