@@ -1022,6 +1022,14 @@ at. Bias accordingly.
 
 ### cda (CDA-*) — 13 of 13 green, predicted 5. THE PREDICTION BROKE UPWARD.
 
+> **DO NOT ANCHOR ON 13.** cda was a happy accident: a self-contained subsystem
+> where every control failed for the same reason, so one noun freed all of them.
+> The estimator below was run afterwards against the remaining 180 reds and says
+> the rest of the project does **not** look like this. The best single namespace
+> frees **4** controls; the eighteen best together free **45 of 180**. Plan on
+> roughly **6 per artifact**, not 13. 13-of-13 is the outlier and it is exactly
+> the number someone reading this file will otherwise take as the run rate.
+
 Second prediction to break, and in the opposite direction from eps. The eps
 miss was a denominator error (§5g); this one is a different mistake and worth
 separating, because "the model is unreliable" is the wrong lesson to draw.
@@ -1188,3 +1196,64 @@ so the disposal sweep matched nothing and **nine replicas of SC-02 went red**
 for a reason that had nothing to do with SC-02 or with the grading change.
 Nothing in the unit suite noticed — 474 tests stayed green throughout. The
 control artifact is the only instrument in this repo that would have caught it.
+
+
+## STANDING RULE: do not fabricate organisational entities to turn controls green
+
+Adopted while sizing cash, and it binds going forward.
+
+Several red controls are waiting on `employee`, `hr`, `exam` — entities the core
+does not have and that describe PEOPLE and organisational process rather than
+money, members, or the institution's position. Building them would turn controls
+green by inventing the very facts the control exists to check. `employee.separated`
+is not an event this system observes; asserting it is the same class of error as
+backfilling `account.entity_id` with a guessed owner.
+
+**A control that stays red naming the entity it needs is doing its job.** The red
+line is the finding. If honouring this rule means cash lands at 6 of 10 rather
+than 10 of 10, **6 is the honest number** and the four reds are more informative
+than four manufactured greens would be.
+
+This is distinct from the scope decision in `control-scope.json`. Those controls
+are marked OUT because they are discharged by people and paperwork. These are
+marked IN — they are real technical controls — and they are RED because a noun
+they depend on legitimately does not exist yet. Do not resolve the tension by
+rescoping them; wrongly scoping out is invisible (§5g).
+
+## THE NINE SC-02 REPLICAS — why the control layer earns its keep
+
+**The single strongest piece of evidence that this approach catches something
+the ordinary test suite cannot.** Recorded here rather than as a footnote,
+because anyone evaluating whether the control artifact was worth building should
+find this first.
+
+While renaming a cda column to match the corpus vocabulary, a global
+search-and-replace of `expires_at -> policy_expiry_at` also rewrote
+`retention_expires_at` in the retention firer. The disposal sweep filters
+`.lt("retention_expires_at", now)`, so it matched nothing, emitted no
+`disposal.scheduled`, and **nine replicas of SC-02 — the shared record-retention
+lifecycle control, referenced by nine different policies — silently went red.**
+
+The part that matters:
+
+> **All 474 hermetic unit tests passed, before and after, without a flicker.**
+
+They passed because they were never wrong. Every unit test asserts on a writer
+it calls directly with data it supplies itself; none of them route through the
+firer that got corrupted. The break lived precisely in the seam between "the
+writer is correct" and "the control can actually be made to fire" — and that
+seam is the entire subject of the control layer.
+
+Three properties made it catchable at all, and all three are worth preserving:
+
+1. **The artifact is checked in and diffed.** The regression was visible as nine
+   rows changing status, not as a failure someone had to be watching for.
+2. **It is regenerated from a frozen clock and a seeded RNG,** so a diff means a
+   behaviour change and never noise.
+3. **`--check` fails the build on green -> red,** so this cannot be committed
+   past silently even by someone who is not reading the numbers.
+
+The generalisation: **a unit suite proves the writers are right; only the control
+layer proves they are still reachable.** Every prior instance of the
+ordering-assumption class (§5g) has the same shape — the code is correct and the
+path to it is not.
