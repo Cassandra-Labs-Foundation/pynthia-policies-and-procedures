@@ -611,6 +611,54 @@ check "the event is now marked delivered" \
 check "the worker is on the cron schedule" \
   "$(sql "select count(*) from pg.cron.job where jobname='event-worker';")" "1"
 
+# ------------------------------- heartbeat recovers a dropped webhook (18)
+# The managed Blnk instance cannot push webhooks to us (support-gated), so a
+# state change made DIRECTLY in Blnk is exactly a dropped webhook: the ledger
+# moved and no push arrived. The heartbeat must notice, catch the mirror up,
+# and leave durable evidence of the recovery. Needs BLNK_API_* (.env.local)
+# and psql (vault key + aging the row into the bounded sweep window).
+echo "-- 31. opacity tier: heartbeat recovers a webhook dropped on purpose --"
+: "${BLNK_API_URL:?BLNK_API_URL not set in .env.local}"
+: "${BLNK_API_KEY:?BLNK_API_KEY not set in .env.local}"
+HB=$(new_account 100000 hb-src)
+ST=$(api POST /payments/ach hb-ach "{\"source_account_id\":\"$HB\",\"amount_cents\":40000,\"counterparty\":{\"name\":\"Dropped Webhook Co\"},\"window\":\"next_day\"}")
+check "ACH hold placed -> HTTP 201" "$ST" "201"
+HB_ID=$(jget id)
+HB_TXN=$(sql "select blnk_transaction_id from pg.core.ach_transfer where id='$HB_ID';")
+check "mirror starts INFLIGHT" \
+  "$(sql "select blnk_status from pg.core.ach_transfer where id='$HB_ID';")" "INFLIGHT"
+
+# settle it directly in Blnk — our API never hears about it; that is the drop
+BST=$(curl -sS -o /tmp/e2e_blnk -w '%{http_code}' -X PUT \
+  "$BLNK_API_URL/transactions/inflight/$HB_TXN" \
+  -H "X-blnk-key: $BLNK_API_KEY" -H 'content-type: application/json' \
+  -d '{"status":"commit"}')
+check "direct Blnk commit (the dropped webhook) -> HTTP 200" "$BST" "200"
+check "mirror is now STALE: still INFLIGHT after the ledger moved" \
+  "$(sql "select blnk_status from pg.core.ach_transfer where id='$HB_ID';")" "INFLIGHT"
+
+# age the row so the bounded oldest-first sweep reaches it this run (in
+# production the synced_at rotation gets there within a few heartbeats)
+psql "$SUPABASE_DB_URL" -qc "update core.ach_transfer set synced_at='1970-01-01' where id='$HB_ID';" >/dev/null
+RECON_KEY=$(psql "$SUPABASE_DB_URL" -tAc "select decrypted_secret from vault.decrypted_secrets where name='blnk_reconcile_key';")
+RECON_URL="${API%/api}/blnk-reconcile"
+HB_ST=""
+for i in 1 2 3; do
+  RST=$(curl -sS -o /tmp/e2e_recon -w '%{http_code}' -X POST "$RECON_URL" \
+    -H "X-Reconcile-Key: $RECON_KEY" -H 'content-type: application/json' -d '{}')
+  HB_ST=$(sql "select blnk_status from pg.core.ach_transfer where id='$HB_ID';")
+  [ "$HB_ST" = "APPLIED" ] && break
+  sleep 3 # search index for the commit child may lag a beat
+done
+check "heartbeat -> HTTP 200" "$RST" "200"
+check "heartbeat recovered the mirror (INFLIGHT -> APPLIED)" "$HB_ST" "APPLIED"
+check "durable evidence: blnk.mirror_recovered persisted for this row" \
+  "$(sql "select count(*) from pg.core.event where code='blnk.mirror_recovered' and resource_id='ach_transfer:$HB_ID';")" "1"
+check "evidence id is deterministic (re-sweeps cannot duplicate it)" \
+  "$(sql "select count(*) from pg.core.event where id='evt_recon_${HB_ID}_applied';")" "1"
+check "business status untouched: mirror recovery is not a business settle" \
+  "$(sql "select status from pg.core.ach_transfer where id='$HB_ID';")" "submitted"
+
 
 echo
 echo "== $PASS passed, $FAIL failed =="
