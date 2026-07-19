@@ -331,6 +331,48 @@ check "row reaches returned in the database" \
   "$(sql "select status from pg.core.ach_transfer where id='$AID';")" "returned"
 
 
+# ---------------------------------- settlement evidence trio (card 31)
+# One settled transfer must leave (1) the mirror on the row, (2) a bookkeeping
+# entry, (3) a transfer.settled event. Money that moves without GL + event
+# evidence is invisible to the 5300 side and to event-driven controls.
+echo "-- 19. a settled transfer leaves bookkeeping + event evidence --"
+check "bookkeeping entry exists (deterministic id)" \
+  "$(sql "select count(*) from pg.core.bookkeeping_entry where id='bke_$OK_ID';")" "1"
+check "bookkeeping entry carries the amount" \
+  "$(sql "select amount from pg.core.bookkeeping_entry where id='bke_$OK_ID';")" "25000"
+check "transfer.settled event exists for the transfer" \
+  "$(sql "select count(*) from pg.core.event where id='evt_${OK_ID}_settled' and code='transfer.settled' and resource_id='$OK_ID';")" "1"
+
+# ------------------------------------------------ wire returns (card 37)
+# A return request resolves to RETURNED or COMPLETED, with reasons. Acceptance
+# must be a compensating reversal (funds already left for @FedWire), never a
+# mutation of settled history.
+echo "-- 20. wire return: accepted resolution lands RETURNED with reason --"
+WR=$(new_account 5000000 wire-return)
+ST=$(api POST /payments/wire/prepare wret1 "{\"source_account_id\":\"$WR\",\"amount_cents\":200000,\"beneficiary\":{\"name\":\"Acme Corp\",\"country\":\"US\"},\"purpose\":\"e2e wire return\"}")
+WID=$(jget id)
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/payments/wire/$WID/confirm" "${AUTH[@]}")
+check "wire confirmed (completed)"          "$(jget status)" "completed"
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/payments/wire/$WID/return" "${AUTH[@]}" -d '{"reason":"beneficiary fraud claim"}')
+check "return request -> HTTP 200"          "$ST" "200"
+check "return request -> return_requested"  "$(jget status)" "return_requested"
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/payments/wire/$WID/return/resolve" "${AUTH[@]}" -d '{"outcome":"accepted"}')
+check "accepted resolution -> returned"     "$(jget status)" "returned"
+check "DB reaches returned, reason retained" \
+  "$(sql "select status || ':' || coalesce(return_reason,'') from pg.core.wire_transfer where id='$WID';")" "returned:beneficiaryfraudclaim"
+
+echo "-- 21. wire return: rejected resolution restores COMPLETED with trail --"
+ST=$(api POST /payments/wire/prepare wret2 "{\"source_account_id\":\"$WR\",\"amount_cents\":150000,\"beneficiary\":{\"name\":\"Acme Corp\",\"country\":\"US\"},\"purpose\":\"e2e wire return 2\"}")
+W2=$(jget id)
+curl -sS -o /tmp/e2e_body -X POST "$API/payments/wire/$W2/confirm" "${AUTH[@]}"
+curl -sS -o /tmp/e2e_body -X POST "$API/payments/wire/$W2/return" "${AUTH[@]}" -d '{"reason":"suspected duplicate"}'
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/payments/wire/$W2/return/resolve" "${AUTH[@]}" -d '{"outcome":"rejected","reason":"funds already withdrawn"}')
+check "rejected resolution -> HTTP 200"     "$ST" "200"
+check "rejected resolution keeps completed" "$(jget status)" "completed"
+check "reason trail records the rejection" \
+  "$(sql "select count(*) from pg.core.wire_transfer where id='$W2' and return_reason like '%rejected%';")" "1"
+
+
 echo
 echo "== $PASS passed, $FAIL failed =="
 [ "$FAIL" -eq 0 ] || exit 1

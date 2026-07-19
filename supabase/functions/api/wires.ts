@@ -63,6 +63,8 @@ export interface WireRow {
   beneficiary: unknown;
   purpose: string | null;
   imad: string | null;
+  originator?: { account_id?: string } | null;
+  return_reason?: string | null;
   blnk_transaction_id: string | null;
   blnk_reference: string | null;
   blnk_status: string | null;
@@ -80,6 +82,7 @@ function wireResponse(
     beneficiary: row.beneficiary,
     purpose: row.purpose,
     imad: row.imad,
+    return_reason: row.return_reason ?? null,
     blnk_transaction_id: row.blnk_transaction_id,
     control_results: controlResults ?? [],
     created_at: row.created_at,
@@ -364,6 +367,174 @@ async function resolveInflight(
     })
     .eq("id", wireId)
     .select("id, amount, status, beneficiary, purpose, imad, blnk_transaction_id, blnk_reference, blnk_status, created_at")
+    .single();
+  if (updErr) return internalErrorResponse(requestId, updErr);
+
+  return jsonResponse(wireResponse(updated as WireRow), 200, requestId);
+}
+
+
+// ------------------------------------------------------------- wire returns
+//
+// Card 37: "a return request resolves to RETURNED or COMPLETED with reasons."
+// Two-step, matching the schema's state machine (`return_requested` sits
+// between `completed` and `returned`): a completed wire cannot simply be
+// voided — the funds already left for @FedWire — so requesting a return holds
+// the claim open, and only an ACCEPTED resolution posts a compensating
+// reversal (@FedWire -> the originating member balance, leg ":return"). A
+// REJECTED resolution restores `completed` and keeps the reason trail. Both
+// paths stay append-only: settled history is never mutated.
+
+const RETURN_COLS =
+  "id, amount, status, beneficiary, purpose, imad, originator, return_reason, blnk_transaction_id, blnk_reference, blnk_status, created_at";
+
+/** POST /payments/wire/{id}/return — request the return of a completed wire. */
+export async function postWireReturn(
+  req: Request,
+  wireId: string,
+  db: SupabaseClient,
+  cfg: BlnkConfig,
+  requestId: string,
+): Promise<Response> {
+  const body = await parseJsonBody(req).catch(() => null);
+  const reason = body && typeof body === "object"
+    ? (body as Record<string, unknown>).reason
+    : undefined;
+  if (!isNonEmptyString(reason)) {
+    return validationError(requestId, [{
+      type: "missing_field",
+      field: "reason",
+      message: "a return reason is required (e.g. beneficiary fraud claim)",
+    }]);
+  }
+
+  const { data: wire, error: selErr } = await db.schema("core").from("wire_transfer")
+    .select(RETURN_COLS)
+    .eq("id", wireId)
+    .maybeSingle();
+  if (selErr) return internalErrorResponse(requestId, selErr);
+  if (!wire) return notFoundResponse(requestId, "wire_transfer", wireId);
+
+  if (wire.status === "return_requested") {
+    return jsonResponse(wireResponse(wire as WireRow), 200, requestId, {
+      "Idempotent-Replayed": "true",
+    });
+  }
+  if (wire.status !== "completed") {
+    return apiError(409, "invalid_state", requestId, {
+      title: "Invalid State",
+      detail:
+        `wire_transfer ${wireId} is ${wire.status}; only a completed wire can be returned — a held wire should be canceled`,
+    });
+  }
+
+  const { data: updated, error: updErr } = await db.schema("core").from("wire_transfer")
+    .update({ status: "return_requested", return_reason: reason })
+    .eq("id", wireId)
+    .select(RETURN_COLS)
+    .single();
+  if (updErr) return internalErrorResponse(requestId, updErr);
+
+  return jsonResponse(wireResponse(updated as WireRow), 200, requestId);
+}
+
+/**
+ * POST /payments/wire/{id}/return/resolve — settle the pending return claim.
+ * `{outcome: "accepted"}` reverses the funds and lands `returned`;
+ * `{outcome: "rejected", reason?}` restores `completed`, appending why.
+ */
+export async function postWireReturnResolve(
+  req: Request,
+  wireId: string,
+  db: SupabaseClient,
+  cfg: BlnkConfig,
+  requestId: string,
+): Promise<Response> {
+  const body = await parseJsonBody(req).catch(() => null);
+  const rec = body && typeof body === "object" ? body as Record<string, unknown> : {};
+  const outcome = rec.outcome;
+  if (outcome !== "accepted" && outcome !== "rejected") {
+    return validationError(requestId, [{
+      type: "invalid_value",
+      field: "outcome",
+      message: 'must be "accepted" or "rejected"',
+    }]);
+  }
+
+  const { data: wire, error: selErr } = await db.schema("core").from("wire_transfer")
+    .select(RETURN_COLS)
+    .eq("id", wireId)
+    .maybeSingle();
+  if (selErr) return internalErrorResponse(requestId, selErr);
+  if (!wire) return notFoundResponse(requestId, "wire_transfer", wireId);
+
+  if (wire.status === "returned") {
+    return jsonResponse(wireResponse(wire as WireRow), 200, requestId, {
+      "Idempotent-Replayed": "true",
+    });
+  }
+  if (wire.status !== "return_requested") {
+    return apiError(409, "invalid_state", requestId, {
+      title: "Invalid State",
+      detail: `wire_transfer ${wireId} is ${wire.status}; only 'return_requested' can be resolved`,
+    });
+  }
+
+  if (outcome === "rejected") {
+    const why = isNonEmptyString(rec.reason) ? rec.reason : "unspecified";
+    const trail = `${wire.return_reason ?? "return requested"} | rejected: ${why}`;
+    const { data: updated, error: updErr } = await db.schema("core").from("wire_transfer")
+      .update({ status: "completed", return_reason: trail })
+      .eq("id", wireId)
+      .select(RETURN_COLS)
+      .single();
+    if (updErr) return internalErrorResponse(requestId, updErr);
+    return jsonResponse(wireResponse(updated as WireRow), 200, requestId);
+  }
+
+  // accepted: undo with a compensating entry, never by mutating the original
+  const originatorAccountId = (wire.originator as { account_id?: string } | null)?.account_id;
+  if (!originatorAccountId) {
+    return apiError(409, "not_reversible", requestId, {
+      title: "Not Reversible",
+      detail: "completed wire has no originator account to credit back",
+    });
+  }
+  const { data: acct, error: acctErr } = await db.schema("core").from("account")
+    .select("id, blnk_balance_id")
+    .eq("id", originatorAccountId)
+    .maybeSingle();
+  if (acctErr) return internalErrorResponse(requestId, acctErr);
+  if (!acct?.blnk_balance_id) {
+    return apiError(409, "not_reversible", requestId, {
+      title: "Not Reversible",
+      detail: "originating account has no Blnk balance to credit back",
+    });
+  }
+
+  let mirror;
+  try {
+    const reversal = await recordTransaction(cfg, {
+      coreResource: { table: "wire_transfer", id: wireId },
+      // ":return" leg keeps the reference distinct from the original wire's,
+      // so the reversal cannot be deduped away as a duplicate of it
+      leg: "return",
+      amountCents: wire.amount as number,
+      currency: CURRENCY,
+      source: FEDWIRE_BALANCE,
+      destination: acct.blnk_balance_id as string,
+      description: `wire return (${wire.return_reason ?? "unspecified"})`,
+    });
+    mirror = reversal.mirror;
+  } catch (err) {
+    if (err instanceof BlnkError) return bankErrorResponse(requestId);
+    return internalErrorResponse(requestId, err);
+  }
+
+  const { data: updated, error: updErr } = await db.schema("core").from("wire_transfer")
+    .update({ status: "returned", blnk_status: mirror.blnk_status, synced_at: mirror.synced_at })
+    .eq("id", wireId)
+    .select(RETURN_COLS)
     .single();
   if (updErr) return internalErrorResponse(requestId, updErr);
 

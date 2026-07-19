@@ -214,3 +214,156 @@ Deno.test("an explicit US beneficiary is accepted (case-insensitive)", async () 
     assertEquals(res.status === 422, false, `country ${country} must be accepted`);
   }
 });
+
+// ------------------------------------------------------- wire returns (card 37)
+// "A return request resolves to RETURNED or COMPLETED with reasons." Two-step,
+// mirroring the schema's state machine: completed -> return_requested ->
+// (accepted) returned | (rejected) completed. A return of a COMPLETED wire
+// cannot void anything — the funds already left for @FedWire — so acceptance
+// posts a compensating reversal, the same append-only pattern as the ACH
+// post-settlement return.
+import { postWireReturn, postWireReturnResolve } from "./wires.ts";
+
+const COMPLETED_WIRE = {
+  ...HELD_WIRE,
+  status: "completed",
+  blnk_status: "APPLIED",
+  originator: { account_id: "acct_src" },
+  return_reason: null,
+};
+
+// like ach.test.ts dbWithAccount: 1st maybeSingle -> wire row, 2nd -> account
+function wireDbWithAccount(row: unknown) {
+  const updates: Record<string, unknown>[] = [];
+  const chain: Any = {
+    select: () => chain,
+    eq: () => chain,
+    update: (p: Record<string, unknown>) => {
+      updates.push(p);
+      return chain;
+    },
+    insert: () => Promise.resolve({ data: null, error: null }),
+    single: () =>
+      Promise.resolve({
+        data: { ...(row as Record<string, unknown>), ...Object.assign({}, ...updates) },
+        error: null,
+      }),
+    then: (r: (v: unknown) => unknown) => r({ data: [], error: null }),
+  };
+  let call = 0;
+  chain.maybeSingle = () => {
+    call += 1;
+    return Promise.resolve({
+      data: call === 1 ? row : { id: "acct_src", blnk_balance_id: "bln_src" },
+      error: null,
+    });
+  };
+  const db: Any = { schema: () => ({ from: () => chain }) };
+  return { db, updates };
+}
+
+Deno.test("a completed wire accepts a return request and records the reason", async () => {
+  const { cfg, sent } = stubCfg([]);
+  const { db, updates } = wireDbWithAccount(COMPLETED_WIRE);
+
+  const res = await postWireReturn(req({ reason: "beneficiary fraud claim" }), "w1", db, cfg, "wr1");
+  assertEquals(res.status, 200);
+  assertEquals((await res.json()).status, "return_requested");
+  assertEquals(updates.at(-1)?.status, "return_requested");
+  assertEquals(updates.at(-1)?.return_reason, "beneficiary fraud claim");
+  assertEquals(sent.length, 0, "requesting a return moves no money");
+});
+
+Deno.test("a return request without a reason is refused", async () => {
+  const { cfg, sent } = stubCfg([]);
+  const { db } = wireDbWithAccount(COMPLETED_WIRE);
+  const res = await postWireReturn(req({}), "w1", db, cfg, "wr2");
+  assertEquals(res.status, 400);
+  assertEquals(sent.length, 0);
+});
+
+Deno.test("a submitted (held) wire cannot be returned — cancel is the verb", async () => {
+  const { cfg } = stubCfg([]);
+  const { db } = wireDbWithAccount({ ...COMPLETED_WIRE, status: "submitted" });
+  const res = await postWireReturn(req({ reason: "R" }), "w1", db, cfg, "wr3");
+  assertEquals(res.status, 409);
+  assertEquals((await res.json()).type, "invalid_state");
+});
+
+Deno.test("re-requesting a return replays instead of erroring", async () => {
+  const { cfg } = stubCfg([]);
+  const { db } = wireDbWithAccount({ ...COMPLETED_WIRE, status: "return_requested", return_reason: "R" });
+  const res = await postWireReturn(req({ reason: "R" }), "w1", db, cfg, "wr4");
+  assertEquals(res.status, 200);
+  assertEquals(res.headers.get("Idempotent-Replayed"), "true");
+});
+
+Deno.test("an ACCEPTED resolution reverses via compensating entry and lands returned", async () => {
+  const { cfg, sent } = stubCfg([
+    json({ transaction_id: "txn_rev", reference: "wire_transfer:w1:return", status: "APPLIED" }),
+  ]);
+  const { db, updates } = wireDbWithAccount({
+    ...COMPLETED_WIRE,
+    status: "return_requested",
+    return_reason: "beneficiary fraud claim",
+  });
+
+  const res = await postWireReturnResolve(req({ outcome: "accepted" }), "w1", db, cfg, "wr5");
+  assertEquals(res.status, 200);
+  assertEquals((await res.json()).status, "returned");
+  // a new POST /transactions, not a mutation of the settled original
+  const call = sent[0];
+  assertEquals(call.method, "POST");
+  assertEquals(call.url.endsWith("/transactions"), true);
+  assertEquals((call.body as Any).source, "@FedWire");
+  assertEquals((call.body as Any).destination, "bln_src");
+  assertEquals((call.body as Any).inflight, undefined);
+  assertEquals((call.body as Any).reference, "wire_transfer:w1:return");
+  assertEquals(updates.at(-1)?.status, "returned");
+});
+
+Deno.test("a REJECTED resolution restores completed and keeps the reason trail", async () => {
+  const { cfg, sent } = stubCfg([]);
+  const { db, updates } = wireDbWithAccount({
+    ...COMPLETED_WIRE,
+    status: "return_requested",
+    return_reason: "beneficiary fraud claim",
+  });
+
+  const res = await postWireReturnResolve(
+    req({ outcome: "rejected", reason: "funds already withdrawn" }),
+    "w1",
+    db,
+    cfg,
+    "wr6",
+  );
+  assertEquals(res.status, 200);
+  assertEquals((await res.json()).status, "completed");
+  assertEquals(sent.length, 0, "a rejected return moves no money");
+  const reason = String(updates.at(-1)?.return_reason ?? "");
+  assertEquals(reason.includes("beneficiary fraud claim"), true);
+  assertEquals(reason.includes("funds already withdrawn"), true);
+});
+
+Deno.test("resolve is only valid from return_requested", async () => {
+  const { cfg } = stubCfg([]);
+  const { db } = wireDbWithAccount(COMPLETED_WIRE); // still completed
+  const res = await postWireReturnResolve(req({ outcome: "accepted" }), "w1", db, cfg, "wr7");
+  assertEquals(res.status, 409);
+});
+
+Deno.test("resolve rejects an unknown outcome", async () => {
+  const { cfg } = stubCfg([]);
+  const { db } = wireDbWithAccount({ ...COMPLETED_WIRE, status: "return_requested" });
+  const res = await postWireReturnResolve(req({ outcome: "maybe" }), "w1", db, cfg, "wr8");
+  assertEquals(res.status, 400);
+});
+
+Deno.test("resolving an already-returned wire replays", async () => {
+  const { cfg, sent } = stubCfg([]);
+  const { db } = wireDbWithAccount({ ...COMPLETED_WIRE, status: "returned" });
+  const res = await postWireReturnResolve(req({ outcome: "accepted" }), "w1", db, cfg, "wr9");
+  assertEquals(res.status, 200);
+  assertEquals(res.headers.get("Idempotent-Replayed"), "true");
+  assertEquals(sent.length, 0, "a replay must never post a second reversal");
+});

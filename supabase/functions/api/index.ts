@@ -5,7 +5,7 @@
 import { blnkConfigFromEnv } from "../_shared/blnk.ts";
 import { getAccount, postAccount } from "./accounts.ts";
 import { getTransfer, postTransfer } from "./transfers.ts";
-import { postWireCancel, postWireConfirm, postWirePrepare } from "./wires.ts";
+import { postWireCancel, postWireConfirm, postWirePrepare, postWireReturn, postWireReturnResolve } from "./wires.ts";
 import { postAch, postAchReturn, postAchSettle } from "./ach.ts";
 import { postCardAuthorize, postCardCapture, postCardReverse } from "./cards.ts";
 import {
@@ -165,6 +165,28 @@ const routes: Route[] = [
       const db = createDb();
       const cfg = blnkConfigFromEnv();
       return await postWireCancel(req, params.id, db, cfg, requestId);
+    },
+  },
+  // return/resolve must precede the bare return pattern nowhere — distinct
+  // suffixes, order-independent; both listed explicitly for clarity.
+  {
+    method: "POST",
+    pattern: /^\/payments\/wire\/([^/]+)\/return\/resolve\/?$/,
+    paramNames: ["id"],
+    handler: async (req, params, requestId) => {
+      const db = createDb();
+      const cfg = blnkConfigFromEnv();
+      return await postWireReturnResolve(req, params.id, db, cfg, requestId);
+    },
+  },
+  {
+    method: "POST",
+    pattern: /^\/payments\/wire\/([^/]+)\/return\/?$/,
+    paramNames: ["id"],
+    handler: async (req, params, requestId) => {
+      const db = createDb();
+      const cfg = blnkConfigFromEnv();
+      return await postWireReturn(req, params.id, db, cfg, requestId);
     },
   },
 ];
