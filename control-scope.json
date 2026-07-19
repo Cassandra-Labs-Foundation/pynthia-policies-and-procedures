@@ -369,8 +369,10 @@
       "why": "technical: cda"
     },
     "charitable-donation-accounts:CDA-10": {
-      "verdict": "in",
-      "why": "technical: cda"
+      "verdict": "out",
+      "why": "organisational process: third-party/vendor risk management",
+      "judgment_call": true,
+      "rescoped": "2026-07-19: corrected on close reading; original bulk pass classified whole policies without per-control review"
     },
     "charitable-donation-accounts:CDA-11": {
       "verdict": "in",
@@ -462,8 +464,10 @@
       "why": "organisational process: audit"
     },
     "compliance:CM-08": {
-      "verdict": "in",
-      "why": "technical: complaint, regulatory"
+      "verdict": "out",
+      "why": "organisational process: regulatory change tracking and policy calendar",
+      "judgment_call": true,
+      "rescoped": "2026-07-19: corrected on close reading; original bulk pass classified whole policies without per-control review"
     },
     "compliance:CM-09": {
       "verdict": "out",
@@ -577,8 +581,10 @@
       "why": "technical: eps"
     },
     "electronic-payment-systems:EPS-04": {
-      "verdict": "in",
-      "why": "technical: eps"
+      "verdict": "out",
+      "why": "organisational process: IT committee and internal audit cycle",
+      "judgment_call": true,
+      "rescoped": "2026-07-19: corrected on close reading; original bulk pass classified whole policies without per-control review"
     },
     "electronic-payment-systems:EPS-05": {
       "verdict": "in",
@@ -593,20 +599,26 @@
       "why": "technical: eps"
     },
     "electronic-payment-systems:EPS-08": {
-      "verdict": "in",
-      "why": "technical: eps"
+      "verdict": "out",
+      "why": "organisational process: vendor due diligence and SOC1 review",
+      "judgment_call": true,
+      "rescoped": "2026-07-19: corrected on close reading; original bulk pass classified whole policies without per-control review"
     },
     "electronic-payment-systems:EPS-09": {
-      "verdict": "in",
-      "why": "mixed, technical majority (6v1): eps"
+      "verdict": "out",
+      "why": "organisational process: staff and client training",
+      "judgment_call": true,
+      "rescoped": "2026-07-19: corrected on close reading; original bulk pass classified whole policies without per-control review"
     },
     "electronic-payment-systems:EPS-10": {
       "verdict": "in",
       "why": "technical: eps"
     },
     "electronic-payment-systems:EPS-11": {
-      "verdict": "in",
-      "why": "technical: eps"
+      "verdict": "out",
+      "why": "organisational process: BCP test scheduling",
+      "judgment_call": true,
+      "rescoped": "2026-07-19: corrected on close reading; original bulk pass classified whole policies without per-control review"
     },
     "electronic-payment-systems:SC-01": {
       "verdict": "in",
@@ -1370,5 +1382,8 @@
       "verdict": "out",
       "why": "mixed, process majority (3v2): monitoring,training"
     }
-  }
+  },
+  "_rescope_note": [
+    "2026-07-19: six controls moved in->out after per-control review. The original pass bulk-classified some policies (eps 11/0, cda 14/0 had never been triaged). Controls that merely MENTION committees or staff inside otherwise technical behaviour (bsa:BSA-07, record-retention:RR-03, the three SC-03 incident controls) were deliberately LEFT IN: wrongly scoping out is invisible because the control silently stops being counted, whereas wrongly leaving one in is a visible red row someone will look at."
+  ]
 }

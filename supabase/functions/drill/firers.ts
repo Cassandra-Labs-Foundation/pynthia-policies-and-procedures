@@ -37,6 +37,15 @@ import {
  * -> contain -> close -> sweep. Nothing is handed a code to emit.
  */
 async function runEpsAuthFraud(env: FireEnv): Promise<void> {
+  // OQ-24: issue a real card first. EPS-05 and EPS-07 declare card.id and
+  // card.spend_controls as required inputs, and before the issuance writer
+  // existed no card row could be created, so both stayed red on a missing
+  // NOUN rather than any fault in their own logic.
+  await postIssueCard(
+    R({ member_ref: "mbr_eps_1", spend_controls: "intl_blocked" }),
+    env.db, "d", env.actors.ops,
+  );
+
   // Three failures in a row must LOCK OUT on the third, in the same write.
   for (let i = 0; i < 3; i++) {
     await postAuthEvent(
@@ -219,6 +228,7 @@ import {
   postAuthEvent, postCardControl, postFraudTrendReview, postPospayDecision,
   postPospayException,
 } from "../api/eps_controls.ts";
+import { postIssueCard } from "../api/cards.ts";
 import {
   postCapitalDocument, postCapitalPosition, postCapitalSweep, postCapitalTarget,
   postNwrp, postRwaRun,

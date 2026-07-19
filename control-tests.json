@@ -7,14 +7,14 @@
   },
   "summary": {
     "total": 333,
-    "in_scope": 231,
-    "scoped_out": 102,
-    "in_scope_green": 31,
-    "in_scope_red": 200,
+    "in_scope": 225,
+    "scoped_out": 108,
+    "in_scope_green": 33,
+    "in_scope_red": 192,
     "scope_note": "Scoped-out controls are real obligations discharged by people and paperwork. This system covers the technical controls; the organisational ones are not claimed.",
-    "green": 32,
-    "red": 301,
-    "pct_green": 9.6,
+    "green": 34,
+    "red": 299,
+    "pct_green": 10.2,
     "red_by_reason": {
       "trigger fires but produced events missing": 167,
       "no writer: loan_application.*": 8,
@@ -34,7 +34,6 @@
       "no writer: member.*": 2,
       "no writer: compliance.*": 2,
       "no writer: insider.*": 2,
-      "inputs not supplied: card.id, card.spend_controls": 2,
       "catalogue entry declares no trigger event": 2,
       "no writer: trade.*": 2,
       "no writer: record.*": 2,
@@ -105,12 +104,13 @@
     },
     "inputs_unverifiable_total": 1467,
     "green_by_fire_path": {
-      "real_writer": 28,
+      "real_writer": 30,
       "generic_echo": 4
     },
     "green_by_policy": {
       "capitalization": 8,
       "basel-ii-standardized-approach-framework": 3,
+      "electronic-payment-systems": 3,
       "audit": 2,
       "bsa": 2,
       "collections": 2,
@@ -118,7 +118,6 @@
       "shared-controls": 2,
       "business-continuity-plan": 1,
       "e-commerce": 1,
-      "electronic-payment-systems": 1,
       "fair-lending": 1,
       "internal-controls": 1,
       "investment": 1,
@@ -3850,8 +3849,8 @@
       "blocked_on": "produced 0/3: missing cda.reconciliation.completed, cda.call_report.mapped, cda.board_packet.issued"
     },
     {
-      "scoped_out": false,
-      "scope_reason": "technical: cda",
+      "scoped_out": true,
+      "scope_reason": "organisational process: third-party/vendor risk management",
       "uid": "charitable-donation-accounts:CDA-10",
       "policy": "charitable-donation-accounts",
       "control_id": "CDA-10",
@@ -4775,8 +4774,8 @@
       "blocked_on": "produced 0/2: missing audit.engagement.started, audit.engagement_scope"
     },
     {
-      "scoped_out": false,
-      "scope_reason": "technical: complaint, regulatory",
+      "scoped_out": true,
+      "scope_reason": "organisational process: regulatory change tracking and policy calendar",
       "uid": "compliance:CM-08",
       "policy": "compliance",
       "control_id": "CM-08",
@@ -5925,8 +5924,8 @@
       "fire_path": "real_writer"
     },
     {
-      "scoped_out": false,
-      "scope_reason": "technical: eps",
+      "scoped_out": true,
+      "scope_reason": "organisational process: BCP test scheduling",
       "uid": "electronic-payment-systems:EPS-11",
       "policy": "electronic-payment-systems",
       "control_id": "EPS-11",
@@ -6008,8 +6007,8 @@
       "blocked_on": "produced 0/8: missing eps.control.review.due_at, eps.control_review.opened, eps.control_review.completed, eps.deficiency.description"
     },
     {
-      "scoped_out": false,
-      "scope_reason": "technical: eps",
+      "scoped_out": true,
+      "scope_reason": "organisational process: IT committee and internal audit cycle",
       "uid": "electronic-payment-systems:EPS-04",
       "policy": "electronic-payment-systems",
       "control_id": "EPS-04",
@@ -6054,7 +6053,7 @@
       "policy": "electronic-payment-systems",
       "control_id": "EPS-05",
       "title": "Authentication Controls",
-      "status": "red",
+      "status": "green",
       "expected": [
         "eps.auth.decided",
         "eps.auth.failure_count",
@@ -6088,7 +6087,10 @@
         "card.spend_controls",
         "eps.card.institution_limits"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "card.id",
+        "card.spend_controls"
+      ],
       "inputs_unverifiable": [
         "eps.auth.credentials",
         "eps.auth.device_registered",
@@ -6098,8 +6100,7 @@
         "member_credential.security_questions",
         "eps.card.institution_limits"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "inputs not supplied: card.id, card.spend_controls"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -6180,7 +6181,7 @@
       "policy": "electronic-payment-systems",
       "control_id": "EPS-07",
       "title": "Electronic Fraud Protection Systems",
-      "status": "red",
+      "status": "green",
       "expected": [
         "eps.pospay_exception.presented",
         "eps.pospay_exception.decided",
@@ -6212,7 +6213,10 @@
         "eps.fraud.industry_alerts",
         "eps.fraud.loss_data"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "card.id",
+        "card.spend_controls"
+      ],
       "inputs_unverifiable": [
         "eps.pospay.decision.due_at",
         "eps.pospay.issue_file",
@@ -6222,12 +6226,11 @@
         "eps.fraud.industry_alerts",
         "eps.fraud.loss_data"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "inputs not supplied: card.id, card.spend_controls"
+      "fire_path": "real_writer"
     },
     {
-      "scoped_out": false,
-      "scope_reason": "technical: eps",
+      "scoped_out": true,
+      "scope_reason": "organisational process: vendor due diligence and SOC1 review",
       "uid": "electronic-payment-systems:EPS-08",
       "policy": "electronic-payment-systems",
       "control_id": "EPS-08",
@@ -6276,8 +6279,8 @@
       "blocked_on": "no writer for trigger 'eps.vendor_issue.escalated'"
     },
     {
-      "scoped_out": false,
-      "scope_reason": "mixed, technical majority (6v1): eps",
+      "scoped_out": true,
+      "scope_reason": "organisational process: staff and client training",
       "uid": "electronic-payment-systems:EPS-09",
       "policy": "electronic-payment-systems",
       "control_id": "EPS-09",

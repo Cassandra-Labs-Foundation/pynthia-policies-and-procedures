@@ -953,3 +953,69 @@ returned the raw object and escaped the proxy — caught only because it was tes
 against a deliberately unsupported method before being trusted. Same lesson as
 `fire_path`: the instrument has to be checked against the thing that would
 falsify it.
+
+## §5g — Two method rules, both learned the hard way
+
+### RULE: size predictions against CONTROL counts, never namespace tallies
+
+The namespace tally is the first number anyone finds and it is the misleading one.
+It counts trigger OCCURRENCES; a control declaring five triggers in one namespace
+counts five times.
+
+**Worked example (eps).** `eps` tallied 39 and ranked #1-adjacent. It has TEN red
+controls, four of them organisational, so the real technical base was ~6. A
+prediction of 6 was made against an apparent 39. Every earlier prediction in this
+run inherited the same error.
+
+**It also changed the build order.** Re-ranked by control count:
+
+| namespace | controls | occurrences | old rank |
+|---|---|---|---|
+| incident | 15 | 31 | #3 |
+| cda | 13 | 32 | #2 |
+| record | 12 | 17 | #8 |
+| loan_application | 11 | 20 | #6 |
+| cash | 10 | 36 | **#1** |
+
+`cash` was chosen as next-densest on the strength of 36 occurrences. It is fifth.
+`record` was invisible at #8 and is third.
+
+### RULE: check ordering assumptions — they produce controls that report success while doing nothing
+
+A named failure shape, now seen three times:
+
+1. **Heartbeat sweep starvation** — a bounded oldest-first sweep that did not touch
+   every examined row starved the tail forever.
+2. **Auth lockout ordering** (EPS-05) — the prior-attempt lookup ordered by
+   `created_at`; consecutive attempts land in the same millisecond, so the sort was
+   arbitrary and the failure count never reached the threshold. The lockout would
+   have failed open under exactly the burst conditions an attacker creates.
+3. **Capital position ordering** — same `created_at` pattern, caught by inspection
+   rather than by failure.
+
+All three share one shape: the control RUNS, emits its events, and reports success,
+while the thing it exists to prevent still happens. Ordinary tests pass because the
+happy path is untouched. Check every ORDER BY that feeds a decision for ties and for
+whether the sort key is the one the logic actually depends on.
+
+### OQ-24 CLOSED: card issuance
+
+`cards.ts` had authorize, capture, expire and reverse — every verb that assumes a
+card exists, and nothing that creates one. Any control declaring `card.id` or
+`card.spend_controls` was unsatisfiable regardless of its own correctness.
+EPS-05 and EPS-07 were built, correct, and red for this reason alone; both went
+green the moment issuance existed (31 -> 33).
+
+**Generalised: a subsystem can look complete because all its VERBS are present
+while the NOUN they operate on has no origin.** Worth sweeping for elsewhere.
+
+### Scope correction (six controls, in -> out)
+
+eps (11 in / 0 out) and cda (14 in / 0 out) had never been triaged per-control.
+Moved: EPS-04, EPS-08, EPS-09, EPS-11, CDA-10, CM-08. In-scope 231 -> 225.
+
+Controls that merely MENTION committees or staff inside otherwise technical
+behaviour (bsa:BSA-07, record-retention:RR-03, the three SC-03 incident controls)
+were deliberately LEFT IN. Wrongly scoping OUT is invisible — the control silently
+stops being counted. Wrongly leaving one IN is a visible red row someone will look
+at. Bias accordingly.

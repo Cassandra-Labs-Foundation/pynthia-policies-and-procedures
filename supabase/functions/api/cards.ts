@@ -1,5 +1,6 @@
 import { type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { type AccountRow } from "./accounts.ts";
+import { type EvidenceScope, provenanceFor } from "./bsa.ts";
 import { type GateResource, recordMovementArtifacts, runGate } from "./transfers.ts";
 import {
   type BlnkConfig,
@@ -527,4 +528,57 @@ export async function postCardReverse(
   if (updErr) return internalErrorResponse(requestId, updErr);
 
   return jsonResponse(cardResponse(updated as CardAuthRow), 200, requestId);
+}
+
+/**
+ * POST /cards {member_ref, spend_controls?}
+ *
+ * OQ-24: THE CARD ISSUANCE WRITER THAT DID NOT EXIST. `cards.ts` had authorize,
+ * capture, expire and reverse — every operation that assumes a card already
+ * exists, and nothing that creates one. Every card in the system was implicitly
+ * pre-existing, so any control declaring `card.id` or `card.spend_controls` as
+ * a required input could never be satisfied no matter how correct its own logic
+ * was. Found because EPS-05 and EPS-07 were built, correct, and still red.
+ *
+ * The general shape is worth naming: a subsystem can look complete because all
+ * its VERBS are present, while the noun they operate on has no origin.
+ */
+export async function postIssueCard(
+  req: Request, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  const memberRef = typeof body.member_ref === "string" ? body.member_ref : "";
+  if (!memberRef) {
+    return validationError(requestId, [
+      { field: "member_ref", type: "required", message: "member_ref is required" },
+    ]);
+  }
+
+  // Spend controls default to a named baseline rather than NULL. A card with no
+  // spend controls at all is not a safer default than a restrictive one, and a
+  // NULL here is indistinguishable from "nobody configured it".
+  const spendControls = typeof body.spend_controls === "string"
+    ? body.spend_controls
+    : "default_baseline";
+
+  const id = `card_${memberRef}_${spendControls}`;
+  const { data, error } = await db.schema(scope).from("card").upsert({
+    id,
+    status: "active",
+    spend_controls: spendControls,
+  }, { onConflict: "id" }).select("id, status, spend_controls").maybeSingle();
+  if (error) return internalErrorResponse(requestId, error.message);
+
+  const { error: evErr } = await db.schema(scope).from("event").upsert({
+    id: `ev_${id}_issued`,
+    code: "card.issued",
+    resource_type: "card",
+    resource_id: `card:${id}`,
+    payload: { member_ref: memberRef, spend_controls: spendControls },
+    provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id", ignoreDuplicates: true });
+  if (evErr) return internalErrorResponse(requestId, evErr.message);
+
+  return jsonResponse({ data }, 201, requestId);
 }
