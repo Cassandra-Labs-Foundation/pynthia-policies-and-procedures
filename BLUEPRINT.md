@@ -1402,3 +1402,70 @@ migrations, which closes 1–3 structurally. Number 4 has no structural fix — 
 is why every artifact in this project ends with a mutation sweep, and why a
 mutation SURVIVING is now treated as a finding about the test rather than a
 tolerable gap.
+
+### record-retention (RR-*) — 10 of 11 in-domain green, predicted 9
+
+Plus **2 spillover greens** in other policies (`internal-controls:IC-08`,
+`truth-in-savings:TIS-09`), so 52 -> 64 overall. RR-05 was already green.
+
+**A THIRD DOMAIN SHAPE, and the estimator needed it.** The crude concentration
+ratio scored this **1.00** — maximally scattered, identical to `lending` — and
+that reading was wrong. Ten controls needing eleven namespaces, and every one of
+the eleven is a SATELLITE of a noun that already exists, is populated, and whose
+lifecycle already runs. Nothing here needed a new entity.
+
+| shape | signature | example | outcome |
+|---|---|---|---|
+| concentrated | few namespace-sets, noun absent | cda 13 reds / 1 set | 13/13 |
+| scattered | many sets, several are ENTITIES | cash 10 / 9 sets, 3 entity blockers | 7/10 |
+| **mature subsystem** | many sets, all SATELLITES of an existing noun | records 10 / 10 sets, 0 entities | 10/11 |
+
+**The rule this adds:** the ratio alone cannot separate the second and third
+shapes — they look identical. What separates them is asking, of each namespace,
+*is there already a populated table this hangs off?* Records and cash both
+scored ~1.00 and landed at 10/11 and 7/10 because cash's namespaces included
+`employee` and `hr` and records' included none.
+
+**Predicted-versus-actual, three artifacts in:**
+
+| artifact | called | predicted | actual |
+|---|---|---:|---:|
+| cda | concentrated | 5 (old method) | 13/13 |
+| cash | scattered, 3 entity blockers | 6 → 8 | 7/10 |
+| record-retention | mature subsystem, 0 entity blockers | 9 | 10/11 |
+
+**OQ-10 is now substantially closed.** It recorded that the retention MECHANISM
+was complete while only 2 of 9 record classes had writers. The classes were
+hardcoded in a TypeScript map, which cannot be amended by the people who own it,
+cannot carry a citation, and — the real defect — **cannot record when an
+amendment took effect.** `core.retention_schedule_entry` makes Schedule A data,
+so a record disposed in 2024 is checkable against the schedule that governed it
+in 2024.
+
+**SIXTH ORDERING-ASSUMPTION INSTANCE, sharpest consequence yet.** Taking the
+newest schedule entry makes every historical disposal look compliant with a rule
+that did not exist when it happened — which is exactly the direction an examiner
+tests. A second, subtler variant was caught in the same place: superseding the
+prior entry at `now` rather than at the amendment's EFFECTIVE date leaves a gap
+with no schedule in force at all. Both are tested directly.
+
+**A surviving mutation found a missing control, not a missing test.** The
+"superseded entries stop applying" branch survived being disabled, because
+nothing in the system could produce a superseded-with-no-successor state — the
+branch was unreachable. That is a real gap: a record class RETIRED from Schedule
+A must behave like an unregistered one and refuse to set a clock, rather than
+silently keeping the retired period. `retire: true` now produces that state and
+the mutation is caught. **First time a mutation survivor turned out to be a
+missing capability rather than a weak assertion.** 15 mutations, 14 caught on the
+first pass, 15/15 after.
+
+**Two other decisions worth recording:**
+
+- **A permanent record emits `record.disposal_eligible` with `eligible: false`**
+  rather than emitting nothing. "No eligibility event" and "explicitly never
+  eligible" are different facts and only the second is a control.
+- **`records_contact` is a register of ROLES, not of people** — it records that
+  a responsibility has a current holder and when it was vacated. Same shape as
+  `cash_asset.custodian_user_id`: a pointer, not an entity. That is the line the
+  standing rule draws, and a VACANCY is recorded as its own state so it cannot
+  look like a role that never existed.

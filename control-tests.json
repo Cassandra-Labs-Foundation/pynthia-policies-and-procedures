@@ -9,14 +9,14 @@
     "total": 333,
     "in_scope": 225,
     "scoped_out": 108,
-    "in_scope_green": 52,
-    "in_scope_red": 173,
+    "in_scope_green": 64,
+    "in_scope_red": 161,
     "scope_note": "Scoped-out controls are real obligations discharged by people and paperwork. This system covers the technical controls; the organisational ones are not claimed.",
-    "green": 53,
-    "red": 280,
-    "pct_green": 15.9,
+    "green": 65,
+    "red": 268,
+    "pct_green": 19.5,
     "red_by_reason": {
-      "trigger fires but produced events missing": 149,
+      "trigger fires but produced events missing": 142,
       "no writer: loan_application.*": 8,
       "no writer: vendor.*": 6,
       "no writer: loan.*": 4,
@@ -35,7 +35,6 @@
       "no writer: insider.*": 2,
       "catalogue entry declares no trigger event": 2,
       "no writer: trade.*": 2,
-      "no writer: record.*": 2,
       "no writer: incident.*": 2,
       "no writer: web.*": 2,
       "no writer: insurance.*": 2,
@@ -93,12 +92,9 @@
       "no writer: dispute.*": 1,
       "no writer: service.*": 1,
       "no writer: correction.*": 1,
+      "no writer: record.*": 1,
       "no writer: analytics.*": 1,
       "no writer: connection.*": 1,
-      "no writer: record_class.*": 1,
-      "no writer: core_archive.*": 1,
-      "no writer: cdd.*": 1,
-      "no writer: records.*": 1,
       "no writer: safe_mode.*": 1,
       "no writer: institution_freeze.*": 1,
       "no writer: interest.*": 1,
@@ -106,11 +102,12 @@
     },
     "inputs_unverifiable_total": 1391,
     "green_by_fire_path": {
-      "real_writer": 49,
+      "real_writer": 61,
       "generic_echo": 4
     },
     "green_by_policy": {
       "charitable-donation-accounts": 13,
+      "record-retention": 11,
       "capitalization": 8,
       "cash": 7,
       "basel-ii-standardized-approach-framework": 3,
@@ -118,18 +115,18 @@
       "audit": 2,
       "bsa": 2,
       "information-security": 2,
+      "internal-controls": 2,
       "shared-controls": 2,
       "business-continuity-plan": 1,
       "collections": 1,
       "e-commerce": 1,
       "fair-lending": 1,
-      "internal-controls": 1,
       "investment": 1,
       "lending": 1,
       "liquidity": 1,
       "privacy": 1,
-      "record-retention": 1,
-      "third-party-risk": 1
+      "third-party-risk": 1,
+      "truth-in-savings": 1
     }
   },
   "results": [
@@ -1260,7 +1257,9 @@
         "cdd.profile.refreshed",
         "edd.refresh.completed"
       ],
-      "observed": [],
+      "observed": [
+        "cdd.profile.refreshed"
+      ],
       "triggers": [
         "verification.completed",
         "application.submitted",
@@ -7843,7 +7842,9 @@
         "siem.source.restored",
         "record.disposed"
       ],
-      "observed": [],
+      "observed": [
+        "record.disposed"
+      ],
       "triggers": [
         "siem.alert_critical",
         "siem.source_silent",
@@ -8395,19 +8396,20 @@
       "policy": "internal-controls",
       "control_id": "IC-08",
       "title": "Audit Trail and Recordkeeping",
-      "status": "red",
+      "status": "green",
       "expected": [
         "record.integrity_test.completed"
       ],
-      "observed": [],
+      "observed": [
+        "record.integrity_test.completed"
+      ],
       "triggers": [
         "record.integrity.test.due"
       ],
       "required_inputs": [],
       "inputs_supplied": [],
       "inputs_unverifiable": [],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "produced 0/1: missing record.integrity_test.completed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -11763,7 +11765,7 @@
       "policy": "record-retention",
       "control_id": "RR-01",
       "title": "Retention Schedule and Clock Setting",
-      "status": "red",
+      "status": "green",
       "expected": [
         "record.retention.expires_at",
         "record.retention_clock_set",
@@ -11771,7 +11773,13 @@
         "schedule_a.entry_inherited",
         "records.policy_review.completed"
       ],
-      "observed": [],
+      "observed": [
+        "record.retention.expires_at",
+        "record.retention_clock_set",
+        "schedule_a.entry.added",
+        "schedule_a.entry_inherited",
+        "records.policy_review.completed"
+      ],
       "triggers": [
         "record.created",
         "record_class.unmatched",
@@ -11796,8 +11804,7 @@
         "schedule_a.retention_period",
         "schedule_a.version"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "no writer for trigger 'record_class.unmatched'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -11806,13 +11813,17 @@
       "policy": "record-retention",
       "control_id": "RR-02",
       "title": "Retention Methods and Electronic-Record Integrity",
-      "status": "red",
+      "status": "green",
       "expected": [
         "record.conversion.certified",
         "record.integrity_test.completed",
         "finding.opened"
       ],
-      "observed": [],
+      "observed": [
+        "record.conversion.certified",
+        "record.integrity_test.completed",
+        "finding.opened"
+      ],
       "triggers": [
         "record.media_converted",
         "record.integrity.test.due",
@@ -11827,8 +11838,7 @@
         "record.media_type",
         "record.reproduction_result"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'record.media_converted'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -11837,7 +11847,7 @@
       "policy": "record-retention",
       "control_id": "RR-03",
       "title": "Document Destruction",
-      "status": "red",
+      "status": "green",
       "expected": [
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -11847,6 +11857,7 @@
       ],
       "observed": [
         "destruction_log.entry.created",
+        "disposal.scheduled",
         "destruction_log.entry_id",
         "record.destroyed",
         "record.destruction.certified"
@@ -11870,8 +11881,7 @@
         "disposal.batch_manifest_id",
         "disposal.certificate"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 4/5: missing disposal.scheduled"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -11880,14 +11890,19 @@
       "policy": "record-retention",
       "control_id": "RR-04",
       "title": "Destruction Logging and Storage Labeling",
-      "status": "red",
+      "status": "green",
       "expected": [
         "destruction_log.entry_id",
         "destruction_log.mismatch.detected",
         "destruction_log.mismatch.resolved",
         "records.policy_review.completed"
       ],
-      "observed": [],
+      "observed": [
+        "destruction_log.entry_id",
+        "destruction_log.mismatch.detected",
+        "destruction_log.mismatch.resolved",
+        "records.policy_review.completed"
+      ],
       "triggers": [
         "storage_box.created",
         "destruction_log.mismatch.detected",
@@ -11911,8 +11926,7 @@
         "storage_box.to_date",
         "destruction_log.entry_id"
       ],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "produced 0/4: missing destruction_log.entry_id, destruction_log.mismatch.detected, destruction_log.mismatch.resolved, records.policy_review.completed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -11971,13 +11985,17 @@
       "policy": "record-retention",
       "control_id": "RR-06",
       "title": "Core Processor and Email Archive Retention",
-      "status": "red",
+      "status": "green",
       "expected": [
         "core_archive.retention.confirmed",
         "email_archive.test.completed",
         "finding.opened"
       ],
-      "observed": [],
+      "observed": [
+        "core_archive.retention.confirmed",
+        "email_archive.test.completed",
+        "finding.opened"
+      ],
       "triggers": [
         "core_archive.confirmation_due",
         "email_archive.test.due",
@@ -11990,8 +12008,7 @@
       "inputs_unverifiable": [
         "core_archive.retention_config"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'core_archive.confirmation_due'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -12000,12 +12017,15 @@
       "policy": "record-retention",
       "control_id": "RR-07",
       "title": "BSA/AML Anonymization and Extended Analytical Retention",
-      "status": "red",
+      "status": "green",
       "expected": [
         "record.disposal_method",
         "record.disposed"
       ],
-      "observed": [],
+      "observed": [
+        "record.disposal_method",
+        "record.disposed"
+      ],
       "triggers": [
         "record.retention.expired"
       ],
@@ -12016,8 +12036,7 @@
       "inputs_unverifiable": [
         "record.retention_class"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 0/2: missing record.disposal_method, record.disposed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -12026,11 +12045,13 @@
       "policy": "record-retention",
       "control_id": "RR-08",
       "title": "CDD Refresh Cycle and Stale-Record Disposition",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cdd.profile.refreshed"
       ],
-      "observed": [],
+      "observed": [
+        "cdd.profile.refreshed"
+      ],
       "triggers": [
         "cdd.refresh.due",
         "cdd.profile.refreshed"
@@ -12044,8 +12065,7 @@
         "cdd.profile",
         "cdd.risk_tier"
       ],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "no writer for trigger 'cdd.profile.refreshed'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -12054,13 +12074,17 @@
       "policy": "record-retention",
       "control_id": "RR-09",
       "title": "Annual Policy and Schedule Review",
-      "status": "red",
+      "status": "green",
       "expected": [
         "schedule_a.entry.amended",
         "policy.revision.published",
         "records.board_report.filed"
       ],
-      "observed": [],
+      "observed": [
+        "schedule_a.entry.amended",
+        "policy.revision.published",
+        "records.board_report.filed"
+      ],
       "triggers": [
         "records.annual.review.due_at",
         "regulation.retention_change.detected",
@@ -12079,8 +12103,7 @@
         "schedule_a.version",
         "policy.board.approved"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/3: missing schedule_a.entry.amended, policy.revision.published, records.board_report.filed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -12096,7 +12119,9 @@
         "training.assigned",
         "records.board_report.filed"
       ],
-      "observed": [],
+      "observed": [
+        "records.board_report.filed"
+      ],
       "triggers": [
         "training.annual_cycle.opened",
         "training.completed",
@@ -12112,7 +12137,7 @@
       ],
       "inputs_supplied": [],
       "inputs_unverifiable": [],
-      "fire_path": "generic_echo",
+      "fire_path": "real_writer",
       "blocked_on": "no writer for trigger 'training.newhire_due_at'"
     },
     {
@@ -12122,14 +12147,19 @@
       "policy": "record-retention",
       "control_id": "RR-11",
       "title": "Permanent Record Governance",
-      "status": "red",
+      "status": "green",
       "expected": [
         "record.disposal_eligible",
         "record.retention.expires_at",
         "records.board_report.filed",
         "records.policy_review.completed"
       ],
-      "observed": [],
+      "observed": [
+        "record.disposal_eligible",
+        "record.retention.expires_at",
+        "records.board_report.filed",
+        "records.policy_review.completed"
+      ],
       "triggers": [
         "record.created",
         "records.annual.review.due_at"
@@ -12143,8 +12173,7 @@
         "record.storage_medium",
         "record.subject_ref"
       ],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "produced 0/4: missing record.disposal_eligible, record.retention.expires_at, records.board_report.filed, records.policy_review.completed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -12153,12 +12182,15 @@
       "policy": "record-retention",
       "control_id": "RR-12",
       "title": "Responsibility and Administration",
-      "status": "red",
+      "status": "green",
       "expected": [
         "records.contact.assigned",
         "records.board_report.filed"
       ],
-      "observed": [],
+      "observed": [
+        "records.contact.assigned",
+        "records.board_report.filed"
+      ],
       "triggers": [
         "records.contacts.assigned",
         "records.contact_vacated",
@@ -12173,8 +12205,7 @@
         "records.contact_name",
         "records.exception_count"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'records.contact_vacated'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -13765,12 +13796,13 @@
       "policy": "truth-in-savings",
       "control_id": "TIS-09",
       "title": "Recordkeeping",
-      "status": "red",
+      "status": "green",
       "expected": [
         "record.disposed",
         "record.hold.applied"
       ],
       "observed": [
+        "record.disposed",
         "record.hold.applied"
       ],
       "triggers": [
@@ -13794,8 +13826,7 @@
         "record.hold_authorizer",
         "record.matter_id"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 1/2: missing record.disposed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,

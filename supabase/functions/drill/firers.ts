@@ -647,6 +647,154 @@ async function runCashOpsLifecycle(env: FireEnv): Promise<void> {
   await postDisposalSweep(R({}), env.db, "d", env.actors.ops);
 }
 
+/**
+ * Records administration, driven end to end.
+ *
+ * Schedule A registered and then AMENDED -> a class with no schedule entry
+ * (which must refuse, not default) -> a permanent class that never becomes
+ * disposal eligible -> integrity tests that pass and fail -> archive
+ * confirmations -> storage boxes reconciled against actual disposals ->
+ * risk-based CDD refresh -> anonymization rather than destruction for BSA
+ * records -> annual policy review -> a records contact assigned and vacated.
+ */
+async function runRecordsAdminLifecycle(env: FireEnv): Promise<void> {
+  if ((env.rows["core.retention_schedule_entry"] ?? []).length > 0) return;
+  const ops = env.actors.ops;
+
+  // RR-01: Schedule A as data, with a citation.
+  await postRetentionScheduleEntry(
+    R({ record_class: "cip_identity", retention_years: 5, anchor_kind: "account_closed",
+        citation: "31 CFR 1020.220", effective_at: "2026-01-01T00:00:00.000Z" }),
+    env.db, "d", ops,
+  );
+  // and an AMENDMENT, which supersedes and inherits
+  await postRetentionScheduleEntry(
+    R({ record_class: "cip_identity", retention_years: 7, anchor_kind: "account_closed",
+        citation: "31 CFR 1020.220", effective_at: "2026-06-01T00:00:00.000Z",
+        amended_by: "records_officer" }),
+    env.db, "d", ops,
+  );
+  await postRetentionScheduleEntry(
+    R({ record_class: "bsa_sar", retention_years: 5, anchor_kind: "filed",
+        citation: "31 CFR 1020.320", effective_at: "2026-01-01T00:00:00.000Z" }),
+    env.db, "d", ops,
+  );
+  // RR-11: a PERMANENT class
+  await postRetentionScheduleEntry(
+    R({ record_class: "charter", permanent: true, anchor_kind: "created",
+        citation: "12 CFR 701", effective_at: "2026-01-01T00:00:00.000Z" }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: a schedule entry with no citation
+  await postRetentionScheduleEntry(
+    R({ record_class: "misc", retention_years: 3, anchor_kind: "created" }), env.db, "d", ops,
+  );
+
+  await postRecordClassify(
+    R({ record_class: "cip_identity", record_id: "rec_ra_1", subject_ref: "acct_ra" }),
+    env.db, "d", ops,
+  );
+  await postRecordClassify(
+    R({ record_class: "charter", record_id: "rec_ra_perm", subject_ref: "org" }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: a class with no Schedule A entry must REFUSE, not default
+  await postRecordClassify(
+    R({ record_class: "mystery_class", record_id: "rec_ra_unk" }), env.db, "d", ops,
+  );
+
+  // RR-02 / RR-06: integrity tests, one passing and one failing
+  await postIntegrityTestSchedule(
+    R({ subject_kind: "record", subject_ref: "rec_ra_1", test_kind: "conversion" }),
+    env.db, "d", ops,
+  );
+  await postIntegrityTestComplete(
+    R({ passed: true, sample_size: 25, certified_by: "records_officer" }),
+    "rint_record_rec_ra_1_conversion", env.db, "d", ops,
+  );
+  await postIntegrityTestSchedule(
+    R({ subject_kind: "email_archive", subject_ref: "exchange", test_kind: "readability" }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: a failing test must open a finding
+  await postIntegrityTestComplete(
+    R({ passed: false, sample_size: 40, certified_by: "records_officer" }),
+    "rint_email_archive_exchange_readability", env.db, "d", ops,
+  );
+  await postIntegrityTestSchedule(
+    R({ subject_kind: "core_archive", subject_ref: "core_vendor", test_kind: "completeness" }),
+    env.db, "d", ops,
+  );
+  await postIntegrityTestComplete(
+    R({ passed: true, sample_size: 10, certified_by: "records_officer",
+        retention_years_confirmed: 7 }),
+    "rint_core_archive_core_vendor_completeness", env.db, "d", ops,
+  );
+  await postArchiveConfirmation(
+    R({ archive_kind: "core_archive", period: "2026", vendor_ref: "core_vendor",
+        retention_years_confirmed: 7, confirmed_by: "records_officer" }),
+    env.db, "d", ops,
+  );
+
+  // RR-04: a box marked destroyed whose records are still live
+  await postStorageBox(
+    R({ id: "sbox_1", label: "BOX-2019-A", location: "offsite",
+        record_ids: ["rec_ra_1", "rec_ra_perm"] }),
+    env.db, "d", ops,
+  );
+  const box = (env.rows["core.storage_box"] ?? []).find((b: Any) => b.id === "sbox_1");
+  if (box) box.destroyed_at = "2026-07-01T00:00:00.000Z";
+  await postDestructionLogReconcile(R({}), env.db, "d", ops);
+  await postDestructionLogResolve(
+    R({ resolution: "records recalled from offsite; box re-opened" }),
+    "dlmm_sbox_1", env.db, "d", ops,
+  );
+
+  // RR-08: risk-based CDD
+  await postCddProfile(
+    R({ id: "cdd_high", entity_id: "ent_1", risk_rating: "high",
+        last_refreshed_at: "2024-01-01T00:00:00.000Z" }),
+    env.db, "d", ops,
+  );
+  await postCddRefresh(R({ refreshed_by: "bsa_analyst" }), "cdd_high", env.db, "d", ops);
+
+  // RR-07: a BSA record ANONYMIZED rather than destroyed
+  env.rows["core.record"] ??= [];
+  env.rows["core.record"].push({
+    id: "rec_ra_bsa", record_class: "bsa_sar", subject_ref: "case_1",
+    retention_anchor: "2014-01-01T00:00:00.000Z",
+    retention_expires_at: "2019-01-01T00:00:00.000Z",
+    legal_hold_flag: false, disposed_at: null, provenance: "production",
+  });
+  await postRecordDisposition(
+    R({ method: "anonymized", approved_by: "bsa_officer",
+        retained_fields: ["amount_band", "typology"] }),
+    "rec_ra_bsa", env.db, "d", ops,
+  );
+  // NEGATIVE: a permanent record can never be disposed, whatever the method
+  await postRecordDisposition(
+    R({ method: "destroyed", approved_by: "records_officer" }),
+    "rec_ra_perm", env.db, "d", ops,
+  );
+
+  // RR-09 / RR-12
+  await postRecordsPolicyReview(
+    R({ cycle_year: 2026, reviewed_by: "records_officer",
+        policy_document_version: "rr-v3.0",
+        regulation_changes: ["31 CFR 1020.220 amended"] }),
+    env.db, "d", ops,
+  );
+  await putRecordsContact(
+    R({ assigned_ref: "records_officer" }), "records_officer", env.db, "d", ops,
+  );
+  // a VACANCY, which is the state that must not look like "role never existed"
+  await putRecordsContact(R({ vacate: true }), "records_liaison", env.db, "d", ops);
+
+  // RR-03's disposal.scheduled comes from the EXISTING sweep, which is what
+  // evaluates the three eligibility conditions.
+  await postDisposalSweep(R({}), env.db, "d", ops);
+}
+
 async function runCapitalLifecycle(env: FireEnv): Promise<void> {
   // A WELL-CAPITALIZED position with a configured internal trigger. The trigger
   // sits above the statutory floor, so this position is compliant with NCUA and
@@ -780,6 +928,12 @@ import {
   postPospayException,
 } from "../api/eps_controls.ts";
 import { postIssueCard } from "../api/cards.ts";
+import {
+  postArchiveConfirmation, postCddProfile, postCddRefresh, postDestructionLogReconcile,
+  postDestructionLogResolve, postIntegrityTestComplete, postIntegrityTestSchedule,
+  postRecordClassify, postRecordDisposition, postRecordsPolicyReview,
+  postRetentionScheduleEntry, postStorageBox, putRecordsContact,
+} from "../api/records_admin.ts";
 import {
   postCashBoardSummary, postCashDeviationDecision, postCashDeviationRequest,
   postCashEnterprisePosition, postCashEnterpriseRemediation, postCashException,
@@ -973,20 +1127,35 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   "legal_hold.clear.confirmed": (env, uid) => FIRERS["legal_hold.created"](env, uid),
   "disposal.executed": async (env) => {
     const id = `rec_d${env.n()}`;
+    // RR-03 declares `disposal.scheduled`, which is emitted by the SWEEP — the
+    // step that evaluates the three eligibility conditions. Disposing directly
+    // skipped it, so RR-03 read red for a missing event that the system does
+    // in fact produce, just not on this path.
     env.rows["core.record"] ??= [];
     env.rows["core.record"].push({
       id, record_class: "cip_identity", subject_ref: "acct_9",
       retention_anchor: "2014-01-01T00:00:00.000Z", retention_expires_at: "2019-01-01T00:00:00.000Z",
       legal_hold_flag: false, disposed_at: null, provenance: "production",
     });
+    await postDisposalSweep(R({}), env.db, "d", env.actors.ops);
     await postDisposeRecord(R({ approved_by: "rm", certificate: "c" }), id, env.db, "d", env.actors.ops);
   },
   "record.disposal_eligible": async (env) => { await FIRERS["disposal.executed"](env, ""); },
   "record.hold.applied": (env, uid) => FIRERS["legal_hold.created"](env, uid),
   "record.hold.placed": (env, uid) => FIRERS["legal_hold.created"](env, uid),
   "record.hold.released": (env, uid) => FIRERS["legal_hold.clear.confirmed"](env, uid),
-  "record.retention.expired": (env, uid) => FIRERS["disposal.executed"](env, uid),
-  "record.created": (env, uid) => FIRERS["disposal.executed"](env, uid),
+  // RR-07 (BSA anonymization) and SC-02 (the shared lifecycle) BOTH declare
+  // this trigger and need different halves of the system: SC-02 needs the
+  // disposal path, RR-07 needs the disposition METHOD. Firing only one graded
+  // the other against machinery it does not use.
+  "record.retention.expired": async (env, uid) => {
+    await FIRERS["disposal.executed"](env, uid);
+    await runRecordsAdminLifecycle(env);
+  },
+  // RR-01 and RR-11 hang off record.created and need the SCHEDULE, not just a
+  // disposal. Routing this to the disposal firer graded them against machinery
+  // that never consults Schedule A.
+  "record.created": (env) => runRecordsAdminLifecycle(env),
   /**
    * SC-02's full lifecycle in one pass. The retention controls are the SAME
    * shared control replicated into 11 policies, so one honest run of
@@ -1171,6 +1340,25 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   // `hr.*` half of CP-07 are deliberately NOT registered. Those need an
   // employee, and inventing one to turn a control green is the error the
   // standing rule in BLUEPRINT forbids.
+  "record_class.unmatched": (env) => runRecordsAdminLifecycle(env),
+  "schedule_a.entry.amended": (env) => runRecordsAdminLifecycle(env),
+  "record.media_converted": (env) => runRecordsAdminLifecycle(env),
+  "record.integrity.test.due": (env) => runRecordsAdminLifecycle(env),
+  "record.integrity_test.completed": (env) => runRecordsAdminLifecycle(env),
+  "storage_box.created": (env) => runRecordsAdminLifecycle(env),
+  "destruction_log.mismatch.detected": (env) => runRecordsAdminLifecycle(env),
+  "destruction_log.mismatch.resolved": (env) => runRecordsAdminLifecycle(env),
+  "records.annual.review.due_at": (env) => runRecordsAdminLifecycle(env),
+  "core_archive.confirmation_due": (env) => runRecordsAdminLifecycle(env),
+  "email_archive.test.due": (env) => runRecordsAdminLifecycle(env),
+  "email_archive.test.completed": (env) => runRecordsAdminLifecycle(env),
+  "cdd.refresh.due": (env) => runRecordsAdminLifecycle(env),
+  "cdd.profile.refreshed": (env) => runRecordsAdminLifecycle(env),
+  "regulation.retention_change.detected": (env) => runRecordsAdminLifecycle(env),
+  "records.policy_review.completed": (env) => runRecordsAdminLifecycle(env),
+  "records.contacts.assigned": (env) => runRecordsAdminLifecycle(env),
+  "records.contact_vacated": (env) => runRecordsAdminLifecycle(env),
+  "records.board_report.filed": (env) => runRecordsAdminLifecycle(env),
   "incident.declared": (env) => runIncidentLifecycle(env),
   "incident.detected": (env) => runIncidentLifecycle(env),
   "incident.sev1.detected": (env) => runIncidentLifecycle(env),
