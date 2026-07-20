@@ -2140,3 +2140,54 @@ controls turned on things no register shape produces:
   "completed with gaps".
 
 **29 mutations, 29 caught first pass.** Third artifact with no survivors.
+
+
+## THE FIVE CONTROL SHAPES — not BSA-specific, and each fails a different way
+
+Found in the BSA artifact but none of them is AML-specific. A band or an
+aggregate test can appear in any domain, and the naive implementation of each
+breaks in a characteristic direction.
+
+| shape | example | the naive version | how it fails |
+|---|---|---|---|
+| **BAND** — two bounds, different obligations either side | monetary-instrument log, $3,000–$10,000 | one threshold | wrong LOWER bound logs everything and buries the reportable ones; wrong UPPER bound misses the CTR handoff. **Opposite failures — test both bounds separately** |
+| **AGGREGATE THRESHOLD** — the sum crosses, no member does | FBAR: five $3,000 accounts | a per-item test | passes forever. The classic FBAR error and the one most likely to ship |
+| **REQUIRED REFUSAL** — the obligation is to NOT act | SAR confidentiality | do nothing | doing nothing is correct AND leaves no evidence the obligation was honoured. **The refusal must be recorded** |
+| **REQUIRED NEGATIVE** — a nil result must be reported | 314(a) zero matches; FBAR nil | report only when there is something | "nothing found" and "never looked" are identical to the regulator |
+| **ALL-ELEMENTS CONJUNCTION** — N of N, not N of M | CIP's four elements | a completeness score | three of four is a FAILED CIP, not a partial one. The outcome must be DENIED |
+
+Two of these already existed elsewhere under other names: the required-negative
+is the same idea as "absence of a finding must itself be recorded", and the
+conjunction is what the CDA funding gate is. Naming them as shapes is what makes
+them checkable against a NEW control rather than recognisable only in hindsight.
+
+## GUARDING THE HONEST NULL — a test that fires when someone closes the gap
+
+Generalised from the BSA artifact, where a mutation that set
+`ofac_screen.list_version` to `"OFAC-2026-07"` was caught. That guard is unusual
+and worth naming: **it fails when someone makes the gap look closed, not when
+the code breaks.**
+
+The system distinguishes two kinds of "no value":
+
+- **NOT BREACHED** — the check ran, the answer was no.
+- **UNASSESSED** — nobody configured what the check needs, so there is no answer.
+
+Collapsing the second into the first is the most flattering possible error: an
+institution that never set a limit reads as one that never exceeded it. Ordinary
+tests cannot see it, because a fabricated default makes everything downstream
+work.
+
+`unassessed.test.ts` now pins **every site where a NULL is load-bearing** — the
+three OFAC/PEP list versions, the capital internal trigger, the enterprise cash
+limit, the over/short threshold, the fair-lending and complaint-trend
+thresholds, the ALM and liquidity minima, the LTV maximum, the two
+unknown-is-not-permission trade gates, and `account.entity_id` (OQ-12, where
+NOT NULL with a backfill would be the fabrication).
+
+**14 fabrication mutations, 14 caught.** Each one populates the unconfigured
+value the way somebody would in order to turn a control green.
+
+**Apply this to any new control whose honest state is "unconfigured".** The test
+to write is not "does it behave correctly when configured" — it is "does it
+still refuse to render a verdict when it is not".
