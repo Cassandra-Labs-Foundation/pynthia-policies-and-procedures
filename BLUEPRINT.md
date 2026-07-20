@@ -1400,8 +1400,22 @@ and each is cheap to sweep for deliberately:
 | shape | example | how it hides |
 |---|---|---|
 | **verbs without a noun** | `cards.ts` had authorize/capture/expire/reverse and no way to CREATE a card | the module looks complete; every verb is present |
+| **a noun without its trigger** (the same trap, other direction) | an access register with no `employee.separated` — it can grant and never revoke | the table looks like access management; the half that never fires is invisible |
 | **a noun with no verbs** | `cda` — 13 controls, no account, no agreement, no donee | every control fails identically, so it reads as 13 problems |
 | **a table with no writer** | `core.training` exists in the schema; nothing has ever written to it | the schema looks finished; the control fails on an input, not on a trigger |
+
+**The pair worth stating together: a HALF-BUILT subsystem is worse than a
+missing one.** A missing subsystem leaves a red control, which is visible and
+gets counted. A subsystem with its nouns but not its triggers — or its triggers
+but not its nouns — leaves a plausible-looking table that nobody re-examines,
+and the control it half-implements reads as done. `cards.ts` had every verb and
+no way to create a card; an access register would have had every grant and no
+way to revoke. Same failure, opposite direction, and both are invisible in a way
+"we have not built that yet" never is.
+
+**Practical rule: if a subsystem cannot complete its own loop — create AND
+destroy, grant AND revoke, open AND close — do not build the half.** Leave the
+control red and let the red line name what is missing.
 
 ### Sweep result: 22 abandoned tables, blocking 36 in-scope red controls
 
