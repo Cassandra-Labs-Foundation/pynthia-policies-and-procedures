@@ -76,6 +76,37 @@ create table if not exists "core"."complaint" (
     ))
 );
 
+-- Convergence with the codegen-era core schema (20260702000100): that
+-- migration already created "core"."complaint" with a different shape, so the
+-- create-table above is a no-op on every database. Bring the existing
+-- table up to this declaration column-by-column (append-only; the old
+-- columns stay).
+alter table "core"."complaint" add column if not exists "id" text;
+alter table "core"."complaint" add column if not exists "member_id" text;
+alter table "core"."complaint" add column if not exists "channel" text not null check ("channel" in;
+alter table "core"."complaint" add column if not exists "category" text not null check ("category" in;
+alter table "core"."complaint" add column if not exists "narrative" text not null;
+alter table "core"."complaint" add column if not exists "regulator" text;
+alter table "core"."complaint" add column if not exists "regulator_case_id" text;
+alter table "core"."complaint" add column if not exists "portal_due_date" timestamptz;
+alter table "core"."complaint" add column if not exists "entity_contact" jsonb;
+alter table "core"."complaint" add column if not exists "received_at" timestamptz not null;
+alter table "core"."complaint" add column if not exists "ack_due_at" timestamptz not null;
+alter table "core"."complaint" add column if not exists "acknowledged_at" timestamptz;
+alter table "core"."complaint" add column if not exists "initial_response_due_at" timestamptz not null;
+alter table "core"."complaint" add column if not exists "initial_response_sent_at" timestamptz;
+alter table "core"."complaint" add column if not exists "final_response_due_at" timestamptz not null;
+alter table "core"."complaint" add column if not exists "final_response_sent_at" timestamptz;
+alter table "core"."complaint" add column if not exists "investigation_notes" text;
+alter table "core"."complaint" add column if not exists "root_cause_tag" text;
+alter table "core"."complaint" add column if not exists "udaap_flag" boolean not null default false;
+alter table "core"."complaint" add column if not exists "resolved_at" timestamptz;
+alter table "core"."complaint" add column if not exists "provenance" text not null default 'production';
+alter table "core"."complaint" add column if not exists "created_at" timestamptz not null default now();
+alter table "core"."complaint" add column if not exists "updated_at" timestamptz not null default now();
+alter table "core"."complaint" add column if not exists "final_response_sent_at" is not null and "root_cause_tag" is not null;
+
+
 -- 12 CFR 1005.11. A DIFFERENT clock and a money consequence.
 create table if not exists "core"."dispute" (
   "id" text primary key,
@@ -126,6 +157,33 @@ create table if not exists "core"."dispute" (
   constraint "ck_dispute_resolution_notified"
     check ("resolved_at" is null or "response_sent_at" is not null)
 );
+
+-- Convergence with the codegen-era core schema (20260702000100): that
+-- migration already created "core"."dispute" with a different shape, so the
+-- create-table above is a no-op on every database. Bring the existing
+-- table up to this declaration column-by-column (append-only; the old
+-- columns stay).
+alter table "core"."dispute" add column if not exists "id" text;
+alter table "core"."dispute" add column if not exists "complaint_id" text references "core"."complaint" ("id");
+alter table "core"."dispute" add column if not exists "member_id" text;
+alter table "core"."dispute" add column if not exists "account_id" text;
+alter table "core"."dispute" add column if not exists "basis" text not null;
+alter table "core"."dispute" add column if not exists "amount_cents" bigint check ("amount_cents" is null or "amount_cents" > 0);
+alter table "core"."dispute" add column if not exists "kind" text not null default 'reg_e' check ("kind" in ('reg_e', 'data_accuracy'));
+alter table "core"."dispute" add column if not exists "notified_at" timestamptz not null;
+alter table "core"."dispute" add column if not exists "provisional_credit_due_at" timestamptz;
+alter table "core"."dispute" add column if not exists "provisional_credit_posted_at" timestamptz;
+alter table "core"."dispute" add column if not exists "provisional_credit_cents" bigint;
+alter table "core"."dispute" add column if not exists "investigation_due_at" timestamptz not null;
+alter table "core"."dispute" add column if not exists "investigation_completed_at" timestamptz;
+alter table "core"."dispute" add column if not exists "findings" text;
+alter table "core"."dispute" add column if not exists "correction_amount_cents" bigint;
+alter table "core"."dispute" add column if not exists "response_sent_at" timestamptz;
+alter table "core"."dispute" add column if not exists "resolved_at" timestamptz;
+alter table "core"."dispute" add column if not exists "provenance" text not null default 'production';
+alter table "core"."dispute" add column if not exists "created_at" timestamptz not null default now();
+alter table "core"."dispute" add column if not exists "updated_at" timestamptz not null default now();
+
 
 -- CO-06 / FL-13 / PR-10 trend analysis, and the board packets that read it.
 create table if not exists "core"."complaint_trend" (

@@ -267,6 +267,20 @@ create table if not exists "core"."insider" (
   "created_at" timestamptz not null default now()
 );
 
+-- Convergence with the codegen-era core schema (20260702000100): that
+-- migration already created "core"."insider" with a different shape, so the
+-- create-table above is a no-op on every database. Bring the existing
+-- table up to this declaration column-by-column (append-only; the old
+-- columns stay).
+alter table "core"."insider" add column if not exists "id" text;
+alter table "core"."insider" add column if not exists "subject_ref" text not null;
+alter table "core"."insider" add column if not exists "role" text not null check ("role" in;
+alter table "core"."insider" add column if not exists "effective_from" timestamptz not null;
+alter table "core"."insider" add column if not exists "effective_to" timestamptz;
+alter table "core"."insider" add column if not exists "provenance" text not null default 'production';
+alter table "core"."insider" add column if not exists "created_at" timestamptz not null default now();
+
+
 create table if not exists "core"."insider_loan_review" (
   "id" text primary key,
   "loan_application_id" text not null,

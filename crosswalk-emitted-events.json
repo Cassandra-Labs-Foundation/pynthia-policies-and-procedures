@@ -43,6 +43,14 @@
       "source": "supabase/functions/api/cards.ts"
     },
     {
+      "code": "card.issued",
+      "source": "supabase/functions/api/cards.ts"
+    },
+    {
+      "code": "card.request_during_address_hold",
+      "source": "supabase/functions/api/cards.ts"
+    },
+    {
       "code": "entity.created",
       "source": "supabase/functions/api/entities.ts"
     },

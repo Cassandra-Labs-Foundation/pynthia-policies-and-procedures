@@ -137,7 +137,8 @@ begin
     execute format('alter table "core".%I drop constraint if exists %I', t, 'ck_' || t || '_dual_control');
     execute format(
       'alter table "core".%I add constraint %I check ("dual_control_status" in '
-      '(''not_required'', ''required'', ''approved'', ''rejected'', ''unassessed''))', t);
+      '(''not_required'', ''required'', ''approved'', ''rejected'', ''unassessed''))',
+      t, 'ck_' || t || '_dual_control');
     execute format('alter table "core".%I add column if not exists "created_by" text', t);
   end loop;
 end $$;

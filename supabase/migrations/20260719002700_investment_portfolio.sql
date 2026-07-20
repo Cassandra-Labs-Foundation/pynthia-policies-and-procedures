@@ -204,6 +204,40 @@ create table if not exists "core"."trade" (
                and "limit_verdict" in ('within', 'warning')))
 );
 
+-- Convergence with the codegen-era core schema (20260702000100): that
+-- migration already created "core"."trade" with a different shape, so the
+-- create-table above is a no-op on every database. Bring the existing
+-- table up to this declaration column-by-column (append-only; the old
+-- columns stay).
+alter table "core"."trade" add column if not exists "id" text;
+alter table "core"."trade" add column if not exists "security_id" text references "core"."security" ("id");
+alter table "core"."trade" add column if not exists "intermediary_id" text references "core"."intermediary" ("id");
+alter table "core"."trade" add column if not exists "side" text not null check ("side" in ('buy', 'sell'));
+alter table "core"."trade" add column if not exists "par_cents" bigint not null check ("par_cents" > 0);
+alter table "core"."trade" add column if not exists "price_bp" int not null;
+alter table "core"."trade" add column if not exists "trade_date" date not null;
+alter table "core"."trade" add column if not exists "settle_date" date;
+alter table "core"."trade" add column if not exists "executed_by" text not null;
+alter table "core"."trade" add column if not exists "confirmed_by" text;
+alter table "core"."trade" add column if not exists "settled_by" text;
+alter table "core"."trade" add column if not exists "permissibility_verdict" text not null;
+alter table "core"."trade" add column if not exists "limit_verdict" text not null;
+alter table "core"."trade" add column if not exists "decision" text not null check ("decision" in ('executed', 'blocked'));
+alter table "core"."trade" add column if not exists "blocked_reasons" jsonb not null default '[]'::jsonb;
+alter table "core"."trade" add column if not exists "instrument_type" text;
+alter table "core"."trade" add column if not exists "settlement_amount_cents" bigint;
+alter table "core"."trade" add column if not exists "valuation_support" text;
+alter table "core"."trade" add column if not exists "step_attempted" text;
+alter table "core"."trade" add column if not exists "ticket" text;
+alter table "core"."trade" add column if not exists "confirmation_ref" text;
+alter table "core"."trade" add column if not exists "confirmation_matched" boolean;
+alter table "core"."trade" add column if not exists "reconciled_at" timestamptz;
+alter table "core"."trade" add column if not exists "checklist_completed_at" timestamptz;
+alter table "core"."trade" add column if not exists "provenance" text not null default 'production';
+alter table "core"."trade" add column if not exists "created_at" timestamptz not null default now();
+alter table "core"."trade" add column if not exists "updated_at" timestamptz not null default now();
+
+
 create table if not exists "core"."trade_exception" (
   "id" text primary key,
   "trade_id" text references "core"."trade" ("id"),
@@ -322,6 +356,21 @@ create table if not exists "core"."document" (
   "provenance" text not null default 'production',
   "created_at" timestamptz not null default now()
 );
+
+-- Convergence with the codegen-era core schema (20260702000100): that
+-- migration already created "core"."document" with a different shape, so the
+-- create-table above is a no-op on every database. Bring the existing
+-- table up to this declaration column-by-column (append-only; the old
+-- columns stay).
+alter table "core"."document" add column if not exists "id" text;
+alter table "core"."document" add column if not exists "subject_kind" text not null;
+alter table "core"."document" add column if not exists "subject_ref" text not null;
+alter table "core"."document" add column if not exists "doc_type" text not null;
+alter table "core"."document" add column if not exists "attached_at" timestamptz;
+alter table "core"."document" add column if not exists "attachment_due_at" timestamptz;
+alter table "core"."document" add column if not exists "provenance" text not null default 'production';
+alter table "core"."document" add column if not exists "created_at" timestamptz not null default now();
+
 
 create table if not exists "core"."sod_violation" (
   "id" text primary key,

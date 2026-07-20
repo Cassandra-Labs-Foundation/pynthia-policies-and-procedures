@@ -341,6 +341,24 @@ create table if not exists "core"."records_package" (
     check ("delivered_at" is null or "completed_at" is not null)
 );
 
+-- Convergence with the codegen-era core schema (20260702000100): that
+-- migration already created "core"."records_package" with a different shape, so the
+-- create-table above is a no-op on every database. Bring the existing
+-- table up to this declaration column-by-column (append-only; the old
+-- columns stay).
+alter table "core"."records_package" add column if not exists "id" text;
+alter table "core"."records_package" add column if not exists "purpose" text not null check ("purpose" in ('exam_export', 'supervisory_count', 'internal'));
+alter table "core"."records_package" add column if not exists "scope" jsonb not null;
+alter table "core"."records_package" add column if not exists "item_count" int not null default 0;
+alter table "core"."records_package" add column if not exists "requested_at" timestamptz not null;
+alter table "core"."records_package" add column if not exists "completed_at" timestamptz;
+alter table "core"."records_package" add column if not exists "delivered_at" timestamptz;
+alter table "core"."records_package" add column if not exists "delivered_to" text;
+alter table "core"."records_package" add column if not exists "provenance" text not null default 'production';
+alter table "core"."records_package" add column if not exists "created_at" timestamptz not null default now();
+alter table "core"."records_package" add column if not exists "updated_at" timestamptz not null default now();
+
+
 create index if not exists "ix_cash_limits_schedule_effective"
   on "core"."cash_limits_schedule" ("asset_id", "effective_at" desc);
 create index if not exists "ix_gl_cash_suspense_open"

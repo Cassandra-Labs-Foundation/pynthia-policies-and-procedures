@@ -6,7 +6,7 @@
 
 Catalogue: **316** distinct controls across **27** policies (333 rows — shared controls like SC-02 are replicated into every policy that references them, and are counted once here). 
 Implemented: **10** `CG-*` controls. 
-Event codes the core can emit: **65**. 
+Event codes the core can emit: **67**. 
 Distinct trigger events the catalogue demands: **787**.
 
 ## How to read this
@@ -53,7 +53,7 @@ non-`production` row reaches a coverage count.
 | `related` | 4 |
 | `no_catalogue_counterpart` | 2 |
 
-Open questions requiring a decision: **17** (5 high severity).
+Open questions requiring a decision: **20** (5 high severity).
 
 Awaiting review: **13** of 14 claims. 
 Reviewed: **0**.
@@ -396,6 +396,22 @@ what the crosswalk should say.
 
 **Asks of reviewer.** None. Recorded because the resequencing argument is in the session record and was wrong; the eps governance controls remain unbuilt and need their own subsystems.
 
+### OQ-18 · medium — The four money rails hardcode db.schema("core") and take no scope parameter.
+
+**Finding.** transfers.ts, wires.ts, ach.ts and cards.ts write to core unconditionally. Every module built afterwards — bsa, cash, retention, governance, lending, eps, primitives — takes `scope: EvidenceScope`. Found by the drill, which could not point the rails at sim and had to seed both schemas.
+
+**Why it matters.** Six modules can be exercised in isolation and four cannot. Any future work that needs the rails driven against a substrate — a larger drill, a tenant migration rehearsal, a replay harness — hits this first. It is also an inconsistency a new contributor will trip over, since the rails look like the reference implementation.
+
+**Asks of reviewer.** None; engineering. Thread `scope` through the four rails the way every later module does.
+
+### OQ-19 · medium — The gate returns on the FIRST blocking control, so only one control_result is ever written.
+
+**Finding.** Drill case RAIL-02 moved an amount that was both over the $25k velocity cap and beyond the available balance. runGate evaluates velocity first and returns immediately, so CG-VEL-01 wrote evidence and CG-NSF-01 never ran. The transaction was correctly refused; the evidence record shows one control firing where two would have.
+
+**Why it matters.** An examiner asking 'did NSF checking run on this transaction' finds no control_result for it, and cannot distinguish 'ran and passed' from 'never ran'. That is the exact ambiguity control_result exists to remove — the same reasoning that made CG-OFAC-01 write evidence on clean passes. The refusal is right; the evidence is incomplete.
+
+**Asks of reviewer.** Whether the gate should evaluate ALL controls and return the aggregate, rather than short-circuit. Evaluating all costs an extra Blnk balance call on a doomed transaction; short-circuiting costs evidence completeness.
+
 ### OQ-06 · low — The catalogue's own trigger vocabulary is inconsistent, which weakens reachability as a measure.
 
 **Finding.** Some control_rules carry trigger_event: null (a rule with inputs and outputs but nothing that starts it). Others use namespaces that no subsystem could plausibly own. Reachability treats a null trigger as unreachable, which is conservative but conflates 'blocked on a subsystem' with 'the catalogue does not say'.
@@ -436,6 +452,14 @@ what the crosswalk should say.
 
 **Asks of reviewer.** None; engineering cleanup. Rename to four_eyes_approval before first apply, or accept the name and document it.
 
+### OQ-20 · low — Repeated attempts against the velocity cap leave no aggregate signal.
+
+**Finding.** A rejected transaction correctly does not count toward same-day volume, so an actor blocked at $27k can immediately succeed with a smaller amount. Each rejection is individually evidenced, but nothing detects 'this account attempted eight blocked movements today'.
+
+**Why it matters.** Attempted volume is a stronger evasion signal than settled volume, and repeatedly probing a cap is exactly the behaviour structuring detection is meant to catch. Not a defect in CG-VEL-01 — counting rejected attempts toward the cap would lock a member out after one mistake — but a gap between the two controls.
+
+**Asks of reviewer.** Whether repeated velocity rejections should raise their own alert typology.
+
 ## View 2 — which catalogue controls are reachable
 
 **Reachable** means the core can fire *every* trigger the control
@@ -445,8 +469,8 @@ triggers are half firable is blocked, not half-done.
 | Reachability | Controls |
 |---|---:|
 | `reachable` | 3 |
-| `partially_reachable` | 15 |
-| `unreachable` | 298 |
+| `partially_reachable` | 16 |
+| `unreachable` | 297 |
 
 **Completable: 2.** Reachability only asks whether the
 core can *start* a control. A control can be startable and still have no
@@ -464,7 +488,7 @@ not the reachable one, when estimating what is buildable.
 | `BSA-10` | bsa | Travel Rule (Wires ≥$3,000) | `wire_transfer.submitted` | **no** | `retention.purge.executed`, `wire_transfer.created`, `wire_transfer.record.retained` |
 | `BSA-21` | bsa | Record Retention | `account.closed` | yes | — |
 
-### Partially reachable (15)
+### Partially reachable (16)
 
 These are the nearest to buildable: some triggers already fire.
 
@@ -482,6 +506,7 @@ These are the nearest to buildable: some triggers already fire.
 | `LP-04` | lending | `aan.issued` | `credit_report.received`, `credit_score.tolerance.breached`, `loan_application.thin_file.flagged` |
 | `LP-09` | lending | `application.final_action.recorded` | `loan.booking.requested` |
 | `MP-01` | member | `verification.denied` | `member.application.submitted`, `member.eligibility_rule.failed`, `verification.completed`, `verification.created` |
+| `MP-02` | member | `card.request_during_address_hold` | `member.address_notice.sent`, `redflag.detected`, `verification.completed` |
 | `MP-05` | member | `account.closed` | `account.closure.approved`, `account.lock.applied` |
 | `PR-01` | privacy | `entity.created` | `privacy.annual.notice.due_at`, `privacy.notice.revised`, `privacy.notice_copy.requested` |
 | `PR-08` | privacy | `legal_hold.clear.confirmed` | `disposal.executed`, `record.retention.expires_at` |

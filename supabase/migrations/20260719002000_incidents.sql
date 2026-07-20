@@ -60,6 +60,38 @@ create table if not exists "core"."incident" (
   "updated_at" timestamptz not null default now()
 );
 
+-- Convergence with the codegen-era core schema (20260702000100): that
+-- migration already created "core"."incident" with a different shape, so the
+-- create-table above is a no-op on every database. Bring the existing
+-- table up to this declaration column-by-column (append-only; the old
+-- columns stay).
+alter table "core"."incident" add column if not exists "id" text;
+alter table "core"."incident" add column if not exists "title" text not null;
+alter table "core"."incident" add column if not exists "severity" text not null check ("severity" in ('sev1', 'sev2', 'sev3', 'sev4'));
+alter table "core"."incident" add column if not exists "source" text;
+alter table "core"."incident" add column if not exists "status" text not null default 'declared' check ("status" in (;
+alter table "core"."incident" add column if not exists "detected_at" timestamptz not null default now();
+alter table "core"."incident" add column if not exists "declared_at" timestamptz;
+alter table "core"."incident" add column if not exists "ic_assigned_to" text;
+alter table "core"."incident" add column if not exists "ic_assigned_at" timestamptz;
+alter table "core"."incident" add column if not exists "first_hour_completed_at" timestamptz;
+alter table "core"."incident" add column if not exists "contained_at" timestamptz;
+alter table "core"."incident" add column if not exists "restored_at" timestamptz;
+alter table "core"."incident" add column if not exists "closed_at" timestamptz;
+alter table "core"."incident" add column if not exists "reportability_determined_at" timestamptz;
+alter table "core"."incident" add column if not exists "reportability_determined_by" text;
+alter table "core"."incident" add column if not exists "is_reportable" boolean;
+alter table "core"."incident" add column if not exists "reportability_rationale" text;
+alter table "core"."incident" add column if not exists "ncua_notice_due_at" timestamptz;
+alter table "core"."incident" add column if not exists "ncua_notified_at" timestamptz;
+alter table "core"."incident" add column if not exists "determination_due_at" timestamptz;
+alter table "core"."incident" add column if not exists "member_impact_confirmed_at" timestamptz;
+alter table "core"."incident" add column if not exists "member_notices_sent_at" timestamptz;
+alter table "core"."incident" add column if not exists "provenance" text not null default 'unknown';
+alter table "core"."incident" add column if not exists "created_at" timestamptz not null default now();
+alter table "core"."incident" add column if not exists "updated_at" timestamptz not null default now();
+
+
 -- SC-01: a NON-reportable determination must be documented with rationale. The
 -- undocumented "we decided it wasn't reportable" is the finding an examiner
 -- looks for, so it is unrepresentable.

@@ -2,7 +2,7 @@
   "meta": {
     "generator": "scripts/build_crosswalk.py",
     "controls_source": "controls.json",
-    "controls_generated_at": "2026-07-19T20:42:13+00:00",
+    "controls_generated_at": "2026-07-20T18:58:57+00:00",
     "mappings_source": "crosswalk-mappings.json",
     "emitted_source": "crosswalk-emitted-events.json",
     "under_claim_policy": "'discharges' asserts no further work is needed and is enforced to carry zero gaps. Claims are proposals until reviewed_by is set."
@@ -54,7 +54,7 @@
     },
     "policies": 27,
     "cg_controls": 10,
-    "emitted_events": 65,
+    "emitted_events": 67,
     "demanded_triggers": 787,
     "verdicts": {
       "related": 4,
@@ -66,8 +66,8 @@
     "reviewed": 0,
     "reach": {
       "reachable": 3,
-      "partially_reachable": 15,
-      "unreachable": 298
+      "partially_reachable": 16,
+      "unreachable": 297
     },
     "completable": 2,
     "blocked_by_namespace": [
@@ -496,10 +496,6 @@
         1
       ],
       [
-        "card",
-        1
-      ],
-      [
         "expulsion",
         1
       ],
@@ -600,7 +596,7 @@
         1
       ]
     ],
-    "open_questions": 17,
+    "open_questions": 20,
     "open_questions_high": 5
   },
   "mappings": {
@@ -1081,6 +1077,30 @@
         "finding": "The table was introduced for EPS-06 payment dual control. LP-07's adverse-action second review is the third use of the same property, and its resource_type enum now carries adverse_action_notice, which is not a payment. Two of the three domains using it are not payments.",
         "why_it_matters": "Naming debt only \u2014 the constraint and behaviour are correct. But a table called payment_approval holding adverse action notices will mislead the next reader, and the rename is FREE right now because the migration has never been applied.",
         "asks_of_reviewer": "None; engineering cleanup. Rename to four_eyes_approval before first apply, or accept the name and document it."
+      },
+      {
+        "id": "OQ-18",
+        "severity": "medium",
+        "question": "The four money rails hardcode db.schema(\"core\") and take no scope parameter.",
+        "finding": "transfers.ts, wires.ts, ach.ts and cards.ts write to core unconditionally. Every module built afterwards \u2014 bsa, cash, retention, governance, lending, eps, primitives \u2014 takes `scope: EvidenceScope`. Found by the drill, which could not point the rails at sim and had to seed both schemas.",
+        "why_it_matters": "Six modules can be exercised in isolation and four cannot. Any future work that needs the rails driven against a substrate \u2014 a larger drill, a tenant migration rehearsal, a replay harness \u2014 hits this first. It is also an inconsistency a new contributor will trip over, since the rails look like the reference implementation.",
+        "asks_of_reviewer": "None; engineering. Thread `scope` through the four rails the way every later module does."
+      },
+      {
+        "id": "OQ-19",
+        "severity": "medium",
+        "question": "The gate returns on the FIRST blocking control, so only one control_result is ever written.",
+        "finding": "Drill case RAIL-02 moved an amount that was both over the $25k velocity cap and beyond the available balance. runGate evaluates velocity first and returns immediately, so CG-VEL-01 wrote evidence and CG-NSF-01 never ran. The transaction was correctly refused; the evidence record shows one control firing where two would have.",
+        "why_it_matters": "An examiner asking 'did NSF checking run on this transaction' finds no control_result for it, and cannot distinguish 'ran and passed' from 'never ran'. That is the exact ambiguity control_result exists to remove \u2014 the same reasoning that made CG-OFAC-01 write evidence on clean passes. The refusal is right; the evidence is incomplete.",
+        "asks_of_reviewer": "Whether the gate should evaluate ALL controls and return the aggregate, rather than short-circuit. Evaluating all costs an extra Blnk balance call on a doomed transaction; short-circuiting costs evidence completeness."
+      },
+      {
+        "id": "OQ-20",
+        "severity": "low",
+        "question": "Repeated attempts against the velocity cap leave no aggregate signal.",
+        "finding": "A rejected transaction correctly does not count toward same-day volume, so an actor blocked at $27k can immediately succeed with a smaller amount. Each rejection is individually evidenced, but nothing detects 'this account attempted eight blocked movements today'.",
+        "why_it_matters": "Attempted volume is a stronger evasion signal than settled volume, and repeatedly probing a cap is exactly the behaviour structuring detection is meant to catch. Not a defect in CG-VEL-01 \u2014 counting rejected attempts toward the cap would lock a member out after one mistake \u2014 but a gap between the two controls.",
+        "asks_of_reviewer": "Whether repeated velocity rejections should raise their own alert typology."
       }
     ]
   },
@@ -6862,11 +6882,12 @@
       "control_id": "MP-02",
       "policy": "member",
       "title": "Account Maintenance and Change of Address",
-      "reachability": "unreachable",
+      "reachability": "partially_reachable",
       "triggers_total": 4,
-      "triggers_firable": [],
+      "triggers_firable": [
+        "card.request_during_address_hold"
+      ],
       "triggers_missing": [
-        "card.request_during_address_hold",
         "member.address_notice.sent",
         "redflag.detected",
         "verification.completed"

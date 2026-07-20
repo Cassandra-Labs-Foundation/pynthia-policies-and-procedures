@@ -195,6 +195,26 @@ create table if not exists "core"."records_package" (
     check ("completed_at" is null or "verification_failed_at" is null)
 );
 
+-- Convergence with the codegen-era core schema (20260702000100): that
+-- migration already created "core"."records_package" with a different shape, so the
+-- create-table above is a no-op on every database. Bring the existing
+-- table up to this declaration column-by-column (append-only; the old
+-- columns stay).
+alter table "core"."records_package" add column if not exists "id" text;
+alter table "core"."records_package" add column if not exists "records_package_manifest_id" text not null;
+alter table "core"."records_package" add column if not exists "records_package_snapshot_id" text;
+alter table "core"."records_package" add column if not exists "records_package_snapshot_as_of" timestamptz;
+alter table "core"."records_package" add column if not exists "records_package_snapshot_schedule" text;
+alter table "core"."records_package" add column if not exists "records_package_artifact_id" text;
+alter table "core"."records_package" add column if not exists "records_package_checksum_chain" jsonb;
+alter table "core"."records_package" add column if not exists "build_started_at" timestamptz not null;
+alter table "core"."records_package" add column if not exists "completed_at" timestamptz;
+alter table "core"."records_package" add column if not exists "verification_failed_at" timestamptz;
+alter table "core"."records_package" add column if not exists "records_package_failure_reason" text;
+alter table "core"."records_package" add column if not exists "provenance" text not null default 'production';
+alter table "core"."records_package" add column if not exists "created_at" timestamptz not null default now();
+
+
 create index if not exists "ix_freeze_active"
   on "core"."account_freeze" ("account_ref") where "released_at" is null;
 create index if not exists "ix_ewi_recent" on "core"."ewi_observation" ("observed_at" desc);
