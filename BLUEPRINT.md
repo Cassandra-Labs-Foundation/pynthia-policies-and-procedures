@@ -2016,6 +2016,49 @@ tests has its refusals untested by construction.**
 
 769 tests, 164 green of 225 in scope.
 
+## Artifact — liquidity (LQ)
+
+**Predicted 6, landed 6.** Thirteen for thirteen. 164 → 170. LQ-06 and LQ-17
+need ALCO (a committee); LQ-08 needs model validation, LQ-11 and LQ-13 need a
+regulator channel.
+
+### ⚑ THE CAPITAL PREDICTION, CONFIRMED
+
+Several artifacts ago, working on capital, §5c claimed that any domain where a
+REGULATOR sets a floor and an INSTITUTION sets a tighter one on top would
+produce the same schema shape. Liquidity was the last domain likely to produce
+a genuinely new structure. **It produced the same one, unchanged.**
+
+|  | capital | liquidity |
+|---|---|---|
+| STATUTORY, `not null`, derived | PCA category (12 CFR 702) | §741.12 asset tier |
+| INSTITUTIONAL, nullable, paired | Board internal trigger | LAR bands, mismatch limits, survival threshold, headroom floor |
+| the pairing constraint | `ck_capital_trigger_verdict` | `ck_lar_band_needs_config`, `ck_survival_verdict_needs_threshold`, `ck_headroom_verdict_needs_floor`, `ck_mismatch_breach_needs_limit` |
+
+The strongest evidence is that I did not have to decide anything. The existing
+`core.liquidity_report` already carried
+`ck_liquidity_verdict_needs_minimum` — written two artifacts before the
+prediction was made, for the same reason, by the same reasoning. The shape was
+already there.
+
+**Why it recurs, stated plainly so it can be reused:** a statutory threshold is
+a fact about the world and a missing one is a BUG; an institutional threshold is
+a decision somebody has to make and a missing one is UNASSESSED. Storing them in
+one column forces a single answer to "what does absent mean", and whichever
+answer you pick is wrong half the time. The tell that a domain has both is that
+someone asks "what's our limit?" and the honest answer is "which one".
+
+`assetTier()` is derived and a supplied `asset_tier` is IGNORED — tested
+explicitly, because a caller who could assert the tier could assert their way
+out of the contingency-funding-plan obligation entirely.
+
+Mutation sweep: 12 mutations, 12 caught, no survivors — the first clean sweep
+since the deposits artifact, and the two that matter most (`no bands reads as
+adequate`, `caller can assert the statutory tier`) are both caught by tests
+written specifically to check the prediction rather than the code.
+
+790 tests, 170 green of 225 in scope.
+
 # §X — NOT ENGINEERING WORK
 
 **28 in-scope controls that will not go green by writing code.** Separated from

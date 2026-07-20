@@ -2327,6 +2327,122 @@ async function runEcommerceLifecycle(env: FireEnv): Promise<void> {
   }
 }
 
+/** Liquidity: bands, positions, mismatch, stress, collateral, packs. */
+async function runLiquidityLifecycle(env: FireEnv): Promise<void> {
+  if ((env.rows["core.liquidity_position"] ?? []).length > 0) return;
+  const ops = env.actors.ops;
+
+  // NEGATIVE: a position with NO configured bands reports unassessed
+  await postLiquidityPosition(
+    R({ as_of_date: "2026-07-16", liquid_assets_cents: 40_000_000_00,
+        total_assets_cents: 400_000_000_00, haircut_table: { treasury: 0, agency: 200 },
+        gl_balances: { cash: 1 } }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: bands that cross are not bands
+  await postLarBandConfig(
+    R({ critical_bp: 900, warning_bp: 500, target_bp: 1200, approved_by: "alco_chair" }),
+    env.db, "d", ops,
+  );
+  await postLarBandConfig(
+    R({ critical_bp: 500, warning_bp: 800, target_bp: 1200, approved_by: "alco_chair" }),
+    env.db, "d", ops,
+  );
+  await postLiquidityPosition(
+    R({ as_of_date: "2026-07-17", liquid_assets_cents: 40_000_000_00,
+        total_assets_cents: 400_000_000_00, haircut_table: { treasury: 0, agency: 200 },
+        gl_balances: { cash: 1 },
+        behavioral_assumptions: { core_deposit_runoff_bp: 500 } }),
+    env.db, "d", ops,
+  );
+  // a band CHANGE, and a critical breach
+  await postLiquidityPosition(
+    R({ as_of_date: "2026-07-18", liquid_assets_cents: 12_000_000_00,
+        total_assets_cents: 400_000_000_00, haircut_table: { treasury: 0 },
+        gl_balances: { cash: 1 } }),
+    env.db, "d", ops,
+  );
+
+  // NEGATIVE: gaps with no limit configured -> unassessed, no breach
+  await postMaturityMismatch(
+    R({ gaps: { "0_30d": -90_000_000_00 }, gl_balances: { cash: 1 } }),
+    "liqpos_2026-07-17", env.db, "d", ops,
+  );
+  await postMaturityMismatch(
+    R({ gaps: { "0_30d": -90_000_000_00, "31_90d": -10_000_000_00 },
+        limit: { "0_30d": -50_000_000_00, "31_90d": -50_000_000_00 },
+        intraday: true, draw_amount_cents: 20_000_000_00,
+        shortfall_estimate_cents: 40_000_000_00,
+        gl_balances: { cash: 1 },
+        behavioral_assumptions: { runoff_bp: 500 },
+        disposition: "drew on the FHLB line and re-laddered", dispositioned_by: "treasurer_1" }),
+    "liqpos_2026-07-18", env.db, "d", ops,
+  );
+
+  await postStressAssumptions(
+    R({ set: "baseline", behavioral_assumptions: { runoff_bp: 500 },
+        baas_shock_params: { partner_exit: true }, intraday_profile: { peak_hour: 14 },
+        assumption_value: { runoff_bp: 500 } }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: a changed assumption with no rationale or approver
+  await postStressAssumptions(
+    R({ set: "severe", behavioral_assumptions: { runoff_bp: 1500 } }), env.db, "d", ops,
+  );
+  await postStressAssumptions(
+    R({ set: "severe", behavioral_assumptions: { runoff_bp: 1500 },
+        assumption_value: { runoff_bp: 1500 },
+        rationale: "March BaaS partner exit showed 15% runoff, not 5%",
+        approver_id: "alco_chair" }),
+    env.db, "d", ops,
+  );
+  await postStressRun(
+    R({ period: "2026Q3", kind: "scheduled", survival_days: 45, threshold_days: 60,
+        ewi_value: { deposit_outflow_bp: 300 }, haircut_table: { treasury: 0 },
+        behavioral_assumptions: { runoff_bp: 1500 }, assumption_value: { runoff_bp: 1500 } }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: an ad-hoc rerun that will not say what triggered it
+  await postStressRun(R({ period: "2026Q3", kind: "adhoc", survival_days: 80 }), env.db, "d", ops);
+  await postStressRun(
+    R({ period: "2026Q3", kind: "adhoc", survival_days: 80, threshold_days: 60,
+        trigger_reason: "EWI spike: 3% single-day deposit outflow",
+        ewi_value: { deposit_outflow_bp: 300 } }),
+    env.db, "d", ops,
+  );
+
+  // NEGATIVE: a tested facility with no script cannot be repeated
+  await postFacility(R({ name: "FHLB Atlanta", kind: "fhlb", tested: true }), env.db, "d", ops);
+  await postFacility(
+    R({ name: "FHLB Atlanta", kind: "fhlb", tested: true,
+        test_script: "draw $1m, confirm settlement, repay same day",
+        contacts: { desk: "555-0199" }, collateral_schedule: { mortgages: "blanket lien" } }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: headroom with no eligibility rules
+  await postCollateralPosition(
+    R({ unencumbered_cents: 30_000_000_00, pledged_cents: 10_000_000_00 }),
+    "fac_fhlb", env.db, "d", ops,
+  );
+  await postCollateralPosition(
+    R({ as_of_date: "2026-07-18", unencumbered_cents: 30_000_000_00,
+        pledged_cents: 28_000_000_00, floor_cents: 5_000_000_00,
+        eligibility_rules: { mortgages: "1-4 family, current" },
+        pledge_schedule: { mortgages: 28_000_000_00 },
+        move_detail: { out: "sold 2m of pledged paper" }, recompute: true }),
+    "fac_fhlb", env.db, "d", ops,
+  );
+
+  for (const cadence of ["daily", "weekly", "board"]) {
+    await postLiquidityPack(
+      R({ cadence, period: "2026-07", concentration_top10: [{ name: "P1", bp: 400 }],
+          ceo_summary: "LAR fell through the warning band on the 18th",
+          weekly_deltas: { lar_bp: -700 }, limit_registry: ["LAR", "mismatch"] }),
+      env.db, "d", ops,
+    );
+  }
+}
+
 async function runCapitalLifecycle(env: FireEnv): Promise<void> {
   // A WELL-CAPITALIZED position with a configured internal trigger. The trigger
   // sits above the statutory floor, so this position is compliant with NCUA and
@@ -2475,6 +2591,10 @@ import {
   postPospayException,
 } from "../api/eps_controls.ts";
 import { postCardReissue, postIssueCard } from "../api/cards.ts";
+import {
+  postCollateralPosition, postFacility, postLarBandConfig, postLiquidityPack,
+  postLiquidityPosition, postMaturityMismatch, postStressAssumptions, postStressRun,
+} from "../api/liquidity.ts";
 import {
   postCredentialIssue, postEcommerceRiskAssessment, postEcommerceTransaction, postEnrollment,
   postLoginFailure, postPasswordChange, postRepudiationReview,
@@ -3280,6 +3400,18 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   "ecommerce.transaction.initiated": (env) => runEcommerceLifecycle(env),
   "member_credential.expiry.due": (env) => runEcommerceLifecycle(env),
   "member_credential.temp_password.issued": (env) => runEcommerceLifecycle(env),
+  "collateral.file.posted": (env) => runLiquidityLifecycle(env),
+  "collateral.large_move.detected": (env) => runLiquidityLifecycle(env),
+  "ewi.major_event.flagged": (env) => runLiquidityLifecycle(env),
+  "ewi.spike.flagged": (env) => runLiquidityLifecycle(env),
+  "facility.test.due_at": (env) => runLiquidityLifecycle(env),
+  "lar.band.changed": (env) => runLiquidityLifecycle(env),
+  "liquidity.eod.posted": (env) => runLiquidityLifecycle(env),
+  "liquidity.large_flow.detected": (env) => runLiquidityLifecycle(env),
+  "mismatch.breach.dispositioned": (env) => runLiquidityLifecycle(env),
+  "report.board_due_at": (env) => runLiquidityLifecycle(env),
+  "report.weekly_digest.published": (env) => runLiquidityLifecycle(env),
+  "stress.assumption.changed": (env) => runLiquidityLifecycle(env),
   "incident.declared": (env) => runIncidentLifecycle(env),
   "incident.detected": (env) => runIncidentLifecycle(env),
   "incident.sev1.detected": (env) => runIncidentLifecycle(env),

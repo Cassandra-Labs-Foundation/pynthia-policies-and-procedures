@@ -9,14 +9,14 @@
     "total": 333,
     "in_scope": 225,
     "scoped_out": 108,
-    "in_scope_green": 164,
-    "in_scope_red": 61,
+    "in_scope_green": 170,
+    "in_scope_red": 55,
     "scope_note": "Scoped-out controls are real obligations discharged by people and paperwork. This system covers the technical controls; the organisational ones are not claimed.",
-    "green": 165,
-    "red": 168,
-    "pct_green": 49.5,
+    "green": 171,
+    "red": 162,
+    "pct_green": 51.4,
     "red_by_reason": {
-      "trigger fires but produced events missing": 96,
+      "trigger fires but produced events missing": 92,
       "no writer: vendor.*": 6,
       "no writer: training.*": 4,
       "no writer: eps.*": 4,
@@ -56,8 +56,6 @@
       "no writer: phishing.*": 1,
       "no writer: recon.*": 1,
       "no writer: coi.*": 1,
-      "no writer: mismatch.*": 1,
-      "no writer: report.*": 1,
       "no writer: cfp.*": 1,
       "no writer: ncua.*": 1,
       "no writer: drill.*": 1,
@@ -69,7 +67,7 @@
     },
     "inputs_unverifiable_total": 1391,
     "green_by_fire_path": {
-      "real_writer": 157,
+      "real_writer": 163,
       "generic_echo": 6,
       "obligation_cadence": 2
     },
@@ -86,6 +84,7 @@
       "truth-in-savings": 8,
       "cash": 7,
       "e-commerce": 7,
+      "liquidity": 7,
       "member": 7,
       "basel-ii-standardized-approach-framework": 3,
       "electronic-payment-systems": 3,
@@ -95,7 +94,6 @@
       "audit": 2,
       "business-continuity-plan": 2,
       "enterprise-risk-management": 2,
-      "liquidity": 1,
       "third-party-risk": 1
     }
   },
@@ -10434,14 +10432,19 @@
       "policy": "liquidity",
       "control_id": "LQ-02",
       "title": "Maturity Mismatch Limits",
-      "status": "red",
+      "status": "green",
       "expected": [
         "alert.mismatch_breach",
         "mismatch.gap_computed",
         "mismatch.intraday_recomputed",
         "mismatch.breach.dispositioned"
       ],
-      "observed": [],
+      "observed": [
+        "alert.mismatch_breach",
+        "mismatch.gap_computed",
+        "mismatch.intraday_recomputed",
+        "mismatch.breach.dispositioned"
+      ],
       "triggers": [
         "liquidity.eod.posted",
         "liquidity.large_flow.detected",
@@ -10468,8 +10471,7 @@
         "mismatch.breach_magnitude",
         "mismatch.breached_bucket"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'mismatch.breach.dispositioned'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -10478,14 +10480,19 @@
       "policy": "liquidity",
       "control_id": "LQ-03",
       "title": "Liquid Assets Ratio Bands",
-      "status": "red",
+      "status": "green",
       "expected": [
         "lar.band_alert.issued",
         "lar.computed",
         "lar.critical.breached",
         "alert.lar_band_change"
       ],
-      "observed": [],
+      "observed": [
+        "lar.band_alert.issued",
+        "lar.computed",
+        "lar.critical.breached",
+        "alert.lar_band_change"
+      ],
       "triggers": [
         "liquidity.eod.posted",
         "lar.band.changed"
@@ -10507,8 +10514,7 @@
         "lar.prior_band",
         "lar.value"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/4: missing lar.band_alert.issued, lar.computed, lar.critical.breached, alert.lar_band_change"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -10517,13 +10523,17 @@
       "policy": "liquidity",
       "control_id": "LQ-04",
       "title": "Survival Horizon & Coverage Days",
-      "status": "red",
+      "status": "green",
       "expected": [
         "survival.below_threshold",
         "survival.computed",
         "survival.adhoc_computed"
       ],
-      "observed": [],
+      "observed": [
+        "survival.below_threshold",
+        "survival.computed",
+        "survival.adhoc_computed"
+      ],
       "triggers": [
         "stress.quarter_open",
         "ewi.spike.flagged"
@@ -10543,8 +10553,7 @@
         "ewi.value",
         "stress.assumption_value"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/3: missing survival.below_threshold, survival.computed, survival.adhoc_computed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -10553,13 +10562,17 @@
       "policy": "liquidity",
       "control_id": "LQ-05",
       "title": "Stress Testing",
-      "status": "red",
+      "status": "green",
       "expected": [
         "stress.pack.issued",
         "stress.adhoc_rerun.issued",
         "stress.assumption_versioned"
       ],
-      "observed": [],
+      "observed": [
+        "stress.pack.issued",
+        "stress.adhoc_rerun.issued",
+        "stress.assumption_versioned"
+      ],
       "triggers": [
         "stress.quarter_open",
         "ewi.major_event.flagged",
@@ -10586,8 +10599,7 @@
         "stress.approver_id",
         "stress.assumption_value"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/3: missing stress.pack.issued, stress.adhoc_rerun.issued, stress.assumption_versioned"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -10641,13 +10653,17 @@
       "policy": "liquidity",
       "control_id": "LQ-07",
       "title": "Reporting Cadence",
-      "status": "red",
+      "status": "green",
       "expected": [
         "report.daily_pack.published",
         "report.weekly_digest.published",
         "report.board_deck.published"
       ],
-      "observed": [],
+      "observed": [
+        "report.daily_pack.published",
+        "report.weekly_digest.published",
+        "report.board_deck.published"
+      ],
       "triggers": [
         "liquidity.eod.posted",
         "report.weekly_digest.published",
@@ -10678,8 +10694,7 @@
         "stress.pack",
         "survival.days_combined"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'report.board_due_at'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -10725,14 +10740,19 @@
       "policy": "liquidity",
       "control_id": "LQ-09",
       "title": "Contingent Federal Liquidity Access",
-      "status": "red",
+      "status": "green",
       "expected": [
         "alert.headroom_low",
         "collateral.headroom_computed",
         "collateral.headroom_rechecked",
         "facility.test.completed"
       ],
-      "observed": [],
+      "observed": [
+        "alert.headroom_low",
+        "collateral.headroom_computed",
+        "collateral.headroom_rechecked",
+        "facility.test.completed"
+      ],
       "triggers": [
         "collateral.file.posted",
         "collateral.large_move.detected",
@@ -10757,8 +10777,7 @@
         "facility.contacts",
         "facility.test_script"
       ],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "produced 0/4: missing alert.headroom_low, collateral.headroom_computed, collateral.headroom_rechecked, facility.test.completed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
