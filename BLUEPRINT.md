@@ -1652,11 +1652,20 @@ five artifacts exactly. Regenerate with `python3 scripts/project_remaining.py`.
 > do not — those four are recorded as `NOT_BLOCKING` in the script with the
 > reasoning, because they LOOK person/outside by name and are not.
 >
-> **This is the lending measurement bug in a new disguise** — scanning one
-> declaration source understates the dependency set. The script now scans
-> trigger, produced events AND required inputs, which is what the rule in "READ
-> FIRST" says to do. That the same mistake recurred in a different form two
-> artifacts after being written down is itself worth knowing.
+> **The real lesson is narrower and more useful than "scan all three".** That
+> rule was already written down in READ FIRST when this recurred, so writing it
+> down did not prevent it. The actual defect was an assumption baked into the
+> script: **that a control's CURRENT failure is its only failure.** Grading is
+> LAZY — the harness reports the first thing that fails, so a control blocked on
+> missing events has not had its inputs graded at all. Fix the events and a new
+> blocker appears that was invisible a moment earlier.
+>
+> **That assumption is now fixed IN `scripts/project_remaining.py`, not in my
+> habit** — the script scans everything the control declares regardless of what
+> it currently reports, and the four look-alike exceptions are data
+> (`NOT_BLOCKING`) rather than judgment applied at read time. Anyone re-running
+> it gets the corrected behaviour without knowing this happened. That is the
+> difference between a lesson and a fix, and the first attempt was only a lesson.
 
 The remaining build is roughly seven more artifacts at the observed rate.
 
@@ -1842,19 +1851,27 @@ reasoning recorded — not left red looking like unfinished engineering. Note th
 
 ## X.2 — Needs another system's evidence (19)
 
+> # ⇒ ONE INTEGRATION MOVES SEVEN CONTROLS: 195 → 204
+>
+> **Seven of these nineteen need the same thing: network and endpoint security
+> evidence.** `e-commerce:EC-05`, `EC-06`, `EC-08`, `EC-09`,
+> `information-security:IS-05`, `IS-07`, `IS-14` — firewall rules, TLS
+> configuration, antivirus, intrusion detection, SIEM, DLP, vulnerability
+> scanning.
+>
+> A SIEM normally consolidates exactly these, that being the point of a SIEM.
+> **If one exists, a single feed from it moves all seven.** This is the highest-
+> leverage decision available anywhere in this backlog and it is one question:
+> *does something already aggregate our security telemetry, and can the core
+> read it?*
+>
+> The remaining twelve are unrelated to each other and to this, and are listed
+> below for completeness rather than as a group to act on.
+
 These need a fact about INFRASTRUCTURE or an EXTERNAL BODY that the banking core
 has no connection to. **A banking core asserting `firewall.rule.changed` is
 fabricating in exactly the way it would be by inventing an employee.** The
 obligations are real; the evidence lives elsewhere.
-
-> ### ⇒ PRE-COMPUTED: **seven of the nineteen sit behind ONE integration.**
-> `e-commerce:EC-05`, `EC-06`, `EC-08`, `EC-09`, `information-security:IS-05`,
-> `IS-07`, `IS-14` all need network/endpoint security evidence — firewall, TLS
-> config, antivirus, IDS, SIEM, DLP, vulnerability scanner. If those are
-> consolidated in one place (a SIEM usually is, which is the point of a SIEM),
-> **one feed moves seven controls** and takes the projection from 197 to 204.
-> That is the single highest-leverage integration available and it is worth
-> asking about before any of the other twelve.
 
 | group | controls | the evidence holder |
 |---|---|---|
