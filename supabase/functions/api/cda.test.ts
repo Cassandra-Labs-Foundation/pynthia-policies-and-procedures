@@ -119,6 +119,31 @@ Deno.test("CDA-01: an expired adoption blocks funding — the policy is a gate, 
   assert((blocked[0].blocked_reasons as string[]).includes("policy_expired"));
 });
 
+Deno.test("CDA-01: the expiry is anchored on ADOPTION, not on when the row was written", async () => {
+  const { dbx } = await seedProgramme();
+  // The whole of CDA-01 is "if the policy lapses, CDA actions are blocked". If
+  // the expiry re-anchors to `now`, a policy adopted eleven months ago records
+  // an expiry twelve months from TODAY and can never lapse — the control fails
+  // open and every duration-based assertion still passes.
+  const pol = dbx.rows["core.cda_policy"][0];
+  assertEquals(String(pol.adopted_at), "2026-06-16T00:00:00.000Z");
+  assertEquals(String(pol.policy_expiry_at), "2027-06-16T00:00:00.000Z");
+});
+
+Deno.test("CDA-01: an adoption BACKDATED past its own term is already expired", async () => {
+  const dbx = makeDrillDb();
+  await postCdaPolicyAdoption(
+    req({
+      policy_version: "v0.9", board_resolution_id: "board-old",
+      adopted_at: "2024-01-01T00:00:00.000Z",
+    }),
+    dbx.client, "t", CTX,
+  );
+  assertEquals(String(dbx.rows["core.cda_policy"][0].policy_expiry_at), "2025-01-01T00:00:00.000Z");
+  const v = await evaluateFundingGate(dbx.client, "core", "nope", 1, null, new Date());
+  assert(v.reasons.includes("policy_expired"), "a stale adoption must read as expired");
+});
+
 Deno.test("CDA-01: NO adoption at all blocks too — absence is not permission", async () => {
   const dbx = makeDrillDb();
   await postCda(

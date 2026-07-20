@@ -10,6 +10,7 @@ import { makeDrillDb } from "../drill/fake_db.ts";
 import { OPS_CTX, req } from "./test_helpers.ts";
 import {
   CMIR_THRESHOLD_CENTS,
+  postCashPolicyAdoption,
   limitInForce,
   postCashDeviationDecision,
   postCashDeviationRequest,
@@ -53,6 +54,25 @@ async function seedVault(limit = 750_000_00, balance = 500_000_00) {
   );
   return { dbx, db };
 }
+
+// ------------------------------------------------------ CP-01 policy lapse
+
+Deno.test("CP-01: the policy expiry is anchored on ADOPTION, not on the write", async () => {
+  const dbx = makeDrillDb();
+  await postCashPolicyAdoption(
+    req({
+      policy_document_version: "cash-v2.1", board_resolution_id: "board-7",
+      adopted_at: "2026-04-01T00:00:00.000Z",
+    }),
+    dbx.client, "t", CTX,
+  );
+  // Asserting the twelve-month INTERVAL cannot see a clock that re-anchors to
+  // `now` — the interval is twelve months either way. Only the absolute date
+  // distinguishes them.
+  const p = dbx.rows["core.cash_policy"][0];
+  assertEquals(String(p.adopted_at), "2026-04-01T00:00:00.000Z");
+  assertEquals(String(p.policy_expiry_at), "2027-04-01T00:00:00.000Z");
+});
 
 // ------------------------------------------------ CP-04 limits and ordering
 

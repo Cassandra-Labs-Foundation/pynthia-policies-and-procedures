@@ -18,7 +18,7 @@ type Any = any;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** IP-05: credit analysis goes stale after a year. */
-const CREDIT_REANALYSIS_DAYS = 365;
+export const CREDIT_REANALYSIS_DAYS = 365;
 /** IP-09: repo collateral is re-valued daily. */
 const REPO_REVALUATION_DAYS = 1;
 /** IP-15: the required document set must be attached within this window. */

@@ -1885,3 +1885,50 @@ analysis over it is empty.
 
 Both reachable states, so both were test problems rather than missing
 capability — the distinction the "when a mutant survives" rule turns on.
+
+## THE DURATION-VS-ANCHOR TEST WEAKNESS — swept, 2 real gaps found
+
+**A test that asserts a DURATION cannot see a clock that silently re-anchors.**
+If `due_at - anchor` is asserted to be 30 days, code that computed
+`now + 30 days` and ignored the anchor entirely passes: the interval is 30 days
+either way. Only an ABSOLUTE assertion distinguishes them.
+
+Found in the complaints artifact — the acknowledgement test compared
+`ack_due_at - received_at` and would have passed against a writer that reset the
+deadline on a complaint which had sat unopened in an inbox for a week. Given how
+many deadline-driven controls this corpus has (SAR, ECOA, NCUA, NWRP, Reg E,
+CTR, retention, CDD, the obligation register), the rest was swept immediately
+rather than waiting to hit it again.
+
+### What the sweep found
+
+**Two real gaps, both in POLICY-LAPSE clocks, where the consequence is worst:**
+`cda_policy` and `cash_policy` compute expiry as `adopted_at + 12 months`, and
+nothing asserted the absolute date. A policy adopted eleven months ago would
+have recorded an expiry twelve months from TODAY — so it could never lapse,
+**and CDA-01's entire control is "if the policy lapses, all CDA actions are
+blocked".** The control fails open and every duration-based assertion still
+passes. Both now pinned, plus a case that backdates an adoption past its own
+term and asserts it reads as already expired.
+
+**A second finding the sweep surfaced sideways:** three mutations survived
+initially not because of duration-vs-anchor but because **`capital.ts`,
+`incidents.ts`, `audit.ts` and `eps_controls.ts` have no dedicated unit tests at
+all.** They were built in an earlier session and are green through the
+control-test harness alone, so their deadline anchors were unprotected entirely.
+
+### `deadlines.test.ts`
+
+Every regulatory clock in the system is now pinned to its anchor in one file,
+with absolute dates. It covers the anchor AND the negative (a non-reportable
+incident starts no NCUA clock; a well-capitalized position starts no NWRP
+clock), and it deliberately spans modules that have no other tests.
+
+**12 re-anchoring mutations, 12 caught.** Including the ones that motivated it:
+ECOA anchored on the decision rather than the completed application, CTR on the
+day it was noticed rather than the business date, NCUA on the declaration rather
+than the reportability determination, NWRP on the quarter-end rather than the
+classification, CDD on the write rather than the last refresh.
+
+**The general rule, worth applying to any new deadline: assert the absolute
+date, not the interval.** The interval is the part that survives the bug.
