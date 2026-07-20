@@ -2191,3 +2191,41 @@ value the way somebody would in order to turn a control green.
 **Apply this to any new control whose honest state is "unconfigured".** The test
 to write is not "does it behave correctly when configured" — it is "does it
 still refuse to render a verdict when it is not".
+
+### privacy (PR-*) — 11 of 14 green, predicted 11
+
+114 -> 125. Ninth artifact, ninth exact call. The three reds are exactly the
+outside-blocked ones: PR-03 (vendor GLBA attestations), PR-04 (outside counsel's
+receipt of legal process), PR-15 (third-party connection telemetry).
+`core.address` is the eleventh abandoned table to get a writer.
+
+**AN OPT-OUT IS A STANDING STATE, NOT AN EVENT LOG — and this is the finding.**
+The natural model is a log of opt-out requests, and it is wrong in a way that
+fails silently. The obligation is not "record that they asked", it is **"do not
+share, from now on, until they say otherwise"**. A log answers *did they ask*; a
+standing state answers *may we share TODAY*, which is the question every
+disclosure has to put. So `privacy_preference` holds the current state per
+member per channel, and the propagation deadline lives on the state row —
+because the real failure is a preference captured at the desk and never pushed
+to the systems that actually do the sharing.
+
+**Two more where the naive model loses the control:**
+
+- **A GPC signal OVERRIDES the banner**, and the test that matters is the one
+  where a member sends GPC *and* clicks accept-all. Treating the signal as
+  advisory, or letting the later click win, is the failure the signal exists to
+  prevent.
+- **Tags are gated by BOTH approval and consent.** An approved advertising tag
+  still fires only with advertising consent; a consented category still fires
+  nothing nobody reviewed. Gating on either alone passes the happy path.
+
+**A schema correction the corpus forced.** PR-05 declares `dispute.basis`, and I
+had split furnishing disputes (FCRA) from Reg E disputes into separate
+registers. The corpus does not: both are `dispute.*`. `core.dispute.amount_cents`
+is now nullable with a `kind` discriminator, because **a data-accuracy dispute
+has no amount and forcing one would fabricate it** — while a Reg E dispute must
+still carry both its amount and its provisional-credit clock, enforced by
+`ck_dispute_rege_has_amount`. The control found a modelling error, which is the
+whole method.
+
+**22 mutations, 22 caught first pass.** Fourth artifact with no survivors.

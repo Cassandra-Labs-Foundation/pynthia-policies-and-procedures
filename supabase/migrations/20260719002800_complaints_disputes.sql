@@ -83,12 +83,19 @@ create table if not exists "core"."dispute" (
   "member_id" text,
   "account_id" text,
   "basis" text not null,
-  "amount_cents" bigint not null check ("amount_cents" > 0),
+  -- NULLABLE, and the reason matters: a Reg E dispute has an amount, a FCRA
+  -- data-accuracy dispute (PR-05) does not. The corpus treats both as
+  -- `dispute.*` and splitting them into separate registers made PR-05 unable to
+  -- find its own basis. Forcing an amount onto a non-monetary dispute would
+  -- fabricate one.
+  "amount_cents" bigint check ("amount_cents" is null or "amount_cents" > 0),
+  "kind" text not null default 'reg_e' check ("kind" in ('reg_e', 'data_accuracy')),
   "notified_at" timestamptz not null,
 
   -- Reg E: provisional credit within 10 business days unless the
   -- investigation completes first.
-  "provisional_credit_due_at" timestamptz not null,
+  -- only a monetary dispute carries a provisional-credit obligation
+  "provisional_credit_due_at" timestamptz,
   "provisional_credit_posted_at" timestamptz,
   "provisional_credit_cents" bigint,
   -- 45 days, or 90 for new accounts / POS / foreign-initiated
@@ -106,6 +113,11 @@ create table if not exists "core"."dispute" (
   -- the member's balance
   constraint "ck_dispute_provisional_credit_amount"
     check ("provisional_credit_posted_at" is null or "provisional_credit_cents" is not null),
+  -- a Reg E dispute must carry its amount and its provisional-credit clock;
+  -- a data-accuracy one must not pretend to
+  constraint "ck_dispute_rege_has_amount"
+    check ("kind" <> 'reg_e' or ("amount_cents" is not null
+           and "provisional_credit_due_at" is not null)),
   -- a completed investigation must have findings; Reg E requires the member be
   -- told the BASIS of the determination, not just the outcome
   constraint "ck_dispute_investigation_findings"

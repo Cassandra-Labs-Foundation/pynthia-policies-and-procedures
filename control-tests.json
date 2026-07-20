@@ -9,14 +9,14 @@
     "total": 333,
     "in_scope": 225,
     "scoped_out": 108,
-    "in_scope_green": 114,
-    "in_scope_red": 111,
+    "in_scope_green": 125,
+    "in_scope_red": 100,
     "scope_note": "Scoped-out controls are real obligations discharged by people and paperwork. This system covers the technical controls; the organisational ones are not claimed.",
-    "green": 115,
-    "red": 218,
-    "pct_green": 34.5,
+    "green": 126,
+    "red": 207,
+    "pct_green": 37.8,
     "red_by_reason": {
-      "trigger fires but produced events missing": 123,
+      "trigger fires but produced events missing": 121,
       "no writer: vendor.*": 6,
       "no writer: loan.*": 4,
       "no writer: training.*": 4,
@@ -24,13 +24,11 @@
       "no writer: indemnification.*": 4,
       "no writer: board.*": 3,
       "no writer: access.*": 3,
-      "no writer: privacy.*": 3,
       "no writer: org.*": 2,
       "no writer: member.*": 2,
       "no writer: compliance.*": 2,
       "no writer: insider.*": 2,
       "catalogue entry declares no trigger event": 2,
-      "no writer: web.*": 2,
       "no writer: insurance.*": 2,
       "inputs not supplied: finding.description, finding.risk_rating": 1,
       "inputs not supplied: finding.description, finding.implementation_date, finding.responsible_party, finding.risk_rating": 1,
@@ -41,7 +39,7 @@
       "no writer: cash.*": 1,
       "inputs not supplied: training.coverage_pct": 1,
       "no writer: furnishing.*": 1,
-      "inputs not supplied: incident.collections, incident.data_scope, incident.description, incident.detection_source": 1,
+      "inputs not supplied: incident.collections, incident.reportability_assessment": 1,
       "no writer: regulatory.*": 1,
       "no writer: affiliate.*": 1,
       "no writer: corp_opportunity.*": 1,
@@ -73,10 +71,6 @@
       "no writer: verification.*": 1,
       "no writer: card.*": 1,
       "no writer: service.*": 1,
-      "no writer: correction.*": 1,
-      "no writer: record.*": 1,
-      "no writer: incident.*": 1,
-      "no writer: analytics.*": 1,
       "no writer: connection.*": 1,
       "no writer: safe_mode.*": 1,
       "no writer: institution_freeze.*": 1,
@@ -85,7 +79,7 @@
     },
     "inputs_unverifiable_total": 1391,
     "green_by_fire_path": {
-      "real_writer": 108,
+      "real_writer": 119,
       "generic_echo": 5,
       "obligation_cadence": 2
     },
@@ -94,6 +88,7 @@
       "investment": 16,
       "lending": 14,
       "charitable-donation-accounts": 13,
+      "privacy": 13,
       "record-retention": 11,
       "capitalization": 8,
       "cash": 7,
@@ -105,7 +100,6 @@
       "enterprise-risk-management": 2,
       "fair-lending": 2,
       "information-security": 2,
-      "privacy": 2,
       "shared-controls": 2,
       "business-continuity-plan": 1,
       "e-commerce": 1,
@@ -4458,7 +4452,9 @@
         "furnishing.dispute.resolved",
         "fraud.idtheft_case.opened"
       ],
-      "observed": [],
+      "observed": [
+        "furnishing.correction.applied"
+      ],
       "triggers": [
         "furnishing.cycle_due_at",
         "furnishing.dispute.received",
@@ -4474,14 +4470,16 @@
         "member.id",
         "dispute.idtheft_report"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "dispute.basis"
+      ],
       "inputs_unverifiable": [
         "furnishing.correction.identified",
         "furnishing.file_transmitted",
         "furnishing.disputed_account",
         "member.id"
       ],
-      "fire_path": "generic_echo",
+      "fire_path": "real_writer",
       "blocked_on": "no writer for trigger 'furnishing.cycle_due_at'"
     },
     {
@@ -4552,12 +4550,16 @@
         "incident.severity"
       ],
       "inputs_supplied": [
+        "incident.data_scope",
+        "incident.description",
+        "incident.detection_source",
         "incident.member_impact",
+        "incident.scope_initial",
         "incident.severity"
       ],
       "inputs_unverifiable": [],
       "fire_path": "real_writer",
-      "blocked_on": "inputs not supplied: incident.collections, incident.data_scope, incident.description, incident.detection_source"
+      "blocked_on": "inputs not supplied: incident.collections, incident.reportability_assessment"
     },
     {
       "scoped_out": false,
@@ -7622,7 +7624,9 @@
         "dlp.violation.resolved",
         "disposal.certificate.recorded"
       ],
-      "observed": [],
+      "observed": [
+        "disposal.certificate.recorded"
+      ],
       "triggers": [
         "tls.certificate_expires_at",
         "dlp.violation.detected",
@@ -11397,12 +11401,15 @@
       "policy": "privacy",
       "control_id": "PR-01",
       "title": "Privacy Notice Lifecycle",
-      "status": "red",
+      "status": "green",
       "expected": [
         "privacy.notice.delivered",
         "privacy.notice_copy.delivered"
       ],
-      "observed": [],
+      "observed": [
+        "privacy.notice.delivered",
+        "privacy.notice_copy.delivered"
+      ],
       "triggers": [
         "entity.created",
         "privacy.annual.notice.due_at",
@@ -11427,8 +11434,7 @@
         "privacy.annual_exemption_status",
         "privacy.sharing_change_basis"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'privacy.notice.revised'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -11437,14 +11443,19 @@
       "policy": "privacy",
       "control_id": "PR-02",
       "title": "Opt-Out Capture and Honoring",
-      "status": "red",
+      "status": "green",
       "expected": [
         "privacy.optout.received",
         "privacy.optout_propagated",
         "privacy.optout.cleared",
         "privacy.nv_optout_enforced"
       ],
-      "observed": [],
+      "observed": [
+        "privacy.optout.received",
+        "privacy.optout_propagated",
+        "privacy.optout.cleared",
+        "privacy.nv_optout_enforced"
+      ],
       "triggers": [
         "privacy.optout.received",
         "privacy.optout.propagation.due_at",
@@ -11460,7 +11471,8 @@
         "entity.jurisdiction"
       ],
       "inputs_supplied": [
-        "entity.id"
+        "entity.id",
+        "entity.jurisdiction"
       ],
       "inputs_unverifiable": [
         "privacy.optout_channel",
@@ -11468,8 +11480,7 @@
         "vendor.data_map_id",
         "privacy.revocation_artifact_id"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'privacy.optout.cleared'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -11556,7 +11567,7 @@
       "policy": "privacy",
       "control_id": "PR-05",
       "title": "Data Accuracy and Corrections",
-      "status": "red",
+      "status": "green",
       "expected": [
         "correction.propagation.due_at",
         "furnishing.correction.applied",
@@ -11565,7 +11576,14 @@
         "furnishing.dispute_due_at",
         "correction.propagated"
       ],
-      "observed": [],
+      "observed": [
+        "correction.propagation.due_at",
+        "furnishing.correction.applied",
+        "redflag.detected",
+        "furnishing.dispute.received",
+        "furnishing.dispute_due_at",
+        "correction.propagated"
+      ],
       "triggers": [
         "furnishing.correction.applied",
         "address.ncoa_mismatch.detected",
@@ -11581,14 +11599,16 @@
         "furnishing.disputed_account"
       ],
       "inputs_supplied": [
-        "entity.id"
+        "entity.id",
+        "address.ncoa_candidate",
+        "address.ncoa_mismatch",
+        "dispute.basis"
       ],
       "inputs_unverifiable": [
         "correction.evidence_artifact_id",
         "furnishing.disputed_account"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'correction.propagated'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -11686,7 +11706,7 @@
       "policy": "privacy",
       "control_id": "PR-08",
       "title": "Secure Disposal of NPPI",
-      "status": "red",
+      "status": "green",
       "expected": [
         "disposal.held",
         "disposal.scheduled",
@@ -11699,6 +11719,8 @@
         "disposal.held",
         "disposal.scheduled",
         "disposal.clock_resumed",
+        "record.destruction_due_at",
+        "disposal.certificate.recorded",
         "record.destroyed"
       ],
       "triggers": [
@@ -11728,8 +11750,7 @@
         "disposal.batch_manifest_id",
         "disposal.method"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "no writer for trigger 'record.retention.expires_at'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -11773,7 +11794,7 @@
       "policy": "privacy",
       "control_id": "PR-18",
       "title": "Incident Detection, Classification & SAR Referral",
-      "status": "red",
+      "status": "green",
       "expected": [
         "incident.created",
         "incident.detected",
@@ -11784,7 +11805,9 @@
       "observed": [
         "incident.created",
         "incident.detected",
-        "incident.classified"
+        "incident.classified",
+        "notification.decision.recorded",
+        "incident.sar_referred"
       ],
       "triggers": [
         "incident.detected",
@@ -11802,12 +11825,17 @@
         "incident.id"
       ],
       "inputs_supplied": [
+        "incident.description",
+        "incident.detection_source",
+        "incident.scope_initial",
+        "incident.criminal_suspected",
+        "incident.data_scope",
+        "incident.material",
         "incident.member_impact",
         "incident.id"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "no writer for trigger 'incident.criminal_suspected'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -11866,14 +11894,19 @@
       "policy": "privacy",
       "control_id": "PR-11",
       "title": "Website Posting and E-SIGN Delivery",
-      "status": "red",
+      "status": "green",
       "expected": [
         "privacy.website_notice.updated",
         "member.esign_consent_captured",
         "privacy.esign_consent.recorded",
         "privacy.notice_copy.delivered"
       ],
-      "observed": [],
+      "observed": [
+        "privacy.website_notice.updated",
+        "member.esign_consent_captured",
+        "privacy.esign_consent.recorded",
+        "privacy.notice_copy.delivered"
+      ],
       "triggers": [
         "privacy.notice_template.published",
         "privacy.esign_consent.started",
@@ -11895,8 +11928,7 @@
         "member.esign_consent_evidence",
         "privacy.esign_consent"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/4: missing privacy.website_notice.updated, member.esign_consent_captured, privacy.esign_consent.recorded, privacy.notice_copy.delivered"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -11905,7 +11937,7 @@
       "policy": "privacy",
       "control_id": "PR-12",
       "title": "State Privacy Rights: Universal Floor",
-      "status": "red",
+      "status": "green",
       "expected": [
         "privacy.state_request.received",
         "privacy.state_request_due_at",
@@ -11913,7 +11945,13 @@
         "privacy.state_request_fulfilled",
         "privacy.nv_optout_enforced"
       ],
-      "observed": [],
+      "observed": [
+        "privacy.state_request.received",
+        "privacy.state_request_due_at",
+        "web.consent.updated",
+        "privacy.state_request_fulfilled",
+        "privacy.nv_optout_enforced"
+      ],
       "triggers": [
         "privacy.state_request.received",
         "web.gpc_signal",
@@ -11929,7 +11967,8 @@
         "web.visitor_jurisdiction"
       ],
       "inputs_supplied": [
-        "entity.id"
+        "entity.id",
+        "entity.jurisdiction"
       ],
       "inputs_unverifiable": [
         "privacy.state_request_type",
@@ -11937,8 +11976,7 @@
         "web.session",
         "web.visitor_jurisdiction"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'web.gpc_signal'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -11947,14 +11985,19 @@
       "policy": "privacy",
       "control_id": "PR-13",
       "title": "Anonymization and Aggregation",
-      "status": "red",
+      "status": "green",
       "expected": [
         "analytics.dataset.approved",
         "analytics.dataset.requested",
         "analytics.method_review.completed",
         "analytics.threshold.breached"
       ],
-      "observed": [],
+      "observed": [
+        "analytics.dataset.approved",
+        "analytics.dataset.requested",
+        "analytics.method_review.completed",
+        "analytics.threshold.breached"
+      ],
       "triggers": [
         "analytics.dataset.requested",
         "analytics.method.review.due_at",
@@ -11973,8 +12016,7 @@
         "analytics.source_scope",
         "analytics.reid_risk_assessment"
       ],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "no writer for trigger 'analytics.reid_risk_assessment'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -11983,7 +12025,7 @@
       "policy": "privacy",
       "control_id": "PR-14",
       "title": "Cookies and Online Tracking",
-      "status": "red",
+      "status": "green",
       "expected": [
         "web.consent.recorded",
         "web.tags_gated",
@@ -11991,7 +12033,13 @@
         "web.tag.approved",
         "web.tag.rejected"
       ],
-      "observed": [],
+      "observed": [
+        "web.consent.recorded",
+        "web.tags_gated",
+        "web.consent.updated",
+        "web.tag.approved",
+        "web.tag.rejected"
+      ],
       "triggers": [
         "web.session.started",
         "web.consent.updated",
@@ -12015,8 +12063,7 @@
         "web.tag_data_scope",
         "web.tag_vendor_id"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'web.tag_review'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -12063,7 +12110,7 @@
       "policy": "privacy",
       "control_id": "PR-16",
       "title": "Biometric Data for KYC",
-      "status": "red",
+      "status": "green",
       "expected": [
         "verification.biometric.declined",
         "verification.biometric.started",
@@ -12073,7 +12120,12 @@
         "verification.biometric_purged"
       ],
       "observed": [
-        "verification.biometric.purge.due_at"
+        "verification.biometric.declined",
+        "verification.biometric.started",
+        "verification.biometric_consent_id",
+        "verification.biometric.completed",
+        "verification.biometric.purge.due_at",
+        "verification.biometric_purged"
       ],
       "triggers": [
         "verification.biometric.started",
@@ -12089,11 +12141,15 @@
         "verification.id"
       ],
       "inputs_supplied": [
-        "entity.id"
+        "entity.id",
+        "verification.alt_path_available",
+        "verification.biometric.purge.due_at",
+        "verification.biometric_consent_id",
+        "verification.match_status",
+        "verification.id"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "produced 1/6: missing verification.biometric.declined, verification.biometric.started, verification.biometric_consent_id, verification.biometric.completed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -12102,13 +12158,17 @@
       "policy": "privacy",
       "control_id": "PR-17",
       "title": "Children's Data",
-      "status": "red",
+      "status": "green",
       "expected": [
         "privacy.age_gate.blocked",
         "privacy.minor_data.detected",
         "privacy.minor_data_deleted"
       ],
-      "observed": [],
+      "observed": [
+        "privacy.age_gate.blocked",
+        "privacy.minor_data.detected",
+        "privacy.minor_data_deleted"
+      ],
       "triggers": [
         "privacy.age_gate.blocked",
         "privacy.minor_data.detected",
@@ -12123,8 +12183,7 @@
         "privacy.age_gate_ruleset_id",
         "privacy.collection_vector"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'privacy.minor_data_deleted'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,

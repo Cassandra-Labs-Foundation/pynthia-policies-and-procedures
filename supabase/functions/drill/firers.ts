@@ -1734,6 +1734,181 @@ async function runBsaProgramLifecycle(env: FireEnv): Promise<void> {
   );
 }
 
+/**
+ * The privacy programme, driven end to end.
+ *
+ * Notice published and delivered (including an E-SIGN delivery refused for
+ * want of demonstrated consent) -> opt-outs set, cleared and PROPAGATED ->
+ * state privacy requests with verification refused first -> web consent with a
+ * GPC signal overriding the banner -> tag review -> an analytics dataset over
+ * the re-identification threshold -> biometrics without consent, then with ->
+ * age gate -> a furnishing dispute corrected and propagated.
+ *
+ * PR-03, PR-04 and PR-15 are absent on purpose: vendor attestations, outside
+ * counsel and third-party connection telemetry are not facts this core holds.
+ */
+async function runPrivacyLifecycle(env: FireEnv): Promise<void> {
+  if ((env.rows["core.privacy_notice"] ?? []).length > 0) return;
+  const ops = env.actors.ops;
+
+  await postPrivacyNotice(
+    R({ version: "v3", template_ref: "tpl-3", material_change: true,
+        effective_at: "2026-01-01T00:00:00.000Z" }),
+    env.db, "d", ops,
+  );
+  await postNoticeDelivery(
+    R({ entity_ref: "ent_p1", reason: "annual", channel: "mail" }),
+    "pnotice_v3", env.db, "d", ops,
+  );
+  // NEGATIVE: electronic delivery with no E-SIGN consent
+  await postNoticeDelivery(
+    R({ entity_ref: "ent_p2", reason: "annual", channel: "esign" }),
+    "pnotice_v3", env.db, "d", ops,
+  );
+  // NEGATIVE: consent that did not demonstrate access
+  await postEsignConsent(
+    R({ entity_ref: "ent_p2", demonstrated_access: false }), env.db, "d", ops,
+  );
+  await postEsignConsent(
+    R({ entity_ref: "ent_p3", demonstrated_access: true }), env.db, "d", ops,
+  );
+  await postNoticeDelivery(
+    R({ entity_ref: "ent_p3", reason: "member_request", channel: "esign",
+        esign_consent_id: "esign_ent_p3" }),
+    "pnotice_v3", env.db, "d", ops,
+  );
+
+  // opt-outs: set, Nevada, and one cleared
+  await postPrivacyPreference(
+    R({ entity_ref: "ent_p1", channel: "nonaffiliate_sharing", opted_out: true,
+        source: "member_request", entity_jurisdiction: "CA" }),
+    env.db, "d", ops,
+  );
+  await postPrivacyPreference(
+    R({ entity_ref: "ent_p1", channel: "nevada_sale", opted_out: true,
+        source: "member_request" }),
+    env.db, "d", ops,
+  );
+  await postPrivacyPreference(
+    R({ entity_ref: "ent_p3", channel: "marketing", opted_out: false,
+        source: "member_request" }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: propagation naming no systems
+  await postPreferencePropagation(R({ systems: [] }), env.db, "d", ops);
+  await postPreferencePropagation(
+    R({ systems: ["core", "marketing_platform", "data_warehouse"] }), env.db, "d", ops,
+  );
+
+  // state rights
+  await postStateRequest(
+    R({ entity_ref: "ent_p1", state: "CA", right_requested: "access",
+        received_at: "2026-07-01T00:00:00.000Z" }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: fulfilling before the requester is verified
+  await postStateRequestFulfilment(
+    R({ verified: false, outcome: "fulfilled" }), "psreq_ent_p1_access", env.db, "d", ops,
+  );
+  await postStateRequestFulfilment(
+    R({ verified: true, outcome: "fulfilled" }), "psreq_ent_p1_access", env.db, "d", ops,
+  );
+  // an opt-out right sets the standing state, not just a ticket
+  await postStateRequest(
+    R({ entity_ref: "ent_p4", state: "NV", right_requested: "opt_out" }), env.db, "d", ops,
+  );
+
+  // web: a tag reviewed, then consent with GPC overriding the banner
+  await postWebTagReview(
+    R({ vendor: "Analytics Co", category: "analytics", decision: "approved",
+        reviewed_by: "privacy_officer" }),
+    env.db, "d", ops,
+  );
+  await postWebTagReview(
+    R({ vendor: "Ad Network", category: "advertising", decision: "rejected",
+        reviewed_by: "privacy_officer" }),
+    env.db, "d", ops,
+  );
+  await postWebConsent(
+    R({ session_ref: "sess_1", categories: { analytics: true, advertising: true } }),
+    env.db, "d", ops,
+  );
+  await postWebConsent(
+    R({ session_ref: "sess_2", gpc_signal: true,
+        categories: { analytics: true, advertising: true } }),
+    env.db, "d", ops,
+  );
+
+  // analytics: one released, one over the re-identification threshold
+  await postAnalyticsDataset(
+    R({ purpose: "branch demand model", requested_by: "analytics_1",
+        method: "k_anonymity", k_value: 20, reid_risk_bp: 100, risk_threshold_bp: 500 }),
+    env.db, "d", ops,
+  );
+  await postAnalyticsDataset(
+    R({ purpose: "member churn raw", requested_by: "analytics_1",
+        method: "aggregation", reid_risk_bp: 900, risk_threshold_bp: 500 }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: k-anonymity with no k
+  await postAnalyticsDataset(
+    R({ purpose: "no k", requested_by: "analytics_1", method: "k_anonymity" }),
+    env.db, "d", ops,
+  );
+
+  // biometrics: refused without consent, then captured and purged
+  await postBiometricVerification(R({ entity_ref: "ent_p5" }), env.db, "d", ops);
+  await postBiometricVerification(
+    R({ entity_ref: "ent_p5", consent_id: "bioconsent_1", outcome: "verified" }),
+    env.db, "d", ops,
+  );
+  await postBiometricVerification(
+    R({ entity_ref: "ent_p6", consent_id: "bioconsent_2", outcome: "declined" }),
+    env.db, "d", ops,
+  );
+  const bio = (env.rows["core.biometric_verification"] ?? [])[0];
+  if (bio) bio.purge_due_at = "2020-01-01T00:00:00.000Z";
+  await postBiometricPurge(R({}), env.db, "d", ops);
+
+  // children's data
+  await postMinorDataEvent(
+    R({ kind: "age_gate_blocked", subject_ref: "sub_1", age_asserted: 11 }), env.db, "d", ops,
+  );
+  await postMinorDataEvent(
+    R({ kind: "minor_data_detected", subject_ref: "sub_2", age_asserted: 10 }), env.db, "d", ops,
+  );
+  await postMinorDataEvent(
+    R({ kind: "deleted", subject_ref: "sub_2" }), env.db, "d", ops,
+  );
+
+  // corrections
+  await postFurnishingDispute(
+    R({ entity_ref: "ent_p1", field: "address", disputed_value: "old address",
+        redflag: true, ncoa_candidate: "1 New St", ncoa_mismatch: true,
+        dispute_basis: "data_accuracy",
+        received_at: "2026-07-01T00:00:00.000Z" }),
+    env.db, "d", ops,
+  );
+  await postFurnishingCorrection(
+    R({ corrected_value: "1 New St", systems: ["core", "bureau_feed"] }),
+    "fdisp_ent_p1_address", env.db, "d", ops,
+  );
+
+  // disposal and the incident notification decision
+  await postDisposalCertificate(
+    R({ record_ref: "rec_p1", method: "shredded", certificate_ref: "cert-p1",
+        approved_by: "records_officer" }),
+    env.db, "d", ops,
+  );
+  await postNotificationDecision(
+    R({ decision: "notify", rationale: "member NPPI exposed", sar_referred: true,
+        description: "unencrypted export of member records",
+        detection_source: "dlp_alert", data_scope: ["name", "account_number"],
+        scope_initial: ["name", "account_number"], material: true }),
+    "inc_p1", env.db, "d", ops,
+  );
+}
+
 async function runCapitalLifecycle(env: FireEnv): Promise<void> {
   // A WELL-CAPITALIZED position with a configured internal trigger. The trigger
   // sits above the statutory floor, so this position is compliant with NCUA and
@@ -1867,6 +2042,13 @@ import {
   postPospayException,
 } from "../api/eps_controls.ts";
 import { postIssueCard } from "../api/cards.ts";
+import {
+  postAnalyticsDataset, postBiometricPurge, postBiometricVerification,
+  postDisposalCertificate, postEsignConsent, postFurnishingCorrection,
+  postFurnishingDispute, postMinorDataEvent, postNoticeDelivery, postNotificationDecision,
+  postPreferencePropagation, postPrivacyNotice, postPrivacyPreference,
+  postStateRequest, postStateRequestFulfilment, postWebConsent, postWebTagReview,
+} from "../api/privacy.ts";
 import {
   post314aRequest, post314aResponse, postCipVerification, postCmirFiling,
   postCtrExemptionReview, postEddCompletion, postEddProfile, postEscalation,
@@ -2124,7 +2306,9 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   // this trigger and need different halves of the system: SC-02 needs the
   // disposal path, RR-07 needs the disposition METHOD. Firing only one graded
   // the other against machinery it does not use.
+  "record.retention.expires_at": (env) => runPrivacyLifecycle(env),
   "record.retention.expired": async (env, uid) => {
+    await runPrivacyLifecycle(env);
     await FIRERS["disposal.executed"](env, uid);
     await runRecordsAdminLifecycle(env);
   },
@@ -2491,10 +2675,47 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   "escalation.acknowledged": (env) => runBsaProgramLifecycle(env),
   "edd.completed": (env) => runBsaProgramLifecycle(env),
   "filing.fincen_314a": (env) => runBsaProgramLifecycle(env),
+  "privacy.annual.notice.due_at": (env) => runPrivacyLifecycle(env),
+  "privacy.notice.revised": (env) => runPrivacyLifecycle(env),
+  "privacy.notice_copy.requested": (env) => runPrivacyLifecycle(env),
+  "privacy.optout.received": (env) => runPrivacyLifecycle(env),
+  "privacy.optout.propagation.due_at": (env) => runPrivacyLifecycle(env),
+  "privacy.optout.cleared": (env) => runPrivacyLifecycle(env),
+  "privacy.nv_optout.received": (env) => runPrivacyLifecycle(env),
+  "privacy.state_request.received": (env) => runPrivacyLifecycle(env),
+  "web.gpc_signal": (env) => runPrivacyLifecycle(env),
+  "privacy.state_request_fulfilled": (env) => runPrivacyLifecycle(env),
+  "analytics.dataset.requested": (env) => runPrivacyLifecycle(env),
+  "analytics.method.review.due_at": (env) => runPrivacyLifecycle(env),
+  "analytics.reid_risk_assessment": (env) => runPrivacyLifecycle(env),
+  "web.session.started": (env) => runPrivacyLifecycle(env),
+  "web.consent.updated": (env) => runPrivacyLifecycle(env),
+  "web.tag_review": (env) => runPrivacyLifecycle(env),
+  "web.tag_review.requested": (env) => runPrivacyLifecycle(env),
+  "verification.biometric.started": (env) => runPrivacyLifecycle(env),
+  "verification.biometric.completed": (env) => runPrivacyLifecycle(env),
+  "verification.biometric.purge.due_at": (env) => runPrivacyLifecycle(env),
+  "privacy.age_gate.blocked": (env) => runPrivacyLifecycle(env),
+  "privacy.minor_data.detected": (env) => runPrivacyLifecycle(env),
+  "privacy.minor_data_deleted": (env) => runPrivacyLifecycle(env),
+  "furnishing.correction.applied": (env) => runPrivacyLifecycle(env),
+  "address.ncoa_mismatch.detected": (env) => runPrivacyLifecycle(env),
+  "furnishing.dispute.received": (env) => runPrivacyLifecycle(env),
+  "correction.propagated": (env) => runPrivacyLifecycle(env),
+  "privacy.notice_template.published": (env) => runPrivacyLifecycle(env),
+  "privacy.esign_consent.started": (env) => runPrivacyLifecycle(env),
   "incident.declared": (env) => runIncidentLifecycle(env),
   "incident.detected": (env) => runIncidentLifecycle(env),
   "incident.sev1.detected": (env) => runIncidentLifecycle(env),
-  "incident.classified": (env) => runIncidentLifecycle(env),
+  // PR-18 and the incident policy both hang off classification; both run.
+  "incident.classified": async (env) => {
+    await runIncidentLifecycle(env);
+    await runPrivacyLifecycle(env);
+  },
+  "incident.criminal_suspected": async (env) => {
+    await runIncidentLifecycle(env);
+    await runPrivacyLifecycle(env);
+  },
   "incident.severity.assigned": (env) => runIncidentLifecycle(env),
   "incident.ic.assigned": (env) => runIncidentLifecycle(env),
   "incident.first_hour.completed": (env) => runIncidentLifecycle(env),
