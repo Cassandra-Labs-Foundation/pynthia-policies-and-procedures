@@ -795,6 +795,235 @@ async function runRecordsAdminLifecycle(env: FireEnv): Promise<void> {
   await postDisposalSweep(R({}), env.db, "d", ops);
 }
 
+/**
+ * Lending underwriting, driven end to end.
+ *
+ * Product config -> eligibility screen (and a prohibited-practice refusal) ->
+ * credit file assembled, decisioned and SEALED -> credit report freshness and
+ * score tolerance -> ATR/QM with a DTI breach that opens an exception ->
+ * appraisal ordered, delivered, and a reconsideration of value by someone
+ * other than the appraiser -> exception decided by a second person ->
+ * published rate sheet, HPML test, pricing exception -> prequalification with
+ * and without steering -> fair lending disparity and HMDA LAR -> Regulation O
+ * insider review.
+ */
+async function runLendingUwLifecycle(env: FireEnv): Promise<void> {
+  if ((env.rows["core.credit_config"] ?? []).length > 0) return;
+  const ops = env.actors.ops;
+  const APP = "app_uw_1";
+  // The applications these controls act on have to EXIST — every writer below
+  // updates the application row, and an update against a missing row is a
+  // silent no-op that reads as "the datum was never supplied".
+  env.rows["core.loan_application"] ??= [];
+  for (const id of [APP, "app_uw_2", "app_uw_3", "app_uw_blocked"]) {
+    env.rows["core.loan_application"].push({
+      id, status: "completed", completed_at: "2026-06-01T00:00:00.000Z",
+      decisioned_at: null, final_action: null, funding_block_state: "open",
+      provenance: "production",
+    });
+  }
+
+  await postCreditConfig(
+    R({ product_code: "mortgage_30", approved_by: "clo_1", min_credit_score: 640,
+        max_dti_bp: 4300, max_ltv_bp: 8000,
+        prohibited_practices: ["negative_amortization", "prepayment_penalty"],
+        effective_at: "2026-01-01T00:00:00.000Z" }),
+    env.db, "d", ops,
+  );
+  await postProductScreen(R({ product_code: "mortgage_30" }), APP, env.db, "d", ops);
+  // NEGATIVE: a prohibited practice
+  await postProductScreen(
+    R({ product_code: "mortgage_30", requested_practices: ["prepayment_penalty"] }),
+    APP, env.db, "d", ops,
+  );
+  // NEGATIVE: a product with no approved config at all
+  await postProductScreen(R({ product_code: "unconfigured" }), APP, env.db, "d", ops);
+
+  // LP-03 reads the party screen status off the application, so the
+  // application needs a real party on it rather than an assumed one.
+  await postLoanParty(
+    R({
+      role: "borrower", party_name: "A Applicant",
+      identity: { tin_last4: "1234", dob: "1980-01-01" },
+      contact: { email: "a@example.test" },
+    }),
+    APP, env.db, "d", ops,
+  );
+  await postCreditApplicationRecord(
+    R({
+      documents: ["paystub", "w2"], alternative_data_used: true,
+      applicant: { ref: "mbr_a", name: "A Applicant" },
+      data: { purpose: "purchase", occupancy: "primary" },
+      income_assets: { monthly_income_cents: 1_000_000, assets_cents: 8_000_000 },
+      gmi: { ethnicity: "not_provided", sex: "not_provided" },
+      channel: "retail",
+    }),
+    APP, env.db, "d", ops,
+  );
+  await postCreditReport(
+    R({ bureau: "equifax", score: 610, score_model: "FICO9", min_credit_score: 640 }),
+    APP, env.db, "d", ops,
+  );
+  // NEGATIVE: a stale report cannot support a decision
+  await postCreditReport(
+    R({ bureau: "experian", score: 700, pulled_at: "2025-01-01T00:00:00.000Z" }),
+    APP, env.db, "d", ops,
+  );
+  await postAtrQm(
+    R({ monthly_debt_cents: 500_000, monthly_income_cents: 1_000_000, max_dti_bp: 4300 }),
+    APP, env.db, "d", ops,
+  );
+
+  await postAppraisalOrder(R({ appraiser_ref: "appr_1" }), APP, env.db, "d", ops);
+  // NEGATIVE: the appraiser cannot decide the reconsideration of their own value
+  await postAppraisalComplete(
+    R({ value_cents: 40_000_000, loan_amount_cents: 36_000_000, max_ltv_bp: 8000,
+        rov: { decision: "revised", decided_by: "appr_1" } }),
+    "apr_app_uw_1", env.db, "d", ops,
+  );
+  await postAppraisalComplete(
+    R({ value_cents: 40_000_000, loan_amount_cents: 36_000_000, max_ltv_bp: 8000,
+        rov: { decision: "upheld", decided_by: "review_appraiser" } }),
+    "apr_app_uw_1", env.db, "d", ops,
+  );
+
+  await postLoanException(
+    R({ loan_application_id: APP, kind: "ltv_over_policy", detail: { ltv_bp: 9000 },
+        mitigating_factors: "12 months reserves", submitted_by: "uw_1" }),
+    env.db, "d", ops,
+  );
+  const exc = (env.rows["core.loan_exception"] ?? []).find((e: Any) => e.submitted_by === "uw_1");
+  // NEGATIVE: self-approval
+  await postLoanExceptionDecision(
+    R({ decision: "approved", decided_by: "uw_1" }), String(exc?.id ?? "x"), env.db, "d", ops,
+  );
+  await postLoanExceptionDecision(
+    R({ decision: "approved", decided_by: "cco_1" }), String(exc?.id ?? "x"), env.db, "d", ops,
+  );
+  // the ATR/QM DTI breach opened its own exception; it has to be DECIDED or
+  // closing stays blocked — which is the control working, and the lifecycle
+  // has to honour it rather than route around it
+  await postLoanExceptionDecision(
+    R({ decision: "approved", decided_by: "cco_1" }), `lexc_${APP}_dti`, env.db, "d", ops,
+  );
+  await postLoanExceptionAnalytics(R({ period: "2026Q3" }), env.db, "d", ops);
+
+  // NEGATIVE: an unpublished rate sheet cannot price a loan
+  await postRateSheet(
+    R({ product_code: "mortgage_30", base_rate_bp: 650, apor_bp: 600,
+        effective_at: "2026-02-01T00:00:00.000Z" }),
+    env.db, "d", ops,
+  );
+  await postLoanPricing(
+    R({ rate_sheet_id: "rsheet_mortgage_30_1769904000000", quoted_apr_bp: 800 }),
+    APP, env.db, "d", ops,
+  );
+  await postRateSheet(
+    R({ product_code: "mortgage_30", base_rate_bp: 650, apor_bp: 600, published_by: "treasury_1",
+        effective_at: "2026-03-01T00:00:00.000Z" }),
+    env.db, "d", ops,
+  );
+  const sheet = (env.rows["core.rate_sheet"] ?? []).find((r: Any) => r.published_at);
+  await postLoanPricing(
+    R({ rate_sheet_id: String(sheet?.id ?? "x"), quoted_apr_bp: 800,
+        exception: { requested_by: "lo_1", rationale: "relationship pricing",
+                     decision: "approved", decided_by: "cco_1" } }),
+    APP, env.db, "d", ops,
+  );
+  await postPricingExceptionReview(R({ period: "2026Q3" }), env.db, "d", ops);
+
+  await postCreditDecisionRecord(
+    R({
+      decision: "denied", sealed_by: "uw_1", incomplete: true,
+      counteroffer_status: "extended",
+      counteroffer_terms: { rate_bp: 700, term_months: 240 },
+      oral_adverse_decision: true,
+      oral_statement: "declined by phone on 2026-07-18, written notice to follow",
+    }),
+    APP, env.db, "d", ops,
+  );
+  // NEGATIVE: a sealed file cannot be amended
+  await postCreditDecisionRecord(
+    R({ decision: "approved", sealed_by: "uw_2" }), APP, env.db, "d", ops,
+  );
+
+  // LP-12: a clean prequal and one that withholds an eligible product
+  await postPrequalification(
+    R({ subject_ref: "mbr_a", decision: "prequalified",
+        products_offered: ["mortgage_30", "heloc"], products_eligible: ["mortgage_30", "heloc"] }),
+    env.db, "d", ops,
+  );
+  await postPrequalification(
+    R({ subject_ref: "mbr_b", decision: "declined",
+        products_offered: [], products_eligible: ["mortgage_30"] }),
+    env.db, "d", ops,
+  );
+
+  // LP-13
+  await postFairLendingAnalysis(
+    R({ period: "2026", kind: "disparity", threshold_bp: 500,
+        cohorts: { control: { applications: 1000, approvals: 800 },
+                   protected: { applications: 400, approvals: 240 } } }),
+    env.db, "d", ops,
+  );
+  await postFairLendingRemediationClose(
+    R({ evidence: "underwriter retraining + file re-review" }),
+    "flan_2026_disparity", env.db, "d", ops,
+  );
+  await postFairLendingAnalysis(
+    R({ period: "2026", kind: "redlining", threshold_bp: 500,
+        cohorts: { inside: { applications: 500, approvals: 400 },
+                   outside: { applications: 500, approvals: 390 } } }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: submitting the LAR before QC
+  await postHmdaLar(R({ reporting_year: 2026, record_count: 1240, submitted_by: "compliance_1" }),
+    env.db, "d", ops);
+  await postHmdaLar(R({ reporting_year: 2026, record_count: 1240, qc_error_count: 0,
+    submitted_by: "compliance_1" }), env.db, "d", ops);
+
+  // LP-14
+  await putInsider(
+    R({ subject_ref: "dir_1", role: "director", effective_from: "2026-01-01T00:00:00.000Z" }),
+    "ins_dir1", env.db, "d", ops,
+  );
+  // NOT an insider — a real answer that gets recorded
+  await postInsiderLoanReview(R({ subject_ref: "mbr_zz" }), APP, env.db, "d", ops);
+  // NEGATIVE: preferential terms
+  await postInsiderLoanReview(
+    R({ subject_ref: "dir_1", terms_comparable: false, board_resolution_id: "board-9" }),
+    "app_uw_2", env.db, "d", ops,
+  );
+  await postInsiderLoanReview(
+    R({ subject_ref: "dir_1", terms_comparable: true, board_resolution_id: "board-9",
+        amount_cents: 25_000_000, aggregate_credit_amount: 42_000_000,
+        proposed_terms: { rate_bp: 650, term_months: 360 } }),
+    "app_uw_3", env.db, "d", ops,
+  );
+
+  // LP-04 / LP-07: the adverse action, through the EXISTING notice table
+  await postLendingAdverseAction(
+    R({ reasons: ["credit score below minimum"], reviewed_by: "cco_1", oral: true }),
+    APP, env.db, "d", ops,
+  );
+
+  // LP-09 / LP-03 / LP-06: booking, which writes core.loan and its LTV.
+  // NEGATIVE first: an undecided exception must block closing.
+  await postLoanException(
+    R({ loan_application_id: "app_uw_blocked", kind: "doc_waiver", detail: {},
+        mitigating_factors: "verbal confirmation", submitted_by: "uw_1" }),
+    env.db, "d", ops,
+  );
+  await postLoanBooking(
+    R({ booked_by: "closer_1", principal_cents: 36_000_000, value_cents: 40_000_000 }),
+    "app_uw_blocked", env.db, "d", ops,
+  );
+  await postLoanBooking(
+    R({ booked_by: "closer_1", principal_cents: 36_000_000, value_cents: 40_000_000 }),
+    APP, env.db, "d", ops,
+  );
+}
+
 async function runCapitalLifecycle(env: FireEnv): Promise<void> {
   // A WELL-CAPITALIZED position with a configured internal trigger. The trigger
   // sits above the statutory floor, so this position is compliant with NCUA and
@@ -928,6 +1157,15 @@ import {
   postPospayException,
 } from "../api/eps_controls.ts";
 import { postIssueCard } from "../api/cards.ts";
+import {
+  postAppraisalComplete, postAppraisalOrder, postAtrQm, postCreditApplicationRecord,
+  postCreditConfig, postCreditDecisionRecord, postCreditReport, postFairLendingAnalysis,
+  postFairLendingRemediationClose, postHmdaLar, postInsiderLoanReview, postLoanException,
+  postLoanExceptionAnalytics, postLoanExceptionDecision, postLoanPricing,
+  postLendingAdverseAction, postLoanBooking,
+  postPrequalification, postPricingExceptionReview, postProductScreen, postRateSheet,
+  putInsider,
+} from "../api/lending_underwriting.ts";
 import {
   postArchiveConfirmation, postCddProfile, postCddRefresh, postDestructionLogReconcile,
   postDestructionLogResolve, postIntegrityTestComplete, postIntegrityTestSchedule,
@@ -1176,9 +1414,24 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   },
   "loan_party.added": async (env) => {
     await postLoanParty(
-      R({ role: "borrower", party_name: `P${env.n()}` }), "app_1", env.db, "d", env.actors.ops,
+      R({
+        role: "borrower", party_name: `P${env.n()}`,
+        identity: { tin_last4: "1234", dob: "1980-01-01" },
+        contact: { email: "p@example.test", phone: "+15550100" },
+      }),
+      "app_1", env.db, "d", env.actors.ops,
+    );
+    // LP-11 declares the SCREEN OUTCOMES as separate facts — screened, cleared,
+    // potential match, escalated. The gate emitted only the escalation, so a
+    // CLEAN screen left no evidence it had run: "not escalated" and "never
+    // screened" produced the same event log. Same defect the OFAC floor was
+    // built to avoid on the payment rails.
+    await postLoanParty(
+      R({ role: "guarantor", party_name: "SDN Suspect" }), "app_1", env.db, "d", env.actors.ops,
     );
   },
+  "loan_party.ofac.cleared": (env, uid) => FIRERS["loan_party.added"](env, uid),
+  "loan_party.ofac.escalated": (env, uid) => FIRERS["loan_party.added"](env, uid),
   "loan_application.completed": async (env) => {
     const id = `app_f${env.n()}`;
     env.rows["core.loan_application"].push({
@@ -1359,6 +1612,50 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   "records.contacts.assigned": (env) => runRecordsAdminLifecycle(env),
   "records.contact_vacated": (env) => runRecordsAdminLifecycle(env),
   "records.board_report.filed": (env) => runRecordsAdminLifecycle(env),
+  // Lending underwriting. `loan.booking.requested` IS registered now: it needs
+  // core.loan, one of the 22 abandoned tables, and building the booking writer
+  // was the whole point of the abandoned-table finding.
+  "loan.booking.requested": (env) => runLendingUwLifecycle(env),
+  "aan.issued": (env) => runLendingUwLifecycle(env),
+  "analytics.disparity_report.completed": (env) => runLendingUwLifecycle(env),
+  "analytics.redlining_review.completed": (env) => runLendingUwLifecycle(env),
+  "appraisal.completed": (env) => runLendingUwLifecycle(env),
+  "appraisal.ordered": (env) => runLendingUwLifecycle(env),
+  "collateral.ltv.checked": (env) => runLendingUwLifecycle(env),
+  "credit_config.changed": (env) => runLendingUwLifecycle(env),
+  "credit_package.retention.started": (env) => runLendingUwLifecycle(env),
+  "credit_report.received": (env) => runLendingUwLifecycle(env),
+  "credit_score.tolerance.breached": (env) => runLendingUwLifecycle(env),
+  "fair_lending.discouragement.reported": (env) => runLendingUwLifecycle(env),
+  "fair_lending.remediation.opened": (env) => runLendingUwLifecycle(env),
+  "hmda.lar_qc.completed": (env) => runLendingUwLifecycle(env),
+  "insider.board_approval.recorded": (env) => runLendingUwLifecycle(env),
+  "insider.board_report.issued": (env) => runLendingUwLifecycle(env),
+  "loan_account.adverse_action.decided": (env) => runLendingUwLifecycle(env),
+  "loan_application.adverse_action.decided": (env) => runLendingUwLifecycle(env),
+  "loan_application.counteroffer.expired": (env) => runLendingUwLifecycle(env),
+  "loan_application.created": (env) => runLendingUwLifecycle(env),
+  "loan_application.decisioned": (env) => runLendingUwLifecycle(env),
+  "loan_application.dti.breached": (env) => runLendingUwLifecycle(env),
+  "loan_application.incomplete.detected": (env) => runLendingUwLifecycle(env),
+  "loan_application.insider.flagged": (env) => runLendingUwLifecycle(env),
+  "loan_application.insider.screened": (env) => runLendingUwLifecycle(env),
+  "loan_application.oral_adverse_decision": (env) => runLendingUwLifecycle(env),
+  "loan_application.thin_file.flagged": (env) => runLendingUwLifecycle(env),
+  "loan_exception.analytics.published": (env) => runLendingUwLifecycle(env),
+  "loan_exception.decided": (env) => runLendingUwLifecycle(env),
+  "loan_exception.detected": (env) => runLendingUwLifecycle(env),
+  "loan_exception.submitted": (env) => runLendingUwLifecycle(env),
+  "loan_pricing.exception.decided": (env) => runLendingUwLifecycle(env),
+  "loan_pricing.exception.requested": (env) => runLendingUwLifecycle(env),
+  "loan_pricing.locked": (env) => runLendingUwLifecycle(env),
+  "prequal.requested": (env) => runLendingUwLifecycle(env),
+  "pricing.exception_period.closed": (env) => runLendingUwLifecycle(env),
+  "product_menu.change.requested": (env) => runLendingUwLifecycle(env),
+  "product_menu.deployed": (env) => runLendingUwLifecycle(env),
+  "rate_sheet.refresh.due_at": (env) => runLendingUwLifecycle(env),
+  "steering_review.completed": (env) => runLendingUwLifecycle(env),
+  "valuation.rov.requested": (env) => runLendingUwLifecycle(env),
   "incident.declared": (env) => runIncidentLifecycle(env),
   "incident.detected": (env) => runIncidentLifecycle(env),
   "incident.sev1.detected": (env) => runIncidentLifecycle(env),

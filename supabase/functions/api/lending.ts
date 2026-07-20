@@ -146,6 +146,12 @@ export async function postLoanParty(
     entity_id: isNonEmptyString(rec.entity_id) ? rec.entity_id : null,
     role: rec.role,
     party_name: rec.party_name,
+    // LP-11 declares the party's identity and contact alongside the screen
+    // RESULT. A screen recorded without what was screened cannot be re-run or
+    // disputed — the same defect OQ-02 records against the stub itself.
+    identity: rec.identity ?? null,
+    contact: rec.contact ?? null,
+    ofac_result: verdict,
     ofac_status: verdict,
     // NULL, always, and that is the point: the stub screen has no versioned
     // list, so no screen here can be re-verified later (OQ-02).
@@ -191,6 +197,33 @@ export async function postLoanParty(
       { application_id: applicationId, role: rec.role, ofac_status: verdict },
       ctx,
     );
+    // LP-11 declares the screen OUTCOMES as separate facts. Emitting only the
+    // escalation meant a CLEAN screen left no evidence it had run at all, so
+    // "screened and clear" and "never screened" produced the same event log —
+    // exactly the defect the always-on OFAC floor exists to prevent on the
+    // payment rails, reproduced on the lending rail.
+    await emitLendingEvent(
+      db, scope, `evt_${partyId}_screened`, "loan_party.ofac.screened", "loan_party", partyId,
+      {
+        application_id: applicationId, role: rec.role, ofac_status: verdict,
+        ofac_list_version: null, screened_at: nowIso,
+      },
+      ctx,
+    );
+    if (verdict === "clear") {
+      await emitLendingEvent(
+        db, scope, `evt_${partyId}_cleared`, "loan_party.ofac.cleared", "loan_party", partyId,
+        { application_id: applicationId, role: rec.role },
+        ctx,
+      );
+    } else {
+      await emitLendingEvent(
+        db, scope, `evt_${partyId}_potential`, "loan_party.ofac_potential_match",
+        "loan_party", partyId,
+        { application_id: applicationId, role: rec.role },
+        ctx,
+      );
+    }
   } catch (e) {
     console.error(`loan_party.added event failed for ${partyId}: ${e}`);
   }

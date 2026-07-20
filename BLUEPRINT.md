@@ -1540,3 +1540,68 @@ Here the correct fix was `retire: true` — a real operation, because a class
 removed from Schedule A must refuse to set a clock rather than silently keep
 using the retired period. The mutant died as a side effect of building the
 control, which is the right order.
+
+### lending underwriting (LP-*) — 13 of 13 green, predicted 9. THE ESTIMATOR UNDER-CALLED.
+
+77 green overall (64 -> 77), 13 new, 0 lost. **The first miss in the optimistic
+direction, and it corrects the estimator in a way the three successes did not.**
+
+**What I predicted and why it was wrong.** Lending measured as the widest
+surface yet: 13 reds, 25 namespaces, 22 of them with no table at all. I called
+it "scattered, roughly double record-retention's surface" and predicted 9. The
+namespace COUNT frightened me into discounting, and the count was the wrong
+variable — 22 of those namespaces were satellites of `loan_application`, which
+already exists. **Zero were entities.**
+
+**Two measurement errors found, both worth more than the prediction:**
+
+1. **The pre-build namespace scan only looked at MISSING PRODUCED EVENTS.** It
+   concluded `core.loan` was irrelevant to lending. It was not: `loan.ltv` is a
+   required input of LP-03 and LP-06 and `loan.booking.requested` is LP-09's
+   trigger. Three controls, not zero. **A control is blocked by everything it
+   DECLARES — triggers, produced events AND required inputs — and scanning one
+   of the three understates the dependency set.** The abandoned-table count of
+   36 was computed over required_inputs and is unaffected; the per-domain
+   analysis was not, and is corrected.
+2. **Satellite count does not predict difficulty. Entity count does.**
+
+### THE ESTIMATOR, CORRECTED: predicted ≈ reds − entity-blocked
+
+Applied retrospectively to all four artifacts, this is exact:
+
+| artifact | reds | entity-blocked | predicted by the rule | actual | old prediction |
+|---|---:|---:|---:|---:|---:|
+| cda | 13 | 0 | 13 | **13** | 5 |
+| cash | 10 | 3 (`employee`, `hr`, `training`) | 7 | **7** | 6 → 8 |
+| record-retention | 10 | 0 | 10 | **10** | 9 |
+| lending | 13 | 0 | 13 | **13** | 9 |
+
+Four for four. The variable that matters is **how many controls depend on a noun
+that does not exist and must not be fabricated** — not the namespace count, not
+the concentration ratio, and not the number of distinct sub-domains. Everything
+else is work, and work gets done.
+
+**What still needs judgment:** deciding whether a namespace is an entity or a
+satellite. `insider` looked like an entity (people) and turned out to be a
+ROLE REGISTER — a membership question, "is this borrower a covered person",
+which is answerable without modelling employment. `employee` did not, because
+`employee.separated` is an HR lifecycle event this system does not observe. That
+distinction is the whole estimate now, and it is the one thing the numbers
+cannot make for you.
+
+**Also closed here:** `core.loan` is the first of the 22 abandoned tables to get
+a writer. It was blocked on nothing except somebody writing it, which is the
+whole point of that finding.
+
+**25 mutations, 25 caught on the first pass** — the first artifact with no
+survivors. Notable ones: the appraiser deciding the reconsideration of their own
+value, a denied exception releasing closing, an unpublished rate sheet pricing a
+loan, an HMDA LAR submitted before QC, and an expired insider registration still
+flagging.
+
+**One control corrected an existing writer.** LP-11's OFAC gate emitted only the
+ESCALATION, so a clean screen left no evidence it had run — "screened and clear"
+and "never screened" produced identical event logs. That is the exact defect the
+always-on OFAC floor exists to prevent on the payment rails, reproduced on the
+lending rail. `loan_party.ofac.screened` / `.cleared` / `.ofac_potential_match`
+are now emitted on every screen.

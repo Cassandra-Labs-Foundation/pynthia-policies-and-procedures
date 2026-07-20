@@ -9,15 +9,14 @@
     "total": 333,
     "in_scope": 225,
     "scoped_out": 108,
-    "in_scope_green": 64,
-    "in_scope_red": 161,
+    "in_scope_green": 77,
+    "in_scope_red": 148,
     "scope_note": "Scoped-out controls are real obligations discharged by people and paperwork. This system covers the technical controls; the organisational ones are not claimed.",
-    "green": 65,
-    "red": 268,
-    "pct_green": 19.5,
+    "green": 78,
+    "red": 255,
+    "pct_green": 23.4,
     "red_by_reason": {
-      "trigger fires but produced events missing": 142,
-      "no writer: loan_application.*": 8,
+      "trigger fires but produced events missing": 141,
       "no writer: vendor.*": 6,
       "no writer: loan.*": 4,
       "no writer: training.*": 4,
@@ -77,10 +76,6 @@
       "no writer: repo.*": 1,
       "no writer: document.*": 1,
       "no writer: coi.*": 1,
-      "no writer: appraisal.*": 1,
-      "no writer: loan_pricing.*": 1,
-      "no writer: loan_party.*": 1,
-      "no writer: product_menu.*": 1,
       "no writer: mismatch.*": 1,
       "no writer: report.*": 1,
       "no writer: cfp.*": 1,
@@ -102,10 +97,11 @@
     },
     "inputs_unverifiable_total": 1391,
     "green_by_fire_path": {
-      "real_writer": 61,
+      "real_writer": 74,
       "generic_echo": 4
     },
     "green_by_policy": {
+      "lending": 14,
       "charitable-donation-accounts": 13,
       "record-retention": 11,
       "capitalization": 8,
@@ -122,7 +118,6 @@
       "e-commerce": 1,
       "fair-lending": 1,
       "investment": 1,
-      "lending": 1,
       "liquidity": 1,
       "privacy": 1,
       "third-party-risk": 1,
@@ -5101,7 +5096,10 @@
         "insider.board_report.issued",
         "insider.limits_recomputed"
       ],
-      "observed": [],
+      "observed": [
+        "insider.board_approval.recorded",
+        "insider.board_report.issued"
+      ],
       "triggers": [
         "loan_application.insider.flagged",
         "insider.credit_threshold_exceeded",
@@ -5123,13 +5121,21 @@
         "insider.funded_terms",
         "insider.terms_parity"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "insider.aggregate_credit_amount",
+        "loan_application.applicant",
+        "loan_application.insider",
+        "insider.comparable_terms",
+        "insider.proposed_terms",
+        "insider.board_approval",
+        "insider.terms_parity"
+      ],
       "inputs_unverifiable": [
         "covered_person.id",
         "cu.unimpaired_capital_surplus",
         "board.disinterested_quorum"
       ],
-      "fire_path": "generic_echo",
+      "fire_path": "real_writer",
       "blocked_on": "no writer for trigger 'insider.credit_threshold_exceeded'"
     },
     {
@@ -6740,7 +6746,9 @@
         "fair_lending.discouragement.reported",
         "compliance.board_report.delivered"
       ],
-      "observed": [],
+      "observed": [
+        "fair_lending.discouragement.reported"
+      ],
       "triggers": [
         "compliance.guardrails.published",
         "fair_lending.discouragement.reported",
@@ -6756,7 +6764,7 @@
         "compliance.guarded_attributes"
       ],
       "fire_path": "obligation_cadence",
-      "blocked_on": "produced 0/3: missing compliance.guardrails.published, fair_lending.discouragement.reported, compliance.board_report.delivered"
+      "blocked_on": "produced 1/3: missing compliance.guardrails.published, compliance.board_report.delivered"
     },
     {
       "scoped_out": false,
@@ -6798,7 +6806,9 @@
         "pricing.exception.decided",
         "pricing.exception.requested"
       ],
-      "observed": [],
+      "observed": [
+        "pricing.exception.requested"
+      ],
       "triggers": [
         "loan_application.decisioned",
         "pricing.exception.requested"
@@ -6814,7 +6824,10 @@
         "pricing.proposed_price",
         "pricing.sheet_price"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "loan_application.action_basis",
+        "loan_application.income_assets"
+      ],
       "inputs_unverifiable": [
         "decision.model_id",
         "decision.score_block",
@@ -6825,7 +6838,7 @@
         "pricing.sheet_price"
       ],
       "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'loan_application.decisioned'"
+      "blocked_on": "produced 1/3: missing loan_application.adverse_action.decided, pricing.exception.decided"
     },
     {
       "scoped_out": false,
@@ -6841,7 +6854,9 @@
         "fair_lending.record_appended",
         "valuation.rov.decided"
       ],
-      "observed": [],
+      "observed": [
+        "valuation.rov.decided"
+      ],
       "triggers": [
         "application.first_lien.created",
         "appraisal.completed",
@@ -6853,13 +6868,16 @@
         "appraisal.document",
         "valuation.bias_screen_rules"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "loan_application.product_type",
+        "loan_party.identity"
+      ],
       "inputs_unverifiable": [
         "appraisal.document",
         "valuation.bias_screen_rules"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/4: missing valuation.rights_disclosure.sent, valuation.copy.sent, fair_lending.record_appended, valuation.rov.decided"
+      "fire_path": "real_writer",
+      "blocked_on": "produced 1/4: missing valuation.rights_disclosure.sent, valuation.copy.sent, fair_lending.record_appended"
     },
     {
       "scoped_out": false,
@@ -6875,7 +6893,10 @@
         "aan.queued",
         "notice.oral.logged"
       ],
-      "observed": [],
+      "observed": [
+        "aan.issued",
+        "notice.oral.logged"
+      ],
       "triggers": [
         "loan_application.adverse_action.decided",
         "loan_application.incomplete.detected",
@@ -6894,13 +6915,20 @@
         "applicant.business_revenue_tier",
         "loan_application.oral_statement"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "loan_application.action_basis",
+        "loan_application.adverse_action",
+        "loan_party.identity",
+        "loan_application.incompleteness_notice",
+        "loan_application.counteroffer_terms",
+        "loan_application.oral_statement"
+      ],
       "inputs_unverifiable": [
         "decision.score_block",
         "applicant.business_revenue_tier"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'loan_application.oral_adverse_decision'"
+      "fire_path": "real_writer",
+      "blocked_on": "produced 2/4: missing notice.incompleteness.sent, aan.queued"
     },
     {
       "scoped_out": false,
@@ -7012,8 +7040,8 @@
         "application.option_selection",
         "application.option_waiver"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'loan_application.decisioned'"
+      "fire_path": "real_writer",
+      "blocked_on": "produced 0/5: missing lo_comp.plan.decided, application.options.presented, application.option_waiver.decided, application.final_action.recorded"
     },
     {
       "scoped_out": true,
@@ -7132,8 +7160,8 @@
       "inputs_unverifiable": [
         "retention.record_type"
       ],
-      "fire_path": "none",
-      "blocked_on": "no writer for trigger 'loan_application.decisioned'"
+      "fire_path": "real_writer",
+      "blocked_on": "produced 0/2: missing record.retention.expires_at, record.retention_clock_set"
     },
     {
       "scoped_out": false,
@@ -9296,12 +9324,15 @@
       "policy": "lending",
       "control_id": "LP-02",
       "title": "Product Eligibility & Prohibited Practices",
-      "status": "red",
+      "status": "green",
       "expected": [
         "loan_application.product.screened",
         "credit_config.changed"
       ],
-      "observed": [],
+      "observed": [
+        "loan_application.product.screened",
+        "credit_config.changed"
+      ],
       "triggers": [
         "loan_application.created",
         "credit_config.changed"
@@ -9314,15 +9345,17 @@
         "credit_config.fico_bands",
         "credit_config.ltv_matrix"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "loan_application.product_code",
+        "loan_application.product_type"
+      ],
       "inputs_unverifiable": [
         "credit_config.approval_id",
         "credit_config.dti_tiers",
         "credit_config.fico_bands",
         "credit_config.ltv_matrix"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/2: missing loan_application.product.screened, credit_config.changed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -9331,7 +9364,7 @@
       "policy": "lending",
       "control_id": "LP-03",
       "title": "Applications, Acceptance & Denial Standards",
-      "status": "red",
+      "status": "green",
       "expected": [
         "car.sealed",
         "loan_application.aan_due_at",
@@ -9341,7 +9374,12 @@
         "credit_package.retention.started"
       ],
       "observed": [
-        "application.final_action.recorded"
+        "car.sealed",
+        "loan_application.aan_due_at",
+        "loan_application.decisioned",
+        "loan_application.incompleteness_notice.sent",
+        "application.final_action.recorded",
+        "credit_package.retention.started"
       ],
       "triggers": [
         "loan_application.completed",
@@ -9367,7 +9405,17 @@
         "loan_application.gmi"
       ],
       "inputs_supplied": [
-        "loan_application.id"
+        "loan.ltv",
+        "loan_application.atr_qm_result",
+        "loan_application.data",
+        "loan_application.dti",
+        "loan_application.income_assets",
+        "loan_party.ofac_status",
+        "loan_application.action_basis",
+        "loan_application.id",
+        "loan_application.incomplete_aged",
+        "loan_application.channel",
+        "loan_application.gmi"
       ],
       "inputs_unverifiable": [
         "credit_report.freshness",
@@ -9375,8 +9423,7 @@
         "compliance.guardrails",
         "application.final_action"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "no writer for trigger 'loan_application.decisioned'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -9385,7 +9432,7 @@
       "policy": "lending",
       "control_id": "LP-04",
       "title": "Credit Scoring & Adverse Credit History",
-      "status": "red",
+      "status": "green",
       "expected": [
         "credit_report.freshness.checked",
         "credit_score.tolerance.breached",
@@ -9393,7 +9440,13 @@
         "car.alternative_data.used",
         "aan.issued"
       ],
-      "observed": [],
+      "observed": [
+        "credit_report.freshness.checked",
+        "credit_score.tolerance.breached",
+        "loan_exception.detected",
+        "car.alternative_data.used",
+        "aan.issued"
+      ],
       "triggers": [
         "credit_report.received",
         "credit_score.tolerance.breached",
@@ -9411,7 +9464,10 @@
         "credit_report.score_disclosure",
         "loan_application.action_basis"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "loan_application.thin_file",
+        "loan_application.action_basis"
+      ],
       "inputs_unverifiable": [
         "credit_report.freshness",
         "credit_report.report_date",
@@ -9421,8 +9477,7 @@
         "credit_report.score",
         "credit_report.score_disclosure"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/5: missing credit_report.freshness.checked, credit_score.tolerance.breached, loan_exception.detected, car.alternative_data.used"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -9431,13 +9486,17 @@
       "policy": "lending",
       "control_id": "LP-05",
       "title": "ATR/QM & Mortgage Underwriting",
-      "status": "red",
+      "status": "green",
       "expected": [
         "loan_application.atr_qm.completed",
         "loan_application.dti.breached",
         "loan_exception.case.opened"
       ],
-      "observed": [],
+      "observed": [
+        "loan_application.atr_qm.completed",
+        "loan_application.dti.breached",
+        "loan_exception.case.opened"
+      ],
       "triggers": [
         "loan_application.decisioned",
         "loan_application.dti.breached"
@@ -9449,13 +9508,16 @@
         "loan_application.dti",
         "loan_application.product_type"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "loan_application.atr_qm_result",
+        "loan_application.dti",
+        "loan_application.product_type"
+      ],
       "inputs_unverifiable": [
         "application.first_lien",
         "credit_config.dti_tiers"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'loan_application.decisioned'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -9464,7 +9526,7 @@
       "policy": "lending",
       "control_id": "LP-06",
       "title": "Appraisals, Valuations & Collateral",
-      "status": "red",
+      "status": "green",
       "expected": [
         "appraisal.delivery.due_at",
         "appraisal.order.logged",
@@ -9475,7 +9537,16 @@
         "valuation.rov.decided",
         "credit_package.retention.expires_at"
       ],
-      "observed": [],
+      "observed": [
+        "appraisal.delivery.due_at",
+        "appraisal.order.logged",
+        "appraisal.copy.delivered",
+        "valuation.completed",
+        "collateral.ltv.checked",
+        "loan_exception.detected",
+        "valuation.rov.decided",
+        "credit_package.retention.expires_at"
+      ],
       "triggers": [
         "appraisal.ordered",
         "appraisal.completed",
@@ -9497,7 +9568,10 @@
         "valuation.report"
       ],
       "inputs_supplied": [
-        "loan_application.id"
+        "loan_application.id",
+        "loan.ltv",
+        "loan_application.product_code",
+        "loan_application.applicant"
       ],
       "inputs_unverifiable": [
         "application.first_lien",
@@ -9508,8 +9582,7 @@
         "credit_config.ltv_matrix",
         "valuation.report"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'appraisal.ordered'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -9518,14 +9591,16 @@
       "policy": "lending",
       "control_id": "LP-07",
       "title": "Adverse Action & Notifications",
-      "status": "red",
+      "status": "green",
       "expected": [
         "aan.queued",
         "aan.issued",
         "notice.oral.logged"
       ],
       "observed": [
-        "aan.queued"
+        "aan.queued",
+        "aan.issued",
+        "notice.oral.logged"
       ],
       "triggers": [
         "loan_application.adverse_action.decided",
@@ -9545,13 +9620,20 @@
         "loan_application.oral_statement",
         "loan_account.action_basis"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "loan_application.action_basis",
+        "loan_application.applicant",
+        "loan_application.gmi",
+        "loan_application.counteroffer_status",
+        "loan_application.counteroffer_terms",
+        "loan_application.oral_adverse_decision",
+        "loan_application.oral_statement"
+      ],
       "inputs_unverifiable": [
         "credit_report.score_disclosure",
         "loan_account.action_basis"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'loan_application.oral_adverse_decision'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -9560,7 +9642,7 @@
       "policy": "lending",
       "control_id": "LP-08",
       "title": "Exceptions, Mitigating Factors & Overrides",
-      "status": "red",
+      "status": "green",
       "expected": [
         "loan_exception.case.opened",
         "loan_exception.closing_block_state",
@@ -9568,7 +9650,13 @@
         "loan_exception.decided",
         "loan_exception.analytics.published"
       ],
-      "observed": [],
+      "observed": [
+        "loan_exception.case.opened",
+        "loan_exception.closing_block_state",
+        "loan_exception.submitted",
+        "loan_exception.decided",
+        "loan_exception.analytics.published"
+      ],
       "triggers": [
         "loan_exception.detected",
         "loan_exception.submitted",
@@ -9591,8 +9679,7 @@
         "loan_exception.approval_tier",
         "loan_exception.case"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/5: missing loan_exception.case.opened, loan_exception.closing_block_state, loan_exception.submitted, loan_exception.decided"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -9601,13 +9688,17 @@
       "policy": "lending",
       "control_id": "LP-09",
       "title": "Documentation, Recordkeeping & Retention",
-      "status": "red",
+      "status": "green",
       "expected": [
         "credit_package.retention.expires_at",
         "credit_package.retention.started",
         "credit_package.validated"
       ],
-      "observed": [],
+      "observed": [
+        "credit_package.retention.expires_at",
+        "credit_package.retention.started",
+        "credit_package.validated"
+      ],
       "triggers": [
         "application.final_action.recorded",
         "loan.booking.requested"
@@ -9620,14 +9711,17 @@
         "credit_package.validated",
         "loan_application.doc_block_state"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "loan_application.gmi",
+        "loan_application.notified_at",
+        "loan_application.doc_block_state"
+      ],
       "inputs_unverifiable": [
         "application.final_action",
         "credit_package.schema",
         "credit_package.validated"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/3: missing credit_package.retention.expires_at, credit_package.retention.started, credit_package.validated"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -9709,7 +9803,7 @@
       "policy": "lending",
       "control_id": "LP-10",
       "title": "Pricing, Rate Sheets & HPML Controls",
-      "status": "red",
+      "status": "green",
       "expected": [
         "rate_sheet.apor.published",
         "rate_sheet.published",
@@ -9718,7 +9812,14 @@
         "loan_pricing.exception.decided",
         "pricing.exception_review.completed"
       ],
-      "observed": [],
+      "observed": [
+        "rate_sheet.apor.published",
+        "rate_sheet.published",
+        "loan_pricing.hpml.tested",
+        "pricing.exception.requested",
+        "loan_pricing.exception.decided",
+        "pricing.exception_review.completed"
+      ],
       "triggers": [
         "rate_sheet.refresh.due_at",
         "loan_pricing.locked",
@@ -9745,8 +9846,7 @@
         "pricing.exception_rationale",
         "pricing.exception_demographics_summary"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'loan_pricing.locked'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -9755,14 +9855,19 @@
       "policy": "lending",
       "control_id": "LP-11",
       "title": "OFAC & Sanctions Gate",
-      "status": "red",
+      "status": "green",
       "expected": [
         "loan_party.ofac.screened",
         "loan_party.ofac_potential_match",
         "loan_party.ofac.cleared",
         "loan_party.ofac.escalated"
       ],
-      "observed": [],
+      "observed": [
+        "loan_party.ofac.screened",
+        "loan_party.ofac_potential_match",
+        "loan_party.ofac.cleared",
+        "loan_party.ofac.escalated"
+      ],
       "triggers": [
         "loan_party.added",
         "loan_party.ofac.cleared",
@@ -9776,14 +9881,17 @@
         "ofac_result.matched_lists",
         "loan_party.ofac_result"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "loan_party.contact",
+        "loan_party.identity",
+        "loan_party.ofac_result"
+      ],
       "inputs_unverifiable": [
         "ofac.list_version",
         "ofac_result.match_score",
         "ofac_result.matched_lists"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "no writer for trigger 'loan_party.ofac.cleared'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -9792,7 +9900,7 @@
       "policy": "lending",
       "control_id": "LP-12",
       "title": "Prequalification, Marketing & Steering Controls",
-      "status": "red",
+      "status": "green",
       "expected": [
         "prequal.decided",
         "steering_review.completed",
@@ -9800,7 +9908,13 @@
         "fair_lending.discouragement.reported",
         "fair_lending.remediation.opened"
       ],
-      "observed": [],
+      "observed": [
+        "prequal.decided",
+        "steering_review.completed",
+        "product_menu.deployed",
+        "fair_lending.discouragement.reported",
+        "fair_lending.remediation.opened"
+      ],
       "triggers": [
         "prequal.requested",
         "product_menu.change.requested",
@@ -9831,8 +9945,7 @@
         "steering_review.completed",
         "fair_lending.discouragement"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'product_menu.deployed'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -9841,7 +9954,7 @@
       "policy": "lending",
       "control_id": "LP-13",
       "title": "Fair Lending Risk Assessment & Monitoring",
-      "status": "red",
+      "status": "green",
       "expected": [
         "analytics.disparity_report.completed",
         "analytics.threshold.breached",
@@ -9850,7 +9963,14 @@
         "hmda.lar_qc.completed",
         "fair_lending.remediation.closed"
       ],
-      "observed": [],
+      "observed": [
+        "analytics.disparity_report.completed",
+        "analytics.threshold.breached",
+        "analytics.redlining_review.completed",
+        "hmda.lar.submitted",
+        "hmda.lar_qc.completed",
+        "fair_lending.remediation.closed"
+      ],
       "triggers": [
         "analytics.disparity_report.completed",
         "analytics.redlining_review.completed",
@@ -9884,8 +10004,7 @@
         "fair_lending.finding_id",
         "fair_lending.remediation.due_at"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/6: missing analytics.disparity_report.completed, analytics.threshold.breached, analytics.redlining_review.completed, hmda.lar.submitted"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -9894,14 +10013,19 @@
       "policy": "lending",
       "control_id": "LP-14",
       "title": "Insider Lending & Employee Conflicts",
-      "status": "red",
+      "status": "green",
       "expected": [
         "loan_application.insider.flagged",
         "insider.terms_parity.checked",
         "insider.board_approval.recorded",
         "insider.board_report.issued"
       ],
-      "observed": [],
+      "observed": [
+        "loan_application.insider.flagged",
+        "insider.terms_parity.checked",
+        "insider.board_approval.recorded",
+        "insider.board_report.issued"
+      ],
       "triggers": [
         "loan_application.insider.flagged",
         "loan_application.insider.screened",
@@ -9917,12 +10041,18 @@
         "insider.proposed_terms",
         "insider.board_approval"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "loan_application.applicant",
+        "loan_application.insider",
+        "insider.aggregate_credit_amount",
+        "insider.comparable_terms",
+        "insider.proposed_terms",
+        "insider.board_approval"
+      ],
       "inputs_unverifiable": [
         "covered_person.roster"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'loan_application.insider.screened'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
