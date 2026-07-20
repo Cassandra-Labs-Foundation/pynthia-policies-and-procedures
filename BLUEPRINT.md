@@ -15,6 +15,49 @@ migrations written and **none applied**. Seven e2e sections added (32–37) and
 
 ---
 
+## ⚑ THE LEVER: 22 ABANDONED TABLES BLOCK 36 OF THE REMAINING REDS
+
+**Read this before the sizing analysis below, which predates it.**
+
+Of 98 `core` tables, **24 are never written by production code and 22 are never
+read either**. They are not scaffolding. They are controls someone designed,
+modelled in the schema, and then abandoned — and they are declared as required
+inputs by **36 of the remaining in-scope red controls**.
+
+```
+loan        8 controls      dispute     3      training   2
+user        6               insider     3      originator 2
+trade       6               risk        3      address    2
+complaint   4
+```
+
+**This is the closest thing to a lever this corpus has produced,** because a
+table that already exists is a fundamentally cheaper blocker than a missing
+entity: the schema design was done, the noun is modelled, only the writer is
+absent. Compare the two extremes — `cda` needed a noun invented from nothing and
+took a full artifact; `core.loan` needs a writer against a table that is already
+shaped.
+
+### This SUPERSEDES the "no handful of nouns" conclusion below
+
+§5e and the set-cover analysis conclude there is no large lever: the best single
+namespace frees 4 controls, the eighteen best free 45 of 180. **That measurement
+was taken before the third hole shape was known**, and it counts every namespace
+as equally expensive. It is still arithmetically correct and still the right
+answer to the question it asked — *how many controls does one namespace free?* —
+but it is the wrong input to a build-order decision, because it treats
+"`core.loan` needs a writer" and "`employee` does not exist" as the same cost.
+
+**Current guidance: rank by (controls freed ÷ cost), where cost is
+entity > satellite ≈ abandoned-table.** The older numbers stand as measurement;
+this is the one to plan against.
+
+**Two cautions.** `user`, `training` and `insider` are organisational and the
+standing rule still applies — a table existing does not make fabricating its
+contents honest. And an abandoned table's SHAPE was designed against an intent
+nobody wrote down; read it before trusting it to fit the control that now needs
+it.
+
 ## THE SIZE AND SHAPE OF WHAT IS LEFT
 
 **This project is roughly 6 primitives plus about 15 subsystems.**
@@ -1469,3 +1512,31 @@ first pass, 15/15 after.
   `cash_asset.custodian_user_id`: a pointer, not an entity. That is the line the
   standing rule draws, and a VACANCY is recorded as its own state so it cannot
   look like a role that never existed.
+
+
+## WHEN A MUTANT SURVIVES, ASK WHICH OF TWO THINGS IS WRONG
+
+Mutation testing has now produced both answers in this project, and the
+mechanical reading gives the wrong fix in one of them.
+
+| survivor | the usual reading | what was actually wrong |
+|---|---|---|
+| cash sweep starvation | strengthen the test | **correct** — the assertion compared `updated_at` to itself and could not fail |
+| records `superseded_at` branch | strengthen the test | **wrong** — the branch was UNREACHABLE. No path in the system could produce a superseded-with-no-successor schedule entry |
+
+In the second case, writing a stronger test would have meant constructing the
+state by hand — reaching into the table, setting `superseded_at`, then asserting
+the reader ignores it. That test would pass, the mutant would die, and the
+system would still have **no way for a record class to be retired from Schedule
+A**. The green would have been bought by a fixture.
+
+**The rule: when a mutant survives, first ask whether any path can reach the
+mutated branch.** If none can, the finding is a missing capability and the fix
+is in production code. Only if the state IS reachable is the finding a weak
+assertion. Getting this backwards produces exactly the kind of test-shaped
+green this project exists to avoid.
+
+Here the correct fix was `retire: true` — a real operation, because a class
+removed from Schedule A must refuse to set a clock rather than silently keep
+using the retired period. The mutant died as a side effect of building the
+control, which is the right order.
