@@ -34,6 +34,68 @@ migrations written and **none applied**. Seven e2e sections added (32–37) and
 
 ---
 
+## ⚑ WHAT THIS EXERCISE ACTUALLY CAUGHT
+
+**Two live defects that ordinary development would have shipped.** Both are the
+same story: a control whose entire purpose is to PREVENT something, rendered
+inert while every test passed. Neither was found by testing the control — both
+came out of chasing a general weakness somewhere else.
+
+### 1. Records could be destroyed under an active litigation hold
+
+`core.record.legal_hold_id` was a single column. Placing a SECOND hold over a
+record overwrote the first; releasing the second cleared the hold flag while the
+first was still live, and the record became disposal-eligible **under an active
+legal hold. Destroying records under hold is spoliation** — a sanctionable
+litigation failure, not a compliance finding.
+
+Found by auditing the standing-state model after an unrelated privacy finding.
+Fixed by deriving the flag from a SET (`core.record_hold`) rather than a pointer.
+
+### 2. The CDA policy could never lapse, so the funding gate never closed
+
+`cda_policy` and `cash_policy` computed expiry as `adopted_at + 12 months`, but
+nothing asserted the absolute date. A policy adopted eleven months ago recorded
+an expiry twelve months from TODAY — so it could never expire. **CDA-01's entire
+control is "if the policy lapses, all CDA actions are blocked."** It blocked
+nothing, and reported success.
+
+Found by chasing a mutation that survived on an unrelated complaints test, which
+revealed that a test asserting a DURATION cannot see a clock that re-anchors.
+
+### Why both were invisible
+
+| | legal hold | policy expiry |
+|---|---|---|
+| tests passing at the time | all | all |
+| what the test asserted | that release clears the flag (it did) | that the gap was twelve months (it was) |
+| what nobody asserted | that a SURVIVING hold keeps it set | that the anchor was the ADOPTION date |
+| how it was found | auditing a model shape across subsystems | a surviving mutation on a different control |
+
+Neither is exotic. Both are the kind of defect that reaches production, passes
+review, and is discovered by an examiner or a plaintiff.
+
+## A TEST CAN DOCUMENT A BELIEF NOBODY VERIFIED
+
+Distinct from the four instrument bugs, and probably more common in real
+codebases. The legal-hold test did not merely fail to catch the bug — **it
+asserted the buggy behaviour, and carried the same false comment as the code:**
+
+> *"Clear the flag only on records THIS hold set. A record under two concurrent
+> holds must stay held when one is released."*
+
+That comment appeared in both the production code and its test. Both were
+written by someone who believed it. Neither verified it, and the test's
+assertion — that exactly one record update happens on release — was the buggy
+behaviour written down as the specification.
+
+**An instrument bug is a check that cannot fail. This is a check that faithfully
+enforces a belief.** It is worse in one way: the instrument bug leaves no
+evidence, whereas this leaves a confident comment that discourages the next
+person from looking. When a comment states a guarantee, the test beside it must
+exercise the case the guarantee is about — here, a second hold, which no test
+ever placed.
+
 ## ⚑ THE LEVER: 22 ABANDONED TABLES BLOCK 36 OF THE REMAINING REDS
 
 **Read this before the sizing analysis below, which predates it.**
