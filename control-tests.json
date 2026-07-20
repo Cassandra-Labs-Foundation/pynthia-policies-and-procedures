@@ -9,12 +9,12 @@
     "total": 333,
     "in_scope": 225,
     "scoped_out": 108,
-    "in_scope_green": 96,
-    "in_scope_red": 129,
+    "in_scope_green": 99,
+    "in_scope_red": 126,
     "scope_note": "Scoped-out controls are real obligations discharged by people and paperwork. This system covers the technical controls; the organisational ones are not claimed.",
-    "green": 97,
-    "red": 236,
-    "pct_green": 29.1,
+    "green": 100,
+    "red": 233,
+    "pct_green": 30,
     "red_by_reason": {
       "trigger fires but produced events missing": 133,
       "no writer: vendor.*": 6,
@@ -53,8 +53,6 @@
       "no writer: pentest.*": 1,
       "no writer: product.*": 1,
       "no writer: kri.*": 1,
-      "no writer: risk_breach.*": 1,
-      "no writer: risk_acceptance.*": 1,
       "no writer: risk_report.*": 1,
       "no writer: application.*": 1,
       "no writer: hmda.*": 1,
@@ -67,7 +65,6 @@
       "no writer: aup.*": 1,
       "no writer: phishing.*": 1,
       "no writer: recon.*": 1,
-      "no writer: control.*": 1,
       "no writer: coi.*": 1,
       "no writer: mismatch.*": 1,
       "no writer: report.*": 1,
@@ -90,7 +87,7 @@
     },
     "inputs_unverifiable_total": 1391,
     "green_by_fire_path": {
-      "real_writer": 94,
+      "real_writer": 97,
       "generic_echo": 3
     },
     "green_by_policy": {
@@ -102,12 +99,13 @@
       "cash": 7,
       "basel-ii-standardized-approach-framework": 3,
       "electronic-payment-systems": 3,
+      "internal-controls": 3,
       "audit": 2,
       "bsa": 2,
       "collections": 2,
+      "enterprise-risk-management": 2,
       "fair-lending": 2,
       "information-security": 2,
-      "internal-controls": 2,
       "privacy": 2,
       "shared-controls": 2,
       "business-continuity-plan": 1,
@@ -6631,7 +6629,7 @@
       "policy": "enterprise-risk-management",
       "control_id": "ERM-06",
       "title": "Risk Appetite Breach Escalation & Incident Management",
-      "status": "red",
+      "status": "green",
       "expected": [
         "risk_breach.opened",
         "risk_breach.cro.notified",
@@ -6640,7 +6638,11 @@
         "risk_breach.status.reviewed"
       ],
       "observed": [
-        "risk_breach.review.due_at"
+        "risk_breach.opened",
+        "risk_breach.cro.notified",
+        "risk_breach.committee.presented",
+        "risk_breach.review.due_at",
+        "risk_breach.status.reviewed"
       ],
       "triggers": [
         "risk_breach.detected",
@@ -6662,7 +6664,11 @@
         "risk_breach.remediation_plan",
         "risk_breach.remediation_status"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "risk.owner_id",
+        "risk.residual_rating",
+        "user.id"
+      ],
       "inputs_unverifiable": [
         "kri.value",
         "risk_appetite.document",
@@ -6674,8 +6680,7 @@
         "risk_breach.remediation_plan",
         "risk_breach.remediation_status"
       ],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "no writer for trigger 'risk_breach.committee_due_at'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -6684,7 +6689,7 @@
       "policy": "enterprise-risk-management",
       "control_id": "ERM-07",
       "title": "Risk Acceptance & Exceptions",
-      "status": "red",
+      "status": "green",
       "expected": [
         "risk_acceptance.decision.due_at",
         "risk_acceptance.decided",
@@ -6692,7 +6697,10 @@
         "risk_breach.opened"
       ],
       "observed": [
-        "risk_acceptance.decision.due_at"
+        "risk_acceptance.decision.due_at",
+        "risk_acceptance.decided",
+        "risk_acceptance.expiry_alerted",
+        "risk_breach.opened"
       ],
       "triggers": [
         "risk_acceptance.requested",
@@ -6710,15 +6718,18 @@
         "risk_acceptance.id",
         "risk_acceptance.owner_id"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "risk.id",
+        "risk.remediation_evidence",
+        "user.id"
+      ],
       "inputs_unverifiable": [
         "risk_acceptance.expiry_date",
         "risk_acceptance.rationale",
         "risk_acceptance.id",
         "risk_acceptance.owner_id"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'risk_acceptance.expiry_alert_at'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -8368,14 +8379,19 @@
       "policy": "internal-controls",
       "control_id": "IC-06",
       "title": "Exception and Override Management",
-      "status": "red",
+      "status": "green",
       "expected": [
         "override.recorded",
         "exception.registered",
         "exception.reverted",
         "override.analytics.published"
       ],
-      "observed": [],
+      "observed": [
+        "override.recorded",
+        "exception.registered",
+        "exception.reverted",
+        "override.analytics.published"
+      ],
       "triggers": [
         "control.override.invoked",
         "exception.registered",
@@ -8392,7 +8408,9 @@
         "exception.risk_acceptance",
         "exception.scope"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "user.id"
+      ],
       "inputs_unverifiable": [
         "control.id",
         "override.rationale",
@@ -8402,8 +8420,7 @@
         "exception.risk_acceptance",
         "exception.scope"
       ],
-      "fire_path": "none",
-      "blocked_on": "no writer for trigger 'control.override.invoked'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,

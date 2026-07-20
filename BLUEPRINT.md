@@ -2042,3 +2042,43 @@ survived the first sweep for this reason alone: there was nothing to catch them.
 classification). **The rest of their surface is still unit-untested** and should
 be treated as a known gap, not as covered — the control harness is carrying
 them.
+
+### risk, acceptances and control overrides (ERM-06, ERM-07, IC-06) — 3 of 5, predicted 3
+
+96 -> 99. Seventh artifact, seventh exact call. `core.risk` is the eighth
+abandoned table to get a writer.
+
+**EC-02 and IS-06 stay red as classified.** Both need `employee.terminated` /
+`employee.separated` to drive deprovisioning. Building the access register alone
+would produce a table that looks like access management and **cannot revoke
+anything** — the half of the control that never fires. That is worse than
+leaving it red, because it looks done.
+
+**Three registers of the same shape that must not be merged**, and the reason is
+what each one uniquely carries:
+
+| | what it is | what merging loses |
+|---|---|---|
+| risk breach | an excursion outside appetite | the escalation CLOCK |
+| risk acceptance | a decision to stay outside, for a period | the EXPIRY |
+| control override | one act bypassing one control once | the REPETITION count |
+
+They are structurally identical and semantically unrelated. An acceptance
+modelled as a breach never expires; an override modelled as an exception
+acquires an expiry it does not have.
+
+**The controls each turned out to be about the thing that is easy to leave out:**
+
+- ERM-06's control is the SIZE of the excursion, not the fact of it. Severity is
+  derived from how far outside appetite the KRI moved, and only high or critical
+  reaches the CRO — notifying on every breach makes the notification worthless.
+- ERM-07's control is the EXPIRY. An acceptance nobody revisits is a permanent
+  exception granted by inattention, so the expiry is NOT NULL, an expiry too
+  soon to be revisited is refused, and expiry **re-opens the breach it was
+  covering** — the risk did not go away when the paperwork did.
+- IC-06's control is REPETITION. One override with a good rationale is fine; the
+  same control overridden forty times is a control that does not fit the
+  business. The analytics NAME the repeatedly-overridden control rather than
+  leaving it for a reader to spot in a frequency table.
+
+**21 mutations, 21 caught first pass.** Second artifact with no survivors.

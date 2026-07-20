@@ -1377,6 +1377,121 @@ async function runComplaintsLifecycle(env: FireEnv): Promise<void> {
   );
 }
 
+/**
+ * Risk breaches, acceptances and control overrides, driven end to end.
+ *
+ * Appetite set -> an observation INSIDE appetite (which still records that the
+ * check ran) -> one outside, opening a breach with its clocks -> committee
+ * presentation with a plan -> a risk acceptance that must not be self-granted
+ * and must expire -> the sweep that warns and then expires it, re-opening the
+ * breach -> control overrides and a registered exception that reverts.
+ */
+async function runRiskExceptionsLifecycle(env: FireEnv): Promise<void> {
+  if ((env.rows["core.risk_appetite"] ?? []).length > 0) return;
+  const ops = env.actors.ops;
+
+  // the REGISTER first — a breach is an excursion on a registered risk
+  await putRisk(
+    R({ title: "Consumer credit deterioration", taxonomy_category_code: "credit",
+        owner_id: "cro_1", inherent_rating: "high", residual_rating: "moderate",
+        remediation_evidence: "underwriting-tightening-2026" }),
+    "risk_credit_1", env.db, "d", ops,
+  );
+  // NEGATIVE: a risk with no owner is a risk nobody is accountable for
+  await putRisk(R({ title: "Unowned", taxonomy_category_code: "ops" }), "risk_x", env.db, "d", ops);
+
+  await putRiskAppetite(
+    R({ risk_id: "risk_credit_1", taxonomy_category_code: "credit", kri_name: "delinquency_pct",
+        tolerance_value: 300, direction: "above", owner_id: "cro_1",
+        document_ref: "appetite-2026", approved_by: "board-2026-02" }),
+    "rapp_credit", env.db, "d", ops,
+  );
+
+  // INSIDE appetite — must record that the check ran and open nothing
+  await postRiskObservation(
+    R({ appetite_id: "rapp_credit", kri_value: 180 }), env.db, "d", ops,
+  );
+  // OUTSIDE, and far enough outside to be critical
+  await postRiskObservation(
+    R({ appetite_id: "rapp_credit", kri_value: 700, residual_rating: "high",
+        impact_summary: "consumer book deteriorating" }),
+    env.db, "d", ops,
+  );
+  const br = (env.rows["core.risk_breach"] ?? [])[0];
+  // NEGATIVE: presenting with no remediation plan
+  await postRiskBreachPresentation(R({}), String(br?.id ?? "x"), env.db, "d", ops);
+  await postRiskBreachPresentation(
+    R({ remediation_plan: "tighten underwriting on the affected segment",
+        remediation_status: "in_progress" }),
+    String(br?.id ?? "x"), env.db, "d", ops,
+  );
+
+  // NEGATIVE: an acceptance with no expiry
+  await postRiskAcceptance(
+    R({ risk_id: "risk_credit_1", owner_id: "cro_1", rationale: "seasonal" }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: an expiry so soon it can never be revisited in time
+  await postRiskAcceptance(
+    R({ risk_id: "risk_credit_1", owner_id: "cro_1", rationale: "seasonal",
+        expiry_date: "2026-07-25T00:00:00.000Z" }),
+    env.db, "d", ops,
+  );
+  await postRiskAcceptance(
+    R({ risk_id: "risk_credit_1", breach_id: String(br?.id ?? ""), owner_id: "cro_1",
+        rationale: "remediation lands next quarter; carrying the excursion until then",
+        remediation_evidence: "plan-9", expiry_date: "2026-12-31T00:00:00.000Z" }),
+    env.db, "d", ops,
+  );
+  const acc = (env.rows["core.risk_acceptance"] ?? [])[0];
+  // NEGATIVE: the owner cannot grant their own acceptance
+  await postRiskAcceptanceDecision(
+    R({ decision: "accepted", decided_by: "cro_1" }), String(acc?.id ?? "x"), env.db, "d", ops,
+  );
+  await postRiskAcceptanceDecision(
+    R({ decision: "accepted", decided_by: "board_chair" }), String(acc?.id ?? "x"),
+    env.db, "d", ops,
+  );
+
+  // the sweep: first a warning, then expiry re-opening the breach
+  if (acc) acc.expiry_alert_at = "2020-01-01T00:00:00.000Z";
+  await postRiskAcceptanceSweep(R({}), env.db, "d", ops);
+  if (acc) acc.expiry_date = "2020-01-02T00:00:00.000Z";
+  await postRiskAcceptanceSweep(R({}), env.db, "d", ops);
+
+  // IC-06
+  // NEGATIVE: an override with no rationale
+  await postControlOverride(
+    R({ control_id: "CG-VEL-01", subject_ref: "txn_1", actor_ref: "ops_1" }),
+    env.db, "d", ops,
+  );
+  for (const n of [1, 2, 3]) {
+    await postControlOverride(
+      R({ control_id: "CG-VEL-01", subject_kind: "transfer", subject_ref: `txn_${n}`,
+          actor_ref: "ops_1", rationale: "member instruction verified by phone" }),
+      env.db, "d", ops,
+    );
+  }
+  // NEGATIVE: self-approved exception
+  await postControlException(
+    R({ control_id: "CG-NSF-01", scope: "commercial members", rationale: "sweep arrangement",
+        approver_id: "ops_1", registered_by: "ops_1",
+        expires_at: "2026-12-31T00:00:00.000Z" }),
+    env.db, "d", ops,
+  );
+  await postControlException(
+    R({ control_id: "CG-NSF-01", scope: "commercial members", rationale: "sweep arrangement",
+        approver_id: "cco_1", registered_by: "ops_1",
+        expires_at: "2026-08-01T00:00:00.000Z" }),
+    env.db, "d", ops,
+  );
+  const exc = (env.rows["core.control_exception"] ?? [])[0];
+  await postControlExceptionSweep(R({}), env.db, "d", ops);
+  if (exc) exc.expires_at = "2020-01-01T00:00:00.000Z";
+  await postControlExceptionSweep(R({}), env.db, "d", ops);
+  await postOverrideAnalytics(R({ period: "2026Q3" }), env.db, "d", ops);
+}
+
 async function runCapitalLifecycle(env: FireEnv): Promise<void> {
   // A WELL-CAPITALIZED position with a configured internal trigger. The trigger
   // sits above the statutory floor, so this position is compliant with NCUA and
@@ -1510,6 +1625,12 @@ import {
   postPospayException,
 } from "../api/eps_controls.ts";
 import { postIssueCard } from "../api/cards.ts";
+import {
+  postControlException, postControlExceptionSweep, postControlOverride,
+  postOverrideAnalytics, postRiskAcceptance, postRiskAcceptanceDecision,
+  postRiskAcceptanceSweep, postRiskBreachPresentation, postRiskObservation,
+  putRisk, putRiskAppetite,
+} from "../api/risk_exceptions.ts";
 import {
   postComplaint, postComplaintAcknowledge, postComplaintBoardReport, postComplaintResolve,
   postComplaintResponse, postComplaintTrend, postDispute, postDisputeResolve,
@@ -2084,6 +2205,19 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   "compliance.board.report.due_at": (env) => runComplaintsLifecycle(env),
   "privacy.board.report.due_at": (env) => runComplaintsLifecycle(env),
   "incident.material": (env) => runComplaintsLifecycle(env),
+  "risk_breach.detected": (env) => runRiskExceptionsLifecycle(env),
+  "risk_breach.triage.due_at": (env) => runRiskExceptionsLifecycle(env),
+  "risk_breach.committee_due_at": (env) => runRiskExceptionsLifecycle(env),
+  "risk_breach.review.due_at": (env) => runRiskExceptionsLifecycle(env),
+  "risk_acceptance.requested": (env) => runRiskExceptionsLifecycle(env),
+  "risk_acceptance.decision.due_at": (env) => runRiskExceptionsLifecycle(env),
+  "risk_acceptance.expiry_alert_at": (env) => runRiskExceptionsLifecycle(env),
+  "risk_acceptance.expiry_warning": (env) => runRiskExceptionsLifecycle(env),
+  "risk_acceptance.expired": (env) => runRiskExceptionsLifecycle(env),
+  "control.override.invoked": (env) => runRiskExceptionsLifecycle(env),
+  "exception.registered": (env) => runRiskExceptionsLifecycle(env),
+  "exception.expiring": (env) => runRiskExceptionsLifecycle(env),
+  "override.analytics_due": (env) => runRiskExceptionsLifecycle(env),
   "incident.declared": (env) => runIncidentLifecycle(env),
   "incident.detected": (env) => runIncidentLifecycle(env),
   "incident.sev1.detected": (env) => runIncidentLifecycle(env),

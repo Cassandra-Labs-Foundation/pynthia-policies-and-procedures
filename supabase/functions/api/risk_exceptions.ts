@@ -1,0 +1,691 @@
+// Risk breaches, acceptances and control overrides — ERM-06, ERM-07, IC-06.
+//
+// Three registers of the same SHAPE that must not be merged: a breach has a
+// clock, an acceptance has an expiry, an override has a repetition count. See
+// the migration header.
+//
+// EC-02 and IS-06 are NOT built here. Both need `employee.terminated` to drive
+// deprovisioning, and an access register that cannot revoke is the half of the
+// control that never fires.
+
+import { type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { type PartnerContext } from "./auth.ts";
+import { type EvidenceScope, provenanceFor } from "./bsa.ts";
+import {
+  apiError, internalErrorResponse, isNonEmptyString, jsonResponse, notFoundResponse,
+  parseJsonBody, validationError, type ValidationErrorItem,
+} from "./lib.ts";
+
+// deno-lint-ignore no-explicit-any
+type Any = any;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** ERM-06: triage within 2 days, committee within 30, review monthly. */
+const TRIAGE_DAYS = 2;
+const COMMITTEE_DAYS = 30;
+const REVIEW_DAYS = 30;
+/** ERM-07: a decision on an acceptance request within 10 days. */
+const ACCEPTANCE_DECISION_DAYS = 10;
+/** ERM-07: warn this far ahead of expiry, so it can be revisited in time. */
+export const EXPIRY_ALERT_DAYS = 30;
+
+/** ERM-06: severity from the size of the excursion relative to tolerance. */
+export function severityFor(excursion: number, tolerance: number): string {
+  if (tolerance === 0) return "critical";
+  const pct = Math.abs(excursion / tolerance);
+  if (pct >= 1) return "critical";
+  if (pct >= 0.5) return "high";
+  if (pct >= 0.2) return "moderate";
+  return "low";
+}
+
+function requireInternalActor(ctx: PartnerContext, requestId: string): Response | null {
+  if (ctx.actorType === "partner") return notFoundResponse(requestId, "route", "/risk");
+  return null;
+}
+
+async function emit(
+  db: SupabaseClient, scope: EvidenceScope, id: string, code: string,
+  resourceType: string, resourceId: string, payload: Record<string, unknown>,
+  ctx?: PartnerContext,
+): Promise<void> {
+  const { error } = await db.schema(scope).from("event").upsert({
+    id, code, resource_type: resourceType, resource_id: `${resourceType}:${resourceId}`,
+    payload, provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id", ignoreDuplicates: true });
+  if (error) throw new Error(`risk event (${code}): ${error.message}`);
+}
+
+const plusDays = (f: Date, d: number) => new Date(f.getTime() + d * DAY_MS).toISOString();
+
+// --------------------------------------------------------------- the register
+
+/**
+ * PUT /risk/register/:id {title, taxonomy_category_code, owner_id,
+ *                         inherent_rating, residual_rating}
+ *
+ * `core.risk` is one of the 22 abandoned tables. ERM-06's breach is an
+ * excursion on a REGISTERED risk with a named owner; ERM-07's acceptance is a
+ * decision to carry that specific risk. Without the register both controls are
+ * about excursions on nothing.
+ */
+export async function putRisk(
+  req: Request, riskId: string, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const denied = requireInternalActor(ctx, requestId);
+  if (denied) return denied;
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+
+  const errors: ValidationErrorItem[] = [];
+  for (const f of ["title", "taxonomy_category_code", "owner_id"]) {
+    if (!isNonEmptyString(body[f])) {
+      // A risk with no OWNER is a risk nobody is accountable for, which is the
+      // state a register exists to make impossible.
+      errors.push({ type: "missing_field", field: f, message: "is required" });
+    }
+  }
+  if (errors.length > 0) return validationError(requestId, errors);
+
+  const { error } = await db.schema(scope).from("risk").upsert({
+    id: riskId, title: body.title,
+    taxonomy_category_code: body.taxonomy_category_code,
+    owner_id: body.owner_id,
+    inherent_rating: isNonEmptyString(body.inherent_rating) ? body.inherent_rating : null,
+    residual_rating: isNonEmptyString(body.residual_rating) ? body.residual_rating : null,
+    remediation_evidence: isNonEmptyString(body.remediation_evidence)
+      ? body.remediation_evidence
+      : null,
+    last_assessed_at: new Date().toISOString(),
+    provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id" });
+  if (error) return internalErrorResponse(requestId, error.message);
+
+  await emit(db, scope, `ev_${riskId}_reg`, "risk.registered", "risk", riskId, {
+    "risk.id": riskId, "risk.owner_id": body.owner_id,
+    "risk.residual_rating": body.residual_rating ?? null,
+    "risk.remediation_evidence": body.remediation_evidence ?? null,
+    "taxonomy.category_code": body.taxonomy_category_code,
+  }, ctx);
+  return jsonResponse({ data: { id: riskId } }, 200, requestId);
+}
+
+// -------------------------------------------------------------- ERM appetite
+
+/** PUT /risk/appetite/:id {taxonomy_category_code, kri_name, tolerance_value, ...} */
+export async function putRiskAppetite(
+  req: Request, appetiteId: string, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const denied = requireInternalActor(ctx, requestId);
+  if (denied) return denied;
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+
+  const tol = typeof body.tolerance_value === "number" ? body.tolerance_value : NaN;
+  const errors: ValidationErrorItem[] = [];
+  for (const f of ["taxonomy_category_code", "kri_name", "owner_id", "document_ref", "approved_by"]) {
+    if (!isNonEmptyString(body[f])) {
+      errors.push({ type: "missing_field", field: f, message: "is required" });
+    }
+  }
+  if (!Number.isFinite(tol)) {
+    errors.push({ type: "invalid_value", field: "tolerance_value", message: "is required" });
+  }
+  if (errors.length > 0) return validationError(requestId, errors);
+
+  const { error } = await db.schema(scope).from("risk_appetite").upsert({
+    id: appetiteId,
+    risk_id: isNonEmptyString(body.risk_id) ? body.risk_id : null,
+    taxonomy_category_code: body.taxonomy_category_code, kri_name: body.kri_name,
+    tolerance_value: tol,
+    direction: body.direction === "below" ? "below" : "above",
+    owner_id: body.owner_id, document_ref: body.document_ref,
+    approved_by: body.approved_by,
+    effective_at: isNonEmptyString(body.effective_at)
+      ? body.effective_at
+      : new Date().toISOString(),
+    provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id" });
+  if (error) return internalErrorResponse(requestId, error.message);
+  return jsonResponse({ data: { id: appetiteId } }, 200, requestId);
+}
+
+/**
+ * POST /risk/observations {appetite_id, kri_value, impact_summary?, residual_rating?}
+ *
+ * ERM-06. A KRI observation. It opens a breach only if it is OUTSIDE appetite —
+ * and an observation INSIDE appetite still records that the check ran, because
+ * "measured and within tolerance" and "never measured" must not look alike.
+ */
+export async function postRiskObservation(
+  req: Request, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const denied = requireInternalActor(ctx, requestId);
+  if (denied) return denied;
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+
+  const value = typeof body.kri_value === "number" ? body.kri_value : NaN;
+  if (!isNonEmptyString(body.appetite_id) || !Number.isFinite(value)) {
+    return validationError(requestId, [{
+      type: "missing_field", field: "kri_value",
+      message: "appetite_id and kri_value are required",
+    }]);
+  }
+  const { data: ap } = await db.schema(scope).from("risk_appetite")
+    .select("id, taxonomy_category_code, kri_name, tolerance_value, direction, owner_id, document_ref")
+    .eq("id", body.appetite_id).maybeSingle();
+  if (!ap) return notFoundResponse(requestId, "risk_appetite", String(body.appetite_id));
+
+  const tol = Number(ap.tolerance_value);
+  const outside = ap.direction === "below" ? value < tol : value > tol;
+  const now = new Date();
+
+  if (!outside) {
+    // Absence of a finding is itself recorded. See the class in BLUEPRINT.
+    await emit(db, scope, `ev_${ap.id}_within_${now.getTime()}`, "risk.within_appetite",
+      "risk_appetite", String(ap.id), {
+        "kri.value": value, tolerance_value: tol,
+        "taxonomy.category_code": ap.taxonomy_category_code,
+        "risk_appetite.document": ap.document_ref,
+      }, ctx);
+    return jsonResponse({ data: { breached: false } }, 200, requestId);
+  }
+
+  const excursion = Math.abs(value - tol);
+  const severity = severityFor(excursion, tol);
+  const id = `rbrch_${ap.id}_${crypto.randomUUID()}`;
+  const { error } = await db.schema(scope).from("risk_breach").upsert({
+    id, appetite_id: ap.id,
+    taxonomy_category_code: ap.taxonomy_category_code,
+    kri_value: value, tolerance_value: tol, current_excursion: excursion,
+    severity, owner_id: ap.owner_id,
+    residual_rating: isNonEmptyString(body.residual_rating) ? body.residual_rating : null,
+    impact_summary: isNonEmptyString(body.impact_summary) ? body.impact_summary : null,
+    detected_at: now.toISOString(),
+    triage_due_at: plusDays(now, TRIAGE_DAYS),
+    committee_due_at: plusDays(now, COMMITTEE_DAYS),
+    review_due_at: plusDays(now, REVIEW_DAYS),
+    provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id" });
+  if (error) return internalErrorResponse(requestId, error.message);
+
+  const payload = {
+    "risk_breach.id": id, "kri.value": value,
+    "risk_breach.current_excursion": excursion,
+    "risk_breach.severity": severity,
+    "risk.owner_id": ap.owner_id,
+    "risk.residual_rating": body.residual_rating ?? null,
+    "risk_breach.impact_summary": body.impact_summary ?? null,
+    "taxonomy.category_code": ap.taxonomy_category_code,
+    "risk_appetite.document": ap.document_ref,
+    "user.id": ctx.tokenId,
+  };
+  await emit(db, scope, `ev_${id}_det`, "risk_breach.detected", "risk_breach", id, payload, ctx);
+  // The clocks are emitted as facts, not left implicit in the row. A deadline
+  // nothing announced cannot be monitored by anything that reads the event log.
+  await emit(db, scope, `ev_${id}_triagedue`, "risk_breach.triage.due_at",
+    "risk_breach", id, { triage_due_at: plusDays(now, TRIAGE_DAYS) }, ctx);
+  await emit(db, scope, `ev_${id}_commdue`, "risk_breach.committee_due_at",
+    "risk_breach", id, { committee_due_at: plusDays(now, COMMITTEE_DAYS) }, ctx);
+  await emit(db, scope, `ev_${id}_revdue`, "risk_breach.review.due_at",
+    "risk_breach", id, { review_due_at: plusDays(now, REVIEW_DAYS) }, ctx);
+  await emit(db, scope, `ev_${id}_open`, "risk_breach.opened", "risk_breach", id, payload, ctx);
+  // ERM-06: severity drives WHO is told. A critical excursion goes to the CRO
+  // immediately rather than waiting for the committee cycle — notifying on
+  // every breach would make the notification meaningless.
+  if (severity === "critical" || severity === "high") {
+    await emit(db, scope, `ev_${id}_cro`, "risk_breach.cro.notified", "risk_breach", id, {
+      ...payload, reason: `severity=${severity}`,
+    }, ctx);
+  }
+  return jsonResponse({ data: { id, severity, breached: true } }, 201, requestId);
+}
+
+/** POST /risk/breaches/:id/present {remediation_plan, remediation_status?} */
+export async function postRiskBreachPresentation(
+  req: Request, breachId: string, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const denied = requireInternalActor(ctx, requestId);
+  if (denied) return denied;
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+
+  const { data: b } = await db.schema(scope).from("risk_breach")
+    .select("id, committee_due_at, review_due_at, severity, owner_id, current_excursion")
+    .eq("id", breachId).maybeSingle();
+  if (!b) return notFoundResponse(requestId, "risk_breach", breachId);
+  if (!isNonEmptyString(body.remediation_plan)) {
+    // A breach presented with no plan is a status report.
+    return validationError(requestId, [{
+      type: "missing_field", field: "remediation_plan",
+      message: "a breach presented with no remediation plan is a status report",
+    }]);
+  }
+  const now = new Date();
+  const status = ["open", "in_progress", "complete", "accepted"]
+      .includes(String(body.remediation_status))
+    ? String(body.remediation_status)
+    : "in_progress";
+  const { error } = await db.schema(scope).from("risk_breach").update({
+    triaged_at: now.toISOString(), committee_presented_at: now.toISOString(),
+    reviewed_at: now.toISOString(), remediation_plan: body.remediation_plan,
+    remediation_status: status, updated_at: now.toISOString(),
+  }).eq("id", breachId);
+  if (error) return internalErrorResponse(requestId, error.message);
+
+  await emit(db, scope, `ev_${breachId}_comm`, "risk_breach.committee.presented",
+    "risk_breach", breachId, {
+      "risk_breach.remediation_plan": body.remediation_plan,
+      "risk_breach.remediation_status": status,
+      "risk_breach.severity": b.severity,
+      presented_late: now.toISOString() > String(b.committee_due_at),
+    }, ctx);
+  await emit(db, scope, `ev_${breachId}_rev`, "risk_breach.status.reviewed",
+    "risk_breach", breachId, {
+      "risk_breach.remediation_status": status,
+      "risk_breach.current_excursion": b.current_excursion,
+      reviewed_late: now.toISOString() > String(b.review_due_at),
+    }, ctx);
+  return jsonResponse({ data: { id: breachId, status } }, 200, requestId);
+}
+
+// ------------------------------------------------------------ ERM-07 accept
+
+/**
+ * POST /risk/acceptances
+ * {risk_id, owner_id, rationale, expiry_date, breach_id?, remediation_evidence?}
+ *
+ * The EXPIRY is mandatory. An acceptance with no end date is a permanent
+ * exception granted by inattention, which is the failure this control exists
+ * to prevent.
+ */
+export async function postRiskAcceptance(
+  req: Request, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const denied = requireInternalActor(ctx, requestId);
+  if (denied) return denied;
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+
+  const errors: ValidationErrorItem[] = [];
+  for (const f of ["risk_id", "owner_id", "rationale"]) {
+    if (!isNonEmptyString(body[f])) {
+      errors.push({ type: "missing_field", field: f, message: "is required" });
+    }
+  }
+  if (!isNonEmptyString(body.expiry_date)) {
+    errors.push({
+      type: "missing_field", field: "expiry_date",
+      message: "an acceptance with no expiry is a permanent exception granted by inattention",
+    });
+  }
+  if (errors.length > 0) return validationError(requestId, errors);
+
+  const now = new Date();
+  const expiry = new Date(String(body.expiry_date));
+  const alertAt = new Date(expiry.getTime() - EXPIRY_ALERT_DAYS * DAY_MS);
+  if (alertAt.getTime() <= now.getTime()) {
+    // An acceptance whose warning window has already passed cannot be revisited
+    // in time. Refusing is better than granting one that expires unnoticed.
+    return apiError(409, "risk_acceptance_expiry_too_soon", requestId, {
+      title: "expiry too soon",
+      detail: `the expiry must be more than ${EXPIRY_ALERT_DAYS} days away so it can be revisited`,
+    });
+  }
+
+  const id = `racc_${crypto.randomUUID()}`;
+  const { error } = await db.schema(scope).from("risk_acceptance").upsert({
+    id, risk_id: body.risk_id,
+    breach_id: isNonEmptyString(body.breach_id) ? body.breach_id : null,
+    owner_id: body.owner_id, rationale: body.rationale,
+    remediation_evidence: isNonEmptyString(body.remediation_evidence)
+      ? body.remediation_evidence
+      : null,
+    requested_at: now.toISOString(),
+    decision_due_at: plusDays(now, ACCEPTANCE_DECISION_DAYS),
+    expiry_date: expiry.toISOString(),
+    expiry_alert_at: alertAt.toISOString(),
+    provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id" });
+  if (error) return internalErrorResponse(requestId, error.message);
+
+  await emit(db, scope, `ev_${id}_decdue`, "risk_acceptance.decision.due_at",
+    "risk_acceptance", id, {
+      decision_due_at: plusDays(now, ACCEPTANCE_DECISION_DAYS),
+    }, ctx);
+  await emit(db, scope, `ev_${id}_alertat`, "risk_acceptance.expiry_alert_at",
+    "risk_acceptance", id, { expiry_alert_at: alertAt.toISOString() }, ctx);
+  await emit(db, scope, `ev_${id}_req`, "risk_acceptance.requested",
+    "risk_acceptance", id, {
+      "risk_acceptance.id": id, "risk.id": body.risk_id,
+      "risk_acceptance.owner_id": body.owner_id,
+      "risk_acceptance.rationale": body.rationale,
+      "risk_acceptance.expiry_date": expiry.toISOString(),
+      "risk.remediation_evidence": body.remediation_evidence ?? null,
+      "user.id": ctx.tokenId,
+    }, ctx);
+  return jsonResponse({ data: { id, expiry_alert_at: alertAt.toISOString() } }, 201, requestId);
+}
+
+/** POST /risk/acceptances/:id/decide {decision, decided_by} */
+export async function postRiskAcceptanceDecision(
+  req: Request, accId: string, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const denied = requireInternalActor(ctx, requestId);
+  if (denied) return denied;
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+
+  const { data: a } = await db.schema(scope).from("risk_acceptance")
+    .select("id, owner_id, decision_due_at, risk_id, expiry_date").eq("id", accId).maybeSingle();
+  if (!a) return notFoundResponse(requestId, "risk_acceptance", accId);
+
+  const decidedBy = isNonEmptyString(body.decided_by) ? body.decided_by : null;
+  if (!decidedBy || (body.decision !== "accepted" && body.decision !== "declined")) {
+    return validationError(requestId, [{
+      type: "invalid_value", field: "decision",
+      message: "decision must be accepted or declined, with decided_by",
+    }]);
+  }
+  if (decidedBy === a.owner_id) {
+    // The owner asking to carry a risk cannot be the one who grants it.
+    return apiError(409, "risk_acceptance_self_granted", requestId, {
+      title: "self-granted acceptance",
+      detail: "the risk owner cannot grant their own acceptance",
+    });
+  }
+
+  const now = new Date();
+  const { error } = await db.schema(scope).from("risk_acceptance").update({
+    decision: body.decision, decided_at: now.toISOString(), decided_by: decidedBy,
+    updated_at: now.toISOString(),
+  }).eq("id", accId);
+  if (error) return internalErrorResponse(requestId, error.message);
+
+  await emit(db, scope, `ev_${accId}_dec`, "risk_acceptance.decided",
+    "risk_acceptance", accId, {
+      "risk_acceptance.id": accId, decision: body.decision, decided_by: decidedBy,
+      "risk_acceptance.expiry_date": a.expiry_date,
+      decided_late: now.toISOString() > String(a.decision_due_at),
+    }, ctx);
+  return jsonResponse({ data: { id: accId, decision: body.decision } }, 200, requestId);
+}
+
+/**
+ * POST /risk/acceptances/sweep
+ *
+ * ERM-07's clock. An acceptance that expires unnoticed silently becomes
+ * permanent, so the sweep both WARNS ahead of expiry and expires it — and an
+ * expired acceptance re-opens the breach it was covering, because the risk did
+ * not go away when the paperwork did.
+ *
+ * Every examined row is touched whether or not it fires: the heartbeat
+ * starvation finding.
+ */
+export async function postRiskAcceptanceSweep(
+  _req: Request, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const denied = requireInternalActor(ctx, requestId);
+  if (denied) return denied;
+
+  const now = new Date();
+  const iso = now.toISOString();
+  const { data, error } = await db.schema(scope).from("risk_acceptance")
+    .select("id, risk_id, breach_id, owner_id, decision, expiry_date, expiry_alert_at, expiry_alerted_at, expired_at")
+    .is("expired_at", null)
+    .order("expiry_date", { ascending: true })
+    .limit(200);
+  if (error) return internalErrorResponse(requestId, error.message);
+
+  let alerted = 0, expired = 0;
+  for (const a of data ?? []) {
+    const id = String(a.id);
+    const patch: Record<string, unknown> = { updated_at: iso };
+
+    if (String(a.expiry_date) <= iso) {
+      patch.expired_at = iso;
+      expired++;
+      await emit(db, scope, `ev_${id}_expired`, "risk_acceptance.expired",
+        "risk_acceptance", id, {
+          "risk_acceptance.id": id, "risk.id": a.risk_id,
+          "risk_acceptance.expiry_date": a.expiry_date,
+        }, ctx);
+      // the risk is back outside appetite with nothing covering it
+      await emit(db, scope, `ev_${id}_reopen`, "risk_breach.opened", "risk_acceptance", id, {
+        "risk_breach.id": a.breach_id ?? id, reason: "risk_acceptance_expired",
+        "risk.owner_id": a.owner_id,
+      }, ctx);
+    } else if (String(a.expiry_alert_at) <= iso && !a.expiry_alerted_at) {
+      patch.expiry_alerted_at = iso;
+      alerted++;
+      await emit(db, scope, `ev_${id}_alert`, "risk_acceptance.expiry_alerted",
+        "risk_acceptance", id, {
+          "risk_acceptance.id": id,
+          "risk_acceptance.expiry_date": a.expiry_date,
+          days_remaining: Math.ceil(
+            (new Date(String(a.expiry_date)).getTime() - now.getTime()) / DAY_MS,
+          ),
+        }, ctx);
+      await emit(db, scope, `ev_${id}_warn`, "risk_acceptance.expiry_warning",
+        "risk_acceptance", id, { "risk_acceptance.expiry_date": a.expiry_date }, ctx);
+    }
+    // touched either way, so a bounded sweep cannot starve its tail
+    await db.schema(scope).from("risk_acceptance").update(patch).eq("id", id);
+  }
+  return jsonResponse({
+    data: { examined: (data ?? []).length, alerted, expired },
+  }, 200, requestId);
+}
+
+// ------------------------------------------------------------ IC-06 overrides
+
+/** POST /controls/overrides {control_id, subject_kind, subject_ref, actor_ref, rationale} */
+export async function postControlOverride(
+  req: Request, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const denied = requireInternalActor(ctx, requestId);
+  if (denied) return denied;
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+
+  const errors: ValidationErrorItem[] = [];
+  for (const f of ["control_id", "subject_ref", "actor_ref"]) {
+    if (!isNonEmptyString(body[f])) {
+      errors.push({ type: "missing_field", field: f, message: "is required" });
+    }
+  }
+  if (!isNonEmptyString(body.rationale)) {
+    // An override with no rationale is indistinguishable from a control that
+    // does not work.
+    errors.push({
+      type: "missing_field", field: "rationale",
+      message: "an override with no rationale cannot be reviewed",
+    });
+  }
+  if (errors.length > 0) return validationError(requestId, errors);
+
+  const now = new Date();
+  // IC-06 declares `user.id` and `user.role`: an override is attributable to a
+  // SYSTEM PRINCIPAL. Registering the actor here rather than only naming them
+  // in the payload is what makes "who overrides most" answerable — and it is a
+  // role register, not an employment record (see the classification rule).
+  await db.schema(scope).from("user").upsert({
+    id: String(body.actor_ref),
+    role: isNonEmptyString(body.actor_role) ? body.actor_role : "operator",
+    provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id", ignoreDuplicates: true });
+  const id = `covr_${crypto.randomUUID()}`;
+  const { error } = await db.schema(scope).from("control_override").upsert({
+    id, control_id: body.control_id,
+    subject_kind: isNonEmptyString(body.subject_kind) ? body.subject_kind : "transaction",
+    subject_ref: body.subject_ref, actor_ref: body.actor_ref,
+    rationale: body.rationale, invoked_at: now.toISOString(),
+    provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id" });
+  if (error) return internalErrorResponse(requestId, error.message);
+
+  await emit(db, scope, `ev_${id}_inv`, "control.override.invoked",
+    "control_override", id, {
+      "control.id": body.control_id, "override.rationale": body.rationale,
+      "user.id": body.actor_ref, subject_ref: body.subject_ref,
+    }, ctx);
+  await emit(db, scope, `ev_${id}_rec`, "override.recorded", "control_override", id, {
+    "control.id": body.control_id, "override.rationale": body.rationale,
+    "user.id": body.actor_ref,
+  }, ctx);
+  return jsonResponse({ data: { id } }, 201, requestId);
+}
+
+/**
+ * POST /controls/exceptions
+ * {control_id, scope, rationale, approver_id, registered_by, expires_at,
+ *  risk_acceptance_id?}
+ */
+export async function postControlException(
+  req: Request, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const denied = requireInternalActor(ctx, requestId);
+  if (denied) return denied;
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+
+  const errors: ValidationErrorItem[] = [];
+  for (const f of ["control_id", "scope", "rationale", "approver_id", "registered_by"]) {
+    if (!isNonEmptyString(body[f])) {
+      errors.push({ type: "missing_field", field: f, message: "is required" });
+    }
+  }
+  if (!isNonEmptyString(body.expires_at)) {
+    errors.push({
+      type: "missing_field", field: "expires_at",
+      message: "a registered exception must be time-boxed",
+    });
+  }
+  if (errors.length > 0) return validationError(requestId, errors);
+  if (body.approver_id === body.registered_by) {
+    return apiError(409, "control_exception_self_approved", requestId, {
+      title: "self-approved exception",
+      detail: "the person registering an exception cannot approve it",
+    });
+  }
+
+  const now = new Date();
+  const id = `cexc_${crypto.randomUUID()}`;
+  const { error } = await db.schema(scope).from("control_exception").upsert({
+    id, control_id: body.control_id, scope: body.scope, rationale: body.rationale,
+    risk_acceptance_id: isNonEmptyString(body.risk_acceptance_id)
+      ? body.risk_acceptance_id
+      : null,
+    approver_id: body.approver_id, registered_by: body.registered_by,
+    registered_at: now.toISOString(), expires_at: body.expires_at,
+    provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id" });
+  if (error) return internalErrorResponse(requestId, error.message);
+
+  await emit(db, scope, `ev_${id}_reg`, "exception.registered", "control_exception", id, {
+    "control.id": body.control_id, "exception.scope": body.scope,
+    "exception.rationale": body.rationale,
+    "exception.approver_id": body.approver_id,
+    "exception.expires_at": body.expires_at,
+    "exception.risk_acceptance": body.risk_acceptance_id ?? null,
+    "user.id": body.registered_by,
+  }, ctx);
+  return jsonResponse({ data: { id } }, 201, requestId);
+}
+
+/**
+ * POST /controls/exceptions/sweep
+ *
+ * IC-06. An exception that expires must REVERT — the control comes back on.
+ * An expiry that only alerts leaves the control off indefinitely, which is the
+ * same failure as an acceptance nobody revisits.
+ */
+export async function postControlExceptionSweep(
+  _req: Request, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const denied = requireInternalActor(ctx, requestId);
+  if (denied) return denied;
+
+  const now = new Date();
+  const iso = now.toISOString();
+  const { data, error } = await db.schema(scope).from("control_exception")
+    .select("id, control_id, scope, expires_at, reverted_at")
+    .is("reverted_at", null)
+    .order("expires_at", { ascending: true })
+    .limit(200);
+  if (error) return internalErrorResponse(requestId, error.message);
+
+  let reverted = 0, expiring = 0;
+  for (const e of data ?? []) {
+    const id = String(e.id);
+    const patch: Record<string, unknown> = {};
+    if (String(e.expires_at) <= iso) {
+      patch.reverted_at = iso;
+      reverted++;
+      await emit(db, scope, `ev_${id}_rev`, "exception.reverted", "control_exception", id, {
+        "control.id": e.control_id, "exception.scope": e.scope,
+        "exception.expires_at": e.expires_at,
+      }, ctx);
+    } else if (
+      new Date(String(e.expires_at)).getTime() - now.getTime() <= EXPIRY_ALERT_DAYS * DAY_MS
+    ) {
+      expiring++;
+      await emit(db, scope, `ev_${id}_expiring`, "exception.expiring",
+        "control_exception", id, {
+          "control.id": e.control_id, "exception.expires_at": e.expires_at,
+        }, ctx);
+    }
+    if (Object.keys(patch).length > 0) {
+      await db.schema(scope).from("control_exception").update(patch).eq("id", id);
+    }
+  }
+  return jsonResponse({ data: { examined: (data ?? []).length, reverted, expiring } }, 200, requestId);
+}
+
+/**
+ * POST /controls/overrides/analytics {period}
+ *
+ * IC-06. The control is REPETITION — a single override with a good rationale is
+ * fine; the same control overridden forty times is a control that does not fit
+ * the business. A register with no analytics over it cannot see that.
+ */
+export async function postOverrideAnalytics(
+  req: Request, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const denied = requireInternalActor(ctx, requestId);
+  if (denied) return denied;
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+
+  const { data: overrides } = await db.schema(scope).from("control_override")
+    .select("id, control_id, actor_ref, invoked_at");
+  const { data: exceptions } = await db.schema(scope).from("control_exception")
+    .select("id, control_id, reverted_at, expires_at");
+
+  const byControl: Record<string, number> = {};
+  const byActor: Record<string, number> = {};
+  for (const o of overrides ?? []) {
+    byControl[String(o.control_id)] = (byControl[String(o.control_id)] ?? 0) + 1;
+    byActor[String(o.actor_ref)] = (byActor[String(o.actor_ref)] ?? 0) + 1;
+  }
+  const repeated = Object.entries(byControl).filter(([, n]) => n >= 3)
+    .map(([c, n]) => ({ control_id: c, count: n }));
+
+  const id = `covran_${body.period ?? "p"}`;
+  await emit(db, scope, `ev_${id}`, "override.analytics.published",
+    "control_override", id, {
+      period: body.period ?? null,
+      total_overrides: (overrides ?? []).length,
+      by_control: byControl, by_actor: byActor,
+      // the finding is REPETITION, so it is named rather than left for a reader
+      // to spot in a frequency table
+      repeatedly_overridden: repeated,
+      open_exceptions: (exceptions ?? []).filter((e: Any) => !e.reverted_at).length,
+    }, ctx);
+  return jsonResponse({
+    data: { total: (overrides ?? []).length, repeatedly_overridden: repeated },
+  }, 201, requestId);
+}
