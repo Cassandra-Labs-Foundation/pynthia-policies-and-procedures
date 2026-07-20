@@ -9,23 +9,21 @@
     "total": 333,
     "in_scope": 225,
     "scoped_out": 108,
-    "in_scope_green": 125,
-    "in_scope_red": 100,
+    "in_scope_green": 134,
+    "in_scope_red": 91,
     "scope_note": "Scoped-out controls are real obligations discharged by people and paperwork. This system covers the technical controls; the organisational ones are not claimed.",
-    "green": 126,
-    "red": 207,
-    "pct_green": 37.8,
+    "green": 135,
+    "red": 198,
+    "pct_green": 40.5,
     "red_by_reason": {
-      "trigger fires but produced events missing": 121,
+      "trigger fires but produced events missing": 119,
       "no writer: vendor.*": 6,
-      "no writer: loan.*": 4,
       "no writer: training.*": 4,
       "no writer: eps.*": 4,
       "no writer: indemnification.*": 4,
       "no writer: board.*": 3,
       "no writer: access.*": 3,
       "no writer: org.*": 2,
-      "no writer: member.*": 2,
       "no writer: compliance.*": 2,
       "no writer: insider.*": 2,
       "catalogue entry declares no trigger event": 2,
@@ -38,8 +36,6 @@
       "no writer: reporting.*": 1,
       "no writer: cash.*": 1,
       "inputs not supplied: training.coverage_pct": 1,
-      "no writer: furnishing.*": 1,
-      "inputs not supplied: incident.collections, incident.reportability_assessment": 1,
       "no writer: regulatory.*": 1,
       "no writer: affiliate.*": 1,
       "no writer: corp_opportunity.*": 1,
@@ -70,6 +66,7 @@
       "no writer: catalogue.*": 1,
       "no writer: verification.*": 1,
       "no writer: card.*": 1,
+      "no writer: member.*": 1,
       "no writer: service.*": 1,
       "no writer: connection.*": 1,
       "no writer: safe_mode.*": 1,
@@ -79,7 +76,7 @@
     },
     "inputs_unverifiable_total": 1391,
     "green_by_fire_path": {
-      "real_writer": 119,
+      "real_writer": 128,
       "generic_echo": 5,
       "obligation_cadence": 2
     },
@@ -89,6 +86,7 @@
       "lending": 14,
       "charitable-donation-accounts": 13,
       "privacy": 13,
+      "collections": 11,
       "record-retention": 11,
       "capitalization": 8,
       "cash": 7,
@@ -96,7 +94,6 @@
       "electronic-payment-systems": 3,
       "internal-controls": 3,
       "audit": 2,
-      "collections": 2,
       "enterprise-risk-management": 2,
       "fair-lending": 2,
       "information-security": 2,
@@ -831,7 +828,10 @@
         "rwa.exposure_category",
         "rwa.weights"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "loan.days_past_due",
+        "loan.dpd"
+      ],
       "inputs_unverifiable": [
         "rwa.change_authority",
         "rwa.proposed_change",
@@ -842,7 +842,7 @@
         "rwa.weights"
       ],
       "fire_path": "real_writer",
-      "blocked_on": "no writer for trigger 'loan.delinquency_day_90'"
+      "blocked_on": "produced 2/3: missing rwa.schedule_version"
     },
     {
       "scoped_out": false,
@@ -4152,14 +4152,19 @@
       "policy": "collections",
       "control_id": "CO-01",
       "title": "Collections Governance & Scope",
-      "status": "red",
+      "status": "green",
       "expected": [
         "collections.policy_version.activated",
         "collections.board_report.issued",
         "collections.policy_review.completed",
         "collections.policy_breach.logged"
       ],
-      "observed": [],
+      "observed": [
+        "collections.policy_version.activated",
+        "collections.board_report.issued",
+        "collections.policy_review.completed",
+        "collections.policy_breach.logged"
+      ],
       "triggers": [
         "collections.policy_version.activated",
         "collections.board_report.issued",
@@ -4180,7 +4185,12 @@
         "breach.description",
         "breach.owner"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "loan.dpd",
+        "loan.nonaccrual.placed",
+        "loan.re_writedown",
+        "loan.risk_rating"
+      ],
       "inputs_unverifiable": [
         "collections.policy_version",
         "policy.approver_id",
@@ -4191,8 +4201,7 @@
         "breach.description",
         "breach.owner"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/4: missing collections.policy_version.activated, collections.board_report.issued, collections.policy_review.completed, collections.policy_breach.logged"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -4201,7 +4210,7 @@
       "policy": "collections",
       "control_id": "CO-02",
       "title": "Delinquency Monitoring & Early-Stage Collections",
-      "status": "red",
+      "status": "green",
       "expected": [
         "loan.delinquency_engine_run",
         "loan.dpd.updated",
@@ -4211,7 +4220,15 @@
         "collections.right_to_cure.sent",
         "collections.status_memo.filed"
       ],
-      "observed": [],
+      "observed": [
+        "loan.delinquency_engine_run",
+        "loan.dpd.updated",
+        "collections.courtesy_notice.sent",
+        "collections.past_due_note.retained",
+        "collections.second_reminder.sent",
+        "collections.right_to_cure.sent",
+        "collections.status_memo.filed"
+      ],
       "triggers": [
         "loan.dpd.updated",
         "loan.delinquency_day_10",
@@ -4234,15 +4251,24 @@
         "loan.collectibility_assessment",
         "loan.workout_alternatives"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "loan.grace_period_days",
+        "loan.id",
+        "loan.last_payment_date",
+        "loan.product_type",
+        "entity.contact",
+        "loan.balance",
+        "loan.past_due_amount",
+        "loan.collectibility_assessment",
+        "loan.workout_alternatives"
+      ],
       "inputs_unverifiable": [
         "collections.template",
         "member.id",
         "member.contact_preferences",
         "legal.cure_parameters"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'loan.delinquency_day_10'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -4251,14 +4277,19 @@
       "policy": "collections",
       "control_id": "CO-03",
       "title": "Retail Credit Classification & Charge-Offs",
-      "status": "red",
+      "status": "green",
       "expected": [
         "loan.rating_review.completed",
         "loan.risk_rating",
         "loan.charged_off",
         "loan.re_writedown.booked"
       ],
-      "observed": [],
+      "observed": [
+        "loan.rating_review.completed",
+        "loan.risk_rating",
+        "loan.charged_off",
+        "loan.re_writedown.booked"
+      ],
       "triggers": [
         "loan.delinquency_day_90",
         "loan.chargeoff_due_closed_end",
@@ -4282,13 +4313,23 @@
         "collateral.cost_to_sell",
         "collateral.fair_value"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "loan.collateral_value",
+        "loan.ltv",
+        "loan.product_type",
+        "loan.well_secured_documented",
+        "loan.balance",
+        "loan.bankruptcy_case_id",
+        "loan.id",
+        "account.death_flag",
+        "loan.estate_claim_status",
+        "loan.estimated_recovery"
+      ],
       "inputs_unverifiable": [
         "collateral.cost_to_sell",
         "collateral.fair_value"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'loan.delinquency_day_90'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -4297,7 +4338,7 @@
       "policy": "collections",
       "control_id": "CO-04",
       "title": "Forbearance, Extensions, Workouts & TDRs",
-      "status": "red",
+      "status": "green",
       "expected": [
         "loan.modification.decided",
         "loan.modified_schedule",
@@ -4306,7 +4347,14 @@
         "loan.dpd_reset_eligibility_check",
         "tdr.quarterly_review.completed"
       ],
-      "observed": [],
+      "observed": [
+        "loan.modification.decided",
+        "loan.modified_schedule",
+        "elc.modification.approved",
+        "loan.dpd_reset",
+        "loan.dpd_reset_eligibility_check",
+        "tdr.quarterly_review.completed"
+      ],
       "triggers": [
         "loan.workout.requested",
         "loan.io_capitalization.proposed",
@@ -4323,14 +4371,19 @@
         "loan.modified_schedule",
         "loan.dpd"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "loan.proposed_modification",
+        "loan.io_term_months",
+        "loan.id",
+        "loan.modified_schedule",
+        "loan.dpd"
+      ],
       "inputs_unverifiable": [
         "member.hardship_evidence",
         "member.repayment_capacity",
         "elc.approval_packet"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/6: missing loan.modification.decided, loan.modified_schedule, elc.modification.approved, loan.dpd_reset"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -4339,7 +4392,7 @@
       "policy": "collections",
       "control_id": "CO-05",
       "title": "Consumer Protection in Collections Communications",
-      "status": "red",
+      "status": "green",
       "expected": [
         "collections.contact.logged",
         "collections.contact_gated",
@@ -4347,7 +4400,13 @@
         "collections.attorney.identified",
         "collections.template.approved"
       ],
-      "observed": [],
+      "observed": [
+        "collections.contact.logged",
+        "collections.contact_gated",
+        "member.cease_flag_set",
+        "collections.attorney.identified",
+        "collections.template.approved"
+      ],
       "triggers": [
         "collections.contact.logged",
         "collections.cease_request.received",
@@ -4379,8 +4438,7 @@
         "collections.collector_id",
         "collections.template"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'member.attorney_flag_set'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -4444,7 +4502,7 @@
       "policy": "collections",
       "control_id": "CO-07",
       "title": "Credit Reporting & Dispute Handling",
-      "status": "red",
+      "status": "green",
       "expected": [
         "furnishing.file_transmitted",
         "dispute.findings",
@@ -4453,7 +4511,11 @@
         "fraud.idtheft_case.opened"
       ],
       "observed": [
-        "furnishing.correction.applied"
+        "furnishing.file_transmitted",
+        "dispute.findings",
+        "furnishing.correction.applied",
+        "furnishing.dispute.resolved",
+        "fraud.idtheft_case.opened"
       ],
       "triggers": [
         "furnishing.cycle_due_at",
@@ -4471,7 +4533,9 @@
         "dispute.idtheft_report"
       ],
       "inputs_supplied": [
-        "dispute.basis"
+        "dispute.basis",
+        "dispute.category",
+        "dispute.idtheft_report"
       ],
       "inputs_unverifiable": [
         "furnishing.correction.identified",
@@ -4479,8 +4543,7 @@
         "furnishing.disputed_account",
         "member.id"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "no writer for trigger 'furnishing.cycle_due_at'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -4524,7 +4587,7 @@
       "policy": "collections",
       "control_id": "CO-11",
       "title": "Collections-Data Incident Logging & Triage",
-      "status": "red",
+      "status": "green",
       "expected": [
         "incident.created",
         "incident.classified",
@@ -4550,16 +4613,17 @@
         "incident.severity"
       ],
       "inputs_supplied": [
+        "incident.collections",
         "incident.data_scope",
         "incident.description",
         "incident.detection_source",
         "incident.member_impact",
+        "incident.reportability_assessment",
         "incident.scope_initial",
         "incident.severity"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "inputs not supplied: incident.collections, incident.reportability_assessment"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -4568,7 +4632,7 @@
       "policy": "collections",
       "control_id": "CO-09",
       "title": "Problem Loans, Nonaccrual & Foreclosure Governance",
-      "status": "red",
+      "status": "green",
       "expected": [
         "loan.nonaccrual.placed",
         "loan.nonaccrual.triggered",
@@ -4576,7 +4640,13 @@
         "loan.foreclosure.approved",
         "loan.accrual.restored"
       ],
-      "observed": [],
+      "observed": [
+        "loan.nonaccrual.placed",
+        "loan.nonaccrual.triggered",
+        "loan.rating_review.completed",
+        "loan.foreclosure.approved",
+        "loan.accrual.restored"
+      ],
       "triggers": [
         "loan.nonaccrual.triggered",
         "loan.rating_review.completed",
@@ -4594,12 +4664,20 @@
         "loan.foreclosure_impact_eval",
         "loan.repayment_evidence"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "loan.accrued_interest",
+        "loan.collectibility_assessment",
+        "loan.dpd",
+        "loan.id",
+        "loan.modified_schedule",
+        "loan.risk_rating",
+        "loan.foreclosure_impact_eval",
+        "loan.repayment_evidence"
+      ],
       "inputs_unverifiable": [
         "legal.foreclosure_checklist"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'loan.nonaccrual.triggered'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -4608,7 +4686,7 @@
       "policy": "collections",
       "control_id": "CO-10",
       "title": "Overdraft Collections and Fee Waiver Practices",
-      "status": "red",
+      "status": "green",
       "expected": [
         "overdraft.referral.issued",
         "overdraft.report.reviewed",
@@ -4616,7 +4694,13 @@
         "overdraft.fee.logged",
         "overdraft.waiver.approved"
       ],
-      "observed": [],
+      "observed": [
+        "overdraft.referral.issued",
+        "overdraft.report.reviewed",
+        "fee.overdraft.suppressed",
+        "overdraft.fee.logged",
+        "overdraft.waiver.approved"
+      ],
       "triggers": [
         "overdraft.report.reviewed",
         "overdraft.fee.logged",
@@ -4646,8 +4730,7 @@
         "overdraft.recurring_pattern",
         "overdraft.waiver_reason"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/5: missing overdraft.referral.issued, overdraft.report.reviewed, fee.overdraft.suppressed, overdraft.fee.logged"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,

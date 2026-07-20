@@ -1909,6 +1909,163 @@ async function runPrivacyLifecycle(env: FireEnv): Promise<void> {
   );
 }
 
+/** Collections, driven end to end. Delinquency derived at four thresholds,
+ * classification and nonaccrual, a workout refused for self-approval and a
+ * re-age refused for exceeding its limit, the FDCPA contact gate blocking on
+ * each protection, furnishing, and an overdraft charged off at 45 days. */
+async function runCollectionsLifecycle(env: FireEnv): Promise<void> {
+  if ((env.rows["core.delinquency_evaluation"] ?? []).length > 0) return;
+  const ops = env.actors.ops;
+
+  await postCollectionsPolicy(
+    R({ version: "col-v2", approved_by: "board-2026-03", scope: "all consumer loans",
+        agencies: ["Northgate Recovery"] }),
+    env.db, "d", ops,
+  );
+
+  env.rows["core.account"] ??= [];
+  env.rows["core.account"].push({
+    id: "acct_estate", entity_id: "ent_dec", status: "open", account_type: "checking",
+    balance: 0, partner_id: "ptnr_drill", death_flag: true, provenance: "production",
+  });
+  env.rows["core.loan"] ??= [];
+  for (const [id, due] of [
+    ["loan_c1", "2026-07-05"],   // ~14 days past due
+    ["loan_c2", "2026-04-01"],   // ~109 days
+    ["loan_c3", "2026-01-01"],   // ~199 days
+    ["loan_current", "2026-08-01"],
+  ]) {
+    env.rows["core.loan"].push({
+      id, member_ref: `mbr_${id}`, product: "consumer", principal_cents: 500_000,
+      next_due_date: due, attorney_represented: false, bankruptcy_flag: false,
+      scra_flag: false, product_type: "closed_end_consumer", grace_period_days: 10,
+      last_payment_date: "2026-06-01", collateral_value: 800_000, ltv: 6250,
+      accrued_interest: 12_000, provenance: "production",
+    });
+  }
+  // NEGATIVE: a loan with no due date cannot be evaluated
+  env.rows["core.loan"].push({
+    id: "loan_nodue", member_ref: "mbr_x", product: "consumer",
+    principal_cents: 1000, provenance: "production",
+  });
+
+  for (const id of ["loan_c1", "loan_c2", "loan_c3", "loan_current", "loan_nodue"]) {
+    await postDelinquencyEvaluation(
+      R({ well_secured_documented: true, collectibility_assessment: "full recovery expected",
+          repayment_evidence: "three payments since workout",
+          entity_contact: { phone: "+15550123" },
+          past_due_amount: 45_000,
+          workout_alternatives: ["forbearance", "extension"],
+          bankruptcy_case_id: "BK-2026-77", estate_claim_status: "no claim filed",
+          estimated_recovery: 300_000 }),
+      id, env.db, "d", ops,
+    );
+  }
+  // a nonaccrual loan brought CURRENT comes back on accrual
+  const cured = (env.rows["core.loan"] ?? []).find((l: Any) => l.id === "loan_c2");
+  if (cured) cured.next_due_date = "2026-09-01";
+  await postDelinquencyEvaluation(R({}), "loan_c2", env.db, "d", ops);
+  await postChargeOff(
+    R({ approved_by: "cco_1", amount_cents: 500_000,
+        foreclosure_impact_eval: "collateral covers 80% of balance" }),
+    "loan_c3", env.db, "d", ops,
+  );
+
+  // workouts
+  await postLoanModification(
+    R({ kind: "forbearance", borrower_hardship: true, concession_granted: true,
+        requested_by: "collector_1", approved_by: "manager_1",
+        payments_received_after_mod: true,
+        proposed_modification: { new_rate_bp: 500, term_months: 60 }, io_term_months: 12 }),
+    "loan_c2", env.db, "d", ops,
+  );
+  // NEGATIVE: self-approved
+  await postLoanModification(
+    R({ kind: "extension", borrower_hardship: false, concession_granted: false,
+        requested_by: "collector_1", approved_by: "collector_1" }),
+    "loan_c1", env.db, "d", ops,
+  );
+  await postLoanModification(
+    R({ kind: "reage", borrower_hardship: true, concession_granted: false,
+        requested_by: "collector_1", approved_by: "manager_1" }),
+    "loan_c1", env.db, "d", ops,
+  );
+  // NEGATIVE: a second re-age within twelve months
+  await postLoanModification(
+    R({ kind: "reage", borrower_hardship: true, concession_granted: false,
+        requested_by: "collector_1", approved_by: "manager_1" }),
+    "loan_c1", env.db, "d", ops,
+  );
+
+  // FDCPA gate: permitted, then blocked on each protection in turn
+  await postCollectionContact(
+    R({ channel: "phone", local_hour: 14, member_ref: "mbr_loan_c1" }),
+    "loan_c1", env.db, "d", ops,
+  );
+  await postCollectionContact(
+    R({ channel: "phone", local_hour: 6, member_ref: "mbr_loan_c1" }),
+    "loan_c1", env.db, "d", ops,
+  );
+  await postCollectionProtection(
+    R({ attorney_represented: true, attorney_ref: "Smith LLP",
+        template_ref: "tpl-dunning-1", template_approved_by: "compliance_1" }),
+    "loan_c2", env.db, "d", ops,
+  );
+  await postCollectionContact(
+    R({ channel: "phone", local_hour: 14, member_ref: "mbr_loan_c2" }),
+    "loan_c2", env.db, "d", ops,
+  );
+  await postCollectionProtection(R({ cease: true }), "loan_c3", env.db, "d", ops);
+  await postCollectionContact(
+    R({ channel: "sms", local_hour: 12, member_ref: "mbr_loan_c3" }),
+    "loan_c3", env.db, "d", ops,
+  );
+
+  await postFurnishingCycle(
+    R({ period: "2026-07", attested_by: "collections_manager", disputes_investigated: 2,
+        corrections: 1, disputes_resolved: 2, idtheft_disputes: 1,
+        dispute_category: "identity_theft", idtheft_report: "FTC-2026-114" }),
+    env.db, "d", ops,
+  );
+
+  // CO-11: a collections-data incident goes through the SAME incident
+  // machinery, with its own scope fields.
+  await postIncident(
+    R({ title: "collections vendor file exposure", severity: "sev2",
+        source: "vendor_report", description: "agency emailed an unencrypted file",
+        detection_source: "vendor_report", data_scope: ["name", "balance"],
+        collections: true }),
+    env.db, "d", ops,
+  );
+  const cinc = (env.rows["core.incident"] ?? []).slice(-1)[0];
+  if (cinc) {
+    await postDetermineReportability(
+      R({ is_reportable: false, rationale: "no member NPPI beyond name and balance",
+          assessment: "reviewed against 12 CFR 748 App B; no sensitive identifiers exposed" }),
+      String(cinc.id), env.db, "d",
+      { ...ops, tokenId: "tok_comp", roles: ["bsa_compliance"] },
+    );
+  }
+
+  await postOverdraftReferral(
+    R({ account_ref: "acct_od1", balance_cents: -25_000, days_negative: 20,
+        fees_assessed_cents: 3_000 }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: a waiver with no approver
+  await postOverdraftReferral(
+    R({ account_ref: "acct_od2", balance_cents: -12_000, days_negative: 10,
+        fees_assessed_cents: 3_000, fees_waived_cents: 3_000 }),
+    env.db, "d", ops,
+  );
+  await postOverdraftReferral(
+    R({ account_ref: "acct_od3", balance_cents: -40_000, days_negative: 50,
+        fees_assessed_cents: 6_000, fees_waived_cents: 3_000,
+        waiver_approved_by: "branch_manager" }),
+    env.db, "d", ops,
+  );
+}
+
 async function runCapitalLifecycle(env: FireEnv): Promise<void> {
   // A WELL-CAPITALIZED position with a configured internal trigger. The trigger
   // sits above the statutory floor, so this position is compliant with NCUA and
@@ -2042,6 +2199,11 @@ import {
   postPospayException,
 } from "../api/eps_controls.ts";
 import { postIssueCard } from "../api/cards.ts";
+import {
+  postChargeOff, postCollectionContact, postCollectionProtection, postCollectionsPolicy,
+  postDelinquencyEvaluation, postFurnishingCycle, postLoanModification,
+  postOverdraftReferral,
+} from "../api/collections.ts";
 import {
   postAnalyticsDataset, postBiometricPurge, postBiometricVerification,
   postDisposalCertificate, postEsignConsent, postFurnishingCorrection,
@@ -2547,7 +2709,10 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   // Lending underwriting. `loan.booking.requested` IS registered now: it needs
   // core.loan, one of the 22 abandoned tables, and building the booking writer
   // was the whole point of the abandoned-table finding.
-  "loan.booking.requested": (env) => runLendingUwLifecycle(env),
+  "loan.booking.requested": async (env) => {
+    await runLendingUwLifecycle(env);
+    await runCollectionsLifecycle(env);
+  },
   "aan.issued": (env) => runLendingUwLifecycle(env),
   "analytics.disparity_report.completed": (env) => runLendingUwLifecycle(env),
   "analytics.redlining_review.completed": (env) => runLendingUwLifecycle(env),
@@ -2704,6 +2869,48 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   "correction.propagated": (env) => runPrivacyLifecycle(env),
   "privacy.notice_template.published": (env) => runPrivacyLifecycle(env),
   "privacy.esign_consent.started": (env) => runPrivacyLifecycle(env),
+  "loan.delinquency_day_10": (env) => runCollectionsLifecycle(env),
+  "loan.delinquency_day_30": (env) => runCollectionsLifecycle(env),
+  "loan.delinquency_day_90": (env) => runCollectionsLifecycle(env),
+  "loan.nonaccrual.triggered": (env) => runCollectionsLifecycle(env),
+  "loan.charged_off": (env) => runCollectionsLifecycle(env),
+  "loan.modification.requested": (env) => runCollectionsLifecycle(env),
+  "loan.modification.decided": (env) => runCollectionsLifecycle(env),
+  "member.attorney_flag_set": (env) => runCollectionsLifecycle(env),
+  "collections.contact.attempted": (env) => runCollectionsLifecycle(env),
+  "furnishing.cycle_due_at": (env) => runCollectionsLifecycle(env),
+  "overdraft.referral.issued": (env) => runCollectionsLifecycle(env),
+  "overdraft.charged_off": (env) => runCollectionsLifecycle(env),
+  "collections.policy_version.activated": (env) => runCollectionsLifecycle(env),
+  "tdr.determination.recorded": (env) => runCollectionsLifecycle(env),
+  "loan.classification.assigned": (env) => runCollectionsLifecycle(env),
+  "loan.delinquency_day_60": (env) => runCollectionsLifecycle(env),
+  "loan.chargeoff_due_closed_end": (env) => runCollectionsLifecycle(env),
+  "loan.chargeoff_due_open_end": (env) => runCollectionsLifecycle(env),
+  "loan.bankruptcy_notice.received": (env) => runCollectionsLifecycle(env),
+  "loan.fraud.confirmed": (env) => runCollectionsLifecycle(env),
+  "loan.death_loss_estimable": (env) => runCollectionsLifecycle(env),
+  "loan.re_writedown": (env) => runCollectionsLifecycle(env),
+  "loan.accrual.restored": (env) => runCollectionsLifecycle(env),
+  "loan.rating_review.completed": (env) => runCollectionsLifecycle(env),
+  "loan.foreclosure.proposed": (env) => runCollectionsLifecycle(env),
+  "loan.workout.requested": (env) => runCollectionsLifecycle(env),
+  "loan.io_capitalization.proposed": (env) => runCollectionsLifecycle(env),
+  "loan.modified_payment_3.received": (env) => runCollectionsLifecycle(env),
+  "tdr.quarterly_review.completed": (env) => runCollectionsLifecycle(env),
+  "collections.cease_request.received": (env) => runCollectionsLifecycle(env),
+  "collections.template.submitted": (env) => runCollectionsLifecycle(env),
+  "overdraft.report.reviewed": (env) => runCollectionsLifecycle(env),
+  "overdraft.fee.logged": (env) => runCollectionsLifecycle(env),
+  "overdraft.waiver.requested": (env) => runCollectionsLifecycle(env),
+  "overdraft.recurring_pattern.detected": (env) => runCollectionsLifecycle(env),
+  "collections.board_report.issued": (env) => runCollectionsLifecycle(env),
+  "collections.policy_review.completed": (env) => runCollectionsLifecycle(env),
+  "collections.policy_breach.logged": (env) => runCollectionsLifecycle(env),
+  "loan.dpd.updated": (env) => runCollectionsLifecycle(env),
+  "collections.courtesy_notice.sent": (env) => runCollectionsLifecycle(env),
+  "incident.collections.logged": (env) => runCollectionsLifecycle(env),
+  "furnishing.idtheft_dispute.received": (env) => runCollectionsLifecycle(env),
   "incident.declared": (env) => runIncidentLifecycle(env),
   "incident.detected": (env) => runIncidentLifecycle(env),
   "incident.sev1.detected": (env) => runIncidentLifecycle(env),

@@ -82,6 +82,14 @@ export async function postIncident(
   const { error } = await db.schema(scope).from("incident").insert({
     id, title: rec.title, severity: rec.severity,
     source: isNonEmptyString(rec.source) ? rec.source : null,
+    // CO-11 declares these on a collections-data incident: what happened, how
+    // it was found, and what data was in scope. A severity alone cannot answer
+    // the reportability question the determination has to make.
+    description: isNonEmptyString(rec.description) ? rec.description : null,
+    detection_source: isNonEmptyString(rec.detection_source) ? rec.detection_source : null,
+    data_scope: rec.data_scope ?? null,
+    scope_initial: rec.data_scope ?? null,
+    collections: rec.collections === true,
     status: "declared",
     detected_at: now.toISOString(),
     declared_at: now.toISOString(),
@@ -222,6 +230,11 @@ export async function postDetermineReportability(
     reportability_determined_by: ctx.tokenId,
     is_reportable: reportable,
     reportability_rationale: rec.rationale,
+    // the ASSESSMENT is the reasoning; the rationale is its summary. CO-11
+    // declares both because a one-line rationale cannot evidence the analysis.
+    reportability_assessment: isNonEmptyString(rec.assessment)
+      ? rec.assessment
+      : rec.rationale,
     ncua_notice_due_at: due ? due.toISOString() : null,
   }).eq("id", id);
   if (error) return internalErrorResponse(requestId, error);

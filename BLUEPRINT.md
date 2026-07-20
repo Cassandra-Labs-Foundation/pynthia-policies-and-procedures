@@ -2343,3 +2343,32 @@ straight revert to the pointer version, all caught.
 
 **The rule: if a state can be imposed by more than one source, it must be
 derived from the set of sources, never stored as one flag plus one pointer.**
+
+### collections (CO-*) — 9 of 9 green, predicted 9
+
+125 -> 134. Tenth artifact, tenth exact call.
+
+**DELINQUENCY IS DERIVED, NOT SET.** The natural model is a
+`delinquency_status` column somebody updates, and it fails the way every stored
+verdict fails here: the status and the facts drift, and the status is what the
+controls read. Days past due is a function of the due date and the payment
+history, so it is computed on every evaluation and the stage, the
+classification and the nonaccrual verdict all follow from it. What is STORED is
+the evaluation — the answer alongside the inputs that produced it — so a
+classification can be recomputed and disputed.
+
+**Two distinctions the corpus draws that a naive model collapses:**
+
+- **"Triggered" and "placed" are different facts.** Crossing 90 days past due
+  triggers nonaccrual; taking the loan off accrual is a ledger action. A trigger
+  with no placement leaves interest accruing on a loan that should not accrue.
+- **Days-past-due may only be RESET after the borrower demonstrates capacity.**
+  Resetting on approval of the workout alone is how a delinquent loan becomes
+  current on paper without anything being paid. The eligibility check is its own
+  event and fires whether or not it passes.
+
+**20 mutations, 19 caught first pass.** The survivor was a test asserting the
+EVENT without the STATE: `overdraft.charged_off` fired while `charged_off_at`
+stayed null. Worth noting as a recurring test smell — **asserting the
+announcement rather than the record.** The event says it happened; only the row
+says it is true.
