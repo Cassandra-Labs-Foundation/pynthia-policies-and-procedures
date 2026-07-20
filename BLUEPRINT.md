@@ -1845,3 +1845,43 @@ with paper evidence. All three are legitimate; none is an engineering task in
 this repo. What must NOT happen is a writer that lets the core assert these
 facts on its own authority — that is the failure mode every provenance and
 `unassessed` decision in this project exists to prevent.
+
+### complaints and disputes (CO-06, FL-13, MP-04, PR-10) — 4 of 4, predicted 4
+
+92 -> 96. Sixth artifact, sixth exact call. `core.complaint` and `core.dispute`
+are the sixth and seventh of the 22 abandoned tables to get writers.
+
+**A complaint and a Reg E dispute are different nouns, and conflating them
+drops a clock.** They arrive through the same door and are constantly treated as
+one thing. A complaint has an acknowledgement deadline, an initial response, a
+final response and a root-cause tag. A dispute (12 CFR 1005.11) has a
+10-business-day provisional-credit clock, a 45/90-day investigation limit, and a
+MONEY consequence — provisional credit actually posts to the member's balance.
+Modelling either as a flavour of the other silently loses whichever clock
+belongs to the other, and the one that gets lost is the one with the money on it.
+
+**One register, four lenses.** Collections reads it for resolution timeliness,
+fair lending for disparity in *who* complains, member services for the dispute
+lifecycle, privacy for privacy-category complaints and board reporting. That is
+why CATEGORY and ROOT-CAUSE TAG are constrained fields rather than free text —
+four downstream analyses over free text would each be a string-matching
+exercise, and each would drift differently.
+
+**A complaint resolved with no root cause is closed, not resolved.** It
+contributes nothing to the trend analysis three separate policies depend on, so
+resolution refuses without one. This is the same shape as the LP-11 finding in
+"absence of a finding must itself be recorded": the register looks full and the
+analysis over it is empty.
+
+**22 mutations, 20 caught first pass. Both survivors were weak tests of mine:**
+
+1. The receipt-clock test compared `ack_due_at - received_at` and asserted five
+   days. If the writer ignored the supplied `received_at` and used `now`, that
+   interval is still five days — so a complaint that sat in an inbox for a week
+   could have its deadline silently reset and the test would pass. Now asserts
+   the absolute anchor.
+2. The intake-validation test only covered a missing narrative, never a missing
+   category, so removing the category check survived.
+
+Both reachable states, so both were test problems rather than missing
+capability — the distinction the "when a mutant survives" rule turns on.

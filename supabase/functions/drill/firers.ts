@@ -1283,6 +1283,100 @@ async function runInvestmentLifecycle(env: FireEnv): Promise<void> {
   );
 }
 
+/**
+ * Complaints and Reg E disputes, driven end to end.
+ *
+ * Intake through four channels -> acknowledgement (one late) -> initial and
+ * final responses -> resolution with a root cause -> a Reg E dispute with its
+ * separate provisional-credit and investigation clocks -> trend analysis under
+ * three lenses -> board reporting, quarterly and ad hoc.
+ */
+async function runComplaintsLifecycle(env: FireEnv): Promise<void> {
+  if ((env.rows["core.complaint"] ?? []).length > 0) return;
+  const ops = env.actors.ops;
+
+  // a direct complaint, handled properly
+  await postComplaint(
+    R({ channel: "direct", category: "fees", member_id: "mbr_1",
+        narrative: "charged an NSF fee twice for the same item",
+        entity_contact: { email: "m1@example.test", phone: "+15550111" },
+        received_at: "2026-07-01T00:00:00.000Z" }),
+    env.db, "d", ops,
+  );
+  const c1 = String((env.rows["core.complaint"] ?? [])[0]?.id ?? "x");
+  await postComplaintAcknowledge(R({ acknowledged_by: "svc_1" }), c1, env.db, "d", ops);
+  await postComplaintResponse(
+    R({ stage: "initial", body_ref: "resp-1" }), c1, env.db, "d", ops,
+  );
+  await postComplaintResponse(R({ stage: "final", body_ref: "resp-2" }), c1, env.db, "d", ops);
+  // NEGATIVE: resolving with no root cause must be refused
+  await postComplaintResolve(R({ investigation_notes: "n" }), c1, env.db, "d", ops);
+  await postComplaintResolve(
+    R({ root_cause_tag: "duplicate_fee_posting", investigation_notes: "system defect" }),
+    c1, env.db, "d", ops,
+  );
+
+  // a regulator-channel complaint, which carries the longer clock
+  await postComplaint(
+    R({ channel: "regulator", category: "fair_lending", member_id: "mbr_2",
+        regulator: "CFPB", regulator_case_id: "CFPB-2026-1",
+        narrative: "denied a loan on grounds the member believes discriminatory",
+        udaap_flag: true, received_at: "2026-07-05T00:00:00.000Z" }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: a regulator complaint with no regulator named
+  await postComplaint(
+    R({ channel: "regulator", category: "other", narrative: "x" }), env.db, "d", ops,
+  );
+  // a privacy complaint, which PR-10 reads
+  await postComplaint(
+    R({ channel: "portal", category: "privacy", member_id: "mbr_3",
+        narrative: "opt-out was not honoured", received_at: "2026-07-10T00:00:00.000Z",
+        entity_contact: { email: "m3@example.test" } }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: no narrative
+  await postComplaint(R({ channel: "phone", category: "service" }), env.db, "d", ops);
+
+  // NEGATIVE: resolving before the member has been answered
+  const c2 = (env.rows["core.complaint"] ?? []).find((c: Any) => c.category === "privacy");
+  await postComplaintResolve(
+    R({ root_cause_tag: "process_gap" }), String(c2?.id ?? "x"), env.db, "d", ops,
+  );
+
+  // a Reg E dispute, with its own clocks
+  await postDispute(
+    R({ complaint_id: c1, member_id: "mbr_1", account_id: "acct_1",
+        basis: "unauthorised card transaction", amount_cents: 45_000,
+        account_balance_cents: 250_000, notified_at: "2026-07-02T00:00:00.000Z" }),
+    env.db, "d", ops,
+  );
+  const d1 = String((env.rows["core.dispute"] ?? [])[0]?.id ?? "x");
+  await postProvisionalCredit(R({}), d1, env.db, "d", ops);
+  // NEGATIVE: resolving with no findings
+  await postDisputeResolve(R({}), d1, env.db, "d", ops);
+  await postDisputeResolve(
+    R({ findings: "merchant confirmed the charge was not authorised",
+        correction_amount_cents: 45_000 }),
+    d1, env.db, "d", ops,
+  );
+
+  // trend analysis under each lens, one of which breaches
+  await postComplaintTrend(R({ period: "2026Q3", lens: "collections" }), env.db, "d", ops);
+  await postComplaintTrend(R({ period: "2026Q3", lens: "privacy" }), env.db, "d", ops);
+  await postComplaintTrend(
+    R({ period: "2026Q3", lens: "fair_lending", threshold_bp: 500,
+        cohorts: { control: 200, protected: 900 } }),
+    env.db, "d", ops,
+  );
+  await postComplaintBoardReport(R({ period: "2026Q3", audience: "compliance" }), env.db, "d", ops);
+  await postComplaintBoardReport(
+    R({ period: "2026Q3", audience: "privacy", adhoc: true,
+        material_incident_id: "inc_1" }),
+    env.db, "d", ops,
+  );
+}
+
 async function runCapitalLifecycle(env: FireEnv): Promise<void> {
   // A WELL-CAPITALIZED position with a configured internal trigger. The trigger
   // sits above the statutory floor, so this position is compliant with NCUA and
@@ -1416,6 +1510,11 @@ import {
   postPospayException,
 } from "../api/eps_controls.ts";
 import { postIssueCard } from "../api/cards.ts";
+import {
+  postComplaint, postComplaintAcknowledge, postComplaintBoardReport, postComplaintResolve,
+  postComplaintResponse, postComplaintTrend, postDispute, postDisputeResolve,
+  postProvisionalCredit,
+} from "../api/complaints.ts";
 import {
   postAlmSimulation, postCfpLevelChange, postCreditFile, postCreditFileReanalysis,
   postFairValue, postInstrumentListEntry, postIntermediary, postLiquidityClassification,
@@ -1970,6 +2069,21 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   "document.required_set": (env) => runInvestmentLifecycle(env),
   "document.attachment_due_at": (env) => runInvestmentLifecycle(env),
   "cfp.investment_test.completed": (env) => runInvestmentLifecycle(env),
+  "complaint.direct.received": (env) => runComplaintsLifecycle(env),
+  "complaint.investigation.completed": (env) => runComplaintsLifecycle(env),
+  "complaint.regulator.received": (env) => runComplaintsLifecycle(env),
+  "complaint.trend.reported": (env) => runComplaintsLifecycle(env),
+  "complaint.received": (env) => runComplaintsLifecycle(env),
+  "complaint.logged": (env) => runComplaintsLifecycle(env),
+  "complaint.acknowledged": (env) => runComplaintsLifecycle(env),
+  "dispute.opened": (env) => runComplaintsLifecycle(env),
+  "dispute.provisional_credit_due_at": (env) => runComplaintsLifecycle(env),
+  "dispute.investigation.completed": (env) => runComplaintsLifecycle(env),
+  "complaint.privacy.received": (env) => runComplaintsLifecycle(env),
+  "complaint.trend.review.due": (env) => runComplaintsLifecycle(env),
+  "compliance.board.report.due_at": (env) => runComplaintsLifecycle(env),
+  "privacy.board.report.due_at": (env) => runComplaintsLifecycle(env),
+  "incident.material": (env) => runComplaintsLifecycle(env),
   "incident.declared": (env) => runIncidentLifecycle(env),
   "incident.detected": (env) => runIncidentLifecycle(env),
   "incident.sev1.detected": (env) => runIncidentLifecycle(env),

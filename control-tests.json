@@ -9,14 +9,14 @@
     "total": 333,
     "in_scope": 225,
     "scoped_out": 108,
-    "in_scope_green": 92,
-    "in_scope_red": 133,
+    "in_scope_green": 96,
+    "in_scope_red": 129,
     "scope_note": "Scoped-out controls are real obligations discharged by people and paperwork. This system covers the technical controls; the organisational ones are not claimed.",
-    "green": 93,
-    "red": 240,
-    "pct_green": 27.9,
+    "green": 97,
+    "red": 236,
+    "pct_green": 29.1,
     "red_by_reason": {
-      "trigger fires but produced events missing": 135,
+      "trigger fires but produced events missing": 133,
       "no writer: vendor.*": 6,
       "no writer: loan.*": 4,
       "no writer: training.*": 4,
@@ -32,7 +32,6 @@
       "no writer: compliance.*": 2,
       "no writer: insider.*": 2,
       "catalogue entry declares no trigger event": 2,
-      "no writer: incident.*": 2,
       "no writer: web.*": 2,
       "no writer: insurance.*": 2,
       "inputs not supplied: finding.description, finding.risk_rating": 1,
@@ -78,10 +77,10 @@
       "no writer: catalogue.*": 1,
       "no writer: verification.*": 1,
       "no writer: card.*": 1,
-      "no writer: dispute.*": 1,
       "no writer: service.*": 1,
       "no writer: correction.*": 1,
       "no writer: record.*": 1,
+      "no writer: incident.*": 1,
       "no writer: analytics.*": 1,
       "no writer: connection.*": 1,
       "no writer: safe_mode.*": 1,
@@ -91,7 +90,7 @@
     },
     "inputs_unverifiable_total": 1391,
     "green_by_fire_path": {
-      "real_writer": 90,
+      "real_writer": 94,
       "generic_echo": 3
     },
     "green_by_policy": {
@@ -105,15 +104,16 @@
       "electronic-payment-systems": 3,
       "audit": 2,
       "bsa": 2,
+      "collections": 2,
+      "fair-lending": 2,
       "information-security": 2,
       "internal-controls": 2,
+      "privacy": 2,
       "shared-controls": 2,
       "business-continuity-plan": 1,
-      "collections": 1,
       "e-commerce": 1,
-      "fair-lending": 1,
       "liquidity": 1,
-      "privacy": 1,
+      "member": 1,
       "third-party-risk": 1,
       "truth-in-savings": 1
     }
@@ -4337,7 +4337,7 @@
       "policy": "collections",
       "control_id": "CO-06",
       "title": "Consumer Complaint Intake & Resolution",
-      "status": "red",
+      "status": "green",
       "expected": [
         "complaint.acknowledged",
         "complaint.logged",
@@ -4346,7 +4346,14 @@
         "complaint.final_response.sent",
         "complaint.trend.reported"
       ],
-      "observed": [],
+      "observed": [
+        "complaint.acknowledged",
+        "complaint.logged",
+        "complaint.resolved",
+        "complaint.initial_response.sent",
+        "complaint.final_response.sent",
+        "complaint.trend.reported"
+      ],
       "triggers": [
         "complaint.direct.received",
         "complaint.investigation.completed",
@@ -4364,10 +4371,19 @@
         "complaint.regulator",
         "complaint.trend_summary"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "complaint.channel",
+        "complaint.member_id",
+        "complaint.narrative",
+        "complaint.root_cause_tag",
+        "complaint.udaap_flag",
+        "complaint.investigation_notes",
+        "complaint.portal_due_date",
+        "complaint.regulator",
+        "complaint.trend_summary"
+      ],
       "inputs_unverifiable": [],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/6: missing complaint.acknowledged, complaint.logged, complaint.resolved, complaint.initial_response.sent"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -4587,7 +4603,9 @@
         "board.notification.sent",
         "compliance.role.assigned"
       ],
-      "observed": [],
+      "observed": [
+        "compliance.board_report.delivered"
+      ],
       "triggers": [
         "compliance.board.report.due_at",
         "compliance.officer_vacancy"
@@ -4607,7 +4625,7 @@
         "regulatory.change_analysis",
         "employee.id"
       ],
-      "fire_path": "obligation_cadence",
+      "fire_path": "real_writer",
       "blocked_on": "no writer for trigger 'compliance.officer_vacancy'"
     },
     {
@@ -4836,7 +4854,10 @@
         "complaint.udaap_flag",
         "complaint.trend.reported"
       ],
-      "observed": [],
+      "observed": [
+        "complaint.logged",
+        "complaint.trend.reported"
+      ],
       "triggers": [
         "regulatory.correspondence.received",
         "regulatory.change_required",
@@ -4854,13 +4875,20 @@
         "complaint.root_cause_tag",
         "complaint.udaap_flag"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "complaint.category",
+        "complaint.channel",
+        "complaint.member_id",
+        "complaint.narrative",
+        "complaint.root_cause_tag",
+        "complaint.udaap_flag"
+      ],
       "inputs_unverifiable": [
         "regulation_inventory.citation",
         "regulatory.source_doc",
         "regulatory.change_analysis"
       ],
-      "fire_path": "obligation_cadence",
+      "fire_path": "real_writer",
       "blocked_on": "no writer for trigger 'regulatory.change_required'"
     },
     {
@@ -6743,7 +6771,8 @@
         "compliance.board_report.delivered"
       ],
       "observed": [
-        "fair_lending.discouragement.reported"
+        "fair_lending.discouragement.reported",
+        "compliance.board_report.delivered"
       ],
       "triggers": [
         "compliance.guardrails.published",
@@ -6759,8 +6788,8 @@
         "compliance.change_rationale",
         "compliance.guarded_attributes"
       ],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "produced 1/3: missing compliance.guardrails.published, compliance.board_report.delivered"
+      "fire_path": "real_writer",
+      "blocked_on": "produced 2/3: missing compliance.guardrails.published"
     },
     {
       "scoped_out": false,
@@ -7082,7 +7111,10 @@
         "analytics.disparity_report.completed",
         "compliance.board_report.delivered"
       ],
-      "observed": [],
+      "observed": [
+        "analytics.cap.opened",
+        "compliance.board_report.delivered"
+      ],
       "triggers": [
         "analytics.quarter.closed",
         "analytics.threshold.breached",
@@ -7095,8 +7127,8 @@
       "inputs_unverifiable": [
         "analytics.lending_dataset"
       ],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "produced 0/3: missing analytics.cap.opened, analytics.disparity_report.completed, compliance.board_report.delivered"
+      "fire_path": "real_writer",
+      "blocked_on": "produced 2/3: missing analytics.disparity_report.completed"
     },
     {
       "scoped_out": true,
@@ -7239,7 +7271,7 @@
       "policy": "fair-lending",
       "control_id": "FL-13",
       "title": "Complaint Monitoring",
-      "status": "red",
+      "status": "green",
       "expected": [
         "complaint.acknowledged",
         "complaint.logged",
@@ -7248,7 +7280,14 @@
         "fair_lending.remediation.opened",
         "compliance.board_report.delivered"
       ],
-      "observed": [],
+      "observed": [
+        "complaint.acknowledged",
+        "complaint.logged",
+        "complaint.regulator.received",
+        "analytics.cap.opened",
+        "fair_lending.remediation.opened",
+        "compliance.board_report.delivered"
+      ],
       "triggers": [
         "complaint.received",
         "complaint.logged",
@@ -7260,10 +7299,13 @@
         "complaint.member_id",
         "complaint.narrative"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "complaint.channel",
+        "complaint.member_id",
+        "complaint.narrative"
+      ],
       "inputs_unverifiable": [],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "produced 0/6: missing complaint.acknowledged, complaint.logged, complaint.regulator.received, analytics.cap.opened"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -10986,7 +11028,7 @@
       "policy": "member",
       "control_id": "MP-04",
       "title": "Member Disputes and Dispute Resolution",
-      "status": "red",
+      "status": "green",
       "expected": [
         "complaint.ack_due_at",
         "complaint.logged",
@@ -11000,7 +11042,19 @@
         "complaint.final_response.sent",
         "complaint.resolved"
       ],
-      "observed": [],
+      "observed": [
+        "complaint.ack_due_at",
+        "complaint.logged",
+        "complaint.acknowledged",
+        "complaint.initial.response.due_at",
+        "dispute.provisional_credit_due_at",
+        "dispute.rege_clock.started",
+        "dispute.provisional_credit.posted",
+        "dispute.resolved",
+        "dispute.response.sent",
+        "complaint.final_response.sent",
+        "complaint.resolved"
+      ],
       "triggers": [
         "complaint.received",
         "complaint.acknowledged",
@@ -11027,11 +11081,23 @@
         "complaint.udaap_flag"
       ],
       "inputs_supplied": [
-        "account.balance"
+        "complaint.category",
+        "complaint.channel",
+        "complaint.member_id",
+        "complaint.narrative",
+        "entity.contact",
+        "complaint.regulator",
+        "complaint.regulator_case_id",
+        "dispute.basis",
+        "account.balance",
+        "dispute.correction_amount",
+        "dispute.findings",
+        "complaint.investigation_notes",
+        "complaint.root_cause_tag",
+        "complaint.udaap_flag"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'dispute.provisional_credit_due_at'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -11662,7 +11728,7 @@
       "policy": "privacy",
       "control_id": "PR-10",
       "title": "Recordkeeping, Complaints, and Board Reporting",
-      "status": "red",
+      "status": "green",
       "expected": [
         "complaint.logged",
         "complaint.privacy.received",
@@ -11670,7 +11736,13 @@
         "privacy.board_adhoc.delivered",
         "complaint.trend.reported"
       ],
-      "observed": [],
+      "observed": [
+        "complaint.logged",
+        "complaint.privacy.received",
+        "privacy.board_report.delivered",
+        "privacy.board_adhoc.delivered",
+        "complaint.trend.reported"
+      ],
       "triggers": [
         "complaint.privacy.received",
         "privacy.board.report.due_at",
@@ -11686,12 +11758,18 @@
         "privacy.metrics_package_id",
         "complaint.root_cause_tag"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "complaint.category",
+        "complaint.channel",
+        "complaint.member_id",
+        "complaint.narrative",
+        "complaint.trend_summary",
+        "complaint.root_cause_tag"
+      ],
       "inputs_unverifiable": [
         "privacy.metrics_package_id"
       ],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "no writer for trigger 'incident.material'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
