@@ -40,19 +40,41 @@ OUTSIDE = {
     "vendor",                             # vendor's own attestations
 }
 
+# Namespaces that LOOK person/outside by name but are not, on inspection. Each
+# is a judgment call and is written down so it can be overruled.
+#
+#   `regulator.request.received`  — a 314(a) request ARRIVES at the institution
+#                                   and is logged. Not the examiner's own act.
+#   `legal.cure_parameters`       — a configuration (state cure periods), not an
+#   `legal.foreclosure_checklist`   act by outside counsel.
+#   `vendor.data_map_id`          — OUR data map covering vendors, a register we
+#                                   maintain, not a vendor attestation.
+NOT_BLOCKING = {
+    ("bsa:BSA-11", "regulator"),
+    ("collections:CO-02", "legal"),
+    ("collections:CO-09", "legal"),
+    ("privacy:PR-02", "vendor"),
+}
+
 def blocking(r):
+    """Every namespace the control DECLARES — trigger, produced events AND
+    required inputs.
+
+    An earlier version scanned only the CURRENT failure reason, which
+    under-counted: a control failing on missing produced events has not had its
+    inputs graded yet, so a person-blocking INPUT stayed invisible until the
+    events were built. That mis-bucketed six controls. Same class as the lending
+    measurement bug — scanning one declaration source understates the dependency
+    set, in a new disguise.
+    """
     ns = set()
-    if (r.get("blocked_on") or "").startswith("no writer"):
-        for t in r["triggers"]:
-            ns.add(t.split(".")[0])
+    for t in r.get("triggers", []):
+        ns.add(t.split(".")[0])
     for e in r.get("expected", []):
-        if e not in r.get("observed", []):
-            ns.add(e.split(".")[0])
-    b = r.get("blocked_on") or ""
-    if b.startswith("inputs not supplied"):
-        for i in b.split(": ", 1)[1].split(", "):
-            ns.add(i.split(".")[0])
-    return ns
+        ns.add(e.split(".")[0])
+    for i in (r.get("required_inputs") or []):
+        ns.add(i.split(".")[0])
+    return {n for n in ns if (r["uid"], n) not in NOT_BLOCKING}
 
 def main():
     res = json.load(open("control-tests.json"))["results"]

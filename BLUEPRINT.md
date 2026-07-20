@@ -1634,14 +1634,29 @@ five artifacts exactly. Regenerate with `python3 scripts/project_remaining.py`.
 
 | | controls | what it means |
 |---|---:|---|
-| **green today** | **92** | passing |
-| **reachable** | **105** | buildable. Work, not a decision. |
-| **not engineering work** | **28** | see the separate section below |
+| **green today** | **96** | passing |
+| **reachable** | **99** | buildable. Work, not a decision. |
+| **not engineering work** | **30** | see the separate section below |
 
-> ### The headline: **197 of 225 are reachable with no decision from anyone.**
-> **28 are not**, and they will not go green by writing more code. They have
+> ### The headline: **195 of 225 are reachable with no decision from anyone.**
+> **30 are not**, and they will not go green by writing more code. They have
 > been moved OUT of the backlog into "§X — NOT ENGINEERING WORK" so they stop
 > reading as things nobody got to.
+>
+> **CORRECTED from 197 / 28.** The first run scanned only each control's CURRENT
+> failure reason, so a control failing on missing produced EVENTS had not yet had
+> its inputs graded and a person-blocking INPUT stayed invisible. Six controls
+> were mis-bucketed; on inspection two genuinely move
+> (`e-commerce:EC-02` needs `employee.terminated`,
+> `director-fiduciary-duties:DF-05` needs a disinterested board quorum) and four
+> do not — those four are recorded as `NOT_BLOCKING` in the script with the
+> reasoning, because they LOOK person/outside by name and are not.
+>
+> **This is the lending measurement bug in a new disguise** — scanning one
+> declaration source understates the dependency set. The script now scans
+> trigger, produced events AND required inputs, which is what the rule in "READ
+> FIRST" says to do. That the same mistake recurred in a different form two
+> artifacts after being written down is itself worth knowing.
 
 The remaining build is roughly seven more artifacts at the observed rate.
 
@@ -1817,7 +1832,10 @@ other half). The remaining two (`member:MP-06`, `MP-07`) need external
 notifications of expulsion and death, which are unlikely to exist as feeds.
 
 **Best case if every human-fact source exists: 206 of 225.** With the
-network/endpoint feed as well (X.2), **213 of 225.** Worst case, if none
+network/endpoint feed as well (X.2), **213 of 225.**
+
+*(Counts in this section are from the corrected run: 11 person-blocked, not 9.
+`e-commerce:EC-02` and `director-fiduciary-duties:DF-05` joined it.)* Worst case, if none
 do: these 9 should be RESCOPED to organisational, deliberately and with the
 reasoning recorded — not left red looking like unfinished engineering. Note the
 §5g bias: wrongly scoping out is invisible, so the default is to leave them in.
