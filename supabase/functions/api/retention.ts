@@ -220,9 +220,31 @@ export async function postLegalHold(
     .update({ legal_hold_flag: true, legal_hold_id: holdId })
     .eq("subject_ref", rec.scope_subject_ref)
     .is("disposed_at", null);
+
   if (isNonEmptyString(rec.scope_class)) q = q.eq("record_class", rec.scope_class);
   const { error: updErr } = await q;
   if (updErr) return internalErrorResponse(requestId, updErr);
+
+  // Record SET MEMBERSHIP, not just the pointer. A record can be under several
+  // holds at once and `legal_hold_flag` is DERIVED from whether any remain
+  // active — see migration 20260719003200 for the fail-open this replaces.
+  {
+    let mq = db.schema(scope).from("record")
+      .select("id, subject_ref, record_class")
+      .eq("subject_ref", rec.scope_subject_ref)
+      .is("disposed_at", null);
+    if (isNonEmptyString(rec.scope_class)) mq = mq.eq("record_class", rec.scope_class);
+    const { data: inScope } = await mq;
+    for (const r of inScope ?? []) {
+      const recordId = String((r as Record<string, unknown>).id);
+      await db.schema(scope).from("record_hold").upsert({
+        id: `${recordId}::${holdId}`,
+        record_id: recordId,
+        hold_id: holdId, placed_at: nowIso, released_at: null,
+        provenance: provenanceFor(scope, ctx),
+      }, { onConflict: "id", ignoreDuplicates: true });
+    }
+  }
 
   try {
     await emitRetentionEvent(db, scope, `evt_${holdId}_placed`, "legal_hold.created", holdId, {
@@ -315,13 +337,31 @@ export async function postHoldRelease(
     .eq("id", holdId);
   if (updErr) return internalErrorResponse(requestId, updErr);
 
-  // Clear the flag only on records THIS hold set. A record under two concurrent
-  // holds must stay held when one is released — clearing by subject alone would
-  // silently drop the surviving hold and expose the records to disposal.
-  const { error: clrErr } = await db.schema(scope).from("record")
-    .update({ legal_hold_flag: false, legal_hold_id: null })
-    .eq("legal_hold_id", holdId);
-  if (clrErr) return internalErrorResponse(requestId, clrErr);
+  // A record can be under MORE THAN ONE hold. Releasing one must leave the
+  // record held if any other is still active.
+  //
+  // This used to clear by `legal_hold_id`, a single column — which a second
+  // placement overwrote, so releasing the SECOND hold cleared the flag while
+  // the first was still live and the record became disposal-eligible under an
+  // active litigation hold. The comment here claimed the case was handled; the
+  // data model could not deliver it. See migration 20260719003200.
+  //
+  // The flag is now DERIVED from the set of active holds.
+  await db.schema(scope).from("record_hold")
+    .update({ released_at: nowIso }).eq("hold_id", holdId);
+
+  const { data: members } = await db.schema(scope).from("record_hold")
+    .select("record_id, hold_id, released_at").eq("hold_id", holdId);
+  for (const m of members ?? []) {
+    const recordId = String((m as Record<string, unknown>).record_id);
+    const { data: others } = await db.schema(scope).from("record_hold")
+      .select("record_id, hold_id, released_at")
+      .eq("record_id", recordId).is("released_at", null);
+    if ((others ?? []).length > 0) continue; // still held by another matter
+    const { error: clrErr } = await db.schema(scope).from("record")
+      .update({ legal_hold_flag: false, legal_hold_id: null }).eq("id", recordId);
+    if (clrErr) return internalErrorResponse(requestId, clrErr);
+  }
 
   try {
     await emitRetentionEvent(db, scope, `evt_${holdId}_released`, "legal_hold.clear.confirmed", holdId, {

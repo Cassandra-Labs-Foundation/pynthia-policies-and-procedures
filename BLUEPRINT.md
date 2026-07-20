@@ -2229,3 +2229,55 @@ still carry both its amount and its provisional-credit clock, enforced by
 whole method.
 
 **22 mutations, 22 caught first pass.** Fourth artifact with no survivors.
+
+
+## STANDING STATE IS NOT AN EVENT LOG — AND NOT A SINGLE POINTER EITHER
+
+The privacy opt-out finding generalises, and auditing the earlier subsystems
+against it immediately found a live fail-open in record retention.
+
+**The class.** Several things in this system are CURRENT STATE THAT GOVERNS
+FUTURE ACTIONS: an opt-out, a legal hold, a risk acceptance, an account lock, a
+dormancy flag, a sanctions hold, a control exception. For each, the question the
+system must answer is *may we do this NOW* — not *did somebody ask*. Two wrong
+shapes, both of which pass ordinary tests:
+
+1. **A log of requests.** Answers "did they ask", never "what is true now". The
+   opt-out model this was caught on.
+2. **A single pointer.** Answers "what is the most recent one", which is not the
+   same as "is any still active". This is the one that bit.
+
+### The legal-hold fail-open (sixth instance of the class, worst consequence)
+
+`core.record.legal_hold_id` was one column. Placing a SECOND hold over a record
+overwrote the first. Releasing the second then cleared `legal_hold_flag` — with
+the first hold still live — and the record became disposal-eligible **under an
+active litigation hold. Destroying records under hold is spoliation.**
+
+The release code already carried this comment:
+
+> *"Clear the flag only on records THIS hold set. A record under two concurrent
+> holds must stay held when one is released."*
+
+**The intent was right and the data model could not deliver it.** Every test
+passed. No test had ever placed two holds, and the existing test asserted
+exactly the buggy behaviour — with the same false comment.
+
+**Fixed** by deriving the flag from a SET (`core.record_hold`) rather than a
+pointer. Both release directions are now pinned, plus the disposal sweep
+refusing an expired record under a surviving hold. Three mutations, including a
+straight revert to the pointer version, all caught.
+
+### The audit result for the others
+
+| standing state | shape | verdict |
+|---|---|---|
+| privacy opt-out | `privacy_preference`, current per member/channel | correct (built that way) |
+| legal hold | was a pointer | **was broken, now a set** |
+| risk acceptance | row with `expired_at`, sweep derives | correct |
+| control exception | row with `reverted_at`, sweep derives | correct |
+| account lock / `funding_block_state` | column on the account | correct |
+| OFAC hold | `hold_placed_at` / `hold_released_at` on the screen | correct — but only ONE screen per subject; a second subject-level match would overwrite. **Same shape as the legal-hold bug and worth watching if multi-list screening ever lands.**
+
+**The rule: if a state can be imposed by more than one source, it must be
+derived from the set of sources, never stored as one flag plus one pointer.**

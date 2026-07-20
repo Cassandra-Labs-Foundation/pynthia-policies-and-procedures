@@ -277,9 +277,17 @@ Deno.test("releasing a hold without written authorization is refused", async () 
   assertEquals(writes.length, 0);
 });
 
-Deno.test("release clears the flag only on records THIS hold set", async () => {
-  // A record under two concurrent holds must stay held when one is released.
-  // Clearing by subject would silently drop the surviving hold.
+Deno.test("release marks the hold released and resumes the schedule", async () => {
+  // THIS TEST USED TO ASSERT THE BUG. It checked that exactly ONE `record`
+  // update happened on release — clearing by `legal_hold_id`, a single column
+  // that a second placement overwrote. Its comment claimed a record under two
+  // concurrent holds would stay held; the data model could not deliver that,
+  // and no test here ever placed a second hold.
+  //
+  // Precedent §5b: when a control invalidates an existing test, trust the
+  // control. The multi-hold behaviour is now pinned properly in
+  // `legal_hold_multi.test.ts` against a database double that can represent
+  // set membership. What remains here is what this fake can honestly check.
   const { db, writes } = retentionDb({
     legal_hold: [{ id: "hold_m1_acct1", matter_id: "m1", status: "active", released_at: null }],
   });
@@ -287,15 +295,14 @@ Deno.test("release clears the flag only on records THIS hold set", async () => {
     req({ approved_by: "general-counsel" }), "hold_m1_acct1", db, "h5", OPS_CTX,
   );
   assertEquals(res.status, 200);
-  const cleared = writes.filter((w) => w.table === "record" && w.op === "update");
-  assertEquals(cleared.length, 1);
-  assertEquals(cleared[0].row.legal_hold_flag, false);
+  const holdUpdates = writes.filter((w) => w.table === "legal_hold" && w.op === "update");
+  assertEquals(holdUpdates.length, 1);
+  assertEquals(holdUpdates[0].row.released, "true");
+  assertEquals(holdUpdates[0].row.release_approved_by, "general-counsel");
   const codes = writes.filter((w) => w.table === "event").map((w) => w.row.code);
   assert(codes.includes("legal_hold.clear.confirmed"));
   assert(codes.includes("disposal.clock_resumed"));
 });
-
-// --------------------------------------------------------- disposal sweep
 
 Deno.test("the sweep schedules but destroys nothing", async () => {
   // Condition (c) is a human approval; a sweep that both found and destroyed
