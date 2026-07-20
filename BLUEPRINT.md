@@ -1,5 +1,12 @@
 # BLUEPRINT — loose ends, open questions, and what is actually true
 
+> **Finished. 195 of 225 in-scope controls green, 860 tests, 30 red on purpose.**
+> **→ Read [HANDOFF.md](HANDOFF.md) first** — the plain-language version for
+> Lorenzo: the number and what it means, the prediction record including the two
+> misses, the 30 remaining with who unblocks each, and the caveats (nothing has
+> run against a real database; OFAC screening is scaffolding, not detection).
+> This file is the working record behind it.
+
 ## ⚠ READ FIRST: two mistakes anyone re-deriving this analysis will make
 
 **1. A control is blocked by everything it DECLARES — its trigger, its produced

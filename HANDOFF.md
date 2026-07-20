@@ -1,0 +1,251 @@
+# Where this got to
+
+Lorenzo — this is written for you, not for a reviewer. Plain language, the
+number and what it actually means, and the things I'd want you to know before
+you repeat any of it to anyone else.
+
+---
+
+## The number
+
+**195 of 225 in-scope controls are green.** It started at 33.
+
+The 225 excludes 108 controls that were scoped out earlier and never claimed —
+those are things like examiner findings and board deliberations that aren't
+software at all. Of the 225 that remain, 30 are still red, and **every one of
+them is red on purpose**. None of them is red because I ran out of time.
+
+There are 860 automated tests. They all pass.
+
+### What "green" means, precisely
+
+A control is green when a test fires the real event that's supposed to trigger
+it, drives the real code end to end, and finds every piece of evidence the
+control says it should produce, in the database, with the right shape.
+
+It does **not** mean the control is correct in the sense a regulator means.
+It means the mechanism exists, runs, and produces the evidence. A green control
+with the wrong threshold in it is still green. Which brings us to the caveats,
+which are further down and which you should read.
+
+---
+
+## The 30 that are left, and who unblocks each one
+
+These split cleanly into two groups. Neither group is engineering work.
+
+### Group A — 11 controls that need a fact about a person (you decide)
+
+These need an organisational fact that no amount of code can invent. I
+deliberately did not fabricate any of them; a control that stays red naming the
+thing it needs is doing its job.
+
+| Control | What it is | What it needs from you |
+|---|---|---|
+| CP-05 | Dual control, keys, combinations | An employee roster with custody assignments |
+| CP-07 | Cash over/short monitoring | An HR feed — the control ends in coaching a teller |
+| CP-12 | Cash training coverage | Training records per employee |
+| EC-02 | Network and data access controls | Employee identities to grant access *to* |
+| IS-06 | Access control and authentication | Same — plus break-glass account owners |
+| MP-06 | Member expulsion | A member vote at a special meeting |
+| MP-07 | Member death and estate handling | A death certificate and an estate claimant |
+| DF-05 | Insider transactions (Reg O) | Who the insiders actually are |
+| BA-08 | Basel monitoring and Pillar 3 | ALCO membership and board minutes |
+| LQ-06 | Funding concentration limits | ALCO — the limits are theirs to set |
+| LQ-17 | Wholesale deposit guardrails | ALCO again |
+
+**Nine of these eleven flip the moment an HR feed exists** (employee identities,
+roles, and separation dates). MP-06 and MP-07 don't — those need a member vote
+and a death certificate respectively, which no feed provides.
+
+Worth knowing: `employee.separated` is the clean case on the other side. It's a
+fact about a person that an HR system genuinely has, and it made the access
+controls buildable. The eleven above are the ones where the fact lives in a
+filing cabinet or a person's head.
+
+### Group B — 19 controls that need a feed from another system
+
+These are controls *over infrastructure this system does not run*. I could have
+made every one of them green by adding a table that accepts `firewall_reviewed:
+true` from a caller. That would have been a lie with a green light on it.
+
+| What's missing | Controls |
+|---|---|
+| Firewall / pentest / IDS results | EC-05, EC-09, IS-05 |
+| TLS and certificate scanning | EC-06, IS-07 |
+| Antivirus / endpoint agent | EC-08 |
+| Backup and restore job results | BC-07, IS-08 |
+| IT failover events | BC-09 |
+| SIEM alerts | IS-14 |
+| AI model inventory | IS-13 |
+| Model validation | LQ-08 |
+| Regulator channel (NCUA correspondence) | LQ-11, LQ-13 |
+| Outside counsel sign-off | BC-15, PR-04 |
+| Vendor attestations | PR-03 |
+| Third-party app connection consent | PR-15 |
+| Transaction-rail safe mode | RS-03 |
+
+Each of these is a procurement or integration decision, not a coding one.
+
+---
+
+## Why you can trust the projection
+
+Before building each domain I wrote down how many controls I expected to turn
+green, then built it and reported the actual. Not after — before, in writing,
+where a miss would be visible.
+
+**The record is 17 exact predictions in a row.** But it did not start that way,
+and the two misses matter more than the streak:
+
+| # | Domain | Predicted | Actual | |
+|---|---|---|---|---|
+| — | lending | 9 | 11 | **miss** — under-called by 2 |
+| — | cash | 4 | 6 | **miss** — between estimator refinements |
+| 1–17 | everything since | — | — | exact, every time |
+
+The first miss was a genuine estimation error. The second exposed a **bug in the
+measuring tool**: my projection script only looked at a control's *current*
+failure reason, so six controls were filed in the wrong bucket and the
+"remaining" count was wrong by two. I fixed it in the script rather than
+resolving to be more careful, which is the only kind of fix that survives.
+
+That's why the projection is credible. It's not a method that was never wrong.
+It's a method that was wrong twice, had its instrument corrected, and has been
+exact seventeen times since. A tool presented as flawless would be less
+believable, not more.
+
+The projection said the ceiling without any organisational decision was **195 of
+225**. The final count is 195 of 225.
+
+---
+
+## The things I'd want you to know before repeating any of this
+
+### 1. Nothing here has ever run against a real database or a real ledger
+
+**This is the most important sentence in the document.**
+
+Every one of the 860 tests runs against an in-memory fake of Postgres that I
+wrote. Every control test runs against the same fake. The migrations that define
+the real schema — all 50 of them — **have never been applied to a real
+database.** No Postgres has ever parsed them. No money has ever moved.
+
+Hermetic verification of a banking core is a strong claim about *logic* and no
+claim at all about *the system running*. What has been proven is that the code
+does what it says when its dependencies behave as modelled. What has not been
+touched: whether the schema is even valid SQL, whether the constraints Postgres
+actually enforces match the ones I re-implemented in the fake, whether any of it
+performs, whether the real Supabase client behaves like my double under load or
+failure.
+
+I have a specific reason to flag this rather than treat it as boilerplate.
+Partway through, I made the fake database more faithful — it had been returning
+`undefined` for columns that Postgres returns `NULL` for. **Seventeen existing
+tests broke immediately.** They had been asserting the fake's behaviour rather
+than the schema's, and passing. They would have kept passing if the real column
+had been deleted.
+
+That's the shape of the risk. Not "the tests might be wrong" but "the tests can
+be confidently wrong in a way that nothing inside this exercise can detect."
+Applying the migrations to a real Postgres is the single highest-value next
+step, and it will find things.
+
+### 2. OFAC screening is scaffolding, not detection
+
+BSA-05 and several related controls are green. **They should not be quoted as
+"we screen for sanctions."**
+
+The screen is a regular expression matching `/\bSDN\b/i` against a name. There
+is no sanctions list. There is no `list_version` — the column exists, it's
+nullable on purpose, and it is `NULL` on every row this system writes, because a
+screen that cannot name the list it ran against cannot be re-verified later.
+There's no 50%-rule derivation for entities owned by sanctioned parties.
+
+What the green *does* mean is real and worth having: the **mechanism** works end
+to end. The call happens at payment submission. A hit places a hold. The hold
+blocks the transaction. Escalation fires. Clearance is recorded with an owner.
+All of that is tested. The remaining gap is one procurement decision — buy a
+list — rather than an engineering project, and that's a materially better place
+to be than where this started. But the comparison set is empty, and anyone
+reading "BSA-05: green" without that sentence will conclude something false.
+
+There is a related watch item I chose not to fix: the OFAC screen has a single
+result slot per subject, so re-screening overwrites the prior result. That's
+fine today because there's no list; it becomes a problem the day there is one.
+
+### 3. The migrations are unapplied and partly interdependent
+
+50 migration files. Several later ones `alter table` objects created by earlier
+ones, and a few add constraints that will fail if existing data violates them.
+The order is correct as written, but it has only ever been verified by my own
+parser reading the files — never by Postgres.
+
+Deploy order is load-bearing in at least one place I know of (migration before
+function, for the shared control gate), and probably others I don't.
+
+### 4. Green does not mean the thresholds are right
+
+Many controls check a value against a threshold. Where a regulator sets the
+threshold, it's in the code as a constant and it's correct. Where the
+*institution* sets it, the value is deliberately `NULL` and the control reports
+**"unassessed"** rather than "passed."
+
+That's the honest behaviour, and there's a test file (`unassessed.test.ts`) that
+exists specifically to fire if someone quietly populates one of those NULLs with
+a plausible-looking default to turn a control green. But it does mean a real
+deployment needs someone to actually set: the LAR bands, maturity mismatch
+limits, the survival-horizon minimum, the collateral headroom floor, the capital
+internal trigger, the enterprise cash limit, the over/short threshold, the
+fair-lending and complaint-trend thresholds, the ALM and liquidity minima, the
+LTV maximum, and the countercyclical buffer.
+
+Until someone does, those controls are green *and* reporting no verdict. Both
+things are true and neither is a bug.
+
+---
+
+## What this exercise actually caught
+
+Worth stating plainly, because it's the argument for having done it at all.
+These were live defects in code that already existed, not gaps in new code:
+
+- **A legal-hold spoliation risk.** Releasing the second of two litigation holds
+  cleared the hold flag while the first was still active, making records
+  disposal-eligible under active litigation hold. The existing test asserted the
+  buggy behaviour and carried the same false comment as the code.
+- **The same bug shape a second time**, caught before it shipped: account freezes
+  modelled as a boolean would have released funds held under a court order when
+  an unrelated fraud hold was lifted.
+- **A policy-expiry fail-open** — an expired policy read as no policy, which read
+  as permitted.
+- **An event announcing something that never happened** — `loan.dpd_reset` fired
+  while nothing actually reset the loan.
+- **Three capital events firing with empty payloads** because no action record
+  existed to describe.
+
+And one structural finding that generalises past banking entirely, written up as
+§5k in BLUEPRINT.md: **a missing regulatory threshold is a bug; a missing
+internal threshold is "unassessed."** Storing both in one column forces a single
+answer to "what does absent mean," and the answer everyone picks — "fine" —
+makes an organisation that never set a limit look identical to one that never
+exceeded one.
+
+The evidence that this pattern is real rather than something I invented and then
+found everywhere: a constraint enforcing it already existed in the codebase,
+written two artifacts *before* the pattern was named, independently, for a
+different control. It reproduced when nobody was looking for it.
+
+---
+
+## Where to read more
+
+`BLUEPRINT.md` is the full record — every decision, every finding, every
+prediction and its outcome. It leads with what this exercise caught and ends
+with §X, the 30 controls above and who supplies each missing fact.
+
+Two scripts are worth keeping:
+- `scripts/project_remaining.py` — the projection that produced the 195
+- `scripts/exists_check.py` — run before building anything, to find out whether
+  it already exists. I nearly built duplicate subsystems twice; the second time
+  this script had already told me and I didn't read its output carefully enough.
