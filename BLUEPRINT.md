@@ -1878,6 +1878,57 @@ insufficient in one specific place is more dangerous than one that obviously
 does not fit.** The obvious misfit gets noticed. This one would not have.
 
 
+## Artifact — truth in savings, member lifecycle, fair lending (TIS/MP/FL)
+
+**Predicted 22 (TIS 7, member 7, fair lending 8). Actual 23** (TIS 8, member 7,
+fair lending 8). Eleven for eleven on direction; TIS came in one over because
+the E-SIGN consent rows the privacy artifact had already built made TIS-01
+reachable without new organisational facts. The two that stayed red are the two
+named in advance: **MP-06** (an expulsion is a member vote at a special meeting)
+and **MP-07** (an estate claim needs a death certificate). Both name the person
+who has to supply the fact. Neither was fabricated to close the gap.
+
+**Structural decision: a disclosure is a delivery, and a delivery is a
+SNAPSHOT.** The first pass modelled a delivery as a pointer — "we sent template
+X to member Y". That cannot answer the only question TIS actually asks: what APY
+did the member SEE. A pointer to a rate configuration that has since moved
+proves nothing, and an APY that was wrong at the moment of delivery is the
+violation itself. So `disclosure_delivery` freezes the terms it disclosed, and
+the APY is DERIVED (`apyBp`) rather than accepted from the caller — a stored APY
+that disagrees with its own inputs is precisely the error the control exists to
+catch.
+
+**The half-built-subsystem trap, caught mid-build.** I wrote a
+`core.adverse_action_notice`, a `core.pricing_exception` and a
+`core.hmda_submission` before noticing that all three already existed
+(`lending_origination`, `loan_pricing.exception_*`, `hmda_lar`). Two write paths
+for one ECOA obligation is exactly how one of them quietly loses the reasons
+requirement. All three were backed out; FL-05's missing CONTENT went on as
+columns on the notice that already exists, and FL-03's gap turned out to be
+vocabulary — the corpus says `pricing.exception.decided`, the writer emitted
+`loan_pricing.exception.decided`. Both codes are now emitted rather than the
+internal one renamed, because renaming it silently would break its consumers.
+
+**MP-02 was the one the grader was right about.** `card.reissue_request` kept
+failing as "not supplied" even after the fact was on the address-change row —
+because the grader requires the CARD object to have been touched, and it had
+not. That is the control working: MP-02 is an account-takeover pattern, and
+recording the request only against the address change means the card subsystem,
+the thing that would actually mail a card to the new address, never sees it. The
+reissue now writes `core.card` and is **recorded and blocked** rather than
+refused outright: a refusal with no row leaves the pattern invisible to the
+red-flags review that is supposed to catch it.
+
+**FL-12's anchor moved.** I first hung the Reg B 25-month retention clock off
+the options presentation, where it was reachable; it belongs on
+`loan_application.decisioned`, because 1002.12(b) runs from FINAL ACTION. A
+clock started at the wrong event expires early and legally.
+
+Mutation sweep: 10 mutations, 9 caught on the first pass. The survivor —
+GMI `every` → `some`, which makes a single answer count as complete collection —
+was a genuine test gap, not a weak control; two tests added, re-run, caught.
+749 tests, 155 green of 225 in scope.
+
 # §X — NOT ENGINEERING WORK
 
 **28 in-scope controls that will not go green by writing code.** Separated from

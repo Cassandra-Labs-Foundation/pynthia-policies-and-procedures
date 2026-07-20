@@ -2066,6 +2066,197 @@ async function runCollectionsLifecycle(env: FireEnv): Promise<void> {
   );
 }
 
+/** Truth in Savings, member lifecycle and the fair-lending gaps. */
+async function runDepositsMemberLifecycle(env: FireEnv): Promise<void> {
+  if ((env.rows["core.disclosure_template"] ?? []).length > 0) return;
+  const ops = env.actors.ops;
+
+  for (const kind of [
+    "account_opening", "change_in_terms", "maturity", "periodic_statement",
+    "overdraft_service", "valuation_rights", "appraisal_copy",
+  ]) {
+    await postDisclosureTemplate(
+      R({ kind, version: "v1", content_ref: `ref-${kind}`, approved_by: "compliance_1",
+          product_scope: "share_savings", advertising_medium: "branch_poster",
+          advertising_approval_id: "adv_1" }),
+      env.db, "d", ops,
+    );
+  }
+  // a deliverable address is a precondition of a mailed disclosure
+  await env.db.schema("core").from("address").upsert({
+    id: "addr_d1", entity_ref: "ent_m1", line1: "1 Main St", city: "Durham",
+    region: "NC", postal_code: "27701", provenance: "production",
+  }, { onConflict: "id" });
+  await env.db.schema("core").from("esign_consent").upsert({
+    id: "esign_d1", entity_ref: "ent_m1", started_at: "2026-07-19T12:00:00.000Z",
+    captured_at: "2026-07-19T12:00:00.000Z", demonstrated_access: true, provenance: "production",
+  }, { onConflict: "id" });
+  await env.db.schema("core").from("account").upsert({
+    id: "acct_d1", entity_id: "ent_m1", status: "open", account_type: "share_certificate",
+    balance: 0, partner_id: "p1", opening_channel: "branch",
+    maturity_date: "2027-07-19", maturity_window: "10_day_grace",
+    maturity_disposition: "auto_renew", provenance: "production",
+  }, { onConflict: "id" });
+  const terms = {
+    account_type: "share_certificate", opening_channel: "branch",
+    account_restriction: "none", address_id: "addr_d1", esign_consent_id: "esign_d1",
+    interest_config_id: "picfg_share_savings", rate_bp: 200, compounding: "daily",
+    maturity_date: "2027-07-19", maturity_window: "10_day_grace",
+    maturity_disposition: "auto_renew", failure_reason: null,
+  };
+  for (const [kind, extra] of [
+    ["account_opening", {}], ["change_in_terms", { adverse: true }],
+    ["maturity", {}], ["valuation_rights", {}], ["appraisal_copy", {}],
+  ] as Any[]) {
+    await postDisclosureDelivery(
+      R({ kind, member_ref: "mbr_d1", account_ref: "acct_d1", channel: "esign",
+          trigger_event: "drill", template_id: `dtpl_${kind}_v1`, ...terms, ...extra }),
+      env.db, "d", ops,
+    );
+  }
+  // NEGATIVE: electronic delivery with no captured E-SIGN consent is refused
+  await postDisclosureDelivery(
+    R({ kind: "account_opening", member_ref: "mbr_d9", channel: "esign",
+        trigger_event: "drill" }),
+    env.db, "d", ops,
+  );
+  await postBalanceInquiry(
+    R({ balance_cents: 1_050_000, held_cents: 20_000, channel: "atm" }),
+    "acct_d1", env.db, "d", ops,
+  );
+  // NEGATIVE: a delivery with a detected error must say what was wrong
+  await postDisclosureDelivery(
+    R({ kind: "account_opening", member_ref: "mbr_d2", trigger_event: "drill",
+        error_detected: true }),
+    env.db, "d", ops,
+  );
+  await postDisclosureDelivery(
+    R({ kind: "account_opening", member_ref: "mbr_d2", trigger_event: "drill",
+        error_detected: true, error_detail: "wrong APY printed" }),
+    env.db, "d", ops,
+  );
+
+  await postInterestConfig(
+    R({ product_code: "share_savings", rate_bp: 200, compounding: "daily",
+        balance_method: "daily_balance" }),
+    env.db, "d", ops,
+  );
+  const cfg = (env.rows["core.product_interest_config"] ?? [])[0];
+  // NEGATIVE: accruing with no configuration
+  await postInterestAccrualRun(R({ period: "2026-07", config_id: "nope" }), env.db, "d", ops);
+  await postInterestAccrualRun(
+    R({ period: "2026-07", config_id: String(cfg?.id ?? ""),
+        accounts: [{ balance_cents: 1_000_000 }, { balance_cents: 500_000 }] }),
+    env.db, "d", ops,
+  );
+  await postStatement(
+    R({ account_ref: "acct_d1", period: "2026-07", opening_balance_cents: 1_000_000,
+        closing_balance_cents: 1_050_000, interest_paid_cents: 1_600,
+        fees_ytd_cents: 4_500, overdraft_fees_ytd_cents: 3_000 }),
+    env.db, "d", ops,
+  );
+
+  await postMembership(
+    R({ entity_ref: "ent_m1", eligibility_basis: "employer group", eligible: true,
+        account_type: "share" }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: a denial with no basis
+  await postMembership(R({ entity_ref: "ent_m2", eligible: false }), env.db, "d", ops);
+  await postMembership(
+    R({ entity_ref: "ent_m2", eligible: false, denial_reason: "outside the field of membership" }),
+    env.db, "d", ops,
+  );
+  await postAddressChange(
+    R({ old_address: { line1: "1 Old St" }, new_address: { line1: "2 New Ave" },
+        card_requested: true }),
+    "mbr_ent_m1", env.db, "d", ops,
+  );
+  // MP-02: the reissue arrives while the address hold is still open
+  await postCardReissue(
+    R({ ship_to_address_id: "addr_d1" }), "mbr_ent_m1", env.db, "d", ops,
+  );
+  await postMemberPreferences(
+    R({ channels: { email: true, sms: false }, reverted: true,
+        revert_reason: "email bounced" }),
+    "mbr_ent_m1", env.db, "d", ops,
+  );
+  await postMemberRestriction(
+    R({ restriction: "deposit_only", reason: "repeated NSF activity",
+        account_ref: "acct_d1", balance_cents: 1_050_000,
+        contact: { email: "m1@example.test", phone: "555-0100" },
+        amounts_owed_cents: 3_500 }),
+    "mbr_ent_m1", env.db, "d", ops,
+  );
+  await postMemberRestriction(
+    R({ restriction: "frozen", reason: "account closure", close: true, payout_cents: 25_000 }),
+    "mbr_ent_m2", env.db, "d", ops,
+  );
+  // NEGATIVE: a bulk export with no stated purpose
+  await postMemberRecordExport(R({ record_count: 5000 }), "mbr_ent_m1", env.db, "d", ops);
+  await postMemberRecordExport(
+    R({ purpose: "examiner request 2026-3", record_count: 5000, requested_by: "compliance_1" }),
+    "mbr_ent_m1", env.db, "d", ops,
+  );
+  await postServiceRequest(
+    R({ channel: "phone", received_at: "2026-07-01T00:00:00.000Z", resolved: true }),
+    "mbr_ent_m1", env.db, "d", ops,
+  );
+
+  // fair lending gaps
+  await postLoCompPlan(
+    R({ originator_ref: "lo_1", basis: "flat per loan", varies_with_terms: false,
+        decided_by: "cco_1" }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: compensation that varies with the terms cannot be approved
+  await postLoCompPlan(
+    R({ originator_ref: "lo_2", basis: "share of rate spread", varies_with_terms: true,
+        decided_by: "cco_1" }),
+    env.db, "d", ops,
+  );
+  for (const a of ["app_fl1", "app_fl2"]) {
+    await env.db.schema("core").from("loan_application").upsert({
+      id: a, status: "completed", funding_block_state: "open", provenance: "production",
+    }, { onConflict: "id" });
+  }
+  await postApplicationIntake(
+    R({ channel: "branch", product_type: "purchase_first_lien", applicant_state: "NC",
+        geography: "37063000101" }),
+    "app_fl1", env.db, "d", ops,
+  );
+  await postApplicationOptions(
+    R({ options_presented: ["lowest_rate", "lowest_rate_no_risky", "lowest_total_cost"],
+        waiver_decision: "not_waived", disclosures: ["loan_estimate"],
+        final_action: "approved" }),
+    "app_fl1", env.db, "d", ops,
+  );
+  await postGmiCollection(
+    R({ gmi: { ethnicity: "not_provided", race: "not_provided", sex: "not_provided" },
+        hmda_reportable: true }),
+    "app_fl1", env.db, "d", ops,
+  );
+  // NEGATIVE: incomplete GMI on a reportable application opens a finding
+  await postGmiCollection(
+    R({ gmi: { ethnicity: "not_provided" }, hmda_reportable: true }), "app_fl2", env.db, "d", ops,
+  );
+  await postNoticeQueue(R({ kind: "incompleteness", oral: true }), "app_fl2", env.db, "d", ops);
+  await postLendingAdverseAction(
+    R({ reasons: ["insufficient deposit history"], reviewed_by: "compliance_1",
+        subject_kind: "account", account_ref: "acct_d1", applicant_state: "NC",
+        business_revenue_tier: "under_1m", score_block: { model: "v3", score: 610 },
+        party_identity: "verified_documentary", incompleteness_notice: true,
+        counteroffer_terms: { rate_bp: 850 }, oral_statement: "reasons given by phone",
+        oral: true }),
+    "app_fl2", env.db, "d", ops,
+  );
+  // NEGATIVE: fewer than three options must say why, rather than passing quietly
+  await postApplicationOptions(
+    R({ options_presented: ["lowest_rate"], final_action: "denied" }),
+    "app_fl2", env.db, "d", ops,
+  );
+}
+
 async function runCapitalLifecycle(env: FireEnv): Promise<void> {
   // A WELL-CAPITALIZED position with a configured internal trigger. The trigger
   // sits above the statutory floor, so this position is compliant with NCUA and
@@ -2198,7 +2389,13 @@ import {
   postAuthEvent, postCardControl, postFraudTrendReview, postPospayDecision,
   postPospayException,
 } from "../api/eps_controls.ts";
-import { postIssueCard } from "../api/cards.ts";
+import { postCardReissue, postIssueCard } from "../api/cards.ts";
+import {
+  postAddressChange, postApplicationOptions, postDisclosureDelivery, postDisclosureTemplate,
+  postGmiCollection, postInterestAccrualRun, postInterestConfig, postLoCompPlan,
+  postMemberPreferences, postMemberRecordExport, postMemberRestriction, postMembership,
+  postApplicationIntake, postBalanceInquiry, postNoticeQueue, postServiceRequest, postStatement,
+} from "../api/deposits_member.ts";
 import {
   postChargeOff, postCollectionContact, postCollectionProtection, postCollectionsPolicy,
   postDelinquencyEvaluation, postFurnishingCycle, postLoanModification,
@@ -2911,6 +3108,80 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   "collections.courtesy_notice.sent": (env) => runCollectionsLifecycle(env),
   "incident.collections.logged": (env) => runCollectionsLifecycle(env),
   "furnishing.idtheft_dispute.received": (env) => runCollectionsLifecycle(env),
+  "disclosure.template.published": (env) => runDepositsMemberLifecycle(env),
+  "disclosure.account_opening.delivered": (env) => runDepositsMemberLifecycle(env),
+  "disclosure.change_in_terms.sent": (env) => runDepositsMemberLifecycle(env),
+  "disclosure.maturity_notice.sent": (env) => runDepositsMemberLifecycle(env),
+  "statement.issued": (env) => runDepositsMemberLifecycle(env),
+  "interest.accrual_run.completed": (env) => runDepositsMemberLifecycle(env),
+  "product.interest_config.updated": (env) => runDepositsMemberLifecycle(env),
+  "fee.ytd_total": (env) => runDepositsMemberLifecycle(env),
+  "member.eligibility.determined": (env) => runDepositsMemberLifecycle(env),
+  "member.eligibility.denied": (env) => runDepositsMemberLifecycle(env),
+  "entity.address.changed": (env) => runDepositsMemberLifecycle(env),
+  "member.preferences.updated": (env) => runDepositsMemberLifecycle(env),
+  "member.restriction_notice.sent": (env) => runDepositsMemberLifecycle(env),
+  "record.bulk_export.completed": (env) => runDepositsMemberLifecycle(env),
+  "service.first.response.due_at": (env) => runDepositsMemberLifecycle(env),
+  "service.first_response.sent": (env) => runDepositsMemberLifecycle(env),
+  "service.resolved": (env) => runDepositsMemberLifecycle(env),
+  "lo_comp.plan.decided": (env) => runDepositsMemberLifecycle(env),
+  "application.options.presented": (env) => runDepositsMemberLifecycle(env),
+  "applicant.gmi_responses": (env) => runDepositsMemberLifecycle(env),
+  "hmda.gmi.recorded": (env) => runDepositsMemberLifecycle(env),
+  "notice.incompleteness.sent": (env) => runDepositsMemberLifecycle(env),
+  "aan.queued": (env) => runDepositsMemberLifecycle(env),
+  "valuation.rights_disclosure.sent": (env) => runDepositsMemberLifecycle(env),
+  "valuation.copy.sent": (env) => runDepositsMemberLifecycle(env),
+  "disclosure.error.detected": (env) => runDepositsMemberLifecycle(env),
+  "account.maturity.notice.due_at": (env) => runDepositsMemberLifecycle(env),
+  "disclosure.change_in_terms_due_at": (env) => runDepositsMemberLifecycle(env),
+  "disclosure.classification.logged": (env) => runDepositsMemberLifecycle(env),
+  "balance.disclosed": (env) => runDepositsMemberLifecycle(env),
+  "member.address_notice": (env) => runDepositsMemberLifecycle(env),
+  "member.closure_payout.sent": (env) => runDepositsMemberLifecycle(env),
+  "application.option_waiver.decided": (env) => runDepositsMemberLifecycle(env),
+  "application.disclosures.presented": (env) => runDepositsMemberLifecycle(env),
+  "hmda.lar_row.recorded": (env) => runDepositsMemberLifecycle(env),
+  "interest.accrued_balance": (env) => runDepositsMemberLifecycle(env),
+  "account.adverse_action.decided": (env) => runDepositsMemberLifecycle(env),
+  "account.closure.approved": (env) => runDepositsMemberLifecycle(env),
+  "account.created": (env) => runDepositsMemberLifecycle(env),
+  "account.lock.applied": (env) => runDepositsMemberLifecycle(env),
+  "account.maturity_window.opened": (env) => runDepositsMemberLifecycle(env),
+  "analytics.quarter.closed": (env) => runLendingUwLifecycle(env),
+  "analytics.threshold.breached": (env) => runDepositsMemberLifecycle(env),
+  "application.first_lien.created": (env) => runDepositsMemberLifecycle(env),
+  "application.form.rendered": (env) => runDepositsMemberLifecycle(env),
+  "application.hmda_covered.created": (env) => runLendingUwLifecycle(env),
+  "application.option_selection.started": (env) => runDepositsMemberLifecycle(env),
+  "application.option_shortfall.detected": (env) => runDepositsMemberLifecycle(env),
+  "balance.inquiry.received": (env) => runDepositsMemberLifecycle(env),
+  "card.request_during_address_hold": (env) => runDepositsMemberLifecycle(env),
+  "estate.claim.submitted": (env) => runDepositsMemberLifecycle(env),
+  "expulsion.board_report.filed": (env) => runDepositsMemberLifecycle(env),
+  "fee.overdraft.posted": (env) => runDepositsMemberLifecycle(env),
+  "hmda.submission_window_open": (env) => runLendingUwLifecycle(env),
+  "interest.credited": (env) => runDepositsMemberLifecycle(env),
+  "lo_comp.plan.submitted": (env) => runDepositsMemberLifecycle(env),
+  "member.address_notice.sent": (env) => runDepositsMemberLifecycle(env),
+  "member.application.submitted": (env) => runDepositsMemberLifecycle(env),
+  "member.death.reported": (env) => runDepositsMemberLifecycle(env),
+  "member.delivery.failed": (env) => runDepositsMemberLifecycle(env),
+  "member.eligibility_rule.failed": (env) => runDepositsMemberLifecycle(env),
+  "member.expulsion.decided": (env) => runDepositsMemberLifecycle(env),
+  "member.expulsion_hearing.held": (env) => runDepositsMemberLifecycle(env),
+  "member.expulsion_hearing.requested": (env) => runDepositsMemberLifecycle(env),
+  "member.expulsion_notice.sent": (env) => runDepositsMemberLifecycle(env),
+  "member.expulsion_payout.sent": (env) => runDepositsMemberLifecycle(env),
+  "pricing.exception.requested": (env) => runDepositsMemberLifecycle(env),
+  "privacy.esign_consent.recorded": (env) => runDepositsMemberLifecycle(env),
+  "record.bulk_export.requested": (env) => runDepositsMemberLifecycle(env),
+  "redflag.detected": (env) => runDepositsMemberLifecycle(env),
+  "service.inquiry.received": (env) => runDepositsMemberLifecycle(env),
+  "service.reclassified_as_dispute": (env) => runDepositsMemberLifecycle(env),
+  "statement.cycle.closed": (env) => runDepositsMemberLifecycle(env),
+  "verification.denied": (env) => runDepositsMemberLifecycle(env),
   "incident.declared": (env) => runIncidentLifecycle(env),
   "incident.detected": (env) => runIncidentLifecycle(env),
   "incident.sev1.detected": (env) => runIncidentLifecycle(env),

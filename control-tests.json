@@ -9,14 +9,14 @@
     "total": 333,
     "in_scope": 225,
     "scoped_out": 108,
-    "in_scope_green": 134,
-    "in_scope_red": 91,
+    "in_scope_green": 155,
+    "in_scope_red": 70,
     "scope_note": "Scoped-out controls are real obligations discharged by people and paperwork. This system covers the technical controls; the organisational ones are not claimed.",
-    "green": 135,
-    "red": 198,
-    "pct_green": 40.5,
+    "green": 156,
+    "red": 177,
+    "pct_green": 46.8,
     "red_by_reason": {
-      "trigger fires but produced events missing": 119,
+      "trigger fires but produced events missing": 105,
       "no writer: vendor.*": 6,
       "no writer: training.*": 4,
       "no writer: eps.*": 4,
@@ -46,8 +46,6 @@
       "no writer: risk.*": 1,
       "no writer: kri.*": 1,
       "no writer: risk_report.*": 1,
-      "no writer: application.*": 1,
-      "no writer: hmda.*": 1,
       "no writer: change.*": 1,
       "no writer: tls.*": 1,
       "no writer: redflag.*": 1,
@@ -64,19 +62,14 @@
       "no writer: ncua.*": 1,
       "no writer: drill.*": 1,
       "no writer: catalogue.*": 1,
-      "no writer: verification.*": 1,
-      "no writer: card.*": 1,
-      "no writer: member.*": 1,
-      "no writer: service.*": 1,
       "no writer: connection.*": 1,
       "no writer: safe_mode.*": 1,
       "no writer: institution_freeze.*": 1,
-      "no writer: interest.*": 1,
       "no writer: disclosure.*": 1
     },
     "inputs_unverifiable_total": 1391,
     "green_by_fire_path": {
-      "real_writer": 128,
+      "real_writer": 149,
       "generic_echo": 5,
       "obligation_cadence": 2
     },
@@ -88,22 +81,22 @@
       "privacy": 13,
       "collections": 11,
       "record-retention": 11,
+      "fair-lending": 10,
       "capitalization": 8,
+      "truth-in-savings": 8,
       "cash": 7,
+      "member": 7,
       "basel-ii-standardized-approach-framework": 3,
       "electronic-payment-systems": 3,
       "internal-controls": 3,
       "audit": 2,
       "enterprise-risk-management": 2,
-      "fair-lending": 2,
       "information-security": 2,
       "shared-controls": 2,
       "business-continuity-plan": 1,
       "e-commerce": 1,
       "liquidity": 1,
-      "member": 1,
-      "third-party-risk": 1,
-      "truth-in-savings": 1
+      "third-party-risk": 1
     }
   },
   "results": [
@@ -6956,11 +6949,13 @@
       "policy": "fair-lending",
       "control_id": "FL-02",
       "title": "Permissible Inquiries",
-      "status": "red",
+      "status": "green",
       "expected": [
         "application.disclosures.presented"
       ],
-      "observed": [],
+      "observed": [
+        "application.disclosures.presented"
+      ],
       "triggers": [
         "application.form.rendered"
       ],
@@ -6969,12 +6964,14 @@
         "loan_application.channel",
         "loan_application.product_type"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "loan_application.channel",
+        "loan_application.product_type"
+      ],
       "inputs_unverifiable": [
         "applicant.state"
       ],
-      "fire_path": "none",
-      "blocked_on": "no writer for trigger 'application.form.rendered'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -6983,13 +6980,15 @@
       "policy": "fair-lending",
       "control_id": "FL-03",
       "title": "Evaluation & Pricing Rules",
-      "status": "red",
+      "status": "green",
       "expected": [
         "loan_application.adverse_action.decided",
         "pricing.exception.decided",
         "pricing.exception.requested"
       ],
       "observed": [
+        "loan_application.adverse_action.decided",
+        "pricing.exception.decided",
         "pricing.exception.requested"
       ],
       "triggers": [
@@ -7020,8 +7019,7 @@
         "pricing.proposed_price",
         "pricing.sheet_price"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 1/3: missing loan_application.adverse_action.decided, pricing.exception.decided"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -7030,7 +7028,7 @@
       "policy": "fair-lending",
       "control_id": "FL-04",
       "title": "Appraisal Independence & ROV",
-      "status": "red",
+      "status": "green",
       "expected": [
         "valuation.rights_disclosure.sent",
         "valuation.copy.sent",
@@ -7038,6 +7036,9 @@
         "valuation.rov.decided"
       ],
       "observed": [
+        "valuation.rights_disclosure.sent",
+        "valuation.copy.sent",
+        "fair_lending.record_appended",
         "valuation.rov.decided"
       ],
       "triggers": [
@@ -7059,8 +7060,7 @@
         "appraisal.document",
         "valuation.bias_screen_rules"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 1/4: missing valuation.rights_disclosure.sent, valuation.copy.sent, fair_lending.record_appended"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -7069,7 +7069,7 @@
       "policy": "fair-lending",
       "control_id": "FL-05",
       "title": "Action-Taken Notices",
-      "status": "red",
+      "status": "green",
       "expected": [
         "aan.issued",
         "notice.incompleteness.sent",
@@ -7078,6 +7078,8 @@
       ],
       "observed": [
         "aan.issued",
+        "notice.incompleteness.sent",
+        "aan.queued",
         "notice.oral.logged"
       ],
       "triggers": [
@@ -7103,6 +7105,7 @@
         "loan_application.adverse_action",
         "loan_party.identity",
         "loan_application.incompleteness_notice",
+        "account.adverse_action",
         "loan_application.counteroffer_terms",
         "loan_application.oral_statement"
       ],
@@ -7110,8 +7113,7 @@
         "decision.score_block",
         "applicant.business_revenue_tier"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 2/4: missing notice.incompleteness.sent, aan.queued"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -7120,7 +7122,7 @@
       "policy": "fair-lending",
       "control_id": "FL-06",
       "title": "Government Monitoring (GMI/HMDA)",
-      "status": "red",
+      "status": "green",
       "expected": [
         "applicant.gmi_responses",
         "hmda.gmi.recorded",
@@ -7129,7 +7131,14 @@
         "hmda.lar_qc.completed",
         "hmda.lar.submitted"
       ],
-      "observed": [],
+      "observed": [
+        "applicant.gmi_responses",
+        "hmda.gmi.recorded",
+        "hmda.lar_row.recorded",
+        "finding.opened",
+        "hmda.lar_qc.completed",
+        "hmda.lar.submitted"
+      ],
       "triggers": [
         "application.hmda_covered.created",
         "hmda.lar_row.recorded",
@@ -7140,12 +7149,13 @@
         "application.first_lien",
         "loan_application.geography"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "loan_application.geography"
+      ],
       "inputs_unverifiable": [
         "application.first_lien"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'hmda.submission_window_open'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -7191,7 +7201,7 @@
       "policy": "fair-lending",
       "control_id": "FL-08",
       "title": "LO Compensation & Anti-Steering",
-      "status": "red",
+      "status": "green",
       "expected": [
         "lo_comp.plan.decided",
         "application.options.presented",
@@ -7199,7 +7209,13 @@
         "application.final_action.recorded",
         "finding.opened"
       ],
-      "observed": [],
+      "observed": [
+        "lo_comp.plan.decided",
+        "application.options.presented",
+        "application.option_waiver.decided",
+        "application.final_action.recorded",
+        "finding.opened"
+      ],
       "triggers": [
         "lo_comp.plan.submitted",
         "application.option_selection.started",
@@ -7215,7 +7231,9 @@
         "application.option_selection",
         "application.option_waiver"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "loan_application.option_shortfall_reason"
+      ],
       "inputs_unverifiable": [
         "lo_comp.basis_analysis",
         "lo_comp.plan_terms",
@@ -7223,8 +7241,7 @@
         "application.option_selection",
         "application.option_waiver"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 0/5: missing lo_comp.plan.decided, application.options.presented, application.option_waiver.decided, application.final_action.recorded"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -7263,7 +7280,7 @@
       "policy": "fair-lending",
       "control_id": "FL-10",
       "title": "Monitoring & Disparity Reviews",
-      "status": "red",
+      "status": "green",
       "expected": [
         "analytics.cap.opened",
         "analytics.disparity_report.completed",
@@ -7271,6 +7288,7 @@
       ],
       "observed": [
         "analytics.cap.opened",
+        "analytics.disparity_report.completed",
         "compliance.board_report.delivered"
       ],
       "triggers": [
@@ -7285,8 +7303,7 @@
       "inputs_unverifiable": [
         "analytics.lending_dataset"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 2/3: missing analytics.disparity_report.completed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -7330,12 +7347,15 @@
       "policy": "fair-lending",
       "control_id": "FL-12",
       "title": "Record Retention",
-      "status": "red",
+      "status": "green",
       "expected": [
         "record.retention.expires_at",
         "record.retention_clock_set"
       ],
-      "observed": [],
+      "observed": [
+        "record.retention.expires_at",
+        "record.retention_clock_set"
+      ],
       "triggers": [
         "loan_application.decisioned"
       ],
@@ -7346,8 +7366,7 @@
       "inputs_unverifiable": [
         "retention.record_type"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 0/2: missing record.retention.expires_at, record.retention_clock_set"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -7891,7 +7910,9 @@
         "sar.filed",
         "redflag.ruleset.updated"
       ],
-      "observed": [],
+      "observed": [
+        "redflags.case.opened"
+      ],
       "triggers": [
         "redflag.detected",
         "redflag.case.disposed",
@@ -11056,7 +11077,7 @@
       "policy": "member",
       "control_id": "MP-01",
       "title": "Membership Eligibility and Onboarding",
-      "status": "red",
+      "status": "green",
       "expected": [
         "member.eligibility.denied",
         "member.eligibility.determined",
@@ -11066,7 +11087,12 @@
         "member.activated"
       ],
       "observed": [
-        "verification.completed"
+        "member.eligibility.denied",
+        "member.eligibility.determined",
+        "member.ineligibility_notice.sent",
+        "verification.completed",
+        "account.created",
+        "member.activated"
       ],
       "triggers": [
         "member.application.submitted",
@@ -11092,6 +11118,7 @@
         "entity.date_of_birth",
         "entity.name",
         "entity.tin",
+        "entity.contact",
         "verification.provider",
         "verification.type",
         "verification.provider_result",
@@ -11102,8 +11129,7 @@
         "member.eligibility_rule",
         "member.eligibility.determined"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "no writer for trigger 'verification.denied'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -11112,7 +11138,7 @@
       "policy": "member",
       "control_id": "MP-02",
       "title": "Account Maintenance and Change of Address",
-      "status": "red",
+      "status": "green",
       "expected": [
         "entity.address.changed",
         "member.address.hold.expires_at",
@@ -11122,6 +11148,11 @@
         "verification.created"
       ],
       "observed": [
+        "entity.address.changed",
+        "member.address.hold.expires_at",
+        "member.address_notice",
+        "member.address_notice.sent",
+        "redflags.case.opened",
         "verification.created"
       ],
       "triggers": [
@@ -11140,7 +11171,11 @@
         "card.reissue_request",
         "member.address.hold.expires_at"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "entity.address_new",
+        "entity.address_previous",
+        "card.reissue_request"
+      ],
       "inputs_unverifiable": [
         "member.id",
         "redflag.address_reissue_match",
@@ -11148,8 +11183,7 @@
         "redflag.stepup_required",
         "member.address.hold.expires_at"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'card.request_during_address_hold'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -11158,14 +11192,19 @@
       "policy": "member",
       "control_id": "MP-03",
       "title": "Member Communications and Preferences",
-      "status": "red",
+      "status": "green",
       "expected": [
         "member.preferences.updated",
         "privacy.optout_propagated",
         "disclosure.account_opening.delivered",
         "member.channel_reverted"
       ],
-      "observed": [],
+      "observed": [
+        "member.preferences.updated",
+        "privacy.optout_propagated",
+        "disclosure.account_opening.delivered",
+        "member.channel_reverted"
+      ],
       "triggers": [
         "member.preferences.updated",
         "disclosure.initiated",
@@ -11190,8 +11229,7 @@
         "member.esign_consent_captured",
         "member.delivery_failure_reason"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/4: missing member.preferences.updated, privacy.optout_propagated, disclosure.account_opening.delivered, member.channel_reverted"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -11278,12 +11316,15 @@
       "policy": "member",
       "control_id": "MP-05",
       "title": "Account Restrictions and Closures",
-      "status": "red",
+      "status": "green",
       "expected": [
         "member.restriction_notice.sent",
         "member.closure_payout.sent"
       ],
-      "observed": [],
+      "observed": [
+        "member.restriction_notice.sent",
+        "member.closure_payout.sent"
+      ],
       "triggers": [
         "account.lock.applied",
         "account.closure.approved",
@@ -11299,14 +11340,15 @@
       ],
       "inputs_supplied": [
         "account.lock_type",
+        "account.restriction",
+        "entity.contact",
         "account.balance",
         "account.status"
       ],
       "inputs_unverifiable": [
         "member.amounts_owed"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 0/2: missing member.restriction_notice.sent, member.closure_payout.sent"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -11342,6 +11384,7 @@
         "member.amounts_owed"
       ],
       "inputs_supplied": [
+        "entity.contact",
         "account.balance"
       ],
       "inputs_unverifiable": [
@@ -11351,8 +11394,8 @@
         "expulsion.hearing_requested_at",
         "member.amounts_owed"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'member.expulsion_hearing.held'"
+      "fire_path": "real_writer",
+      "blocked_on": "produced 0/5: missing member.expulsion_notice, member.expulsion_notice.sent, expulsion.meeting_date, expulsion.board_report.filed"
     },
     {
       "scoped_out": false,
@@ -11408,12 +11451,13 @@
       "policy": "member",
       "control_id": "MP-08",
       "title": "Member Records and Privacy",
-      "status": "red",
+      "status": "green",
       "expected": [
         "record.bulk_export.completed",
         "record.legal_hold_flag"
       ],
       "observed": [
+        "record.bulk_export.completed",
         "record.legal_hold_flag"
       ],
       "triggers": [
@@ -11438,8 +11482,7 @@
         "record.hold_scope",
         "record.hold_release_auth"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 1/2: missing record.bulk_export.completed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -11448,13 +11491,17 @@
       "policy": "member",
       "control_id": "MP-09",
       "title": "Member Service Standards",
-      "status": "red",
+      "status": "green",
       "expected": [
         "service.first.response.due_at",
         "service.first_response.sent",
         "service.resolved"
       ],
-      "observed": [],
+      "observed": [
+        "service.first.response.due_at",
+        "service.first_response.sent",
+        "service.resolved"
+      ],
       "triggers": [
         "service.inquiry.received",
         "service.first_response.sent",
@@ -11474,8 +11521,7 @@
         "service.category",
         "service.inquiry_id"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'service.reclassified_as_dispute'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -13986,12 +14032,15 @@
       "policy": "truth-in-savings",
       "control_id": "TIS-01",
       "title": "Disclosure Standards",
-      "status": "red",
+      "status": "green",
       "expected": [
         "disclosure.template.published",
         "disclosure.account_opening.delivered"
       ],
-      "observed": [],
+      "observed": [
+        "disclosure.template.published",
+        "disclosure.account_opening.delivered"
+      ],
       "triggers": [
         "disclosure.template.published",
         "privacy.esign_consent.recorded"
@@ -14005,7 +14054,9 @@
         "member.delivery_channel",
         "member.id"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "entity.esign_consent"
+      ],
       "inputs_unverifiable": [
         "advertising.approval_id",
         "advertising.medium",
@@ -14014,8 +14065,7 @@
         "member.delivery_channel",
         "member.id"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/2: missing disclosure.template.published, disclosure.account_opening.delivered"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -14024,13 +14074,17 @@
       "policy": "truth-in-savings",
       "control_id": "TIS-02",
       "title": "Pre-Opening Account Disclosures",
-      "status": "red",
+      "status": "green",
       "expected": [
         "disclosure.account_opening.delivered",
         "disclosure.account_opening_due_at",
         "disclosure.error.detected"
       ],
-      "observed": [],
+      "observed": [
+        "disclosure.account_opening.delivered",
+        "disclosure.account_opening_due_at",
+        "disclosure.error.detected"
+      ],
       "triggers": [
         "account.created",
         "member.delivery.failed"
@@ -14054,6 +14108,13 @@
       ],
       "inputs_supplied": [
         "account.account_type",
+        "account.opening_channel",
+        "account.restriction",
+        "entity.esign_consent",
+        "address.city",
+        "address.line1",
+        "address.postal_code",
+        "address.region",
         "account.id"
       ],
       "inputs_unverifiable": [
@@ -14064,8 +14125,7 @@
         "product.interest_rate",
         "member.delivery_failure_reason"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/3: missing disclosure.account_opening.delivered, disclosure.account_opening_due_at, disclosure.error.detected"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -14074,13 +14134,17 @@
       "policy": "truth-in-savings",
       "control_id": "TIS-03",
       "title": "Change-in-Terms Notices",
-      "status": "red",
+      "status": "green",
       "expected": [
         "disclosure.change_in_terms_due_at",
         "disclosure.classification.logged",
         "disclosure.change_in_terms.sent"
       ],
-      "observed": [],
+      "observed": [
+        "disclosure.change_in_terms_due_at",
+        "disclosure.classification.logged",
+        "disclosure.change_in_terms.sent"
+      ],
       "triggers": [
         "disclosure.change_in_terms.approved",
         "disclosure.classification.logged",
@@ -14101,8 +14165,7 @@
         "disclosure.template_id",
         "member.delivery_channel"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/3: missing disclosure.change_in_terms_due_at, disclosure.classification.logged, disclosure.change_in_terms.sent"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -14111,12 +14174,15 @@
       "policy": "truth-in-savings",
       "control_id": "TIS-04",
       "title": "Maturity Notices",
-      "status": "red",
+      "status": "green",
       "expected": [
         "account.maturity.notice.due_at",
         "disclosure.maturity_notice.sent"
       ],
-      "observed": [],
+      "observed": [
+        "account.maturity.notice.due_at",
+        "disclosure.maturity_notice.sent"
+      ],
       "triggers": [
         "account.maturity_window.opened",
         "disclosure.maturity_notice.sent"
@@ -14133,15 +14199,17 @@
       ],
       "inputs_supplied": [
         "account.account_type",
-        "account.id"
+        "account.id",
+        "account.maturity_date",
+        "account.maturity_disposition",
+        "account.maturity_window"
       ],
       "inputs_unverifiable": [
         "disclosure.template_id",
         "member.delivery_channel",
         "member.id"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/2: missing account.maturity.notice.due_at, disclosure.maturity_notice.sent"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -14150,11 +14218,13 @@
       "policy": "truth-in-savings",
       "control_id": "TIS-05",
       "title": "Periodic Statement Disclosures",
-      "status": "red",
+      "status": "green",
       "expected": [
         "statement.issued"
       ],
-      "observed": [],
+      "observed": [
+        "statement.issued"
+      ],
       "triggers": [
         "statement.cycle.closed"
       ],
@@ -14176,8 +14246,7 @@
         "statement.cycle",
         "statement.days_in_period"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/1: missing statement.issued"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -14186,13 +14255,17 @@
       "policy": "truth-in-savings",
       "control_id": "TIS-06",
       "title": "Interest Calculation",
-      "status": "red",
+      "status": "green",
       "expected": [
         "interest.accrual_run.completed",
         "interest.accrued_balance",
         "product.interest_config.updated"
       ],
-      "observed": [],
+      "observed": [
+        "interest.accrual_run.completed",
+        "interest.accrued_balance",
+        "product.interest_config.updated"
+      ],
       "triggers": [
         "interest.accrual_run.completed",
         "interest.credited",
@@ -14218,8 +14291,7 @@
         "interest.accrued_balance",
         "interest.crediting_due_at"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'interest.credited'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -14265,7 +14337,7 @@
       "policy": "truth-in-savings",
       "control_id": "TIS-08",
       "title": "Overdraft Service Disclosures",
-      "status": "red",
+      "status": "green",
       "expected": [
         "fee.ytd_total",
         "overdraft.fee.logged",
@@ -14273,7 +14345,13 @@
         "balance.disclosed",
         "balance.inquiry.received"
       ],
-      "observed": [],
+      "observed": [
+        "fee.ytd_total",
+        "overdraft.fee.logged",
+        "statement.issued",
+        "balance.disclosed",
+        "balance.inquiry.received"
+      ],
       "triggers": [
         "fee.overdraft.posted",
         "statement.cycle.closed",
@@ -14289,6 +14367,7 @@
       ],
       "inputs_supplied": [
         "account.id",
+        "entity.reg_e_opt_in",
         "account.balance"
       ],
       "inputs_unverifiable": [
@@ -14296,8 +14375,7 @@
         "fee.ytd_total",
         "statement.cycle"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/5: missing fee.ytd_total, overdraft.fee.logged, statement.issued, balance.disclosed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -14354,7 +14432,10 @@
         "disclosure.error.detected",
         "disclosure.error.remediated"
       ],
-      "observed": [],
+      "observed": [
+        "finding.opened",
+        "disclosure.error.detected"
+      ],
       "triggers": [
         "training.annual_cycle.opened",
         "training.completed",
@@ -14380,7 +14461,7 @@
         "disclosure.error_description",
         "disclosure.error_root_cause"
       ],
-      "fire_path": "generic_echo",
+      "fire_path": "real_writer",
       "blocked_on": "no writer for trigger 'disclosure.error.remediated'"
     }
   ]

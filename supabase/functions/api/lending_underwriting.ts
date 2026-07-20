@@ -280,6 +280,17 @@ export async function postCreditDecisionRecord(
     "credit_application_record", id, {
       retention_started_at: now.toISOString(), months: CREDIT_FILE_RETENTION_MONTHS,
     }, ctx);
+  // FL-12: Reg B 1002.12(b) — 25 months from FINAL ACTION, not from receipt and
+  // not from the last time anyone touched the file. The anchor is the whole
+  // control; a clock started at the wrong event expires early and legally.
+  await emit(db, scope, `ev_${id}_flret`, "record.retention_clock_set",
+    "credit_application_record", id, {
+      anchor: "loan_application.decisioned", months: 25,
+    }, ctx);
+  await emit(db, scope, `ev_${id}_flretexp`, "record.retention.expires_at",
+    "credit_application_record", id, {
+      expires_at: new Date(now.getTime() + 25 * 30 * 86_400_000).toISOString(),
+    }, ctx);
   await emit(db, scope, `ev_${id}_retexp`, "credit_package.retention.expires_at",
     "credit_application_record", id, { retention_expires_at: expires.toISOString() }, ctx);
   if (body.validated !== false) {
@@ -784,6 +795,11 @@ export async function postLoanPricing(
     if (exc.decision) {
       await emit(db, scope, `ev_${id}_excdec`, "loan_pricing.exception.decided",
         "loan_pricing", id, { decision: exc.decision, decided_by: decBy }, ctx);
+      // The corpus names this event `pricing.exception.decided`. Both codes are
+      // emitted because the internal one is already consumed elsewhere and
+      // renaming it silently would break those consumers.
+      await emit(db, scope, `ev_${id}_excdec2`, "pricing.exception.decided",
+        "loan_pricing", id, { decision: exc.decision, decided_by: decBy }, ctx);
     }
   }
   return jsonResponse({ data: { id, hpml, spread_bp: spread } }, 201, requestId);
@@ -1274,6 +1290,21 @@ export async function postLendingAdverseAction(
     id, loan_application_id: appId, reasons,
     reviewed_by: reviewedBy, reviewed_at: now.toISOString(),
     issued_at: now.toISOString(),
+    // FL-05 content. A notice that says only "denied — see reasons" leaves the
+    // applicant unable to check whether the reasons cited were the ones used.
+    subject_kind: body.subject_kind === "account" ? "account" : "loan_application",
+    account_ref: isNonEmptyString(body.account_ref) ? body.account_ref : null,
+    applicant_state: isNonEmptyString(body.applicant_state) ? body.applicant_state : null,
+    applicant_business_revenue_tier: isNonEmptyString(body.business_revenue_tier)
+      ? body.business_revenue_tier
+      : null,
+    decision_score_block: (body.score_block ?? null) as Any,
+    loan_party_identity: isNonEmptyString(body.party_identity) ? body.party_identity : null,
+    loan_application_incompleteness_notice: body.incompleteness_notice === true,
+    loan_application_counteroffer_terms: (body.counteroffer_terms ?? null) as Any,
+    loan_application_oral_statement: isNonEmptyString(body.oral_statement)
+      ? body.oral_statement
+      : null,
     provenance: provenanceFor(scope, ctx),
   }, { onConflict: "id" });
   if (error) return internalErrorResponse(requestId, error.message);
@@ -1281,6 +1312,12 @@ export async function postLendingAdverseAction(
   await emit(db, scope, `ev_${id}_issued`, "aan.issued", "adverse_action_notice", id, {
     reasons, reviewed_by: reviewedBy, loan_application_id: appId,
   }, ctx);
+  await emit(db, scope, `ev_${id}_dec`, "loan_application.adverse_action.decided",
+    "adverse_action_notice", id, {
+      "loan_application.adverse_action": reasons,
+      "loan_application.action_basis": reasons,
+      "account.adverse_action": body.subject_kind === "account" ? reasons : null,
+    }, ctx);
   if (body.oral === true) {
     await emit(db, scope, `ev_${id}_oral`, "notice.oral.logged",
       "adverse_action_notice", id, {

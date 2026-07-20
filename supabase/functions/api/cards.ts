@@ -582,3 +582,49 @@ export async function postIssueCard(
 
   return jsonResponse({ data }, 201, requestId);
 }
+
+/**
+ * POST /cards/:member/reissue {ship_to_address_id}
+ *
+ * MP-02. A reissue requested while an address change is still inside its hold
+ * window is the account-takeover pattern: change the address, then have the
+ * card follow it. The reissue is RECORDED AND BLOCKED rather than refused
+ * outright — a refusal with no row leaves the pattern invisible to the
+ * red-flags review, which is the thing that is supposed to catch it.
+ */
+export async function postCardReissue(
+  req: Request, memberRef: string, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  const { data: holds } = await db.schema(scope).from("member_address_change")
+    .select("id, hold_expires_at, member_ref").eq("member_ref", memberRef);
+  const now = new Date();
+  const onHold = (holds ?? []).some((h: Record<string, unknown>) =>
+    typeof h.hold_expires_at === "string" && new Date(h.hold_expires_at) > now
+  );
+
+  const id = `card_${memberRef}_reissue`;
+  const { error } = await db.schema(scope).from("card").upsert({
+    id, status: onHold ? "blocked" : "active", spend_controls: "default_baseline",
+    reissue_request: true,
+    ship_to_address_id: typeof body.ship_to_address_id === "string"
+      ? body.ship_to_address_id
+      : null,
+    address_hold_blocked: onHold,
+  }, { onConflict: "id" });
+  if (error) return internalErrorResponse(requestId, error.message);
+
+  const { error: evErr } = await db.schema(scope).from("event").upsert({
+    id: `ev_${id}_req`, code: "card.request_during_address_hold",
+    resource_type: "card", resource_id: `card:${id}`,
+    payload: {
+      "card.reissue_request": true, member_ref: memberRef,
+      on_hold: onHold, blocked: onHold,
+    },
+    provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id", ignoreDuplicates: true });
+  if (evErr) return internalErrorResponse(requestId, evErr.message);
+
+  return jsonResponse({ data: { id, blocked: onHold } }, 201, requestId);
+}
