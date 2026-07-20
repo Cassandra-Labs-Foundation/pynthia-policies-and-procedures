@@ -1328,3 +1328,77 @@ sweep never looked at. It survived the mutation that made the sweep skip
 un-escalated rows, i.e. the exact defect it was written to catch. Rewritten to
 stamp a sentinel and assert no row still carries it; the mutation is now caught.
 **Fourth time an instrument rather than the code has been the thing at fault.**
+
+## THE THIRD SHAPE OF HOLE — a table with no writer
+
+Three distinct shapes have now been found by building controls against the
+schema, and they are worth naming together because each was found by accident
+and each is cheap to sweep for deliberately:
+
+| shape | example | how it hides |
+|---|---|---|
+| **verbs without a noun** | `cards.ts` had authorize/capture/expire/reverse and no way to CREATE a card | the module looks complete; every verb is present |
+| **a noun with no verbs** | `cda` — 13 controls, no account, no agreement, no donee | every control fails identically, so it reads as 13 problems |
+| **a table with no writer** | `core.training` exists in the schema; nothing has ever written to it | the schema looks finished; the control fails on an input, not on a trigger |
+
+### Sweep result: 22 abandoned tables, blocking 36 in-scope red controls
+
+Of 98 `core` tables, **24 are never written by production code and 22 are never
+read either.** Those 22 are not scaffolding — they are controls someone intended
+and abandoned, and they are declared as required inputs by **36 of the 173
+remaining in-scope reds** (21%).
+
+```
+loan        8 controls      dispute     3      training   2
+user        6               insider     3      originator 2
+trade       6               risk        3      address    2
+complaint   4
+```
+
+Plus `change`, `coi`, `document`, `fbo_position`, `filing`, `finding`,
+`handover`, `inbound_payment`, `indemnification`, `instance`, `provider_result`,
+`task` — declared by nothing currently in scope.
+
+**Why this matters to the projection.** A table that already exists is a
+*cheaper* blocker than a missing entity: the schema design was done, the noun is
+modelled, only the writer is absent. So the remaining 173 split three ways
+rather than two — missing entity (expensive, and sometimes refused outright),
+**abandoned table (a writer away)**, and satellite events (free with the domain).
+The estimator should treat an abandoned-table dependency as closer to a
+satellite than to a missing entity.
+
+**Two cautions.** First, `user`, `training` and `insider` are organisational and
+the standing rule still applies — the table existing does not make fabricating
+its contents honest. Second, an abandoned table's *shape* was designed against
+an intent nobody recorded; it may not fit the control that now needs it, and it
+should be read before it is trusted.
+
+## THE FOUR INSTRUMENT FAILURES — one class, one mitigation
+
+Recorded together because they have been mentioned separately four times and
+nobody reading four scattered notes would see that they are the same failure.
+
+| # | instrument | what it did | what it hid |
+|---|---|---|---|
+| 1 | `fake_db` column defaults | `created_at` was `undefined`, not `now()` | CG-VEL-01 could not fire **at all**, and the drill reported PASS |
+| 2 | `fake_db` `.lt()` | unsupported builder method returned `undefined` | a sweep silently matched nothing |
+| 3 | `fake_db` `.select()` chaining | upsert-then-select returned `undefined` | production code was contorted to work around the double |
+| 4 | a sweep-starvation assertion | compared `updated_at` to itself, then asserted `!== undefined` | survived the exact mutation it was written to catch |
+
+**The class:** *the check was written in the shape of a check without actually
+constraining anything.* Every one of them looked right in review. Every one of
+them passed. None of them could have failed.
+
+**The mitigation, identical in all four cases: test the instrument against the
+thing it is supposed to catch, before trusting it.** Concretely —
+
+- a test double: call a method it does NOT support and confirm it throws (this
+  is how the strict-proxy guard was found to be dead code on its first version);
+- an assertion: mutate the code it guards and confirm the assertion fails;
+- a grader: feed it a case that should score zero and confirm it does.
+
+`fake_db` now throws on unsupported methods and derives its defaults from the
+migrations, which closes 1–3 structurally. Number 4 has no structural fix — it
+is why every artifact in this project ends with a mutation sweep, and why a
+mutation SURVIVING is now treated as a finding about the test rather than a
+tolerable gap.
