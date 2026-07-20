@@ -9,14 +9,14 @@
     "total": 333,
     "in_scope": 225,
     "scoped_out": 108,
-    "in_scope_green": 170,
-    "in_scope_red": 55,
+    "in_scope_green": 175,
+    "in_scope_red": 50,
     "scope_note": "Scoped-out controls are real obligations discharged by people and paperwork. This system covers the technical controls; the organisational ones are not claimed.",
-    "green": 171,
-    "red": 162,
-    "pct_green": 51.4,
+    "green": 176,
+    "red": 157,
+    "pct_green": 52.9,
     "red_by_reason": {
-      "trigger fires but produced events missing": 92,
+      "trigger fires but produced events missing": 88,
       "no writer: vendor.*": 6,
       "no writer: training.*": 4,
       "no writer: eps.*": 4,
@@ -62,12 +62,11 @@
       "no writer: catalogue.*": 1,
       "no writer: connection.*": 1,
       "no writer: safe_mode.*": 1,
-      "no writer: institution_freeze.*": 1,
       "no writer: disclosure.*": 1
     },
     "inputs_unverifiable_total": 1391,
     "green_by_fire_path": {
-      "real_writer": 163,
+      "real_writer": 168,
       "generic_echo": 6,
       "obligation_cadence": 2
     },
@@ -86,6 +85,7 @@
       "e-commerce": 7,
       "liquidity": 7,
       "member": 7,
+      "resolution": 5,
       "basel-ii-standardized-approach-framework": 3,
       "electronic-payment-systems": 3,
       "information-security": 3,
@@ -13222,14 +13222,19 @@
       "policy": "resolution",
       "control_id": "RS-02",
       "title": "Early-Warning Indicators",
-      "status": "red",
+      "status": "green",
       "expected": [
         "ewi.sweep.completed",
         "ewi.threshold.breached",
         "resolution_posture.changed",
         "ewi.ceo_summary.sent"
       ],
-      "observed": [],
+      "observed": [
+        "ewi.sweep.completed",
+        "ewi.threshold.breached",
+        "resolution_posture.changed",
+        "ewi.ceo_summary.sent"
+      ],
       "triggers": [
         "ewi.sweep.completed",
         "ewi.threshold.breached",
@@ -13256,8 +13261,7 @@
         "ewi.history",
         "ewi.trend"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/4: missing ewi.sweep.completed, ewi.threshold.breached, resolution_posture.changed, ewi.ceo_summary.sent"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -13309,14 +13313,19 @@
       "policy": "resolution",
       "control_id": "RS-04",
       "title": "Targeted Account Freeze",
-      "status": "red",
+      "status": "green",
       "expected": [
         "account_freeze.applied",
         "account_freeze.credit.posted",
         "account_freeze.precedence.resolved",
         "account_freeze.released"
       ],
-      "observed": [],
+      "observed": [
+        "account_freeze.applied",
+        "account_freeze.credit.posted",
+        "account_freeze.precedence.resolved",
+        "account_freeze.released"
+      ],
       "triggers": [
         "account_freeze.approved",
         "account_freeze.credit.presented",
@@ -13334,8 +13343,7 @@
         "account_freeze.order_reference",
         "account_freeze.release_reference"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/4: missing account_freeze.applied, account_freeze.credit.posted, account_freeze.precedence.resolved, account_freeze.released"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -13344,7 +13352,7 @@
       "policy": "resolution",
       "control_id": "RS-05",
       "title": "Institution-Wide Freeze",
-      "status": "red",
+      "status": "green",
       "expected": [
         "institution_freeze.activated",
         "institution_freeze.activation_evidence",
@@ -13352,7 +13360,13 @@
         "institution_freeze.notice_record",
         "institution_freeze.regulator.confirmed"
       ],
-      "observed": [],
+      "observed": [
+        "institution_freeze.activated",
+        "institution_freeze.activation_evidence",
+        "institution_freeze.notice.published",
+        "institution_freeze.notice_record",
+        "institution_freeze.regulator.confirmed"
+      ],
       "triggers": [
         "institution_freeze.ordered",
         "institution_freeze.activated",
@@ -13367,8 +13381,7 @@
         "institution_freeze.order_reference",
         "institution_freeze.notice_template_id"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'institution_freeze.ordered'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -13377,13 +13390,17 @@
       "policy": "resolution",
       "control_id": "RS-06",
       "title": "Next-Business-Day Member Availability",
-      "status": "red",
+      "status": "green",
       "expected": [
         "member_portal.readonly.activated",
         "member_portal.snapshot_served",
         "member_portal.access.logged"
       ],
-      "observed": [],
+      "observed": [
+        "member_portal.readonly.activated",
+        "member_portal.snapshot_served",
+        "member_portal.access.logged"
+      ],
       "triggers": [
         "institution_freeze.activated",
         "member_portal.access.logged"
@@ -13399,8 +13416,7 @@
         "member_portal.core_unavailable",
         "member.id"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/3: missing member_portal.readonly.activated, member_portal.snapshot_served, member_portal.access.logged"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -13441,14 +13457,19 @@
       "policy": "resolution",
       "control_id": "RS-08",
       "title": "Records Preservation for Resolution",
-      "status": "red",
+      "status": "green",
       "expected": [
         "records_package.build.started",
         "records_package.completed",
         "records_package.verification.failed",
         "records_package.snapshot.completed"
       ],
-      "observed": [],
+      "observed": [
+        "records_package.build.started",
+        "records_package.completed",
+        "records_package.verification.failed",
+        "records_package.snapshot.completed"
+      ],
       "triggers": [
         "records_package.build.started",
         "records_package.completed",
@@ -13464,10 +13485,17 @@
         "records_package.failure_reason",
         "records_package.snapshot_schedule"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "records_package.manifest_id",
+        "records_package.snapshot_as_of",
+        "records_package.artifact_id",
+        "records_package.checksum_chain",
+        "records_package.snapshot_id",
+        "records_package.failure_reason",
+        "records_package.snapshot_schedule"
+      ],
       "inputs_unverifiable": [],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/4: missing records_package.build.started, records_package.completed, records_package.verification.failed, records_package.snapshot.completed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,

@@ -2443,6 +2443,97 @@ async function runLiquidityLifecycle(env: FireEnv): Promise<void> {
   }
 }
 
+/** Resolution: EWI sweep, freezes (targeted and institution-wide), portal, records. */
+async function runResolutionLifecycle(env: FireEnv): Promise<void> {
+  if ((env.rows["core.ewi_indicator"] ?? []).length > 0) return;
+  const ops = env.actors.ops;
+
+  await env.db.schema("core").from("account").upsert({
+    id: "acct_rs1", entity_id: "ent_r1", status: "open", account_type: "checking",
+    balance: 0, partner_id: "p1", provenance: "production",
+  }, { onConflict: "id" });
+
+  // RS-02
+  for (const [iid, thr] of [
+    ["deposit_outflow_bp", { breach_at: 300 }], ["lar_bp", { breach_at: 700 }],
+    ["nonperforming_bp", { breach_at: 200 }], ["unconfigured", null],
+  ] as Any[]) {
+    await postEwiIndicator(
+      R({ indicator_id: iid, name: iid, thresholds: thr, schedule: "daily" }),
+      env.db, "d", ops,
+    );
+  }
+  await postEwiSweep(
+    R({ period: "d1", observations: [
+      { indicator_id: "deposit_outflow_bp", value: 100 },
+      { indicator_id: "unconfigured", value: 99999 },
+    ] }),
+    env.db, "d", ops,
+  );
+  await postEwiSweep(
+    R({ period: "d2", observations: [
+      { indicator_id: "deposit_outflow_bp", value: 400 },
+      { indicator_id: "lar_bp", value: 800 },
+      { indicator_id: "nonperforming_bp", value: 300 },
+    ] }),
+    env.db, "d", ops,
+  );
+
+  // RS-04 — NEGATIVE: legal process with no reference
+  await postAccountFreeze(R({ account_ref: "acct_rs1", authority: "garnishment" }), env.db, "d", ops);
+  await postAccountFreeze(
+    R({ account_ref: "acct_rs1", authority: "garnishment",
+        legal_process_reference: "NC-CV-2026-118", order_reference: "ORD-1" }),
+    env.db, "d", ops,
+  );
+  await postAccountFreeze(
+    R({ account_ref: "acct_rs1", authority: "fraud_hold", order_reference: "FRD-9" }),
+    env.db, "d", ops,
+  );
+  // credits still post under a garnishment: payroll must not bounce
+  await postFrozenAccountCredit(R({ amount_cents: 250_000 }), "acct_rs1", env.db, "d", ops);
+  // NEGATIVE: release with no reference
+  await postFreezeRelease(R({}), "frz_acct_rs1_fraud_hold", env.db, "d", ops);
+  await postFreezeRelease(
+    R({ release_reference: "FRD-9-cleared" }), "frz_acct_rs1_fraud_hold", env.db, "d", ops,
+  );
+
+  // RS-05 — NEGATIVE: activation with no evidence
+  await postInstitutionFreeze(
+    R({ order_reference: "NCUA-ORD-1", ordered_by: "ncua_regional" }), env.db, "d", ops,
+  );
+  await postInstitutionFreeze(
+    R({ order_reference: "NCUA-ORD-1", ordered_by: "ncua_regional",
+        activation_evidence: { rails_disabled: ["ach", "wire", "card"], at: "12:00Z" },
+        notice_template_id: "ntpl_freeze_v1", channels: ["website", "branch", "email"],
+        regulator_reference: "NCUA-CONF-77" }),
+    env.db, "d", ops,
+  );
+
+  // RS-06 — NEGATIVE: read-only with no dated snapshot
+  await postMemberPortalState(R({ core_unavailable: true }), env.db, "d", ops);
+  await postMemberPortalState(
+    R({ core_unavailable: true, claims_template_id: "claims_v1",
+        snapshot_as_of: "2026-07-18T23:59:59.000Z" }),
+    env.db, "d", ops,
+  );
+  await postMemberPortalAccess(R({ member_ref: "mbr_r1" }), env.db, "d", ops);
+
+  // RS-08 — NEGATIVE: a package whose chain does not match
+  await postRecordsPackage(
+    R({ manifest_id: "man_bad", snapshot_id: "snap_1", snapshot_as_of: "2026-07-18T23:59:59.000Z",
+        artifact_id: "art_1", checksum_chain: { root: "deadbeef" },
+        expected_checksum: "cafebabe" }),
+    env.db, "d", ops,
+  );
+  await postRecordsPackage(
+    R({ manifest_id: "man_good", snapshot_id: "snap_2", snapshot_as_of: "2026-07-18T23:59:59.000Z",
+        snapshot_schedule: "nightly", artifact_id: "art_2",
+        checksum_chain: { root: "cafebabe", links: 412 }, expected_checksum: "cafebabe" }),
+    env.db, "d", ops,
+  );
+}
+
 async function runCapitalLifecycle(env: FireEnv): Promise<void> {
   // A WELL-CAPITALIZED position with a configured internal trigger. The trigger
   // sits above the statutory floor, so this position is compliant with NCUA and
@@ -2591,6 +2682,11 @@ import {
   postPospayException,
 } from "../api/eps_controls.ts";
 import { postCardReissue, postIssueCard } from "../api/cards.ts";
+import {
+  postAccountFreeze, postEwiIndicator, postEwiSweep, postFreezeRelease,
+  postFrozenAccountCredit, postInstitutionFreeze, postMemberPortalAccess,
+  postMemberPortalState, postRecordsPackage,
+} from "../api/resolution.ts";
 import {
   postCollateralPosition, postFacility, postLarBandConfig, postLiquidityPack,
   postLiquidityPosition, postMaturityMismatch, postStressAssumptions, postStressRun,
@@ -3412,6 +3508,21 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   "report.board_due_at": (env) => runLiquidityLifecycle(env),
   "report.weekly_digest.published": (env) => runLiquidityLifecycle(env),
   "stress.assumption.changed": (env) => runLiquidityLifecycle(env),
+  "account_freeze.approved": (env) => runResolutionLifecycle(env),
+  "account_freeze.credit.presented": (env) => runResolutionLifecycle(env),
+  "account_freeze.legal_conflict.detected": (env) => runResolutionLifecycle(env),
+  "account_freeze.release.approved": (env) => runResolutionLifecycle(env),
+  "ewi.ceo_summary.sent": (env) => runResolutionLifecycle(env),
+  "ewi.sweep.completed": (env) => runResolutionLifecycle(env),
+  "ewi.threshold.breached": (env) => runResolutionLifecycle(env),
+  "institution_freeze.activated": (env) => runResolutionLifecycle(env),
+  "institution_freeze.notice.published": (env) => runResolutionLifecycle(env),
+  "institution_freeze.ordered": (env) => runResolutionLifecycle(env),
+  "member_portal.access.logged": (env) => runResolutionLifecycle(env),
+  "records_package.build.started": (env) => runResolutionLifecycle(env),
+  "records_package.completed": (env) => runResolutionLifecycle(env),
+  "records_package.snapshot.completed": (env) => runResolutionLifecycle(env),
+  "records_package.verification.failed": (env) => runResolutionLifecycle(env),
   "incident.declared": (env) => runIncidentLifecycle(env),
   "incident.detected": (env) => runIncidentLifecycle(env),
   "incident.sev1.detected": (env) => runIncidentLifecycle(env),

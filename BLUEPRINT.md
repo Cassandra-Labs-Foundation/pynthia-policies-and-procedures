@@ -2061,6 +2061,52 @@ written specifically to check the prediction rather than the code.
 
 790 tests, 170 green of 225 in scope.
 
+## Artifact — resolution (RS)
+
+**Predicted 5, landed 5.** Fourteen for fourteen. 170 → 175. RS-03 (safe-mode
+transaction controls) stays red: safe mode is a state of the transaction rails,
+which this system does not run.
+
+### ⚑ THE LEGAL-HOLD BUG, IN A SECOND PLACE — CAUGHT THIS TIME BEFORE IT SHIPPED
+
+`account.frozen boolean` is the obvious model for a freeze and it is the same
+defect that already shipped once here. On legal holds, releasing the second of
+two holds cleared `legal_hold_flag` while the first was still live, making
+records disposal-eligible under active litigation hold. **The identical shape on
+account freezes releases money subject to a court order because an unrelated
+fraud hold was lifted.**
+
+So freezes are ROWS in a set, the account's `debits_blocked` is DERIVED from
+whatever is still standing, and precedence is explicit. Tested directly: apply a
+court order and a fraud hold, release the fraud hold, assert the account is
+still blocked.
+
+Worth noting what made this catchable: the legal-hold version was found by a
+standing-state audit AFTER it shipped, and its own test asserted the buggy
+behaviour. Here the shape was recognised from the earlier find. **The general
+lesson is narrower than "model sets properly" — it is: any time a flag
+summarises N underlying facts, releasing one fact must recompute the flag, never
+clear it.** Grep for `= false` on a summary column.
+
+**The precedence dimension the legal-hold case did not have.** Freezes arrive
+from different authorities that disagree about what is permitted, and a
+garnishment stops debits while PERMITTING credits — the member's wages still
+land, they just cannot be spent. A blanket boolean bounces their payroll
+deposit. That case is tested explicitly because it is the one a flag gets
+silently wrong in the member's disfavour.
+
+**A mutation survived for the wrong reason and exposed a real bug.** The
+`re-alerts on an already-breached indicator` mutation was not caught, and the
+reason was not a missing test: the EWI observation id was timestamp-keyed, so
+under the frozen drill clock two sweeps collided on the same id and the second
+silently overwrote the first — taking `ewi_prior_breach_state`, which the
+suppression depends on, with it. Under a real clock this is a race rather than a
+certainty, which is worse. Fixed to a per-indicator sequence, and the test now
+asserts both observations exist as separate rows so the suppression cannot pass
+for the wrong reason again.
+
+Sweep: 11 mutations, 10 caught first pass, the 11th above. 808 tests, 175 green.
+
 # §5k — A MISSING STATUTORY THRESHOLD IS A BUG; A MISSING INSTITUTIONAL ONE IS UNASSESSED
 
 **This is the one finding here that generalises past banking entirely.** It has
