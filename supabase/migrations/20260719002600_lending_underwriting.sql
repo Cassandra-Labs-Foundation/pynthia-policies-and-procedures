@@ -273,12 +273,18 @@ create table if not exists "core"."insider" (
 -- table up to this declaration column-by-column (append-only; the old
 -- columns stay).
 alter table "core"."insider" add column if not exists "id" text;
+-- the codegen-era table minted uuid ids; this workstream's writers use text ids
+alter table "core"."insider" alter column "id" type text;
 alter table "core"."insider" add column if not exists "subject_ref" text not null;
-alter table "core"."insider" add column if not exists "role" text not null check ("role" in;
+alter table "core"."insider" add column if not exists "role" text not null check ("role" in ('director', 'executive_officer', 'principal_shareholder', 'related_interest'));
 alter table "core"."insider" add column if not exists "effective_from" timestamptz not null;
 alter table "core"."insider" add column if not exists "effective_to" timestamptz;
 alter table "core"."insider" add column if not exists "provenance" text not null default 'production';
 alter table "core"."insider" add column if not exists "created_at" timestamptz not null default now();
+
+
+
+
 
 
 create table if not exists "core"."insider_loan_review" (

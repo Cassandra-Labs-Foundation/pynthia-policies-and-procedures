@@ -69,7 +69,7 @@ alter table "core"."incident" add column if not exists "id" text;
 alter table "core"."incident" add column if not exists "title" text not null;
 alter table "core"."incident" add column if not exists "severity" text not null check ("severity" in ('sev1', 'sev2', 'sev3', 'sev4'));
 alter table "core"."incident" add column if not exists "source" text;
-alter table "core"."incident" add column if not exists "status" text not null default 'declared' check ("status" in (;
+alter table "core"."incident" add column if not exists "status" text not null default 'declared' check ("status" in ( 'detected', 'declared', 'contained', 'restored', 'closed' ));
 alter table "core"."incident" add column if not exists "detected_at" timestamptz not null default now();
 alter table "core"."incident" add column if not exists "declared_at" timestamptz;
 alter table "core"."incident" add column if not exists "ic_assigned_to" text;
@@ -90,6 +90,10 @@ alter table "core"."incident" add column if not exists "member_notices_sent_at" 
 alter table "core"."incident" add column if not exists "provenance" text not null default 'unknown';
 alter table "core"."incident" add column if not exists "created_at" timestamptz not null default now();
 alter table "core"."incident" add column if not exists "updated_at" timestamptz not null default now();
+
+
+
+
 
 
 -- SC-01: a NON-reportable determination must be documented with rationale. The

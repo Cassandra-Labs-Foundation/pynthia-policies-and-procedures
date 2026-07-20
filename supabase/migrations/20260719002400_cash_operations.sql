@@ -347,6 +347,8 @@ create table if not exists "core"."records_package" (
 -- table up to this declaration column-by-column (append-only; the old
 -- columns stay).
 alter table "core"."records_package" add column if not exists "id" text;
+-- the codegen-era table minted uuid ids; this workstream's writers use text ids
+alter table "core"."records_package" alter column "id" type text;
 alter table "core"."records_package" add column if not exists "purpose" text not null check ("purpose" in ('exam_export', 'supervisory_count', 'internal'));
 alter table "core"."records_package" add column if not exists "scope" jsonb not null;
 alter table "core"."records_package" add column if not exists "item_count" int not null default 0;
@@ -357,6 +359,10 @@ alter table "core"."records_package" add column if not exists "delivered_to" tex
 alter table "core"."records_package" add column if not exists "provenance" text not null default 'production';
 alter table "core"."records_package" add column if not exists "created_at" timestamptz not null default now();
 alter table "core"."records_package" add column if not exists "updated_at" timestamptz not null default now();
+
+
+
+
 
 
 create index if not exists "ix_cash_limits_schedule_effective"

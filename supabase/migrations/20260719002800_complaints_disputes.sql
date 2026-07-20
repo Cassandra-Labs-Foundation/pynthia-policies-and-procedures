@@ -82,9 +82,11 @@ create table if not exists "core"."complaint" (
 -- table up to this declaration column-by-column (append-only; the old
 -- columns stay).
 alter table "core"."complaint" add column if not exists "id" text;
+-- the codegen-era table minted uuid ids; this workstream's writers use text ids
+alter table "core"."complaint" alter column "id" type text;
 alter table "core"."complaint" add column if not exists "member_id" text;
-alter table "core"."complaint" add column if not exists "channel" text not null check ("channel" in;
-alter table "core"."complaint" add column if not exists "category" text not null check ("category" in;
+alter table "core"."complaint" add column if not exists "channel" text not null check ("channel" in ('direct', 'regulator', 'portal', 'branch', 'phone', 'social'));
+alter table "core"."complaint" add column if not exists "category" text not null check ("category" in ('privacy', 'fair_lending', 'collections', 'fees', 'service', 'dispute', 'other'));
 alter table "core"."complaint" add column if not exists "narrative" text not null;
 alter table "core"."complaint" add column if not exists "regulator" text;
 alter table "core"."complaint" add column if not exists "regulator_case_id" text;
@@ -104,7 +106,10 @@ alter table "core"."complaint" add column if not exists "resolved_at" timestampt
 alter table "core"."complaint" add column if not exists "provenance" text not null default 'production';
 alter table "core"."complaint" add column if not exists "created_at" timestamptz not null default now();
 alter table "core"."complaint" add column if not exists "updated_at" timestamptz not null default now();
-alter table "core"."complaint" add column if not exists "final_response_sent_at" is not null and "root_cause_tag" is not null;
+
+
+
+
 
 
 -- 12 CFR 1005.11. A DIFFERENT clock and a money consequence.
@@ -164,6 +169,8 @@ create table if not exists "core"."dispute" (
 -- table up to this declaration column-by-column (append-only; the old
 -- columns stay).
 alter table "core"."dispute" add column if not exists "id" text;
+-- the codegen-era table minted uuid ids; this workstream's writers use text ids
+alter table "core"."dispute" alter column "id" type text;
 alter table "core"."dispute" add column if not exists "complaint_id" text references "core"."complaint" ("id");
 alter table "core"."dispute" add column if not exists "member_id" text;
 alter table "core"."dispute" add column if not exists "account_id" text;
@@ -183,6 +190,10 @@ alter table "core"."dispute" add column if not exists "resolved_at" timestamptz;
 alter table "core"."dispute" add column if not exists "provenance" text not null default 'production';
 alter table "core"."dispute" add column if not exists "created_at" timestamptz not null default now();
 alter table "core"."dispute" add column if not exists "updated_at" timestamptz not null default now();
+
+
+
+
 
 
 -- CO-06 / FL-13 / PR-10 trend analysis, and the board packets that read it.

@@ -210,6 +210,8 @@ create table if not exists "core"."trade" (
 -- table up to this declaration column-by-column (append-only; the old
 -- columns stay).
 alter table "core"."trade" add column if not exists "id" text;
+-- the codegen-era table minted uuid ids; this workstream's writers use text ids
+alter table "core"."trade" alter column "id" type text;
 alter table "core"."trade" add column if not exists "security_id" text references "core"."security" ("id");
 alter table "core"."trade" add column if not exists "intermediary_id" text references "core"."intermediary" ("id");
 alter table "core"."trade" add column if not exists "side" text not null check ("side" in ('buy', 'sell'));
@@ -220,8 +222,8 @@ alter table "core"."trade" add column if not exists "settle_date" date;
 alter table "core"."trade" add column if not exists "executed_by" text not null;
 alter table "core"."trade" add column if not exists "confirmed_by" text;
 alter table "core"."trade" add column if not exists "settled_by" text;
-alter table "core"."trade" add column if not exists "permissibility_verdict" text not null;
-alter table "core"."trade" add column if not exists "limit_verdict" text not null;
+alter table "core"."trade" add column if not exists "permissibility_verdict" text not null check ("permissibility_verdict" in ('permissible', 'prohibited', 'unassessed'));
+alter table "core"."trade" add column if not exists "limit_verdict" text not null check ("limit_verdict" in ('within', 'warning', 'breached', 'unassessed'));
 alter table "core"."trade" add column if not exists "decision" text not null check ("decision" in ('executed', 'blocked'));
 alter table "core"."trade" add column if not exists "blocked_reasons" jsonb not null default '[]'::jsonb;
 alter table "core"."trade" add column if not exists "instrument_type" text;
@@ -236,6 +238,10 @@ alter table "core"."trade" add column if not exists "checklist_completed_at" tim
 alter table "core"."trade" add column if not exists "provenance" text not null default 'production';
 alter table "core"."trade" add column if not exists "created_at" timestamptz not null default now();
 alter table "core"."trade" add column if not exists "updated_at" timestamptz not null default now();
+
+
+
+
 
 
 create table if not exists "core"."trade_exception" (
@@ -370,6 +376,10 @@ alter table "core"."document" add column if not exists "attached_at" timestamptz
 alter table "core"."document" add column if not exists "attachment_due_at" timestamptz;
 alter table "core"."document" add column if not exists "provenance" text not null default 'production';
 alter table "core"."document" add column if not exists "created_at" timestamptz not null default now();
+
+
+
+
 
 
 create table if not exists "core"."sod_violation" (

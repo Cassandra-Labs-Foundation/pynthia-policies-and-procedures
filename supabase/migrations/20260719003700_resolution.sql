@@ -215,6 +215,10 @@ alter table "core"."records_package" add column if not exists "provenance" text 
 alter table "core"."records_package" add column if not exists "created_at" timestamptz not null default now();
 
 
+
+
+
+
 create index if not exists "ix_freeze_active"
   on "core"."account_freeze" ("account_ref") where "released_at" is null;
 create index if not exists "ix_ewi_recent" on "core"."ewi_observation" ("observed_at" desc);

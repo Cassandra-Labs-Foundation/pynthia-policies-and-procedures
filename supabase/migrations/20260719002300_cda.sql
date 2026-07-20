@@ -447,7 +447,7 @@ create index if not exists "ix_cda_distribution_window"
 create index if not exists "ix_cda_cap_test_asof"
   on "core"."cda_cap_test" ("as_of_date" desc);
 create index if not exists "ix_cda_policy_expiry"
-  on "core"."cda_policy" ("expires_at" desc);
+  on "core"."cda_policy" ("policy_expiry_at" desc);
 
 -- sim mirrors. Same rule as everywhere else: evidence written by a simulation
 -- lives in `sim` and can never be counted as production evidence.
