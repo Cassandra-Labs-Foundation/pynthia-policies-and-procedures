@@ -9,23 +9,22 @@
     "total": 333,
     "in_scope": 225,
     "scoped_out": 108,
-    "in_scope_green": 182,
-    "in_scope_red": 43,
+    "in_scope_green": 195,
+    "in_scope_red": 30,
     "scope_note": "Scoped-out controls are real obligations discharged by people and paperwork. This system covers the technical controls; the organisational ones are not claimed.",
-    "green": 183,
-    "red": 150,
-    "pct_green": 55,
+    "green": 196,
+    "red": 137,
+    "pct_green": 58.9,
     "red_by_reason": {
-      "trigger fires but produced events missing": 81,
+      "trigger fires but produced events missing": 73,
       "no writer: vendor.*": 6,
       "no writer: training.*": 4,
-      "no writer: eps.*": 4,
       "no writer: indemnification.*": 4,
       "no writer: board.*": 3,
       "no writer: access.*": 3,
+      "no writer: eps.*": 3,
       "no writer: org.*": 2,
       "no writer: compliance.*": 2,
-      "no writer: insider.*": 2,
       "catalogue entry declares no trigger event": 2,
       "no writer: insurance.*": 2,
       "inputs not supplied: finding.description, finding.risk_rating": 1,
@@ -37,7 +36,7 @@
       "no writer: cash.*": 1,
       "inputs not supplied: training.coverage_pct": 1,
       "no writer: regulatory.*": 1,
-      "no writer: affiliate.*": 1,
+      "no writer: insider.*": 1,
       "no writer: corp_opportunity.*": 1,
       "no writer: policy.*": 1,
       "no writer: antivirus.*": 1,
@@ -48,13 +47,11 @@
       "no writer: risk_report.*": 1,
       "no writer: change.*": 1,
       "no writer: tls.*": 1,
-      "no writer: redflag.*": 1,
       "no writer: facility.*": 1,
       "no writer: ai.*": 1,
       "no writer: siem.*": 1,
       "no writer: aup.*": 1,
       "no writer: phishing.*": 1,
-      "no writer: recon.*": 1,
       "no writer: coi.*": 1,
       "no writer: cfp.*": 1,
       "no writer: ncua.*": 1,
@@ -66,7 +63,7 @@
     },
     "inputs_unverifiable_total": 1391,
     "green_by_fire_path": {
-      "real_writer": 175,
+      "real_writer": 188,
       "generic_echo": 6,
       "obligation_cadence": 2
     },
@@ -78,21 +75,22 @@
       "privacy": 13,
       "collections": 11,
       "record-retention": 11,
+      "capitalization": 10,
       "fair-lending": 10,
-      "capitalization": 8,
       "truth-in-savings": 8,
       "basel-ii-standardized-approach-framework": 7,
       "cash": 7,
       "e-commerce": 7,
+      "electronic-payment-systems": 7,
       "liquidity": 7,
       "member": 7,
+      "information-security": 6,
       "business-continuity-plan": 5,
+      "internal-controls": 5,
       "resolution": 5,
-      "electronic-payment-systems": 3,
-      "information-security": 3,
-      "internal-controls": 3,
       "shared-controls": 3,
       "audit": 2,
+      "director-fiduciary-duties": 2,
       "enterprise-risk-management": 2,
       "third-party-risk": 1
     }
@@ -2892,7 +2890,7 @@
       "policy": "capitalization",
       "control_id": "CP-08",
       "title": "Contingency Actions and Escalation",
-      "status": "red",
+      "status": "green",
       "expected": [
         "capital.contingency_action_id",
         "capital.contingency_memo.issued",
@@ -2900,6 +2898,7 @@
         "capital.contingency_action.executed"
       ],
       "observed": [
+        "capital.contingency_action_id",
         "capital.contingency_memo.issued",
         "capital.board_escalation.issued",
         "capital.contingency_action.executed"
@@ -2932,8 +2931,7 @@
         "capital.contingency_action_id",
         "capital.expected_capital_impact"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 3/4: missing capital.contingency_action_id"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -2942,7 +2940,7 @@
       "policy": "capitalization",
       "control_id": "CP-09",
       "title": "Capital Actions Governance",
-      "status": "red",
+      "status": "green",
       "expected": [
         "capital.action.proposed",
         "capital.regulatory_preapproval_id",
@@ -2951,6 +2949,7 @@
       ],
       "observed": [
         "capital.action.proposed",
+        "capital.regulatory_preapproval_id",
         "capital.action_board.decided",
         "capital.action.executed"
       ],
@@ -2986,8 +2985,7 @@
         "capital.regulatory_preapproval_id",
         "capital.action_amount"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 3/4: missing capital.regulatory_preapproval_id"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -5337,7 +5335,7 @@
       "policy": "director-fiduciary-duties",
       "control_id": "DF-06",
       "title": "Transactions with Affiliates (Reg W)",
-      "status": "red",
+      "status": "green",
       "expected": [
         "affiliate.limits.checked",
         "affiliate.transaction.recorded",
@@ -5345,7 +5343,13 @@
         "affiliate.list.updated",
         "affiliate.transaction_file_archived"
       ],
-      "observed": [],
+      "observed": [
+        "affiliate.limits.checked",
+        "affiliate.transaction.recorded",
+        "affiliate.lqa_screen.logged",
+        "affiliate.list.updated",
+        "affiliate.transaction_file_archived"
+      ],
       "triggers": [
         "affiliate.covered_transaction.proposed",
         "affiliate.credit_transaction.funded",
@@ -5382,8 +5386,7 @@
         "affiliate.independent_evaluation",
         "affiliate.list"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'affiliate.credit_transaction.funded'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -5475,12 +5478,15 @@
       "policy": "director-fiduciary-duties",
       "control_id": "DF-09",
       "title": "Recordkeeping and Reporting",
-      "status": "red",
+      "status": "green",
       "expected": [
         "insider.public_disclosure.issued",
         "insider.public_request.retention.expires_at"
       ],
-      "observed": [],
+      "observed": [
+        "insider.public_disclosure.issued",
+        "insider.public_request.retention.expires_at"
+      ],
       "triggers": [
         "insider.public_request"
       ],
@@ -5489,12 +5495,14 @@
         "insider.correspondent_credit_data",
         "insider.public_request"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "insider.correspondent_credit_data",
+        "insider.public_request"
+      ],
       "inputs_unverifiable": [
         "cu.unimpaired_capital_surplus"
       ],
-      "fire_path": "none",
-      "blocked_on": "no writer for trigger 'insider.public_request'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -6125,7 +6133,7 @@
       "policy": "electronic-payment-systems",
       "control_id": "EPS-01",
       "title": "Planning and Feasibility Analysis",
-      "status": "red",
+      "status": "green",
       "expected": [
         "eps.proposal.submitted",
         "eps.product_risk_analysis.drafted",
@@ -6133,7 +6141,13 @@
         "eps.risk_assessment_service.added",
         "eps.service.activated"
       ],
-      "observed": [],
+      "observed": [
+        "eps.proposal.submitted",
+        "eps.product_risk_analysis.drafted",
+        "eps.erm_review.decided",
+        "eps.risk_assessment_service.added",
+        "eps.service.activated"
+      ],
       "triggers": [
         "eps.proposal.submitted",
         "eps.product_risk_analysis.drafted",
@@ -6148,7 +6162,9 @@
         "risk.inherent_score",
         "eps.risk_assessment.delta"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "risk.inherent_score"
+      ],
       "inputs_unverifiable": [
         "eps.proposal.sponsor",
         "eps.proposal.study_doc",
@@ -6156,8 +6172,7 @@
         "eps.proposal.design_docs",
         "eps.risk_assessment.delta"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/5: missing eps.proposal.submitted, eps.product_risk_analysis.drafted, eps.erm_review.decided, eps.risk_assessment_service.added"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -6242,7 +6257,7 @@
       "policy": "electronic-payment-systems",
       "control_id": "EPS-03",
       "title": "Internal Routines and Controls",
-      "status": "red",
+      "status": "green",
       "expected": [
         "eps.control.review.due_at",
         "eps.control_review.opened",
@@ -6253,7 +6268,16 @@
         "eps.deficiency.remediation.due_at",
         "eps.deficiency_remediation.opened"
       ],
-      "observed": [],
+      "observed": [
+        "eps.control.review.due_at",
+        "eps.control_review.opened",
+        "eps.control_review.completed",
+        "eps.deficiency.description",
+        "eps.deficiency.open_list",
+        "eps.deficiency.rating",
+        "eps.deficiency.remediation.due_at",
+        "eps.deficiency_remediation.opened"
+      ],
       "triggers": [
         "eps.control_review.opened",
         "eps.control_review.completed",
@@ -6274,8 +6298,7 @@
         "eps.deficiency.description",
         "eps.deficiency.rating"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/8: missing eps.control.review.due_at, eps.control_review.opened, eps.control_review.completed, eps.deficiency.description"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -6380,7 +6403,7 @@
       "policy": "electronic-payment-systems",
       "control_id": "EPS-06",
       "title": "Dual Control for High-Risk Processes",
-      "status": "red",
+      "status": "green",
       "expected": [
         "ach_transfer.control_results",
         "ach_transfer.created",
@@ -6394,8 +6417,14 @@
         "eps.pospay_exception.presented"
       ],
       "observed": [
+        "ach_transfer.control_results",
         "ach_transfer.created",
+        "eps.wire.second_approval",
         "wire_transfer.submitted",
+        "eps.wire_ip.verified",
+        "eps.wire_release.requested",
+        "eps.client_limit.changed",
+        "eps.client_limit_change.requested",
         "eps.pospay_exception.decided",
         "eps.pospay_exception.presented"
       ],
@@ -6442,8 +6471,7 @@
         "eps.pospay.issue_file",
         "eps.pospay.presented_item"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 4/10: missing ach_transfer.control_results, eps.wire.second_approval, eps.wire_ip.verified, eps.wire_release.requested"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -6611,7 +6639,7 @@
       "policy": "electronic-payment-systems",
       "control_id": "EPS-10",
       "title": "Pre-Deployment Testing",
-      "status": "red",
+      "status": "green",
       "expected": [
         "eps.deployment.scheduled",
         "eps.test.plan",
@@ -6620,7 +6648,14 @@
         "eps.test_retro.completed",
         "eps.deployment.emergency_exception"
       ],
-      "observed": [],
+      "observed": [
+        "eps.deployment.scheduled",
+        "eps.test.plan",
+        "eps.test_results.recorded",
+        "eps.test.retro_due_at",
+        "eps.test_retro.completed",
+        "eps.deployment.emergency_exception"
+      ],
       "triggers": [
         "eps.deployment.scheduled",
         "eps.test_results.recorded",
@@ -6650,8 +6685,7 @@
         "eps.change.exception_approval",
         "eps.change.rollback_plan"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'eps.deployment.emergency_exception'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -7576,7 +7610,7 @@
         "security.program_charter",
         "security.quarter"
       ],
-      "fire_path": "generic_echo",
+      "fire_path": "real_writer",
       "blocked_on": "produced 1/2: missing security.board_report.issued"
     },
     {
@@ -7620,12 +7654,15 @@
       "policy": "information-security",
       "control_id": "IS-03",
       "title": "Asset Inventory and Classification",
-      "status": "red",
+      "status": "green",
       "expected": [
         "asset.cmdb.updated",
         "asset.attestation.completed"
       ],
-      "observed": [],
+      "observed": [
+        "asset.cmdb.updated",
+        "asset.attestation.completed"
+      ],
       "triggers": [
         "asset.changed",
         "security.quarter.closed"
@@ -7647,8 +7684,7 @@
         "asset.cmdb_snapshot",
         "asset.owner_roster"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/2: missing asset.cmdb.updated, asset.attestation.completed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -7770,7 +7806,7 @@
         "access.reviewer_roster",
         "access.user_roster"
       ],
-      "fire_path": "generic_echo",
+      "fire_path": "real_writer",
       "blocked_on": "no writer for trigger 'access.breakglass.used'"
     },
     {
@@ -7900,11 +7936,13 @@
       "policy": "information-security",
       "control_id": "IS-19",
       "title": "Incident Response Plan, Post-Mortem & Law Enforcement Coordination",
-      "status": "red",
+      "status": "green",
       "expected": [
         "incident.postmortem.completed"
       ],
-      "observed": [],
+      "observed": [
+        "incident.postmortem.completed"
+      ],
       "triggers": [
         "incident.closed"
       ],
@@ -7913,10 +7951,13 @@
         "incident.root_cause",
         "incident.timeline"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "incident.recovered",
+        "incident.root_cause",
+        "incident.timeline"
+      ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 0/1: missing incident.postmortem.completed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -7966,7 +8007,7 @@
       "policy": "information-security",
       "control_id": "IS-10",
       "title": "Identity Theft Red Flags Program",
-      "status": "red",
+      "status": "green",
       "expected": [
         "redflag.stepup.completed",
         "redflags.case.opened",
@@ -7974,7 +8015,10 @@
         "redflag.ruleset.updated"
       ],
       "observed": [
-        "redflags.case.opened"
+        "redflag.stepup.completed",
+        "redflags.case.opened",
+        "sar.filed",
+        "redflag.ruleset.updated"
       ],
       "triggers": [
         "redflag.detected",
@@ -8003,8 +8047,7 @@
         "redflag.pattern_updates",
         "redflag.ruleset"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'redflag.case.disposed'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -8425,7 +8468,7 @@
       "policy": "internal-controls",
       "control_id": "IC-02",
       "title": "Segregation of Duties",
-      "status": "red",
+      "status": "green",
       "expected": [
         "sod.check_result",
         "sod.conflict.detected",
@@ -8434,7 +8477,14 @@
         "sod.compensating_control.approved",
         "authority.matrix.updated"
       ],
-      "observed": [],
+      "observed": [
+        "sod.check_result",
+        "sod.conflict.detected",
+        "sod.grant.blocked",
+        "sod.violation.logged",
+        "sod.compensating_control.approved",
+        "authority.matrix.updated"
+      ],
       "triggers": [
         "access.role.requested",
         "sod.violation.logged",
@@ -8462,8 +8512,7 @@
         "sod.conflict",
         "sod.risk_rationale"
       ],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "produced 0/6: missing sod.check_result, sod.conflict.detected, sod.grant.blocked, sod.violation.logged"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -8516,7 +8565,7 @@
       "policy": "internal-controls",
       "control_id": "IC-04",
       "title": "Reconciliations",
-      "status": "red",
+      "status": "green",
       "expected": [
         "recon.daily.completed",
         "recon.item",
@@ -8524,7 +8573,13 @@
         "recon.item.escalated",
         "recon.item.resolved"
       ],
-      "observed": [],
+      "observed": [
+        "recon.daily.completed",
+        "recon.item",
+        "recon.monthly.completed",
+        "recon.item.escalated",
+        "recon.item.resolved"
+      ],
       "triggers": [
         "gl.eod.closed",
         "gl.period.closed",
@@ -8550,8 +8605,7 @@
         "recon.item_owner",
         "recon.research_notes"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'recon.item.escalated'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,

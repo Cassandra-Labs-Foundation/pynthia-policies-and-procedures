@@ -19,7 +19,7 @@ import { postCashTransaction, postCtrFile } from "../api/cash.ts";
 import { postDisposalSweep, postDisposeRecord, postLegalHold, postHoldRelease, setRetentionClocks } from "../api/retention.ts";
 import { postCalendarSweep, postObligation } from "../api/governance.ts";
 import { postAanIssue, postLoanDecision, postLoanParty } from "../api/lending.ts";
-import { postPaymentApproval } from "../api/eps.ts";
+import { openApproval, postPaymentApproval, putClientLimit, wireDualControl } from "../api/eps.ts";
 import { postAttestation, postObservation, postWorkItem, postWorkItemClose, postWorkItemSweep, putThreshold } from "../api/primitives.ts";
 import { postAch } from "../api/ach.ts";
 import { postWirePrepare } from "../api/wires.ts";
@@ -2577,9 +2577,11 @@ async function runBaselLifecycle(env: FireEnv): Promise<void> {
 
 /** BCP: comms tree, incident comms failover, PIR and corrective actions. */
 async function runBcpLifecycle(env: FireEnv): Promise<void> {
-  // guard on the PIR, not the comms tree: the incident lifecycle now builds the
-  // tree itself, so guarding on it would skip this whole lifecycle
-  if ((env.rows["core.pir"] ?? []).length > 0) return;
+  // GUARD ON WHAT ONLY THIS LIFECYCLE WRITES. Twice now this guard has keyed on
+  // a table the incident lifecycle later started writing (the comms tree, then
+  // the PIR), and each time this whole lifecycle silently stopped running and
+  // two controls went red. `corrective_action` is written here and nowhere else.
+  if ((env.rows["core.corrective_action"] ?? []).length > 0) return;
   const ops = env.actors.ops;
   await runIncidentLifecycle(env);
   const inc = (env.rows["core.incident"] ?? [])[0];
@@ -2631,6 +2633,272 @@ async function runBcpLifecycle(env: FireEnv): Promise<void> {
   }
 }
 
+/** The tail: SoD, reconciliation, assets, red flags, EPS, affiliates, capital actions. */
+async function runTailLifecycle(env: FireEnv): Promise<void> {
+  if ((env.rows["core.sod_rule"] ?? []).length > 0) return;
+  const ops = env.actors.ops;
+
+  // IC-02
+  await postSodRule(
+    R({ role_a: "payment_initiator", role_b: "payment_approver",
+        conflict: "initiate and approve the same payment",
+        rationale: "one person could move money without a second pair of eyes" }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: a rule against a role and itself would block every grant
+  await postSodRule(
+    R({ role_a: "teller", role_b: "teller", rationale: "x" }), env.db, "d", ops,
+  );
+  await postRoleGrant(
+    R({ subject_ref: "usr_1", role_id: "payment_initiator",
+        entitlements: ["ach.create", "wire.prepare"] }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: the conflicting grant is BLOCKED, not warned about
+  await postRoleGrant(
+    R({ subject_ref: "usr_1", role_id: "payment_approver", entitlements: ["wire.approve"] }),
+    env.db, "d", ops,
+  );
+  await postRoleGrant(
+    R({ subject_ref: "usr_2", role_id: "payment_initiator", entitlements: ["ach.create"] }),
+    env.db, "d", ops,
+  );
+  await postRoleGrant(
+    R({ subject_ref: "usr_2", role_id: "payment_approver", entitlements: ["wire.approve"],
+        compensating_control: "all payments over $10k reviewed by internal audit weekly",
+        compensating_approved_by: "cro_1",
+        risk_rationale: "two-person team; conflict unavoidable" }),
+    env.db, "d", ops,
+  );
+
+  // IC-04
+  await postReconItem(
+    R({ recon_ref: "gl_cash_20260718", cadence: "daily", variance_cents: 12_50,
+        owner: "acct_1", age_days: 1, gl_balances: { cash: 1_000_000_00 },
+        gl_trial_balance: { debits: 1, credits: 1 } }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: old enough to escalate with nothing researched
+  await postReconItem(
+    R({ recon_ref: "gl_susp_old", cadence: "monthly", variance_cents: 400_00,
+        owner: "acct_2", age_days: 45, gl_balances: { suspense: 400_00 } }),
+    env.db, "d", ops,
+  );
+  await postReconItem(
+    R({ recon_ref: "gl_susp_old", cadence: "monthly", variance_cents: 400_00,
+        owner: "acct_2", age_days: 45, gl_balances: { suspense: 400_00 },
+        research_notes: "traced to an unposted ACH return from March; chasing the ODFI",
+        resolution: "posted the return and closed the suspense entry" }),
+    env.db, "d", ops,
+  );
+
+  // IS-03 — NEGATIVE: an asset with no owner
+  await postItAsset(R({ asset_id: "srv_1", classification: "restricted" }), env.db, "d", ops);
+  await postItAsset(
+    R({ asset_id: "srv_1", owner: "infra_lead", classification: "restricted",
+        media_type: "virtual", attributes: { env: "prod", data: "member_pii" },
+        cmdb_snapshot: { hostname: "core-db-1" }, owner_roster: ["infra_lead"],
+        attest: true, attested_by: "infra_lead" }),
+    env.db, "d", ops,
+  );
+
+  // IS-10 — NEGATIVE: disposing a case whose required step-up never completed
+  await postRedflagCase(
+    R({ account_id: "acct_rf1", type: "address_change_then_card_request",
+        address_reissue_match: true, stepup_required: true,
+        disposition: "closed, no fraud" }),
+    env.db, "d", ops,
+  );
+  await postRedflagCase(
+    R({ account_id: "acct_rf1", type: "address_change_then_card_request",
+        address_reissue_match: true, stepup_required: true, stepup_completed: true,
+        disposition: "confirmed takeover attempt; card blocked",
+        sar_filing_id: "SAR-2026-118" }),
+    env.db, "d", ops,
+  );
+  await postRedflagRuleset(
+    R({ ruleset: { address_then_card_days: 30 },
+        pattern_updates: ["tighten the address-change window to 45 days"] }),
+    env.db, "d", ops,
+  );
+
+  // CP-08 / CP-09 — NEGATIVE: executing ahead of the regulator
+  await postCapitalAction(
+    R({ position_id: "cap_20260331", action_type: "subordinated_debt",
+        amount_cents: 5_000_000_00, expected_capital_impact_cents: 5_000_000_00,
+        regulatory_preapproval_status: "pending",
+        regulatory_preapproval_id: "NCUA-PRE-9",
+        board_resolution_id: "BR-2026-4", execute: true }),
+    env.db, "d", ops,
+  );
+  await postCapitalAction(
+    R({ position_id: "cap_20260331", action_type: "subordinated_debt",
+        amount_cents: 5_000_000_00, expected_capital_impact_cents: 5_000_000_00,
+        projected_shortfall_cents: 2_000_000_00, projection_below_target: true,
+        projection_below_well_capitalized: false,
+        subordinated_debt_cents: 5_000_000_00,
+        instrument_terms: { tenor_years: 10, rate_bp: 750 },
+        eligible_retained_income_cents: 1_200_000_00,
+        action_analysis_id: "ANA-2026-1",
+        regulatory_preapproval_status: "granted",
+        regulatory_preapproval_id: "NCUA-PRE-9",
+        board_resolution_id: "BR-2026-4", execute: true }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: a distribution while distributions are restricted
+  await postCapitalAction(
+    R({ position_id: "cap_20260331", action_type: "distribution",
+        amount_cents: 500_000_00, expected_capital_impact_cents: -500_000_00,
+        proposed_distribution_amount_cents: 500_000_00,
+        distribution_restriction: true,
+        board_resolution_id: "BR-2026-5", execute: true }),
+    env.db, "d", ops,
+  );
+
+  // DF-06 / DF-09
+  await postAffiliate(R({ list_entry: "PynthiaCUSO", relationship: "cuso" }), env.db, "d", ops);
+  // NEGATIVE: over the limit
+  await postAffiliateTransaction(
+    R({ type: "credit", amount_cents: 20_000_000_00, capital_surplus_cents: 100_000_000_00,
+        lqa_screened: true, fund: true }),
+    "aff_PynthiaCUSO", env.db, "d", ops,
+  );
+  // NEGATIVE: unscreened is not screened-and-clean
+  await postAffiliateTransaction(
+    R({ type: "credit", amount_cents: 5_000_000_00, capital_surplus_cents: 100_000_000_00,
+        fund: true }),
+    "aff_PynthiaCUSO", env.db, "d", ops,
+  );
+  await postAffiliateTransaction(
+    R({ type: "credit", amount_cents: 5_000_000_00, capital_surplus_cents: 100_000_000_00,
+        collateral_type: "us_treasury", collateral_value_cents: 6_500_000_00,
+        required_coverage_ratio_bp: 13000, market_terms_basis: "third-party rate sheet",
+        asset_quality_classification: "pass",
+        independent_evaluation: "reviewed by outside counsel 2026-06",
+        lqa_screened: true, fund: true }),
+    "aff_PynthiaCUSO", env.db, "d", ops,
+  );
+  if ((env.rows["core.insider"] ?? []).length === 0) {
+    await env.db.schema("core").from("insider").upsert({
+      id: "ins_df9", provenance: "production",
+    }, { onConflict: "id" });
+  }
+  const ins = (env.rows["core.insider"] ?? [])[0];
+  if (ins) {
+    await postInsiderPublicRequest(
+      R({ capital_surplus_cents: 100_000_000_00,
+          correspondent_credit_data: { banks: ["Corr Bank NA"] } }),
+      String(ins.id), env.db, "d", ops,
+    );
+  }
+
+  // EPS-06: the client limit change is a REQUEST that a second person decides
+  await putClientLimit(
+    R({ ach_dual_control_over_cents: 25_000_00,
+        ach_client_exposure_limit_cents: 500_000_00,
+        wire_daily_limit_cents: 250_000_00 }),
+    "p1", env.db, "d", ops,
+  );
+  await env.db.schema("core").from("wire_transfer").upsert({
+    id: "wt_eps1", partner_id: "p1", amount_cents: 300_000_00,
+    beneficiary_name: "Beneficiary Co", status: "pending", provenance: "production",
+  }, { onConflict: "id" });
+  await openApproval(env.db, {
+    resourceType: "wire_transfer", resourceId: "wt_eps1", createdBy: "tok_ops_1",
+    decision: wireDualControl(), scope: "core", ctx: ops,
+  });
+  await postPaymentApproval(
+    R({ outcome: "approve" }), "wire_transfer", "wt_eps1", env.db, "d",
+    { ...ops, tokenId: "tok_ops_2" } as Any,
+  );
+  // NEGATIVE: no IP allowlist configured -> unknown, and unknown is not permission
+  await postWireRelease(
+    R({ wire_ref: "wt_eps1", originator_id: "orig_1", pin_verified: true,
+        ip: "203.0.113.9", second_approval: "tok_ops_2" }),
+    env.db, "d", ops,
+  );
+  await postWireRelease(
+    R({ wire_ref: "wt_eps2", originator_id: "orig_1", pin_verified: true,
+        ip: "203.0.113.9", ip_allowlist: ["203.0.113.9"],
+        second_approval: "tok_ops_2", amount_cents: 300_000_00,
+        beneficiary: "Beneficiary Co" }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: a verdict with no individual check results
+  await postAchControlResults(
+    R({ transfer_ref: "ach_1", amount_cents: 40_000_00 }), env.db, "d", ops,
+  );
+  await postAchControlResults(
+    R({ transfer_ref: "ach_1", amount_cents: 40_000_00,
+        exposure_limit_cents: 500_000_00, template_only: true,
+        checks: { within_exposure_limit: true, template_matched: true,
+                  dual_control: true, ofac_screened: true, prenote_valid: true } }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: a change approved by its own requester
+  await postEpsLimitChange(
+    R({ partner_id: "p1", justification: "seasonal volume",
+        approver_id: ops.tokenId, wire_daily_limit_cents: 400_000_00 }),
+    env.db, "d", ops,
+  );
+  await postEpsLimitChange(
+    R({ partner_id: "p1", justification: "seasonal volume; reviewed against 90-day history",
+        approver_id: "cro_1", wire_daily_limit_cents: 400_000_00,
+        ach_exposure_limit_cents: 600_000_00 }),
+    env.db, "d", ops,
+  );
+  await postPospayItem(
+    R({ issue_file: "if_20260718", item_ref: "chk_1041",
+        item: { check_no: 1041, amount_cents: 12_500_00 }, decision: "return" }),
+    env.db, "d", ops,
+  );
+
+  // EPS — NEGATIVE: activation before ERM approved it
+  await postEpsProposal(
+    R({ service_id: "rtp", sponsor: "vp_payments", study_doc: "rtp-study-v2",
+        design_docs: ["arch-v1"], inherent_score: 7,
+        risk_assessment_delta: { new_rails: 1 }, activate: true }),
+    env.db, "d", ops,
+  );
+  await postEpsProposal(
+    R({ service_id: "rtp", sponsor: "vp_payments", study_doc: "rtp-study-v2",
+        design_docs: ["arch-v1"], inherent_score: 7,
+        risk_assessment_delta: { new_rails: 1 },
+        erm_decision: "approved", erm_reviewed_by: "cro_1", activate: true }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: a found deficiency with no rating cannot be prioritised
+  await postEpsControlReview(
+    R({ service_id: "rtp", checklist: { dual_control: true }, deficiency_found: true,
+        description: "no dual control on limit changes" }),
+    env.db, "d", ops,
+  );
+  await postEpsControlReview(
+    R({ service_id: "rtp", checklist: { dual_control: true },
+        prior_findings: ["2025: limit change logging"],
+        deficiency_found: true, description: "no dual control on limit changes",
+        rating: "high" }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: no rollback plan
+  await postEpsDeployment(R({ service_id: "rtp", test_plan: "interop-v1" }), env.db, "d", ops);
+  // NEGATIVE: an emergency exception nobody approved
+  await postEpsDeployment(
+    R({ service_id: "rtp", test_plan: "interop-v1", rollback_plan: "revert to v3.2",
+        emergency: true }),
+    env.db, "d", ops,
+  );
+  await postEpsDeployment(
+    R({ service_id: "rtp", test_plan: "interop-v1", rollback_plan: "revert to v3.2",
+        interop_scope: { partners: ["TCH"] }, vendor_participated: true,
+        results: { passed: 41, failed: 1 }, defects: ["timeout on resend"],
+        risk_acceptance: "accepted by vp_payments; resend path is manual until v3.4",
+        emergency: true, exception_approval: "cto_1 approved 2026-07-18",
+        retro_completed: true }),
+    env.db, "d", ops,
+  );
+}
+
 async function runCapitalLifecycle(env: FireEnv): Promise<void> {
   // A WELL-CAPITALIZED position with a configured internal trigger. The trigger
   // sits above the statutory floor, so this position is compliant with NCUA and
@@ -2664,6 +2932,19 @@ async function runCapitalLifecycle(env: FireEnv): Promise<void> {
       ],
     }),
     "cap_20260331", env.db, "d", env.actors.ops,
+  );
+  await postCapitalAction(
+    R({ position_id: "cap_20260331", action_type: "subordinated_debt",
+        amount_cents: 5_000_000_00, expected_capital_impact_cents: 5_000_000_00,
+        projected_shortfall_cents: 2_000_000_00, projection_below_target: true,
+        projection_below_well_capitalized: false,
+        subordinated_debt_cents: 5_000_000_00,
+        instrument_terms: { tenor_years: 10, rate_bp: 750 },
+        eligible_retained_income_cents: 1_200_000_00, action_analysis_id: "ANA-2026-1",
+        regulatory_preapproval_status: "granted", regulatory_preapproval_id: "NCUA-PRE-9",
+        proposed_distribution_amount_cents: 0, distribution_restriction: true,
+        board_resolution_id: "BR-2026-4", execute: true }),
+    env.db, "d", env.actors.ops,
   );
   // NEGATIVE: no CCyB configured -> no payout cap, so no distribution verdict
   await postCapitalBuffer(
@@ -2777,6 +3058,14 @@ async function runIncidentLifecycle(env: FireEnv): Promise<void> {
   await postNotifyNcua(R({ reference: "NCUA-DRILL-1" }), id, env.db, "d", env.actors.ops);
   await postMemberImpact(R({ confirmed: true, template: "appendix-b" }), id, env.db, "d", env.actors.ops);
   await postContainIncident(R({}), id, env.db, "d", env.actors.ops);
+  // IS-19: the postmortem is only claimable once the PIR that carries the root
+  // cause exists, so the PIR is drafted before closure rather than after.
+  await postPir(
+    R({ root_cause: "credential stuffing against an un-rate-limited endpoint",
+        timeline: [{ at: "11:00Z", what: "first failed logins" }],
+        impact_summary: "1,400 members' account numbers exposed" }),
+    id, env.db, "d", env.actors.ops,
+  );
   await postCloseIncident(R({}), id, env.db, "d", env.actors.ops);
   // a SECOND incident left undetermined, so the sweep has both negatives
   const r2 = await postIncident(
@@ -2803,6 +3092,12 @@ import {
   postPospayException,
 } from "../api/eps_controls.ts";
 import { postCardReissue, postIssueCard } from "../api/cards.ts";
+import {
+  postAffiliate, postAffiliateTransaction, postCapitalAction, postEpsControlReview,
+  postEpsDeployment, postEpsProposal, postInsiderPublicRequest, postItAsset,
+  postAchControlResults, postEpsLimitChange, postPospayItem, postReconItem,
+  postRedflagCase, postRedflagRuleset, postRoleGrant, postSodRule, postWireRelease,
+} from "../api/tail.ts";
 import {
   postCapitalBuffer, postCfpProfile, postCommsTree, postCorrectiveAction,
   postIncidentComms, postPir, postRwaSchedule,
@@ -3658,6 +3953,36 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   "comms.media_inquiry.received": (env) => runBcpLifecycle(env),
   "comms.platform.failed": (env) => runBcpLifecycle(env),
   "pir.drafted": (env) => runBcpLifecycle(env),
+  "access.role.requested": (env) => runTailLifecycle(env),
+  "affiliate.asset_purchase.proposed": (env) => runTailLifecycle(env),
+  "affiliate.covered_transaction.proposed": (env) => runTailLifecycle(env),
+  "affiliate.credit_transaction.funded": (env) => runTailLifecycle(env),
+  "affiliate.list_review.opened": (env) => runTailLifecycle(env),
+  "affiliate.transaction.recorded": (env) => runTailLifecycle(env),
+  "asset.changed": (env) => runTailLifecycle(env),
+  "eps.client_limit_change.requested": (env) => runTailLifecycle(env),
+  "eps.control_review.completed": (env) => runTailLifecycle(env),
+  "eps.control_review.opened": (env) => runTailLifecycle(env),
+  "eps.deficiency_remediation.opened": (env) => runTailLifecycle(env),
+  "eps.deployment.emergency_exception": (env) => runTailLifecycle(env),
+  "eps.deployment.scheduled": (env) => runTailLifecycle(env),
+  "eps.erm_review.decided": (env) => runTailLifecycle(env),
+  "eps.product_risk_analysis.drafted": (env) => runTailLifecycle(env),
+  "eps.proposal.submitted": (env) => runTailLifecycle(env),
+  "eps.service.activated": (env) => runTailLifecycle(env),
+  "eps.test_results.recorded": (env) => runTailLifecycle(env),
+  "eps.test_retro.completed": (env) => runTailLifecycle(env),
+  "eps.wire_release.requested": (env) => runTailLifecycle(env),
+  "gl.eod.closed": (env) => runTailLifecycle(env),
+  "gl.period.closed": (env) => runTailLifecycle(env),
+  "insider.public_request": (env) => runTailLifecycle(env),
+  "recon.item.escalated": (env) => runTailLifecycle(env),
+  "recon.item.resolved": (env) => runTailLifecycle(env),
+  "redflag.case.disposed": (env) => runTailLifecycle(env),
+  "security.quarter.closed": (env) => runTailLifecycle(env),
+  "sod.compensating_control.proposed": (env) => runTailLifecycle(env),
+  "sod.review.timer": (env) => runTailLifecycle(env),
+  "sod.violation.logged": (env) => runTailLifecycle(env),
   "incident.declared": (env) => runIncidentLifecycle(env),
   "incident.detected": (env) => runIncidentLifecycle(env),
   "incident.sev1.detected": (env) => runIncidentLifecycle(env),

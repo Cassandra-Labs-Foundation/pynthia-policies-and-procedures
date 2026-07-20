@@ -2143,6 +2143,55 @@ that has never been drawn.
 
 Sweep: 13 mutations, 13 caught. 826 tests, 182 green of 225.
 
+## Artifact — the tail (EPS, IS, CP, DF, IC)
+
+**Predicted 13, landed 13. Seventeen for seventeen.** 182 → **195**, which is
+the projected ceiling exactly. The buildable set is finished.
+
+**Nine of thirteen were EXTENSIONS, not new subsystems** — `eps.ts`,
+`capital.ts`, `lending_underwriting.ts`, `incidents.ts`. That ratio is the real
+end-state of the codebase and the reason §5i needed a script rather than
+vigilance.
+
+### ⚑ IC-02 IS THE LAST NEW SHAPE: SEPARATION OF DUTIES IS A PAIR CONSTRAINT
+
+Every other control in this corpus asks about ONE object — may this person do
+X, is this ratio within band, was this notice sent. SoD asks about a RELATION:
+may this person do X **given they can already do Y**. That cannot live on a role
+row, because the conflict is a property of the pair, not of either role. Tested
+directly: the same role that conflicts for one subject is clear for another.
+
+Two consequences worth carrying:
+- **The check runs at GRANT time and BLOCKS.** A quarterly review that detects
+  the conflict finds it has been live for three months — three months of one
+  person moving money unchecked. Detection is not the control here; refusal is.
+- **A blocked grant is not a held role.** Otherwise a refused grant poisons
+  every subsequent check, and the subject accumulates phantom conflicts.
+- **An unavoidable conflict is accepted WITH a compensating control, an approver
+  AND an expiry.** The permanent exception created by someone who has since left
+  is the specific thing the expiry exists for.
+
+### The event-without-state smell, one last instance
+
+`capital.ts` was emitting `capital.contingency_action.executed`,
+`capital.action.proposed` and `capital.action.executed` with **empty payloads**,
+because no action record existed to put in them. Same shape as the
+`loan.dpd_reset` defect the earlier sweep found: a verb with no noun. An
+examiner asking "which action, for how much, approved by whom" got an event
+saying an action happened. `core.capital_action` now exists and the events carry
+it.
+
+### A guard that broke the same way twice
+
+`runBcpLifecycle` guarded on a table the incident lifecycle later started
+writing — first the comms tree, then the PIR — and each time this lifecycle
+silently stopped running and two controls went red without any test failing.
+Now guarded on `corrective_action`, which only it writes. **A drill lifecycle
+must guard on something ONLY it writes**; anything else is a latent regression
+waiting for an unrelated artifact.
+
+Sweep: 20 mutations, 20 caught. **860 tests, 195 green of 225 in scope.**
+
 # §5k — A MISSING STATUTORY THRESHOLD IS A BUG; A MISSING INSTITUTIONAL ONE IS UNASSESSED
 
 **This is the one finding here that generalises past banking entirely.** It has

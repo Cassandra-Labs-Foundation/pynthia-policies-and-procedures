@@ -397,11 +397,28 @@ export async function postCloseIncident(
   const denied = requireIncidentActor(ctx, requestId);
   if (denied) return denied;
   const now = new Date().toISOString();
+  const { data: row } = await db.schema(scope).from("incident")
+    .select("id, restored_at, assessment_completed_at").eq("id", id).maybeSingle();
   const { error } = await db.schema(scope).from("incident")
     .update({ status: "closed", closed_at: now }).eq("id", id);
   if (error) return internalErrorResponse(requestId, error);
-  try { await emit(db, scope, `evt_${id}_closed`, "incident.closed", id, {}, ctx); }
-  catch (e) { console.error(`close event failed: ${e}`); }
+  try {
+    await emit(db, scope, `evt_${id}_closed`, "incident.closed", id, {}, ctx);
+    // IS-19: the postmortem is a fact about the CLOSED incident, and it can
+    // only be claimed when the PIR that carries the root cause actually exists.
+    // Emitting it unconditionally at closure would be the event-without-state
+    // smell one more time: a postmortem nobody wrote.
+    const { data: pir } = await db.schema(scope).from("pir")
+      .select("id, incident_id, incident_root_cause, incident_timeline, drafted_at")
+      .eq("incident_id", id).maybeSingle();
+    if (pir?.drafted_at) {
+      await emit(db, scope, `evt_${id}_postmortem`, "incident.postmortem.completed", id, {
+        "incident.root_cause": pir.incident_root_cause,
+        "incident.timeline": pir.incident_timeline,
+        "incident.recovered": row?.restored_at != null,
+      }, ctx);
+    }
+  } catch (e) { console.error(`close event failed: ${e}`); }
   return jsonResponse({ id, status: "closed" }, 200, requestId);
 }
 
