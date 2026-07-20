@@ -2022,7 +2022,7 @@ tests has its refusals untested by construction.**
 need ALCO (a committee); LQ-08 needs model validation, LQ-11 and LQ-13 need a
 regulator channel.
 
-### ⚑ THE CAPITAL PREDICTION, CONFIRMED
+### ⚑ THE CAPITAL PREDICTION, CONFIRMED — AND IT PREDATES ITSELF
 
 Several artifacts ago, working on capital, §5c claimed that any domain where a
 REGULATOR sets a floor and an INSTITUTION sets a tighter one on top would
@@ -2035,18 +2035,20 @@ a genuinely new structure. **It produced the same one, unchanged.**
 | INSTITUTIONAL, nullable, paired | Board internal trigger | LAR bands, mismatch limits, survival threshold, headroom floor |
 | the pairing constraint | `ck_capital_trigger_verdict` | `ck_lar_band_needs_config`, `ck_survival_verdict_needs_threshold`, `ck_headroom_verdict_needs_floor`, `ck_mismatch_breach_needs_limit` |
 
-The strongest evidence is that I did not have to decide anything. The existing
-`core.liquidity_report` already carried
-`ck_liquidity_verdict_needs_minimum` — written two artifacts before the
-prediction was made, for the same reason, by the same reasoning. The shape was
-already there.
+**THE SHAPE WAS ALREADY THERE BEFORE THE PREDICTION WAS MADE.** This is the
+part that matters, and it is stronger than "the prediction held".
 
-**Why it recurs, stated plainly so it can be reused:** a statutory threshold is
-a fact about the world and a missing one is a BUG; an institutional threshold is
-a decision somebody has to make and a missing one is UNASSESSED. Storing them in
-one column forces a single answer to "what does absent mean", and whichever
-answer you pick is wrong half the time. The tell that a domain has both is that
-someone asks "what's our limit?" and the honest answer is "which one".
+`core.liquidity_report` carries `ck_liquidity_verdict_needs_minimum` — a
+verdict column paired to its threshold, both-present-or-both-absent. It was
+written during the INVESTMENT artifact, **two artifacts before the capital
+prediction existed**, by reasoning arrived at independently and for a different
+control. Nobody was looking for the pattern. It reproduced anyway.
+
+A pattern noticed after the fact is a description of what you did. A pattern
+that reproduces itself when nobody is watching for it is a description of the
+problem. Only the second kind is worth carrying to the next system, and this is
+the single strongest piece of evidence in the project that these are the second
+kind. See §5k, which the confirmation earned its own heading for.
 
 `assetTier()` is derived and a supplied `asset_tier` is IGNORED — tested
 explicitly, because a caller who could assert the tier could assert their way
@@ -2058,6 +2060,55 @@ adequate`, `caller can assert the statutory tier`) are both caught by tests
 written specifically to check the prediction rather than the code.
 
 790 tests, 170 green of 225 in scope.
+
+# §5k — A MISSING STATUTORY THRESHOLD IS A BUG; A MISSING INSTITUTIONAL ONE IS UNASSESSED
+
+**This is the one finding here that generalises past banking entirely.** It has
+nothing to do with credit unions, and it is the thing to carry to the next
+system.
+
+Any domain where an outside authority sets a floor and the organisation sets a
+tighter one on top has TWO kinds of threshold, and they behave differently in
+exactly one respect: **what absence means.**
+
+| | STATUTORY | INSTITUTIONAL |
+|---|---|---|
+| where it comes from | a rule, external, the same for everyone | a decision somebody in the organisation made |
+| stored as | `not null`, DERIVED from facts the system holds | nullable |
+| a caller may supply it | **no** — it is a fact, not an input | yes, it is their decision |
+| what absence means | a **BUG**. Something is broken. | **UNASSESSED**. Nobody has decided yet. |
+| what absence must NOT produce | — | a passing verdict |
+
+**The failure mode is always the same and always flattering.** Store both in one
+column and you are forced into a single answer to "what does absent mean". Pick
+"bug" and every unconfigured institutional threshold blocks work that should
+proceed. Pick "fine" — which is what everyone picks — and an organisation that
+never set a limit reads identically to one that never exceeded one. The second
+error is invisible, survives audit, and gets worse as the system grows.
+
+**The mechanical form** is a both-present-or-both-absent constraint pairing each
+verdict to the threshold that produced it:
+
+```sql
+constraint "ck_verdict_needs_threshold"
+  check (("threshold_bp" is null) = ("breached" is null))
+```
+
+Instances in this repo, arrived at independently before the pattern was named:
+`ck_liquidity_verdict_needs_minimum`, `ck_analytics_verdict_needs_threshold`,
+`ck_capital_trigger_verdict`, `ck_lar_band_needs_config`,
+`ck_survival_verdict_needs_threshold`, `ck_headroom_verdict_needs_floor`,
+`ck_mismatch_breach_needs_limit`. `api/unassessed.test.ts` pins every one.
+
+**The tell that a domain has both kinds:** ask "what's our limit?" and the
+honest answer is "which one".
+
+**The corollary about derivation.** A statutory threshold must be DERIVED, never
+accepted from a caller — `assetTier()` computes §741.12's tier from total assets
+and ignores a supplied `asset_tier`. A caller who can assert the tier can assert
+their way out of the obligation the tier triggers. This is tested explicitly
+rather than commented, because it is the kind of convenience someone adds later
+in good faith.
 
 # §X — NOT ENGINEERING WORK
 
