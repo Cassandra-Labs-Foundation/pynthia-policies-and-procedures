@@ -137,6 +137,15 @@ export async function setRetentionClocks(
       retention_expires_at: expiresAt(cls, closedAt),
       years: RETENTION_SCHEDULE[cls].years,
     });
+    // OQ-22 alias class, third instance. The corpus names this fact two ways:
+    // `record.retention_clock_set` (SC-02) and `record.retention.expires_at`
+    // (cash:CP-12). They are the same event — a clock was set and here is when
+    // it runs out — and emitting only one leaves the other control permanently
+    // unsatisfiable for a naming reason rather than a systems one.
+    await emitRetentionEvent(db, scope, `evt_${id}_expires_at`, "record.retention.expires_at", id, {
+      record_class: cls,
+      retention_expires_at: expiresAt(cls, closedAt),
+    });
     await emitRetentionEvent(db, scope, `evt_${id}_anchor`, "record.retention_anchor", id, {
       anchor_kind: RETENTION_SCHEDULE[cls].anchor,
       anchored_at: closedAt.toISOString(),
@@ -556,6 +565,10 @@ export async function startRetentionFor(
   }, { onConflict: "id", ignoreDuplicates: true });
   if (error) throw new Error(`retention clock (${recordClass}): ${error.message}`);
 
+  await emitRetentionEvent(db, scope, `evt_${id}_expires_at`, "record.retention.expires_at", id, {
+    record_class: recordClass,
+    retention_expires_at: expiresAt(recordClass, madeAt),
+  });
   await emitRetentionEvent(db, scope, `evt_${id}_clock_set`, "record.retention_clock_set", id, {
     record_class: recordClass,
     retention_expires_at: expiresAt(recordClass, madeAt),

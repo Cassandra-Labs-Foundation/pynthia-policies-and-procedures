@@ -9,19 +9,18 @@
     "total": 333,
     "in_scope": 225,
     "scoped_out": 108,
-    "in_scope_green": 45,
-    "in_scope_red": 180,
+    "in_scope_green": 52,
+    "in_scope_red": 173,
     "scope_note": "Scoped-out controls are real obligations discharged by people and paperwork. This system covers the technical controls; the organisational ones are not claimed.",
-    "green": 46,
-    "red": 287,
-    "pct_green": 13.8,
+    "green": 53,
+    "red": 280,
+    "pct_green": 15.9,
     "red_by_reason": {
-      "trigger fires but produced events missing": 154,
+      "trigger fires but produced events missing": 149,
       "no writer: loan_application.*": 8,
       "no writer: vendor.*": 6,
       "no writer: loan.*": 4,
       "no writer: training.*": 4,
-      "no writer: cash.*": 4,
       "no writer: eps.*": 4,
       "no writer: indemnification.*": 4,
       "no writer: regulatory.*": 3,
@@ -48,6 +47,8 @@
       "no writer: reporting.*": 1,
       "no writer: monetary_instrument.*": 1,
       "no writer: pep.*": 1,
+      "no writer: cash.*": 1,
+      "inputs not supplied: training.coverage_pct": 1,
       "no writer: furnishing.*": 1,
       "inputs not supplied: incident.collections, incident.data_scope, incident.description, incident.detection_source": 1,
       "no writer: affiliate.*": 1,
@@ -105,12 +106,13 @@
     },
     "inputs_unverifiable_total": 1391,
     "green_by_fire_path": {
-      "real_writer": 42,
+      "real_writer": 49,
       "generic_echo": 4
     },
     "green_by_policy": {
       "charitable-donation-accounts": 13,
       "capitalization": 8,
+      "cash": 7,
       "basel-ii-standardized-approach-framework": 3,
       "electronic-payment-systems": 3,
       "audit": 2,
@@ -144,7 +146,9 @@
         "policy.board.approved",
         "board.audit_review.recorded"
       ],
-      "observed": [],
+      "observed": [
+        "policy.board.approved"
+      ],
       "triggers": [
         "policy.board_review.started",
         "board.audit_review.recorded"
@@ -167,7 +171,7 @@
         "audit.results_delivered_to_board"
       ],
       "fire_path": "generic_echo",
-      "blocked_on": "produced 0/3: missing board.minutes.recorded, policy.board.approved, board.audit_review.recorded"
+      "blocked_on": "produced 1/3: missing board.minutes.recorded, board.audit_review.recorded"
     },
     {
       "scoped_out": true,
@@ -2976,7 +2980,7 @@
       "policy": "cash",
       "control_id": "CP-01",
       "title": "Governance and Delegation",
-      "status": "red",
+      "status": "green",
       "expected": [
         "policy.board.approved",
         "policy.revision.published",
@@ -2984,7 +2988,13 @@
         "cash.kri.published",
         "cash.exception_register"
       ],
-      "observed": [],
+      "observed": [
+        "policy.board.approved",
+        "policy.revision.published",
+        "board.cash_summary.delivered",
+        "cash.kri.published",
+        "cash.exception_register"
+      ],
       "triggers": [
         "policy.board_review.started",
         "cash.governance_quarter.closed",
@@ -3018,8 +3028,7 @@
         "exception.rationale",
         "exception.risk_acceptance"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/5: missing policy.board.approved, policy.revision.published, board.cash_summary.delivered, cash.kri.published"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -3063,7 +3072,7 @@
       "policy": "cash",
       "control_id": "CP-03",
       "title": "Enterprise Cash Limit",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cash.enterprise_limit.breached",
         "cash.enterprise_limit.warning",
@@ -3071,7 +3080,13 @@
         "cash.enterprise_limit.remediated",
         "cash.enterprise_limit.remediation.due_at"
       ],
-      "observed": [],
+      "observed": [
+        "cash.enterprise_limit.breached",
+        "cash.enterprise_limit.warning",
+        "treasury.invest_excess.notified",
+        "cash.enterprise_limit.remediated",
+        "cash.enterprise_limit.remediation.due_at"
+      ],
       "triggers": [
         "cash.enterprise_position.posted",
         "cash.enterprise_limit.warning",
@@ -3099,8 +3114,7 @@
         "board.resolution_id",
         "cash.limits_schedule.effective"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/5: missing cash.enterprise_limit.breached, cash.enterprise_limit.warning, treasury.invest_excess.notified, cash.enterprise_limit.remediated"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -3109,14 +3123,19 @@
       "policy": "cash",
       "control_id": "CP-04",
       "title": "Location and Device Cash Limits",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cash.limit_block.alerted",
         "cash.load.decided",
         "cash.limits_whitelist.activated",
         "cash.dual_control.completed"
       ],
-      "observed": [],
+      "observed": [
+        "cash.limit_block.alerted",
+        "cash.load.decided",
+        "cash.limits_whitelist.activated",
+        "cash.dual_control.completed"
+      ],
       "triggers": [
         "cash.load.requested",
         "cash.limits_schedule.updated",
@@ -3143,8 +3162,7 @@
         "cash.counter.user_id",
         "cash.custodian.user_id"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/4: missing cash.limit_block.alerted, cash.load.decided, cash.limits_whitelist.activated, cash.dual_control.completed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -3191,14 +3209,19 @@
       "policy": "cash",
       "control_id": "CP-06",
       "title": "Reconciliation and GL Controls",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cash.recon.completed",
         "cash.recon.due_at",
         "gl.cash_suspense.posted",
         "gl.cash_suspense.escalated"
       ],
-      "observed": [],
+      "observed": [
+        "cash.recon.completed",
+        "cash.recon.due_at",
+        "gl.cash_suspense.posted",
+        "gl.cash_suspense.escalated"
+      ],
       "triggers": [
         "cash.recon_day.closed",
         "cash.recon.variance_found",
@@ -3224,8 +3247,7 @@
         "gl.cash_suspense.item",
         "gl.correction.txn_id"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'cash.recon.variance_found'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -3244,7 +3266,14 @@
         "cash.overshort_investigation.opened",
         "cash.overshort_report.issued"
       ],
-      "observed": [],
+      "observed": [
+        "cash.overshort.investigation.due_at",
+        "cash.overshort.posted",
+        "cash.overshort.resolved",
+        "bsa_alert.created",
+        "cash.overshort_investigation.opened",
+        "cash.overshort_report.issued"
+      ],
       "triggers": [
         "cash.overshort.recorded",
         "cash.overshort.resolved",
@@ -3273,8 +3302,8 @@
         "cash.overshort.pattern",
         "cash.overshort.monthly_summary"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'cash.overshort.threshold_crossed'"
+      "fire_path": "real_writer",
+      "blocked_on": "produced 6/7: missing hr.coaching.recorded"
     },
     {
       "scoped_out": false,
@@ -3283,7 +3312,7 @@
       "policy": "cash",
       "control_id": "CP-08",
       "title": "ATM/ITM, Night-Drop, and Shipments",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cash.device_service.logged",
         "cash.dual_control.completed",
@@ -3294,7 +3323,16 @@
         "cmir.reportable.identified",
         "incident.created"
       ],
-      "observed": [],
+      "observed": [
+        "cash.device_service.logged",
+        "cash.dual_control.completed",
+        "cash.nightdrop.verified",
+        "cash.seal.mismatch",
+        "cash.shipment.verification.due_at",
+        "cash.shipment.verified",
+        "cmir.reportable.identified",
+        "incident.created"
+      ],
       "triggers": [
         "cash.dual_control.initiated",
         "cash.nightdrop.retrieved",
@@ -3323,8 +3361,7 @@
         "courier.receipt.id",
         "gl.cash_in_transit.entry"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'cash.nightdrop.retrieved'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -3333,14 +3370,16 @@
       "policy": "cash",
       "control_id": "CP-09",
       "title": "Surprise Cash Counts and Audits",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cash.surprise_count.due",
         "cash.overshort_investigation.opened",
         "records_package.completed"
       ],
       "observed": [
-        "cash.surprise_count.due"
+        "cash.surprise_count.due",
+        "cash.overshort_investigation.opened",
+        "records_package.completed"
       ],
       "triggers": [
         "cash.surprise_count.due",
@@ -3364,8 +3403,7 @@
         "cash.surprise_count.variance",
         "exam.export.scope"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 1/3: missing cash.overshort_investigation.opened, records_package.completed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -3374,13 +3412,17 @@
       "policy": "cash",
       "control_id": "CP-10",
       "title": "Seasonal Deviations and Exceptions",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cash.deviation_board.decided",
         "cash.limits_schedule.updated",
         "cash.limits_whitelist.activated"
       ],
-      "observed": [],
+      "observed": [
+        "cash.deviation_board.decided",
+        "cash.limits_schedule.updated",
+        "cash.limits_whitelist.activated"
+      ],
       "triggers": [
         "cash.deviation.requested",
         "cash.deviation.approved",
@@ -3408,8 +3450,7 @@
         "exception.rationale",
         "exception.risk_acceptance"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/3: missing cash.deviation_board.decided, cash.limits_schedule.updated, cash.limits_whitelist.activated"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -3470,6 +3511,13 @@
         "record.destroyed"
       ],
       "observed": [
+        "cash.kri.publish.due_at",
+        "cash.kri.published",
+        "cash.exception_register.summary",
+        "record.retention.expires_at",
+        "record.retention_clock_set",
+        "exam.export.delivered",
+        "records_package.completed",
         "record.destroyed"
       ],
       "triggers": [
@@ -3498,7 +3546,7 @@
         "record.legal_hold_flag"
       ],
       "fire_path": "real_writer",
-      "blocked_on": "produced 1/8: missing cash.kri.publish.due_at, cash.kri.published, cash.exception_register.summary, record.retention.expires_at"
+      "blocked_on": "inputs not supplied: training.coverage_pct"
     },
     {
       "scoped_out": false,
@@ -5315,7 +5363,9 @@
         "policy.document_version",
         "ecommerce.risk_assessment.completed"
       ],
-      "observed": [],
+      "observed": [
+        "policy.board.approved"
+      ],
       "triggers": [
         "policy.board_review.started",
         "ecommerce.risk.assessment.due"
@@ -5335,7 +5385,7 @@
         "ecommerce.risk.assessment.due"
       ],
       "fire_path": "obligation_cadence",
-      "blocked_on": "produced 0/4: missing policy.board.approved, policy.board_approved_at, policy.document_version, ecommerce.risk_assessment.completed"
+      "blocked_on": "produced 1/4: missing policy.board_approved_at, policy.document_version, ecommerce.risk_assessment.completed"
     },
     {
       "scoped_out": false,
@@ -7204,7 +7254,9 @@
         "policy.board.approved",
         "security.board_report.issued"
       ],
-      "observed": [],
+      "observed": [
+        "policy.board.approved"
+      ],
       "triggers": [
         "policy.board_review.started",
         "security.quarter.closed"
@@ -7223,7 +7275,7 @@
         "security.quarter"
       ],
       "fire_path": "generic_echo",
-      "blocked_on": "produced 0/2: missing policy.board.approved, security.board_report.issued"
+      "blocked_on": "produced 1/2: missing security.board_report.issued"
     },
     {
       "scoped_out": true,
@@ -9175,7 +9227,9 @@
         "policy.revision.published",
         "policy.version.approved"
       ],
-      "observed": [],
+      "observed": [
+        "policy.revision.published"
+      ],
       "triggers": [
         "policy.board_review.started",
         "regulatory.change_analysis.logged",
@@ -9189,7 +9243,7 @@
         "policy.document_version"
       ],
       "fire_path": "generic_echo",
-      "blocked_on": "produced 0/6: missing policy.amendment.proposed, policy.redline.recorded, policy.material_change.flagged, policy.next_review_at"
+      "blocked_on": "produced 1/6: missing policy.amendment.proposed, policy.redline.recorded, policy.material_change.flagged, policy.next_review_at"
     },
     {
       "scoped_out": true,

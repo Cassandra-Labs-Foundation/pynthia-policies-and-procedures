@@ -1257,3 +1257,74 @@ The generalisation: **a unit suite proves the writers are right; only the contro
 layer proves they are still reachable.** Every prior instance of the
 ordering-assumption class (§5g) has the same shape — the code is correct and the
 path to it is not.
+### cash operations (CP-*) — 7 of 10 green, predicted 6 (refined to 8 pre-build)
+
+**First clean test of the red-reason-distribution estimator, and it worked.**
+The prediction was made BEFORE building and recorded in two stages, both
+falsifiable:
+
+| method | number | actual |
+|---|---:|---:|
+| old (namespace tally) | 4 | 7 |
+| estimator, namespace-set concentration | **6** | **7** |
+| estimator + reading each control's expected EVENTS | **8** | **7** |
+
+cash's signature was the opposite of cda's: 10 reds, **9 distinct namespace-sets,
+13 namespaces**, and only 2 controls freed by `cash` alone. Ratio 1.11 against
+cda's 13.00. The estimator called it scattered and it was.
+
+**The refinement worth keeping: not all namespaces are equal.** The set-cover
+counts `gl`, `treasury`, `records_package` and `cmir` as blockers alongside
+`employee` and `hr`, and they are not the same kind of thing. The first four are
+SATELLITES — a handful of events emitted by the domain's own writers, free once
+the domain exists. The last two are ENTITIES — nouns that must exist and be
+populated. Reading the expected-event list to separate them took the estimate
+from 6 to 8, and 7 landed between the two. **Count entity namespaces, discount
+satellite ones.**
+
+**The three reds are the standing rule working, not a shortfall:**
+
+| control | needs | why it stays red |
+|---|---|---|
+| CP-05 | `employee.separated`, `employee.id` | custody revocation on separation. No employee entity; inventing one fabricates personnel facts |
+| CP-07 | `hr.coaching.recorded` | 6 of its 7 events ARE emitted — posting, investigation clock, cumulative pattern, BSA alert, resolution, monthly report. The seventh is an HR act |
+| CP-12 | `training.coverage_pct` | **`core.training` EXISTS in the schema and nothing writes to it.** A real finding: a table added for an obligation nobody wired up |
+
+CP-12 is the interesting one. It produces all eight declared events and fails
+only on an input whose table is already in the core schema with no writer. That
+is not the same as a missing entity and it is worth its own line in the backlog.
+
+**FIFTH ORDERING-ASSUMPTION INSTANCE, and the first that is a data-modelling
+question rather than a sort key.** A cash limit is EFFECTIVE-DATED. The schedule
+in force is the one with the greatest `effective_at` not in the future — not the
+newest row. Two silent failures the naive version gives:
+
+- a schedule entered today to take effect next quarter starts governing today,
+  so a planned limit increase applies months early;
+- a backdated correction loses to whichever row was typed first, because
+  insertion order and effective order are different orderings entirely.
+
+Both are tested directly. Every read of a limit goes through `limitInForce()` so
+there is exactly one place to be wrong. An expired deviation is excluded there
+too, which is what makes a seasonal deviation actually seasonal rather than a
+permanent limit change wearing an exception's name.
+
+**Two controls found their real subject while being built:**
+
+- **CP-07's control is the CUMULATIVE, not the event.** A single $20 short is
+  noise; the same custodian $20 short eleven times is the pattern. A per-event
+  threshold cannot see it, and the cumulative must be **per custodian** — three
+  different people at $90 each is not one $270 pattern. Both directions tested.
+- **CP-08's control is the EXPECTED seal, recorded at dispatch.** Storing only
+  the seal found on receipt makes a mismatch undetectable, which is the entire
+  risk. A mismatch is not a discrepancy to note: it declares an incident through
+  the same table the incident lifecycle uses, so the 72-hour NCUA determination
+  machinery applies unchanged.
+
+**16 mutations, 15 caught on the first pass. The survivor was a bad test of
+mine, not permissive code.** The sweep-starvation assertion compared
+`updated_at` to itself and then asserted `!== undefined` — true of every row the
+sweep never looked at. It survived the mutation that made the sweep skip
+un-escalated rows, i.e. the exact defect it was written to catch. Rewritten to
+stamp a sentinel and assert no row still carries it; the mutation is now caught.
+**Fourth time an instrument rather than the code has been the thing at fault.**

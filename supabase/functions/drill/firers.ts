@@ -406,6 +406,247 @@ async function runCdaLifecycle(env: FireEnv): Promise<void> {
   await postCdaFunding(R({ amount_cents: 1_000_00 }), "cda_main", env.db, "d", ops);
 }
 
+/**
+ * The whole cash-OPERATIONS programme, driven end to end.
+ *
+ * Board policy -> vault and ATM registered -> effective-dated limits -> a
+ * permitted load and a refused one -> enterprise position through warning and
+ * breach and a real remediation -> reconciliation with a variance that parks
+ * in GL suspense and ages -> over/short with a cumulative pattern that raises
+ * a BSA alert -> shipments with a matched seal and a mismatched one that
+ * declares an incident -> CMIR on a border crossing -> surprise count ->
+ * seasonal deviation -> KRI pack -> Board summary -> examiner export.
+ *
+ * WHAT IS ABSENT ON PURPOSE: no employee is created and no HR record is
+ * written. CP-05 and CP-07 stay red naming those entities. See the standing
+ * rule in BLUEPRINT.
+ */
+async function runCashOpsLifecycle(env: FireEnv): Promise<void> {
+  if ((env.rows["core.cash_asset"] ?? []).length > 0) return;
+
+  const ops = env.actors.ops;
+  const compliance = { ...ops, tokenId: "tok_cash_compliance", roles: ["bsa_compliance"] };
+
+  await postCashPolicyAdoption(
+    R({
+      policy_document_version: "cash-v2.1", board_resolution_id: "board-2026-007",
+      adopted_at: "2026-04-01T00:00:00.000Z",
+    }),
+    env.db, "d", compliance,
+  );
+
+  await putCashAsset(
+    R({ asset_type: "vault", location_id: "branch_01", balance_cents: 500_000_00,
+        custodian_user_id: "cust_1" }),
+    "casset_vault1", env.db, "d", ops,
+  );
+  await putCashAsset(
+    R({ asset_type: "atm", location_id: "branch_01", balance_cents: 40_000_00,
+        custodian_user_id: "cust_2" }),
+    "casset_atm1", env.db, "d", ops,
+  );
+  // an asset with NO limits schedule at all, so a load against it must be
+  // refused for "unknown", not permitted for "no limit"
+  await putCashAsset(
+    R({ asset_type: "teller_drawer", location_id: "branch_02", balance_cents: 5_000_00 }),
+    "casset_drawer_unlimited", env.db, "d", ops,
+  );
+
+  await postCashLimitsSchedule(
+    R({ asset_id: "casset_vault1", limit_cents: 750_000_00,
+        effective_at: "2026-01-01T00:00:00.000Z", board_resolution_id: "board-2026-007" }),
+    env.db, "d", compliance,
+  );
+  await postCashLimitsSchedule(
+    R({ asset_id: "casset_atm1", limit_cents: 60_000_00,
+        effective_at: "2026-01-01T00:00:00.000Z", board_resolution_id: "board-2026-007" }),
+    env.db, "d", compliance,
+  );
+  // NEGATIVE for the ordering assumption: a FUTURE-dated schedule that must
+  // not govern today's loads. If `limitInForce` took the newest row this
+  // would raise the vault limit six months early.
+  await postCashLimitsSchedule(
+    R({ asset_id: "casset_vault1", limit_cents: 2_000_000_00,
+        effective_at: "2027-01-01T00:00:00.000Z", board_resolution_id: "board-2027-001" }),
+    env.db, "d", compliance,
+  );
+
+  // permitted: 500k + 100k = 600k, under the 750k limit, two people
+  await postCashLoad(
+    R({ amount_cents: 100_000_00, counter_user_id: "teller_1", custodian_user_id: "cust_1" }),
+    "casset_vault1", env.db, "d", ops,
+  );
+  // NEGATIVE: would breach the limit in force
+  await postCashLoad(
+    R({ amount_cents: 300_000_00, counter_user_id: "teller_1", custodian_user_id: "cust_1" }),
+    "casset_vault1", env.db, "d", ops,
+  );
+  // NEGATIVE: one person doing both halves of dual control
+  await postCashLoad(
+    R({ amount_cents: 1_000_00, counter_user_id: "teller_1", custodian_user_id: "teller_1" }),
+    "casset_atm1", env.db, "d", ops,
+  );
+  // NEGATIVE: no limit in force — unknown is not permission
+  await postCashLoad(
+    R({ amount_cents: 1_000_00, counter_user_id: "teller_1", custodian_user_id: "cust_2" }),
+    "casset_drawer_unlimited", env.db, "d", ops,
+  );
+
+  // CP-03: warning band, then a breach, then a remediation that actually works
+  await postCashEnterprisePosition(
+    R({ as_of_date: "2026-05-31", cash_cents: 1_200_000_00,
+        gl_total_assets_cents: 50_000_000_00, limit_bp: 300, warning_bp: 200 }),
+    env.db, "d", compliance,
+  );
+  await postCashEnterprisePosition(
+    R({ as_of_date: "2026-06-30", cash_cents: 2_000_000_00,
+        gl_total_assets_cents: 50_000_000_00, limit_bp: 300, warning_bp: 200 }),
+    env.db, "d", compliance,
+  );
+  // NEGATIVE: a remediation claimed while the position is still over the limit
+  await postCashEnterpriseRemediation(
+    R({ action: "swept to correspondent", cash_cents: 1_900_000_00 }),
+    "cashent_20260630", env.db, "d", compliance,
+  );
+  await postCashEnterpriseRemediation(
+    R({ action: "swept to correspondent", cash_cents: 1_400_000_00 }),
+    "cashent_20260630", env.db, "d", compliance,
+  );
+  // NEGATIVE: a position with NO Board limit set. It must report `unassessed`
+  // rather than "within limit", which is the flattering reading of a decision
+  // nobody made.
+  await postCashEnterprisePosition(
+    R({ as_of_date: "2026-07-31", cash_cents: 3_000_000_00,
+        gl_total_assets_cents: 50_000_000_00 }),
+    env.db, "d", compliance,
+  );
+
+  // CP-06: a clean day and a day that does not balance
+  await postCashReconciliation(
+    R({ business_date: "2026-07-15", counted_cents: 600_000_00, gl_balance_cents: 600_000_00 }),
+    "casset_vault1", env.db, "d", ops,
+  );
+  await postCashReconciliation(
+    R({ business_date: "2026-07-16", counted_cents: 599_950_00,
+        gl_balance_cents: 600_000_00, research_notes: "strap miscount under review" }),
+    "casset_vault1", env.db, "d", ops,
+  );
+  // age the suspense item so the sweep has a real escalation
+  const sus = (env.rows["core.gl_cash_suspense"] ?? [])[0];
+  if (sus) sus.escalate_at = "2020-01-01T00:00:00.000Z";
+  await postCashSuspenseSweep(R({}), env.db, "d", ops);
+  await postCashSuspenseClear(
+    R({ correction_txn_id: "gl_txn_9911" }), String(sus?.id ?? "none"), env.db, "d", ops,
+  );
+
+  // CP-07: three shorts by the same custodian. Individually noise; cumulative
+  // they cross the threshold and raise a BSA alert.
+  for (const [i, amt] of [-2_000, -1_800, -9_000].entries()) {
+    await postCashOverShort(
+      R({
+        custodian_user_id: "teller_9", business_date: `2026-07-1${i}`,
+        amount_cents: amt, threshold_cents: 10_000,
+        research_notes: i === 2 ? "no explanation found" : undefined,
+      }),
+      "casset_atm1", env.db, "d", ops,
+    );
+  }
+  const osRow = (env.rows["core.cash_overshort"] ?? [])[0];
+  await postCashOverShortResolve(
+    R({ research_notes: "recount located the difference" }),
+    String(osRow?.id ?? "none"), env.db, "d", ops,
+  );
+
+  // CP-08: a good shipment, a seal mismatch, and a border crossing over $10k
+  await postCashShipment(
+    R({ id: "cship_ok", asset_id: "casset_vault1", direction: "inbound",
+        amount_cents: 250_000_00, seal_expected: "SEAL-A1", courier_receipt_id: "crt-1" }),
+    env.db, "d", ops,
+  );
+  await postCashShipmentVerify(
+    R({ seal_found: "SEAL-A1", counter_user_id: "teller_1", custodian_user_id: "cust_1" }),
+    "cship_ok", env.db, "d", ops,
+  );
+  await postCashShipment(
+    R({ id: "cship_bad", asset_id: "casset_vault1", direction: "inbound",
+        amount_cents: 100_000_00, seal_expected: "SEAL-B2", courier_receipt_id: "crt-2" }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: the seal does not match. This is an incident, not a note.
+  await postCashShipmentVerify(
+    R({ seal_found: "SEAL-B7", counter_user_id: "teller_1", custodian_user_id: "cust_1" }),
+    "cship_bad", env.db, "d", ops,
+  );
+  await postCashShipment(
+    R({ id: "cship_intl", direction: "outbound", amount_cents: 45_000_00,
+        seal_expected: "SEAL-C3", crosses_border: true, courier_receipt_id: "crt-3" }),
+    env.db, "d", ops,
+  );
+  await postCashNightDropRetrieval(
+    R({ counter_user_id: "teller_2", custodian_user_id: "cust_1", bag_count: 4 }),
+    "casset_vault1", env.db, "d", ops,
+  );
+
+  // CP-09
+  await postCashSurpriseCountSchedule(
+    R({ asset_id: "casset_atm1", scheduled_for: "2026-07-18" }), env.db, "d", compliance,
+  );
+  await postCashSurpriseCountComplete(
+    R({ counted_cents: 39_900_00, counted_by: "auditor_1" }),
+    "cashsc_casset_atm1_20260718", env.db, "d", compliance,
+  );
+
+  // CP-10: a seasonal deviation, refused without a bond adjustment and then
+  // approved with one
+  await postCashDeviationRequest(
+    R({ asset_id: "casset_atm1", requested_limit_cents: 120_000_00,
+        period_reason: "holiday season", sunset_at: "2027-01-15T00:00:00.000Z" }),
+    env.db, "d", compliance,
+  );
+  const dev = (env.rows["core.cash_deviation"] ?? [])[0];
+  await postCashDeviationDecision(
+    R({ decision: "approved", board_resolution_id: "board-2026-044" }),
+    String(dev?.id ?? "none"), env.db, "d", compliance,
+  );
+  await postCashDeviationDecision(
+    R({ decision: "approved", board_resolution_id: "board-2026-044",
+        insurance_bond_adjustment: "bond rider +$60k" }),
+    String(dev?.id ?? "none"), env.db, "d", compliance,
+  );
+
+  await postCashException(
+    R({ kind: "limit_override", rationale: "armoured car delayed 48h",
+        risk_acceptance: "accepted by CFO for the period",
+        accepted_by: "cfo_01", asset_id: "casset_vault1" }),
+    env.db, "d", compliance,
+  );
+
+  await postCashKriPublish(R({ period: "2026-07" }), env.db, "d", compliance);
+  await postCashBoardSummary(R({ quarter: "2026Q3" }), env.db, "d", compliance);
+
+  // CP-09 / CP-12: the examiner export, with a declared scope
+  await postCashRecordsPackage(
+    R({
+      purpose: "exam_export",
+      scope: { period: "2026Q3", assets: ["casset_vault1", "casset_atm1"] },
+      delivered_to: "NCUA examiner team",
+    }),
+    env.db, "d", compliance,
+  );
+
+  // CP-12 also declares the retention lifecycle. Those writers already exist,
+  // so the cash evidence is clocked through them rather than duplicated.
+  env.rows["core.record"] ??= [];
+  env.rows["core.record"].push({
+    id: `rec_cash_${env.n()}`, record_class: "cash_operations", subject_ref: "casset_vault1",
+    retention_anchor: "2014-01-01T00:00:00.000Z",
+    retention_expires_at: "2019-01-01T00:00:00.000Z",
+    legal_hold_flag: false, disposed_at: null, provenance: "production",
+  });
+  await setRetentionClocks(env.db, "casset_vault1", new Date());
+  await postDisposalSweep(R({}), env.db, "d", env.actors.ops);
+}
+
 async function runCapitalLifecycle(env: FireEnv): Promise<void> {
   // A WELL-CAPITALIZED position with a configured internal trigger. The trigger
   // sits above the statutory floor, so this position is compliant with NCUA and
@@ -539,6 +780,15 @@ import {
   postPospayException,
 } from "../api/eps_controls.ts";
 import { postIssueCard } from "../api/cards.ts";
+import {
+  postCashBoardSummary, postCashDeviationDecision, postCashDeviationRequest,
+  postCashEnterprisePosition, postCashEnterpriseRemediation, postCashException,
+  postCashKriPublish, postCashLimitsSchedule, postCashLoad, postCashNightDropRetrieval,
+  postCashOverShort, postCashOverShortResolve, postCashPolicyAdoption,
+  postCashRecordsPackage, postCashReconciliation, postCashShipment,
+  postCashShipmentVerify, postCashSurpriseCountComplete, postCashSurpriseCountSchedule,
+  postCashSuspenseClear, postCashSuspenseSweep, putCashAsset,
+} from "../api/cash_ops.ts";
 import {
   postCda, postCdaAgreement, postCdaAuditCycle, postCdaCallReportMapping, postCdaCapCure,
   postCdaCapTest, postCdaClose, postCdaCommunication, postCdaCommunicationApproval,
@@ -887,6 +1137,40 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   "cda.fee_conflict.flagged": (env) => runCdaLifecycle(env),
   "cda.communication.drafted": (env) => runCdaLifecycle(env),
   "cda.communication.published": (env) => runCdaLifecycle(env),
+  "policy.board_review.started": (env) => runCashOpsLifecycle(env),
+  "cash.governance_quarter.closed": (env) => runCashOpsLifecycle(env),
+  "cash.kri_month.closed": (env) => runCashOpsLifecycle(env),
+  "cash.exception.logged": (env) => runCashOpsLifecycle(env),
+  "cash.enterprise_position.posted": (env) => runCashOpsLifecycle(env),
+  "cash.enterprise_limit.warning": (env) => runCashOpsLifecycle(env),
+  "cash.enterprise_limit.breached": (env) => runCashOpsLifecycle(env),
+  "cash.limits_schedule.updated": (env) => runCashOpsLifecycle(env),
+  "cash.load.requested": (env) => runCashOpsLifecycle(env),
+  "cash.dual_control.initiated": (env) => runCashOpsLifecycle(env),
+  "cash.recon_day.closed": (env) => runCashOpsLifecycle(env),
+  "cash.recon.variance_found": (env) => runCashOpsLifecycle(env),
+  "gl.cash_suspense.aged": (env) => runCashOpsLifecycle(env),
+  "gl.cash_suspense.cleared": (env) => runCashOpsLifecycle(env),
+  "cash.overshort.recorded": (env) => runCashOpsLifecycle(env),
+  "cash.overshort.resolved": (env) => runCashOpsLifecycle(env),
+  "cash.overshort.threshold_crossed": (env) => runCashOpsLifecycle(env),
+  "cash.overshort_anomaly.detected": (env) => runCashOpsLifecycle(env),
+  "cash.nightdrop.retrieved": (env) => runCashOpsLifecycle(env),
+  "cash.shipment.received": (env) => runCashOpsLifecycle(env),
+  "cash.shipment.verified": (env) => runCashOpsLifecycle(env),
+  "cash.seal.mismatch": (env) => runCashOpsLifecycle(env),
+  "cash.surprise_count.due": (env) => runCashOpsLifecycle(env),
+  "cash.surprise_count.completed": (env) => runCashOpsLifecycle(env),
+  "supervisory.count_results.delivered": (env) => runCashOpsLifecycle(env),
+  "exam.export.requested": (env) => runCashOpsLifecycle(env),
+  "cash.deviation.requested": (env) => runCashOpsLifecycle(env),
+  "cash.deviation.approved": (env) => runCashOpsLifecycle(env),
+  "cash.deviation.expired": (env) => runCashOpsLifecycle(env),
+  "cash.evidence.created": (env) => runCashOpsLifecycle(env),
+  // CP-05 (`employee.separated`, `cash.custody.*`, `cash.keybox.*`) and the
+  // `hr.*` half of CP-07 are deliberately NOT registered. Those need an
+  // employee, and inventing one to turn a control green is the error the
+  // standing rule in BLUEPRINT forbids.
   "incident.declared": (env) => runIncidentLifecycle(env),
   "incident.detected": (env) => runIncidentLifecycle(env),
   "incident.sev1.detected": (env) => runIncidentLifecycle(env),
