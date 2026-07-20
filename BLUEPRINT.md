@@ -1,5 +1,24 @@
 # BLUEPRINT — loose ends, open questions, and what is actually true
 
+## ⚠ READ FIRST: two mistakes anyone re-deriving this analysis will make
+
+**1. A control is blocked by everything it DECLARES — its trigger, its produced
+events, AND its required inputs. Scanning only one of the three understates the
+dependency set.**
+
+Produced events is the obvious thing to scan, and it is the one that misleads. I
+scanned it alone before building lending and concluded `core.loan` was
+irrelevant to that policy. It was not: `loan.ltv` is a required input of LP-03
+and LP-06, and `loan.booking.requested` is LP-09's trigger. Three controls
+mis-classified as unblocked, in a domain I had just measured carefully.
+
+**2. `predicted ≈ reds − entity-blocked`.** Not namespace count, not the
+concentration ratio, not the number of sub-domains. The only variable that has
+predicted anything is *how many controls depend on a noun that does not exist and
+must not be fabricated*. Exact on four artifacts (see the table under lending).
+
+---
+
 Written for someone picking this up cold. It is deliberately not a changelog:
 it records what is **unfinished, unverified, or waiting on a decision**, and
 where something is a judgment call it says whose call it is and what the
@@ -1605,3 +1624,31 @@ and "never screened" produced identical event logs. That is the exact defect the
 always-on OFAC floor exists to prevent on the payment rails, reproduced on the
 lending rail. `loan_party.ofac.screened` / `.cleared` / `.ofac_potential_match`
 are now emitted on every screen.
+
+
+## THE CLASS: absence of a finding must itself be recorded
+
+Third instance of one idea, now named so it can be checked for deliberately.
+
+A control that writes evidence only when it FIRES makes "checked and clean"
+indistinguishable from "never checked". The event log is identical in both
+cases, so the control cannot be shown to have run — and the failure is silent
+in the direction that flatters the institution.
+
+| where | what it looked like | fix |
+|---|---|---|
+| **OFAC floor** (early) | screening wrote a `control_result` only on a hit | writes on every run, including clean passes |
+| **OQ-19 gate short-circuit** | `runGate` returns on the first blocking control, so a transaction that is both over-velocity and unaffordable writes ONE result | open — the refusal is right, the evidence cannot distinguish "NSF ran and passed" from "NSF never ran" |
+| **LP-11 loan-party OFAC** | the gate emitted only `loan_party.ofac.escalated`, so a clean screen left nothing behind | now emits `.screened` on every screen, then `.cleared` or `.ofac_potential_match` |
+
+**The check to run on any new control: if it finds nothing, what row exists
+afterwards?** If the answer is "none", the control is unfalsifiable. Related but
+distinct from the unassessed-verdict rule (an unset threshold reports NO verdict
+rather than "not breached") — that one is about a check nobody configured, this
+one is about a check that ran and found nothing.
+
+Instances of the same shape already handled elsewhere, for the pattern-match:
+`cda.evidence_packet.incomplete` (a packet that did not file), the CDA funding
+gate recording refusals, `cash_load` recording blocked loads, `record.disposal_eligible`
+emitted with `eligible: false` for permanent records, and LP-14 recording
+"reviewed and NOT an insider".
