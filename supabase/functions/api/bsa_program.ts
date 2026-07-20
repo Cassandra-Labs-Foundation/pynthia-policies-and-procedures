@@ -10,7 +10,7 @@ import { type PartnerContext } from "./auth.ts";
 import { type EvidenceScope, provenanceFor, raiseAlert } from "./bsa.ts";
 import {
   apiError, internalErrorResponse, isNonEmptyString, jsonResponse, notFoundResponse,
-  parseJsonBody, validationError, type ValidationErrorItem,
+  parseJsonBody, validationError,
 } from "./lib.ts";
 
 // deno-lint-ignore no-explicit-any
