@@ -1816,7 +1816,8 @@ and **committee minutes move three** (`liquidity:LQ-06`, `LQ-17`, and BA-08's
 other half). The remaining two (`member:MP-06`, `MP-07`) need external
 notifications of expulsion and death, which are unlikely to exist as feeds.
 
-**Best case if every human-fact source exists: 206 of 225.** Worst case, if none
+**Best case if every human-fact source exists: 206 of 225.** With the
+network/endpoint feed as well (X.2), **213 of 225.** Worst case, if none
 do: these 9 should be RESCOPED to organisational, deliberately and with the
 reasoning recorded — not left red looking like unfinished engineering. Note the
 §5g bias: wrongly scoping out is invisible, so the default is to leave them in.
@@ -1828,10 +1829,18 @@ has no connection to. **A banking core asserting `firewall.rule.changed` is
 fabricating in exactly the way it would be by inventing an employee.** The
 obligations are real; the evidence lives elsewhere.
 
+> ### ⇒ PRE-COMPUTED: **seven of the nineteen sit behind ONE integration.**
+> `e-commerce:EC-05`, `EC-06`, `EC-08`, `EC-09`, `information-security:IS-05`,
+> `IS-07`, `IS-14` all need network/endpoint security evidence — firewall, TLS
+> config, antivirus, IDS, SIEM, DLP, vulnerability scanner. If those are
+> consolidated in one place (a SIEM usually is, which is the point of a SIEM),
+> **one feed moves seven controls** and takes the projection from 197 to 204.
+> That is the single highest-leverage integration available and it is worth
+> asking about before any of the other twelve.
+
 | group | controls | the evidence holder |
 |---|---|---|
-| network/endpoint security | `e-commerce:EC-05`, `EC-06`, `EC-08`, `EC-09`, `information-security:IS-05`, `IS-07`, `IS-14` | firewall, TLS config, antivirus, IDS, SIEM, DLP, vuln scanner |
-| penetration testing | `e-commerce:EC-05`, `EC-09` | the testing firm's report |
+| **network/endpoint security (see above)** | **7** | firewall, TLS, antivirus, IDS, SIEM, DLP, vuln scanner |
 | backup and recovery | `business-continuity-plan:BC-07`, `information-security:IS-08` | backup platform |
 | IT operations | `business-continuity-plan:BC-09`, `privacy:PR-15` | ITSM / network ops |
 | examiner actions | `liquidity:LQ-11`, `LQ-13` | NCUA correspondence |
@@ -1932,3 +1941,69 @@ classification, CDD on the write rather than the last refresh.
 
 **The general rule, worth applying to any new deadline: assert the absolute
 date, not the interval.** The interval is the part that survives the bug.
+
+
+## THE FAIL-OPEN CLASS — a control that permits everything it exists to prevent
+
+Named separately from the ordering-assumption class (§5g) because the SHAPE is
+different even though the outcome is identical: **the control ran, reported
+success, and prevented nothing.** These belong together in a reader's head.
+
+| # | control | what it silently permitted | why every test passed |
+|---|---|---|---|
+| 1 | **heartbeat sweep starvation** | the tail of the queue never processed | the sweep ran and reported a count |
+| 2 | **auth lockout ordering** (EPS-05) | unlimited failed attempts under burst | consecutive attempts share a millisecond, so the sort was arbitrary |
+| 3 | **capital position ordering** | a stale position read as current | caught by inspection, never fired |
+| 4 | **CG-VEL-01 column defaults** | every over-limit transaction | `created_at` was undefined, so the velocity sweep matched nothing |
+| 5 | **CDA / cash policy expiry** | **every CDA action after the policy lapsed** | the expiry re-anchored to `now`, so it could never lapse |
+
+Number 5 is the worst of them, because **CDA-01's entire purpose is to block
+activity when the policy lapses.** A policy adopted eleven months ago recorded
+an expiry twelve months from TODAY. It could never expire, the gate never
+blocked, and the duration-based test asserting "twelve months" passed either
+way. The control was not weak — it was inert, while reporting success.
+
+**The check that finds this class: for a control whose job is to BLOCK, write a
+test in which it must block, and make the state that should trigger it as stale
+or as extreme as possible.** A policy adopted long ago. A queue with an old
+tail. Attempts in the same millisecond. Every instance above was invisible to a
+test built on fresh, well-formed, present-tense data.
+
+## MUTATION TESTING EARNED ITS PLACE HERE — the evidence
+
+The policy-expiry bug is the strongest single argument in this file for the
+method, because of HOW it was found:
+
+1. A mutation survived on the **complaints acknowledgement** test — an
+   unrelated control in an unrelated domain.
+2. Inspecting the survivor showed the weakness was general: **a test asserting a
+   DURATION cannot see a clock that re-anchors.**
+3. Sweeping the corpus for that shape found **two live fail-open bugs in CDA and
+   cash**, in code that had passed review, passed its own tests, and was already
+   committed and reported as green.
+
+**A weak test in one place revealed a real defect somewhere else entirely.** No
+amount of reading the CDA code would have found it; the tests said it worked and
+the interval arithmetic was correct. It took a mutation on a different control
+to expose the class, and the class to expose the instances.
+
+That is the argument. Mutation testing here is not a coverage metric — it is the
+thing that turns "this test passes" into "this test could fail", and only the
+second is evidence.
+
+## FOUR MODULES WERE GREEN WITH NO UNIT TESTS AT ALL
+
+Surfaced by the same sweep, and worth recording because **nobody would have
+noticed: the number that mattered looked fine.**
+
+`capital.ts`, `incidents.ts`, `audit.ts` and `eps_controls.ts` were built in an
+earlier session and had **no dedicated test files**. Their controls were green
+purely through the control-test harness, which asserts that declared events
+appear — not that the logic behind them is right. Three re-anchoring mutations
+survived the first sweep for this reason alone: there was nothing to catch them.
+
+`deadlines.test.ts` now deliberately spans those modules for their clocks
+(NCUA's 72 hours from the reportability determination, NWRP's 45 days from
+classification). **The rest of their surface is still unit-untested** and should
+be treated as a known gap, not as covered — the control harness is carrying
+them.
