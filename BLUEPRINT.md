@@ -1626,6 +1626,81 @@ lending rail. `loan_party.ofac.screened` / `.cleared` / `.ofac_potential_match`
 are now emitted on every screen.
 
 
+
+## ⚑ WHERE THIS ENDS — the projection over everything still red
+
+Run once, over all 133 remaining in-scope reds, using the rule that has now
+called five artifacts exactly. Regenerate with
+`python3 scripts/project_remaining.py`.
+
+| | controls | what it means |
+|---|---:|---|
+| **green today** | **92** | passing |
+| **reachable** | **105** | buildable. Work, not a decision. |
+| **person-blocked** | **9** | needs an employee/HR noun. **Lorenzo's call.** |
+| **outside-blocked** | **19** | needs a feed from infrastructure or a regulator. **Needs a data source.** |
+
+> ### The headline: **197 of 225 are reachable with no decision from anyone.**
+> **28 are not**, and they will not go green by writing more code.
+
+That is where this ends. The remaining build is roughly seven more artifacts at
+the observed rate; the 28 are a different kind of item and should be tracked
+separately rather than sitting in the same backlog looking like unfinished work.
+
+### The 9 person-blocked
+
+Each needs the system to observe something a PERSON did, which it does not.
+
+| control | needs |
+|---|---|
+| `cash:CP-05` | `employee.separated` — revoke cash custody on separation |
+| `cash:CP-07` | `hr.coaching.recorded` — the six other events already fire |
+| `cash:CP-12`, `basel-ii:BA-08` | `training.*` — staff completed a course |
+| `information-security:IS-06` | `employee.*` — access revocation on separation |
+| `liquidity:LQ-06`, `LQ-17`, `basel-ii:BA-08` | `alco.*` — a committee convening |
+| `member:MP-06` | `expulsion.*` — a membership action taken at a meeting |
+| `member:MP-07` | `estate.*` — a death and its administration |
+
+**The decision is not "should we build these".** It is whether an HR feed exists
+that the core could consume. If it does, CP-05 and IS-06 become ordinary work.
+If it does not, these are organisational controls wearing technical clothes and
+should be rescoped — deliberately, with the reasoning recorded, not by silently
+leaving them red.
+
+### The 19 outside-blocked
+
+These need a fact the banking core has no connection to: `firewall`, `antivirus`,
+`intrusion`, `tls`, `siem`, `dlp`, `vuln`, `pentest`, `backup`, `restore` (IT
+infrastructure), `ncua`, `regulator` (an examiner's own actions), `ai`/`model`
+(third-party model governance), `legal`, `vendor` (someone else's attestations).
+
+**A banking core asserting `firewall.rule.changed` is fabricating in exactly the
+way it would be by inventing an employee.** These are real obligations; they are
+evidenced by other systems. The options are an integration, or scoping them to
+the system that actually holds the evidence.
+
+### THE CLASSIFICATION RULE, and the reference pair everything rests on
+
+The estimate is now entirely a question of which bucket a namespace falls in, so
+the rule needs to be stated in a form someone can apply and disagree with:
+
+> **`user.role` is REACHABLE. `employee.separated` is NOT.**
+>
+> A ROLE or SYSTEM-PRINCIPAL question — *what duties does this actor hold, is
+> this borrower a covered person, who is the records officer* — is answerable
+> without modelling employment. The system already has `api_token` with roles;
+> a register keyed by actor reference is more of the same.
+>
+> An HR LIFECYCLE EVENT — *this person was hired, separated, coached, trained* —
+> is a fact about a human being's employment that the core has no way to observe.
+> Recording one is inventing it.
+
+Three calls have been made on this basis and all three are worth auditing:
+`core.user` (satellite — IP-14 needs the role, not the person), `core.insider`
+(satellite — Reg O asks "is this borrower a covered person", a membership
+question), and `records_contact` (satellite — a register of roles with current
+holders). `employee`, `hr` and `training` fell the other way.
+
 ## THE CLASS: absence of a finding must itself be recorded
 
 Third instance of one idea, now named so it can be checked for deliberately.
@@ -1699,3 +1774,28 @@ mutant survives"). Now caught.
 Five of the 22 now have writers: `loan`, `trade`, `document`, `user`, and
 `insider`. That is 4 domains' worth of controls unblocked by tables whose schema
 design was already done.
+
+
+## WHEN THE EXISTING PRIMITIVE IS NOT ENOUGH: three-person separation
+
+`core.payment_approval` implements four-eyes — a second person must approve what
+a first person initiated. It is correct for wires (EPS-06), CDA distributions,
+audit plans, loan exceptions and pricing exceptions. **It is insufficient for a
+securities trade, and that is the dangerous kind of insufficiency:** the
+primitive fits well enough that someone will reuse it and believe they are done.
+
+A trade has THREE steps — execution, confirmation, settlement — and two-way
+separation only guarantees that the person who executed did not *approve*. It
+leaves them free to CONFIRM and RECONCILE their own trade, which is precisely
+how an unauthorised trade stays hidden: the counterparty confirmation is the
+only independent evidence that the trade on our books is the trade the
+counterparty thinks happened, and a trader who confirms their own trade has
+removed it.
+
+So `SOD_INCOMPATIBLE` in `investment.ts` names PAIRS of steps one actor may not
+hold, versioned (`SOD_MATRIX_VERSION`) so a violation can be checked against the
+matrix in force rather than today's. `payment_approval` is deliberately not used.
+
+**The general warning: a generalisation that is right in most places and
+insufficient in one specific place is more dangerous than one that obviously
+does not fit.** The obvious misfit gets noticed. This one would not have.
