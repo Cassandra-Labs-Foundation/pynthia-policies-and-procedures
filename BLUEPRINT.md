@@ -1629,60 +1629,37 @@ are now emitted on every screen.
 
 ## ⚑ WHERE THIS ENDS — the projection over everything still red
 
-Run once, over all 133 remaining in-scope reds, using the rule that has now
-called five artifacts exactly. Regenerate with
-`python3 scripts/project_remaining.py`.
+Run once, over all 133 remaining in-scope reds, using the rule that has called
+five artifacts exactly. Regenerate with `python3 scripts/project_remaining.py`.
 
 | | controls | what it means |
 |---|---:|---|
 | **green today** | **92** | passing |
 | **reachable** | **105** | buildable. Work, not a decision. |
-| **person-blocked** | **9** | needs an employee/HR noun. **Lorenzo's call.** |
-| **outside-blocked** | **19** | needs a feed from infrastructure or a regulator. **Needs a data source.** |
+| **not engineering work** | **28** | see the separate section below |
 
 > ### The headline: **197 of 225 are reachable with no decision from anyone.**
-> **28 are not**, and they will not go green by writing more code.
+> **28 are not**, and they will not go green by writing more code. They have
+> been moved OUT of the backlog into "§X — NOT ENGINEERING WORK" so they stop
+> reading as things nobody got to.
 
-That is where this ends. The remaining build is roughly seven more artifacts at
-the observed rate; the 28 are a different kind of item and should be tracked
-separately rather than sitting in the same backlog looking like unfinished work.
+The remaining build is roughly seven more artifacts at the observed rate.
 
-### The 9 person-blocked
-
-Each needs the system to observe something a PERSON did, which it does not.
-
-| control | needs |
-|---|---|
-| `cash:CP-05` | `employee.separated` — revoke cash custody on separation |
-| `cash:CP-07` | `hr.coaching.recorded` — the six other events already fire |
-| `cash:CP-12`, `basel-ii:BA-08` | `training.*` — staff completed a course |
-| `information-security:IS-06` | `employee.*` — access revocation on separation |
-| `liquidity:LQ-06`, `LQ-17`, `basel-ii:BA-08` | `alco.*` — a committee convening |
-| `member:MP-06` | `expulsion.*` — a membership action taken at a meeting |
-| `member:MP-07` | `estate.*` — a death and its administration |
-
-**The decision is not "should we build these".** It is whether an HR feed exists
-that the core could consume. If it does, CP-05 and IS-06 become ordinary work.
-If it does not, these are organisational controls wearing technical clothes and
-should be rescoped — deliberately, with the reasoning recorded, not by silently
-leaving them red.
-
-### The 19 outside-blocked
-
-These need a fact the banking core has no connection to: `firewall`, `antivirus`,
-`intrusion`, `tls`, `siem`, `dlp`, `vuln`, `pentest`, `backup`, `restore` (IT
-infrastructure), `ncua`, `regulator` (an examiner's own actions), `ai`/`model`
-(third-party model governance), `legal`, `vendor` (someone else's attestations).
-
-**A banking core asserting `firewall.rule.changed` is fabricating in exactly the
-way it would be by inventing an employee.** These are real obligations; they are
-evidenced by other systems. The options are an integration, or scoping them to
-the system that actually holds the evidence.
+> ### ⚠ THE 197 DEPENDS ON THREE JUDGMENT CALLS
+>
+> It is not a measurement. It rests on classifying `core.user`, `core.insider`
+> and `records_contact` as SATELLITES (role registers, answerable without
+> modelling employment) rather than as person-entities. **If someone overrules
+> the `user`-as-satellite call, the 197 moves** — IP-14 and the access-management
+> group go with it, and `investment:IP-14` would retroactively become
+> person-blocked rather than green.
+>
+> The rule those calls were made under, and the reference pair, are stated in
+> full under "THE CLASSIFICATION RULE" below. It is written to be disagreed
+> with; a number resting on three judgment calls should say so where the number
+> appears.
 
 ### THE CLASSIFICATION RULE, and the reference pair everything rests on
-
-The estimate is now entirely a question of which bucket a namespace falls in, so
-the rule needs to be stated in a form someone can apply and disagree with:
 
 > **`user.role` is REACHABLE. `employee.separated` is NOT.**
 >
@@ -1692,14 +1669,14 @@ the rule needs to be stated in a form someone can apply and disagree with:
 > a register keyed by actor reference is more of the same.
 >
 > An HR LIFECYCLE EVENT — *this person was hired, separated, coached, trained* —
-> is a fact about a human being's employment that the core has no way to observe.
-> Recording one is inventing it.
+> is a fact about a human being's employment that the core has no way to
+> observe. Recording one is inventing it.
 
-Three calls have been made on this basis and all three are worth auditing:
-`core.user` (satellite — IP-14 needs the role, not the person), `core.insider`
-(satellite — Reg O asks "is this borrower a covered person", a membership
-question), and `records_contact` (satellite — a register of roles with current
-holders). `employee`, `hr` and `training` fell the other way.
+The three calls made on this basis, all worth auditing: `core.user` (satellite —
+IP-14 needs the role, not the person), `core.insider` (satellite — Reg O asks
+"is this borrower a covered person", a membership question), `records_contact`
+(satellite — a register of roles with current holders). `employee`, `hr` and
+`training` fell the other way.
 
 ## THE CLASS: absence of a finding must itself be recorded
 
@@ -1799,3 +1776,72 @@ matrix in force rather than today's. `payment_approval` is deliberately not used
 **The general warning: a generalisation that is right in most places and
 insufficient in one specific place is more dangerous than one that obviously
 does not fit.** The obvious misfit gets noticed. This one would not have.
+
+
+# §X — NOT ENGINEERING WORK
+
+**28 in-scope controls that will not go green by writing code.** Separated from
+the backlog deliberately: mixed in with the 105 buildable ones they read as
+things nobody got to, which understates progress and misdirects whoever picks
+this up. Each names the specific fact it needs and where that fact would have to
+come from, so the decision is a short one.
+
+## X.1 — Needs a fact about a person (9)
+
+The core has no way to observe what a human being did. Each of these needs a
+feed from a system that does.
+
+| control | the fact it needs | where it would come from |
+|---|---|---|
+| `cash:CP-05` | an employee was separated | **HR system** |
+| `information-security:IS-06` | an employee was separated | **HR system** |
+| `cash:CP-07` | a manager coached a teller | HR case management |
+| `cash:CP-12` | staff training coverage % | LMS |
+| `basel-ii:BA-08` | staff trained; ALCO convened | LMS + committee minutes |
+| `liquidity:LQ-06` | ALCO convened and decided | committee minutes |
+| `liquidity:LQ-17` | ALCO convened and decided | committee minutes |
+| `member:MP-06` | a member was expelled at a meeting | board/membership minutes |
+| `member:MP-07` | a member died; estate administration | external notification |
+
+### ⇒ PRE-COMPUTED: what happens if an HR feed exists
+
+**If the answer to "does an HR system publish separations?" is YES, two controls
+move immediately:** `cash:CP-05` and `information-security:IS-06`. Both are
+otherwise complete — CP-05's cash-custody machinery and IS-06's access register
+are built and tested; they are waiting on `employee.separated` and nothing else.
+That takes the projection from **197 to 199**.
+
+**A training/LMS feed moves two more** (`cash:CP-12`, `basel-ii:BA-08` in part)
+and **committee minutes move three** (`liquidity:LQ-06`, `LQ-17`, and BA-08's
+other half). The remaining two (`member:MP-06`, `MP-07`) need external
+notifications of expulsion and death, which are unlikely to exist as feeds.
+
+**Best case if every human-fact source exists: 206 of 225.** Worst case, if none
+do: these 9 should be RESCOPED to organisational, deliberately and with the
+reasoning recorded — not left red looking like unfinished engineering. Note the
+§5g bias: wrongly scoping out is invisible, so the default is to leave them in.
+
+## X.2 — Needs another system's evidence (19)
+
+These need a fact about INFRASTRUCTURE or an EXTERNAL BODY that the banking core
+has no connection to. **A banking core asserting `firewall.rule.changed` is
+fabricating in exactly the way it would be by inventing an employee.** The
+obligations are real; the evidence lives elsewhere.
+
+| group | controls | the evidence holder |
+|---|---|---|
+| network/endpoint security | `e-commerce:EC-05`, `EC-06`, `EC-08`, `EC-09`, `information-security:IS-05`, `IS-07`, `IS-14` | firewall, TLS config, antivirus, IDS, SIEM, DLP, vuln scanner |
+| penetration testing | `e-commerce:EC-05`, `EC-09` | the testing firm's report |
+| backup and recovery | `business-continuity-plan:BC-07`, `information-security:IS-08` | backup platform |
+| IT operations | `business-continuity-plan:BC-09`, `privacy:PR-15` | ITSM / network ops |
+| examiner actions | `liquidity:LQ-11`, `LQ-13` | NCUA correspondence |
+| model governance | `liquidity:LQ-08`, `information-security:IS-13` | model risk / AI governance |
+| outside counsel and vendors | `business-continuity-plan:BC-15`, `privacy:PR-03`, `PR-04` | legal matter management, vendor attestations |
+| resolution posture | `resolution:RS-03` | the safe-mode switch, wherever it lives |
+
+**The options for each are the same three:** integrate the source, scope the
+control to the system that holds the evidence, or accept it as a manual control
+with paper evidence. All three are legitimate; none is an engineering task in
+this repo. What must NOT happen is a writer that lets the core assert these
+facts on its own authority — that is the failure mode every provenance and
+`unassessed` decision in this project exists to prevent.
