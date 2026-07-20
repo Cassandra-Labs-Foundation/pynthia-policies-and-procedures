@@ -26,6 +26,16 @@ export const NCUA_NOTICE_HOURS = 72;
 /** Internal only — the regulation sets no bound on determination itself. */
 export const INTERNAL_DETERMINATION_HOURS = 24;
 const SWEEP_LIMIT = 200;
+/**
+ * SC-03. The sitrep cadence scaled to severity. These are INTERNAL commitments,
+ * not regulatory ones — no rule sets them — which is why they are named
+ * constants here rather than nullable configuration: an unset cadence would be
+ * indistinguishable from a cadence of never, and the whole point of the control
+ * is that silence is the failure.
+ */
+export const SITREP_CADENCE_MINUTES: Record<string, number> = {
+  sev1: 60, sev2: 120, sev3: 240, sev4: 480,
+};
 
 const COLS =
   "id, title, severity, source, status, detected_at, declared_at, ic_assigned_to, " +
@@ -99,6 +109,13 @@ export async function postIncident(
     provenance: provenanceFor(scope, ctx),
   });
   if (error) return internalErrorResponse(requestId, error);
+  await db.schema(scope).from("incident").update({
+    sitrep_cadence_minutes: SITREP_CADENCE_MINUTES[String(rec.severity)] ?? 240,
+    detection_source: isNonEmptyString(rec.source) ? rec.source : null,
+    scope_initial: isNonEmptyString(String((rec as Record<string, unknown>).scope_initial ?? ""))
+      ? String((rec as Record<string, unknown>).scope_initial)
+      : null,
+  }).eq("id", id);
 
   try {
     await emit(db, scope, `evt_${id}_detected`, "incident.detected", id, { severity: rec.severity }, ctx);
@@ -116,6 +133,16 @@ export async function postIncident(
       { due_at: new Date(now.getTime() + 3_600_000).toISOString() }, ctx);
     await emit(db, scope, `evt_${id}_sitrep_timer`, "sitrep.v1_timer", id,
       { due_at: new Date(now.getTime() + 3_600_000).toISOString() }, ctx);
+    // SC-03: v1 is not the control. An incident that issued one sitrep and then
+    // went quiet is exactly what the cadence exists to catch, so the RECURRING
+    // interval is declared at declaration time and scaled to severity — a sev1
+    // that reports every four hours is not being managed.
+    await emit(db, scope, `evt_${id}_sitrep_cadence`, "sitrep.cadence_timer", id, {
+      cadence_minutes: SITREP_CADENCE_MINUTES[String(rec.severity)] ?? 240,
+      severity: rec.severity, next_due_at: new Date(
+        now.getTime() + (SITREP_CADENCE_MINUTES[String(rec.severity)] ?? 240) * 60_000,
+      ).toISOString(),
+    }, ctx);
   } catch (e) {
     console.error(`incident declare events failed for ${id}: ${e}`);
   }
@@ -421,4 +448,101 @@ export async function postIncidentSweep(
       }
       : {}),
   }, 200, requestId);
+}
+
+/**
+ * POST /incidents/{id}/assessment — EC-13.
+ *
+ * The assessment PRECEDES the reportability determination and is a different
+ * act. The determination answers "must we tell NCUA"; the assessment answers
+ * "what actually happened, whose data, how many members". Collapsing them means
+ * the determination is made from whatever the incident commander happened to
+ * know at the time, which is the thing the 72-hour clock was supposed to buy
+ * time to avoid.
+ */
+export async function postIncidentAssessment(
+  req: Request, id: string, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  const { data: row } = await db.schema(scope).from("incident")
+    .select("id, severity").eq("id", id).maybeSingle();
+  if (!row) return notFoundResponse(requestId, "incident", id);
+
+  if (!isNonEmptyString(body.member_impact) || body.data_scope == null) {
+    // An assessment that does not say whose data and how many members is not an
+    // assessment; it is a status update wearing the word.
+    return validationError(requestId, [{
+      type: "missing_field", field: "member_impact",
+      message: "an assessment must state the data scope and the member impact",
+    }]);
+  }
+  const now = new Date().toISOString();
+  const { error } = await db.schema(scope).from("incident").update({
+    data_scope: body.data_scope, facts: body.facts ?? {},
+    member_impact: body.member_impact,
+    scope_initial: isNonEmptyString(body.scope_initial) ? body.scope_initial : null,
+    detection_source: isNonEmptyString(body.detection_source) ? body.detection_source : null,
+    assessment_completed_at: now,
+  }).eq("id", id);
+  if (error) return internalErrorResponse(requestId, error.message);
+
+  await emit(db, scope, `evt_${id}_assessed`, "incident.assessment.completed", id, {
+    "incident.data_scope": body.data_scope, "incident.member_impact": body.member_impact,
+    "incident.facts": body.facts ?? {},
+  }, ctx);
+  // The corpus names the determination `incident.reportability_assessment`; the
+  // writer already emits `incident.reportability_determination`. Both are
+  // emitted rather than one renamed — see BLUEPRINT §5j.
+  await emit(db, scope, `evt_${id}_reportassess`, "incident.reportability_assessment", id, {
+    assessment_completed_at: now, severity: row.severity,
+  }, ctx);
+  return jsonResponse({ id, assessment_completed_at: now }, 200, requestId);
+}
+
+/**
+ * POST /incidents/{id}/external-comms {holding_statement, legal_reviewed_by}
+ *
+ * EC-13's gate. External communications about a breach carry legal exposure the
+ * incident commander is not positioned to judge, and 2am is when that judgement
+ * is worst. The refusal is the control; a warning would not stop anyone.
+ */
+export async function postExternalComms(
+  req: Request, id: string, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  const { data: row } = await db.schema(scope).from("incident")
+    .select("id, legal_review_at, assessment_completed_at").eq("id", id).maybeSingle();
+  if (!row) return notFoundResponse(requestId, "incident", id);
+
+  const legalBy = isNonEmptyString(body.legal_reviewed_by) ? body.legal_reviewed_by : null;
+  if (!row.legal_review_at && !legalBy) {
+    return apiError(409, "legal_review_required", requestId, {
+      title: "external communications require legal review",
+      detail: `incident ${id} has no legal review; a holding statement cannot go out`,
+    });
+  }
+  if (!isNonEmptyString(body.holding_statement)) {
+    return validationError(requestId, [{
+      type: "missing_field", field: "holding_statement",
+      message: "the statement that went out has to be recorded, verbatim",
+    }]);
+  }
+  const now = new Date().toISOString();
+  const { error } = await db.schema(scope).from("incident").update({
+    legal_review_at: row.legal_review_at ?? now,
+    legal_review_by: row.legal_review_at ? undefined : legalBy,
+    comms_holding_statement: body.holding_statement,
+    comms_plan: body.comms_plan ?? {},
+    external_comms_at: now,
+  }).eq("id", id);
+  if (error) return internalErrorResponse(requestId, error.message);
+
+  await emit(db, scope, `evt_${id}_extcomms`, "incident.external_comms.recorded", id, {
+    "comms.holding_statement": body.holding_statement,
+    "incident.comms_plan": body.comms_plan ?? {},
+    "incident.legal_review": legalBy ?? row.legal_review_at,
+  }, ctx);
+  return jsonResponse({ id, external_comms_at: now }, 200, requestId);
 }

@@ -25,7 +25,8 @@ import { postAch } from "../api/ach.ts";
 import { postWirePrepare } from "../api/wires.ts";
 import { postTransfer } from "../api/transfers.ts";
 import {
-  postCloseIncident, postContainIncident, postDetermineReportability, postFirstHour,
+  postCloseIncident, postContainIncident, postDetermineReportability, postExternalComms,
+  postFirstHour, postIncidentAssessment,
   postIncident, postIncidentSweep, postMemberImpact, postNotifyNcua,
 } from "../api/incidents.ts";
 
@@ -2257,6 +2258,75 @@ async function runDepositsMemberLifecycle(env: FireEnv): Promise<void> {
   );
 }
 
+/** E-commerce: policy, enrollment, credentials, transaction audit trail. */
+async function runEcommerceLifecycle(env: FireEnv): Promise<void> {
+  if ((env.rows["core.member_credential"] ?? []).length > 0) return;
+  const ops = env.actors.ops;
+
+  await postEcommerceRiskAssessment(
+    R({ document_version: "v3", finding_description: "two medium findings on session timeout",
+        control_register: ["EC-03", "EC-04", "EC-07"],
+        regulatory_change_analysis: "no material change since v2",
+        board_approved_by: "board_chair" }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: board approval ahead of the assessment it approves against
+  await postEcommerceRiskAssessment(
+    R({ document_version: "v4", completed: false, board_approved_by: "board_chair" }),
+    env.db, "d", ops,
+  );
+
+  // NEGATIVE: an enrollment whose member-number comparison has no answer
+  await postEnrollment(
+    R({ member_ref: "mbr_e9", channel: "web", applicant_identity: "A. Nonymous",
+        verified: true }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: a verification denial
+  await postEnrollment(
+    R({ member_ref: "mbr_e8", channel: "phone", applicant_identity: "Wrong Person",
+        member_number_match: false, verified: false,
+        denial_reason: "member number does not match the name on file" }),
+    env.db, "d", ops,
+  );
+  await postEnrollment(
+    R({ member_ref: "mbr_e1", channel: "web", applicant_identity: "Real Member",
+        identity_evidence: { doc: "drivers_licence", provider: "sim" },
+        member_number_match: true, entity_email: "m1@example.test", verified: true }),
+    env.db, "d", ops,
+  );
+
+  await postCredentialIssue(
+    R({ member_ref: "mbr_e1", login_id: "member1", security_questions: ["q1", "q2"] }),
+    env.db, "d", ops,
+  );
+  await postPasswordChange(R({ new_password: "correct-horse" }), "cred_mbr_e1", env.db, "d", ops);
+  for (let i = 0; i < 5; i++) {
+    await postLoginFailure(R({}), "cred_mbr_e1", env.db, "d", ops);
+  }
+
+  await postEcommerceTransaction(
+    R({ member_ref: "mbr_e1", transaction_type: "transfer", amount_cents: 250_000,
+        initiated_by: "mbr_e1", source_ip: "203.0.113.7", device: "ios",
+        session_ref: "sess_1" }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: a transaction with no recorded initiator cannot answer a claim
+  await postEcommerceTransaction(
+    R({ member_ref: "mbr_e1", transaction_type: "transfer", amount_cents: 100 }),
+    env.db, "d", ops,
+  );
+  const tx = (env.rows["core.ecommerce_transaction"] ?? [])[0];
+  if (tx) {
+    // NEGATIVE: an outcome with no rationale discards the member's word silently
+    await postRepudiationReview(R({ outcome: "rejected" }), String(tx.id), env.db, "d", ops);
+    await postRepudiationReview(
+      R({ outcome: "rejected", rationale: "audit trail shows the member's own device and session" }),
+      String(tx.id), env.db, "d", ops,
+    );
+  }
+}
+
 async function runCapitalLifecycle(env: FireEnv): Promise<void> {
   // A WELL-CAPITALIZED position with a configured internal trigger. The trigger
   // sits above the statutory floor, so this position is compliant with NCUA and
@@ -2366,6 +2436,21 @@ async function runIncidentLifecycle(env: FireEnv): Promise<void> {
   const id = String((await res.clone().json().catch(() => ({}))).id ?? "");
   if (!id) return;
   await postFirstHour(R({ summary: "scope established" }), id, env.db, "d", env.actors.ops);
+  // EC-13: the assessment PRECEDES the determination and is a different act
+  await postIncidentAssessment(
+    R({ data_scope: { members: 1400, fields: ["name", "account_number"] },
+        member_impact: "1,400 members' account numbers exposed",
+        facts: { vector: "credential stuffing", contained: true },
+        scope_initial: "online banking session store", detection_source: "siem" }),
+    id, env.db, "d", env.actors.ops,
+  );
+  // NEGATIVE: external comms before legal review is refused
+  await postExternalComms(R({ holding_statement: "we are investigating" }), id, env.db, "d", env.actors.ops);
+  await postExternalComms(
+    R({ holding_statement: "we are investigating an incident affecting online banking",
+        legal_reviewed_by: "counsel_1", comms_plan: { channels: ["website", "email"] } }),
+    id, env.db, "d", env.actors.ops,
+  );
   await postDetermineReportability(
     R({ is_reportable: true, rationale: "member data likely misused" }),
     id, env.db, "d", compliance,
@@ -2390,6 +2475,10 @@ import {
   postPospayException,
 } from "../api/eps_controls.ts";
 import { postCardReissue, postIssueCard } from "../api/cards.ts";
+import {
+  postCredentialIssue, postEcommerceRiskAssessment, postEcommerceTransaction, postEnrollment,
+  postLoginFailure, postPasswordChange, postRepudiationReview,
+} from "../api/ecommerce.ts";
 import {
   postAddressChange, postApplicationOptions, postDisclosureDelivery, postDisclosureTemplate,
   postGmiCollection, postInterestAccrualRun, postInterestConfig, postLoCompPlan,
@@ -3182,6 +3271,15 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   "service.reclassified_as_dispute": (env) => runDepositsMemberLifecycle(env),
   "statement.cycle.closed": (env) => runDepositsMemberLifecycle(env),
   "verification.denied": (env) => runDepositsMemberLifecycle(env),
+  "ecommerce.credentials.issued": (env) => runEcommerceLifecycle(env),
+  "ecommerce.enrollment.received": (env) => runEcommerceLifecycle(env),
+  "ecommerce.enrollment.verified": (env) => runEcommerceLifecycle(env),
+  "ecommerce.login.failed": (env) => runEcommerceLifecycle(env),
+  "ecommerce.repudiation_claim.received": (env) => runEcommerceLifecycle(env),
+  "ecommerce.risk.assessment.due": (env) => runEcommerceLifecycle(env),
+  "ecommerce.transaction.initiated": (env) => runEcommerceLifecycle(env),
+  "member_credential.expiry.due": (env) => runEcommerceLifecycle(env),
+  "member_credential.temp_password.issued": (env) => runEcommerceLifecycle(env),
   "incident.declared": (env) => runIncidentLifecycle(env),
   "incident.detected": (env) => runIncidentLifecycle(env),
   "incident.sev1.detected": (env) => runIncidentLifecycle(env),

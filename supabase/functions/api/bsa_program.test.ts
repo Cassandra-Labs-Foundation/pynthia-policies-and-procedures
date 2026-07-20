@@ -94,7 +94,7 @@ Deno.test("BSA-05: releasing a hold needs a named releaser AND a determination",
   assertEquals(
     (await postOfacRelease(req({ released_by: "o" }), id, dbx.client, "t", CTX)).status, 400,
   );
-  assertEquals(dbx.rows["core.ofac_screen"][0].hold_released_at, undefined);
+  assertEquals(dbx.rows["core.ofac_screen"][0].hold_released_at, null);
   assertEquals(
     (await postOfacRelease(
       req({ released_by: "o", determination: "false positive" }), id, dbx.client, "t", CTX,
@@ -159,7 +159,7 @@ Deno.test("BSA-17: a senior-approval category cannot be completed without sign-o
   assertEquals(
     (await postEddCompletion(req({ findings: "ok" }), id, dbx.client, "t", CTX)).status, 409,
   );
-  assertEquals(dbx.rows["core.edd_profile"][0].completed_at, undefined);
+  assertEquals(dbx.rows["core.edd_profile"][0].completed_at, null);
   assertEquals(
     (await postEddCompletion(
       req({ findings: "Wolfsberg on file", approved_by: "officer" }), id, dbx.client, "t", CTX,

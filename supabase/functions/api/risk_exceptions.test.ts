@@ -115,7 +115,7 @@ Deno.test("ERM-06: a breach presented with no remediation plan is refused", asyn
   await postRiskObservation(req({ appetite_id: "rapp_1", kri_value: 700 }), db, "t", CTX);
   const id = String(dbx.rows["core.risk_breach"][0].id);
   assertEquals((await postRiskBreachPresentation(req({}), id, db, "t", CTX)).status, 400);
-  assertEquals(dbx.rows["core.risk_breach"][0].committee_presented_at, undefined);
+  assertEquals(dbx.rows["core.risk_breach"][0].committee_presented_at, null);
 });
 
 Deno.test("ERM-06: late presentation is recorded as late", async () => {
@@ -166,7 +166,7 @@ Deno.test("ERM-07: the owner cannot grant their own acceptance", async () => {
     )).status,
     409,
   );
-  assertEquals(dbx.rows["core.risk_acceptance"][0].decision, undefined);
+  assertEquals(dbx.rows["core.risk_acceptance"][0].decision, null);
   assertEquals(
     (await postRiskAcceptanceDecision(
       req({ decision: "accepted", decided_by: "board_chair" }), id, db, "t", CTX,
@@ -192,7 +192,7 @@ Deno.test("ERM-07: the sweep WARNS before expiry, then EXPIRES and re-opens the 
   a.expiry_alert_at = "2020-01-01T00:00:00.000Z";
   await postRiskAcceptanceSweep(req({}), db, "t", CTX);
   assert(codes(dbx.rows).includes("risk_acceptance.expiry_alerted"));
-  assertEquals(dbx.rows["core.risk_acceptance"][0].expired_at, undefined);
+  assertEquals(dbx.rows["core.risk_acceptance"][0].expired_at, null);
 
   a.expiry_date = "2020-01-02T00:00:00.000Z";
   await postRiskAcceptanceSweep(req({}), db, "t", CTX);
@@ -278,7 +278,7 @@ Deno.test("IC-06: an expired exception REVERTS — the control comes back on", a
     dbx.client, "t", CTX,
   );
   await postControlExceptionSweep(req({}), dbx.client, "t", CTX);
-  assertEquals(dbx.rows["core.control_exception"][0].reverted_at, undefined);
+  assertEquals(dbx.rows["core.control_exception"][0].reverted_at, null);
 
   dbx.rows["core.control_exception"][0].expires_at = "2020-01-01T00:00:00.000Z";
   await postControlExceptionSweep(req({}), dbx.client, "t", CTX);

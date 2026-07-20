@@ -9,14 +9,14 @@
     "total": 333,
     "in_scope": 225,
     "scoped_out": 108,
-    "in_scope_green": 155,
-    "in_scope_red": 70,
+    "in_scope_green": 164,
+    "in_scope_red": 61,
     "scope_note": "Scoped-out controls are real obligations discharged by people and paperwork. This system covers the technical controls; the organisational ones are not claimed.",
-    "green": 156,
-    "red": 177,
-    "pct_green": 46.8,
+    "green": 165,
+    "red": 168,
+    "pct_green": 49.5,
     "red_by_reason": {
-      "trigger fires but produced events missing": 105,
+      "trigger fires but produced events missing": 96,
       "no writer: vendor.*": 6,
       "no writer: training.*": 4,
       "no writer: eps.*": 4,
@@ -69,8 +69,8 @@
     },
     "inputs_unverifiable_total": 1391,
     "green_by_fire_path": {
-      "real_writer": 149,
-      "generic_echo": 5,
+      "real_writer": 157,
+      "generic_echo": 6,
       "obligation_cadence": 2
     },
     "green_by_policy": {
@@ -85,16 +85,16 @@
       "capitalization": 8,
       "truth-in-savings": 8,
       "cash": 7,
+      "e-commerce": 7,
       "member": 7,
       "basel-ii-standardized-approach-framework": 3,
       "electronic-payment-systems": 3,
+      "information-security": 3,
       "internal-controls": 3,
+      "shared-controls": 3,
       "audit": 2,
+      "business-continuity-plan": 2,
       "enterprise-risk-management": 2,
-      "information-security": 2,
-      "shared-controls": 2,
-      "business-continuity-plan": 1,
-      "e-commerce": 1,
       "liquidity": 1,
       "third-party-risk": 1
     }
@@ -2161,7 +2161,9 @@
         "incident.comms_plan"
       ],
       "inputs_supplied": [
-        "incident.severity"
+        "incident.scope_initial",
+        "incident.severity",
+        "incident.comms_plan"
       ],
       "inputs_unverifiable": [
         "oncall.ic_rotation"
@@ -2176,7 +2178,7 @@
       "policy": "business-continuity-plan",
       "control_id": "BC-06",
       "title": "Incident Declaration and Initial Actions",
-      "status": "red",
+      "status": "green",
       "expected": [
         "incident.first_hour.completed",
         "incident.ic.assigned",
@@ -2190,6 +2192,7 @@
         "incident.ic.assigned",
         "sitrep.issued",
         "sitrep.v1_timer",
+        "sitrep.cadence_timer",
         "incident.contained"
       ],
       "triggers": [
@@ -2203,11 +2206,11 @@
         "incident.severity"
       ],
       "inputs_supplied": [
+        "incident.scope",
         "incident.severity"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 5/6: missing sitrep.cadence_timer"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -2389,6 +2392,8 @@
         "vendor.incident_scope"
       ],
       "inputs_supplied": [
+        "incident.data_scope",
+        "incident.detection_source",
         "incident.severity",
         "incident.member_impact"
       ],
@@ -5523,7 +5528,7 @@
       "policy": "e-commerce",
       "control_id": "EC-01",
       "title": "Safeguarding Member Information",
-      "status": "red",
+      "status": "green",
       "expected": [
         "policy.board.approved",
         "policy.board_approved_at",
@@ -5531,7 +5536,10 @@
         "ecommerce.risk_assessment.completed"
       ],
       "observed": [
-        "policy.board.approved"
+        "policy.board.approved",
+        "policy.board_approved_at",
+        "policy.document_version",
+        "ecommerce.risk_assessment.completed"
       ],
       "triggers": [
         "policy.board_review.started",
@@ -5544,15 +5552,16 @@
         "control.register",
         "ecommerce.risk.assessment.due"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "finding.description"
+      ],
       "inputs_unverifiable": [
         "policy.document_version",
         "regulatory.change_analysis",
         "control.register",
         "ecommerce.risk.assessment.due"
       ],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "produced 1/4: missing policy.board_approved_at, policy.document_version, ecommerce.risk_assessment.completed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -5603,7 +5612,7 @@
       "policy": "e-commerce",
       "control_id": "EC-03",
       "title": "User Authentication and Enrollment",
-      "status": "red",
+      "status": "green",
       "expected": [
         "ecommerce.enrollment.submitted",
         "ecommerce.enrollment.approved",
@@ -5615,7 +5624,17 @@
         "ecommerce.credential.locked",
         "ecommerce.lockout.recorded"
       ],
-      "observed": [],
+      "observed": [
+        "ecommerce.enrollment.submitted",
+        "ecommerce.enrollment.approved",
+        "verification.completed",
+        "verification.denied",
+        "ecommerce.enrollment_confirmation.sent",
+        "member_credential.issued",
+        "ecommerce.audit_trail.recorded",
+        "ecommerce.credential.locked",
+        "ecommerce.lockout.recorded"
+      ],
       "triggers": [
         "ecommerce.enrollment.received",
         "ecommerce.enrollment.verified",
@@ -5633,7 +5652,9 @@
         "member_credential.password_hash",
         "member_credential.security_questions"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "entity.email"
+      ],
       "inputs_unverifiable": [
         "enrollment.applicant_identity",
         "enrollment.channel",
@@ -5644,8 +5665,7 @@
         "member_credential.password_hash",
         "member_credential.security_questions"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/9: missing ecommerce.enrollment.submitted, ecommerce.enrollment.approved, verification.completed, verification.denied"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -5654,14 +5674,19 @@
       "policy": "e-commerce",
       "control_id": "EC-04",
       "title": "Member Password Standards",
-      "status": "red",
+      "status": "green",
       "expected": [
         "member_credential.is_temporary",
         "member_credential.issued",
         "member_credential.password.changed",
         "member_credential.password_set_at"
       ],
-      "observed": [],
+      "observed": [
+        "member_credential.is_temporary",
+        "member_credential.issued",
+        "member_credential.password.changed",
+        "member_credential.password_set_at"
+      ],
       "triggers": [
         "member_credential.temp_password.issued",
         "ecommerce.credentials.issued",
@@ -5680,8 +5705,7 @@
         "member_credential.new_password",
         "member_credential.password_set_at"
       ],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "produced 0/4: missing member_credential.is_temporary, member_credential.issued, member_credential.password.changed, member_credential.password_set_at"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -5750,12 +5774,15 @@
       "policy": "e-commerce",
       "control_id": "EC-07",
       "title": "Transaction Verification",
-      "status": "red",
+      "status": "green",
       "expected": [
         "ecommerce.audit_trail.recorded",
         "ecommerce.repudiation.reviewed"
       ],
-      "observed": [],
+      "observed": [
+        "ecommerce.audit_trail.recorded",
+        "ecommerce.repudiation.reviewed"
+      ],
       "triggers": [
         "ecommerce.transaction.initiated",
         "ecommerce.repudiation_claim.received"
@@ -5775,8 +5802,7 @@
         "transaction.type",
         "ecommerce.audit_trail.recorded"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/2: missing ecommerce.audit_trail.recorded, ecommerce.repudiation.reviewed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -5896,7 +5922,7 @@
       "policy": "e-commerce",
       "control_id": "EC-13",
       "title": "Breach Detection, Liability Assessment & External Comms Gating",
-      "status": "red",
+      "status": "green",
       "expected": [
         "incident.created",
         "incident.declared",
@@ -5906,7 +5932,10 @@
       ],
       "observed": [
         "incident.created",
-        "incident.declared"
+        "incident.declared",
+        "incident.assessment.completed",
+        "incident.reportability_assessment",
+        "incident.external_comms.recorded"
       ],
       "triggers": [
         "incident.detected",
@@ -5925,14 +5954,19 @@
         "incident.comms_plan"
       ],
       "inputs_supplied": [
+        "incident.detection_source",
+        "incident.scope_initial",
         "incident.severity",
-        "incident.member_impact"
+        "incident.data_scope",
+        "incident.facts",
+        "incident.legal_review",
+        "incident.member_impact",
+        "incident.comms_plan"
       ],
       "inputs_unverifiable": [
         "comms.holding_statement"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 2/5: missing incident.assessment.completed, incident.reportability_assessment, incident.external_comms.recorded"
+      "fire_path": "generic_echo"
     },
     {
       "scoped_out": false,
@@ -5941,7 +5975,7 @@
       "policy": "e-commerce",
       "control_id": "SC-03",
       "title": "Enterprise Incident Declaration & First-Hour Response",
-      "status": "red",
+      "status": "green",
       "expected": [
         "incident.first_hour.completed",
         "incident.ic.assigned",
@@ -5955,6 +5989,7 @@
         "incident.ic.assigned",
         "sitrep.issued",
         "sitrep.v1_timer",
+        "sitrep.cadence_timer",
         "incident.contained"
       ],
       "triggers": [
@@ -5968,11 +6003,11 @@
         "incident.severity"
       ],
       "inputs_supplied": [
+        "incident.scope",
         "incident.severity"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 5/6: missing sitrep.cadence_timer"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -7785,7 +7820,9 @@
         "it.blast_radius_isolated",
         "restore.test_env"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "incident.scope"
+      ],
       "inputs_unverifiable": [
         "backup.catalog",
         "backup.job_detail",
@@ -7863,7 +7900,7 @@
       "policy": "information-security",
       "control_id": "SC-03",
       "title": "Enterprise Incident Declaration & First-Hour Response",
-      "status": "red",
+      "status": "green",
       "expected": [
         "incident.first_hour.completed",
         "incident.ic.assigned",
@@ -7877,6 +7914,7 @@
         "incident.ic.assigned",
         "sitrep.issued",
         "sitrep.v1_timer",
+        "sitrep.cadence_timer",
         "incident.contained"
       ],
       "triggers": [
@@ -7890,11 +7928,11 @@
         "incident.severity"
       ],
       "inputs_supplied": [
+        "incident.scope",
         "incident.severity"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 5/6: missing sitrep.cadence_timer"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -13507,7 +13545,7 @@
       "policy": "shared-controls",
       "control_id": "SC-03",
       "title": "Enterprise Incident Declaration & First-Hour Response",
-      "status": "red",
+      "status": "green",
       "expected": [
         "incident.first_hour.completed",
         "incident.ic.assigned",
@@ -13521,6 +13559,7 @@
         "incident.ic.assigned",
         "sitrep.issued",
         "sitrep.v1_timer",
+        "sitrep.cadence_timer",
         "incident.contained"
       ],
       "triggers": [
@@ -13534,11 +13573,11 @@
         "incident.severity"
       ],
       "inputs_supplied": [
+        "incident.scope",
         "incident.severity"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 5/6: missing sitrep.cadence_timer"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,

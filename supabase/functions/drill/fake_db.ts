@@ -234,6 +234,15 @@ function applyDefaults(row: Any, table: string, now: string): Any {
   for (const [col, val] of Object.entries(COLUMN_DEFAULTS[table] ?? {})) {
     if (out[col] === undefined) out[col] = val;
   }
+  // FIFTH INSTANCE, and the general form of the previous four. A column that is
+  // DECLARED but absent from the insert reads NULL in Postgres — not undefined.
+  // The difference is invisible to `if (x)` and lethal to `assertEquals(x, null)`
+  // and to `.is("col", null)` filters, so a test can assert the wrong thing and
+  // pass. Every declared column now materialises; the ones with defaults got
+  // them above, the rest are null.
+  for (const col of ALL_COLUMNS[table] ?? []) {
+    if (out[col] === undefined) out[col] = null;
+  }
   return out;
 }
 
@@ -319,6 +328,50 @@ function literal(lit: string): Any {
 }
 
 const COLUMN_DEFAULTS: Record<string, Record<string, Any>> = parseColumnDefaults();
+
+/**
+ * EVERY declared column per table, defaults or not — see the fifth-instance
+ * note in `applyDefaults`. Parsed from the same migrations, including
+ * `alter table ... add column`, because half this schema arrived that way.
+ */
+function parseAllColumns(): Record<string, string[]> {
+  const out: Record<string, Set<string>> = {};
+  const dir = new URL("../../migrations/", import.meta.url);
+  let files: string[];
+  try {
+    files = [...Deno.readDirSync(dir)]
+      .filter((e) => e.isFile && e.name.endsWith(".sql"))
+      .map((e) => e.name).sort();
+  } catch {
+    return {};
+  }
+  const tableRe = /create table if not exists\s+"core"\."([a-z_0-9]+)"\s*\(([\s\S]*?)\n\);/g;
+  // a column line starts with a quoted name; `constraint`/`check`/`primary` do not
+  const colRe = /^\s{2}"([a-z_0-9]+)"\s+[a-z]/gim;
+  const alterRe =
+    /alter table\s+"core"\."([a-z_0-9]+)"([\s\S]*?);/g;
+  const addRe = /add column if not exists\s+"([a-z_0-9]+)"/gi;
+
+  for (const name of files) {
+    let sql: string;
+    try {
+      sql = Deno.readTextFileSync(new URL(name, dir));
+    } catch {
+      continue;
+    }
+    for (const t of sql.matchAll(tableRe)) {
+      const set = (out[t[1]] ??= new Set());
+      for (const c of t[2].matchAll(colRe)) set.add(c[1]);
+    }
+    for (const a of sql.matchAll(alterRe)) {
+      const set = (out[a[1]] ??= new Set());
+      for (const c of a[2].matchAll(addRe)) set.add(c[1]);
+    }
+  }
+  return Object.fromEntries(Object.entries(out).map(([k, v]) => [k, [...v]]));
+}
+
+const ALL_COLUMNS: Record<string, string[]> = parseAllColumns();
 /**
  * Wraps a builder so that ANY method the real PostgREST client supports but
  * this double does not throws loudly instead of returning undefined.

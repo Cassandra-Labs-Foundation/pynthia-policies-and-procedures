@@ -360,7 +360,7 @@ Deno.test("CDA-06: a breach is only CURED when the aggregate actually falls", as
     req({ cure_plan: "we will reduce it" }), "cdacap_20260930", db, "t", CTX,
   );
   assertEquals(early.status, 409);
-  assertEquals(dbx.rows["core.cda_cap_test"][0].cured_at, undefined);
+  assertEquals(dbx.rows["core.cda_cap_test"][0].cured_at, null);
   assert(codes(dbx.rows).includes("cda.cap_cure.insufficient"));
   assert(!codes(dbx.rows).includes("cda.cap_breach_cured"));
 

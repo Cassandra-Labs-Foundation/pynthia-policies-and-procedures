@@ -255,7 +255,7 @@ Deno.test("IP-14: the executing trader cannot confirm their own trade", async ()
   assertEquals(res.status, 409);
   assertEquals(dbx.rows["core.sod_violation"].length, 1);
   assert(codes(dbx.rows).includes("trade.sod.blocked"));
-  assertEquals(dbx.rows["core.trade"][0].confirmed_by, undefined);
+  assertEquals(dbx.rows["core.trade"][0].confirmed_by, null);
 });
 
 Deno.test("IP-14: the executing trader cannot settle their own trade either", async () => {
@@ -267,7 +267,7 @@ Deno.test("IP-14: the executing trader cannot settle their own trade either", as
   );
   const res = await postTradeReconciliation(req({ settled_by: "trader_1" }), tid, db, "t", CTX);
   assertEquals(res.status, 409);
-  assertEquals(dbx.rows["core.trade"][0].reconciled_at, undefined);
+  assertEquals(dbx.rows["core.trade"][0].reconciled_at, null);
 });
 
 Deno.test("IP-14: a confirmation that does not match the counterparty is flagged", async () => {

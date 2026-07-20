@@ -131,7 +131,7 @@ Deno.test("CO-06: initial and final responses are SEPARATE obligations", async (
   await postComplaintResponse(req({ stage: "initial", body_ref: "r1" }), id, db, "t", CTX);
   assert(codes(dbx.rows).includes("complaint.initial_response.sent"));
   assert(!codes(dbx.rows).includes("complaint.final_response.sent"));
-  assertEquals(dbx.rows["core.complaint"][0].final_response_sent_at, undefined);
+  assertEquals(dbx.rows["core.complaint"][0].final_response_sent_at, null);
 
   await postComplaintResponse(req({ stage: "final", body_ref: "r2" }), id, db, "t", CTX);
   assert(codes(dbx.rows).includes("complaint.final_response.sent"));
@@ -149,7 +149,7 @@ Deno.test("CO-06: resolving with NO ROOT CAUSE is refused — it empties the tre
   await postComplaintResponse(req({ stage: "final", body_ref: "r2" }), id, db, "t", CTX);
   const res = await postComplaintResolve(req({ investigation_notes: "n" }), id, db, "t", CTX);
   assertEquals(res.status, 400);
-  assertEquals(dbx.rows["core.complaint"][0].resolved_at, undefined);
+  assertEquals(dbx.rows["core.complaint"][0].resolved_at, null);
   assert(!codes(dbx.rows).includes("complaint.resolved"));
 });
 
@@ -157,7 +157,7 @@ Deno.test("CO-06: a complaint cannot be resolved before the member is told", asy
   const { dbx, db, id } = await seedOne();
   const res = await postComplaintResolve(req({ root_cause_tag: "x" }), id, db, "t", CTX);
   assertEquals(res.status, 409);
-  assertEquals(dbx.rows["core.complaint"][0].resolved_at, undefined);
+  assertEquals(dbx.rows["core.complaint"][0].resolved_at, null);
   assertEquals(dbx.violations, []);
 });
 

@@ -180,7 +180,7 @@ Deno.test("PR-12: fulfilling an UNVERIFIED request is refused — that IS the di
     )).status,
     409,
   );
-  assertEquals(dbx.rows["core.privacy_state_request"][0].fulfilled_at, undefined);
+  assertEquals(dbx.rows["core.privacy_state_request"][0].fulfilled_at, null);
   assertEquals(dbx.violations, []);
 });
 
@@ -328,7 +328,7 @@ Deno.test("PR-16: biometric data is PURGED when its purpose ends", async () => {
     req({ entity_ref: "e1", consent_id: "c1", outcome: "verified" }), dbx.client, "t", CTX,
   );
   await postBiometricPurge(req({}), dbx.client, "t", CTX);
-  assertEquals(dbx.rows["core.biometric_verification"][0].purged_at, undefined, "not yet due");
+  assertEquals(dbx.rows["core.biometric_verification"][0].purged_at, null, "not yet due");
 
   dbx.rows["core.biometric_verification"][0].purge_due_at = "2020-01-01T00:00:00.000Z";
   await postBiometricPurge(req({}), dbx.client, "t", CTX);

@@ -176,7 +176,7 @@ Deno.test("LP-06: the appraiser cannot decide the reconsideration of their own v
     `apr_${APP}`, db, "t", CTX,
   );
   assertEquals(res.status, 409);
-  assertEquals(dbx.rows["core.appraisal_order"][0].completed_at, undefined);
+  assertEquals(dbx.rows["core.appraisal_order"][0].completed_at, null);
 });
 
 Deno.test("LP-06: a completed valuation must carry a value", async () => {

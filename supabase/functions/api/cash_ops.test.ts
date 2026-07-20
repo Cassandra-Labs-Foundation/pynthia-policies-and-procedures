@@ -361,7 +361,7 @@ Deno.test("CP-08: a seal mismatch declares an INCIDENT and refuses verification"
   );
   assertEquals(res.status, 409);
   assertEquals(dbx.rows["core.cash_shipment"][0].seal_matched, false);
-  assertEquals(dbx.rows["core.cash_shipment"][0].verified_at, undefined);
+  assertEquals(dbx.rows["core.cash_shipment"][0].verified_at, null);
   assert(codes(dbx.rows).includes("cash.seal.mismatch"));
   assert(codes(dbx.rows).includes("incident.created"));
   assertEquals((dbx.rows["core.incident"] ?? []).length, 1);

@@ -1971,6 +1971,51 @@ GMI `every` → `some`, which makes a single answer count as complete collection
 was a genuine test gap, not a weak control; two tests added, re-run, caught.
 749 tests, 155 green of 225 in scope.
 
+## Artifact — e-commerce (EC) + the incident gaps (EC-13, SC-03)
+
+**Predicted 6, landed 6.** Twelve for twelve. EC-13 and SC-03 came with it,
+so 155 → 164. exists_check ran first and correctly said `incident` and
+`incident_sitrep` already existed — both went in as columns on the incident
+that was already there rather than a second incident register.
+
+**Four controls stay red on purpose.** EC-05 (firewalls), EC-06 (TLS), EC-08
+(antivirus) and EC-09 (pentest/IDS) are controls over infrastructure this system
+does not run and cannot observe. A table accepting `firewall_reviewed: true`
+from a caller would turn four controls green while proving nothing about any
+firewall. They stay red naming the feed they need.
+
+**⚑ THE DOUBLE WAS LYING ABOUT NULL, AND 17 TESTS HAD LEARNED TO AGREE.**
+
+`assertEquals(row.repudiation_outcome, null)` failed against `undefined`. A
+column that is DECLARED but absent from an insert reads **NULL** in Postgres —
+never `undefined`. `fake_db` only materialised columns that had a DEFAULT, so
+every nullable column without one came back `undefined`.
+
+This is the fifth instance of the same class (`created_at`, `.lt()` on the
+sweep, `book_value_cents`, the parser's own greedy-comma bug, now this), and it
+is the one with teeth: **17 existing tests asserted `undefined` and passed.**
+They were not testing the schema. They were testing the double, and they would
+have kept passing if the real column had been dropped. `.is("col", null)`
+filters against those rows would silently match nothing.
+
+Fixed generally rather than column-by-column: `parseAllColumns()` reads every
+declared column — including `alter table ... add column`, which is how half this
+schema arrived — and materialises the absent ones as `null`. The 17 assertions
+were corrected to `null`. Note which direction that went: the tests were wrong
+and the code was right, so the fix cost nothing but proves the previous 17
+assertions were worth less than they looked.
+
+**The mutation sweep earned its keep again.** 10 mutations, 7 caught, 3
+survivors — ALL in the incident additions, which had no unit test file at all;
+`incidents.ts` was covered only by the drill, and the drill fires the happy
+path. The three survivors were external comms with no legal review, an
+assessment with no data scope or member impact, and a sev1 sitrep cadence
+quietly relaxed to eight hours. Every one is a control failing open. Eight tests
+added, re-run, all three caught. **A module with drill coverage and no unit
+tests has its refusals untested by construction.**
+
+769 tests, 164 green of 225 in scope.
+
 # §X — NOT ENGINEERING WORK
 
 **28 in-scope controls that will not go green by writing code.** Separated from

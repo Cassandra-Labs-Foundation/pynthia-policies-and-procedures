@@ -192,7 +192,7 @@ Deno.test("RR-02: a completed test needs a verdict, a sample and a certifier", a
     req({ passed: true }), "rint_record_r1_conversion", dbx.client, "t", CTX,
   );
   assertEquals(res.status, 400);
-  assertEquals(dbx.rows["core.record_integrity_test"][0].completed_at, undefined);
+  assertEquals(dbx.rows["core.record_integrity_test"][0].completed_at, null);
 });
 
 Deno.test("RR-02: a FAILED test opens a finding; a passing one does not", async () => {
