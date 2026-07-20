@@ -9,14 +9,14 @@
     "total": 333,
     "in_scope": 225,
     "scoped_out": 108,
-    "in_scope_green": 77,
-    "in_scope_red": 148,
+    "in_scope_green": 92,
+    "in_scope_red": 133,
     "scope_note": "Scoped-out controls are real obligations discharged by people and paperwork. This system covers the technical controls; the organisational ones are not claimed.",
-    "green": 78,
-    "red": 255,
-    "pct_green": 23.4,
+    "green": 93,
+    "red": 240,
+    "pct_green": 27.9,
     "red_by_reason": {
-      "trigger fires but produced events missing": 141,
+      "trigger fires but produced events missing": 135,
       "no writer: vendor.*": 6,
       "no writer: loan.*": 4,
       "no writer: training.*": 4,
@@ -25,7 +25,6 @@
       "no writer: regulatory.*": 3,
       "no writer: board.*": 3,
       "no writer: access.*": 3,
-      "no writer: position.*": 3,
       "no writer: privacy.*": 3,
       "no writer: risk.*": 2,
       "no writer: org.*": 2,
@@ -33,7 +32,6 @@
       "no writer: compliance.*": 2,
       "no writer: insider.*": 2,
       "catalogue entry declares no trigger event": 2,
-      "no writer: trade.*": 2,
       "no writer: incident.*": 2,
       "no writer: web.*": 2,
       "no writer: insurance.*": 2,
@@ -71,10 +69,6 @@
       "no writer: phishing.*": 1,
       "no writer: recon.*": 1,
       "no writer: control.*": 1,
-      "no writer: security.*": 1,
-      "no writer: concentration.*": 1,
-      "no writer: repo.*": 1,
-      "no writer: document.*": 1,
       "no writer: coi.*": 1,
       "no writer: mismatch.*": 1,
       "no writer: report.*": 1,
@@ -97,10 +91,11 @@
     },
     "inputs_unverifiable_total": 1391,
     "green_by_fire_path": {
-      "real_writer": 74,
-      "generic_echo": 4
+      "real_writer": 90,
+      "generic_echo": 3
     },
     "green_by_policy": {
+      "investment": 16,
       "lending": 14,
       "charitable-donation-accounts": 13,
       "record-retention": 11,
@@ -117,7 +112,6 @@
       "collections": 1,
       "e-commerce": 1,
       "fair-lending": 1,
-      "investment": 1,
       "liquidity": 1,
       "privacy": 1,
       "third-party-risk": 1,
@@ -875,7 +869,9 @@
         "liquidity.cfp.activated",
         "cfp.transition.started"
       ],
-      "observed": [],
+      "observed": [
+        "liquidity.cfp.activated"
+      ],
       "triggers": [
         "liquidity.report.published",
         "liquidity.concentration.breached",
@@ -914,8 +910,8 @@
         "liquidity.stress",
         "cfp.investment.test.due_at"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/6: missing liquidity.report, liquidity.diversification_plan.logged, cfp.level, cfp.liquidation_hierarchy"
+      "fire_path": "real_writer",
+      "blocked_on": "produced 1/6: missing liquidity.report, liquidity.diversification_plan.logged, cfp.level, cfp.liquidation_hierarchy"
     },
     {
       "scoped_out": false,
@@ -1043,7 +1039,7 @@
         "capital.proforma_ratios",
         "capital.projected_shortfall"
       ],
-      "fire_path": "generic_echo"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -8559,7 +8555,7 @@
         "regulatory.change_analysis",
         "regulatory.source_doc"
       ],
-      "fire_path": "generic_echo",
+      "fire_path": "real_writer",
       "blocked_on": "produced 0/7: missing policy.review_warning.issued, policy.noncompliance.flagged, policy.effective_date, policy.next_review_at"
     },
     {
@@ -8569,7 +8565,7 @@
       "policy": "investment",
       "control_id": "IP-02",
       "title": "Governance, Board Oversight, and Delegations",
-      "status": "red",
+      "status": "green",
       "expected": [
         "trade.approval.requested",
         "trade.limit.blocked",
@@ -8580,8 +8576,13 @@
         "intermediary.review.completed"
       ],
       "observed": [
+        "trade.approval.requested",
+        "trade.limit.blocked",
+        "trade.exception.approved",
+        "trade.exception.logged",
         "portfolio.board_report.issued",
-        "portfolio.management_report.issued"
+        "portfolio.management_report.issued",
+        "intermediary.review.completed"
       ],
       "triggers": [
         "trade.limit.blocked",
@@ -8599,7 +8600,10 @@
         "intermediary.approved_list",
         "intermediary.due_diligence_file"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "trade.instrument_type",
+        "trade.settlement_amount"
+      ],
       "inputs_unverifiable": [
         "authority_matrix.role_limits",
         "portfolio.gain_loss_summary",
@@ -8607,8 +8611,7 @@
         "intermediary.approved_list",
         "intermediary.due_diligence_file"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 2/7: missing trade.approval.requested, trade.limit.blocked, trade.exception.approved, trade.exception.logged"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -8617,14 +8620,19 @@
       "policy": "investment",
       "control_id": "IP-03",
       "title": "Permissible Investments and Prohibited Activities",
-      "status": "red",
+      "status": "green",
       "expected": [
         "trade.blocked_prohibited",
         "trade.limit_warning.issued",
         "trade.limit.blocked",
         "instrument_list.review.completed"
       ],
-      "observed": [],
+      "observed": [
+        "trade.blocked_prohibited",
+        "trade.limit_warning.issued",
+        "trade.limit.blocked",
+        "instrument_list.review.completed"
+      ],
       "triggers": [
         "trade.permissibility.checked",
         "trade.limit_warning.issued",
@@ -8638,14 +8646,15 @@
         "trade.instrument_type",
         "limit_set.parameters"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "trade.instrument_type"
+      ],
       "inputs_unverifiable": [
         "instrument_list.part703_category",
         "instrument_list.version",
         "limit_set.parameters"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'trade.permissibility.checked'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -8654,14 +8663,19 @@
       "policy": "investment",
       "control_id": "IP-04",
       "title": "Interest Rate Risk and ALM Integration",
-      "status": "red",
+      "status": "green",
       "expected": [
         "position.analytics.updated",
         "alm.irr_simulation.completed",
         "stress_test.minimum.breached",
         "stress_test.remediation.escalated"
       ],
-      "observed": [],
+      "observed": [
+        "position.analytics.updated",
+        "alm.irr_simulation.completed",
+        "stress_test.minimum.breached",
+        "stress_test.remediation.escalated"
+      ],
       "triggers": [
         "position.booked",
         "alm.irr_simulation.completed",
@@ -8690,8 +8704,7 @@
         "position.instrument_type",
         "alm.scenario_set"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'position.booked'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -8700,7 +8713,7 @@
       "policy": "investment",
       "control_id": "IP-05",
       "title": "Credit Risk Standards and Downgrade Management",
-      "status": "red",
+      "status": "green",
       "expected": [
         "credit_file.approved",
         "trade.limit.blocked",
@@ -8711,7 +8724,16 @@
         "security.downgraded",
         "board.notification.sent"
       ],
-      "observed": [],
+      "observed": [
+        "credit_file.approved",
+        "trade.limit.blocked",
+        "credit_file.internal_rating",
+        "credit_file.reanalysis.completed",
+        "credit_file.reanalysis_due_at",
+        "security.downgrade.reviewed",
+        "security.downgraded",
+        "board.notification.sent"
+      ],
       "triggers": [
         "credit_file.approved",
         "credit_file.reanalysis.completed",
@@ -8725,15 +8747,16 @@
         "credit_file.issuer_analysis",
         "security.rating_change"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "trade.instrument_type"
+      ],
       "inputs_unverifiable": [
         "credit_file.id",
         "credit_file.internal_rating",
         "credit_file.issuer_analysis",
         "security.rating_change"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'security.downgraded'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -8742,14 +8765,19 @@
       "policy": "investment",
       "control_id": "IP-06",
       "title": "Liquidity and Marketability Limits",
-      "status": "red",
+      "status": "green",
       "expected": [
         "position.liquidity.classified",
         "liquidity.report.published",
         "cfp.level.changed",
         "liquidity.cfp.activated"
       ],
-      "observed": [],
+      "observed": [
+        "position.liquidity.classified",
+        "liquidity.report.published",
+        "cfp.level.changed",
+        "liquidity.cfp.activated"
+      ],
       "triggers": [
         "position.booked",
         "liquidity.report.published",
@@ -8775,8 +8803,7 @@
         "cfp.level",
         "market.depth_indicator"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'position.booked'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -8785,14 +8812,19 @@
       "policy": "investment",
       "control_id": "IP-07",
       "title": "Concentration and Counterparty Limits",
-      "status": "red",
+      "status": "green",
       "expected": [
         "trade.limit_warning.issued",
         "trade.limit.blocked",
         "limit_set.review.completed",
         "concentration.waiver.opened"
       ],
-      "observed": [],
+      "observed": [
+        "trade.limit_warning.issued",
+        "trade.limit.blocked",
+        "limit_set.review.completed",
+        "concentration.waiver.opened"
+      ],
       "triggers": [
         "trade.limit_warning.issued",
         "trade.limit.blocked",
@@ -8812,8 +8844,7 @@
         "exposure.by_sector",
         "limit_set.parameters"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'concentration.limit_exceeded'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -8822,13 +8853,17 @@
       "policy": "investment",
       "control_id": "IP-08",
       "title": "Approved Brokers, Dealers, and Safekeepers",
-      "status": "red",
+      "status": "green",
       "expected": [
         "trade.intermediary.blocked",
         "intermediary.review.completed",
         "safekeeping.reconciliation.completed"
       ],
-      "observed": [],
+      "observed": [
+        "trade.intermediary.blocked",
+        "intermediary.review.completed",
+        "safekeeping.reconciliation.completed"
+      ],
       "triggers": [
         "trade.intermediary.blocked",
         "intermediary.review.completed",
@@ -8840,14 +8875,15 @@
         "intermediary.due_diligence_file",
         "safekeeping.statement"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "trade.intermediary_id"
+      ],
       "inputs_unverifiable": [
         "intermediary.approved_list",
         "intermediary.due_diligence_file",
         "safekeeping.statement"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/3: missing trade.intermediary.blocked, intermediary.review.completed, safekeeping.reconciliation.completed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -8856,7 +8892,7 @@
       "policy": "investment",
       "control_id": "IP-09",
       "title": "Repurchase and Reverse Repurchase Agreements",
-      "status": "red",
+      "status": "green",
       "expected": [
         "repo.blocked_rule_violation",
         "repo.booked",
@@ -8865,7 +8901,14 @@
         "repo.margin_call.issued",
         "repo.margin_shortfall.detected"
       ],
-      "observed": [],
+      "observed": [
+        "repo.blocked_rule_violation",
+        "repo.booked",
+        "repo.collateral_revaluation_due_at",
+        "repo.collateral_marked",
+        "repo.margin_call.issued",
+        "repo.margin_shortfall.detected"
+      ],
       "triggers": [
         "repo.booked",
         "repo.collateral_marked",
@@ -8890,8 +8933,7 @@
         "repo.required_margin",
         "repo.margin_shortfall_amount"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'repo.booked'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -8900,13 +8942,17 @@
       "policy": "investment",
       "control_id": "IP-10",
       "title": "Valuation, Accounting, and Fair-Value Measurement",
-      "status": "red",
+      "status": "green",
       "expected": [
         "position.booked",
         "security.fair_value.updated",
         "security.otti_analysis.completed"
       ],
-      "observed": [],
+      "observed": [
+        "position.booked",
+        "security.fair_value.updated",
+        "security.otti_analysis.completed"
+      ],
       "triggers": [
         "position.booked",
         "security.fair_value.updated",
@@ -8927,8 +8973,7 @@
         "position.cusip",
         "position.fair_value"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'position.booked'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -8937,13 +8982,17 @@
       "policy": "investment",
       "control_id": "IP-11",
       "title": "Pre-Purchase Due Diligence and Exceptions",
-      "status": "red",
+      "status": "green",
       "expected": [
         "trade.checklist.completed",
         "trade.checklist_exception_raised",
         "trade.exception.approved"
       ],
-      "observed": [],
+      "observed": [
+        "trade.checklist.completed",
+        "trade.checklist_exception_raised",
+        "trade.exception.approved"
+      ],
       "triggers": [
         "trade.checklist.completed",
         "trade.checklist_exception_raised"
@@ -8952,12 +9001,13 @@
         "credit_file.issuer_analysis",
         "trade.valuation_support"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "trade.valuation_support"
+      ],
       "inputs_unverifiable": [
         "credit_file.issuer_analysis"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'trade.checklist_exception_raised'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -8966,7 +9016,7 @@
       "policy": "investment",
       "control_id": "IP-12",
       "title": "Ongoing Monitoring, Reporting, and Stress Testing",
-      "status": "red",
+      "status": "green",
       "expected": [
         "portfolio.management_report.issued",
         "portfolio.board_report.issued",
@@ -8974,7 +9024,8 @@
       ],
       "observed": [
         "portfolio.management_report.issued",
-        "portfolio.board_report.issued"
+        "portfolio.board_report.issued",
+        "portfolio.stress_test.completed"
       ],
       "triggers": [
         "portfolio.management_report.issued",
@@ -8990,8 +9041,7 @@
         "portfolio.gain_loss_summary",
         "portfolio.performance_metrics"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 2/3: missing portfolio.stress_test.completed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -9000,12 +9050,15 @@
       "policy": "investment",
       "control_id": "IP-13",
       "title": "Performance Measurement and Benchmarks",
-      "status": "red",
+      "status": "green",
       "expected": [
         "performance.attribution.completed",
         "performance.target_risk.reviewed"
       ],
-      "observed": [],
+      "observed": [
+        "performance.attribution.completed",
+        "performance.target_risk.reviewed"
+      ],
       "triggers": [
         "performance.attribution.completed",
         "performance.target_change.proposed"
@@ -9019,8 +9072,7 @@
         "performance.targets",
         "portfolio.performance_metrics"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/2: missing performance.attribution.completed, performance.target_risk.reviewed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -9029,7 +9081,7 @@
       "policy": "investment",
       "control_id": "IP-14",
       "title": "Trade Execution, Controls, and Segregation of Duties",
-      "status": "red",
+      "status": "green",
       "expected": [
         "sod.violation.logged",
         "trade.sod.blocked",
@@ -9038,7 +9090,14 @@
         "trade.reconciliation.completed",
         "trade.step.recorded"
       ],
-      "observed": [],
+      "observed": [
+        "sod.violation.logged",
+        "trade.sod.blocked",
+        "trade.confirmation_discrepancy.flagged",
+        "trade.confirmation_matched",
+        "trade.reconciliation.completed",
+        "trade.step.recorded"
+      ],
       "triggers": [
         "trade.sod.blocked",
         "trade.confirmation.received",
@@ -9053,12 +9112,16 @@
         "trade.ticket",
         "user.id"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "trade.step_attempted",
+        "user.role",
+        "trade.ticket",
+        "user.id"
+      ],
       "inputs_unverifiable": [
         "sod.matrix_version"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/6: missing sod.violation.logged, trade.sod.blocked, trade.confirmation_discrepancy.flagged, trade.confirmation_matched"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -9067,11 +9130,13 @@
       "policy": "investment",
       "control_id": "IP-15",
       "title": "Recordkeeping and Documentation Retention",
-      "status": "red",
+      "status": "green",
       "expected": [
         "document.required_set"
       ],
-      "observed": [],
+      "observed": [
+        "document.required_set"
+      ],
       "triggers": [
         "document.required_set",
         "document.attachment_due_at"
@@ -9080,10 +9145,12 @@
         "document.subject_ref",
         "document.type"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "document.subject_ref",
+        "document.type"
+      ],
       "inputs_unverifiable": [],
-      "fire_path": "none",
-      "blocked_on": "no writer for trigger 'document.required_set'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -9212,7 +9279,7 @@
       "policy": "investment",
       "control_id": "IP-17",
       "title": "Contingency Planning and Liquidity Stress Events",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cfp.investment_test.completed",
         "cfp.execution_plan_documented",
@@ -9220,7 +9287,13 @@
         "finding.opened",
         "finding.remediation.reported"
       ],
-      "observed": [],
+      "observed": [
+        "cfp.investment_test.completed",
+        "cfp.execution_plan_documented",
+        "cfp.level.changed",
+        "finding.opened",
+        "finding.remediation.reported"
+      ],
       "triggers": [
         "cfp.investment_test.completed",
         "liquidity.stress.declared"
@@ -9238,8 +9311,7 @@
         "position.stress_haircut",
         "cfp.level"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/5: missing cfp.investment_test.completed, cfp.execution_plan_documented, cfp.level.changed, finding.opened"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,

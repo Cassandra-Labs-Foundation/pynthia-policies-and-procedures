@@ -1652,3 +1652,50 @@ Instances of the same shape already handled elsewhere, for the pattern-match:
 gate recording refusals, `cash_load` recording blocked loads, `record.disposal_eligible`
 emitted with `eligible: false` for permanent records, and LP-14 recording
 "reviewed and NOT an insider".
+
+### investment portfolio (IP-*) — 15 of 15 green, predicted 15
+
+77 -> 92. Fifth artifact, and the corrected estimator called it exactly.
+
+**This closes the last of BLUEPRINT §0's named missing entities.** That section
+lists "a securities book (`position.booked`, `trade.limit.blocked`)" among the
+nouns no primitive substitutes for. It now exists. `core.trade`, `core.document`
+and `core.user` — three more of the 22 abandoned tables — got their first
+writers here.
+
+**Prediction reasoning, recorded before building:** 15 reds, ~21 namespaces,
+**0 entity-blocked**. Every namespace was a financial object (`position`,
+`security`, `repo`, `cfp`, `limit_set`) or a satellite of one. The one that
+needed a judgment call was `user`: classified as SATELLITE because IP-14 needs
+the ROLE an actor holds, which is a system-principal question, not employment.
+Same line `records_contact` and `core.insider` sit on. Had IP-14 required
+`employee.hired` it would have been entity-blocked and the prediction 14.
+
+**A trade and a position are different nouns, and the controls prove it.**
+IP-07's concentration limit attaches to the POSITION; IP-14's segregation of
+duties attaches to the TRADE. Collapsing them — which is tempting, since one
+produces the other — would put the limit check on the wrong object and make
+"how much do we hold" unanswerable after a sell.
+
+**Segregation of duties here is THREE roles, not two.** Execution, confirmation,
+settlement. Two-way separation lets whoever executed a trade also reconcile it,
+which is precisely the case that hides an unauthorised trade: the counterparty
+confirmation is the only independent evidence that the trade the book records is
+the trade the counterparty thinks happened. Fourth distinct four-eyes shape in
+the repo, and the first that needed a third role.
+
+**Third instance of the projected-not-current rule** (after the CDA 5% cap and
+the cash device limit): concentration is measured on `current + this trade`.
+Testing the current holding and then booking permits every first breach.
+
+**26 mutations, 25 caught first pass.** The survivor was a weak test of mine, not
+permissive code — the repo counterparty test used a repo with NO counterparty,
+which hits the "missing" branch and never exercises the "exists but unapproved"
+one. Reachable state, so the fix was a stronger test (per the rule in "when a
+mutant survives"). Now caught.
+
+### Where the abandoned-table lever stands
+
+Five of the 22 now have writers: `loan`, `trade`, `document`, `user`, and
+`insider`. That is 4 domains' worth of controls unblocked by tables whose schema
+design was already done.

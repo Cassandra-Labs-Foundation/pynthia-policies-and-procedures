@@ -1024,6 +1024,265 @@ async function runLendingUwLifecycle(env: FireEnv): Promise<void> {
   );
 }
 
+/**
+ * The investment portfolio, driven end to end.
+ *
+ * Permissible-instrument list -> approved and unapproved intermediaries ->
+ * issuer credit files -> concentration limits -> trades that clear the gate and
+ * trades blocked on each of its four conditions -> three-role segregation with
+ * a confirmation mismatch -> repo with a margin shortfall that issues a call ->
+ * fair value with and without impairment -> liquidity classification and the
+ * contingency plan -> IRR and stress simulations -> reports and performance.
+ */
+async function runInvestmentLifecycle(env: FireEnv): Promise<void> {
+  if ((env.rows["core.instrument_list"] ?? []).length > 0) return;
+  const ops = env.actors.ops;
+
+  // capital position: the concentration limits are a share of net worth
+  await postCapitalPosition(
+    R({ as_of_date: "2026-03-31", net_worth_cents: 750_000_000, total_assets_cents: 5_000_000_000 }),
+    env.db, "d", ops,
+  );
+
+  await postInstrumentListEntry(
+    R({ instrument_class: "us_treasury", permissible: true, citation: "12 CFR 703.14(a)",
+        max_maturity_months: 120, effective_at: "2026-01-01T00:00:00.000Z",
+        reviewed_by: "alco_1" }),
+    env.db, "d", ops,
+  );
+  await postInstrumentListEntry(
+    R({ instrument_class: "collateralized_mortgage_obligation", permissible: false,
+        citation: "12 CFR 703.16", effective_at: "2026-01-01T00:00:00.000Z" }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: an entry with no citation
+  await postInstrumentListEntry(
+    R({ instrument_class: "misc", permissible: true }), env.db, "d", ops,
+  );
+
+  await postIntermediary(
+    R({ name: "Northgate Securities", kind: "both", regulator: "finra",
+        registration_status: "active" }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: an unregulated counterparty must not be approved
+  await postIntermediary(
+    R({ name: "Backstreet Brokers", kind: "broker_dealer", regulator: "none",
+        registration_status: "active" }),
+    env.db, "d", ops,
+  );
+
+  await postCreditFile(
+    R({ issuer_ref: "us_gov", internal_rating: "AAA", analysis_ref: "an-1",
+        approved_by: "cio_1", external_rating: "AAA" }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: reliance on an external rating with no internal analysis
+  await postCreditFile(R({ issuer_ref: "acme", external_rating: "A" }), env.db, "d", ops);
+  await postCreditFileReanalysis(
+    R({ internal_rating: "AA", analysis_ref: "an-2" }), "cfile_us_gov", env.db, "d", ops,
+  );
+
+  await putLimitSet(
+    R({ scope_kind: "issuer", scope_ref: "us_gov", limit_bp_of_capital: 5000,
+        warning_bp_of_capital: 4000, approved_by: "board-2026-01",
+        effective_at: "2026-01-01T00:00:00.000Z" }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: a warning at or above the limit never fires first
+  await putLimitSet(
+    R({ scope_kind: "issuer", scope_ref: "acme", limit_bp_of_capital: 1000,
+        warning_bp_of_capital: 1000, approved_by: "board-2026-01" }),
+    env.db, "d", ops,
+  );
+
+  env.rows["core.security"] ??= [];
+  for (const [id, iss, cls] of [
+    ["sec_ust1", "us_gov", "us_treasury"],
+    ["sec_cmo1", "acme", "collateralized_mortgage_obligation"],
+  ]) {
+    env.rows["core.security"].push({
+      id, issuer_ref: iss, instrument_class: cls, external_rating: "AAA",
+      provenance: "production",
+    });
+  }
+
+  // clean trade
+  await postTrade(
+    R({ security_id: "sec_ust1", instrument_class: "us_treasury", issuer_ref: "us_gov",
+        intermediary_id: "interm_northgatesecurities", side: "buy", par_cents: 30_000_000,
+        price_bp: 9950, executed_by: "trader_1", maturity_months: 60,
+        checklist_completed: true, instrument_type: "bill",
+        settlement_amount_cents: 29_850_000, valuation_support: "bloomberg_quote" }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: a prohibited instrument class
+  await postTrade(
+    R({ security_id: "sec_cmo1", instrument_class: "collateralized_mortgage_obligation",
+        issuer_ref: "acme", intermediary_id: "interm_northgatesecurities", side: "buy",
+        par_cents: 1_000_000, executed_by: "trader_1", checklist_completed: true }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: an unapproved counterparty
+  await postTrade(
+    R({ security_id: "sec_ust1", instrument_class: "us_treasury", issuer_ref: "us_gov",
+        intermediary_id: "interm_backstreetbrokers", side: "buy", par_cents: 1_000_000,
+        executed_by: "trader_1", checklist_completed: true }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: no pre-purchase checklist
+  await postTrade(
+    R({ security_id: "sec_ust1", instrument_class: "us_treasury", issuer_ref: "us_gov",
+        intermediary_id: "interm_northgatesecurities", side: "buy", par_cents: 1_000_000,
+        executed_by: "trader_1" }),
+    env.db, "d", ops,
+  );
+  // lands in the WARNING band: 30m held + 300m = 330m against 750m of net
+  // worth is 4400bp, over the 4000bp warning and under the 5000bp limit. The
+  // warning has to fire on a trade that still EXECUTES, or it is just a
+  // second name for the block.
+  await postTrade(
+    R({ security_id: "sec_ust1", instrument_class: "us_treasury", issuer_ref: "us_gov",
+        intermediary_id: "interm_northgatesecurities", side: "buy", par_cents: 300_000_000,
+        price_bp: 9950, executed_by: "trader_2", maturity_months: 60,
+        checklist_completed: true, instrument_type: "note",
+        settlement_amount_cents: 298_500_000, valuation_support: "bloomberg_quote" }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: this one BREACHES on the projected position — 330m held plus
+  // 100m more is 5733bp against a 5000bp limit
+  await postTrade(
+    R({ security_id: "sec_ust1", instrument_class: "us_treasury", issuer_ref: "us_gov",
+        intermediary_id: "interm_northgatesecurities", side: "buy", par_cents: 100_000_000,
+        executed_by: "trader_1", checklist_completed: true }),
+    env.db, "d", ops,
+  );
+
+  // IP-14: the segregation matrix needs to know what role each actor holds.
+  for (const [u, role] of [
+    ["trader_1", "execution"], ["trader_2", "execution"],
+    ["ops_confirm", "confirmation"], ["ops_settle", "settlement"], ["cio_1", "oversight"],
+  ]) {
+    await putUserRole(R({ role }), u, env.db, "d", ops);
+  }
+
+  const tr = (env.rows["core.trade"] ?? []).find((t: Any) => t.decision === "executed");
+  const tid = String(tr?.id ?? "x");
+  // NEGATIVE: the executing trader cannot confirm their own trade
+  await postTradeConfirmation(
+    R({ confirmed_by: "trader_1", confirmation_ref: "c1", counterparty_par_cents: 30_000_000 }),
+    tid, env.db, "d", ops,
+  );
+  // a real confirmation, with a MISMATCH against the counterparty's figures
+  await postTradeConfirmation(
+    R({ confirmed_by: "ops_confirm", confirmation_ref: "c1", counterparty_par_cents: 29_000_000 }),
+    tid, env.db, "d", ops,
+  );
+  // and one that MATCHES, so "matched" is not simply an event nobody can reach
+  const tr2 = (env.rows["core.trade"] ?? [])
+    .filter((t: Any) => t.decision === "executed").slice(-1)[0];
+  if (tr2 && tr2.id !== tid) {
+    await postTradeConfirmation(
+      R({
+        confirmed_by: "ops_confirm", confirmation_ref: "c2",
+        counterparty_par_cents: Number(tr2.par_cents),
+      }),
+      String(tr2.id), env.db, "d", ops,
+    );
+  }
+  // NEGATIVE: the executing trader cannot settle either
+  await postTradeReconciliation(R({ settled_by: "trader_1" }), tid, env.db, "d", ops);
+  await postTradeReconciliation(R({ settled_by: "ops_settle" }), tid, env.db, "d", ops);
+
+  await postTradeException(
+    R({ trade_id: tid, kind: "limit_waiver", detail: { bp: 100 }, raised_by: "trader_1",
+        approved_by: "cio_1" }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: self-approved exception
+  await postTradeException(
+    R({ kind: "late_confirmation", detail: {}, raised_by: "trader_1", approved_by: "trader_1" }),
+    env.db, "d", ops,
+  );
+
+  await postSafekeepingReconciliation(
+    R({ intermediary_id: "interm_northgatesecurities",
+        holdings: { sec_ust1: 29_000_000 } }),
+    env.db, "d", ops,
+  );
+
+  // repo with a margin shortfall, and one blocked on the counterparty
+  await postRepoAgreement(
+    R({ intermediary_id: "interm_northgatesecurities", direction: "reverse_repo",
+        principal_cents: 10_000_000, collateral_value_cents: 10_100_000,
+        required_margin_bp: 200 }),
+    env.db, "d", ops,
+  );
+  await postRepoAgreement(
+    R({ intermediary_id: "interm_backstreetbrokers", direction: "repo",
+        principal_cents: 5_000_000, collateral_value_cents: 5_500_000,
+        required_margin_bp: 200 }),
+    env.db, "d", ops,
+  );
+
+  // fair value: one impaired, one not
+  await postFairValue(
+    R({ fair_value_cents: 28_000_000, source: "bloomberg_level_1",
+        amortized_cost_cents: 30_000_000 }),
+    "sec_ust1", env.db, "d", ops,
+  );
+  await postFairValue(
+    R({ fair_value_cents: 1_100_000, source: "broker_quote_level_2",
+        amortized_cost_cents: 1_000_000 }),
+    "sec_cmo1", env.db, "d", ops,
+  );
+  // NEGATIVE: a fair value with no source
+  await postFairValue(R({ fair_value_cents: 1 }), "sec_ust1", env.db, "d", ops);
+
+  await postSecurityDowngrade(
+    R({ new_rating: "BB", reviewed_by: "cio_1", disposition: "hold" }),
+    "sec_cmo1", env.db, "d", ops,
+  );
+
+  await postLiquidityClassification(
+    R({ security_id: "sec_ust1", liquidity_class: "level_1" }), env.db, "d", ops,
+  );
+  await postLiquidityClassification(
+    R({ security_id: "sec_cmo1", liquidity_class: "level_3" }), env.db, "d", ops,
+  );
+  await postLiquidityReport(R({ period: "2026Q3", min_marketable_bp: 5000 }), env.db, "d", ops);
+
+  // NEGATIVE: activating a contingency level with no execution plan
+  await postCfpLevelChange(R({ level: "stress", changed_by: "alco_1" }), env.db, "d", ops);
+  await postCfpLevelChange(
+    R({ level: "stress", changed_by: "alco_1", execution_plan_ref: "cfp-plan-3",
+        trigger_detail: { marketable_bp: 4200 }, investment_test_completed: true }),
+    env.db, "d", ops,
+  );
+
+  await postAlmSimulation(
+    R({ kind: "irr", period: "2026Q3", scenario: "+300bp", result_bp: 850, minimum_bp: 600 }),
+    env.db, "d", ops,
+  );
+  await postAlmSimulation(
+    R({ kind: "stress", period: "2026Q3", scenario: "severe", result_bp: 400, minimum_bp: 600 }),
+    env.db, "d", ops,
+  );
+  await postAlmSimulation(
+    R({ kind: "portfolio_stress", period: "2026Q3", scenario: "rate_shock",
+        result_bp: 700, minimum_bp: 600 }),
+    env.db, "d", ops,
+  );
+
+  await postPortfolioReport(R({ period: "2026Q3", audience: "board" }), env.db, "d", ops);
+  await postPortfolioReport(R({ period: "2026Q3", audience: "management" }), env.db, "d", ops);
+  await postPerformanceMeasurement(
+    R({ period: "2026Q3", portfolio_return_bp: 420, benchmark_ref: "ICE BofA 1-3Y",
+        benchmark_return_bp: 390, attribution: { duration: 20, selection: 10 } }),
+    env.db, "d", ops,
+  );
+}
+
 async function runCapitalLifecycle(env: FireEnv): Promise<void> {
   // A WELL-CAPITALIZED position with a configured internal trigger. The trigger
   // sits above the statutory floor, so this position is compliant with NCUA and
@@ -1157,6 +1416,13 @@ import {
   postPospayException,
 } from "../api/eps_controls.ts";
 import { postIssueCard } from "../api/cards.ts";
+import {
+  postAlmSimulation, postCfpLevelChange, postCreditFile, postCreditFileReanalysis,
+  postFairValue, postInstrumentListEntry, postIntermediary, postLiquidityClassification,
+  postLiquidityReport, postPerformanceMeasurement, postPortfolioReport, postRepoAgreement,
+  postSafekeepingReconciliation, postSecurityDowngrade, postTrade, postTradeConfirmation,
+  postTradeException, postTradeReconciliation, putLimitSet, putUserRole,
+} from "../api/investment.ts";
 import {
   postAppraisalComplete, postAppraisalOrder, postAtrQm, postCreditApplicationRecord,
   postCreditConfig, postCreditDecisionRecord, postCreditReport, postFairLendingAnalysis,
@@ -1493,8 +1759,17 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   "capital.distribution_restriction.applied": (env) => runCapitalLifecycle(env),
   "rwa.mapping_run.started": (env) => runCapitalLifecycle(env),
   "rwa.exposure.classified": (env) => runCapitalLifecycle(env),
-  "portfolio.board_report.issued": (env) => runCapitalLifecycle(env),
-  "portfolio.management_report.issued": (env) => runCapitalLifecycle(env),
+  // Both capital (BA-*) and investment (IP-02/IP-12) declare these. The capital
+  // report and the portfolio report are different documents that happen to
+  // share a code, so both lifecycles run rather than one being picked.
+  "portfolio.board_report.issued": async (env) => {
+    await runCapitalLifecycle(env);
+    await runInvestmentLifecycle(env);
+  },
+  "portfolio.management_report.issued": async (env) => {
+    await runCapitalLifecycle(env);
+    await runInvestmentLifecycle(env);
+  },
   "stress.quarter_open": (env) => runCapitalLifecycle(env),
   "stress.scenario.run": (env) => runCapitalLifecycle(env),
   "capital.report.quarter_close": (env) => runCapitalLifecycle(env),
@@ -1656,6 +1931,45 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   "rate_sheet.refresh.due_at": (env) => runLendingUwLifecycle(env),
   "steering_review.completed": (env) => runLendingUwLifecycle(env),
   "valuation.rov.requested": (env) => runLendingUwLifecycle(env),
+  "trade.limit.blocked": (env) => runInvestmentLifecycle(env),
+  "trade.exception.logged": (env) => runInvestmentLifecycle(env),
+  "intermediary.review.completed": (env) => runInvestmentLifecycle(env),
+  "trade.permissibility.checked": (env) => runInvestmentLifecycle(env),
+  "trade.limit_warning.issued": (env) => runInvestmentLifecycle(env),
+  "instrument_list.review.completed": (env) => runInvestmentLifecycle(env),
+  "regulatory.change_analysis.logged": (env) => runInvestmentLifecycle(env),
+  "position.booked": (env) => runInvestmentLifecycle(env),
+  "alm.irr_simulation.completed": (env) => runInvestmentLifecycle(env),
+  "stress_test.minimum.breached": (env) => runInvestmentLifecycle(env),
+  "credit_file.approved": (env) => runInvestmentLifecycle(env),
+  "credit_file.reanalysis.completed": (env) => runInvestmentLifecycle(env),
+  "security.downgraded": (env) => runInvestmentLifecycle(env),
+  "security.downgrade.reviewed": (env) => runInvestmentLifecycle(env),
+  "liquidity.report.published": (env) => runInvestmentLifecycle(env),
+  "liquidity.stress.declared": (env) => runInvestmentLifecycle(env),
+  "position.liquidity.classified": (env) => runInvestmentLifecycle(env),
+  "limit_set.review.completed": (env) => runInvestmentLifecycle(env),
+  "concentration.limit_exceeded": (env) => runInvestmentLifecycle(env),
+  "trade.intermediary.blocked": (env) => runInvestmentLifecycle(env),
+  "safekeeping.reconciliation.completed": (env) => runInvestmentLifecycle(env),
+  "repo.booked": (env) => runInvestmentLifecycle(env),
+  "repo.collateral_marked": (env) => runInvestmentLifecycle(env),
+  "repo.margin_shortfall.detected": (env) => runInvestmentLifecycle(env),
+  "security.fair_value.updated": (env) => runInvestmentLifecycle(env),
+  "security.otti_analysis.completed": (env) => runInvestmentLifecycle(env),
+  "trade.checklist.completed": (env) => runInvestmentLifecycle(env),
+  "trade.checklist_exception_raised": (env) => runInvestmentLifecycle(env),
+  "portfolio.stress_test.completed": (env) => runInvestmentLifecycle(env),
+  "performance.attribution.completed": (env) => runInvestmentLifecycle(env),
+  "performance.target_change.proposed": (env) => runInvestmentLifecycle(env),
+  "trade.sod.blocked": (env) => runInvestmentLifecycle(env),
+  "trade.confirmation.received": (env) => runInvestmentLifecycle(env),
+  "trade.confirmation_discrepancy.flagged": (env) => runInvestmentLifecycle(env),
+  "trade.reconciliation.completed": (env) => runInvestmentLifecycle(env),
+  "trade.step.recorded": (env) => runInvestmentLifecycle(env),
+  "document.required_set": (env) => runInvestmentLifecycle(env),
+  "document.attachment_due_at": (env) => runInvestmentLifecycle(env),
+  "cfp.investment_test.completed": (env) => runInvestmentLifecycle(env),
   "incident.declared": (env) => runIncidentLifecycle(env),
   "incident.detected": (env) => runIncidentLifecycle(env),
   "incident.sev1.detected": (env) => runIncidentLifecycle(env),
