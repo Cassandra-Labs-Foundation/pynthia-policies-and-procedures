@@ -80,6 +80,10 @@ Deno.test("PR-11: demonstrated consent permits electronic delivery", async () =>
   );
   assertEquals(res.status, 201);
   assert(codes(dbx.rows).includes("privacy.notice_copy.delivered"));
+  assert(
+    dbx.rows["core.privacy_notice_delivery"][0].delivered_at,
+    "the delivery row must record it, not only the event",
+  );
   assertEquals(dbx.violations, []);
 });
 

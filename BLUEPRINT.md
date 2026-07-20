@@ -2372,3 +2372,35 @@ EVENT without the STATE: `overdraft.charged_off` fired while `charged_off_at`
 stayed null. Worth noting as a recurring test smell — **asserting the
 announcement rather than the record.** The event says it happened; only the row
 says it is true.
+
+## THE EVENT-WITHOUT-STATE SMELL — swept, one real defect found
+
+**A test that asserts an emitted EVENT and not the ROW it should have changed
+passes against code that announces something and then fails to persist it.**
+Same failure family as the fail-open class, arriving through the test rather
+than the model: the control reports success and nothing happened.
+
+Found by a surviving mutation in collections (`overdraft.charged_off` fired
+while `charged_off_at` stayed null), then swept statically across every test
+file — 37 tests asserted a positive event with no assertion on any row.
+
+### The real defect it found
+
+**`loan.dpd_reset` was emitted and nothing reset the loan.** After an approved
+workout with demonstrated payments, the event fired, `days_past_due` stayed
+where it was, the classification stayed where it was, and the test passed
+because it asserted the event. A loan that had genuinely earned its reset kept
+its delinquency — the failure is conservative here, but the same shape in the
+other direction is how a delinquent loan silently becomes current.
+
+Row assertions added at five sites where a state change genuinely accompanies
+the event (collections dpd reset, cash shipment verification, CDA publication,
+insider board approval, privacy notice delivery). All five mutations — event
+emitted, persistence neutralised — now caught.
+
+**Most of the other 32 are legitimate**: negative assertions (`assert(!codes…)`)
+and writers that genuinely only emit (`sar.disclosure.declined`,
+`risk.within_appetite`) have no row to check.
+
+**The rule: if a writer both emits and persists, the test must assert both. The
+event says it happened; only the row says it is true.**

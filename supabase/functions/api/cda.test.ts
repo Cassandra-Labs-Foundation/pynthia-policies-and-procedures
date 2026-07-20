@@ -685,6 +685,8 @@ Deno.test("CDA-14: publishing requires the artifact to be archived at publicatio
   );
   assertEquals(ok.status, 200);
   assert(codes(dbx.rows).includes("cda.communication.published"));
+  assert(dbx.rows["core.cda_communication"][0].published_at, "the row must record publication");
+  assertEquals(dbx.rows["core.cda_communication"][0].archived_ref, "a1");
 });
 
 // ------------------------------------------------------------ CDA-02 glossary

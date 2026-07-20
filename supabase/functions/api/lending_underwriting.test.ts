@@ -476,6 +476,7 @@ Deno.test("LP-13: the HMDA LAR is QC'd BEFORE submission", async () => {
     201,
   );
   assert(codes(dbx.rows).includes("hmda.lar.submitted"));
+  assert(dbx.rows["core.hmda_lar"][0].submitted_at, "the LAR row must record the submission");
 });
 
 // ---------------------------------------------------------- LP-14 insider
@@ -520,6 +521,10 @@ Deno.test("LP-14: comparable terms still need a recorded Board resolution", asyn
     200,
   );
   assert(codes(dbx.rows).includes("insider.board_approval.recorded"));
+  assert(
+    dbx.rows["core.insider_loan_review"][0].board_approved_at,
+    "the review row must record the approval, not only announce it",
+  );
 });
 
 Deno.test("LP-14: an EXPIRED insider registration no longer flags", async () => {

@@ -170,6 +170,10 @@ Deno.test("CO-04: days-past-due resets only after payments are demonstrated", as
     "loan_1", s2.db, "t", CTX,
   );
   assert(codes(s2.dbx.rows).includes("loan.dpd_reset"));
+  // the event says it happened; only the row says it is TRUE. This assertion
+  // is what caught the reset that was announced and never applied.
+  assertEquals(s2.dbx.rows["core.loan"][0].days_past_due, 0);
+  assertEquals(s2.dbx.rows["core.loan"][0].delinquency_stage, "current");
 });
 
 // -------------------------------------------------------- CO-05 the FDCPA gate

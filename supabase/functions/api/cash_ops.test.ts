@@ -380,6 +380,8 @@ Deno.test("CP-08: a matching seal verifies and declares no incident", async () =
   assertEquals(res.status, 200);
   assert(codes(dbx.rows).includes("cash.shipment.verified"));
   assert(!codes(dbx.rows).includes("incident.created"));
+  assert(dbx.rows["core.cash_shipment"][0].verified_at, "the row must record the verification");
+  assertEquals(dbx.rows["core.cash_shipment"][0].seal_matched, true);
   assertEquals(dbx.violations, []);
 });
 

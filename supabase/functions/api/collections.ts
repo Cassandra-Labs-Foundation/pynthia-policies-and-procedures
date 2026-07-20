@@ -431,8 +431,16 @@ export async function postLoanModification(
         eligible, basis: "three consecutive payments after modification",
       }, ctx);
     if (eligible) {
+      // THE RESET HAS TO HAPPEN, not merely be announced. This emitted
+      // `loan.dpd_reset` and changed nothing: the loan stayed delinquent, the
+      // classification stayed where it was, and every test passed because they
+      // asserted the EVENT. Found by sweeping for that shape after the
+      // overdraft charge-off mutation survived on the same smell.
+      await db.schema(scope).from("loan").update({
+        days_past_due: 0, delinquency_stage: "current", classification: "pass",
+      }).eq("id", loanId);
       await emit(db, scope, `ev_${id}_reset`, "loan.dpd_reset", "loan_modification", id, {
-        tdr, kind: body.kind,
+        tdr, kind: body.kind, days_past_due: 0,
       }, ctx);
     }
     await emit(db, scope, `ev_${id}_qrev`, "tdr.quarterly_review.completed",
