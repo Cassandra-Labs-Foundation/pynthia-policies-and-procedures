@@ -2534,6 +2534,103 @@ async function runResolutionLifecycle(env: FireEnv): Promise<void> {
   );
 }
 
+/** Basel: risk-weight schedule, RWA run, buffers, CFP profile. */
+async function runBaselLifecycle(env: FireEnv): Promise<void> {
+  if ((env.rows["core.rwa_schedule"] ?? []).length > 0) return;
+  const ops = env.actors.ops;
+
+  await postRwaSchedule(
+    R({ risk_weight_map: { cash: 0, sovereign: 0, gse: 20, municipal: 50,
+                           residential_mortgage: 50, consumer: 100, commercial: 100,
+                           past_due: 150, equity: 300 },
+        ccf_map: { undrawn_commitment: 50 }, approved_by: "cfo_1",
+        regulatory_preapproval_id: "NCUA-PRE-4" }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: changing a statutory schedule with no stated authority
+  await postRwaSchedule(
+    R({ risk_weight_map: { sovereign: 0, commercial: 50 }, approved_by: "cfo_1" }),
+    env.db, "d", ops,
+  );
+  // the RWA run and the buffers live on capital.ts; this schedule feeds them
+  await runCapitalLifecycle(env);
+
+  // NEGATIVE: a CFP above normal with no liquidation hierarchy
+  await postCfpProfile(
+    R({ as_of_date: "2026-06-30", cfp_level: "heightened",
+        gl_total_shares_cents: 350_000_000_00, hqla_cents: 40_000_000_00 }),
+    env.db, "d", ops,
+  );
+  await postCfpProfile(
+    R({ as_of_date: "2026-06-30", cfp_level: "heightened",
+        gl_total_shares_cents: 350_000_000_00, hqla_cents: 40_000_000_00,
+        net_outflows_30d_cents: 25_000_000_00, asf_total_cents: 300_000_000_00,
+        rsf_total_cents: 280_000_000_00, clf_capacity_cents: 20_000_000_00,
+        concentration: { top10_bp: 1800 },
+        diversification_plan: "reduce top-10 share concentration below 15% by Q1",
+        stress: { scenario: "severe", survival_days: 45 },
+        liquidation_hierarchy: ["treasuries", "agency", "loan participations"],
+        execution_plan_documented: true, investment_test_completed: true }),
+    env.db, "d", ops,
+  );
+}
+
+/** BCP: comms tree, incident comms failover, PIR and corrective actions. */
+async function runBcpLifecycle(env: FireEnv): Promise<void> {
+  // guard on the PIR, not the comms tree: the incident lifecycle now builds the
+  // tree itself, so guarding on it would skip this whole lifecycle
+  if ((env.rows["core.pir"] ?? []).length > 0) return;
+  const ops = env.actors.ops;
+  await runIncidentLifecycle(env);
+  const inc = (env.rows["core.incident"] ?? [])[0];
+  const incId = String(inc?.id ?? "");
+
+  // NEGATIVE: a backup channel identical to the primary is not a backup
+  await postCommsTree(
+    R({ contact_tree: { ic: ["ceo"] }, primary: "email", backup: "email" }),
+    env.db, "d", ops,
+  );
+  await postCommsTree(
+    R({ contact_tree: { ic: ["ceo", "cfo"], tier2: ["ops"] },
+        stakeholder_matrix: { members: "website", regulator: "phone" },
+        primary: "email", backup: "sms" }),
+    env.db, "d", ops,
+  );
+  if (incId) {
+    // NEGATIVE: a media response with no CEO approval
+    await postIncidentComms(
+      R({ platform_failed: true, media_inquiry: true,
+          holding_statement: "we are investigating" }),
+      incId, env.db, "d", ops,
+    );
+    await postIncidentComms(
+      R({ platform_failed: true, media_inquiry: true,
+          holding_statement: "we are investigating",
+          ceo_approval: "ceo_1 approved 12:40Z" }),
+      incId, env.db, "d", ops,
+    );
+    // NEGATIVE: a PIR drafted with no root cause
+    await postPir(R({ impact_summary: "1400 members" }), incId, env.db, "d", ops);
+    await postPir(
+      R({ root_cause: "credential stuffing against an un-rate-limited endpoint",
+          timeline: [{ at: "11:00Z", what: "first failed logins" }],
+          impact_summary: "1,400 members' account numbers exposed" }),
+      incId, env.db, "d", ops,
+    );
+    await postCorrectiveAction(
+      R({ key: "ratelimit", description: "rate-limit the login endpoint", owner: "eng_1",
+          approved_by: "ciso_1", retest_result: "verified: 429 after 5 attempts" }),
+      `pir_${incId}`, env.db, "d", ops,
+    );
+    // an action approved but NOT retested — completed is not evidence
+    await postCorrectiveAction(
+      R({ key: "mfa", description: "require MFA on password reset", owner: "eng_2",
+          approved_by: "ciso_1", completed: true }),
+      `pir_${incId}`, env.db, "d", ops,
+    );
+  }
+}
+
 async function runCapitalLifecycle(env: FireEnv): Promise<void> {
   // A WELL-CAPITALIZED position with a configured internal trigger. The trigger
   // sits above the statutory floor, so this position is compliant with NCUA and
@@ -2553,6 +2650,9 @@ async function runCapitalLifecycle(env: FireEnv): Promise<void> {
   );
   await postRwaRun(
     R({
+      gl_total_assets_cents: 400_000_000_00, gl_total_loans_cents: 250_000_000_00,
+      gross_income_cents: 20_000_000_00, trading_book_cents: 12_000_000_00,
+      ccf_map: { undrawn_commitment: 50 },
       exposures: [
         { class: "cash", amount_cents: 5_000_000_00 },
         { class: "residential_mortgage", amount_cents: 40_000_000_00 },
@@ -2564,6 +2664,18 @@ async function runCapitalLifecycle(env: FireEnv): Promise<void> {
       ],
     }),
     "cap_20260331", env.db, "d", env.actors.ops,
+  );
+  // NEGATIVE: no CCyB configured -> no payout cap, so no distribution verdict
+  await postCapitalBuffer(
+    R({ as_of_date: "2026-06-29", cet1_ratio_bp: 900, requirement_bp: 1050 }),
+    env.db, "d", env.actors.ops,
+  );
+  await postCapitalBuffer(
+    R({ as_of_date: "2026-06-30", cet1_ratio_bp: 900, requirement_bp: 1050,
+        ccyb_level_bp: 100, proposed_ccyb_level_bp: 125,
+        dividend_schedule: { q3: 500_000_00 },
+        proposed_distribution_amount_cents: 500_000_00, loan_growth_yoy_bp: 1800 }),
+    env.db, "d", env.actors.ops,
   );
 
   // An UNDERCAPITALIZED position: 5.00% net worth ratio. This must classify as
@@ -2675,6 +2787,15 @@ async function runIncidentLifecycle(env: FireEnv): Promise<void> {
     const rec = (env.rows["core.incident"] ?? []).find((x: Any) => x.id === id2);
     if (rec) rec.ncua_notice_due_at = "2020-01-01T00:00:00.000Z";
   }
+  await postCommsTree(
+    R({ contact_tree: { ic: ["ceo", "cfo"], tier2: ["ops"] },
+        stakeholder_matrix: { members: "website", regulator: "phone" },
+        primary: "email", backup: "sms" }),
+    env.db, "d", env.actors.ops,
+  );
+  await postIncidentComms(
+    R({ holding_statement: "we are investigating" }), id, env.db, "d", env.actors.ops,
+  );
   await postIncidentSweep(R({}), env.db, "d", env.actors.ops);
 }
 import {
@@ -2682,6 +2803,10 @@ import {
   postPospayException,
 } from "../api/eps_controls.ts";
 import { postCardReissue, postIssueCard } from "../api/cards.ts";
+import {
+  postCapitalBuffer, postCfpProfile, postCommsTree, postCorrectiveAction,
+  postIncidentComms, postPir, postRwaSchedule,
+} from "../api/basel.ts";
 import {
   postAccountFreeze, postEwiIndicator, postEwiSweep, postFreezeRelease,
   postFrozenAccountCredit, postInstitutionFreeze, postMemberPortalAccess,
@@ -3523,6 +3648,16 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   "records_package.completed": (env) => runResolutionLifecycle(env),
   "records_package.snapshot.completed": (env) => runResolutionLifecycle(env),
   "records_package.verification.failed": (env) => runResolutionLifecycle(env),
+  "cfp.level.changed": (env) => runBaselLifecycle(env),
+  "liquidity.cfp_trigger.breached": (env) => runBaselLifecycle(env),
+  "liquidity.concentration.breached": (env) => runBaselLifecycle(env),
+  "rwa.schedule.approved": (env) => runBaselLifecycle(env),
+  "rwa.schedule_change.proposed": (env) => runBaselLifecycle(env),
+  "cap.approved": (env) => runBcpLifecycle(env),
+  "cap.retest.verified": (env) => runBcpLifecycle(env),
+  "comms.media_inquiry.received": (env) => runBcpLifecycle(env),
+  "comms.platform.failed": (env) => runBcpLifecycle(env),
+  "pir.drafted": (env) => runBcpLifecycle(env),
   "incident.declared": (env) => runIncidentLifecycle(env),
   "incident.detected": (env) => runIncidentLifecycle(env),
   "incident.sev1.detected": (env) => runIncidentLifecycle(env),

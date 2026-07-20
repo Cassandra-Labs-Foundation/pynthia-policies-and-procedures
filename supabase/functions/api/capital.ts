@@ -264,6 +264,11 @@ export async function postCapitalPosition(
  * exposure class. These live here for the same reason the PCA bands do — they
  * are prescribed, not chosen.
  */
+/** BA-03: below this the market-risk charge does not apply at all. */
+export const TRADING_BOOK_THRESHOLD_CENTS = 10_000_000_00;
+/** BA-03: the basic-indicator alpha for operational risk, 15%. */
+export const BASIC_INDICATOR_ALPHA_BP = 1500;
+
 export const RWA_WEIGHTS: Readonly<Record<string, number>> = {
   cash: 0, sovereign: 0, gse: 20, municipal: 50, residential_mortgage: 50,
   consumer: 100, commercial: 100, past_due: 150, equity: 300,
@@ -285,6 +290,16 @@ export async function postRwaRun(
 
   await emit(db, scope, `ev_${positionId}_rwastart`, "rwa.mapping_run.started", positionId, {}, ctx);
 
+  // BA-04: the weights are a VERSIONED SCHEDULE when one is on file, and the
+  // hardcoded constants only when it is not. A ratio computed last quarter has
+  // to be reproducible, which an editable-in-place weight map cannot promise.
+  const { data: scheds } = await db.schema(scope).from("rwa_schedule")
+    .select("id, rwa_schedule_version, rwa_risk_weight_map").is("superseded_at", null);
+  const sched = (scheds ?? [])[0] ?? null;
+  const weights: Record<string, number> = sched
+    ? sched.rwa_risk_weight_map as Record<string, number>
+    : { ...RWA_WEIGHTS };
+
   const exposures = Array.isArray(body.exposures) ? body.exposures : [];
   let rwa = 0;
   const unmapped: string[] = [];
@@ -292,7 +307,7 @@ export async function postRwaRun(
     const e = raw as Record<string, unknown>;
     const cls = typeof e.class === "string" ? e.class : "";
     const amt = typeof e.amount_cents === "number" ? e.amount_cents : 0;
-    const weight = RWA_WEIGHTS[cls];
+    const weight = weights[cls];
     if (weight === undefined) {
       // An exposure class with no published weight is NOT weighted at zero and
       // is not silently dropped. Either would understate RWA, which is the
@@ -303,8 +318,28 @@ export async function postRwaRun(
     rwa += Math.floor((amt * weight) / 100);
   }
 
+  // BA-03: credit is one of three legs. Market risk applies only above the
+  // trading-book threshold; recording the threshold alongside the verdict is
+  // what distinguishes "zero because it does not apply" from "zero because
+  // nobody computed it".
+  const trading = typeof body.trading_book_cents === "number" ? body.trading_book_cents : 0;
+  const crossed = trading >= TRADING_BOOK_THRESHOLD_CENTS;
+  const marketRwa = crossed ? trading : 0;
+  const grossIncome = typeof body.gross_income_cents === "number" ? body.gross_income_cents : 0;
+  const opRwa = Math.floor(grossIncome * BASIC_INDICATOR_ALPHA_BP / 10000);
+  const rwaTotal = rwa + marketRwa + opRwa;
+
   const { error: updErr } = await db.schema(scope).from("capital_position")
-    .update({ risk_weighted_assets_cents: rwa, updated_at: new Date().toISOString() })
+    .update({
+      risk_weighted_assets_cents: rwa, updated_at: new Date().toISOString(),
+      rwa_schedule_id: sched ? sched.id : null,
+      rwa_market_cents: marketRwa, rwa_operational_cents: opRwa,
+      capital_rwa_total_cents: rwaTotal,
+      trading_book_cents: trading,
+      trading_threshold_cents: TRADING_BOOK_THRESHOLD_CENTS,
+      trading_threshold_crossed: crossed,
+      unmapped_exposures: unmapped as unknown as Record<string, unknown>,
+    })
     .eq("id", positionId);
   if (updErr) return internalErrorResponse(requestId, updErr.message);
 
@@ -313,12 +348,33 @@ export async function postRwaRun(
   }, ctx);
   await emit(db, scope, `ev_${positionId}_rwacred`, "rwa.credit_calculated", positionId, {
     risk_weighted_assets_cents: rwa,
+    "rwa.risk_weight_map": weights,
+    "rwa.exposure_category": exposures.map((e) => (e as Record<string, unknown>).class),
+    "rwa.ccf_map": body.ccf_map ?? {},
+    "gl.total_assets": body.gl_total_assets_cents ?? 0,
+    "gl.total_loans": body.gl_total_loans_cents ?? 0,
   }, ctx);
+  await emit(db, scope, `ev_${positionId}_rwamkt`, "rwa.market_calculated", positionId, {
+    rwa_market_cents: marketRwa, applies: crossed,
+    threshold_cents: TRADING_BOOK_THRESHOLD_CENTS,
+  }, ctx);
+  await emit(db, scope, `ev_${positionId}_rwaop`, "rwa.operational_calculated", positionId, {
+    rwa_operational_cents: opRwa, alpha_bp: BASIC_INDICATOR_ALPHA_BP,
+  }, ctx);
+  await emit(db, scope, `ev_${positionId}_rwatotal`, "capital.rwa_total", positionId, {
+    "capital.rwa_total": rwaTotal, credit: rwa, market: marketRwa, operational: opRwa,
+  }, ctx);
+  if (crossed) {
+    await emit(db, scope, `ev_${positionId}_rwacross`, "rwa.trading_threshold_crossed",
+      positionId, { trading_book_cents: trading, threshold_cents: TRADING_BOOK_THRESHOLD_CENTS }, ctx);
+  }
 
   return jsonResponse({
     data: {
       position_id: positionId,
       risk_weighted_assets_cents: rwa,
+      rwa_total_cents: rwaTotal,
+      trading_threshold_crossed: crossed,
       // Surfaced, never absorbed: an unmapped exposure class means the RWA
       // figure is incomplete and the caller has to know that.
       unmapped_exposure_classes: unmapped,

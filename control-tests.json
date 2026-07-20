@@ -9,14 +9,14 @@
     "total": 333,
     "in_scope": 225,
     "scoped_out": 108,
-    "in_scope_green": 175,
-    "in_scope_red": 50,
+    "in_scope_green": 182,
+    "in_scope_red": 43,
     "scope_note": "Scoped-out controls are real obligations discharged by people and paperwork. This system covers the technical controls; the organisational ones are not claimed.",
-    "green": 176,
-    "red": 157,
-    "pct_green": 52.9,
+    "green": 183,
+    "red": 150,
+    "pct_green": 55,
     "red_by_reason": {
-      "trigger fires but produced events missing": 88,
+      "trigger fires but produced events missing": 81,
       "no writer: vendor.*": 6,
       "no writer: training.*": 4,
       "no writer: eps.*": 4,
@@ -66,7 +66,7 @@
     },
     "inputs_unverifiable_total": 1391,
     "green_by_fire_path": {
-      "real_writer": 168,
+      "real_writer": 175,
       "generic_echo": 6,
       "obligation_cadence": 2
     },
@@ -81,18 +81,18 @@
       "fair-lending": 10,
       "capitalization": 8,
       "truth-in-savings": 8,
+      "basel-ii-standardized-approach-framework": 7,
       "cash": 7,
       "e-commerce": 7,
       "liquidity": 7,
       "member": 7,
+      "business-continuity-plan": 5,
       "resolution": 5,
-      "basel-ii-standardized-approach-framework": 3,
       "electronic-payment-systems": 3,
       "information-security": 3,
       "internal-controls": 3,
       "shared-controls": 3,
       "audit": 2,
-      "business-continuity-plan": 2,
       "enterprise-risk-management": 2,
       "third-party-risk": 1
     }
@@ -750,7 +750,7 @@
       "policy": "basel-ii-standardized-approach-framework",
       "control_id": "BA-03",
       "title": "Risk-Weighted Assets Computation",
-      "status": "red",
+      "status": "green",
       "expected": [
         "capital.rwa_total",
         "rwa.credit_calculated",
@@ -760,8 +760,12 @@
         "rwa.trading_threshold_crossed"
       ],
       "observed": [
+        "capital.rwa_total",
         "rwa.credit_calculated",
-        "rwa.weights.applied"
+        "rwa.market_calculated",
+        "rwa.operational_calculated",
+        "rwa.weights.applied",
+        "rwa.trading_threshold_crossed"
       ],
       "triggers": [
         "rwa.mapping_run.started",
@@ -782,8 +786,7 @@
         "rwa.exposure_category",
         "rwa.risk_weight_map"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 2/6: missing capital.rwa_total, rwa.market_calculated, rwa.operational_calculated, rwa.trading_threshold_crossed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -792,13 +795,14 @@
       "policy": "basel-ii-standardized-approach-framework",
       "control_id": "BA-04",
       "title": "Risk-Weight Schedule",
-      "status": "red",
+      "status": "green",
       "expected": [
         "rwa.schedule_version",
         "rwa.weights.applied",
         "rwa.credit_calculated"
       ],
       "observed": [
+        "rwa.schedule_version",
         "rwa.weights.applied",
         "rwa.credit_calculated"
       ],
@@ -832,8 +836,7 @@
         "rwa.exposure_category",
         "rwa.weights"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 2/3: missing rwa.schedule_version"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -842,7 +845,7 @@
       "policy": "basel-ii-standardized-approach-framework",
       "control_id": "BA-05",
       "title": "Liquidity Requirements",
-      "status": "red",
+      "status": "green",
       "expected": [
         "liquidity.report",
         "liquidity.diversification_plan.logged",
@@ -852,7 +855,12 @@
         "cfp.transition.started"
       ],
       "observed": [
-        "liquidity.cfp.activated"
+        "liquidity.report",
+        "liquidity.diversification_plan.logged",
+        "cfp.level",
+        "cfp.liquidation_hierarchy",
+        "liquidity.cfp.activated",
+        "cfp.transition.started"
       ],
       "triggers": [
         "liquidity.report.published",
@@ -892,8 +900,7 @@
         "liquidity.stress",
         "cfp.investment.test.due_at"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 1/6: missing liquidity.report, liquidity.diversification_plan.logged, cfp.level, cfp.liquidation_hierarchy"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -902,7 +909,7 @@
       "policy": "basel-ii-standardized-approach-framework",
       "control_id": "BA-06",
       "title": "Buffer Ratios",
-      "status": "red",
+      "status": "green",
       "expected": [
         "capital.buffer_status.recorded",
         "capital.distribution_restriction.applied",
@@ -916,9 +923,12 @@
       "observed": [
         "capital.buffer_status.recorded",
         "capital.distribution_restriction.applied",
+        "capital.max_payout_ratio",
         "capital.payout_restricted",
         "capital.payout_restriction_schedule",
-        "capital.restricted_distribution.decided"
+        "capital.restricted_distribution.decided",
+        "capital.ccyb.activated",
+        "capital.ccyb_level"
       ],
       "triggers": [
         "capital.buffer.breached",
@@ -949,8 +959,7 @@
         "capital.proposed_ccyb_level",
         "gl.loan_growth_yoy"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 5/8: missing capital.max_payout_ratio, capital.ccyb.activated, capital.ccyb_level"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -2099,7 +2108,11 @@
         "cap.item.completed",
         "cap.retest.verified"
       ],
-      "observed": [],
+      "observed": [
+        "cap.item.created",
+        "cap.item.completed",
+        "cap.retest.verified"
+      ],
       "triggers": [
         "exercise.scheduled",
         "exercise.completed",
@@ -2119,8 +2132,8 @@
         "drill.failure_detail",
         "drill.remediation_item"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/7: missing exercise.scheduled, cap.item.created, drill.aar.published, exercise.completed"
+      "fire_path": "real_writer",
+      "blocked_on": "produced 3/7: missing exercise.scheduled, drill.aar.published, exercise.completed, exercise.board.reported"
     },
     {
       "scoped_out": false,
@@ -2129,7 +2142,7 @@
       "policy": "business-continuity-plan",
       "control_id": "BC-05",
       "title": "Monitoring, Detection, and Severity",
-      "status": "red",
+      "status": "green",
       "expected": [
         "incident.created",
         "incident.severity.assigned",
@@ -2143,6 +2156,8 @@
         "incident.created",
         "incident.severity.assigned",
         "incident.ic.assigned",
+        "incident.ic_assignment_timer",
+        "comms.initial.issued",
         "comms.initial_timer",
         "incident.classified"
       ],
@@ -2166,8 +2181,7 @@
       "inputs_unverifiable": [
         "oncall.ic_rotation"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 5/7: missing incident.ic_assignment_timer, comms.initial.issued"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -2410,7 +2424,7 @@
       "policy": "business-continuity-plan",
       "control_id": "BC-11",
       "title": "Communications and Notification Tree",
-      "status": "red",
+      "status": "green",
       "expected": [
         "comms.initial_timer",
         "comms.internal_alert.issued",
@@ -2418,7 +2432,10 @@
         "comms.media_response.logged"
       ],
       "observed": [
-        "comms.initial_timer"
+        "comms.initial_timer",
+        "comms.internal_alert.issued",
+        "comms.backup.activated",
+        "comms.media_response.logged"
       ],
       "triggers": [
         "incident.declared",
@@ -2438,8 +2455,7 @@
         "comms.ceo_approval",
         "comms.holding_statement"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 1/4: missing comms.internal_alert.issued, comms.backup.activated, comms.media_response.logged"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -2479,7 +2495,7 @@
       "policy": "business-continuity-plan",
       "control_id": "BC-13",
       "title": "Post-Incident Review (PIR)",
-      "status": "red",
+      "status": "green",
       "expected": [
         "pir.draft_timer",
         "cap.approval.timer",
@@ -2489,7 +2505,15 @@
         "cap.item.completed",
         "cap.retest.verified"
       ],
-      "observed": [],
+      "observed": [
+        "pir.draft_timer",
+        "cap.approval.timer",
+        "cap.item.created",
+        "pir.drafted",
+        "cap.approved",
+        "cap.item.completed",
+        "cap.retest.verified"
+      ],
       "triggers": [
         "incident.closed",
         "pir.drafted",
@@ -2501,10 +2525,13 @@
         "incident.root_cause",
         "incident.timeline"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "incident.impact_summary",
+        "incident.root_cause",
+        "incident.timeline"
+      ],
       "inputs_unverifiable": [],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/7: missing pir.draft_timer, cap.approval.timer, cap.item.created, pir.drafted"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -10794,7 +10821,9 @@
         "funding.draw.executed",
         "cfp.deactivated"
       ],
-      "observed": [],
+      "observed": [
+        "cfp.transition.started"
+      ],
       "triggers": [
         "lar.band.changed",
         "cfp.level.changed",
@@ -10875,7 +10904,9 @@
         "comms.media_response.logged",
         "comms.script.approved"
       ],
-      "observed": [],
+      "observed": [
+        "comms.media_response.logged"
+      ],
       "triggers": [
         "cfp.level.changed",
         "comms.media_inquiry.received",
@@ -10895,7 +10926,7 @@
         "comms.holding_statement"
       ],
       "fire_path": "generic_echo",
-      "blocked_on": "produced 0/3: missing comms.notices.sent, comms.media_response.logged, comms.script.approved"
+      "blocked_on": "produced 1/3: missing comms.notices.sent, comms.script.approved"
     },
     {
       "scoped_out": false,

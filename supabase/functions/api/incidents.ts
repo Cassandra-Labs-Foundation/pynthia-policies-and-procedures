@@ -25,6 +25,8 @@ import {
 export const NCUA_NOTICE_HOURS = 72;
 /** Internal only — the regulation sets no bound on determination itself. */
 export const INTERNAL_DETERMINATION_HOURS = 24;
+/** BC-05: an incident commander must be named inside this. */
+export const IC_ASSIGNMENT_MINUTES = 15;
 const SWEEP_LIMIT = 200;
 /**
  * SC-03. The sitrep cadence scaled to severity. These are INTERNAL commitments,
@@ -110,6 +112,8 @@ export async function postIncident(
   });
   if (error) return internalErrorResponse(requestId, error);
   await db.schema(scope).from("incident").update({
+    ic_assignment_due_at: new Date(now.getTime() + IC_ASSIGNMENT_MINUTES * 60_000).toISOString(),
+    oncall_ic_rotation: String((rec as Record<string, unknown>).ic_rotation ?? "primary"),
     sitrep_cadence_minutes: SITREP_CADENCE_MINUTES[String(rec.severity)] ?? 240,
     detection_source: isNonEmptyString(rec.source) ? rec.source : null,
     scope_initial: isNonEmptyString(String((rec as Record<string, unknown>).scope_initial ?? ""))
@@ -125,6 +129,14 @@ export async function postIncident(
     await emit(db, scope, `evt_${id}_classified`, "incident.classified", id, { severity: rec.severity }, ctx);
     await emit(db, scope, `evt_${id}_sev`, "incident.severity.assigned", id, { severity: rec.severity }, ctx);
     await emit(db, scope, `evt_${id}_ic`, "incident.ic.assigned", id, { ic: ctx.tokenId }, ctx);
+    // BC-05: assignment is a CLOCK, not just a name. An incident whose
+    // commander was named four hours late was uncommanded for four hours, and
+    // only the timer makes that visible after the fact.
+    await emit(db, scope, `evt_${id}_ictimer`, "incident.ic_assignment_timer", id, {
+      due_at: new Date(now.getTime() + IC_ASSIGNMENT_MINUTES * 60_000).toISOString(),
+      "oncall.ic_rotation": (rec as Record<string, unknown>).ic_rotation ?? "primary",
+      assigned_at: now.toISOString(),
+    }, ctx);
     if (rec.severity === "sev1") {
       await emit(db, scope, `evt_${id}_sev1`, "incident.sev1.detected", id, {}, ctx);
     }

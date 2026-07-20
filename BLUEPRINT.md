@@ -2107,6 +2107,42 @@ for the wrong reason again.
 
 Sweep: 11 mutations, 10 caught first pass, the 11th above. 808 tests, 175 green.
 
+## Artifact — Basel II + business continuity (BA/BC)
+
+**Predicted basel 4, BCP 3. Landed 4 and 3.** Sixteen for sixteen. 175 → 182.
+BA-08 needs ALCO and board minutes; BC-07 a backup system's job results; BC-09
+an IT failover feed; BC-15 counsel and a vendor attestation.
+
+**I nearly duplicated a subsystem again — and exists_check told me so.** The
+tool printed `⚠ calculated  events=rwa.credit_calculated` before I started, and
+I wrote a `core.rwa_run` table and a second `postRwaRun` anyway. It failed at
+typecheck on a duplicate identifier, which is luck, not process. The lesson from
+§5i needs sharpening: **running the check is not the control; READING it is.**
+The output is long and mostly noise, and the one line that mattered was in the
+middle of it. Backed out; BA-03's market and operational legs and BA-04's
+versioned schedule went onto `capital.ts`'s existing run.
+
+Worth noting what the existing writer already had: `capital.ts` refuses to
+weight an unmapped exposure at zero, with the comment "zero is the direction
+that flatters the institution" — the same reasoning, arrived at independently,
+before this artifact existed. That is the §5k pattern reproducing itself a
+second time without being looked for.
+
+**§5k, third artifact running.** Basel is the purest instance in the corpus
+because both kinds sit inside one ratio: the RISK WEIGHTS are statutory
+(versioned, approved, and an unmapped exposure REFUSES rather than defaulting),
+while the COUNTERCYCLICAL BUFFER is institutional (nullable, and an unset CCyB
+produces no payout cap and therefore no distribution verdict — not an
+unrestricted distribution).
+
+**BC-13's finding, stated generally: "completed" is the owner's opinion; the
+retest is the evidence.** A corrective action marked complete and never
+retested is one nobody knows worked, and the two states have to be separately
+representable. Same shape as EDD "completed" with no findings, and as a facility
+that has never been drawn.
+
+Sweep: 13 mutations, 13 caught. 826 tests, 182 green of 225.
+
 # §5k — A MISSING STATUTORY THRESHOLD IS A BUG; A MISSING INSTITUTIONAL ONE IS UNASSESSED
 
 **This is the one finding here that generalises past banking entirely.** It has
