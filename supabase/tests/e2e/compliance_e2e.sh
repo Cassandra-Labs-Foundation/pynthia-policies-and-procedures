@@ -52,6 +52,35 @@ new_account() { # new_account <cents> <label> -> account id
   | python3 -c 'import json,sys;print(json.load(sys.stdin)["id"])'
 }
 
+# ---- actor bootstrap ---------------------------------------------------
+# EPS-06 dual control and the BSA role gates need DIFFERENT actors: the demo
+# bootstrap token can neither approve its own wires nor carry a BSA duty role.
+# Mint run-scoped tokens directly; only the sha256 ever reaches the database
+# (same property as scripts/issue-token.ts).
+INST_ID=$(psql "$SUPABASE_DB_URL" -tAc "select id from core.instance limit 1")
+PTNR_ID=$(psql "$SUPABASE_DB_URL" -tAc "select id from core.partner limit 1")
+mint_token() { # mint_token <name> <actor_type> <roles pg-array> [partner_id]
+  local tok="cass_e2e_$(openssl rand -hex 20)"
+  local hash; hash=$(printf '%s' "$tok" | shasum -a 256 | awk '{print $1}')
+  local ptnr="null"; [ -n "${4:-}" ] && ptnr="'$4'"
+  psql "$SUPABASE_DB_URL" -qc "insert into core.api_token (id, token_hash, token_prefix, actor_type, roles, partner_id, instance_id, allowed_endpoints, allowed_tiers, status) values ('tok_e2e_${1}_${RUN}', '${hash}', 'cass_e2e', '$2', '$3', ${ptnr}, '${INST_ID}', '{*}', '{read,write,realtime,bulk}', 'active');" >/dev/null
+  echo "$tok"
+}
+APPROVER_TOKEN=$(mint_token approver pynthia_ops '{}')
+INVESTIGATOR_TOKEN=$(mint_token investigator cu_admin '{bsa_investigator}')
+OFFICER_TOKEN=$(mint_token officer cu_admin '{bsa_officer}')
+PARTNER_TOKEN=$(mint_token partner partner '{}' "$PTNR_ID")
+
+# the second pair of eyes on a wire (EPS-06): a DIFFERENT token approves
+approve_wire() {
+  curl -sS -o /dev/null -X POST "$API/payments/wire/$1/approve" \
+    -H "X-Api-Key: $APPROVER_TOKEN" -H 'content-type: application/json' -d '{}'
+}
+
+# system catalogs (pg_constraint etc.) are invisible through duckdb's
+# postgres scanner — introspection checks go straight to psql
+sqlpg() { psql "$SUPABASE_DB_URL" -tAc "$1" | tr -d '[:space:]'; }
+
 echo "== e2e compliance harness ($RUN) =="
 echo "-- fixtures --"
 RICH_A=$(new_account 5000000 rich-a)     # $50,000
@@ -351,6 +380,7 @@ echo "-- 20. wire return: accepted resolution lands RETURNED with reason --"
 WR=$(new_account 5000000 wire-return)
 ST=$(api POST /payments/wire/prepare wret1 "{\"source_account_id\":\"$WR\",\"amount_cents\":200000,\"beneficiary\":{\"name\":\"Acme Corp\",\"country\":\"US\"},\"purpose\":\"e2e wire return\"}")
 WID=$(jget id)
+approve_wire "$WID" # EPS-06: confirm requires a second approver
 ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/payments/wire/$WID/confirm" "${AUTH[@]}")
 check "wire confirmed (completed)"          "$(jget status)" "completed"
 ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/payments/wire/$WID/return" "${AUTH[@]}" -d '{"reason":"beneficiary fraud claim"}')
@@ -364,6 +394,7 @@ check "DB reaches returned, reason retained" \
 echo "-- 21. wire return: rejected resolution restores COMPLETED with trail --"
 ST=$(api POST /payments/wire/prepare wret2 "{\"source_account_id\":\"$WR\",\"amount_cents\":150000,\"beneficiary\":{\"name\":\"Acme Corp\",\"country\":\"US\"},\"purpose\":\"e2e wire return 2\"}")
 W2=$(jget id)
+approve_wire "$W2"
 curl -sS -o /tmp/e2e_body -X POST "$API/payments/wire/$W2/confirm" "${AUTH[@]}"
 curl -sS -o /tmp/e2e_body -X POST "$API/payments/wire/$W2/return" "${AUTH[@]}" -d '{"reason":"suspected duplicate"}'
 ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/payments/wire/$W2/return/resolve" "${AUTH[@]}" -d '{"outcome":"rejected","reason":"funds already withdrawn"}')
@@ -429,12 +460,14 @@ api POST /transfers cons-book "{\"source_account_id\":\"$CA\",\"destination_acco
 # wire out $2,000, confirmed in full, then returned -> net zero
 api POST /payments/wire/prepare cons-w1 "{\"source_account_id\":\"$CA\",\"amount_cents\":200000,\"beneficiary\":{\"name\":\"Acme\",\"country\":\"US\"},\"purpose\":\"cons wire\"}" >/dev/null
 CW1=$(jget id)
+approve_wire "$CW1"
 curl -sS -o /tmp/e2e_body -X POST "$API/payments/wire/$CW1/confirm" "${AUTH[@]}"
 curl -sS -o /tmp/e2e_body -X POST "$API/payments/wire/$CW1/return" "${AUTH[@]}" -d '{"reason":"conservation walk"}'
 curl -sS -o /tmp/e2e_body -X POST "$API/payments/wire/$CW1/return/resolve" "${AUTH[@]}" -d '{"outcome":"accepted"}'
 # wire held at $1,000 but confirmed for only $400 -> the $600 remainder must be RELEASED
 api POST /payments/wire/prepare cons-w2 "{\"source_account_id\":\"$CA\",\"amount_cents\":100000,\"beneficiary\":{\"name\":\"Acme\",\"country\":\"US\"},\"purpose\":\"cons partial\"}" >/dev/null
 CW2=$(jget id)
+approve_wire "$CW2"
 curl -sS -o /tmp/e2e_body -X POST "$API/payments/wire/$CW2/confirm" "${AUTH[@]}" -d '{"amount_cents":40000}'
 # ACH out $500 settled then returned late -> net zero
 api POST /payments/ach cons-ach "{\"source_account_id\":\"$CA\",\"amount_cents\":50000,\"counterparty\":{\"name\":\"Acme\"},\"window\":\"next_day\"}" >/dev/null
@@ -484,7 +517,7 @@ VH=$(curl -sSi "$API/changelog" "${AUTH[@]}" | grep -ci "x-api-version:")
 check "X-API-Version header on responses"       "$VH" "1"
 curl -sS -o /tmp/e2e_body "$API/changelog" "${AUTH[@]}"
 check "changelog leads with the current version" \
-  "$(python3 -c "import json;d=json.load(open('/tmp/e2e_body'));print(d['data'][0]['version'])")" "3.0.0"
+  "$(python3 -c "import json;d=json.load(open('/tmp/e2e_body'));print(d['data'][0]['version'])")" "4.0.0"
 curl -sS -o /tmp/e2e_body "$API/control-results?limit=1" "${AUTH[@]}"
 # URL-encode: timestamptz cursors carry '+00:00', and a raw '+' decodes to a space
 PAGE_AFTER=$(python3 -c "import json,urllib.parse;d=json.load(open('/tmp/e2e_body'));print(urllib.parse.quote(d['next_after']) if d['has_more'] else '')")
@@ -734,6 +767,7 @@ ST=$(api POST /sandbox/simulate/wire/prepare sim-w-prep "{\"source_account_id\":
 check "simulated wire prepare -> HTTP 201" "$ST" "201"
 ACC_W=$(jget id)
 check "prepare HOLDS rather than sends" "$(jget status)" "submitted"
+approve_wire "$ACC_W" # EPS-06 applies through simulate too — same writer
 ST=$(api POST "/sandbox/simulate/wire/$ACC_W/confirm" sim-w-conf '{}')
 check "simulated confirm -> HTTP 200" "$ST" "200"
 check "accepted wire completes" "$(jget status)" "completed"
@@ -748,8 +782,10 @@ check "the rejection reason is retained" \
   "$(sql "select return_reason from pg.core.wire_transfer where id='$REJ_W';")" "beneficiaryaccountclosed"
 check "rejection released the hold — no money moved" \
   "$(sql "select count(*) from pg.core.bookkeeping_entry where id='bke_${REJ_W}_rejected' and amount=0;")" "1"
+# recordMovementArtifacts stamps resource_id as the bare id (same convention
+# as transfer.settled in section 19), not the controls-side type:id form
 check "downstream learns the wire is dead, not still in flight" \
-  "$(sql "select count(*) from pg.core.event where code='wire_transfer.rejected' and resource_id='wire_transfer:$REJ_W';")" "1"
+  "$(sql "select count(*) from pg.core.event where code='wire_transfer.rejected' and resource_id='$REJ_W';")" "1"
 ST=$(api POST "/sandbox/simulate/wire/$ACC_W/reject" sim-w-rej2 '{"reason":"too late"}')
 check "a COMPLETED wire cannot be rejected — it must be returned" "$ST" "409"
 
@@ -835,17 +871,22 @@ check "the causing event is BSA-06's declared trigger" \
 check "the 2-business-day triage clock started" \
   "$(sql "select case when triage_due_at is null then 'NULL' else 'set' end from pg.core.bsa_alert where id='$ALERT_ID';")" "set"
 
-# provenance: real traffic through the real gate is production evidence
-check "alert is stamped production, not unknown" \
-  "$(sql "select provenance from pg.core.bsa_alert where id='$ALERT_ID';")" "production"
+# provenance: this run drives the gate with the demo bootstrap key, so the
+# evidence is stamped 'demo'. The failure this catches is 'unknown' — a
+# raiseAlert call site that forgot to thread ctx through.
+check "alert provenance is stamped (demo run), never unknown" \
+  "$(sql "select provenance from pg.core.bsa_alert where id='$ALERT_ID';")" "demo"
 
 # --- confidentiality: a partner must not see any of this
 ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/bsa/alerts/$ALERT_ID/triage" \
   -H "X-Api-Key: ${PARTNER_TOKEN:-$DEMO_API_KEY}" -H 'content-type: application/json' -d '{"outcome":"escalated"}')
 check "a partner reaching case management gets 404, never 403" "$ST" "404"
 
-# --- triage -> escalate opens a case
-ST=$(api POST "/bsa/alerts/$ALERT_ID/triage" bsa-triage '{"outcome":"escalated","note":"aggregate pattern"}')
+# --- triage -> escalate opens a case (bsa_investigator role required; the
+# demo key carries no BSA role, so this uses the minted investigator token)
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/bsa/alerts/$ALERT_ID/triage" \
+  -H "X-Api-Key: $INVESTIGATOR_TOKEN" -H 'content-type: application/json' \
+  -H "Idempotency-Key: $RUN-bsa-triage" -d '{"outcome":"escalated","note":"aggregate pattern"}')
 check "triage escalate -> HTTP 200" "$ST" "200"
 CASE_ID=$(python3 -c "import json;print(json.load(open('/tmp/e2e_body'))['case']['id'])")
 check "a case was opened" "$(sql "select status from pg.core.\"case\" where id='$CASE_ID';")" "opened"
@@ -857,19 +898,27 @@ check "the SAR clock started" \
   "$(sql "select count(*) from pg.core.event where code='case.sar.decision.timer' and resource_id='case:$CASE_ID';")" "1"
 
 # re-triage must replay, not overwrite the first rationale
-ST=$(api POST "/bsa/alerts/$ALERT_ID/triage" bsa-triage2 '{"outcome":"resolved","note":"changed my mind"}')
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/bsa/alerts/$ALERT_ID/triage" \
+  -H "X-Api-Key: $INVESTIGATOR_TOKEN" -H 'content-type: application/json' \
+  -H "Idempotency-Key: $RUN-bsa-triage2" -d '{"outcome":"resolved","note":"changed my mind"}')
 check "re-triage replays rather than re-deciding" "$ST" "200"
 check "the original outcome survived" \
   "$(sql "select triage_outcome from pg.core.bsa_alert where id='$ALERT_ID';")" "escalated"
 
-# --- an undocumented no-file decision is refused (BSA-07 retention)
-ST=$(api POST "/bsa/cases/$CASE_ID/decision" bsa-nodoc '{"decision":"no_file"}')
+# --- an undocumented no-file decision is refused (BSA-07 retention).
+# bsa_officer role decides — and it must be a DIFFERENT actor than the
+# investigator who opened the case (ck_case_four_eyes).
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/bsa/cases/$CASE_ID/decision" \
+  -H "X-Api-Key: $OFFICER_TOKEN" -H 'content-type: application/json' \
+  -H "Idempotency-Key: $RUN-bsa-nodoc" -d '{"decision":"no_file"}')
 check "a no-file decision without a rationale -> HTTP 400" "$ST" "400"
 check "nothing was decided" \
   "$(sql "select case when decided_at is null then 'undecided' else 'decided' end from pg.core.\"case\" where id='$CASE_ID';")" "undecided"
 
 # --- the real decision
-ST=$(api POST "/bsa/cases/$CASE_ID/decision" bsa-decide '{"decision":"file","rationale":"structuring pattern confirmed"}')
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/bsa/cases/$CASE_ID/decision" \
+  -H "X-Api-Key: $OFFICER_TOKEN" -H 'content-type: application/json' \
+  -H "Idempotency-Key: $RUN-bsa-decide" -d '{"decision":"file","rationale":"structuring pattern confirmed"}')
 check "SAR decision -> HTTP 200" "$ST" "200"
 check "case closed" "$(sql "select status from pg.core.\"case\" where id='$CASE_ID';")" "closed"
 check "decision and rationale persisted" \
@@ -910,11 +959,12 @@ echo "-- 36. Segregation of duties + record retention (OQ-08, BSA-21/SC-02) --"
 # so the assertions below are as much about what the schema refuses as about
 # what the API does.
 
+# system catalogs are invisible through duckdb's scanner — sqlpg goes direct
 check "four-eyes constraint exists on core.case" \
-  "$(sql "select count(*) from pg.pg_constraint where conname='ck_case_four_eyes';")" "1"
+  "$(sqlpg "select count(*) from pg_constraint where conname='ck_case_four_eyes';")" "1"
 for c in ck_record_disposal_after_expiry ck_record_disposal_not_held ck_record_disposal_approved; do
   check "disposal condition constraint $c exists" \
-    "$(sql "select count(*) from pg.pg_constraint where conname='$c';")" "1"
+    "$(sqlpg "select count(*) from pg_constraint where conname='$c';")" "1"
 done
 
 # closing an account starts BSA-21's clock — the real trigger, no fabrication
@@ -1014,17 +1064,19 @@ check "currency against an unlinked account is still RECORDED -> 201" "$ST" "201
 check "and reported as unattributable" "$(jget attributable)" "False"
 check "no CTR determination is claimed for it" \
   "$(python3 -c "import json;print('none' if json.load(open('/tmp/e2e_body'))['ctr'] is None else 'some')")" "none"
+# run-scoped by this run's fresh unlinked account — earlier runs leave debris
+UN_TX=$(jget id)
 check "it raised a finding, not a log line" \
-  "$(sql "select count(*) from pg.core.bsa_alert where alert_type='unattributable_cash';")" "1"
+  "$(sql "select count(*) from pg.core.bsa_alert where alert_type='unattributable_cash' and id='alert_${UN_TX}_unattributable_cash';")" "1"
 check "the row exists with a NULL entity — not dropped, not given a fake owner" \
-  "$(sql "select count(*) from pg.core.cash_transaction where entity_id is null and amount=1500000;")" "1"
+  "$(sql "select count(*) from pg.core.cash_transaction where entity_id is null and amount=1500000 and account_id='$UNLINKED';")" "1"
 
 # --- the day is now visibly INCOMPLETE
 ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' "$API/cash/aggregation?business_date=$TODAY" "${AUTH[@]}")
 check "aggregation -> HTTP 200" "$ST" "200"
 check "the day is reported INCOMPLETE" "$(jget complete)" "False"
 check "unattributable total is surfaced, not hidden" \
-  "$(python3 -c "import json;print(json.load(open('/tmp/e2e_body'))['unattributable']['cash_in'])")" "1500000"
+  "$(python3 -c "import json;print('yes' if json.load(open('/tmp/e2e_body'))['unattributable']['cash_in'] >= 1500000 else 'no')")" "yes"
 check "per-person totals are labelled a lower bound" \
   "$(python3 -c "import json;print('yes' if 'lower bound' in json.load(open('/tmp/e2e_body')).get('warning','') else 'no')")" "yes"
 

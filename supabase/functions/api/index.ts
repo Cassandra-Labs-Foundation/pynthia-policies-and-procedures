@@ -498,16 +498,19 @@ const routes: Route[] = [
     handler: async (req, params, requestId, ctx) =>
       await postDisposeRecord(req, params.id, createDb(), requestId, ctx),
   },
-  // BSA case management (BSA-06/07). Closed to partner actors: case management
-  // is the chartered credit union's obligation, and under BSA-07 the existence
-  // of a case is itself confidential — so a partner gets 404, never 403.
+  // BSA case management (BSA-06/07). Closed to partner actors — but NOT via
+  // the route-level `actors` gate: that gate answers 403, and under BSA-07 the
+  // existence of a case is itself confidential, so a partner must get 404,
+  // never 403. requireBsa inside each handler produces exactly that (partner →
+  // 404, wrong role → 403), and a route-level gate here would answer first and
+  // leak the surface. Live e2e caught this: the gate made the designed 404
+  // unreachable.
   {
     method: "POST",
     pattern: /^\/bsa\/alerts\/([^/]+)\/triage\/?$/,
     paramNames: ["id"],
     endpoint: "POST /bsa/alerts/{id}/triage",
     tier: "write",
-    actors: ["cu_admin", "pynthia_ops"],
     handler: async (req, params, requestId, ctx) =>
       await postAlertTriage(req, params.id, createDb(), requestId, ctx),
   },
@@ -517,7 +520,6 @@ const routes: Route[] = [
     paramNames: ["id"],
     endpoint: "POST /bsa/cases/{id}/decision",
     tier: "write",
-    actors: ["cu_admin", "pynthia_ops"],
     handler: async (req, params, requestId, ctx) =>
       await postCaseDecision(req, params.id, createDb(), requestId, ctx),
   },
@@ -527,7 +529,6 @@ const routes: Route[] = [
     paramNames: [],
     endpoint: "POST /bsa/timers/sweep",
     tier: "write",
-    actors: ["cu_admin", "pynthia_ops"],
     handler: async (req, _params, requestId, ctx) =>
       await postTimerSweep(req, createDb(), requestId, ctx),
   },
@@ -537,7 +538,6 @@ const routes: Route[] = [
     paramNames: ["id"],
     endpoint: "GET /bsa/cases/{id}",
     tier: "read",
-    actors: ["cu_admin", "pynthia_ops"],
     handler: async (_req, params, requestId, ctx) =>
       await getCase(params.id, createDb(), requestId, ctx),
   },

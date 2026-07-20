@@ -118,7 +118,7 @@ through the same pipeline and obeys the same scope checks. **Set
 
 | Variable | Purpose |
 |---|---|
-| `INSTANCE_ID` | which instance this process is. Absent → every request `500`s |
+| `INSTANCE_ID` | which instance this process is. Absent → every request `500`s. Must match the seeded `core.instance`/`core.partner` rows — migration 20260719000600 seeds `inst_local`, so `supabase secrets set INSTANCE_ID=inst_local` unless you re-seeded |
 | `DEMO_API_KEY` | bootstrap credential (optional once real tokens exist) |
 | `ALLOW_DEMO_KEY` | `false` disables the bootstrap path |
 

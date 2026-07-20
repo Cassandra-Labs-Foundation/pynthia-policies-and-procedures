@@ -359,7 +359,12 @@ async function resolveInflight(
 ): Promise<Response> {
   const { data: wire, error: selErr } = await scopeToPartner(
     db.schema("core").from("wire_transfer")
-      .select("id, amount, status, beneficiary, purpose, imad, originator, blnk_transaction_id, blnk_reference, blnk_status, created_at")
+      // dual_control_status is load-bearing: the EPS-06 check below reads it,
+      // and PostgREST returns only listed columns. Omitting it made the check
+      // read undefined — an unconfirmable wire, approved or not. The fake
+      // returns whole rows regardless of select list, so only live traffic
+      // could catch this.
+      .select("id, amount, status, beneficiary, purpose, imad, originator, dual_control_status, blnk_transaction_id, blnk_reference, blnk_status, created_at")
       .eq("id", wireId),
     ctx,
   ).maybeSingle();
