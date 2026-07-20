@@ -1878,6 +1878,48 @@ insufficient in one specific place is more dangerous than one that obviously
 does not fit.** The obvious misfit gets noticed. This one would not have.
 
 
+## §5i — "Does this already exist?" is now a real question
+
+Twelve artifacts in, the codebase is large enough that the answer is no longer
+obvious, and I got it wrong once: I wrote a `core.adverse_action_notice`, a
+`core.pricing_exception` and a `core.hmda_submission` before noticing all three
+already existed. I caught it by accident, reading a grep output for something
+else.
+
+**The failure mode is not wasted work.** It is duplicated capability that
+diverges. Two adverse-action notice writers is worse than one incomplete one:
+both work on the day they are written, and then a Reg B amendment lands on one
+of them. The half-built subsystem the ACCESS artifact warned about is the same
+hazard from a different direction — there, half a subsystem; here, two halves
+that each believe they are whole.
+
+**Standing step, not vigilance.** `scripts/exists_check.py <policy>` greps the
+migrations and the API modules for every noun in the declared inputs and
+produced events of that policy's red controls, and prints what already carries
+it. Run it BEFORE writing the migration, not after. Noticing is not a control;
+a script that runs every time is.
+
+## §5j — The corpus and the writers name the same fact differently
+
+Second instance now, after the capital one:
+
+| the corpus says | a writer already emitted |
+|---|---|
+| `capital.pca_category` | `capital.classification.assigned` |
+| `pricing.exception.decided` | `loan_pricing.exception.decided` |
+
+**Resolution: emit both. Do not rename.** The internal name already has
+consumers — the drill firers, other controls' expected-event lists, and in the
+capital case a downstream PCA gate. Renaming it to match the corpus is a silent
+break that all 749 tests would pass through, because nothing asserts the name of
+an event nobody is currently reading. Adding the corpus name costs one `emit`
+call and breaks nothing.
+
+The cost of emit-both is a duplicated row in `core.event` for the same fact. That
+is a real cost and it is smaller than the alternative. If it ever becomes a
+problem, the fix is a rename WITH a grep of every consumer, not a rename in
+place.
+
 ## Artifact — truth in savings, member lifecycle, fair lending (TIS/MP/FL)
 
 **Predicted 22 (TIS 7, member 7, fair lending 8). Actual 23** (TIS 8, member 7,
