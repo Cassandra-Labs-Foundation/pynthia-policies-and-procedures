@@ -23,7 +23,11 @@ jobs:
           deno check supabase/functions/blnk-reconcile/index.ts
           deno check supabase/functions/aggregator/index.ts
       - name: Hermetic suite (unit + behavioral)
-        run: deno test --allow-net --allow-env supabase/functions/
+        # --allow-read is load-bearing: drill/fake_db.ts derives column
+        # defaults and NULL backfill by PARSING supabase/migrations/*.sql at
+        # test time. Without read permission it silently degrades to empty
+        # maps and two dozen null-vs-undefined assertions fail.
+        run: deno test --allow-net --allow-env --allow-read supabase/functions/
       - name: Drill regression gate — a case that passed yesterday must pass today
         run: deno run --allow-all supabase/functions/drill/run.ts --check
 
