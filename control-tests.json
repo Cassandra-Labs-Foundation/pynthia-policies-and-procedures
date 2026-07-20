@@ -9,24 +9,22 @@
     "total": 333,
     "in_scope": 225,
     "scoped_out": 108,
-    "in_scope_green": 99,
-    "in_scope_red": 126,
+    "in_scope_green": 114,
+    "in_scope_red": 111,
     "scope_note": "Scoped-out controls are real obligations discharged by people and paperwork. This system covers the technical controls; the organisational ones are not claimed.",
-    "green": 100,
-    "red": 233,
-    "pct_green": 30,
+    "green": 115,
+    "red": 218,
+    "pct_green": 34.5,
     "red_by_reason": {
-      "trigger fires but produced events missing": 133,
+      "trigger fires but produced events missing": 123,
       "no writer: vendor.*": 6,
       "no writer: loan.*": 4,
       "no writer: training.*": 4,
       "no writer: eps.*": 4,
       "no writer: indemnification.*": 4,
-      "no writer: regulatory.*": 3,
       "no writer: board.*": 3,
       "no writer: access.*": 3,
       "no writer: privacy.*": 3,
-      "no writer: risk.*": 2,
       "no writer: org.*": 2,
       "no writer: member.*": 2,
       "no writer: compliance.*": 2,
@@ -40,18 +38,18 @@
       "inputs not supplied: finding.description, finding.responsible_party, finding.risk_rating, finding.implementation_date": 1,
       "inputs not supplied: finding.implementation_date, finding.remediation_evidence, finding.responsible_party, finding.closure_evidence": 1,
       "no writer: reporting.*": 1,
-      "no writer: monetary_instrument.*": 1,
-      "no writer: pep.*": 1,
       "no writer: cash.*": 1,
       "inputs not supplied: training.coverage_pct": 1,
       "no writer: furnishing.*": 1,
       "inputs not supplied: incident.collections, incident.data_scope, incident.description, incident.detection_source": 1,
+      "no writer: regulatory.*": 1,
       "no writer: affiliate.*": 1,
       "no writer: corp_opportunity.*": 1,
       "no writer: policy.*": 1,
       "no writer: antivirus.*": 1,
       "no writer: pentest.*": 1,
       "no writer: product.*": 1,
+      "no writer: risk.*": 1,
       "no writer: kri.*": 1,
       "no writer: risk_report.*": 1,
       "no writer: application.*": 1,
@@ -87,10 +85,12 @@
     },
     "inputs_unverifiable_total": 1391,
     "green_by_fire_path": {
-      "real_writer": 97,
-      "generic_echo": 3
+      "real_writer": 108,
+      "generic_echo": 5,
+      "obligation_cadence": 2
     },
     "green_by_policy": {
+      "bsa": 17,
       "investment": 16,
       "lending": 14,
       "charitable-donation-accounts": 13,
@@ -101,7 +101,6 @@
       "electronic-payment-systems": 3,
       "internal-controls": 3,
       "audit": 2,
-      "bsa": 2,
       "collections": 2,
       "enterprise-risk-management": 2,
       "fair-lending": 2,
@@ -1190,7 +1189,7 @@
       "policy": "bsa",
       "control_id": "BSA-03",
       "title": "Customer Identification Program (CIP)",
-      "status": "red",
+      "status": "green",
       "expected": [
         "ofac.cleared",
         "ofac.hold.placed",
@@ -1200,6 +1199,11 @@
         "record.retention_clock_set"
       ],
       "observed": [
+        "ofac.cleared",
+        "ofac.hold.placed",
+        "verification.created",
+        "verification.completed",
+        "verification.denied",
         "record.retention_clock_set"
       ],
       "triggers": [
@@ -1219,13 +1223,19 @@
         "member.id"
       ],
       "inputs_supplied": [
-        "entity.name"
+        "entity.address",
+        "entity.date_of_birth",
+        "entity.name",
+        "entity.tin",
+        "verification.provider_result",
+        "verification.type",
+        "verification.match_status",
+        "verification.trust_level"
       ],
       "inputs_unverifiable": [
         "member.id"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 1/6: missing ofac.cleared, ofac.hold.placed, verification.created, verification.completed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -1234,7 +1244,7 @@
       "policy": "bsa",
       "control_id": "BSA-04",
       "title": "Customer Due Diligence & Enhanced Due Diligence",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cdd.profile.created",
         "cdd.bo.certified",
@@ -1247,7 +1257,15 @@
         "edd.refresh.completed"
       ],
       "observed": [
-        "cdd.profile.refreshed"
+        "cdd.profile.created",
+        "cdd.bo.certified",
+        "ofac.cleared",
+        "ofac.hold.placed",
+        "edd.category.approved",
+        "edd.completed",
+        "edd.pep.opened",
+        "cdd.profile.refreshed",
+        "edd.refresh.completed"
       ],
       "triggers": [
         "verification.completed",
@@ -1273,8 +1291,7 @@
         "edd.category_checklist",
         "edd.source_of_wealth"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "no writer for trigger 'risk.trigger_edd'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -1283,7 +1300,7 @@
       "policy": "bsa",
       "control_id": "BSA-05",
       "title": "OFAC Screening & Holds",
-      "status": "red",
+      "status": "green",
       "expected": [
         "ofac.cleared",
         "ofac.hold.placed",
@@ -1291,7 +1308,13 @@
         "ofac.rejected",
         "ofac.annual_report.filed"
       ],
-      "observed": [],
+      "observed": [
+        "ofac.cleared",
+        "ofac.hold.placed",
+        "ofac.blocked",
+        "ofac.rejected",
+        "ofac.annual_report.filed"
+      ],
       "triggers": [
         "verification.created",
         "wire_transfer.submitted",
@@ -1311,7 +1334,12 @@
         "ofac.blocked_property"
       ],
       "inputs_supplied": [
+        "entity.address",
+        "entity.date_of_birth",
         "entity.name",
+        "entity.tin",
+        "originator.name",
+        "originator.routing_number",
         "wire_transfer.amount"
       ],
       "inputs_unverifiable": [
@@ -1320,8 +1348,7 @@
         "beneficiary.routing_number",
         "ofac.blocked_property"
       ],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "produced 0/5: missing ofac.cleared, ofac.hold.placed, ofac.blocked, ofac.rejected"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -1330,7 +1357,7 @@
       "policy": "bsa",
       "control_id": "BSA-06",
       "title": "Transaction Monitoring & Case Management",
-      "status": "red",
+      "status": "green",
       "expected": [
         "bsa_alert.triage.timer",
         "sar.decision_no_file",
@@ -1338,6 +1365,7 @@
       ],
       "observed": [
         "bsa_alert.triage.timer",
+        "sar.decision_no_file",
         "sar.filed"
       ],
       "triggers": [
@@ -1361,8 +1389,7 @@
         "case.summary"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 2/3: missing sar.decision_no_file"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -1371,7 +1398,7 @@
       "policy": "bsa",
       "control_id": "BSA-07",
       "title": "SAR Filing & Confidentiality",
-      "status": "red",
+      "status": "green",
       "expected": [
         "sar.filed",
         "sar.filing.timer",
@@ -1379,7 +1406,10 @@
         "sar.disclosure.declined"
       ],
       "observed": [
-        "sar.filed"
+        "sar.filed",
+        "sar.filing.timer",
+        "sar.continuing.filed",
+        "sar.disclosure.declined"
       ],
       "triggers": [
         "case.investigation_complete",
@@ -1398,8 +1428,7 @@
         "sar.narrative",
         "sar.prior_filing_id"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 1/4: missing sar.filing.timer, sar.continuing.filed, sar.disclosure.declined"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -1408,14 +1437,16 @@
       "policy": "bsa",
       "control_id": "BSA-08",
       "title": "Currency Transaction Reporting (CTR)",
-      "status": "red",
+      "status": "green",
       "expected": [
         "ctr.filed",
         "ctr.filing.timer",
         "ctr.exemption.reviewed"
       ],
       "observed": [
-        "ctr.filing.timer"
+        "ctr.filed",
+        "ctr.filing.timer",
+        "ctr.exemption.reviewed"
       ],
       "triggers": [
         "ctr.threshold.reached",
@@ -1428,14 +1459,14 @@
         "entity.tin"
       ],
       "inputs_supplied": [
-        "entity.name"
+        "entity.name",
+        "entity.tin"
       ],
       "inputs_unverifiable": [
         "ctr.cash_in_total",
         "ctr.cash_out_total"
       ],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "produced 1/3: missing ctr.filed, ctr.exemption.reviewed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -1444,12 +1475,15 @@
       "policy": "bsa",
       "control_id": "BSA-09",
       "title": "Monetary Instruments Log",
-      "status": "red",
+      "status": "green",
       "expected": [
         "mi.log_entry.created",
         "mi.central_log.updated"
       ],
-      "observed": [],
+      "observed": [
+        "mi.log_entry.created",
+        "mi.central_log.updated"
+      ],
       "triggers": [
         "monetary_instrument.purchased",
         "mi.consolidation.timer"
@@ -1468,8 +1502,7 @@
         "mi_central_log.instrument_type",
         "mi_central_log.purchaser_id_number"
       ],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "no writer for trigger 'monetary_instrument.purchased'"
+      "fire_path": "obligation_cadence"
     },
     {
       "scoped_out": false,
@@ -1478,12 +1511,15 @@
       "policy": "bsa",
       "control_id": "BSA-10",
       "title": "Travel Rule (Wires ≥$3,000)",
-      "status": "red",
+      "status": "green",
       "expected": [
         "wire_transfer.created",
         "wire_transfer.record.retained"
       ],
-      "observed": [],
+      "observed": [
+        "wire_transfer.created",
+        "wire_transfer.record.retained"
+      ],
       "triggers": [
         "wire_transfer.submitted"
       ],
@@ -1498,6 +1534,9 @@
         "wire_transfer.amount"
       ],
       "inputs_supplied": [
+        "originator.name",
+        "originator.reference",
+        "originator.routing_number",
         "wire_transfer.amount"
       ],
       "inputs_unverifiable": [
@@ -1506,8 +1545,7 @@
         "beneficiary.name",
         "beneficiary.routing_number"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 0/2: missing wire_transfer.created, wire_transfer.record.retained"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -1516,11 +1554,13 @@
       "policy": "bsa",
       "control_id": "BSA-11",
       "title": "Information Sharing (314(a)/314(b))",
-      "status": "red",
+      "status": "green",
       "expected": [
         "filing.fincen_314a"
       ],
-      "observed": [],
+      "observed": [
+        "filing.fincen_314a"
+      ],
       "triggers": [
         "regulator.request.received"
       ],
@@ -1531,8 +1571,7 @@
       "inputs_unverifiable": [
         "fincen314a_data.request_scope"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/1: missing filing.fincen_314a"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -1541,12 +1580,15 @@
       "policy": "bsa",
       "control_id": "BSA-12",
       "title": "CMIR (Cross-Border Currency)",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cmir.filed",
         "cmir.filing.timer"
       ],
-      "observed": [],
+      "observed": [
+        "cmir.filed",
+        "cmir.filing.timer"
+      ],
       "triggers": [
         "cmir.reportable.identified"
       ],
@@ -1563,8 +1605,7 @@
         "cmir_data.direction",
         "cmir_data.shipment_manifest"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/2: missing cmir.filed, cmir.filing.timer"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -1573,13 +1614,17 @@
       "policy": "bsa",
       "control_id": "BSA-13",
       "title": "FBAR",
-      "status": "red",
+      "status": "green",
       "expected": [
         "fbar.account.added",
         "fbar.filed",
         "fbar.nil.determined"
       ],
-      "observed": [],
+      "observed": [
+        "fbar.account.added",
+        "fbar.filed",
+        "fbar.nil.determined"
+      ],
       "triggers": [
         "fbar.inventory.updated",
         "fbar.filing.timer"
@@ -1593,8 +1638,7 @@
         "fbar_data.account_record",
         "fbar_data.authority_type"
       ],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "produced 0/3: missing fbar.account.added, fbar.filed, fbar.nil.determined"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -1603,13 +1647,17 @@
       "policy": "bsa",
       "control_id": "BSA-14",
       "title": "Escalation Pathway",
-      "status": "red",
+      "status": "green",
       "expected": [
         "escalation.routed",
         "escalation.acknowledged",
         "escalation.action_plan.published"
       ],
-      "observed": [],
+      "observed": [
+        "escalation.routed",
+        "escalation.acknowledged",
+        "escalation.action_plan.published"
+      ],
       "triggers": [
         "escalation.created",
         "escalation.acknowledged",
@@ -1628,8 +1676,7 @@
         "escalation.reporter_id",
         "escalation.severity"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/3: missing escalation.routed, escalation.acknowledged, escalation.action_plan.published"
+      "fire_path": "generic_echo"
     },
     {
       "scoped_out": true,
@@ -1712,13 +1759,17 @@
       "policy": "bsa",
       "control_id": "BSA-17",
       "title": "High-Risk Categories (MSB, Correspondent, Private Banking)",
-      "status": "red",
+      "status": "green",
       "expected": [
         "edd.category.approved",
         "edd.completed",
         "edd.refresh.completed"
       ],
-      "observed": [],
+      "observed": [
+        "edd.category.approved",
+        "edd.completed",
+        "edd.refresh.completed"
+      ],
       "triggers": [
         "application.submitted",
         "edd.refresh.due"
@@ -1738,8 +1789,7 @@
         "edd.site_visit_report",
         "edd.source_of_wealth"
       ],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "produced 0/3: missing edd.category.approved, edd.completed, edd.refresh.completed"
+      "fire_path": "obligation_cadence"
     },
     {
       "scoped_out": false,
@@ -1748,7 +1798,7 @@
       "policy": "bsa",
       "control_id": "BSA-18",
       "title": "PEP Screening & EDD",
-      "status": "red",
+      "status": "green",
       "expected": [
         "pep.hit",
         "edd.approver_id",
@@ -1756,7 +1806,13 @@
         "edd.pep.completed",
         "pep.refresh.completed"
       ],
-      "observed": [],
+      "observed": [
+        "pep.hit",
+        "edd.approver_id",
+        "edd.pep.opened",
+        "edd.pep.completed",
+        "pep.refresh.completed"
+      ],
       "triggers": [
         "verification.created",
         "pep.hit",
@@ -1772,6 +1828,8 @@
         "pep.subject_role"
       ],
       "inputs_supplied": [
+        "entity.address",
+        "entity.date_of_birth",
         "entity.name"
       ],
       "inputs_unverifiable": [
@@ -1779,8 +1837,7 @@
         "pep.status",
         "pep.subject_role"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'pep.hit'"
+      "fire_path": "generic_echo"
     },
     {
       "scoped_out": false,
@@ -1789,13 +1846,17 @@
       "policy": "bsa",
       "control_id": "BSA-19",
       "title": "FinCEN Special Measures & GTOs",
-      "status": "red",
+      "status": "green",
       "expected": [
         "regulatory.change.identified",
         "record.created",
         "regulatory.change_implemented"
       ],
-      "observed": [],
+      "observed": [
+        "regulatory.change.identified",
+        "record.created",
+        "regulatory.change_implemented"
+      ],
       "triggers": [
         "regulatory.correspondence.received",
         "regulatory.change_required"
@@ -1807,8 +1868,7 @@
       "inputs_unverifiable": [
         "regulatory.change_analysis"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'regulatory.change_required'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -4853,6 +4913,8 @@
         "complaint.trend.reported"
       ],
       "observed": [
+        "regulatory.change_required",
+        "regulatory.change_implemented",
         "complaint.logged",
         "complaint.trend.reported"
       ],
@@ -4887,7 +4949,7 @@
         "regulatory.change_analysis"
       ],
       "fire_path": "real_writer",
-      "blocked_on": "no writer for trigger 'regulatory.change_required'"
+      "blocked_on": "produced 4/9: missing regulatory.change_analysis.logged, procedure.change_set, training.assignment.created, complaint.root_cause_tag"
     },
     {
       "scoped_out": true,
@@ -10916,7 +10978,9 @@
         "account.created",
         "member.activated"
       ],
-      "observed": [],
+      "observed": [
+        "verification.completed"
+      ],
       "triggers": [
         "member.application.submitted",
         "member.eligibility_rule.failed",
@@ -10938,7 +11002,9 @@
         "verification.status"
       ],
       "inputs_supplied": [
+        "entity.date_of_birth",
         "entity.name",
+        "entity.tin",
         "verification.provider",
         "verification.type",
         "verification.provider_result",
@@ -10949,7 +11015,7 @@
         "member.eligibility_rule",
         "member.eligibility.determined"
       ],
-      "fire_path": "generic_echo",
+      "fire_path": "real_writer",
       "blocked_on": "no writer for trigger 'verification.denied'"
     },
     {
@@ -10968,7 +11034,9 @@
         "redflags.case.opened",
         "verification.created"
       ],
-      "observed": [],
+      "observed": [
+        "verification.created"
+      ],
       "triggers": [
         "verification.completed",
         "member.address_notice.sent",
@@ -11213,7 +11281,9 @@
         "verification.created",
         "estate.payout.sent"
       ],
-      "observed": [],
+      "observed": [
+        "verification.created"
+      ],
       "triggers": [
         "member.death.reported",
         "estate.claim.submitted",
@@ -11230,7 +11300,8 @@
         "verification.status"
       ],
       "inputs_supplied": [
-        "account.balance"
+        "account.balance",
+        "verification.status"
       ],
       "inputs_unverifiable": [
         "estate.date_of_death",
@@ -11240,8 +11311,8 @@
         "estate.death_certificate_ref",
         "member.amounts_owed"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/4: missing account.death_flag.applied, estate.claim_documented, verification.created, estate.payout.sent"
+      "fire_path": "real_writer",
+      "blocked_on": "produced 1/4: missing account.death_flag.applied, estate.claim_documented, estate.payout.sent"
     },
     {
       "scoped_out": false,

@@ -1492,6 +1492,248 @@ async function runRiskExceptionsLifecycle(env: FireEnv): Promise<void> {
   await postOverrideAnalytics(R({ period: "2026Q3" }), env.db, "d", ops);
 }
 
+/**
+ * The BSA/AML programme, driven end to end.
+ *
+ * CIP with all four elements and one missing them -> OFAC screens clean and
+ * matched, hold placed and released -> EDD by category with senior sign-off ->
+ * PEP hit opening its own EDD -> monetary instruments across all three bands ->
+ * Travel Rule records present and absent -> CMIR filing -> FBAR aggregate ->
+ * 314(a) request and response -> a GTO assessed -> escalations routed and
+ * acknowledged -> SAR timer, continuing filing and a disclosure refusal.
+ */
+async function runBsaProgramLifecycle(env: FireEnv): Promise<void> {
+  if ((env.rows["core.ofac_screen"] ?? []).length > 0) return;
+  const ops = env.actors.ops;
+  const officer = env.actors.officer;
+
+  // CIP: complete, then one missing an element, then one that hits OFAC
+  await postCipVerification(
+    R({ entity_ref: "ent_cip1", name: "Alice Member", dob: "1980-01-01",
+        address: "1 Main St", id_number: "DL-1234", tin: "***-**-1234",
+        entity_type: "person", risk_rating: "low" }),
+    env.db, "d", ops,
+  );
+  await postCipVerification(
+    R({ entity_ref: "ent_cip2", name: "Bob Partial", dob: "1975-05-05" }),
+    env.db, "d", ops,
+  );
+  await postCipVerification(
+    R({ entity_ref: "ent_cip3", name: "SDN Holdings", dob: "1990-01-01",
+        address: "2 Side St", id_number: "P-9" }),
+    env.db, "d", ops,
+  );
+
+  // standalone screens, and a release
+  await postOfacScreen(
+    R({ subject_kind: "wire_beneficiary", subject_ref: "wb_1", name: "Clean Beneficiary" }),
+    env.db, "d", ops,
+  );
+  await postOfacScreen(
+    R({ subject_kind: "ach_counterparty", subject_ref: "cp_1", name: "SDN Trading" }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: releasing with no determination
+  await postOfacRelease(R({ released_by: "bsa_officer" }), "ofacs_ach_counterparty_cp_1",
+    env.db, "d", officer);
+  await postOfacRelease(
+    R({ released_by: "bsa_officer", determination: "false positive; DOB and address differ" }),
+    "ofacs_ach_counterparty_cp_1", env.db, "d", officer,
+  );
+  await postOfacAnnualReport(
+    R({ reporting_year: 2026, filed_by: "bsa_officer" }), env.db, "d", officer,
+  );
+
+  // PEP: a clean screen and a hit that must open its own EDD
+  await postPepScreen(R({ entity_ref: "ent_cip1", name: "Alice Member" }), env.db, "d", ops);
+  await postPepScreen(
+    R({ entity_ref: "ent_pep1", name: "Foreign Minister", pep_category: "foreign_official" }),
+    env.db, "d", ops,
+  );
+
+  // EDD: an ordinary category, then one needing senior sign-off
+  await postEddProfile(
+    R({ entity_ref: "ent_msb1", category: "msb", trigger_reason: "money services business" }),
+    env.db, "d", ops,
+  );
+  await postEddCompletion(
+    R({ findings: "licensed MSB, registration verified" }), "edd_ent_msb1_msb",
+    env.db, "d", officer,
+  );
+  await postEddProfile(
+    R({ entity_ref: "ent_corr1", category: "correspondent",
+        trigger_reason: "foreign correspondent relationship" }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: completing a senior-approval category without sign-off
+  await postEddCompletion(
+    R({ findings: "reviewed" }), "edd_ent_corr1_correspondent", env.db, "d", ops,
+  );
+  await postEddCompletion(
+    R({ findings: "reviewed; Wolfsberg questionnaire on file", approved_by: "bsa_officer" }),
+    "edd_ent_corr1_correspondent", env.db, "d", officer,
+  );
+  // and the PEP EDD the screen opened, completed with senior sign-off
+  await postEddCompletion(
+    R({ findings: "source of wealth documented", approved_by: "bsa_officer" }),
+    "edd_ent_pep1_pep", env.db, "d", officer,
+  );
+
+  // monetary instruments: below the band, in the band, above it
+  await postMonetaryInstrument(
+    R({ instrument_type: "money_order", amount_cents: 50_000, purchaser_name: "Small Buyer" }),
+    env.db, "d", ops,
+  );
+  // NEGATIVE: in the log band with no identification
+  await postMonetaryInstrument(
+    R({ instrument_type: "cashiers_check", amount_cents: 500_000,
+        purchaser_name: "Anonymous Buyer" }),
+    env.db, "d", ops,
+  );
+  await postMonetaryInstrument(
+    R({ instrument_type: "cashiers_check", amount_cents: 500_000,
+        purchaser_name: "Known Buyer", purchaser_ref: "ent_cip1",
+        purchaser_id_type: "drivers_license", purchaser_id_number: "DL-1234",
+        purchaser_dob: "1980-01-01" }),
+    env.db, "d", ops,
+  );
+  await postMonetaryInstrument(
+    R({ instrument_type: "bank_draft", amount_cents: 1_500_000, purchaser_name: "Large Buyer",
+        purchaser_id_type: "passport", purchaser_id_number: "P-1" }),
+    env.db, "d", ops,
+  );
+
+  // Travel Rule: a compliant wire and one missing its originator record
+  await postTravelRuleRecord(
+    R({ wire_ref: "wire_tr1", amount_cents: 500_000,
+        originator: { name: "Alice Member", address: "1 Main St", account: "acct_1",
+                      routing_number: "021000021", reference: "ref-1" },
+        beneficiary: { name: "Bob Payee", account: "ext_9" } }),
+    env.db, "d", ops,
+  );
+  await postTravelRuleRecord(
+    R({ wire_ref: "wire_tr2", amount_cents: 900_000, beneficiary: { name: "Bob Payee" } }),
+    env.db, "d", ops,
+  );
+  // below the threshold nothing attaches
+  await postTravelRuleRecord(
+    R({ wire_ref: "wire_tr3", amount_cents: 100_000 }), env.db, "d", ops,
+  );
+
+  // CMIR — the shipment register is built by cash operations
+  env.rows["core.cmir_filing"] ??= [];
+  env.rows["core.cmir_filing"].push({
+    id: "cmir_ship1", shipment_id: "cship_intl", amount_cents: 4_500_000,
+    identified_at: "2026-07-01T00:00:00.000Z", provenance: "production",
+  });
+  await postCmirFiling(
+    R({ filed_by: "bsa_officer", fincen_ref: "F105-2026-1" }), "cmir_ship1",
+    env.db, "d", officer,
+  );
+
+  // a NIL year: no foreign accounts, and the determination is still recorded
+  await postFbarFiling(R({ reporting_year: 2025 }), env.db, "d", officer);
+
+  // FBAR: two accounts that individually are under the threshold and together
+  // are over it
+  for (const [ref, val] of [["fa_1", 600_000], ["fa_2", 700_000]]) {
+    await postFbarAccount(
+      R({ account_ref: ref, country: "CH", institution_name: "Alpine Bank",
+          max_value_cents: val, reporting_year: 2026 }),
+      env.db, "d", ops,
+    );
+  }
+  await postFbarFiling(
+    R({ reporting_year: 2026, filed_by: "bsa_officer", bsa_efiling_ref: "FBAR-2026-1" }),
+    env.db, "d", officer,
+  );
+
+  // 314(a)
+  await post314aRequest(
+    R({ reference: "314A-2026-07", received_at: "2026-07-10T00:00:00.000Z" }), env.db, "d", ops,
+  );
+  // NEGATIVE: responding with no match count
+  await post314aResponse(
+    R({ responded_by: "bsa_officer" }), "filing_314a_314A-2026-07", env.db, "d", officer,
+  );
+  await post314aResponse(
+    R({ match_count: 0, responded_by: "bsa_officer" }), "filing_314a_314A-2026-07",
+    env.db, "d", officer,
+  );
+
+  // a GTO, assessed for applicability
+  await postRegulatoryChange(
+    R({ kind: "gto", reference: "GTO-2026-REALESTATE", issued_by: "FinCEN",
+        effective_at: "2026-08-01T00:00:00.000Z",
+        applicability: "not applicable — no title insurance business",
+        assessed_by: "bsa_officer", controls_updated: [] }),
+    env.db, "d", officer,
+  );
+
+  // escalations
+  await postEscalation(
+    R({ source_kind: "bsa_alert", source_ref: "alert_1", severity: "urgent",
+        routed_to: "bsa_officer" }),
+    env.db, "d", ops,
+  );
+  const esc = (env.rows["core.escalation"] ?? [])[0];
+  await postEscalationAck(
+    R({ acknowledged_by: "bsa_officer", disposition: "escalated to SAR committee",
+        action_plan: "file SAR within 30 days; review related accounts" }),
+    String(esc?.id ?? "x"), env.db, "d", officer,
+  );
+
+  // SAR lifecycle: the timer, a continuing filing, and a disclosure refusal
+  await postSarLifecycle(R({ stage: "timer" }), "case_bsa1", env.db, "d", officer);
+  await postSarLifecycle(
+    R({ stage: "continuing", filed_by: "bsa_officer", fincen_ref: "SAR-2026-2" }),
+    "case_bsa1", env.db, "d", officer,
+  );
+  await postSarLifecycle(
+    R({ stage: "disclosure_request", requester: "subject's attorney" }),
+    "case_bsa1", env.db, "d", officer,
+  );
+
+  // BSA-08: a CTR aggregation that reaches the threshold is FILED. The
+  // aggregation writer exists; nothing was calling the filing step.
+  await postCashTransaction(
+    R({ direction: "cash_in", amount_cents: 1_200_000, business_date: "2026-07-11",
+        account_id: "acct_1" }),
+    env.db, "d", ops,
+  );
+  const ctr = (env.rows["core.ctr_filing"] ?? [])[0];
+  if (ctr) {
+    await postCtrFile(
+      R({ filed_by: "bsa_officer", fincen_ref: "CTR-2026-1" }), String(ctr.id),
+      env.db, "d", officer,
+    );
+  }
+
+  // BSA-06: a case decided NOT to file is a decision with its own evidence.
+  // "no SAR filed" and "nobody decided" must not look alike.
+  await raiseAlert(env.db, {
+    ctx: ops, alertType: "structuring", entityHash: "h_nofile",
+    causeType: "transfer", causeId: "t_nofile", details: "bsa program drill",
+  });
+  const tri = await postAlertTriage(
+    R({ outcome: "escalated" }), "alert_t_nofile_structuring", env.db, "d",
+    env.actors.investigator,
+  );
+  const tb = await tri.clone().json().catch(() => ({}));
+  if (tb?.case?.id) {
+    await postCaseDecision(
+      R({ decision: "no_file", rationale: "activity explained by verified payroll" }),
+      tb.case.id, env.db, "d", officer,
+    );
+  }
+
+  await postCtrExemptionReview(
+    R({ entity_ref: "ent_msb1", decision: "retained", reviewed_by: "bsa_officer",
+        eligibility_reverified: true }),
+    env.db, "d", officer,
+  );
+}
+
 async function runCapitalLifecycle(env: FireEnv): Promise<void> {
   // A WELL-CAPITALIZED position with a configured internal trigger. The trigger
   // sits above the statutory floor, so this position is compliant with NCUA and
@@ -1625,6 +1867,13 @@ import {
   postPospayException,
 } from "../api/eps_controls.ts";
 import { postIssueCard } from "../api/cards.ts";
+import {
+  post314aRequest, post314aResponse, postCipVerification, postCmirFiling,
+  postCtrExemptionReview, postEddCompletion, postEddProfile, postEscalation,
+  postEscalationAck, postFbarAccount, postFbarFiling, postMonetaryInstrument,
+  postOfacAnnualReport, postOfacRelease, postOfacScreen, postPepScreen,
+  postRegulatoryChange, postSarLifecycle, postTravelRuleRecord,
+} from "../api/bsa_program.ts";
 import {
   postControlException, postControlExceptionSweep, postControlOverride,
   postOverrideAnalytics, postRiskAcceptance, postRiskAcceptanceDecision,
@@ -1793,6 +2042,7 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
     await postEntityTransition(R({ to: "active" }), id, env.db, "d", env.actors.ops);
   },
   "verification.created": async (env) => {
+    await runBsaProgramLifecycle(env);
     const id = `ent_v${env.n()}`;
     env.rows["core.entity"].push({ id, type: "person", name: "Clean Person", status: "pending", partner_id: "ptnr_drill" });
     await postVerification(R({}), id, env.db, "d", env.actors.ops);
@@ -1804,6 +2054,7 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
     });
   },
   "case.investigation_complete": async (env) => {
+    await runBsaProgramLifecycle(env);
     const n = env.n();
     await raiseAlert(env.db, {
       ctx: env.actors.ops, alertType: "structuring", entityHash: "h",
@@ -1820,6 +2071,7 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
     }
   },
   "ctr.threshold.reached": async (env) => {
+    await runBsaProgramLifecycle(env);
     const d = `2026-07-${String(10 + (env.n() % 15)).padStart(2, "0")}`;
     await postCashTransaction(
       R({ direction: "cash_in", amount_cents: 1_200_000, business_date: d, account_id: "acct_1" }),
@@ -1893,6 +2145,7 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
     );
   },
   "wire_transfer.submitted": async (env) => {
+    await runBsaProgramLifecycle(env);
     await postWirePrepare(
       R({ source_account_id: "acct_3", amount_cents: 5_000, beneficiary: { name: "B", country: "US" } }),
       env.db, env.cfg, "d", env.actors.ops,
@@ -2218,6 +2471,26 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   "exception.registered": (env) => runRiskExceptionsLifecycle(env),
   "exception.expiring": (env) => runRiskExceptionsLifecycle(env),
   "override.analytics_due": (env) => runRiskExceptionsLifecycle(env),
+  "risk.trigger_edd": (env) => runBsaProgramLifecycle(env),
+  "monetary_instrument.purchased": (env) => runBsaProgramLifecycle(env),
+  "pep.hit": (env) => runBsaProgramLifecycle(env),
+  "regulatory.change_required": (env) => runBsaProgramLifecycle(env),
+  "regulator.request.received": (env) => runBsaProgramLifecycle(env),
+  "pep.designated": (env) => runBsaProgramLifecycle(env),
+  "cdd.profile.created": (env) => runBsaProgramLifecycle(env),
+  "ofac.annual.report.due": (env) => runBsaProgramLifecycle(env),
+  "sar.continuing_timer": (env) => runBsaProgramLifecycle(env),
+  "sar.disclosure_request.received": (env) => runBsaProgramLifecycle(env),
+  "ctr.exemption.review.due": (env) => runBsaProgramLifecycle(env),
+  "application.submitted": (env) => runBsaProgramLifecycle(env),
+  "verification.completed": (env) => runBsaProgramLifecycle(env),
+  "cmir.reportable.identified": (env) => runBsaProgramLifecycle(env),
+  "fbar.account.added": (env) => runBsaProgramLifecycle(env),
+  "fbar.filing.timer": (env) => runBsaProgramLifecycle(env),
+  "escalation.routed": (env) => runBsaProgramLifecycle(env),
+  "escalation.acknowledged": (env) => runBsaProgramLifecycle(env),
+  "edd.completed": (env) => runBsaProgramLifecycle(env),
+  "filing.fincen_314a": (env) => runBsaProgramLifecycle(env),
   "incident.declared": (env) => runIncidentLifecycle(env),
   "incident.detected": (env) => runIncidentLifecycle(env),
   "incident.sev1.detected": (env) => runIncidentLifecycle(env),

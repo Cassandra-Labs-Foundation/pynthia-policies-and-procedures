@@ -2096,3 +2096,47 @@ acquires an expiry it does not have.
   leaving it for a reader to spot in a frequency table.
 
 **21 mutations, 21 caught first pass.** Second artifact with no survivors.
+
+### BSA/AML programme (BSA-*) — 15 of 15 green, predicted 15
+
+99 -> 114. Eighth artifact, eighth exact call. `core.filing` and
+`core.originator` are the ninth and tenth abandoned tables to get writers.
+
+> ## ⚠ DO NOT QUOTE ANY OFAC CONTROL AS COVERAGE
+>
+> **BSA-05 green means the SCREENING MECHANISM works end to end. It does not
+> mean the screen detects anything.** OQ-02's finding is unchanged: the screen
+> is `/\bSDN\b/i` against a name, with no list and no 50%-rule derivation.
+>
+> What changed is the half OQ-02 said was architectural: the call site at CIP
+> and at payment, the hold, the escalation, the release-with-determination, the
+> clean-pass evidence, the annual report. Those are real and mutation-tested.
+> **`ofac_screen.list_version` is NULL on every row this system writes**, and
+> one of the mutations verifies that fabricating a version fails the suite.
+>
+> The gap is now one procurement decision rather than an engineering project,
+> which is exactly the split OQ-02 asked for. It is still a gap.
+
+**BSA was the artifact that broke the "it is all registers now" worry.** Five
+controls turned on things no register shape produces:
+
+- **BSA-09's control is a BAND, not a threshold.** The monetary-instrument log
+  attaches between $3,000 and $10,000; below it nothing attaches and at $10,000
+  a CTR attaches instead. Getting either bound wrong fails in opposite
+  directions — logging everything buries the reportable ones, logging nothing
+  misses them. Both bounds are separately mutation-tested.
+- **BSA-13's threshold is on the AGGREGATE.** Five foreign accounts of $3,000
+  each are reportable and no single one of them is. A per-account test is the
+  classic FBAR error and is the mutation that would have shipped.
+- **BSA-07 is a control to NOT do something.** SAR confidentiality means
+  refusing to confirm a SAR exists. The evidence that the obligation was
+  honoured is the RECORDED REFUSAL — a request that leaves no trace cannot
+  demonstrate anything.
+- **BSA-11 requires reporting a NEGATIVE.** A 314(a) response with zero matches
+  is still a response; "no match" and "did not search" are the same to FinCEN
+  unless the zero is reported. Same shape as the FBAR nil determination.
+- **BSA-03's CIP is a conjunction of four elements.** Three of four is not a
+  partial CIP, it is a failed one, so the outcome is DENIED rather than
+  "completed with gaps".
+
+**29 mutations, 29 caught first pass.** Third artifact with no survivors.
