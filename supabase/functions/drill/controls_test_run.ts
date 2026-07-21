@@ -1,4 +1,4 @@
-// ONE TEST PER CONTROL — all 316.
+// ONE TEST PER CONTROL — all 316. THE HERMETIC TIER.
 //
 //   deno run --allow-all supabase/functions/drill/controls_test_run.ts
 //   deno run --allow-all supabase/functions/drill/controls_test_run.ts --check
@@ -12,40 +12,24 @@
 // A control whose subsystem does not exist has no firer, goes RED, and the red
 // line names the trigger that needs a writer. RED IS THE BACKLOG — these are
 // not skipped, not pending, and never pass vacuously.
+//
+// The fire dispatch and grading live in controls_grading.ts, SHARED with the
+// live runner (controls_live_run.ts) — one grader for both tiers, so a
+// hermetic-green/live-red diff always means a fake-vs-real defect and never a
+// grading skew.
 
 import { makeDrillDb } from "./fake_db.ts";
-import { ACTORS, FROZEN_NOW, freezeClock, restoreClock, seedRandom, seedUUID, restoreUUID } from "./drill.ts";
-import { seedInstitution } from "./cases.ts";
 import {
-  FIRERS, fireViaAttestation, fireViaObligation, fireViaThreshold, fireViaWorkItem,
-  TIMER_RE, type FireEnv,
-} from "./firers.ts";
+  ACTORS, FROZEN_NOW, freezeClock, restoreClock, seedRandom, seedUUID, restoreUUID,
+} from "./drill.ts";
+import { seedInstitution } from "./cases.ts";
+import { type FireEnv } from "./firers.ts";
+import { type ControlTest, fire, gradeControl, loadCatalogue } from "./controls_grading.ts";
 
 const ROOT = new URL("../../../", import.meta.url).pathname;
 
 // deno-lint-ignore no-explicit-any
 type Any = any;
-
-interface ControlTest {
-  uid: string;
-  policy: string;
-  control_id: string;
-  title: string;
-  status: "green" | "red";
-  /** produced events the control declares */
-  expected: string[];
-  /** of those, which actually appeared */
-  observed: string[];
-  triggers: string[];
-  fire_path?: string;
-  scoped_out?: boolean;
-  scope_reason?: string;
-  required_inputs?: string[];
-  inputs_supplied?: string[];
-  inputs_unverifiable?: string[];
-  /** why it is red */
-  blocked_on?: string;
-}
 
 function mkBlnk(balance: number): Any {
   return {
@@ -62,90 +46,13 @@ function mkBlnk(balance: number): Any {
   };
 }
 
-let firePath = "none";
-
-/** Choose how to fire a trigger, or report that nothing can. */
-async function fire(
-  code: string, uid: string, env: FireEnv,
-): Promise<string | null> {
-  if (FIRERS[code]) {
-    firePath = "real_writer";
-    await FIRERS[code](env, uid);
-    return null;
-  }
-  if (TIMER_RE.test(code)) {
-    firePath = "obligation_cadence";
-    await fireViaObligation(code, uid, env);
-    return null;
-  }
-  // Generic shapes. These are the primitives doing their job — a control whose
-  // trigger is "something opened / was requested / was received" is served by
-  // the work-item register regardless of which policy it belongs to.
-  if (/\.(opened|started|completed|closed|resolved|requested|proposed|submitted|decided|received|presented|issued|sent|published|delivered|reported|filed|notified|acknowledged|scheduled|initiated|drafted|assigned)$/.test(code)) {
-    firePath = "generic_echo";
-    await fireViaWorkItem(code, uid, env);
-    return null;
-  }
-  if (/\.(breached|detected|flagged|failed|exceeded|warning|identified)$/.test(code)) {
-    firePath = "generic_echo";
-    await fireViaThreshold(code, uid, env);
-    return null;
-  }
-  if (/\.(recorded|logged|updated|changed|created|verified|applied|approved|attested|confirmed|reviewed|declared|posted|activated|expired|hired|separated|blocked)$/.test(code)) {
-    firePath = "generic_echo";
-    await fireViaAttestation(code, uid, env);
-    return null;
-  }
-  return `no writer for trigger '${code}'`;
-}
-
 async function main() {
   const checkOnly = Deno.args.includes("--check");
   freezeClock();
   seedRandom(20260719);
   seedUUID();
 
-  // Which input objects are CHECKABLE. An input like `bsa_alert.alert_type`
-  // names a real table and can be verified; one like `governance.bsa_officer_id`
-  // names an abstract namespace with no table behind it and cannot. Grading
-  // against un-checkable inputs would fail every control for a reason that says
-  // nothing about the control, so they are reported as UNVERIFIABLE instead of
-  // counted either way.
-  const schemaSql = await Deno.readTextFile(`${ROOT}supabase/migrations/20260702000100_core_schema.sql`);
-  const knownTables = new Set<string>(
-    [...schemaSql.matchAll(/create table if not exists "core"\."([a-z_]+)"/g)].map((m) => m[1]),
-  );
-  for (const t of [
-    "cash_transaction", "ctr_filing", "obligation", "obligation_completion",
-    "work_item", "threshold", "threshold_observation", "attestation",
-    "loan_party", "adverse_action_notice", "payment_approval", "client_limit",
-    // Adding `cda` here is what makes the cda controls' declared inputs
-    // CHECKABLE instead of unverifiable. Before it, all 60-odd cda.* inputs
-    // graded as un-checkable and every cda control could go green on produced
-    // events alone. See the instrument caveat in BLUEPRINT §5h: the check is
-    // object-granular, so this binds `a cda row must exist` and not the
-    // individual field.
-    "cda",
-  ]) knownTables.add(t);
-
-  // Scope marks live in a checked-in file and are applied HERE, so regenerating
-  // this artifact cannot silently drop the scoping decision. Re-applying them by
-  // hand afterwards was fragile: the first person to regenerate would lose the
-  // decision and it would look like a clean run rather than data loss.
-  const scopeDoc = JSON.parse(
-    await Deno.readTextFile(`${ROOT}control-scope.json`).catch(() => '{"scope":{}}'),
-  );
-  const scope: Record<string, { verdict: string; why: string }> = scopeDoc.scope ?? {};
-
-  const catalogue = JSON.parse(await Deno.readTextFile(`${ROOT}controls.json`));
-  // dedupe replicas (SC-01/SC-02 appear once per referencing policy)
-  const seen = new Set<string>();
-  const controls = catalogue.controls.filter((c: Any) => {
-    const k = `${c.policy}:${c.control_id}`;
-    if (seen.has(k)) return false;
-    seen.add(k);
-    return true;
-  });
+  const { controls, scope, knownTables } = await loadCatalogue();
 
   const results: ControlTest[] = [];
   let counter = 0;
@@ -164,171 +71,25 @@ async function main() {
 
     const rules = (c.control_rules ?? []).filter((r: Any) => r.trigger_event);
     const triggers = [...new Set(rules.map((r: Any) => r.trigger_event))] as string[];
-    const expected = [
-      ...new Set(rules.flatMap((r: Any) => r.produced_events ?? [])),
-    ] as string[];
-    // A control declares required_inputs; a test that ignores them grades the
-    // plumbing rather than the control. Green requires the inputs to have been
-    // SUPPLIED — i.e. the run wrote a row in the object each input names.
-    const requiredInputs = [
-      ...new Set(rules.flatMap((r: Any) => r.required_inputs ?? [])),
-    ] as string[];
 
     let blocked: string | undefined;
-    firePath = "none";
+    let firePath = "none";
 
     if (triggers.length === 0) {
       blocked = "catalogue entry declares no trigger event";
     } else {
       for (const t of triggers) {
         try {
-          const why = await fire(t, `${c.policy}:${c.control_id}`, env);
-          if (why && !blocked) blocked = why;
+          const out = await fire(t, `${c.policy}:${c.control_id}`, env);
+          firePath = out.firePath !== "none" ? out.firePath : firePath;
+          if (out.blocked && !blocked) blocked = out.blocked;
         } catch (e) {
           if (!blocked) blocked = `firing '${t}' threw: ${String(e).slice(0, 120)}`;
         }
       }
     }
 
-    const emitted = new Set<string>(
-      (dbx.rows["core.event"] ?? []).concat(dbx.rows["sim.event"] ?? []).map((e: Any) => String(e.code)),
-    );
-    const observed = expected.filter((e) => emitted.has(e));
-
-    // WHICH DECLARED INPUTS WERE ACTUALLY SUPPLIED — graded at COLUMN level.
-    //
-    // This used to ask only whether a table named `obj` had been written to,
-    // ignoring `field` entirely. That is far too weak for any domain whose
-    // corpus names every input under one namespace: cda declares ~60 inputs
-    // and all of them are `cda.*`, so the whole check collapsed to a single
-    // boolean ("does a cda row exist"). See BLUEPRINT §5h.
-    //
-    // An input `obj.field` now counts as supplied when the run wrote a row in
-    // an object named `obj` AND the datum `field` actually appears — either as
-    // a populated column on one of those rows, or as a key in an emitted event
-    // payload. The second half is necessary and not a loophole: plenty of
-    // declared inputs are COMPUTED (`cda.aggregate_book_value`,
-    // `cash.overshort.amount`) and are legitimately carried on the evidence
-    // rather than stored, so requiring a column would fail controls for
-    // computing the thing correctly.
-    const touchedObjects = new Set<string>();
-    for (const [k, rs] of Object.entries(dbx.rows)) {
-      if (!rs.length) continue;
-      touchedObjects.add(k.split(".")[1]);
-    }
-
-    /**
-     * DOES THE RUN CARRY THIS DATUM?
-     *
-     * Matching declared-input names to column names literally does not work,
-     * and failing a control because of it would grade the CORPUS rather than
-     * the run — the same mistake OQ-06 and OQ-22 record about trigger
-     * vocabulary. The corpus writes `cda.vendor_registration_status`; the
-     * schema writes `cda_vendor.registration_status`. Those are the same fact.
-     *
-     * So both sides are reduced to TOKEN SETS and the test is containment: the
-     * input's tokens must all appear in some populated column, where a
-     * column's tokens include its TABLE's tokens. `cda.vendor_registration_status`
-     * -> {cda, vendor, registration, status} is covered by
-     * `cda_vendor.registration_status` -> {cda, vendor, registration, status}.
-     *
-     * This is hard to satisfy accidentally: every word the corpus used has to
-     * be accounted for by a column that actually holds a value. It is NOT
-     * satisfiable by writing an unrelated row, which is what the old
-     * object-level check permitted.
-     */
-    // A trailing plural is stripped on both sides. The corpus says
-    // `incident.member_notice_template` and the writer emits
-    // `incident.member_notices.sent`; those are the same fact and failing a
-    // control on the 's' would, again, be grading the corpus. This is the ONLY
-    // normalisation applied — anything beyond it starts inventing synonyms.
-    const stem = (w: string): string =>
-      w.length > 3 && w.endsWith("s") && !w.endsWith("ss") ? w.slice(0, -1) : w;
-    const tokens = (s: string): Set<string> =>
-      new Set(
-        s.toLowerCase().split(/[^a-z0-9]+/).filter((x) => x.length > 0).map(stem),
-      );
-
-    /** token sets of every populated column, table tokens folded in */
-    const candidates: Set<string>[] = [];
-    for (const [k, rs] of Object.entries(dbx.rows)) {
-      if (!rs.length) continue;
-      const table = k.split(".")[1];
-      const tTok = tokens(table);
-      const cols = new Set<string>();
-      for (const r of rs) {
-        for (const [c, v] of Object.entries(r as Record<string, unknown>)) {
-          if (v !== null && v !== undefined && v !== "") cols.add(c);
-        }
-      }
-      for (const c of cols) candidates.push(new Set([...tTok, ...tokens(c)]));
-    }
-    // and every event payload key, folded with its event code — a computed
-    // input (`cda.aggregate_book_value`, `cash.overshort.amount`) is carried on
-    // the evidence rather than stored, and requiring a column would fail a
-    // control for computing the thing correctly
-    for (const e of (dbx.rows["core.event"] ?? []).concat(dbx.rows["sim.event"] ?? [])) {
-      const cTok = tokens(String((e as Any).code));
-      const walk = (v: unknown, depth: number): void => {
-        if (depth > 3 || v === null || typeof v !== "object") return;
-        if (Array.isArray(v)) {
-          for (const x of v) walk(x, depth + 1);
-          return;
-        }
-        for (const [k, x] of Object.entries(v as Record<string, unknown>)) {
-          if (x !== null && x !== undefined && x !== "") {
-            candidates.push(new Set([...cTok, ...tokens(k)]));
-          }
-          walk(x, depth + 1);
-        }
-      };
-      walk((e as Any).payload, 0);
-    }
-
-    const supplied = (i: string): boolean => {
-      if (!touchedObjects.has(i.split(".")[0])) return false;
-      const want = tokens(i);
-      return candidates.some((c) => [...want].every((w) => c.has(w)));
-    };
-
-    const checkable = requiredInputs.filter((i) => knownTables.has(i.split(".")[0]));
-    const unverifiable = requiredInputs.filter((i) => !knownTables.has(i.split(".")[0]));
-    const inputsSupplied = checkable.filter(supplied);
-    const inputsMissing = checkable.filter((i) => !supplied(i));
-
-    const green = expected.length > 0 &&
-      observed.length === expected.length &&
-      inputsMissing.length === 0 &&
-      !blocked;
-
-    if (!green && !blocked) {
-      blocked = expected.length === 0
-        ? "control declares no produced events"
-        : observed.length !== expected.length
-        ? `produced ${observed.length}/${expected.length}: missing ${
-          expected.filter((e) => !emitted.has(e)).slice(0, 4).join(", ")
-        }`
-        : `inputs not supplied: ${inputsMissing.slice(0, 4).join(", ")}`;
-    }
-
-    const sc = scope[`${c.policy}:${c.control_id}`];
-    results.push({
-      scoped_out: sc ? sc.verdict !== "in" : false,
-      scope_reason: sc?.why ?? "unclassified",
-      uid: `${c.policy}:${c.control_id}`,
-      policy: c.policy,
-      control_id: c.control_id,
-      title: c.title,
-      status: green ? "green" : "red",
-      expected,
-      observed,
-      triggers,
-      required_inputs: requiredInputs,
-      inputs_supplied: inputsSupplied,
-      inputs_unverifiable: unverifiable,
-      fire_path: firePath,
-      blocked_on: green ? undefined : blocked,
-    });
+    results.push(gradeControl(c, dbx.rows, blocked, firePath, knownTables, scope));
   }
 
   restoreClock();
@@ -437,4 +198,4 @@ async function main() {
   }
 }
 
-if (import.meta.main) await main();
+await main();
