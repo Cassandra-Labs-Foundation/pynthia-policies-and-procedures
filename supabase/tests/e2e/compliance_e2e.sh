@@ -1579,7 +1579,145 @@ check "an INSTANCE token is refused the cross-fintech view (D23)" \
 # the ONLY surface where cross-fintech data exists to be served.
 
 echo
-echo "-- 46. the demo narrative still runs (demo.sh) --"
+echo "-- 46. violation tier: the refusals ARE the controls (RS-03, MP-06/07, PR-03/04/15, CP-05, DF-05) --"
+OPS=(-H "X-Api-Key: $APPROVER_TOKEN" -H 'content-type: application/json')
+
+# ---- RS-03: safe mode caps transactions, with decision evidence
+SM_ID=$(curl -sS -X POST "$API/resolution/safe-mode" "${OPS[@]}" -H "Idempotency-Key: $RUN-sm" \
+  -d '{"trigger_basis":"harness_drill","per_txn_cap_cents":10000,"activated_by":"resolution_officer"}' \
+  | python3 -c 'import json,sys;print(json.load(sys.stdin)["data"]["id"])')
+check "safe mode activates with a cap" "$([ -n "$SM_ID" ] && echo yes)" "yes"
+curl -sS -o /dev/null -X POST "$API/resolution/safe-mode/$SM_ID/processor-confirm" "${OPS[@]}" \
+  -H "Idempotency-Key: $RUN-smpc" -d '{"processor_ref":"proc_1"}'
+check "the processor confirmation is durable" \
+  "$(sql "select processor_confirmed_at is not null from pg.core.safe_mode where id='${SM_ID}';")" "true"
+VA=$(new_account 100000 viol-src)
+VB=$(new_account 10000 viol-dst)
+ST=$(api POST /transfers viol-sm "{\"source_account_id\":\"$VA\",\"destination_account_id\":\"$VB\",\"amount_cents\":50000,\"description\":\"over the cap\"}")
+check "an over-cap transfer while safe mode is active is REFUSED (423)" "$ST" "423"
+check "and says why" "$(jget type)" "safe_mode_restricted"
+SM_TR=$(jget resource_id)
+check "the refusal is durable: the transfer row is rejected" \
+  "$(sql "select status from pg.core.transfer where id='${SM_TR}';")" "rejected"
+check "and the DECISION is evidence — safe_mode.transaction.decided, refused" \
+  "$(sql "select count(*)>0 from pg.core.event where code='safe_mode.transaction.decided' and json_extract_string(payload, '\$.decision')='refused' and json_extract_string(payload, '\$.resource_id')='${SM_TR}';")" "true"
+ST=$(api POST /transfers viol-sm-ok "{\"source_account_id\":\"$VA\",\"destination_account_id\":\"$VB\",\"amount_cents\":5000,\"description\":\"under the cap\"}")
+check "an under-cap transfer still settles — safe mode is a cap, not an outage" "$ST" "201"
+check "single-authorizer deactivation is refused (dual authorization)" \
+  "$(curl -sS -o /dev/null -w '%{http_code}' -X POST "$API/resolution/safe-mode/$SM_ID/deactivate" "${OPS[@]}" \
+      -H "Idempotency-Key: $RUN-smd1" -d '{"authorized_by":"a","second_authorizer":"a"}')" "422"
+check "two different authorizers deactivate it" \
+  "$(curl -sS -o /dev/null -w '%{http_code}' -X POST "$API/resolution/safe-mode/$SM_ID/deactivate" "${OPS[@]}" \
+      -H "Idempotency-Key: $RUN-smd2" -d '{"authorized_by":"officer_a","second_authorizer":"officer_b"}')" "200"
+
+# ---- MP-07: death flag freezes movement; estate pays only a VERIFIED claimant
+DENT=$(curl -sS -X POST "$API/entities" "${AUTH[@]}" -H "Idempotency-Key: $RUN-dent" \
+  -d '{"type":"person","name":"Dora Deceased","date_of_birth":"1940-02-02","email":"dora@example.com"}' \
+  | python3 -c 'import json,sys;print(json.load(sys.stdin)["id"])')
+DACC=$(curl -sS -X POST "$API/accounts" "${AUTH[@]}" -H "Idempotency-Key: $RUN-dacc" \
+  -d "{\"account_type\":\"checking\",\"opening_deposit_cents\":30000,\"entity_id\":\"$DENT\"}" \
+  | python3 -c 'import json,sys;print(json.load(sys.stdin)["id"])')
+ST=$(api POST "/members/$DENT/death-report" death1 '{"date_of_death":"2026-07-01","death_certificate_ref":"dc_77"}')
+check "a death report lands (201)" "$ST" "201"
+check "and flags the account durably: lock_type=deceased" \
+  "$(sql "select lock_type from pg.core.account where id='${DACC}';")" "deceased"
+ST=$(api POST /transfers viol-dead "{\"source_account_id\":\"$DACC\",\"destination_account_id\":\"$VB\",\"amount_cents\":1000,\"description\":\"from beyond\"}")
+check "a transfer on a deceased-flagged account is REFUSED (422)" "$ST" "422"
+check "by the lock gate, by name" "$(jget type)" "account_locked"
+ST=$(api POST "/members/$DENT/estate-claims" claim1 '{"claimant":"Executor Ed","date_of_death":"2026-07-01","death_certificate_ref":"dc_77","authority_document_ref":"letters_1"}')
+check "the estate claim documents (201)" "$ST" "201"
+ECLAIM=$(python3 -c 'import json;print(json.load(open("/tmp/e2e_body"))["data"]["id"])')
+EVER=$(python3 -c 'import json;print(json.load(open("/tmp/e2e_body"))["data"]["verification_id"])')
+check "paying an UNVERIFIED claimant is refused (409)" \
+  "$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/estate-claims/$ECLAIM/payout" "${OPS[@]}" \
+      -H "Idempotency-Key: $RUN-pay1" -d '{}')" "409"
+psql "$SUPABASE_DB_URL" -qc "update core.verification set status='approved' where id='${EVER}';" >/dev/null
+check "after verification completes, the payout goes (200)" \
+  "$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/estate-claims/$ECLAIM/payout" "${OPS[@]}" \
+      -H "Idempotency-Key: $RUN-pay2" -d '{"amounts_owed_cents":500}')" "200"
+check "and the payout evidence nets amounts owed" \
+  "$(sql "select payout_cents from pg.core.estate_claim where id='${ECLAIM}';")" "29500"
+
+# ---- MP-06: expulsion needs a deliverable contact; close locks and pays out
+XENT=$(curl -sS -X POST "$API/entities" "${AUTH[@]}" -H "Idempotency-Key: $RUN-xent" \
+  -d '{"type":"person","name":"Silent Sam","date_of_birth":"1990-01-01"}' \
+  | python3 -c 'import json,sys;print(json.load(sys.stdin)["id"])')
+check "expelling a member with NO deliverable contact is refused (422)" \
+  "$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/members/$XENT/expulsion" "${OPS[@]}" \
+      -H "Idempotency-Key: $RUN-xp1" -d '{"grounds":"fraud","decided_by":"board","meeting_date":"2026-08-01"}')" "422"
+check "and the refusal names due process" "$(jget type)" "no_deliverable_contact"
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/members/$DENT/expulsion" "${OPS[@]}" \
+  -H "Idempotency-Key: $RUN-xp2" -d '{"grounds":"abuse of services","decided_by":"board-2026-07","meeting_date":"2026-08-15","amounts_owed_cents":100}')
+check "with a contact on file the notice goes out (201)" "$ST" "201"
+XID=$(python3 -c 'import json;print(json.load(open("/tmp/e2e_body"))["data"]["id"])')
+curl -sS -o /dev/null -X POST "$API/expulsions/$XID/hearing" "${OPS[@]}" -H "Idempotency-Key: $RUN-xh" -d '{"kind":"held"}'
+curl -sS -o /dev/null -X POST "$API/expulsions/$XID/close" "${OPS[@]}" -H "Idempotency-Key: $RUN-xc" -d '{}'
+check "the closed expulsion filed its board report durably" \
+  "$(sql "select board_report_filed_at is not null from pg.core.expulsion where id='${XID}';")" "true"
+
+# ---- PR-03/04: sharing without a basis is BLOCKED; access without entitlement REFUSED
+check "a disclosure with no legal basis is BLOCKED (422)" \
+  "$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/privacy/disclosures" "${OPS[@]}" \
+      -H "Idempotency-Key: $RUN-pd1" -d "{\"entity_id\":\"$DENT\",\"recipient\":\"data_broker_x\"}")" "422"
+check "and the BLOCK itself is durable evidence" \
+  "$(sql "select count(*)>0 from pg.core.privacy_disclosure where entity_id='${DENT}' and blocked=true;")" "true"
+check "an access request with no entitlement is refused (403)" \
+  "$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/privacy/access-requests" "${OPS[@]}" \
+      -H "Idempotency-Key: $RUN-par1" -d "{\"entity_id\":\"$DENT\",\"requester_kind\":\"other\",\"agent_identity\":\"Nosy Neighbor\"}")" "403"
+check "and the refusal is recorded, not just returned" \
+  "$(sql "select count(*)>0 from pg.core.privacy_access_request where entity_id='${DENT}' and status='refused';")" "true"
+
+# ---- PR-15: a connection's scope violation revokes its token
+CONN_BODY=$(curl -sS -X POST "$API/privacy/connections" "${AUTH[@]}" -H "Idempotency-Key: $RUN-conn" \
+  -d "{\"entity_id\":\"$DENT\",\"party_id\":\"budget_app_z\",\"scopes\":[\"GET /accounts/{id}\"]}")
+CONN_ID=$(echo "$CONN_BODY" | python3 -c 'import json,sys;print(json.load(sys.stdin)["data"]["id"])')
+CONN_TOK=$(echo "$CONN_BODY" | python3 -c 'import json,sys;print(json.load(sys.stdin)["data"]["token"])')
+check "consent mints a scoped connection token" "$([ -n "$CONN_TOK" ] && echo yes)" "yes"
+check "the token works IN scope" \
+  "$(curl -sS -o /dev/null -w '%{http_code}' "$API/accounts/$DACC" -H "X-Api-Key: $CONN_TOK")" "200"
+check "and is refused OUT of scope (403)" \
+  "$(curl -sS -o /dev/null -w '%{http_code}' -X POST "$API/transfers" -H "X-Api-Key: $CONN_TOK" \
+      -H 'content-type: application/json' -H "Idempotency-Key: $RUN-ct" -d '{}')" "403"
+curl -sS -o /dev/null -X POST "$API/privacy/connections/$CONN_ID/scope-violation" "${OPS[@]}" \
+  -H "Idempotency-Key: $RUN-cv" -d '{"attempted":"POST /transfers"}'
+check "the scope violation revokes the connection durably" \
+  "$(sql "select status from pg.core.connection where id='${CONN_ID}';")" "revoked"
+check "and the token is DEAD — the next use is 401" \
+  "$(curl -sS -o /dev/null -w '%{http_code}' "$API/accounts/$DACC" -H "X-Api-Key: $CONN_TOK")" "401"
+
+# ---- CP-05: separation revokes custody in the same act
+EMP=$(curl -sS -X POST "$API/hr/employees" "${OPS[@]}" -H "Idempotency-Key: $RUN-emp" \
+  -d '{"name":"Kay Keys","role":"teller","cash_handler":true}' \
+  | python3 -c 'import json,sys;print(json.load(sys.stdin)["data"]["id"])')
+CUST=$(curl -sS -X POST "$API/cash-ops/custody" "${OPS[@]}" -H "Idempotency-Key: $RUN-cust" \
+  -d "{\"employee_id\":\"$EMP\",\"kind\":\"key\"}" \
+  | python3 -c 'import json,sys;print(json.load(sys.stdin)["data"]["id"])')
+check "keybox access WITHOUT a second person is refused (422 dual control)" \
+  "$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/cash-ops/custody/$CUST/keybox-open" "${OPS[@]}" \
+      -H "Idempotency-Key: $RUN-kb1" -d '{"reason":"solo"}')" "422"
+curl -sS -o /dev/null -X POST "$API/hr/employees/$EMP/separate" "${OPS[@]}" -H "Idempotency-Key: $RUN-sep" -d '{"reason":"resigned"}'
+check "separation revoked the custody durably, in the same act" \
+  "$(sql "select revoked_at is not null from pg.core.cash_custody where id='${CUST}';")" "true"
+
+# ---- DF-05: an insider over the aggregate threshold cannot borrow without the Board
+psql "$SUPABASE_DB_URL" -qc "insert into core.loan_application (id, status) values ('app_e2e_${RUN}', 'created') on conflict (id) do nothing;" >/dev/null
+curl -sS -o /dev/null -X PUT "$API/lending/insiders/ins_e2e_$RUN" "${OPS[@]}" \
+  -H "Idempotency-Key: $RUN-ins" \
+  -d '{"subject_ref":"dir_e2e","role":"director","effective_from":"2026-01-01T00:00:00.000Z"}'
+check "an over-threshold insider loan WITHOUT board approval is refused (409)" \
+  "$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/lending/applications/app_e2e_$RUN/insider-review" "${OPS[@]}" \
+      -H "Idempotency-Key: $RUN-ir1" \
+      -d '{"subject_ref":"dir_e2e","terms_comparable":true,"amount_cents":60000000,"aggregate_credit_amount":60000000,"unimpaired_capital_surplus_cents":1000000000}')" "409"
+check "and the threshold crossing is evidence" \
+  "$(sql "select count(*)>0 from pg.core.event where code='insider.credit_threshold_exceeded' and json_extract_string(payload, '\$.\"insider.record_entry\"')='inscred_app_e2e_${RUN}';")" "true"
+check "with a board resolution on file the loan may proceed (200)" \
+  "$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/lending/applications/app_e2e_$RUN/insider-review" "${OPS[@]}" \
+      -H "Idempotency-Key: $RUN-ir2" \
+      -d '{"subject_ref":"dir_e2e","terms_comparable":true,"board_resolution_id":"board-e2e","amount_cents":60000000,"aggregate_credit_amount":60000000,"unimpaired_capital_surplus_cents":1000000000}')" "200"
+
+
+echo
+echo "-- 47. the demo narrative still runs (demo.sh) --"
 # The Aug-29 walkthrough is a TEST, run here so it cannot rot between
 # rehearsals: a demo script nobody executes fails in the room, not in CI.
 if PACE=0 ./supabase/tests/e2e/demo.sh >/tmp/e2e_demo.log 2>&1; then
