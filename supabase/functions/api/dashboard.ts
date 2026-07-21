@@ -21,7 +21,7 @@
 // are REPORTED in the payload: a dashboard that silently truncates reads as
 // complete when it is not.
 import { type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { internalErrorResponse, jsonResponse, notFoundResponse } from "./lib.ts";
+import { internalErrorResponse, jsonResponse } from "./lib.ts";
 import { type PartnerContext } from "./auth.ts";
 
 const WINDOW_HOURS = 168; // 7 days
@@ -46,12 +46,12 @@ export async function getDashboardData(
   _req: Request,
   db: SupabaseClient,
   requestId: string,
-  ctx: PartnerContext,
+  _ctx: PartnerContext,
 ): Promise<Response> {
-  if (ctx.actorType === "partner") {
-    return notFoundResponse(requestId, "route", "/compliance/dashboard/data");
-  }
-
+  // DEMO POSTURE: the route is public (see index.ts) and this handler serves
+  // anyone — the sandbox shows synthetic evidence and the demo must not stop
+  // for a token prompt. To re-lock for production: drop `public` from the
+  // route and restore the partner 404 here (git history at 4b34d6a).
   const since = windowStartIso();
   const nowIso = new Date().toISOString();
 

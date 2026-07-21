@@ -5,12 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cassandra — Compliance</title>
 <!--
-  The compliance dashboard SHELL. Pure chrome, zero data, no secrets: it is
-  hosted publicly (GitHub Pages) precisely because it carries nothing. The
-  token is entered client-side, held in sessionStorage, and sent only as an
-  X-Api-Key header to the data endpoint — never in a URL. Data comes from
-  GET {api}/compliance/dashboard/data, which authenticates through the same
-  token pipeline as every other route (partners get 404, per BSA-07).
+  The compliance dashboard SHELL. DEMO POSTURE: the data route is public, so
+  the page loads with no credential at all — this is a sandbox showing
+  synthetic evidence. To re-lock for production: drop `public` from the data
+  route in index.ts, restore the actor check in dashboard.ts, and put the
+  token gate back here (git history has it at 4b34d6a).
 
   Hosted here rather than served by the edge function because the Supabase
   gateway rewrites every renderable content-type to text/plain on its shared
@@ -45,11 +44,8 @@
 </style>
 </head>
 <body>
-<div id="gate">
+<div id="gate" style="display:none">
   <h1>Compliance Dashboard</h1>
-  <p style="color:var(--dim);margin-top:8px">Enter an operator or CU-admin API token. It is held in this tab's session only — never in a URL.</p>
-  <input id="tok" type="password" placeholder="cass_… token" autocomplete="off">
-  <button id="go">Open</button>
   <div id="err"></div>
 </div>
 <div id="app" style="display:none">
@@ -62,7 +58,6 @@
   <div class="foot">Every figure is read from the evidence tables the controls write — nothing is computed for display. Row caps are surfaced when hit.</div>
 </div>
 <script>
-const KEY = "cass_dash_token";
 const API = new URLSearchParams(location.search).get("api")
   || "https://jynsipdvrgqdkeqrlzcv.functions.supabase.co/api";
 const dataUrl = API.replace(/\/+$/,"") + "/compliance/dashboard/data";
@@ -121,26 +116,22 @@ function render(d){
 }
 
 async function load(){
-  const tok = sessionStorage.getItem(KEY);
-  if (!tok) return;
   let res;
   try {
-    res = await fetch(dataUrl, { headers: { "X-Api-Key": tok } });
+    res = await fetch(dataUrl);
   } catch (e) {
+    $("gate").style.display=""; $("app").style.display="none";
     $("err").textContent = "cannot reach the API at " + API;
     return;
   }
   if (!res.ok) {
-    sessionStorage.removeItem(KEY);
     $("gate").style.display=""; $("app").style.display="none";
-    $("err").textContent = "refused ("+res.status+") — check the token's actor class";
+    $("err").textContent = "the API refused ("+res.status+")";
     return;
   }
   $("gate").style.display="none"; $("app").style.display="";
   render(await res.json());
 }
-$("go").onclick = () => { sessionStorage.setItem(KEY, $("tok").value.trim()); $("tok").value=""; load(); };
-$("tok").addEventListener("keydown", (e)=>{ if(e.key==="Enter") $("go").click(); });
 setInterval(load, 30000);
 load();
 </script>

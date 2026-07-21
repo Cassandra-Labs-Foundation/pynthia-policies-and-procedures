@@ -60,9 +60,11 @@ const RECENT = new Date().toISOString();
 const PAST_DUE = new Date(Date.now() - 3600_000).toISOString();
 const FUTURE = new Date(Date.now() + 86400_000).toISOString();
 
-Deno.test("partner actors get 404, never 403 — same confidentiality rule as bsa.ts", async () => {
+Deno.test("demo posture: the data route serves ANY caller, partner included", async () => {
+  // Re-locking for production restores the bsa.ts-style partner 404 here —
+  // this test then flips back to asserting 404 (see 4b34d6a).
   const res = await getDashboardData(req(), stubDb({}), "t", ctx("partner"));
-  assertEquals(res.status, 404);
+  assertEquals(res.status, 200);
 });
 
 Deno.test("panels aggregate the evidence tables faithfully", async () => {
@@ -147,12 +149,11 @@ Deno.test("the dashboard route 302s to the hosted shell (the gateway cannot serv
   assert((res.headers.get("location") ?? "").startsWith("https://"));
 });
 
-Deno.test("the hosted shell is pure chrome: header auth, no token in URLs, no baked secrets", async () => {
+Deno.test("the hosted shell carries no credentials at all (demo posture)", async () => {
   const html = await Deno.readTextFile(
     new URL("../../../docs/dashboard/index.html", import.meta.url),
   );
-  assertStringIncludes(html, '"X-Api-Key"');
-  assert(!html.includes("token="), "token must never ride in a URL");
-  assertStringIncludes(html, "sessionStorage");
+  assert(!html.includes("token="), "no token may ride in a URL");
   assert(!/cass_(?:demo|e2e|pt)_[a-f0-9]/.test(html), "no live token may be baked into the shell");
+  assert(!html.includes("X-Api-Key"), "demo shell sends no auth header at all");
 });

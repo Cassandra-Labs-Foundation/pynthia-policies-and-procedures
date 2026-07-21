@@ -1128,21 +1128,20 @@ ST=$(curl -sS -o /dev/null -w '%{http_code}' -X OPTIONS "$API/compliance/dashboa
 check "preflight for the shell's fetch -> 204" "$ST" "204"
 check "preflight allows the X-Api-Key header" \
   "$(curl -sS -D - -o /dev/null -X OPTIONS "$API/compliance/dashboard/data" -H "Origin: https://example.github.io" | grep -ci 'access-control-allow-headers.*x-api-key')" "1"
-# the data route authenticates like everything else
+# DEMO POSTURE: the data route is public — the dashboard loads with zero
+# credentials (re-lock by removing `public` from the route; see 4b34d6a)
 ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' "$API/compliance/dashboard/data")
-check "data without a token -> 401" "$ST" "401"
-ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' "$API/compliance/dashboard/data" "${AUTH[@]}")
-check "data for an ops actor -> 200" "$ST" "200"
+check "data loads with no credential at all" "$ST" "200"
 check "control activity reflects this run's evidence" \
   "$(python3 -c "import json;d=json.load(open('/tmp/e2e_body'));print('yes' if d['controls']['window_rows']>0 else 'no')")" "yes"
 check "open alerts panel sees the run's BSA alerts" \
   "$(python3 -c "import json;d=json.load(open('/tmp/e2e_body'));print('yes' if d['alerts']['open']>0 else 'no')")" "yes"
 check "ops panel reports outbox depth as a number" \
   "$(python3 -c "import json;d=json.load(open('/tmp/e2e_body'));print('yes' if isinstance(d['ops']['outbox_undelivered'],int) else 'no')")" "yes"
-# BSA-07 confidentiality: a partner cannot learn the dashboard exists
-ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' "$API/compliance/dashboard/data" \
+# demo posture: any caller, partner tokens included, sees the panels
+ST=$(curl -sS -o /dev/null -w '%{http_code}' "$API/compliance/dashboard/data" \
   -H "X-Api-Key: $PARTNER_TOKEN")
-check "a partner gets 404, never 403" "$ST" "404"
+check "a partner token also gets the panels (public by design)" "$ST" "200"
 
 echo
 echo "== $PASS passed, $FAIL failed =="

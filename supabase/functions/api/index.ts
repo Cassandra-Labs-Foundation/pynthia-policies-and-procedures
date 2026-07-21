@@ -579,6 +579,10 @@ const routes: Route[] = [
     paramNames: [],
     endpoint: "GET /compliance/dashboard/data",
     tier: "read",
+    // DEMO POSTURE: public — the sandbox dashboard must load with zero
+    // credentials. Re-lock for production by removing this flag (and see
+    // dashboard.ts for the partner 404 to restore).
+    public: true,
     handler: async (req, _params, requestId, ctx) =>
       await getDashboardData(req, createDb(), requestId, ctx),
   },
