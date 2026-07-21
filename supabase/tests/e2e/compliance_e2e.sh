@@ -1144,7 +1144,33 @@ ST=$(curl -sS -o /dev/null -w '%{http_code}' "$API/compliance/dashboard/data" \
 check "a partner token also gets the panels (public by design)" "$ST" "200"
 
 echo
-echo "-- 39. the demo narrative still runs (demo.sh) --"
+echo "-- 39. scoped tokens are actually confined (card 45) --"
+# Every other token in this run carries {*} at every tier, which proves the
+# pipeline works but not that the SCOPE does. This one is deliberately
+# narrow: one endpoint, read tier. A scope system that is never tested
+# against its own boundary is a config field, not a control.
+NARROW_TOK="cass_e2e_$(openssl rand -hex 20)"
+NARROW_HASH=$(printf '%s' "$NARROW_TOK" | shasum -a 256 | awk '{print $1}')
+psql "$SUPABASE_DB_URL" -qc "insert into core.api_token (id, token_hash, token_prefix, actor_type, roles, partner_id, instance_id, allowed_endpoints, allowed_tiers, status) values ('tok_e2e_narrow_${RUN}', '${NARROW_HASH}', 'cass_e2e', 'cu_admin', '{}', null, '${INST_ID}', '{\"GET /accounts/{id}\"}', '{read}', 'active');" >/dev/null
+NARROW_ACCT=$(new_account 100000 narrow)
+
+ST=$(curl -sS -o /dev/null -w '%{http_code}' "$API/accounts/$NARROW_ACCT" -H "X-Api-Key: $NARROW_TOK")
+check "inside its scope: the one allowed endpoint answers" "$ST" "200"
+
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/transfers" \
+  -H "X-Api-Key: $NARROW_TOK" -H 'content-type: application/json' \
+  -H "Idempotency-Key: $RUN-narrow-xfer" \
+  -d "{\"source_account_id\":\"$NARROW_ACCT\",\"destination_account_id\":\"$RICH_A\",\"amount_cents\":1000,\"description\":\"should never happen\"}")
+check "outside its endpoint list: refused" "$ST" "403"
+check "and typed insufficient_scope, not a generic denial" "$(jget type)" "insufficient_scope"
+check "the money did NOT move" \
+  "$(sql "select balance from pg.core.account where id='$NARROW_ACCT';")" "100000"
+
+ST=$(curl -sS -o /dev/null -w '%{http_code}' "$API/control-results?limit=1" -H "X-Api-Key: $NARROW_TOK")
+check "a read it was never granted is refused too" "$ST" "403"
+
+echo
+echo "-- 40. the demo narrative still runs (demo.sh) --"
 # The Aug-29 walkthrough is a TEST, run here so it cannot rot between
 # rehearsals: a demo script nobody executes fails in the room, not in CI.
 if PACE=0 ./supabase/tests/e2e/demo.sh >/tmp/e2e_demo.log 2>&1; then
