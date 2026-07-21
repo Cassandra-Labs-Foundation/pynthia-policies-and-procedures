@@ -1144,5 +1144,15 @@ ST=$(curl -sS -o /dev/null -w '%{http_code}' "$API/compliance/dashboard/data" \
 check "a partner token also gets the panels (public by design)" "$ST" "200"
 
 echo
+echo "-- 39. the demo narrative still runs (demo.sh) --"
+# The Aug-29 walkthrough is a TEST, run here so it cannot rot between
+# rehearsals: a demo script nobody executes fails in the room, not in CI.
+if PACE=0 ./supabase/tests/e2e/demo.sh >/tmp/e2e_demo.log 2>&1; then
+  ok "the full demo narrative ran green ($(grep -c '✓' /tmp/e2e_demo.log) checks)"
+else
+  bad "the demo narrative broke" "green" "$(grep -c '✗' /tmp/e2e_demo.log) failed — see /tmp/e2e_demo.log"
+fi
+
+echo
 echo "== $PASS passed, $FAIL failed =="
 [ "$FAIL" -eq 0 ] || exit 1
