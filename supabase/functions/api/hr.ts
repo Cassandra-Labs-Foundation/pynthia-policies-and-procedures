@@ -103,6 +103,22 @@ export async function postEmployeeSeparate(
       cause: "employee_separated",
     }, ctx);
   }
+
+  // the IAM projection follows the personnel fact
+  await db.schema(scope).from("user").upsert({
+    id: employeeId, employment_status: "separated",
+  }, { onConflict: "id" });
+
+  // IS-06: separation deprovisions ACCESS in the same act, same principle as
+  // custody — a separated employee with live credentials is the exposure
+  const { data: grants } = await db.schema(scope).from("access_grant")
+    .select("id, role").eq("user_id", employeeId).is("deprovisioned_at", null);
+  for (const g of grants ?? []) {
+    await db.schema(scope).from("access_grant").update({ deprovisioned_at: now }).eq("id", g.id);
+    await emit(db, scope, `ev_${g.id}_deprov`, "access.deprovisioned", "access_grant", String(g.id), {
+      "user.id": employeeId, "user.employment_status": "separated", role: g.role,
+    }, ctx);
+  }
   return jsonResponse({
     data: { id: employeeId, separated: true, custodies_revoked: (custodies ?? []).length },
   }, 200, requestId);
@@ -163,7 +179,7 @@ export async function postEmployeeTraining(
   const { error } = await db.schema(scope).from("training").upsert({
     id, assignee_id: employeeId, curriculum_id: body.course,
     completion_status: "completed",
-  }, { onConflict: "id", ignoreDuplicates: true });
+  }, { onConflict: "id" });
   if (error) return internalErrorResponse(requestId, error.message);
   await emit(db, scope, `ev_${id}_done`, "training.completed", "training", id, {
     "employee.id": employeeId, course: body.course,
@@ -187,4 +203,58 @@ export async function trainingCoveragePct(
   const trainedSet = new Set((trained ?? []).map((t: Any) => String(t.assignee_id)));
   const covered = handlers.filter((h: Any) => trainedSet.has(String(h.id))).length;
   return Math.round((covered / handlers.length) * 1000) / 10;
+}
+
+/**
+ * POST /hr/training-assignments {curriculum, assignee_id, annual_due_at?}
+ *
+ * BA-08's capital training cycle rides the same HR seam: the assignment is
+ * CREATED with its annual clock; completion goes through the existing
+ * training writer. `training.capital` is the event code BA-08 declares for
+ * the capital curriculum — the corpus's name, kept verbatim.
+ */
+export async function postTrainingAssignment(
+  req: Request, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  if (!isNonEmptyString(body.curriculum) || !isNonEmptyString(body.assignee_id)) {
+    return validationError(requestId, [{
+      type: "missing_field", field: "curriculum",
+      message: "curriculum and assignee_id are required",
+    }]);
+  }
+  const { data: emp } = await db.schema(scope).from("employee")
+    .select("id").eq("id", body.assignee_id).maybeSingle();
+  if (!emp) return notFoundResponse(requestId, "employee", String(body.assignee_id));
+  const id = `trnasg_${crypto.randomUUID()}`;
+  const dueAt = isNonEmptyString(body.annual_due_at)
+    ? body.annual_due_at
+    : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
+  const { error } = await db.schema(scope).from("training_assignment").upsert({
+    id, curriculum: body.curriculum, assignee_id: body.assignee_id,
+    annual_due_at: dueAt, provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id" });
+  if (error) return internalErrorResponse(requestId, error.message);
+  // the assignment IS a training row in 'assigned' status; completion
+  // overwrites it through the completion writer
+  await db.schema(scope).from("training").upsert({
+    id: `trn_${body.assignee_id}_${body.curriculum}`.replace(/[^a-zA-Z0-9_]/g, "_"),
+    assignee_id: body.assignee_id, curriculum_id: body.curriculum,
+    completion_status: "assigned",
+  }, { onConflict: "id", ignoreDuplicates: true });
+
+  await emit(db, scope, `ev_${id}_created`, "training.assignment.created",
+    "training_assignment", id, {
+      "training.required_curriculum": body.curriculum,
+      "training.annual_due_at": dueAt,
+      assignee_id: body.assignee_id,
+    }, ctx);
+  if (body.curriculum === "capital") {
+    await emit(db, scope, `ev_${id}_capital`, "training.capital",
+      "training_assignment", id, {
+        "training.capital": true, "training.annual_due_at": dueAt,
+      }, ctx);
+  }
+  return jsonResponse({ data: { id, annual_due_at: dueAt } }, 201, requestId);
 }

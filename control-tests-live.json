@@ -7,18 +7,22 @@
   },
   "summary": {
     "ran": 333,
-    "green": 138,
-    "red": 195,
-    "in_scope_green": 137,
-    "in_scope_red": 88,
+    "green": 157,
+    "red": 176,
+    "in_scope_green": 156,
+    "in_scope_red": 69,
     "fake_vs_real_defects": [
       {
         "uid": "audit:SC-02",
-        "blocked_on": "produced 5/14: missing disposal.clock_resumed, legal.hold.released, legal_hold.schedule_resumed, record.hold.released"
+        "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
       },
       {
         "uid": "basel-ii-standardized-approach-framework:BA-04",
         "blocked_on": "produced 2/3: missing rwa.schedule_version"
+      },
+      {
+        "uid": "basel-ii-standardized-approach-framework:BA-08",
+        "blocked_on": "inputs not supplied: training.annual_due_at, training.capital, training.required_curriculum"
       },
       {
         "uid": "bsa:BSA-03",
@@ -30,11 +34,7 @@
       },
       {
         "uid": "bsa:BSA-06",
-        "blocked_on": "produced 1/3: missing sar.decision_no_file, sar.filed"
-      },
-      {
-        "uid": "bsa:BSA-07",
-        "blocked_on": "produced 3/4: missing sar.filed"
+        "blocked_on": "produced 2/3: missing sar.decision_no_file"
       },
       {
         "uid": "bsa:BSA-08",
@@ -50,7 +50,7 @@
       },
       {
         "uid": "bsa:SC-02",
-        "blocked_on": "produced 5/14: missing disposal.clock_resumed, legal.hold.released, legal_hold.schedule_resumed, record.hold.released"
+        "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
       },
       {
         "uid": "business-continuity-plan:BC-06",
@@ -142,15 +142,23 @@
       },
       {
         "uid": "fair-lending:SC-02",
-        "blocked_on": "produced 5/14: missing disposal.clock_resumed, legal.hold.released, legal_hold.schedule_resumed, record.hold.released"
+        "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
       },
       {
         "uid": "information-security:SC-03",
         "blocked_on": "produced 5/6: missing incident.contained"
       },
       {
+        "uid": "information-security:IS-13",
+        "blocked_on": "produced 4/5: missing ai.tool.rejected"
+      },
+      {
+        "uid": "information-security:IS-14",
+        "blocked_on": "produced 2/3: missing record.disposed"
+      },
+      {
         "uid": "information-security:SC-02",
-        "blocked_on": "produced 5/14: missing disposal.clock_resumed, legal.hold.released, legal_hold.schedule_resumed, record.hold.released"
+        "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
       },
       {
         "uid": "internal-controls:IC-02",
@@ -162,7 +170,7 @@
       },
       {
         "uid": "internal-controls:SC-02",
-        "blocked_on": "produced 5/14: missing disposal.clock_resumed, legal.hold.released, legal_hold.schedule_resumed, record.hold.released"
+        "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
       },
       {
         "uid": "investment:IP-02",
@@ -202,7 +210,7 @@
       },
       {
         "uid": "investment:SC-02",
-        "blocked_on": "produced 5/14: missing disposal.clock_resumed, legal.hold.released, legal_hold.schedule_resumed, record.hold.released"
+        "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
       },
       {
         "uid": "lending:LP-03",
@@ -226,11 +234,11 @@
       },
       {
         "uid": "lending:SC-02",
-        "blocked_on": "produced 5/14: missing disposal.clock_resumed, legal.hold.released, legal_hold.schedule_resumed, record.hold.released"
+        "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
       },
       {
         "uid": "liquidity:SC-02",
-        "blocked_on": "produced 5/14: missing disposal.clock_resumed, legal.hold.released, legal_hold.schedule_resumed, record.hold.released"
+        "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
       },
       {
         "uid": "member:MP-01",
@@ -242,7 +250,7 @@
       },
       {
         "uid": "privacy:PR-08",
-        "blocked_on": "produced 3/6: missing disposal.scheduled, disposal.clock_resumed, record.destroyed"
+        "blocked_on": "produced 4/6: missing disposal.scheduled, record.destroyed"
       },
       {
         "uid": "privacy:PR-16",
@@ -261,10 +269,6 @@
         "blocked_on": "produced 2/4: missing destruction_log.entry_id, destruction_log.mismatch.detected"
       },
       {
-        "uid": "record-retention:RR-05",
-        "blocked_on": "produced 4/8: missing disposal.clock_resumed, legal.hold.released, legal_hold.schedule_resumed, record.hold.released"
-      },
-      {
         "uid": "record-retention:RR-07",
         "blocked_on": "produced 0/2: missing record.disposal_method, record.disposed"
       },
@@ -274,7 +278,7 @@
       },
       {
         "uid": "shared-controls:SC-02",
-        "blocked_on": "produced 5/14: missing disposal.clock_resumed, legal.hold.released, legal_hold.schedule_resumed, record.hold.released"
+        "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
       },
       {
         "uid": "truth-in-savings:TIS-02",
@@ -422,6 +426,8 @@
       ],
       "observed": [
         "audit.annual_plan.submitted",
+        "audit.annual_plan.approved",
+        "audit.schedule_finalized",
         "audit.frequency_increased"
       ],
       "triggers": [
@@ -450,7 +456,7 @@
         "audit.scope_change_rationale"
       ],
       "fire_path": "real_writer",
-      "blocked_on": "produced 2/5: missing audit.annual_plan.approved, audit.schedule_finalized, audit.scope_change_documented"
+      "blocked_on": "produced 4/5: missing audit.scope_change_documented"
     },
     {
       "scoped_out": true,
@@ -754,7 +760,11 @@
         "legal.hold.placed",
         "record.hold.placed",
         "record.legal_hold_flag",
-        "record.hold.applied"
+        "record.hold.applied",
+        "disposal.clock_resumed",
+        "legal.hold.released",
+        "legal_hold.schedule_resumed",
+        "record.hold.released"
       ],
       "triggers": [
         "legal_hold.created",
@@ -777,7 +787,9 @@
       "inputs_supplied": [
         "legal_hold.hold_scope",
         "legal_hold.matter_id",
-        "legal_hold.placed_at"
+        "legal_hold.placed_at",
+        "legal_hold.release_approved_by",
+        "legal_hold.released_at"
       ],
       "inputs_unverifiable": [
         "record.legal_hold_flag",
@@ -786,7 +798,7 @@
         "disposal.certificate"
       ],
       "fire_path": "real_writer",
-      "blocked_on": "produced 5/14: missing disposal.clock_resumed, legal.hold.released, legal_hold.schedule_resumed, record.hold.released"
+      "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
     },
     {
       "scoped_out": false,
@@ -1227,7 +1239,18 @@
         "training.assignment.created",
         "training.capital"
       ],
-      "observed": [],
+      "observed": [
+        "alco.ratio_review.logged",
+        "board.minutes.recorded",
+        "disclosure.pillar3.published",
+        "disclosure.pillar3_due_at",
+        "ncua.ack.logged",
+        "ncua.notification.sent",
+        "board.shortfall.notified",
+        "capital.board_escalation.issued",
+        "training.assignment.created",
+        "training.capital"
+      ],
       "triggers": [
         "alco.ratio_review.logged",
         "disclosure.pillar3.published",
@@ -1271,8 +1294,8 @@
         "capital.ratio_below_target",
         "capital.recovery_plan_draft"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/10: missing alco.ratio_review.logged, board.minutes.recorded, disclosure.pillar3.published, disclosure.pillar3_due_at"
+      "fire_path": "real_writer",
+      "blocked_on": "inputs not supplied: training.annual_due_at, training.capital, training.required_curriculum"
     },
     {
       "scoped_out": true,
@@ -1529,7 +1552,8 @@
         "sar.filed"
       ],
       "observed": [
-        "bsa_alert.triage.timer"
+        "bsa_alert.triage.timer",
+        "sar.filed"
       ],
       "triggers": [
         "bsa_alert.created",
@@ -1547,11 +1571,13 @@
         "bsa_alert.alert_type",
         "bsa_alert.entity_hash",
         "bsa_alert.event_id",
-        "bsa_alert.requires_lookback"
+        "bsa_alert.requires_lookback",
+        "case.evidence",
+        "case.summary"
       ],
       "inputs_unverifiable": [],
       "fire_path": "real_writer",
-      "blocked_on": "produced 1/3: missing sar.decision_no_file, sar.filed"
+      "blocked_on": "produced 2/3: missing sar.decision_no_file"
     },
     {
       "scoped_out": false,
@@ -1560,7 +1586,7 @@
       "policy": "bsa",
       "control_id": "BSA-07",
       "title": "SAR Filing & Confidentiality",
-      "status": "red",
+      "status": "green",
       "expected": [
         "sar.filed",
         "sar.filing.timer",
@@ -1568,6 +1594,7 @@
         "sar.disclosure.declined"
       ],
       "observed": [
+        "sar.filed",
         "sar.filing.timer",
         "sar.continuing.filed",
         "sar.disclosure.declined"
@@ -1582,13 +1609,14 @@
         "sar.narrative",
         "sar.prior_filing_id"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "case.evidence"
+      ],
       "inputs_unverifiable": [
         "sar.narrative",
         "sar.prior_filing_id"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 3/4: missing sar.filed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -2124,7 +2152,11 @@
         "legal.hold.placed",
         "record.hold.placed",
         "record.legal_hold_flag",
-        "record.hold.applied"
+        "record.hold.applied",
+        "disposal.clock_resumed",
+        "legal.hold.released",
+        "legal_hold.schedule_resumed",
+        "record.hold.released"
       ],
       "triggers": [
         "legal_hold.created",
@@ -2147,7 +2179,9 @@
       "inputs_supplied": [
         "legal_hold.hold_scope",
         "legal_hold.matter_id",
-        "legal_hold.placed_at"
+        "legal_hold.placed_at",
+        "legal_hold.release_approved_by",
+        "legal_hold.released_at"
       ],
       "inputs_unverifiable": [
         "record.legal_hold_flag",
@@ -2156,7 +2190,7 @@
         "disposal.certificate"
       ],
       "fire_path": "real_writer",
-      "blocked_on": "produced 5/14: missing disposal.clock_resumed, legal.hold.released, legal_hold.schedule_resumed, record.hold.released"
+      "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
     },
     {
       "scoped_out": true,
@@ -2383,7 +2417,7 @@
       "policy": "business-continuity-plan",
       "control_id": "BC-07",
       "title": "Data Backup, Restore, and RTO/RPO",
-      "status": "red",
+      "status": "green",
       "expected": [
         "backup.cycle.completed",
         "backup.job.remediated",
@@ -2393,7 +2427,15 @@
         "restore.initiated",
         "restore.rto_timer"
       ],
-      "observed": [],
+      "observed": [
+        "backup.cycle.completed",
+        "backup.job.remediated",
+        "restore.point.validated",
+        "restore.test.completed",
+        "restore.completed",
+        "restore.initiated",
+        "restore.rto_timer"
+      ],
       "triggers": [
         "backup.cycle.completed",
         "backup.restore.test.due",
@@ -2415,8 +2457,7 @@
         "restore.test_env",
         "restore.point.validated"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/7: missing backup.cycle.completed, backup.job.remediated, restore.point.validated, restore.test.completed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -2454,7 +2495,7 @@
       "policy": "business-continuity-plan",
       "control_id": "BC-09",
       "title": "Major IT Failure Response",
-      "status": "red",
+      "status": "green",
       "expected": [
         "incident.created",
         "incident.ic.assigned",
@@ -2463,7 +2504,9 @@
       ],
       "observed": [
         "incident.created",
-        "incident.ic.assigned"
+        "incident.ic.assigned",
+        "comms.member_status.issued",
+        "it.failover.executed"
       ],
       "triggers": [
         "it.major_failure.detected",
@@ -2484,8 +2527,7 @@
         "it.outage_runbook",
         "transaction.dual_control_required"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 2/4: missing comms.member_status.issued, it.failover.executed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -2529,7 +2571,7 @@
       "policy": "business-continuity-plan",
       "control_id": "BC-15",
       "title": "Security/Privacy Incident Containment, Legal Consult & Vendor Coordination",
-      "status": "red",
+      "status": "green",
       "expected": [
         "incident.containment.started",
         "incident.containment_timer",
@@ -2537,7 +2579,13 @@
         "legal.consulted",
         "vendor.incident_tracks_dispatched"
       ],
-      "observed": [],
+      "observed": [
+        "incident.containment.started",
+        "incident.containment_timer",
+        "legal.consult_timer",
+        "legal.consulted",
+        "vendor.incident_tracks_dispatched"
+      ],
       "triggers": [
         "incident.created",
         "incident.containment.started",
@@ -2555,6 +2603,7 @@
       ],
       "inputs_supplied": [
         "incident.data_scope",
+        "incident.description",
         "incident.detection_source",
         "incident.severity",
         "incident.member_impact"
@@ -2564,8 +2613,7 @@
         "vendor.incident_containment_status",
         "vendor.incident_scope"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/5: missing incident.containment.started, incident.containment_timer, legal.consult_timer, legal.consulted"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -5722,14 +5770,19 @@
       "policy": "e-commerce",
       "control_id": "EC-02",
       "title": "Network and Data Access Controls",
-      "status": "red",
+      "status": "green",
       "expected": [
         "access.role.granted",
         "access.review_attestation",
         "access_review.completed",
         "access.deprovisioned"
       ],
-      "observed": [],
+      "observed": [
+        "access.role.granted",
+        "access.review_attestation",
+        "access_review.completed",
+        "access.deprovisioned"
+      ],
       "triggers": [
         "access.granted",
         "access.review.due_at",
@@ -5745,7 +5798,10 @@
         "user.id",
         "user.role"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "user.id",
+        "user.role"
+      ],
       "inputs_unverifiable": [
         "access.agent_identity",
         "access.manager_approval",
@@ -5754,8 +5810,7 @@
         "access.user_roster",
         "employee.terminated"
       ],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "no writer for trigger 'access.granted'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -5866,13 +5921,17 @@
       "policy": "e-commerce",
       "control_id": "EC-05",
       "title": "Firewalls",
-      "status": "red",
+      "status": "green",
       "expected": [
         "firewall.review.completed",
         "firewall.independent_review.completed",
         "pentest.report.issued"
       ],
-      "observed": [],
+      "observed": [
+        "firewall.review.completed",
+        "firewall.independent_review.completed",
+        "pentest.report.issued"
+      ],
       "triggers": [
         "firewall.review.due",
         "firewall.independent.review.due"
@@ -5886,8 +5945,7 @@
         "pentest.independence",
         "pentest.scope"
       ],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "produced 0/3: missing firewall.review.completed, firewall.independent_review.completed, pentest.report.issued"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -5896,13 +5954,17 @@
       "policy": "e-commerce",
       "control_id": "EC-06",
       "title": "Encryption",
-      "status": "red",
+      "status": "green",
       "expected": [
         "tls.assessment.completed",
         "tls.test_rating",
         "tls.certificate.renewed"
       ],
-      "observed": [],
+      "observed": [
+        "tls.assessment.completed",
+        "tls.test_rating",
+        "tls.certificate.renewed"
+      ],
       "triggers": [
         "tls.assessment.due",
         "tls.certificate.expiry.due"
@@ -5916,8 +5978,7 @@
         "tls.certificate_expires_at",
         "tls.cipher_suite"
       ],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "produced 0/3: missing tls.assessment.completed, tls.test_rating, tls.certificate.renewed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -5963,12 +6024,15 @@
       "policy": "e-commerce",
       "control_id": "EC-08",
       "title": "Virus Protection",
-      "status": "red",
+      "status": "green",
       "expected": [
         "antivirus.remediated",
         "antivirus.log_review.completed"
       ],
-      "observed": [],
+      "observed": [
+        "antivirus.remediated",
+        "antivirus.log_review.completed"
+      ],
       "triggers": [
         "antivirus.remediated",
         "antivirus.log.review.due"
@@ -5984,8 +6048,7 @@
         "antivirus.detection",
         "antivirus.signature"
       ],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "no writer for trigger 'antivirus.remediated'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -5994,7 +6057,7 @@
       "policy": "e-commerce",
       "control_id": "EC-09",
       "title": "Security Monitoring, Penetration Testing, and Intrusion Detection",
-      "status": "red",
+      "status": "green",
       "expected": [
         "incident.created",
         "intrusion.response.recorded",
@@ -6003,7 +6066,14 @@
         "pentest.report.received",
         "incident_trend.report.issued"
       ],
-      "observed": [],
+      "observed": [
+        "incident.created",
+        "intrusion.response.recorded",
+        "siem.alert.disposed",
+        "pentest.report.issued",
+        "pentest.report.received",
+        "incident_trend.report.issued"
+      ],
       "triggers": [
         "intrusion.detected",
         "siem.alert.review.due_at",
@@ -6020,7 +6090,10 @@
         "pentest.scope",
         "incident.timeline"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "incident.detection_source",
+        "incident.timeline"
+      ],
       "inputs_unverifiable": [
         "intrusion.severity",
         "siem.alert_critical",
@@ -6029,8 +6102,7 @@
         "pentest.independence",
         "pentest.scope"
       ],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "no writer for trigger 'pentest.engagement_due'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -7601,7 +7673,11 @@
         "legal.hold.placed",
         "record.hold.placed",
         "record.legal_hold_flag",
-        "record.hold.applied"
+        "record.hold.applied",
+        "disposal.clock_resumed",
+        "legal.hold.released",
+        "legal_hold.schedule_resumed",
+        "record.hold.released"
       ],
       "triggers": [
         "legal_hold.created",
@@ -7624,7 +7700,9 @@
       "inputs_supplied": [
         "legal_hold.hold_scope",
         "legal_hold.matter_id",
-        "legal_hold.placed_at"
+        "legal_hold.placed_at",
+        "legal_hold.release_approved_by",
+        "legal_hold.released_at"
       ],
       "inputs_unverifiable": [
         "record.legal_hold_flag",
@@ -7633,7 +7711,7 @@
         "disposal.certificate"
       ],
       "fire_path": "real_writer",
-      "blocked_on": "produced 5/14: missing disposal.clock_resumed, legal.hold.released, legal_hold.schedule_resumed, record.hold.released"
+      "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
     },
     {
       "scoped_out": false,
@@ -7832,12 +7910,15 @@
       "policy": "information-security",
       "control_id": "IS-05",
       "title": "Vulnerability and Penetration Testing",
-      "status": "red",
+      "status": "green",
       "expected": [
         "vuln.triage.completed",
         "vuln.remediated"
       ],
-      "observed": [],
+      "observed": [
+        "vuln.triage.completed",
+        "vuln.remediated"
+      ],
       "triggers": [
         "vuln.finding.confirmed",
         "vuln.triage.completed"
@@ -7855,8 +7936,7 @@
         "vuln.severity",
         "vuln.remediation_plan"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/2: missing vuln.triage.completed, vuln.remediated"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -7865,14 +7945,19 @@
       "policy": "information-security",
       "control_id": "IS-06",
       "title": "Access Control and Authentication",
-      "status": "red",
+      "status": "green",
       "expected": [
         "access.provisioned",
         "access.deprovisioned",
         "access.breakglass.reviewed",
         "access_review.completed"
       ],
-      "observed": [],
+      "observed": [
+        "access.provisioned",
+        "access.deprovisioned",
+        "access.breakglass.reviewed",
+        "access_review.completed"
+      ],
       "triggers": [
         "employee.hired",
         "employee.separated",
@@ -7893,7 +7978,10 @@
         "access.reviewer_roster",
         "access.user_roster"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "user.employment_status",
+        "user.id"
+      ],
       "inputs_unverifiable": [
         "access.justification",
         "access.manager_approval",
@@ -7906,8 +7994,7 @@
         "access.reviewer_roster",
         "access.user_roster"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "no writer for trigger 'access.breakglass.used'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -7916,13 +8003,15 @@
       "policy": "information-security",
       "control_id": "IS-07",
       "title": "Data Protection, Encryption, and Disposal",
-      "status": "red",
+      "status": "green",
       "expected": [
         "tls.certificate.renewed",
         "dlp.violation.resolved",
         "disposal.certificate.recorded"
       ],
       "observed": [
+        "tls.certificate.renewed",
+        "dlp.violation.resolved",
         "disposal.certificate.recorded"
       ],
       "triggers": [
@@ -7949,8 +8038,7 @@
         "record.legal_hold_flag",
         "record.retention_class"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "no writer for trigger 'tls.certificate_expires_at'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -7959,13 +8047,17 @@
       "policy": "information-security",
       "control_id": "IS-08",
       "title": "Backup and Disaster Recovery",
-      "status": "red",
+      "status": "green",
       "expected": [
         "backup.restore.verified",
         "backup.job.remediated",
         "restore.completed"
       ],
-      "observed": [],
+      "observed": [
+        "backup.restore.verified",
+        "backup.job.remediated",
+        "restore.completed"
+      ],
       "triggers": [
         "backup.cycle.completed",
         "backup.job.failed",
@@ -7989,8 +8081,7 @@
         "it.blast_radius_isolated",
         "restore.test_env"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 0/3: missing backup.restore.verified, backup.job.remediated, restore.completed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -8250,7 +8341,12 @@
         "ai.disclosure.published",
         "ai.violation.disposed"
       ],
-      "observed": [],
+      "observed": [
+        "ai.tool.approved",
+        "ai.register.updated",
+        "ai.disclosure.published",
+        "ai.violation.disposed"
+      ],
       "triggers": [
         "ai.tool.proposed",
         "ai.tool.approved",
@@ -8267,7 +8363,9 @@
         "ai.disclosure_text",
         "incident.data_scope"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "incident.data_scope"
+      ],
       "inputs_unverifiable": [
         "ai.dpia_ref",
         "ai.tool",
@@ -8277,8 +8375,8 @@
         "ai.disclosure_channel",
         "ai.disclosure_text"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'ai.member_feature.launched'"
+      "fire_path": "real_writer",
+      "blocked_on": "produced 4/5: missing ai.tool.rejected"
     },
     {
       "scoped_out": false,
@@ -8293,7 +8391,10 @@
         "siem.source.restored",
         "record.disposed"
       ],
-      "observed": [],
+      "observed": [
+        "siem.alert.disposed",
+        "siem.source.restored"
+      ],
       "triggers": [
         "siem.alert_critical",
         "siem.source_silent",
@@ -8315,7 +8416,7 @@
         "record.retention_class"
       ],
       "fire_path": "real_writer",
-      "blocked_on": "no writer for trigger 'siem.alert_critical'"
+      "blocked_on": "produced 2/3: missing record.disposed"
     },
     {
       "scoped_out": true,
@@ -8476,7 +8577,11 @@
         "legal.hold.placed",
         "record.hold.placed",
         "record.legal_hold_flag",
-        "record.hold.applied"
+        "record.hold.applied",
+        "disposal.clock_resumed",
+        "legal.hold.released",
+        "legal_hold.schedule_resumed",
+        "record.hold.released"
       ],
       "triggers": [
         "legal_hold.created",
@@ -8499,7 +8604,9 @@
       "inputs_supplied": [
         "legal_hold.hold_scope",
         "legal_hold.matter_id",
-        "legal_hold.placed_at"
+        "legal_hold.placed_at",
+        "legal_hold.release_approved_by",
+        "legal_hold.released_at"
       ],
       "inputs_unverifiable": [
         "record.legal_hold_flag",
@@ -8508,7 +8615,7 @@
         "disposal.certificate"
       ],
       "fire_path": "real_writer",
-      "blocked_on": "produced 5/14: missing disposal.clock_resumed, legal.hold.released, legal_hold.schedule_resumed, record.hold.released"
+      "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
     },
     {
       "scoped_out": true,
@@ -8896,7 +9003,11 @@
         "legal.hold.placed",
         "record.hold.placed",
         "record.legal_hold_flag",
-        "record.hold.applied"
+        "record.hold.applied",
+        "disposal.clock_resumed",
+        "legal.hold.released",
+        "legal_hold.schedule_resumed",
+        "record.hold.released"
       ],
       "triggers": [
         "legal_hold.created",
@@ -8919,7 +9030,9 @@
       "inputs_supplied": [
         "legal_hold.hold_scope",
         "legal_hold.matter_id",
-        "legal_hold.placed_at"
+        "legal_hold.placed_at",
+        "legal_hold.release_approved_by",
+        "legal_hold.released_at"
       ],
       "inputs_unverifiable": [
         "record.legal_hold_flag",
@@ -8928,7 +9041,7 @@
         "disposal.certificate"
       ],
       "fire_path": "real_writer",
-      "blocked_on": "produced 5/14: missing disposal.clock_resumed, legal.hold.released, legal_hold.schedule_resumed, record.hold.released"
+      "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
     },
     {
       "scoped_out": true,
@@ -9567,7 +9680,11 @@
         "legal.hold.placed",
         "record.hold.placed",
         "record.legal_hold_flag",
-        "record.hold.applied"
+        "record.hold.applied",
+        "disposal.clock_resumed",
+        "legal.hold.released",
+        "legal_hold.schedule_resumed",
+        "record.hold.released"
       ],
       "triggers": [
         "legal_hold.created",
@@ -9590,7 +9707,9 @@
       "inputs_supplied": [
         "legal_hold.hold_scope",
         "legal_hold.matter_id",
-        "legal_hold.placed_at"
+        "legal_hold.placed_at",
+        "legal_hold.release_approved_by",
+        "legal_hold.released_at"
       ],
       "inputs_unverifiable": [
         "record.legal_hold_flag",
@@ -9599,7 +9718,7 @@
         "disposal.certificate"
       ],
       "fire_path": "real_writer",
-      "blocked_on": "produced 5/14: missing disposal.clock_resumed, legal.hold.released, legal_hold.schedule_resumed, record.hold.released"
+      "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
     },
     {
       "scoped_out": true,
@@ -10181,7 +10300,11 @@
         "legal.hold.placed",
         "record.hold.placed",
         "record.legal_hold_flag",
-        "record.hold.applied"
+        "record.hold.applied",
+        "disposal.clock_resumed",
+        "legal.hold.released",
+        "legal_hold.schedule_resumed",
+        "record.hold.released"
       ],
       "triggers": [
         "legal_hold.created",
@@ -10204,7 +10327,9 @@
       "inputs_supplied": [
         "legal_hold.hold_scope",
         "legal_hold.matter_id",
-        "legal_hold.placed_at"
+        "legal_hold.placed_at",
+        "legal_hold.release_approved_by",
+        "legal_hold.released_at"
       ],
       "inputs_unverifiable": [
         "record.legal_hold_flag",
@@ -10213,7 +10338,7 @@
         "disposal.certificate"
       ],
       "fire_path": "real_writer",
-      "blocked_on": "produced 5/14: missing disposal.clock_resumed, legal.hold.released, legal_hold.schedule_resumed, record.hold.released"
+      "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
     },
     {
       "scoped_out": false,
@@ -10690,13 +10815,17 @@
       "policy": "liquidity",
       "control_id": "LQ-06",
       "title": "Funding Concentration & Counterparty Limits",
-      "status": "red",
+      "status": "green",
       "expected": [
         "liquidity.concentration.breached",
         "concentration.waiver.decided",
         "alco.ratio_review.logged"
       ],
-      "observed": [],
+      "observed": [
+        "liquidity.concentration.breached",
+        "concentration.waiver.decided",
+        "alco.ratio_review.logged"
+      ],
       "triggers": [
         "liquidity.depositor_file.posted",
         "liquidity.concentration.breached",
@@ -10725,8 +10854,7 @@
         "wholesale.pricing_authority_id",
         "wholesale.tenor_ladder"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/3: missing liquidity.concentration.breached, concentration.waiver.decided, alco.ratio_review.logged"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -10785,13 +10913,17 @@
       "policy": "liquidity",
       "control_id": "LQ-08",
       "title": "Data Quality & Model Governance",
-      "status": "red",
+      "status": "green",
       "expected": [
         "dq.variance.detected",
         "dq.tieout.completed",
         "model.review.completed"
       ],
-      "observed": [],
+      "observed": [
+        "dq.variance.detected",
+        "dq.tieout.completed",
+        "model.review.completed"
+      ],
       "triggers": [
         "gl.eod.closed",
         "dq.variance.detected",
@@ -10812,8 +10944,7 @@
         "dq.variance_amount",
         "model.builder_roster"
       ],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "produced 0/3: missing dq.variance.detected, dq.tieout.completed, model.review.completed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -10918,12 +11049,15 @@
       "policy": "liquidity",
       "control_id": "LQ-11",
       "title": "Regulatory Notification",
-      "status": "red",
+      "status": "green",
       "expected": [
         "ncua.ack.logged",
         "ncua.notification.sent"
       ],
-      "observed": [],
+      "observed": [
+        "ncua.ack.logged",
+        "ncua.notification.sent"
+      ],
       "triggers": [
         "ncua.notification_required",
         "ncua.ack.received"
@@ -10943,8 +11077,7 @@
         "regulator.contacts",
         "ncua.ack_detail"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "no writer for trigger 'ncua.notification_required'"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -10990,12 +11123,15 @@
       "policy": "liquidity",
       "control_id": "LQ-13",
       "title": "Regulator Liaison Protocols",
-      "status": "red",
+      "status": "green",
       "expected": [
         "regulator.response.sent",
         "regulator.contacts.verified"
       ],
-      "observed": [],
+      "observed": [
+        "regulator.response.sent",
+        "regulator.contacts.verified"
+      ],
       "triggers": [
         "regulator.request.received",
         "regulator.contact.verification.due"
@@ -11009,8 +11145,7 @@
         "regulator.request_detail",
         "regulator.contacts"
       ],
-      "fire_path": "obligation_cadence",
-      "blocked_on": "produced 0/2: missing regulator.response.sent, regulator.contacts.verified"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -11098,7 +11233,11 @@
         "legal.hold.placed",
         "record.hold.placed",
         "record.legal_hold_flag",
-        "record.hold.applied"
+        "record.hold.applied",
+        "disposal.clock_resumed",
+        "legal.hold.released",
+        "legal_hold.schedule_resumed",
+        "record.hold.released"
       ],
       "triggers": [
         "legal_hold.created",
@@ -11121,7 +11260,9 @@
       "inputs_supplied": [
         "legal_hold.hold_scope",
         "legal_hold.matter_id",
-        "legal_hold.placed_at"
+        "legal_hold.placed_at",
+        "legal_hold.release_approved_by",
+        "legal_hold.released_at"
       ],
       "inputs_unverifiable": [
         "record.legal_hold_flag",
@@ -11130,7 +11271,7 @@
         "disposal.certificate"
       ],
       "fire_path": "real_writer",
-      "blocked_on": "produced 5/14: missing disposal.clock_resumed, legal.hold.released, legal_hold.schedule_resumed, record.hold.released"
+      "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
     },
     {
       "scoped_out": true,
@@ -11174,14 +11315,19 @@
       "policy": "liquidity",
       "control_id": "LQ-17",
       "title": "Wholesale / Listing-Service Deposits Guardrails",
-      "status": "red",
+      "status": "green",
       "expected": [
         "alert.wholesale_pricing_violation",
         "wholesale.exposure_computed",
         "alco.ratio_review.logged",
         "wholesale.listing_decisioned"
       ],
-      "observed": [],
+      "observed": [
+        "alert.wholesale_pricing_violation",
+        "wholesale.exposure_computed",
+        "alco.ratio_review.logged",
+        "wholesale.listing_decisioned"
+      ],
       "triggers": [
         "wholesale.exposure.posted",
         "alco.ratio_review.logged",
@@ -11200,8 +11346,7 @@
         "wholesale.exposure_history",
         "wholesale.maturity_calendar"
       ],
-      "fire_path": "generic_echo",
-      "blocked_on": "produced 0/4: missing alert.wholesale_pricing_violation, wholesale.exposure_computed, alco.ratio_review.logged, wholesale.listing_decisioned"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -11898,7 +12043,11 @@
         "access_review.completed",
         "training.completed"
       ],
-      "observed": [],
+      "observed": [
+        "access.provisioned",
+        "access.deprovisioned",
+        "access_review.completed"
+      ],
       "triggers": [
         "employee.hired",
         "employee.separated",
@@ -11914,7 +12063,9 @@
         "access.role_entitlements",
         "training.role_curriculum"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "user.role"
+      ],
       "inputs_unverifiable": [
         "employee.id",
         "training_detail.hire_date",
@@ -11922,7 +12073,7 @@
         "access.reviewer_roster",
         "access.role_entitlements"
       ],
-      "fire_path": "obligation_cadence",
+      "fire_path": "real_writer",
       "blocked_on": "no writer for trigger 'training.annual_due_at'"
     },
     {
@@ -11990,6 +12141,7 @@
       ],
       "observed": [
         "disposal.held",
+        "disposal.clock_resumed",
         "record.destruction_due_at",
         "disposal.certificate.recorded"
       ],
@@ -12009,7 +12161,8 @@
         "disposal.method"
       ],
       "inputs_supplied": [
-        "legal_hold.matter_id"
+        "legal_hold.matter_id",
+        "legal_hold.release_approved_by"
       ],
       "inputs_unverifiable": [
         "record.id",
@@ -12020,7 +12173,7 @@
         "disposal.method"
       ],
       "fire_path": "real_writer",
-      "blocked_on": "produced 3/6: missing disposal.scheduled, disposal.clock_resumed, record.destroyed"
+      "blocked_on": "produced 4/6: missing disposal.scheduled, record.destroyed"
     },
     {
       "scoped_out": false,
@@ -12626,7 +12779,7 @@
       "policy": "record-retention",
       "control_id": "RR-05",
       "title": "Legal Holds",
-      "status": "red",
+      "status": "green",
       "expected": [
         "disposal.held",
         "legal.hold.placed",
@@ -12641,7 +12794,11 @@
         "disposal.held",
         "legal.hold.placed",
         "record.hold.placed",
-        "record.hold.applied"
+        "record.hold.applied",
+        "disposal.clock_resumed",
+        "legal.hold.released",
+        "legal_hold.schedule_resumed",
+        "record.hold.released"
       ],
       "triggers": [
         "legal_hold.created",
@@ -12658,11 +12815,12 @@
       "inputs_supplied": [
         "legal_hold.hold_scope",
         "legal_hold.matter_id",
-        "legal_hold.placed_at"
+        "legal_hold.placed_at",
+        "legal_hold.release_approved_by",
+        "legal_hold.released_at"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 4/8: missing disposal.clock_resumed, legal.hold.released, legal_hold.schedule_resumed, record.hold.released"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -13176,7 +13334,8 @@
         "record.hold.released"
       ],
       "observed": [
-        "record.hold.placed"
+        "record.hold.placed",
+        "record.hold.released"
       ],
       "triggers": [
         "indemnification.claim.notified",
@@ -13200,7 +13359,7 @@
         "claim.resolution_record"
       ],
       "fire_path": "generic_echo",
-      "blocked_on": "produced 1/6: missing claim.carrier.notice.due_at, indemnification.claim.notified, insurance.carrier_notice.sent, claim.matter.closed"
+      "blocked_on": "produced 2/6: missing claim.carrier.notice.due_at, indemnification.claim.notified, insurance.carrier_notice.sent, claim.matter.closed"
     },
     {
       "scoped_out": true,
@@ -13217,7 +13376,8 @@
         "record.hold.released"
       ],
       "observed": [
-        "record.hold.placed"
+        "record.hold.placed",
+        "record.hold.released"
       ],
       "triggers": [
         "official.expense_report.decided",
@@ -13763,7 +13923,11 @@
         "legal.hold.placed",
         "record.hold.placed",
         "record.legal_hold_flag",
-        "record.hold.applied"
+        "record.hold.applied",
+        "disposal.clock_resumed",
+        "legal.hold.released",
+        "legal_hold.schedule_resumed",
+        "record.hold.released"
       ],
       "triggers": [
         "legal_hold.created",
@@ -13786,7 +13950,9 @@
       "inputs_supplied": [
         "legal_hold.hold_scope",
         "legal_hold.matter_id",
-        "legal_hold.placed_at"
+        "legal_hold.placed_at",
+        "legal_hold.release_approved_by",
+        "legal_hold.released_at"
       ],
       "inputs_unverifiable": [
         "record.legal_hold_flag",
@@ -13795,7 +13961,7 @@
         "disposal.certificate"
       ],
       "fire_path": "real_writer",
-      "blocked_on": "produced 5/14: missing disposal.clock_resumed, legal.hold.released, legal_hold.schedule_resumed, record.hold.released"
+      "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
     },
     {
       "scoped_out": true,

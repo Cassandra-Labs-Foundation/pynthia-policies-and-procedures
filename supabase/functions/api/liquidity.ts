@@ -10,7 +10,7 @@ import { type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { type PartnerContext } from "./auth.ts";
 import { type EvidenceScope, provenanceFor } from "./bsa.ts";
 import {
-  internalErrorResponse, isNonEmptyString, jsonResponse, notFoundResponse,
+  apiError, internalErrorResponse, isNonEmptyString, jsonResponse, notFoundResponse,
   parseJsonBody, validationError,
 } from "./lib.ts";
 
@@ -578,4 +578,284 @@ export async function postLiquidityPack(
     : "report.board_deck.published";
   await emit(db, scope, `ev_${id}_pub`, code, "liquidity_pack", id, contents, ctx);
   return jsonResponse({ data: { id, cadence: body.cadence } }, 201, requestId);
+}
+
+// ---------------------------------------- LQ-06/08/11/13/17 — the ops tail
+
+/** POST /liquidity/alco-review {ratios, reviewed_by} — the ALCO looked at the
+ * numbers and it is on the record (shared with BA-08 and LQ-17). */
+export async function postAlcoRatioReview(
+  req: Request, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  if (!isNonEmptyString(body.reviewed_by)) {
+    return validationError(requestId, [{
+      type: "missing_field", field: "reviewed_by", message: "reviewed_by is required",
+    }]);
+  }
+  const id = `alco_${crypto.randomUUID()}`;
+  await emit(db, scope, `ev_${id}_rev`, "alco.ratio_review.logged", "alco_review", id, {
+    reviewed_by: body.reviewed_by, ratios: body.ratios ?? null,
+  }, ctx);
+  return jsonResponse({ data: { id } }, 201, requestId);
+}
+
+/**
+ * POST /liquidity/concentration {as_of, top_depositor_pct_bp, limit_pct_bp?, waiver?}
+ *
+ * LQ-06: the depositor file posts, the concentration is COMPUTED against the
+ * limit, and a breach demands a waiver DECISION — present or refused, never
+ * silent. An unset limit reports unassessed (the institutional-threshold
+ * rule), not "not breached".
+ */
+export async function postLiquidityConcentration(
+  req: Request, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  const pct = typeof body.top_depositor_pct_bp === "number" ? body.top_depositor_pct_bp : null;
+  if (pct === null) {
+    return validationError(requestId, [{
+      type: "missing_field", field: "top_depositor_pct_bp", message: "is required",
+    }]);
+  }
+  const limit = typeof body.limit_pct_bp === "number" ? body.limit_pct_bp : null;
+  const breached = limit !== null && pct > limit;
+  const id = `lqconc_${crypto.randomUUID()}`;
+  const { error } = await db.schema(scope).from("liquidity_concentration").upsert({
+    id, as_of: isNonEmptyString(body.as_of) ? body.as_of : new Date().toISOString().slice(0, 10),
+    top_depositor_pct_bp: pct, limit_pct_bp: limit, breached,
+    waiver_decision: isNonEmptyString(body.waiver_decision) ? body.waiver_decision : null,
+    waiver_decided_by: isNonEmptyString(body.waiver_decided_by) ? body.waiver_decided_by : null,
+    provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id" });
+  if (error) return internalErrorResponse(requestId, error.message);
+
+  if (limit === null) {
+    await emit(db, scope, `ev_${id}_unassessed`, "liquidity.concentration.computed",
+      "liquidity_concentration", id, { top_depositor_pct_bp: pct, verdict: "unassessed" }, ctx);
+  } else if (breached) {
+    await emit(db, scope, `ev_${id}_breach`, "liquidity.concentration.breached",
+      "liquidity_concentration", id, { top_depositor_pct_bp: pct, limit_pct_bp: limit }, ctx);
+    if (!isNonEmptyString(body.waiver_decision) || !isNonEmptyString(body.waiver_decided_by)) {
+      return apiError(409, "waiver_decision_required", requestId, {
+        title: "Waiver Decision Required",
+        detail: "a breached concentration demands a waiver decision with a decider — silence is not a waiver",
+      });
+    }
+    await emit(db, scope, `ev_${id}_waiver`, "concentration.waiver.decided",
+      "liquidity_concentration", id, {
+        decision: body.waiver_decision, decided_by: body.waiver_decided_by,
+      }, ctx);
+  }
+  return jsonResponse({ data: { id, breached } }, 201, requestId);
+}
+
+/** POST /liquidity/eod-tieout {as_of, gl_total_cents, subledger_total_cents} —
+ * LQ-08: the tie-out is the control; a variance is DETECTED, not explained away. */
+export async function postEodTieout(
+  req: Request, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  const gl = typeof body.gl_total_cents === "number" ? body.gl_total_cents : null;
+  const sub = typeof body.subledger_total_cents === "number" ? body.subledger_total_cents : null;
+  if (gl === null || sub === null) {
+    return validationError(requestId, [{
+      type: "missing_field", field: "gl_total_cents",
+      message: "gl_total_cents and subledger_total_cents are required",
+    }]);
+  }
+  const variance = gl - sub;
+  const id = `tieout_${crypto.randomUUID()}`;
+  const { error } = await db.schema(scope).from("dq_tieout").upsert({
+    id, as_of: isNonEmptyString(body.as_of) ? body.as_of : new Date().toISOString().slice(0, 10),
+    gl_total_cents: gl, subledger_total_cents: sub, variance_cents: variance,
+    provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id" });
+  if (error) return internalErrorResponse(requestId, error.message);
+  if (variance !== 0) {
+    await emit(db, scope, `ev_${id}_var`, "dq.variance.detected", "dq_tieout", id, {
+      variance_cents: variance, gl_total_cents: gl, subledger_total_cents: sub,
+    }, ctx);
+  }
+  await emit(db, scope, `ev_${id}_done`, "dq.tieout.completed", "dq_tieout", id, {
+    variance_cents: variance,
+  }, ctx);
+  return jsonResponse({ data: { id, variance_cents: variance } }, 201, requestId);
+}
+
+/** POST /liquidity/model-reviews {model, reviewer, outcome} — LQ-08's model half. */
+export async function postModelReview(
+  req: Request, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  if (!isNonEmptyString(body.model) || !isNonEmptyString(body.reviewer) || !isNonEmptyString(body.outcome)) {
+    return validationError(requestId, [{
+      type: "missing_field", field: "model", message: "model, reviewer and outcome are required",
+    }]);
+  }
+  const id = `modrev_${crypto.randomUUID()}`;
+  const { error } = await db.schema(scope).from("model_review").upsert({
+    id, model: body.model, reviewer: body.reviewer, outcome: body.outcome,
+    provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id" });
+  if (error) return internalErrorResponse(requestId, error.message);
+  await emit(db, scope, `ev_${id}_done`, "model.review.completed", "model_review", id, {
+    model: body.model, outcome: body.outcome,
+  }, ctx);
+  return jsonResponse({ data: { id } }, 201, requestId);
+}
+
+/** POST /liquidity/ncua-notifications {kind} + /{id}/ack {ack_ref} — LQ-11:
+ * the notification and the acknowledgment are separate facts with a gap that
+ * is itself a metric. */
+export async function postNcuaNotification(
+  req: Request, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  if (!isNonEmptyString(body.kind)) {
+    return validationError(requestId, [{
+      type: "missing_field", field: "kind", message: "kind is required",
+    }]);
+  }
+  const id = `ncua_${crypto.randomUUID()}`;
+  const { error } = await db.schema(scope).from("ncua_notification").upsert({
+    id, kind: body.kind, provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id" });
+  if (error) return internalErrorResponse(requestId, error.message);
+  await emit(db, scope, `ev_${id}_sent`, "ncua.notification.sent", "ncua_notification", id, {
+    kind: body.kind,
+  }, ctx);
+  return jsonResponse({ data: { id } }, 201, requestId);
+}
+
+export async function postNcuaAck(
+  req: Request, notifId: string, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  const { data: n } = await db.schema(scope).from("ncua_notification")
+    .select("id, kind").eq("id", notifId).maybeSingle();
+  if (!n) return notFoundResponse(requestId, "ncua_notification", notifId);
+  if (!isNonEmptyString(body.ack_ref)) {
+    return validationError(requestId, [{
+      type: "missing_field", field: "ack_ref",
+      message: "an acknowledgment without a reference is a feeling, not a record",
+    }]);
+  }
+  const now = new Date().toISOString();
+  await db.schema(scope).from("ncua_notification")
+    .update({ ack_received_at: now, ack_ref: body.ack_ref }).eq("id", notifId);
+  await emit(db, scope, `ev_${notifId}_ack`, "ncua.ack.logged", "ncua_notification", notifId, {
+    ack_ref: body.ack_ref, kind: n.kind,
+  }, ctx);
+  return jsonResponse({ data: { id: notifId, acked: true } }, 200, requestId);
+}
+
+/** POST /liquidity/regulator-requests {regulator} + /{id}/respond {response_ref}
+ * + /{id}/verify-contacts — LQ-13. */
+export async function postRegulatorRequest(
+  req: Request, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  if (!isNonEmptyString(body.regulator)) {
+    return validationError(requestId, [{
+      type: "missing_field", field: "regulator", message: "regulator is required",
+    }]);
+  }
+  const id = `regreq_${crypto.randomUUID()}`;
+  const { error } = await db.schema(scope).from("regulator_request").upsert({
+    id, regulator: body.regulator, provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id" });
+  if (error) return internalErrorResponse(requestId, error.message);
+  return jsonResponse({ data: { id } }, 201, requestId);
+}
+
+export async function postRegulatorResponse(
+  req: Request, reqId: string, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  const { data: r } = await db.schema(scope).from("regulator_request")
+    .select("id, regulator").eq("id", reqId).maybeSingle();
+  if (!r) return notFoundResponse(requestId, "regulator_request", reqId);
+  if (!isNonEmptyString(body.response_ref)) {
+    return validationError(requestId, [{
+      type: "missing_field", field: "response_ref",
+      message: "the response that went out has to be referenced",
+    }]);
+  }
+  const now = new Date().toISOString();
+  await db.schema(scope).from("regulator_request")
+    .update({ responded_at: now, response_ref: body.response_ref }).eq("id", reqId);
+  await emit(db, scope, `ev_${reqId}_resp`, "regulator.response.sent", "regulator_request", reqId, {
+    regulator: r.regulator, response_ref: body.response_ref,
+  }, ctx);
+  return jsonResponse({ data: { id: reqId, responded: true } }, 200, requestId);
+}
+
+export async function postRegulatorContactsVerify(
+  req: Request, reqId: string, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  const { data: r } = await db.schema(scope).from("regulator_request")
+    .select("id").eq("id", reqId).maybeSingle();
+  if (!r) return notFoundResponse(requestId, "regulator_request", reqId);
+  const now = new Date().toISOString();
+  await db.schema(scope).from("regulator_request")
+    .update({ contacts_verified_at: now }).eq("id", reqId);
+  await emit(db, scope, `ev_${reqId}_contacts`, "regulator.contacts.verified",
+    "regulator_request", reqId, { verified_by: body.verified_by ?? null }, ctx);
+  return jsonResponse({ data: { id: reqId, verified: true } }, 200, requestId);
+}
+
+/**
+ * POST /liquidity/wholesale {as_of, amount_cents, rate_bp, market_rate_bp?, listing_decision?}
+ *
+ * LQ-17: the exposure is COMPUTED and the rate is compared to market — paying
+ * above market for wholesale funds is the pricing violation the alert names.
+ */
+export async function postWholesaleExposure(
+  req: Request, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  const amount = typeof body.amount_cents === "number" ? body.amount_cents : null;
+  const rate = typeof body.rate_bp === "number" ? body.rate_bp : null;
+  if (amount === null || rate === null) {
+    return validationError(requestId, [{
+      type: "missing_field", field: "amount_cents",
+      message: "amount_cents and rate_bp are required",
+    }]);
+  }
+  const market = typeof body.market_rate_bp === "number" ? body.market_rate_bp : null;
+  const violation = market !== null && rate > market;
+  const id = `whsl_${crypto.randomUUID()}`;
+  const { error } = await db.schema(scope).from("wholesale_exposure").upsert({
+    id, as_of: isNonEmptyString(body.as_of) ? body.as_of : new Date().toISOString().slice(0, 10),
+    amount_cents: amount, rate_bp: rate, market_rate_bp: market,
+    pricing_violation: violation,
+    listing_decision: isNonEmptyString(body.listing_decision) ? body.listing_decision : null,
+    provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id" });
+  if (error) return internalErrorResponse(requestId, error.message);
+
+  await emit(db, scope, `ev_${id}_comp`, "wholesale.exposure_computed", "wholesale_exposure", id, {
+    amount_cents: amount, rate_bp: rate, market_rate_bp: market,
+  }, ctx);
+  if (violation) {
+    await emit(db, scope, `ev_${id}_viol`, "alert.wholesale_pricing_violation",
+      "wholesale_exposure", id, { rate_bp: rate, market_rate_bp: market }, ctx);
+  }
+  if (isNonEmptyString(body.listing_decision)) {
+    await emit(db, scope, `ev_${id}_listing`, "wholesale.listing_decisioned",
+      "wholesale_exposure", id, { decision: body.listing_decision }, ctx);
+  }
+  return jsonResponse({ data: { id, pricing_violation: violation } }, 201, requestId);
 }

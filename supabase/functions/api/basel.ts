@@ -478,3 +478,50 @@ export async function postCorrectiveAction(
   }
   return jsonResponse({ data: { id, retested } }, 201, requestId);
 }
+
+// ------------------------------------------------------------------ BA-08
+
+/**
+ * POST /basel/pillar3 {period, board_minutes_ref, shortfall?}
+ *
+ * The Pillar 3 disclosure cycle: the due clock, the publication, and the
+ * board minutes that reviewed it — one act, three facts. A capital SHORTFALL
+ * in the period escalates to the board in the same record (the escalation
+ * alias pair is deliberate — see ESCALATION_ALIASES in capital.ts: two names,
+ * one event, so no control is unsatisfiable for a naming reason).
+ */
+export async function postPillar3Disclosure(
+  req: Request, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  if (!isNonEmptyString(body.period) || !isNonEmptyString(body.board_minutes_ref)) {
+    return validationError(requestId, [{
+      type: "missing_field", field: "period",
+      message: "period and board_minutes_ref are required — an unminuted disclosure was not reviewed",
+    }]);
+  }
+  const id = `pillar3_${body.period}`;
+  const now = new Date();
+  const due = new Date(now.getTime() + 45 * 24 * 60 * 60 * 1000).toISOString();
+  const { error } = await db.schema(scope).from("pillar3_disclosure").upsert({
+    id, period: body.period, due_at: due, published_at: now.toISOString(),
+    board_minutes_ref: body.board_minutes_ref,
+    provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id" });
+  if (error) return internalErrorResponse(requestId, error.message);
+
+  await emit(db, scope, `ev_${id}_due`, "disclosure.pillar3_due_at",
+    "pillar3_disclosure", id, { due_at: due }, ctx);
+  await emit(db, scope, `ev_${id}_pub`, "disclosure.pillar3.published",
+    "pillar3_disclosure", id, { period: body.period }, ctx);
+  await emit(db, scope, `ev_${id}_minutes`, "board.minutes.recorded",
+    "pillar3_disclosure", id, { board_minutes_ref: body.board_minutes_ref }, ctx);
+  if (body.shortfall === true) {
+    await emit(db, scope, `ev_${id}_short`, "board.shortfall.notified",
+      "pillar3_disclosure", id, { period: body.period }, ctx);
+    await emit(db, scope, `ev_${id}_esc`, "capital.board_escalation.issued",
+      "pillar3_disclosure", id, { period: body.period, cause: "capital_shortfall" }, ctx);
+  }
+  return jsonResponse({ data: { id, due_at: due } }, 201, requestId);
+}

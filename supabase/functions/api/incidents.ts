@@ -575,3 +575,130 @@ export async function postExternalComms(
   }, ctx);
   return jsonResponse({ id, external_comms_at: now }, 200, requestId);
 }
+
+// ------------------------------------------------ BC-15 containment discipline
+
+/**
+ * POST /incidents/{id}/containment {data_scope?, description?}
+ *
+ * Starting containment starts TWO clocks: the containment timer and the
+ * legal-consult timer — BC-15's point is that legal is consulted DURING the
+ * incident, not asked to bless the writeup afterward.
+ */
+export async function postIncidentContainmentStart(
+  req: Request, id: string, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  const { data: row } = await db.schema(scope).from("incident")
+    .select("id, severity, source").eq("id", id).maybeSingle();
+  if (!row) return notFoundResponse(requestId, "incident", id);
+  const now = new Date().toISOString();
+  await emit(db, scope, `evt_${id}_containstart`, "incident.containment.started", id, {
+    "incident.severity": row.severity,
+    "incident.description": body.description ?? null,
+    "incident.data_scope": body.data_scope ?? null,
+    "incident.detection_source": row.source ?? body.detection_source ?? null,
+    started_at: now,
+  }, ctx);
+  await emit(db, scope, `evt_${id}_containtimer`, "incident.containment_timer", id, {
+    started_at: now,
+  }, ctx);
+  await emit(db, scope, `evt_${id}_legaltimer`, "legal.consult_timer", id, {
+    started_at: now,
+  }, ctx);
+  return jsonResponse({ id, containment_started_at: now }, 200, requestId);
+}
+
+/** POST /incidents/{id}/legal-consult {counsel} — BC-15's second clock stops. */
+export async function postIncidentLegalConsult(
+  req: Request, id: string, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  if (!isNonEmptyString(body.counsel)) {
+    return validationError(requestId, [{
+      type: "missing_field", field: "counsel",
+      message: "legal was consulted BY someone identifiable, or it was not consulted",
+    }]);
+  }
+  const { data: row } = await db.schema(scope).from("incident")
+    .select("id").eq("id", id).maybeSingle();
+  if (!row) return notFoundResponse(requestId, "incident", id);
+  const now = new Date().toISOString();
+  await db.schema(scope).from("incident")
+    .update({ legal_review_at: now, legal_review_by: body.counsel }).eq("id", id);
+  await emit(db, scope, `evt_${id}_legal`, "legal.consulted", id, {
+    counsel: body.counsel, at: now,
+  }, ctx);
+  return jsonResponse({ id, legal_consulted_at: now }, 200, requestId);
+}
+
+/** POST /incidents/{id}/vendor-tracks {vendors[]} — a vendor-origin incident
+ * dispatches parallel tracks, one per vendor, and says so. */
+export async function postIncidentVendorTracks(
+  req: Request, id: string, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  const vendors = Array.isArray(body.vendors) ? body.vendors.map(String) : [];
+  if (vendors.length === 0) {
+    return validationError(requestId, [{
+      type: "missing_field", field: "vendors", message: "at least one vendor track is required",
+    }]);
+  }
+  const { data: row } = await db.schema(scope).from("incident")
+    .select("id").eq("id", id).maybeSingle();
+  if (!row) return notFoundResponse(requestId, "incident", id);
+  await emit(db, scope, `evt_${id}_vtracks`, "vendor.incident_tracks_dispatched", id, {
+    vendors, count: vendors.length,
+  }, ctx);
+  return jsonResponse({ id, tracks: vendors.length }, 200, requestId);
+}
+
+// ------------------------------------------------ BC-09 failover + member comms
+
+/** POST /incidents/{id}/failover {decided_by, target} — the decision and the
+ * execution are separate facts; this records the EXECUTION. */
+export async function postIncidentFailover(
+  req: Request, id: string, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  if (!isNonEmptyString(body.decided_by) || !isNonEmptyString(body.target)) {
+    return validationError(requestId, [{
+      type: "missing_field", field: "decided_by",
+      message: "decided_by and target are required — an unattributed failover is a mystery outage",
+    }]);
+  }
+  const { data: row } = await db.schema(scope).from("incident")
+    .select("id").eq("id", id).maybeSingle();
+  if (!row) return notFoundResponse(requestId, "incident", id);
+  await emit(db, scope, `evt_${id}_failover`, "it.failover.executed", id, {
+    decided_by: body.decided_by, target: body.target,
+  }, ctx);
+  return jsonResponse({ id, failover: true }, 200, requestId);
+}
+
+/** POST /incidents/{id}/member-status {statement, member_impact} — BC-09: the
+ * members are TOLD, with the impact stated, while it is happening. */
+export async function postIncidentMemberStatus(
+  req: Request, id: string, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  if (!isNonEmptyString(body.statement)) {
+    return validationError(requestId, [{
+      type: "missing_field", field: "statement",
+      message: "the status that went to members has to be recorded, verbatim",
+    }]);
+  }
+  const { data: row } = await db.schema(scope).from("incident")
+    .select("id").eq("id", id).maybeSingle();
+  if (!row) return notFoundResponse(requestId, "incident", id);
+  await emit(db, scope, `evt_${id}_memberstatus`, "comms.member_status.issued", id, {
+    statement: body.statement,
+    "incident.member_impact": body.member_impact ?? null,
+  }, ctx);
+  return jsonResponse({ id, issued: true }, 200, requestId);
+}

@@ -3172,6 +3172,27 @@ import {
   postStateRequest, postStateRequestFulfilment, postWebConsent, postWebTagReview,
 } from "../api/privacy.ts";
 import {
+  postAccessDeprovision, postAccessGrant, postAccessReview, postAiTool,
+  postAiToolDecision, postAiToolLaunch, postAiViolation, postAiViolationDispose,
+  postAntivirusEvent, postAntivirusRemediate, postBackupCycle, postBackupRemediate,
+  postIntrusionResponse, postPentestEngagement, postPentestReport, postRestoreTest,
+  postSecurityReview, postSiemAlert, postSiemDispose, postSiemSourceRestore,
+  postDlpResolve, postDlpViolation,
+  postSiemSourceSilent, postTlsAssessment, postTlsRenew, postVulnFinding,
+  postVulnRemediate, postVulnTriage,
+} from "../api/ops_security.ts";
+import {
+  postIncidentContainmentStart, postIncidentFailover, postIncidentLegalConsult,
+  postIncidentMemberStatus, postIncidentVendorTracks,
+} from "../api/incidents.ts";
+import {
+  postAlcoRatioReview, postEodTieout, postLiquidityConcentration, postModelReview,
+  postNcuaAck, postNcuaNotification, postRegulatorContactsVerify, postRegulatorRequest,
+  postRegulatorResponse, postWholesaleExposure,
+} from "../api/liquidity.ts";
+import { postPillar3Disclosure } from "../api/basel.ts";
+import { postTrainingAssignment } from "../api/hr.ts";
+import {
   post314aRequest, post314aResponse, postCipVerification, postCmirFiling,
   postCtrExemptionReview, postEddCompletion, postEddProfile, postEscalation,
   postEscalationAck, postFbarAccount, postFbarFiling, postMonetaryInstrument,
@@ -3464,7 +3485,204 @@ async function runViolationTierLifecycle(env: FireEnv): Promise<void> {
   );
 }
 
+
+/** Ops-security tail — EC-02/05/06/08/09, IS-05..14, BC-07/09/15. */
+async function runOpsSecurityLifecycle(env: FireEnv): Promise<void> {
+  if ((env.rows["core.backup_job"] ?? []).length > 0) return;
+  const ops = env.actors.ops;
+
+  // HR base + access lifecycle (EC-02, IS-06)
+  await postEmployee(R({ id: "emp_s1", name: "Sec One", role: "engineer" }), env.db, "d", ops);
+  await postEmployee(R({ id: "emp_s2", name: "Sec Two", role: "oncall" }), env.db, "d", ops);
+  await postEmployee(R({ id: "emp_s3", name: "Sec Gone", role: "contractor" }), env.db, "d", ops);
+  await postAccessGrant(R({ user_id: "emp_s1", role: "admin" }), env.db, "d", ops);
+  await postAccessGrant(R({ user_id: "emp_s2", role: "prod_db", breakglass: true }), env.db, "d", ops);
+  await postAccessGrant(R({ user_id: "emp_s3", role: "repo" }), env.db, "d", ops);
+  // separation deprovisions access in the same act (IS-06)
+  await postEmployeeSeparate(R({ reason: "contract ended" }), "emp_s3", env.db, "d", ops);
+  // NEGATIVE: granting to the separated employee is refused
+  await postAccessGrant(R({ user_id: "emp_s3", role: "admin" }), env.db, "d", ops);
+  const firstGrant = (env.rows["core.access_grant"] ?? [])[0];
+  await postAccessDeprovision(R({ reason: "role change" }), String(firstGrant?.id ?? "none"), env.db, "d", ops);
+  await postAccessReview(R({ reviewer: "ciso" }), env.db, "d", ops);
+
+  // backups + restores (BC-07, IS-08)
+  await postBackupCycle(R({ status: "completed", restore_point: "rp_2026_07_21" }), env.db, "d", ops);
+  await postBackupCycle(R({ status: "failed" }), env.db, "d", ops);
+  const jobs = env.rows["core.backup_job"] ?? [];
+  const okJob = jobs.find((j) => j.status === "completed");
+  const badJob = jobs.find((j) => j.status === "failed");
+  // NEGATIVE: a restore test against the failed backup is refused
+  await postRestoreTest(R({ backup_id: String(badJob?.id ?? "none") }), env.db, "d", ops);
+  await postBackupRemediate(R({ action: "storage credentials rotated, job re-run" }), String(badJob?.id ?? "none"), env.db, "d", ops);
+  await postRestoreTest(R({ backup_id: String(okJob?.id ?? "none") }), env.db, "d", ops);
+
+  // TLS (EC-06, IS-07)
+  await postTlsAssessment(R({ domain: "api.cassandra.bank", rating: "A", expires_at: "2026-08-01T00:00:00.000Z" }), env.db, "d", ops);
+  const cert = (env.rows["core.tls_certificate"] ?? [])[0];
+  await postTlsRenew(R({}), String(cert?.id ?? "none"), env.db, "d", ops);
+
+  // reviews (EC-05, EC-08, EC-09)
+  await postSecurityReview(R({ kind: "firewall", reviewer: "netops" }), env.db, "d", ops);
+  // NEGATIVE: an "independent" review that does not attest independence
+  await postSecurityReview(R({ kind: "firewall_independent", reviewer: "auditor" }), env.db, "d", ops);
+  await postSecurityReview(R({ kind: "firewall_independent", reviewer: "auditor", independent: true }), env.db, "d", ops);
+  await postSecurityReview(R({ kind: "antivirus_log", reviewer: "secops" }), env.db, "d", ops);
+  await postSecurityReview(R({ kind: "incident_trend", reviewer: "secops", timeline: "quarterly" }), env.db, "d", ops);
+
+  // vulnerabilities (IS-05)
+  await postVulnFinding(R({ severity: "critical" }), env.db, "d", ops);
+  const vuln = (env.rows["core.vuln_finding"] ?? [])[0];
+  // NEGATIVE: remediation before triage is refused
+  await postVulnRemediate(R({ fix: "patched" }), String(vuln?.id ?? "none"), env.db, "d", ops);
+  await postVulnTriage(R({ outcome: "fix_now" }), String(vuln?.id ?? "none"), env.db, "d", ops);
+  await postVulnRemediate(R({ fix: "patched openssl" }), String(vuln?.id ?? "none"), env.db, "d", ops);
+
+  // SIEM (IS-14, EC-09)
+  await postSiemAlert(R({ severity: "critical" }), env.db, "d", ops);
+  const alert = (env.rows["core.siem_alert"] ?? [])[0];
+  // NEGATIVE: disposal with no disposition is refused
+  await postSiemDispose(R({}), String(alert?.id ?? "none"), env.db, "d", ops);
+  await postSiemDispose(R({ disposition: "true positive, contained" }), String(alert?.id ?? "none"), env.db, "d", ops);
+  await postSiemSourceSilent(R({}), "src_core_api", env.db, "d", ops);
+  await postSiemSourceRestore(R({}), "src_core_api", env.db, "d", ops);
+
+  // antivirus (EC-08)
+  await postAntivirusEvent(R({ threat: "eicar_test" }), env.db, "d", ops);
+  const av = (env.rows["core.antivirus_event"] ?? [])[0];
+  await postAntivirusRemediate(R({ action: "quarantined" }), String(av?.id ?? "none"), env.db, "d", ops);
+
+  // pentest (EC-05, EC-09)
+  await postPentestEngagement(R({}), env.db, "d", ops);
+  const pt = (env.rows["core.pentest_engagement"] ?? [])[0];
+  await postPentestReport(R({ findings_count: 3 }), String(pt?.id ?? "none"), env.db, "d", ops);
+
+  // AI governance (IS-13): the violating launch FIRST, then the lawful one
+  await postAiTool(R({ name: "member-chat", member_facing: true }), env.db, "d", ops);
+  const tool = (env.rows["core.ai_tool"] ?? [])[0];
+  await postAiToolLaunch(R({}), String(tool?.id ?? "none"), env.db, "d", ops);
+  await postAiToolDecision(R({ decision: "approved" }), String(tool?.id ?? "none"), env.db, "d", ops);
+  await postAiToolLaunch(R({ data_scope: ["conversation_text"] }), String(tool?.id ?? "none"), env.db, "d", ops);
+  await postAiTool(R({ name: "shadow-scoring" }), env.db, "d", ops);
+  const tool2 = (env.rows["core.ai_tool"] ?? [])[1];
+  await postAiToolDecision(R({ decision: "rejected" }), String(tool2?.id ?? "none"), env.db, "d", ops);
+  await postAiViolation(R({ description: "unapproved prompt logging" }), env.db, "d", ops);
+  const aiv = (env.rows["core.ai_violation"] ?? [])[0];
+  await postAiViolationDispose(R({ disposition: "logging disabled, tool suspended" }), String(aiv?.id ?? "none"), env.db, "d", ops);
+
+  // DLP (IS-07)
+  await postDlpViolation(R({ channel: "email", detail: "SSN pattern outbound" }), env.db, "d", ops);
+  const dlpEv = (env.rows["core.event"] ?? []).find((e) => e.code === "dlp.violation.detected");
+  const dlpId = String(dlpEv?.resource_id ?? "dlp_violation:none").split(":")[1];
+  // NEGATIVE: resolution with no action is refused
+  await postDlpResolve(R({}), dlpId, env.db, "d", ops);
+  await postDlpResolve(R({ action: "message quarantined, sender counseled" }), dlpId, env.db, "d", ops);
+
+  // incidents: intrusion (EC-09), containment discipline (BC-15), failover (BC-09)
+  const compliance = { ...ops, tokenId: "tok_sec_compliance", roles: ["bsa_compliance"] };
+  await postIncident(R({ title: "intrusion detected on edge", severity: "sev1", source: "siem" }), env.db, "d", compliance);
+  const inc = (env.rows["core.incident"] ?? [])[0];
+  const incId = String(inc?.id ?? "none");
+  await postIntrusionResponse(R({ actions: "isolated host, rotated keys", detection_source: "siem", timeline: "t0+14m" }), incId, env.db, "d", ops);
+  await postIncidentContainmentStart(R({ data_scope: ["none_confirmed"], description: "edge intrusion" }), incId, env.db, "d", compliance);
+  // NEGATIVE: legal consulted by nobody is refused
+  await postIncidentLegalConsult(R({}), incId, env.db, "d", compliance);
+  await postIncidentLegalConsult(R({ counsel: "outside_counsel_1" }), incId, env.db, "d", compliance);
+  await postIncidentVendorTracks(R({ vendors: ["cdn_vendor", "colo_vendor"] }), incId, env.db, "d", compliance);
+  await postIncidentFailover(R({ decided_by: "ic_1", target: "region_b" }), incId, env.db, "d", compliance);
+  await postIncidentMemberStatus(R({ statement: "services degraded; cards continue to work", member_impact: "online banking slow" }), incId, env.db, "d", compliance);
+}
+
+/** Liquidity ops tail + BA-08. */
+async function runLiquidityOpsLifecycle(env: FireEnv): Promise<void> {
+  if ((env.rows["core.ncua_notification"] ?? []).length > 0) return;
+  const ops = env.actors.ops;
+
+  await postAlcoRatioReview(R({ reviewed_by: "alco_chair", ratios: { lcr_bp: 12500 } }), env.db, "d", ops);
+  // NEGATIVE: a breached concentration without a waiver decision is refused
+  await postLiquidityConcentration(R({ top_depositor_pct_bp: 2600, limit_pct_bp: 2000 }), env.db, "d", ops);
+  await postLiquidityConcentration(
+    R({ top_depositor_pct_bp: 2600, limit_pct_bp: 2000,
+        waiver_decision: "waived_90d", waiver_decided_by: "alco_chair" }),
+    env.db, "d", ops,
+  );
+  await postEodTieout(R({ gl_total_cents: 1_000_000_00, subledger_total_cents: 999_950_00 }), env.db, "d", ops);
+  await postModelReview(R({ model: "liquidity_stress_v3", reviewer: "risk_quant", outcome: "fit_for_use" }), env.db, "d", ops);
+
+  await postNcuaNotification(R({ kind: "liquidity_event" }), env.db, "d", ops);
+  const notif = (env.rows["core.ncua_notification"] ?? [])[0];
+  // NEGATIVE: an acknowledgment without a reference is refused
+  await postNcuaAck(R({}), String(notif?.id ?? "none"), env.db, "d", ops);
+  await postNcuaAck(R({ ack_ref: "ncua_ack_2026_0721" }), String(notif?.id ?? "none"), env.db, "d", ops);
+
+  await postRegulatorRequest(R({ regulator: "NCUA" }), env.db, "d", ops);
+  const rr = (env.rows["core.regulator_request"] ?? [])[0];
+  await postRegulatorResponse(R({ response_ref: "resp_2026_0721" }), String(rr?.id ?? "none"), env.db, "d", ops);
+  await postRegulatorContactsVerify(R({ verified_by: "cfo" }), String(rr?.id ?? "none"), env.db, "d", ops);
+
+  await postWholesaleExposure(
+    R({ amount_cents: 500_000_00, rate_bp: 620, market_rate_bp: 540, listing_decision: "approved" }),
+    env.db, "d", ops,
+  );
+
+  // BA-08: pillar 3 with a shortfall period + the capital training cycle
+  await postPillar3Disclosure(
+    R({ period: "2026-Q2", board_minutes_ref: "minutes_2026_07_board", shortfall: true }),
+    env.db, "d", ops,
+  );
+  await postEmployee(R({ id: "emp_l1", name: "Cap Analyst", role: "finance" }), env.db, "d", ops);
+  await postTrainingAssignment(
+    R({ curriculum: "capital", assignee_id: "emp_l1" }),
+    env.db, "d", ops,
+  );
+}
+
 export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>> = {
+  // ---- ops-security tail (EC/IS/BC)
+  "access.granted": (env) => runOpsSecurityLifecycle(env),
+  "access.review.due_at": (env) => runOpsSecurityLifecycle(env),
+  "access.deprovisioned": (env) => runOpsSecurityLifecycle(env),
+  "access.breakglass.used": (env) => runOpsSecurityLifecycle(env),
+  "backup.cycle.completed": (env) => runOpsSecurityLifecycle(env),
+  "backup.restore.test.due": (env) => runOpsSecurityLifecycle(env),
+  "backup.job.failed": (env) => runOpsSecurityLifecycle(env),
+  "firewall.review.due": (env) => runOpsSecurityLifecycle(env),
+  "firewall.independent.review.due": (env) => runOpsSecurityLifecycle(env),
+  "tls.assessment.due": (env) => runOpsSecurityLifecycle(env),
+  "tls.certificate.expiry.due": (env) => runOpsSecurityLifecycle(env),
+  "tls.certificate_expires_at": (env) => runOpsSecurityLifecycle(env),
+  "antivirus.remediated": (env) => runOpsSecurityLifecycle(env),
+  "antivirus.log.review.due": (env) => runOpsSecurityLifecycle(env),
+  "intrusion.detected": (env) => runOpsSecurityLifecycle(env),
+  "siem.alert.review.due_at": (env) => runOpsSecurityLifecycle(env),
+  "siem.alert_critical": (env) => runOpsSecurityLifecycle(env),
+  "siem.source_silent": (env) => runOpsSecurityLifecycle(env),
+  "pentest.engagement_due": (env) => runOpsSecurityLifecycle(env),
+  "incident_trend.review.due": (env) => runOpsSecurityLifecycle(env),
+  "vuln.finding.confirmed": (env) => runOpsSecurityLifecycle(env),
+  "dlp.violation.detected": (env) => runOpsSecurityLifecycle(env),
+  "vuln.triage.completed": (env) => runOpsSecurityLifecycle(env),
+  "ai.tool.proposed": (env) => runOpsSecurityLifecycle(env),
+  "ai.tool.approved": (env) => runOpsSecurityLifecycle(env),
+  "ai.member_feature.launched": (env) => runOpsSecurityLifecycle(env),
+  "ai.violation.disposed": (env) => runOpsSecurityLifecycle(env),
+  "incident.containment.started": (env) => runOpsSecurityLifecycle(env),
+  "vendor.incident.logged": (env) => runOpsSecurityLifecycle(env),
+  "it.major_failure.detected": (env) => runOpsSecurityLifecycle(env),
+  "it.failover.decided": (env) => runOpsSecurityLifecycle(env),
+  // ---- liquidity ops tail + BA-08
+  "alco.ratio_review.logged": (env) => runLiquidityOpsLifecycle(env),
+  "liquidity.depositor_file.posted": (env) => runLiquidityOpsLifecycle(env),
+  "dq.variance.detected": (env) => runLiquidityOpsLifecycle(env),
+  "model.review.due_at": (env) => runLiquidityOpsLifecycle(env),
+  "ncua.notification_required": (env) => runLiquidityOpsLifecycle(env),
+  "ncua.ack.received": (env) => runLiquidityOpsLifecycle(env),
+  "ncua.notification.sent": (env) => runLiquidityOpsLifecycle(env),
+  "regulator.contact.verification.due": (env) => runLiquidityOpsLifecycle(env),
+  "wholesale.exposure.posted": (env) => runLiquidityOpsLifecycle(env),
+  "wholesale.listing.requested": (env) => runLiquidityOpsLifecycle(env),
+  "disclosure.pillar3.published": (env) => runLiquidityOpsLifecycle(env),
+  "training.capital_cycle.started": (env) => runLiquidityOpsLifecycle(env),
   // ---- violation tier (MP/RS/PR/CP-05 + HR seam)
   "employee.hired": (env) => runViolationTierLifecycle(env),
   "employee.separated": (env) => runViolationTierLifecycle(env),
