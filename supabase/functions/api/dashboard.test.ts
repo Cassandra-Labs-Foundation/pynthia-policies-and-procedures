@@ -150,10 +150,36 @@ Deno.test("the dashboard route 302s to the hosted shell (the gateway cannot serv
 });
 
 Deno.test("the hosted shell carries no credentials at all (demo posture)", async () => {
-  const html = await Deno.readTextFile(
-    new URL("../../../docs/dashboard/index.html", import.meta.url),
+  for (const f of ["index.html", "assets/app.js"]) {
+    const src = await Deno.readTextFile(
+      new URL(`../../../docs/dashboard/${f}`, import.meta.url),
+    );
+    assert(!src.includes("token="), `${f}: no token may ride in a URL`);
+    assert(!/cass_(?:demo|e2e|pt)_[a-f0-9]/.test(src), `${f}: no live token may be baked in`);
+    assert(!src.includes("X-Api-Key"), `${f}: demo shell sends no auth header at all`);
+  }
+});
+
+Deno.test("the policy hierarchy covers the whole catalogue — every policy, every control, a page each", async () => {
+  const dash = new URL("../../../docs/dashboard/", import.meta.url);
+  const manifest = JSON.parse(
+    await Deno.readTextFile(new URL("manifest.json", dash)),
   );
-  assert(!html.includes("token="), "no token may ride in a URL");
-  assert(!/cass_(?:demo|e2e|pt)_[a-f0-9]/.test(html), "no live token may be baked into the shell");
-  assert(!html.includes("X-Api-Key"), "demo shell sends no auth header at all");
+  const catalogue = JSON.parse(
+    await Deno.readTextFile(new URL("../../../controls.json", import.meta.url)),
+  );
+
+  const cataloguePolicies = new Set(
+    catalogue.controls.map((c: { policy: string }) => c.policy),
+  );
+  const manifestPolicies = new Set(
+    manifest.policies.map((p: { slug: string }) => p.slug),
+  );
+  assertEquals(manifestPolicies, cataloguePolicies);
+  assertEquals(manifest.control_count, catalogue.controls.length);
+
+  for (const p of manifest.policies) {
+    const stub = await Deno.readTextFile(new URL(`${p.slug}/index.html`, dash));
+    assert(stub.includes("assets/app.js"), `${p.slug}: stub must load the shared app`);
+  }
 });

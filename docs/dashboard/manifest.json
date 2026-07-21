@@ -1,0 +1,5006 @@
+{
+ "generated_from": "controls.json",
+ "policy_count": 27,
+ "control_count": 333,
+ "policies": [
+  {
+   "slug": "audit",
+   "title": "Audit",
+   "controls": [
+    {
+     "id": "AU-01",
+     "title": "Board of Directors Oversight",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/audit/audit.md#au-01-board-of-directors-oversight",
+     "citations": [
+      {
+       "text": "12 CFR Part 715",
+       "url": "https://www.ecfr.gov/current/title-12/part-715"
+      }
+     ]
+    },
+    {
+     "id": "AU-02",
+     "title": "Audit Committee Governance and Independence",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/audit/audit.md#au-02-audit-committee-governance-and-independence",
+     "citations": [
+      {
+       "text": "12 CFR Part 715",
+       "url": "https://www.ecfr.gov/current/title-12/part-715"
+      }
+     ]
+    },
+    {
+     "id": "AU-03",
+     "title": "Internal Auditor Independence and Reporting",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/audit/audit.md#au-03-internal-auditor-independence-and-reporting",
+     "citations": [
+      {
+       "text": "12 CFR Part 715",
+       "url": "https://www.ecfr.gov/current/title-12/part-715"
+      },
+      {
+       "text": "12 CFR Part 748",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "AU-04",
+     "title": "Risk-Based Audit Scope and Frequency",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/audit/audit.md#au-04-risk-based-audit-scope-and-frequency",
+     "citations": [
+      {
+       "text": "12 CFR Part 715",
+       "url": "https://www.ecfr.gov/current/title-12/part-715"
+      }
+     ]
+    },
+    {
+     "id": "AU-05",
+     "title": "Audit Types and Network Assessments",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/audit/audit.md#au-05-audit-types-and-network-assessments",
+     "citations": [
+      {
+       "text": "12 CFR Part 715",
+       "url": "https://www.ecfr.gov/current/title-12/part-715"
+      },
+      {
+       "text": "12 CFR Part 748",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "AU-06",
+     "title": "Audit Reporting and Work Papers",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/audit/audit.md#au-06-audit-reporting-and-work-papers",
+     "citations": [
+      {
+       "text": "12 CFR Part 715",
+       "url": "https://www.ecfr.gov/current/title-12/part-715"
+      }
+     ]
+    },
+    {
+     "id": "AU-07",
+     "title": "Finding Tracking and Escalation",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/audit/audit.md#au-07-finding-tracking-and-escalation",
+     "citations": [
+      {
+       "text": "12 CFR Part 715",
+       "url": "https://www.ecfr.gov/current/title-12/part-715"
+      }
+     ]
+    },
+    {
+     "id": "AU-08",
+     "title": "Management Response and Risk Acceptance",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/audit/audit.md#au-08-management-response-and-risk-acceptance",
+     "citations": [
+      {
+       "text": "12 CFR Part 715",
+       "url": "https://www.ecfr.gov/current/title-12/part-715"
+      }
+     ]
+    },
+    {
+     "id": "AU-09",
+     "title": "Follow-Up Audits",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/audit/audit.md#au-09-follow-up-audits",
+     "citations": [
+      {
+       "text": "12 CFR Part 715",
+       "url": "https://www.ecfr.gov/current/title-12/part-715"
+      }
+     ]
+    },
+    {
+     "id": "AU-10",
+     "title": "Work Paper Retention and Physical Control",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/audit/audit.md#au-10-work-paper-retention-and-physical-control",
+     "citations": [
+      {
+       "text": "12 CFR Part 715",
+       "url": "https://www.ecfr.gov/current/title-12/part-715"
+      }
+     ]
+    },
+    {
+     "id": "SC-02",
+     "title": "Record-Retention Lifecycle Mechanics",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/audit/audit.md#sc-02-record-retention-lifecycle-mechanics",
+     "citations": [
+      {
+       "text": "12 CFR Part 364, Appendix B",
+       "url": "https://www.ecfr.gov/current/title-12/part-364#Appendix-B-to-Part-364"
+      },
+      {
+       "text": "RR-03 \u2014 Document Destruction",
+       "url": "../record-retention/record-retention.md#rr-03-document-destruction"
+      },
+      {
+       "text": "RR-05 \u2014 Legal Holds",
+       "url": "../record-retention/record-retention.md#rr-05-legal-holds"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "basel-ii-standardized-approach-framework",
+   "title": "Basel II Standardized Approach",
+   "controls": [
+    {
+     "id": "BA-01",
+     "title": "Minimum Capital Requirements",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/basel-ii-standardized-approach-framework/basel-ii-standardized-approach-framework.md#ba-01-minimum-capital-requirements",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7 702.104",
+       "url": "https://www.ecfr.gov/current/title-12/part-702/section-702.104"
+      },
+      {
+       "text": "12 CFR \u00a7 702.204",
+       "url": "https://www.ecfr.gov/current/title-12/part-702/section-702.204"
+      }
+     ]
+    },
+    {
+     "id": "BA-02",
+     "title": "Components of Capital",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/basel-ii-standardized-approach-framework/basel-ii-standardized-approach-framework.md#ba-02-components-of-capital",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7 702.2",
+       "url": "https://www.ecfr.gov/current/title-12/part-702/section-702.2"
+      }
+     ]
+    },
+    {
+     "id": "BA-03",
+     "title": "Risk-Weighted Assets Computation",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/basel-ii-standardized-approach-framework/basel-ii-standardized-approach-framework.md#ba-03-risk-weighted-assets-computation",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7 702.104",
+       "url": "https://www.ecfr.gov/current/title-12/part-702/section-702.104"
+      }
+     ]
+    },
+    {
+     "id": "BA-04",
+     "title": "Risk-Weight Schedule",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/basel-ii-standardized-approach-framework/basel-ii-standardized-approach-framework.md#ba-04-risk-weight-schedule",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7 702.104",
+       "url": "https://www.ecfr.gov/current/title-12/part-702/section-702.104"
+      }
+     ]
+    },
+    {
+     "id": "BA-05",
+     "title": "Liquidity Requirements",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/basel-ii-standardized-approach-framework/basel-ii-standardized-approach-framework.md#ba-05-liquidity-requirements",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7 741.12",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.12"
+      },
+      {
+       "text": "12 CFR Part 725",
+       "url": "https://www.ecfr.gov/current/title-12/part-725"
+      }
+     ]
+    },
+    {
+     "id": "BA-06",
+     "title": "Buffer Ratios",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/basel-ii-standardized-approach-framework/basel-ii-standardized-approach-framework.md#ba-06-buffer-ratios",
+     "citations": []
+    },
+    {
+     "id": "BA-07",
+     "title": "Pillar 2 ICAAP and Stress Testing",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/basel-ii-standardized-approach-framework/basel-ii-standardized-approach-framework.md#ba-07-pillar-2-icaap-and-stress-testing",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7 702.304",
+       "url": "https://www.ecfr.gov/current/title-12/part-702/section-702.304"
+      }
+     ]
+    },
+    {
+     "id": "BA-08",
+     "title": "Monitoring, Reporting, and Pillar 3 Disclosures",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/basel-ii-standardized-approach-framework/basel-ii-standardized-approach-framework.md#ba-08-monitoring-reporting-and-pillar-3-disclosures",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7 702.204",
+       "url": "https://www.ecfr.gov/current/title-12/part-702/section-702.204"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "bsa",
+   "title": "BSA / AML",
+   "controls": [
+    {
+     "id": "BSA-01",
+     "title": "Governance & Delegation",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/bsa/bsa.md#bsa-01-governance--delegation",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7 748.2",
+       "url": "https://www.ecfr.gov/current/title-12/part-748#p-748.2"
+      },
+      {
+       "text": "31 CFR \u00a7 1020.210",
+       "url": "https://www.ecfr.gov/current/title-31/part-1020#p-1020.210"
+      }
+     ]
+    },
+    {
+     "id": "BSA-02",
+     "title": "Enterprise BSA/AML Risk Assessment",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/bsa/bsa.md#bsa-02-enterprise-bsaaml-risk-assessment",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7 748.2",
+       "url": "https://www.ecfr.gov/current/title-12/part-748#p-748.2"
+      },
+      {
+       "text": "31 CFR \u00a7 1020.210",
+       "url": "https://www.ecfr.gov/current/title-31/part-1020#p-1020.210"
+      }
+     ]
+    },
+    {
+     "id": "BSA-03",
+     "title": "Customer Identification Program (CIP)",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/bsa/bsa.md#bsa-03-customer-identification-program-cip",
+     "citations": [
+      {
+       "text": "31 CFR \u00a7 1020.220",
+       "url": "https://www.ecfr.gov/current/title-31/part-1020#p-1020.220"
+      },
+      {
+       "text": "12 CFR \u00a7 748.2",
+       "url": "https://www.ecfr.gov/current/title-12/part-748#p-748.2"
+      }
+     ]
+    },
+    {
+     "id": "BSA-04",
+     "title": "Customer Due Diligence & Enhanced Due Diligence",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/bsa/bsa.md#bsa-04-customer-due-diligence--enhanced-due-diligence",
+     "citations": [
+      {
+       "text": "31 CFR \u00a7 1010.230",
+       "url": "https://www.ecfr.gov/current/title-31/part-1010#p-1010.230"
+      },
+      {
+       "text": "31 CFR \u00a7 1020.210",
+       "url": "https://www.ecfr.gov/current/title-31/part-1020#p-1020.210"
+      }
+     ]
+    },
+    {
+     "id": "BSA-05",
+     "title": "OFAC Screening & Holds",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/bsa/bsa.md#bsa-05-ofac-screening--holds",
+     "citations": [
+      {
+       "text": "31 CFR Part 501",
+       "url": "https://www.ecfr.gov/current/title-31/part-501"
+      },
+      {
+       "text": "31 CFR Part 594",
+       "url": "https://www.ecfr.gov/current/title-31/part-594"
+      }
+     ]
+    },
+    {
+     "id": "BSA-06",
+     "title": "Transaction Monitoring & Case Management",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/bsa/bsa.md#bsa-06-transaction-monitoring--case-management",
+     "citations": [
+      {
+       "text": "31 CFR \u00a7 1020.210",
+       "url": "https://www.ecfr.gov/current/title-31/part-1020#p-1020.210"
+      },
+      {
+       "text": "31 CFR \u00a7 1020.320",
+       "url": "https://www.ecfr.gov/current/title-31/part-1020#p-1020.320"
+      }
+     ]
+    },
+    {
+     "id": "BSA-07",
+     "title": "SAR Filing & Confidentiality",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/bsa/bsa.md#bsa-07-sar-filing--confidentiality",
+     "citations": [
+      {
+       "text": "31 CFR \u00a7 1020.320",
+       "url": "https://www.ecfr.gov/current/title-31/part-1020#p-1020.320"
+      }
+     ]
+    },
+    {
+     "id": "BSA-08",
+     "title": "Currency Transaction Reporting (CTR)",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/bsa/bsa.md#bsa-08-currency-transaction-reporting-ctr",
+     "citations": [
+      {
+       "text": "31 CFR \u00a7 1010.311",
+       "url": "https://www.ecfr.gov/current/title-31/part-1010#p-1010.311"
+      },
+      {
+       "text": "31 CFR \u00a7 1010.306",
+       "url": "https://www.ecfr.gov/current/title-31/part-1010#p-1010.306"
+      },
+      {
+       "text": "31 CFR \u00a7 1020.315",
+       "url": "https://www.ecfr.gov/current/title-31/part-1020#p-1020.315"
+      }
+     ]
+    },
+    {
+     "id": "BSA-09",
+     "title": "Monetary Instruments Log",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/bsa/bsa.md#bsa-09-monetary-instruments-log",
+     "citations": [
+      {
+       "text": "31 CFR \u00a7 1010.415",
+       "url": "https://www.ecfr.gov/current/title-31/part-1010#p-1010.415"
+      }
+     ]
+    },
+    {
+     "id": "BSA-10",
+     "title": "Travel Rule (Wires \u2265$3,000)",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/bsa/bsa.md#bsa-10-travel-rule-wires-3000",
+     "citations": [
+      {
+       "text": "31 CFR \u00a7 1010.410(e) and (f)",
+       "url": "https://www.ecfr.gov/current/title-31/part-1010#p-1010.410"
+      }
+     ]
+    },
+    {
+     "id": "BSA-11",
+     "title": "Information Sharing (314(a)/314(b))",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/bsa/bsa.md#bsa-11-information-sharing-314a314b",
+     "citations": [
+      {
+       "text": "31 CFR \u00a7 1010.520",
+       "url": "https://www.ecfr.gov/current/title-31/part-1010#p-1010.520"
+      },
+      {
+       "text": "31 CFR \u00a7 1010.540",
+       "url": "https://www.ecfr.gov/current/title-31/part-1010#p-1010.540"
+      }
+     ]
+    },
+    {
+     "id": "BSA-12",
+     "title": "CMIR (Cross-Border Currency)",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/bsa/bsa.md#bsa-12-cmir-cross-border-currency",
+     "citations": [
+      {
+       "text": "31 CFR \u00a7 1010.340",
+       "url": "https://www.ecfr.gov/current/title-31/part-1010#p-1010.340"
+      }
+     ]
+    },
+    {
+     "id": "BSA-13",
+     "title": "FBAR",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/bsa/bsa.md#bsa-13-fbar",
+     "citations": [
+      {
+       "text": "31 CFR \u00a7 1010.350",
+       "url": "https://www.ecfr.gov/current/title-31/part-1010#p-1010.350"
+      }
+     ]
+    },
+    {
+     "id": "BSA-14",
+     "title": "Escalation Pathway",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/bsa/bsa.md#bsa-14-escalation-pathway",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7 748.2",
+       "url": "https://www.ecfr.gov/current/title-12/part-748#p-748.2"
+      },
+      {
+       "text": "31 CFR \u00a7 1020.320",
+       "url": "https://www.ecfr.gov/current/title-31/part-1020#p-1020.320"
+      }
+     ]
+    },
+    {
+     "id": "BSA-15",
+     "title": "Training",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/bsa/bsa.md#bsa-15-training",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7 748.2",
+       "url": "https://www.ecfr.gov/current/title-12/part-748#p-748.2"
+      },
+      {
+       "text": "31 CFR \u00a7 1020.210",
+       "url": "https://www.ecfr.gov/current/title-31/part-1020#p-1020.210"
+      }
+     ]
+    },
+    {
+     "id": "BSA-16",
+     "title": "Independent Testing",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/bsa/bsa.md#bsa-16-independent-testing",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7 748.2",
+       "url": "https://www.ecfr.gov/current/title-12/part-748#p-748.2"
+      },
+      {
+       "text": "31 CFR \u00a7 1020.210",
+       "url": "https://www.ecfr.gov/current/title-31/part-1020#p-1020.210"
+      }
+     ]
+    },
+    {
+     "id": "BSA-17",
+     "title": "High-Risk Categories (MSB, Correspondent, Private Banking)",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/bsa/bsa.md#bsa-17-high-risk-categories-msb-correspondent-private-banking",
+     "citations": [
+      {
+       "text": "31 CFR \u00a7 1020.210",
+       "url": "https://www.ecfr.gov/current/title-31/part-1020#p-1020.210"
+      },
+      {
+       "text": "12 CFR \u00a7 748.2",
+       "url": "https://www.ecfr.gov/current/title-12/part-748#p-748.2"
+      }
+     ]
+    },
+    {
+     "id": "BSA-18",
+     "title": "PEP Screening & EDD",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/bsa/bsa.md#bsa-18-pep-screening--edd",
+     "citations": [
+      {
+       "text": "31 CFR \u00a7 1020.210",
+       "url": "https://www.ecfr.gov/current/title-31/part-1020#p-1020.210"
+      }
+     ]
+    },
+    {
+     "id": "BSA-19",
+     "title": "FinCEN Special Measures & GTOs",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/bsa/bsa.md#bsa-19-fincen-special-measures--gtos",
+     "citations": [
+      {
+       "text": "31 USC \u00a7 5318A",
+       "url": "https://www.law.cornell.edu/uscode/text/31/5318A"
+      },
+      {
+       "text": "31 USC \u00a7 5326",
+       "url": "https://www.law.cornell.edu/uscode/text/31/5326"
+      },
+      {
+       "text": "31 CFR \u00a7 1010.430",
+       "url": "https://www.ecfr.gov/current/title-31/part-1010#p-1010.430"
+      }
+     ]
+    },
+    {
+     "id": "BSA-20",
+     "title": "Prepaid Access & Third-Party Vendors",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/bsa/bsa.md#bsa-20-prepaid-access--third-party-vendors",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7 748.2",
+       "url": "https://www.ecfr.gov/current/title-12/part-748#p-748.2"
+      },
+      {
+       "text": "31 CFR \u00a7 1020.210",
+       "url": "https://www.ecfr.gov/current/title-31/part-1020#p-1020.210"
+      }
+     ]
+    },
+    {
+     "id": "BSA-21",
+     "title": "Record Retention",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/bsa/bsa.md#bsa-21-record-retention",
+     "citations": [
+      {
+       "text": "31 CFR \u00a7 1010.430",
+       "url": "https://www.ecfr.gov/current/title-31/part-1010#p-1010.430"
+      },
+      {
+       "text": "31 CFR \u00a7 1020.220",
+       "url": "https://www.ecfr.gov/current/title-31/part-1020#p-1020.220"
+      },
+      {
+       "text": "31 CFR \u00a7 1010.230",
+       "url": "https://www.ecfr.gov/current/title-31/part-1010#p-1010.230"
+      },
+      {
+       "text": "31 CFR \u00a7 1020.320",
+       "url": "https://www.ecfr.gov/current/title-31/part-1020#p-1020.320"
+      }
+     ]
+    },
+    {
+     "id": "SC-02",
+     "title": "Record-Retention Lifecycle Mechanics",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/bsa/bsa.md#sc-02-record-retention-lifecycle-mechanics",
+     "citations": [
+      {
+       "text": "12 CFR Part 364, Appendix B",
+       "url": "https://www.ecfr.gov/current/title-12/part-364#Appendix-B-to-Part-364"
+      },
+      {
+       "text": "RR-03 \u2014 Document Destruction",
+       "url": "../record-retention/record-retention.md#rr-03-document-destruction"
+      },
+      {
+       "text": "RR-05 \u2014 Legal Holds",
+       "url": "../record-retention/record-retention.md#rr-05-legal-holds"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "business-continuity-plan",
+   "title": "Business Continuity",
+   "controls": [
+    {
+     "id": "BC-01",
+     "title": "Governance and Roles",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/business-continuity-plan/business-continuity-plan.md#bc-01-governance-and-roles",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7 701.4",
+       "url": "https://www.ecfr.gov/current/title-12/part-701/section-701.4"
+      },
+      {
+       "text": "12 CFR Part 748 Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "BC-02",
+     "title": "Risk Assessment (Hazards by Region)",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/business-continuity-plan/business-continuity-plan.md#bc-02-risk-assessment-hazards-by-region",
+     "citations": [
+      {
+       "text": "12 CFR Part 749 Appendix B",
+       "url": "https://www.ecfr.gov/current/title-12/part-749"
+      }
+     ]
+    },
+    {
+     "id": "BC-03",
+     "title": "Business Impact Analysis (BIA)",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/business-continuity-plan/business-continuity-plan.md#bc-03-business-impact-analysis",
+     "citations": [
+      {
+       "text": "12 CFR Part 748 Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "12 CFR Part 749",
+       "url": "https://www.ecfr.gov/current/title-12/part-749"
+      }
+     ]
+    },
+    {
+     "id": "BC-04",
+     "title": "Training, Testing, and Exercises",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/business-continuity-plan/business-continuity-plan.md#bc-04-training-testing-and-exercises",
+     "citations": [
+      {
+       "text": "12 CFR Part 748 Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "BC-05",
+     "title": "Monitoring, Detection, and Severity",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/business-continuity-plan/business-continuity-plan.md#bc-05-monitoring-detection-and-severity",
+     "citations": [
+      {
+       "text": "12 CFR Part 748 Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "BC-06",
+     "title": "Incident Declaration and Initial Actions",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/business-continuity-plan/business-continuity-plan.md#bc-06-incident-declaration-and-initial-actions",
+     "citations": [
+      {
+       "text": "12 CFR Part 748 Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "BC-07",
+     "title": "Data Backup, Restore, and RTO/RPO",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/business-continuity-plan/business-continuity-plan.md#bc-07-data-backup-restore-and-rtorpo",
+     "citations": [
+      {
+       "text": "12 CFR Part 749",
+       "url": "https://www.ecfr.gov/current/title-12/part-749"
+      },
+      {
+       "text": "12 CFR Part 748 Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "BC-08",
+     "title": "Alternate Site and Remote Operations",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/business-continuity-plan/business-continuity-plan.md#bc-08-alternate-site-and-remote-operations",
+     "citations": [
+      {
+       "text": "12 CFR Part 748 Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "BC-09",
+     "title": "Major IT Failure Response",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/business-continuity-plan/business-continuity-plan.md#bc-09-major-it-failure-response",
+     "citations": [
+      {
+       "text": "12 CFR Part 748 Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "SC-01",
+     "title": "NCUA Reportable Cyber-Incident & Member Notification",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/business-continuity-plan/business-continuity-plan.md#sc-01-ncua-reportable-cyber-incident-member-notification",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748 \u00a7748.1(c)",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix B",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "BC-15",
+     "title": "Security/Privacy Incident Containment, Legal Consult & Vendor Coordination",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/business-continuity-plan/business-continuity-plan.md#bc-15-security-privacy-incident-containment-legal-consult-vendor-coordination",
+     "citations": [
+      {
+       "text": "12 CFR Part 748 Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "SC-01",
+       "url": "#sc-01-ncua-reportable-cyber-incident-member-notification"
+      }
+     ]
+    },
+    {
+     "id": "BC-11",
+     "title": "Communications and Notification Tree",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/business-continuity-plan/business-continuity-plan.md#bc-11-communications-and-notification-tree",
+     "citations": [
+      {
+       "text": "12 CFR Part 748 Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "BC-12",
+     "title": "People Continuity and Pandemic",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/business-continuity-plan/business-continuity-plan.md#bc-12-people-continuity-and-pandemic",
+     "citations": [
+      {
+       "text": "12 CFR Part 748 Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "BC-13",
+     "title": "Post-Incident Review (PIR)",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/business-continuity-plan/business-continuity-plan.md#bc-13-post-incident-review",
+     "citations": [
+      {
+       "text": "12 CFR Part 748 Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "BC-14",
+     "title": "Vendor Contingency Management",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/business-continuity-plan/business-continuity-plan.md#bc-14-vendor-contingency-management",
+     "citations": [
+      {
+       "text": "12 CFR Part 748 Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "12 CFR Part 749",
+       "url": "https://www.ecfr.gov/current/title-12/part-749"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "capitalization",
+   "title": "Capitalization",
+   "controls": [
+    {
+     "id": "CP-01",
+     "title": "Capital Adequacy Targets",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/capitalization/capitalization.md#cp-01-capital-adequacy-targets",
+     "citations": [
+      {
+       "text": "12 CFR Part 702",
+       "url": "https://www.ecfr.gov/current/title-12/part-702"
+      },
+      {
+       "text": "\u00a7 702.102",
+       "url": "https://www.ecfr.gov/current/title-12/part-702/section-702.102"
+      },
+      {
+       "text": "CP-03",
+       "url": "#cp-03-pca-thresholds-and-internal-triggers"
+      },
+      {
+       "text": "CP-04",
+       "url": "#cp-04-capital-conservation-buffer"
+      }
+     ]
+    },
+    {
+     "id": "CP-02",
+     "title": "Capital Components and Measurement",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/capitalization/capitalization.md#cp-02-capital-components-and-measurement",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7 702.2",
+       "url": "https://www.ecfr.gov/current/title-12/part-702/section-702.2"
+      },
+      {
+       "text": "12 CFR \u00a7 702.2",
+       "url": "https://www.ecfr.gov/current/title-12/part-702/section-702.2"
+      }
+     ]
+    },
+    {
+     "id": "CP-03",
+     "title": "PCA Thresholds and Internal Triggers",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/capitalization/capitalization.md#cp-03-pca-thresholds-and-internal-triggers",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7 702.102",
+       "url": "https://www.ecfr.gov/current/title-12/part-702/section-702.102"
+      }
+     ]
+    },
+    {
+     "id": "CP-04",
+     "title": "Capital Conservation Buffer",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/capitalization/capitalization.md#cp-04-capital-conservation-buffer",
+     "citations": []
+    },
+    {
+     "id": "CP-05",
+     "title": "Capital Planning",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/capitalization/capitalization.md#cp-05-capital-planning",
+     "citations": [
+      {
+       "text": "12 CFR Part 702",
+       "url": "https://www.ecfr.gov/current/title-12/part-702"
+      }
+     ]
+    },
+    {
+     "id": "CP-06",
+     "title": "Capital Stress Testing",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/capitalization/capitalization.md#cp-06-capital-stress-testing",
+     "citations": [
+      {
+       "text": "12 CFR Part 702",
+       "url": "https://www.ecfr.gov/current/title-12/part-702"
+      }
+     ]
+    },
+    {
+     "id": "CP-07",
+     "title": "Quarterly Monitoring and Reporting",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/capitalization/capitalization.md#cp-07-quarterly-monitoring-and-reporting",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7 702.102",
+       "url": "https://www.ecfr.gov/current/title-12/part-702/section-702.102"
+      }
+     ]
+    },
+    {
+     "id": "CP-08",
+     "title": "Contingency Actions and Escalation",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/capitalization/capitalization.md#cp-08-contingency-actions-and-escalation",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7 702.111",
+       "url": "https://www.ecfr.gov/current/title-12/part-702/section-702.111"
+      }
+     ]
+    },
+    {
+     "id": "CP-09",
+     "title": "Capital Actions Governance",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/capitalization/capitalization.md#cp-09-capital-actions-governance",
+     "citations": [
+      {
+       "text": "12 CFR Part 702 Subpart D",
+       "url": "https://www.ecfr.gov/current/title-12/part-702/subpart-D"
+      },
+      {
+       "text": "CP-04",
+       "url": "#cp-04-capital-conservation-buffer"
+      }
+     ]
+    },
+    {
+     "id": "CP-10",
+     "title": "Internal Capital Adequacy Assessment (ICAAP)",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/capitalization/capitalization.md#cp-10-internal-capital-adequacy-assessment-icaap",
+     "citations": [
+      {
+       "text": "12 CFR Part 702",
+       "url": "https://www.ecfr.gov/current/title-12/part-702"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "cash",
+   "title": "Cash Operations",
+   "controls": [
+    {
+     "id": "CP-01",
+     "title": "Governance and Delegation",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/cash/cash.md#cp-01-governance-and-delegation",
+     "citations": [
+      {
+       "text": "Federal Credit Union Act (12 U.S.C. \u00a7\u00a7 1751\u20131795k)",
+       "url": "https://www.law.cornell.edu/uscode/text/12/chapter-14"
+      },
+      {
+       "text": "12 CFR Part 749",
+       "url": "https://www.ecfr.gov/current/title-12/part-749"
+      },
+      {
+       "text": "31 CFR \u00a7 1020.210",
+       "url": "https://www.ecfr.gov/current/title-31/section-1020.210"
+      }
+     ]
+    },
+    {
+     "id": "CP-02",
+     "title": "Scope and Applicability",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/cash/cash.md#cp-02-scope-and-applicability",
+     "citations": [
+      {
+       "text": "12 U.S.C. \u00a7 1761b",
+       "url": "https://www.law.cornell.edu/uscode/text/12/1761b"
+      },
+      {
+       "text": "12 CFR \u00a7 748.1",
+       "url": "https://www.ecfr.gov/current/title-12/section-748.1"
+      },
+      {
+       "text": "12 CFR Part 749",
+       "url": "https://www.ecfr.gov/current/title-12/part-749"
+      }
+     ]
+    },
+    {
+     "id": "CP-03",
+     "title": "Enterprise Cash Limit",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/cash/cash.md#cp-03-enterprise-cash-limit",
+     "citations": [
+      {
+       "text": "12 U.S.C. \u00a7\u00a7 1757, 1761b",
+       "url": "https://www.law.cornell.edu/uscode/text/12/1757"
+      },
+      {
+       "text": "12 CFR Part 713",
+       "url": "https://www.ecfr.gov/current/title-12/part-713"
+      }
+     ]
+    },
+    {
+     "id": "CP-04",
+     "title": "Location and Device Cash Limits",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/cash/cash.md#cp-04-location-and-device-cash-limits",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7 748.1",
+       "url": "https://www.ecfr.gov/current/title-12/section-748.1"
+      },
+      {
+       "text": "12 CFR Part 713",
+       "url": "https://www.ecfr.gov/current/title-12/part-713"
+      }
+     ]
+    },
+    {
+     "id": "CP-05",
+     "title": "Dual Control, Keys, and Combinations",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/cash/cash.md#cp-05-dual-control-keys-and-combinations",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7 748.1",
+       "url": "https://www.ecfr.gov/current/title-12/section-748.1"
+      },
+      {
+       "text": "12 CFR Part 713",
+       "url": "https://www.ecfr.gov/current/title-12/part-713"
+      }
+     ]
+    },
+    {
+     "id": "CP-06",
+     "title": "Reconciliation and GL Controls",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/cash/cash.md#cp-06-reconciliation-and-gl-controls",
+     "citations": [
+      {
+       "text": "12 CFR Part 749",
+       "url": "https://www.ecfr.gov/current/title-12/part-749"
+      },
+      {
+       "text": "12 CFR \u00a7 748.1",
+       "url": "https://www.ecfr.gov/current/title-12/section-748.1"
+      }
+     ]
+    },
+    {
+     "id": "CP-07",
+     "title": "Over/Short Monitoring",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/cash/cash.md#cp-07-overshort-monitoring",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7 748.1",
+       "url": "https://www.ecfr.gov/current/title-12/section-748.1"
+      },
+      {
+       "text": "31 CFR \u00a7 1020.210",
+       "url": "https://www.ecfr.gov/current/title-31/section-1020.210"
+      }
+     ]
+    },
+    {
+     "id": "CP-08",
+     "title": "ATM/ITM, Night-Drop, and Shipments",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/cash/cash.md#cp-08-atmitm-night-drop-and-shipments",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7 748.1",
+       "url": "https://www.ecfr.gov/current/title-12/section-748.1"
+      },
+      {
+       "text": "31 U.S.C. \u00a7 5316",
+       "url": "https://www.law.cornell.edu/uscode/text/31/5316"
+      },
+      {
+       "text": "31 CFR \u00a7 1010.340",
+       "url": "https://www.ecfr.gov/current/title-31/section-1010.340"
+      },
+      {
+       "text": "12 CFR Part 749",
+       "url": "https://www.ecfr.gov/current/title-12/part-749"
+      }
+     ]
+    },
+    {
+     "id": "CP-09",
+     "title": "Surprise Cash Counts and Audits",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/cash/cash.md#cp-09-surprise-cash-counts-and-audits",
+     "citations": [
+      {
+       "text": "12 CFR Part 715",
+       "url": "https://www.ecfr.gov/current/title-12/part-715"
+      },
+      {
+       "text": "12 CFR \u00a7 748.1",
+       "url": "https://www.ecfr.gov/current/title-12/section-748.1"
+      },
+      {
+       "text": "31 CFR \u00a7 1020.210",
+       "url": "https://www.ecfr.gov/current/title-31/section-1020.210"
+      }
+     ]
+    },
+    {
+     "id": "CP-10",
+     "title": "Seasonal Deviations and Exceptions",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/cash/cash.md#cp-10-seasonal-deviations-and-exceptions",
+     "citations": [
+      {
+       "text": "12 CFR Part 713",
+       "url": "https://www.ecfr.gov/current/title-12/part-713"
+      },
+      {
+       "text": "12 U.S.C. \u00a7\u00a7 1757, 1761b",
+       "url": "https://www.law.cornell.edu/uscode/text/12/1757"
+      }
+     ]
+    },
+    {
+     "id": "CP-11",
+     "title": "Training and Competency",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/cash/cash.md#cp-11-training-and-competency",
+     "citations": [
+      {
+       "text": "31 CFR \u00a7 1020.210(a)(4)",
+       "url": "https://www.ecfr.gov/current/title-31/section-1020.210"
+      },
+      {
+       "text": "12 CFR \u00a7 748.1",
+       "url": "https://www.ecfr.gov/current/title-12/section-748.1"
+      },
+      {
+       "text": "12 CFR Part 715",
+       "url": "https://www.ecfr.gov/current/title-12/part-715"
+      }
+     ]
+    },
+    {
+     "id": "CP-12",
+     "title": "Monitoring, Reporting, and Recordkeeping",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/cash/cash.md#cp-12-monitoring-reporting-and-recordkeeping",
+     "citations": [
+      {
+       "text": "12 CFR Part 749",
+       "url": "https://www.ecfr.gov/current/title-12/part-749"
+      },
+      {
+       "text": "31 CFR \u00a7 1020.210",
+       "url": "https://www.ecfr.gov/current/title-31/section-1020.210"
+      },
+      {
+       "text": "12 CFR Part 715",
+       "url": "https://www.ecfr.gov/current/title-12/part-715"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "charitable-donation-accounts",
+   "title": "Charitable Donation Accounts Policy (Table-First, Design-Overlay v2)",
+   "controls": [
+    {
+     "id": "CDA-01",
+     "title": "Governance & Board Oversight",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/charitable-donation-accounts/charitable-donation-accounts.md#cda-01-governance-board-oversight",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7721.3(b)(2)",
+       "url": "https://www.ecfr.gov/current/title-12/part-721#p-721.3(b"
+      }
+     ]
+    },
+    {
+     "id": "CDA-02",
+     "title": "Definitions & Central Glossary",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/charitable-donation-accounts/charitable-donation-accounts.md#cda-02-definitions-central-glossary",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7721.3(b)(2)",
+       "url": "https://www.ecfr.gov/current/title-12/part-721#p-721.3(b"
+      }
+     ]
+    },
+    {
+     "id": "CDA-03",
+     "title": "Structure & Segregation",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/charitable-donation-accounts/charitable-donation-accounts.md#cda-03-structure-segregation",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7721.3(b)(2)",
+       "url": "https://www.ecfr.gov/current/title-12/part-721#p-721.3(b"
+      }
+     ]
+    },
+    {
+     "id": "CDA-04",
+     "title": "Trustee & Manager Qualification",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/charitable-donation-accounts/charitable-donation-accounts.md#cda-04-trustee-manager-qualification",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7721.3(b)(2)",
+       "url": "https://www.ecfr.gov/current/title-12/part-721#p-721.3(b"
+      }
+     ]
+    },
+    {
+     "id": "CDA-05",
+     "title": "Written Agreement (Required Clauses A\u2013D)",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/charitable-donation-accounts/charitable-donation-accounts.md#cda-05-written-agreement-required-clauses",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7721.3(b)(2)",
+       "url": "https://www.ecfr.gov/current/title-12/part-721#p-721.3(b"
+      }
+     ]
+    },
+    {
+     "id": "CDA-06",
+     "title": "Funding Cap (Monitoring & Cure)",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/charitable-donation-accounts/charitable-donation-accounts.md#cda-06-funding-cap-monitoring-cure",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7721.3(b)(2)",
+       "url": "https://www.ecfr.gov/current/title-12/part-721#p-721.3(b"
+      }
+     ]
+    },
+    {
+     "id": "CDA-07",
+     "title": "Investment Strategy & Risk Limits",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/charitable-donation-accounts/charitable-donation-accounts.md#cda-07-investment-strategy-risk-limits",
+     "citations": [
+      {
+       "text": "12 CFR Part 703",
+       "url": "https://www.ecfr.gov/current/title-12/part-703"
+      },
+      {
+       "text": "12 CFR \u00a7721.3(b)(2)",
+       "url": "https://www.ecfr.gov/current/title-12/part-721#p-721.3(b"
+      }
+     ]
+    },
+    {
+     "id": "CDA-08",
+     "title": "Charity Eligibility & Giving Rules",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/charitable-donation-accounts/charitable-donation-accounts.md#cda-08-charity-eligibility-giving-rules",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7721.3(b)(2)",
+       "url": "https://www.ecfr.gov/current/title-12/part-721#p-721.3(b"
+      },
+      {
+       "text": "26 U.S.C. \u00a7501(c)(3)",
+       "url": "https://www.law.cornell.edu/uscode/text/26/501"
+      }
+     ]
+    },
+    {
+     "id": "CDA-09",
+     "title": "Accounting, Reporting & Records",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/charitable-donation-accounts/charitable-donation-accounts.md#cda-09-accounting-reporting-records",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7721.3(b)(2)",
+       "url": "https://www.ecfr.gov/current/title-12/part-721#p-721.3(b"
+      }
+     ]
+    },
+    {
+     "id": "CDA-10",
+     "title": "Third-Party Risk Management",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/charitable-donation-accounts/charitable-donation-accounts.md#cda-10-third-party-risk-management",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7721.3(b)(2)",
+       "url": "https://www.ecfr.gov/current/title-12/part-721#p-721.3(b"
+      }
+     ]
+    },
+    {
+     "id": "CDA-11",
+     "title": "Internal Controls & Testing",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/charitable-donation-accounts/charitable-donation-accounts.md#cda-11-internal-controls-testing",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7721.3(b)(2)",
+       "url": "https://www.ecfr.gov/current/title-12/part-721#p-721.3(b"
+      }
+     ]
+    },
+    {
+     "id": "CDA-12",
+     "title": "Termination",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/charitable-donation-accounts/charitable-donation-accounts.md#cda-12-termination",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7721.3(b)(2)",
+       "url": "https://www.ecfr.gov/current/title-12/part-721#p-721.3(b"
+      },
+      {
+       "text": "12 CFR Part 703",
+       "url": "https://www.ecfr.gov/current/title-12/part-703"
+      }
+     ]
+    },
+    {
+     "id": "CDA-13",
+     "title": "Conflicts & Affiliate Fees",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/charitable-donation-accounts/charitable-donation-accounts.md#cda-13-conflicts-affiliate-fees",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7721.3(b)(2)",
+       "url": "https://www.ecfr.gov/current/title-12/part-721#p-721.3(b"
+      }
+     ]
+    },
+    {
+     "id": "CDA-14",
+     "title": "Communications & Accessibility",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/charitable-donation-accounts/charitable-donation-accounts.md#cda-14-communications-accessibility",
+     "citations": [
+      {
+       "text": "28 CFR Part 36",
+       "url": "https://www.ecfr.gov/current/title-28/part-36"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "collections",
+   "title": "Collections",
+   "controls": [
+    {
+     "id": "CO-01",
+     "title": "Collections Governance & Scope",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/collections/collections.md#co-01-collections-governance-and-scope",
+     "citations": [
+      {
+       "text": "Dodd-Frank \u00a7\u00a7 1031 & 1036 (12 U.S.C. 5531, 5536)",
+       "url": "https://www.law.cornell.edu/uscode/text/12/5531"
+      }
+     ]
+    },
+    {
+     "id": "CO-02",
+     "title": "Delinquency Monitoring & Early-Stage Collections",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/collections/collections.md#co-02-delinquency-monitoring-and-early-stage-collections",
+     "citations": [
+      {
+       "text": "FDCPA/Reg F (12 CFR Part 1006)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1006"
+      }
+     ]
+    },
+    {
+     "id": "CO-03",
+     "title": "Retail Credit Classification & Charge-Offs",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/collections/collections.md#co-03-retail-credit-classification-and-charge-offs",
+     "citations": [
+      {
+       "text": "FFIEC Uniform Retail Credit Classification and Account Management Policy",
+       "url": "https://www.ffiec.gov/press/pr062000.htm"
+      }
+     ]
+    },
+    {
+     "id": "CO-04",
+     "title": "Forbearance, Extensions, Workouts & TDRs",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/collections/collections.md#co-04-forbearance-extensions-workouts-and-tdrs",
+     "citations": [
+      {
+       "text": "Dodd-Frank \u00a7\u00a7 1031 & 1036 (12 U.S.C. 5531, 5536)",
+       "url": "https://www.law.cornell.edu/uscode/text/12/5531"
+      }
+     ]
+    },
+    {
+     "id": "CO-05",
+     "title": "Consumer Protection in Collections Communications",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/collections/collections.md#co-05-consumer-protection-in-collections-communications",
+     "citations": [
+      {
+       "text": "FDCPA/Reg F (12 CFR Part 1006)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1006"
+      },
+      {
+       "text": "Dodd-Frank \u00a7\u00a7 1031 & 1036 (12 U.S.C. 5531, 5536)",
+       "url": "https://www.law.cornell.edu/uscode/text/12/5531"
+      }
+     ]
+    },
+    {
+     "id": "CO-06",
+     "title": "Consumer Complaint Intake & Resolution",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/collections/collections.md#co-06-consumer-complaint-intake-and-resolution",
+     "citations": [
+      {
+       "text": "Dodd-Frank \u00a7\u00a7 1031 & 1036 (12 U.S.C. 5531, 5536)",
+       "url": "https://www.law.cornell.edu/uscode/text/12/5531"
+      },
+      {
+       "text": "FDCPA/Reg F (12 CFR Part 1006)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1006"
+      }
+     ]
+    },
+    {
+     "id": "CO-07",
+     "title": "Credit Reporting & Dispute Handling",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/collections/collections.md#co-07-credit-reporting-and-dispute-handling",
+     "citations": [
+      {
+       "text": "FCRA/Reg V (12 CFR Part 1022)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1022"
+      },
+      {
+       "text": "15 U.S.C. 1681c-2",
+       "url": "https://www.law.cornell.edu/uscode/text/15/1681c-2"
+      }
+     ]
+    },
+    {
+     "id": "SC-01",
+     "title": "NCUA Reportable Cyber-Incident & Member Notification",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/collections/collections.md#sc-01-ncua-reportable-cyber-incident-member-notification",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748 \u00a7748.1(c)",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix B",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "CO-11",
+     "title": "Collections-Data Incident Logging & Triage",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/collections/collections.md#co-11-collections-data-incident-logging-and-triage",
+     "citations": [
+      {
+       "text": "NCUA Part 748 (12 CFR Part 748)",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "SC-01",
+       "url": "#sc-01-ncua-reportable-cyber-incident-member-notification"
+      }
+     ]
+    },
+    {
+     "id": "CO-09",
+     "title": "Problem Loans, Nonaccrual & Foreclosure Governance",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/collections/collections.md#co-09-problem-loans-nonaccrual-and-foreclosure-governance",
+     "citations": []
+    },
+    {
+     "id": "CO-10",
+     "title": "Overdraft Collections and Fee Waiver Practices",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/collections/collections.md#co-10-overdraft-collections-and-fee-waiver-practices",
+     "citations": [
+      {
+       "text": "Dodd-Frank \u00a7\u00a7 1031 & 1036 (12 U.S.C. 5531, 5536)",
+       "url": "https://www.law.cornell.edu/uscode/text/12/5531"
+      },
+      {
+       "text": "FDCPA/Reg F (12 CFR Part 1006)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1006"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "compliance",
+   "title": "Compliance Program",
+   "controls": [
+    {
+     "id": "CM-01",
+     "title": "Governance and Board Reporting Line",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/compliance/compliance.md#cm-01-governance-and-board-reporting-line",
+     "citations": [
+      {
+       "text": "12 CFR Part 701",
+       "url": "https://www.ecfr.gov/current/title-12/part-701"
+      }
+     ]
+    },
+    {
+     "id": "CM-02",
+     "title": "Scope of Applicable Laws",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/compliance/compliance.md#cm-02-scope-of-applicable-laws",
+     "citations": [
+      {
+       "text": "12 CFR Part 701",
+       "url": "https://www.ecfr.gov/current/title-12/part-701"
+      },
+      {
+       "text": "ECOA/Reg B (12 CFR Part 1002)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002"
+      },
+      {
+       "text": "TILA/Reg Z (12 CFR Part 1026)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1026"
+      },
+      {
+       "text": "HMDA/Reg C (12 CFR Part 1003)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1003"
+      },
+      {
+       "text": "RESPA/Reg X (12 CFR Part 1024)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1024"
+      },
+      {
+       "text": "EFTA/Reg E (12 CFR Part 1005)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1005"
+      },
+      {
+       "text": "TISA/Reg DD (12 CFR Part 1030)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1030"
+      },
+      {
+       "text": "Reg CC (12 CFR Part 229)",
+       "url": "https://www.ecfr.gov/current/title-12/part-229"
+      },
+      {
+       "text": "FCRA/Reg V (12 CFR Part 1022)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1022"
+      },
+      {
+       "text": "FDCPA/Reg F (12 CFR Part 1006)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1006"
+      },
+      {
+       "text": "GLBA/Reg P (12 CFR Part 1016)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1016"
+      },
+      {
+       "text": "BSA (31 CFR Chapter X)",
+       "url": "https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X"
+      },
+      {
+       "text": "MLA (32 CFR Part 232)",
+       "url": "https://www.ecfr.gov/current/title-32/part-232"
+      },
+      {
+       "text": "SCRA (50 U.S.C. \u00a7\u00a7 3901\u20134043)",
+       "url": "https://www.law.cornell.edu/uscode/text/50/chapter-50"
+      },
+      {
+       "text": "Fair Housing Act (42 U.S.C. \u00a7 3605)",
+       "url": "https://www.law.cornell.edu/uscode/text/42/3605"
+      },
+      {
+       "text": "UDAAP (Dodd-Frank \u00a7\u00a7 1031\u20131036)",
+       "url": "https://www.law.cornell.edu/uscode/text/12/5531"
+      },
+      {
+       "text": "SAFE Act (12 CFR Part 1007)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1007"
+      }
+     ]
+    },
+    {
+     "id": "CM-03",
+     "title": "Roles and Responsibilities",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/compliance/compliance.md#cm-03-roles-and-responsibilities",
+     "citations": [
+      {
+       "text": "12 CFR Part 701",
+       "url": "https://www.ecfr.gov/current/title-12/part-701"
+      }
+     ]
+    },
+    {
+     "id": "CM-04",
+     "title": "Compliance Risk Assessment",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/compliance/compliance.md#cm-04-compliance-risk-assessment",
+     "citations": [
+      {
+       "text": "12 CFR Part 701",
+       "url": "https://www.ecfr.gov/current/title-12/part-701"
+      }
+     ]
+    },
+    {
+     "id": "CM-05",
+     "title": "Training Standards",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/compliance/compliance.md#cm-05-training-standards",
+     "citations": [
+      {
+       "text": "12 CFR Part 701",
+       "url": "https://www.ecfr.gov/current/title-12/part-701"
+      },
+      {
+       "text": "ECOA/Reg B (12 CFR Part 1002)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002"
+      },
+      {
+       "text": "TILA/Reg Z (12 CFR Part 1026)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1026"
+      },
+      {
+       "text": "BSA (31 CFR Chapter X)",
+       "url": "https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X"
+      },
+      {
+       "text": "FCRA/Reg V (12 CFR Part 1022)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1022"
+      },
+      {
+       "text": "MLA (32 CFR Part 232)",
+       "url": "https://www.ecfr.gov/current/title-32/part-232"
+      }
+     ]
+    },
+    {
+     "id": "CM-06",
+     "title": "Monitoring and Assurance Reviews",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/compliance/compliance.md#cm-06-monitoring-and-assurance-reviews",
+     "citations": [
+      {
+       "text": "12 CFR Part 701",
+       "url": "https://www.ecfr.gov/current/title-12/part-701"
+      }
+     ]
+    },
+    {
+     "id": "CM-07",
+     "title": "Independent Audit",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/compliance/compliance.md#cm-07-independent-audit",
+     "citations": [
+      {
+       "text": "12 CFR Part 701",
+       "url": "https://www.ecfr.gov/current/title-12/part-701"
+      }
+     ]
+    },
+    {
+     "id": "CM-08",
+     "title": "Regulatory Change and Complaint Management",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/compliance/compliance.md#cm-08-regulatory-change-and-complaint-management",
+     "citations": [
+      {
+       "text": "12 CFR Part 701",
+       "url": "https://www.ecfr.gov/current/title-12/part-701"
+      },
+      {
+       "text": "UDAAP (Dodd-Frank \u00a7\u00a7 1031\u20131036)",
+       "url": "https://www.law.cornell.edu/uscode/text/12/5531"
+      },
+      {
+       "text": "ECOA/Reg B (12 CFR Part 1002)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002"
+      }
+     ]
+    },
+    {
+     "id": "CM-09",
+     "title": "Policy and CMS Review Cadence",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/compliance/compliance.md#cm-09-policy-and-cms-review-cadence",
+     "citations": [
+      {
+       "text": "12 CFR Part 701",
+       "url": "https://www.ecfr.gov/current/title-12/part-701"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "director-fiduciary-duties",
+   "title": "Director Fiduciary Duties",
+   "controls": [
+    {
+     "id": "DF-01",
+     "title": "Fiduciary Duties Defined",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/director-fiduciary-duties/director-fiduciary-duties.md#df-01-fiduciary-duties-defined",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7701.4",
+       "url": "https://www.ecfr.gov/current/title-12/part-701/section-701.4"
+      }
+     ]
+    },
+    {
+     "id": "DF-02",
+     "title": "Conflict Identification and General Duties",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/director-fiduciary-duties/director-fiduciary-duties.md#df-02-conflict-identification-and-general-duties",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7563.200",
+       "url": "https://www.ecfr.gov/current/title-12/part-563/section-563.200"
+      },
+      {
+       "text": "12 CFR \u00a7701.4",
+       "url": "https://www.ecfr.gov/current/title-12/part-701/section-701.4"
+      }
+     ]
+    },
+    {
+     "id": "DF-03",
+     "title": "Annual and Continuing Disclosure",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/director-fiduciary-duties/director-fiduciary-duties.md#df-03-annual-and-continuing-disclosure",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7701.4",
+       "url": "https://www.ecfr.gov/current/title-12/part-701/section-701.4"
+      },
+      {
+       "text": "12 CFR \u00a7563.200",
+       "url": "https://www.ecfr.gov/current/title-12/part-563/section-563.200"
+      },
+      {
+       "text": "12 CFR \u00a7215.8",
+       "url": "https://www.ecfr.gov/current/title-12/part-215/section-215.8"
+      }
+     ]
+    },
+    {
+     "id": "DF-04",
+     "title": "Conflict Management, Recusal, and Board Determination",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/director-fiduciary-duties/director-fiduciary-duties.md#df-04-conflict-management-recusal-and-board-determination",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7563.200",
+       "url": "https://www.ecfr.gov/current/title-12/part-563/section-563.200"
+      },
+      {
+       "text": "12 CFR \u00a7701.4",
+       "url": "https://www.ecfr.gov/current/title-12/part-701/section-701.4"
+      }
+     ]
+    },
+    {
+     "id": "DF-05",
+     "title": "Insider Transactions (Reg O / 12 CFR \u00a7701.21(d))",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/director-fiduciary-duties/director-fiduciary-duties.md#df-05-insider-transactions-reg-o--12-cfr-70121d",
+     "citations": [
+      {
+       "text": "12 CFR Part 215",
+       "url": "https://www.ecfr.gov/current/title-12/part-215"
+      },
+      {
+       "text": "\u00a7215.4(a)",
+       "url": "https://www.ecfr.gov/current/title-12/part-215/section-215.4"
+      },
+      {
+       "text": "\u00a7215.4(b)",
+       "url": "https://www.ecfr.gov/current/title-12/part-215/section-215.4"
+      },
+      {
+       "text": "\u00a7215.4(c)",
+       "url": "https://www.ecfr.gov/current/title-12/part-215/section-215.4"
+      },
+      {
+       "text": "\u00a7215.4(d)",
+       "url": "https://www.ecfr.gov/current/title-12/part-215/section-215.4"
+      },
+      {
+       "text": "\u00a7215.4(b)",
+       "url": "https://www.ecfr.gov/current/title-12/part-215/section-215.4"
+      },
+      {
+       "text": "12 CFR \u00a7701.21(d)",
+       "url": "https://www.ecfr.gov/current/title-12/part-701/section-701.21"
+      },
+      {
+       "text": "\u00a7215.6",
+       "url": "https://www.ecfr.gov/current/title-12/part-215/section-215.6"
+      }
+     ]
+    },
+    {
+     "id": "DF-06",
+     "title": "Transactions with Affiliates (Reg W)",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/director-fiduciary-duties/director-fiduciary-duties.md#df-06-transactions-with-affiliates-reg-w",
+     "citations": [
+      {
+       "text": "12 U.S.C. \u00a7\u00a7 371c",
+       "url": "https://www.law.cornell.edu/uscode/text/12/371c"
+      },
+      {
+       "text": "371c-1",
+       "url": "https://www.law.cornell.edu/uscode/text/12/371c-1"
+      },
+      {
+       "text": "12 CFR Part 223",
+       "url": "https://www.ecfr.gov/current/title-12/part-223"
+      }
+     ]
+    },
+    {
+     "id": "DF-07",
+     "title": "Bank Bribery, Gifts, and Kickbacks",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/director-fiduciary-duties/director-fiduciary-duties.md#df-07-bank-bribery-gifts-and-kickbacks",
+     "citations": [
+      {
+       "text": "18 U.S.C. \u00a7 215",
+       "url": "https://www.law.cornell.edu/uscode/text/18/215"
+      }
+     ]
+    },
+    {
+     "id": "DF-08",
+     "title": "Corporate Opportunity and Tie-Ins",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/director-fiduciary-duties/director-fiduciary-duties.md#df-08-corporate-opportunity-and-tie-ins",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7563.201",
+       "url": "https://www.ecfr.gov/current/title-12/part-563/section-563.201"
+      },
+      {
+       "text": "12 U.S.C. \u00a7 1464(q)",
+       "url": "https://www.law.cornell.edu/uscode/text/12/1464"
+      },
+      {
+       "text": "12 U.S.C. \u00a7 2608",
+       "url": "https://www.law.cornell.edu/uscode/text/12/2608"
+      }
+     ]
+    },
+    {
+     "id": "DF-09",
+     "title": "Recordkeeping and Reporting",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/director-fiduciary-duties/director-fiduciary-duties.md#df-09-recordkeeping-and-reporting",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7215.8",
+       "url": "https://www.ecfr.gov/current/title-12/part-215/section-215.8"
+      },
+      {
+       "text": "12 CFR \u00a7\u00a7 215.11 and 215.23",
+       "url": "https://www.ecfr.gov/current/title-12/part-215/section-215.11"
+      },
+      {
+       "text": "12 CFR \u00a7223",
+       "url": "https://www.ecfr.gov/current/title-12/part-223"
+      }
+     ]
+    },
+    {
+     "id": "DF-10",
+     "title": "Training, Acknowledgment, and Enforcement",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/director-fiduciary-duties/director-fiduciary-duties.md#df-10-training-acknowledgment-and-enforcement",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7701.4",
+       "url": "https://www.ecfr.gov/current/title-12/part-701/section-701.4"
+      },
+      {
+       "text": "18 U.S.C. \u00a7 215",
+       "url": "https://www.law.cornell.edu/uscode/text/18/215"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "e-commerce",
+   "title": "E-Commerce",
+   "controls": [
+    {
+     "id": "EC-01",
+     "title": "Safeguarding Member Information",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/e-commerce/e-commerce.md#ec-01-safeguarding-member-information",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748 and Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "GLBA 15 USC \u00a7\u00a76801\u20136809",
+       "url": "https://www.law.cornell.edu/uscode/text/15/6801"
+      }
+     ]
+    },
+    {
+     "id": "EC-02",
+     "title": "Network and Data Access Controls",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/e-commerce/e-commerce.md#ec-02-network-and-data-access-controls",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A \u00a7III",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "FFIEC IT Examination Handbook (Information Security booklet)",
+       "url": "https://www.ffiec.gov/press/pdf/FFIEC_IT_Booklet_InformationSecurity.pdf"
+      }
+     ]
+    },
+    {
+     "id": "EC-03",
+     "title": "User Authentication and Enrollment",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/e-commerce/e-commerce.md#ec-03-user-authentication-and-enrollment",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "FFIEC Authentication Guidance (2021 update)",
+       "url": "https://www.ffiec.gov/press/pdf/Authentication-and-Access-to-Financial-Institution-Services-and-Systems.pdf"
+      },
+      {
+       "text": "GLBA 15 USC \u00a76801",
+       "url": "https://www.law.cornell.edu/uscode/text/15/6801"
+      }
+     ]
+    },
+    {
+     "id": "EC-04",
+     "title": "Member Password Standards",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/e-commerce/e-commerce.md#ec-04-member-password-standards",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A \u00a7III.C",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "FFIEC Authentication Guidance (2021)",
+       "url": "https://www.ffiec.gov/press/pdf/Authentication-and-Access-to-Financial-Institution-Services-and-Systems.pdf"
+      }
+     ]
+    },
+    {
+     "id": "EC-05",
+     "title": "Firewalls",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/e-commerce/e-commerce.md#ec-05-firewalls",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A \u00a7III.B",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "FFIEC IT Examination Handbook (Information Security booklet)",
+       "url": "https://www.ffiec.gov/press/pdf/FFIEC_IT_Booklet_InformationSecurity.pdf"
+      }
+     ]
+    },
+    {
+     "id": "EC-06",
+     "title": "Encryption",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/e-commerce/e-commerce.md#ec-06-encryption",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A \u00a7III.D",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "GLBA 15 USC \u00a76801",
+       "url": "https://www.law.cornell.edu/uscode/text/15/6801"
+      },
+      {
+       "text": "FFIEC Information Security booklet",
+       "url": "https://www.ffiec.gov/press/pdf/FFIEC_IT_Booklet_InformationSecurity.pdf"
+      }
+     ]
+    },
+    {
+     "id": "EC-07",
+     "title": "Transaction Verification",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/e-commerce/e-commerce.md#ec-07-transaction-verification",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "E-SIGN Act (15 USC \u00a77001 et seq.)",
+       "url": "https://www.law.cornell.edu/uscode/text/15/7001"
+      }
+     ]
+    },
+    {
+     "id": "EC-08",
+     "title": "Virus Protection",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/e-commerce/e-commerce.md#ec-08-virus-protection",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A \u00a7III.B",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "FFIEC Information Security booklet",
+       "url": "https://www.ffiec.gov/press/pdf/FFIEC_IT_Booklet_InformationSecurity.pdf"
+      }
+     ]
+    },
+    {
+     "id": "EC-09",
+     "title": "Security Monitoring, Penetration Testing, and Intrusion Detection",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/e-commerce/e-commerce.md#ec-09-security-monitoring-penetration-testing-and-intrusion-detection",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A \u00a7III.C",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "FFIEC IT Examination Handbook (Information Security booklet)",
+       "url": "https://www.ffiec.gov/press/pdf/FFIEC_IT_Booklet_InformationSecurity.pdf"
+      },
+      {
+       "text": "FFIEC Authentication Guidance (2021)",
+       "url": "https://www.ffiec.gov/press/pdf/Authentication-and-Access-to-Financial-Institution-Services-and-Systems.pdf"
+      }
+     ]
+    },
+    {
+     "id": "SC-01",
+     "title": "NCUA Reportable Cyber-Incident & Member Notification",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/e-commerce/e-commerce.md#sc-01-ncua-reportable-cyber-incident-member-notification",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748 \u00a7748.1(c)",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix B",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "EC-13",
+     "title": "Breach Detection, Liability Assessment & External Comms Gating",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/e-commerce/e-commerce.md#ec-13-breach-detection-liability-assessment-external-comms-gating",
+     "citations": [
+      {
+       "text": "GLBA 15 USC \u00a76801",
+       "url": "https://www.law.cornell.edu/uscode/text/15/6801"
+      },
+      {
+       "text": "SC-01",
+       "url": "#sc-01-ncua-reportable-cyber-incident-member-notification"
+      }
+     ]
+    },
+    {
+     "id": "SC-03",
+     "title": "Enterprise Incident Declaration & First-Hour Response",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/e-commerce/e-commerce.md#sc-03-enterprise-incident-declaration-first-hour-response",
+     "citations": [
+      {
+       "text": "12 CFR Part 748, Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "FFIEC Business Continuity Management guidance",
+       "url": "https://www.ffiec.gov/press/pdf/FFIEC_IT_Booklet_BCM.pdf"
+      },
+      {
+       "text": "BC-06 \u2014 Incident Declaration and Initial Actions",
+       "url": "../business-continuity-plan/business-continuity-plan.md#bc-06-incident-declaration-and-initial-actions"
+      }
+     ]
+    },
+    {
+     "id": "EC-11",
+     "title": "Contingency Planning and Business Continuity",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/e-commerce/e-commerce.md#ec-11-contingency-planning-and-business-continuity",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A \u00a7IV",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "FFIEC Business Continuity Management booklet",
+       "url": "https://www.ffiec.gov/press/pdf/FFIEC_IT_Booklet_BCM.pdf"
+      }
+     ]
+    },
+    {
+     "id": "EC-12",
+     "title": "Expertise and Training",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/e-commerce/e-commerce.md#ec-12-expertise-and-training",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A \u00a7II",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "FFIEC IT Examination Handbook",
+       "url": "https://www.ffiec.gov/press/pdf/FFIEC_IT_Booklet_InformationSecurity.pdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "electronic-payment-systems",
+   "title": "Electronic Payment Systems",
+   "controls": [
+    {
+     "id": "EPS-01",
+     "title": "Planning and Feasibility Analysis",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/electronic-payment-systems/electronic-payment-systems.md#eps-01-planning-and-feasibility-analysis",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748 Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "SC-01",
+     "title": "NCUA Reportable Cyber-Incident & Member Notification",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/electronic-payment-systems/electronic-payment-systems.md#sc-01-ncua-reportable-cyber-incident-member-notification",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748 \u00a7748.1(c)",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix B",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "EPS-11",
+     "title": "Payment-Incident Detection & BCP Testing",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/electronic-payment-systems/electronic-payment-systems.md#eps-11-payment-incident-detection-bcp-testing",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748 Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "SC-01",
+       "url": "#sc-01-ncua-reportable-cyber-incident-member-notification"
+      }
+     ]
+    },
+    {
+     "id": "EPS-03",
+     "title": "Internal Routines and Controls",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/electronic-payment-systems/electronic-payment-systems.md#eps-03-internal-routines-and-controls",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748 Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "EPS-04",
+     "title": "Management Supervision and Oversight",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/electronic-payment-systems/electronic-payment-systems.md#eps-04-management-supervision-and-oversight",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748 Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "EPS-05",
+     "title": "Authentication Controls",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/electronic-payment-systems/electronic-payment-systems.md#eps-05-authentication-controls",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748 Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "Regulation E (12 CFR Part 1005)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1005"
+      }
+     ]
+    },
+    {
+     "id": "EPS-06",
+     "title": "Dual Control for High-Risk Processes",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/electronic-payment-systems/electronic-payment-systems.md#eps-06-dual-control-for-high-risk-processes",
+     "citations": [
+      {
+       "text": "NACHA Operating Rules",
+       "url": "https://www.nacha.org/rules"
+      },
+      {
+       "text": "Regulation E (12 CFR Part 1005)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1005"
+      }
+     ]
+    },
+    {
+     "id": "EPS-07",
+     "title": "Electronic Fraud Protection Systems",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/electronic-payment-systems/electronic-payment-systems.md#eps-07-electronic-fraud-protection-systems",
+     "citations": [
+      {
+       "text": "Regulation E (12 CFR Part 1005)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1005"
+      },
+      {
+       "text": "NACHA Operating Rules",
+       "url": "https://www.nacha.org/rules"
+      }
+     ]
+    },
+    {
+     "id": "EPS-08",
+     "title": "Vendor Due Diligence",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/electronic-payment-systems/electronic-payment-systems.md#eps-08-vendor-due-diligence",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748 Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "EPS-09",
+     "title": "Expertise and Training",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/electronic-payment-systems/electronic-payment-systems.md#eps-09-expertise-and-training",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748 Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "Regulation E (12 CFR Part 1005)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1005"
+      },
+      {
+       "text": "Regulation CC (12 CFR Part 229)",
+       "url": "https://www.ecfr.gov/current/title-12/part-229"
+      }
+     ]
+    },
+    {
+     "id": "EPS-10",
+     "title": "Pre-Deployment Testing",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/electronic-payment-systems/electronic-payment-systems.md#eps-10-pre-deployment-testing",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748 Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "Regulation CC (12 CFR Part 229)",
+       "url": "https://www.ecfr.gov/current/title-12/part-229"
+      },
+      {
+       "text": "NACHA Operating Rules",
+       "url": "https://www.nacha.org/rules"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "enterprise-risk-management",
+   "title": "Enterprise Risk Management",
+   "controls": [
+    {
+     "id": "ERM-01",
+     "title": "Enterprise Risk Appetite Statement",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/enterprise-risk-management/enterprise-risk-management.md#erm-01-enterprise-risk-appetite-statement",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.3 and Appendix A to Part 741",
+       "url": "https://www.ecfr.gov/current/title-12/part-741"
+      }
+     ]
+    },
+    {
+     "id": "ERM-02",
+     "title": "Risk Taxonomy & Categories",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/enterprise-risk-management/enterprise-risk-management.md#erm-02-risk-taxonomy--categories",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.3 and Appendix A to Part 741",
+       "url": "https://www.ecfr.gov/current/title-12/part-741"
+      }
+     ]
+    },
+    {
+     "id": "ERM-03",
+     "title": "Risk Scoring Matrix & Rating Scale",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/enterprise-risk-management/enterprise-risk-management.md#erm-03-risk-scoring-matrix--rating-scale",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.3 and Appendix A to Part 741",
+       "url": "https://www.ecfr.gov/current/title-12/part-741"
+      }
+     ]
+    },
+    {
+     "id": "ERM-04",
+     "title": "Risk Assessment & Register Maintenance",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/enterprise-risk-management/enterprise-risk-management.md#erm-04-risk-assessment--register-maintenance",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.3 and Appendix A to Part 741",
+       "url": "https://www.ecfr.gov/current/title-12/part-741"
+      }
+     ]
+    },
+    {
+     "id": "ERM-05",
+     "title": "Key Risk Indicators & Thresholds",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/enterprise-risk-management/enterprise-risk-management.md#erm-05-key-risk-indicators--thresholds",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.3 and Appendix A to Part 741",
+       "url": "https://www.ecfr.gov/current/title-12/part-741"
+      }
+     ]
+    },
+    {
+     "id": "ERM-06",
+     "title": "Risk Appetite Breach Escalation & Incident Management",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/enterprise-risk-management/enterprise-risk-management.md#erm-06-risk-appetite-breach-escalation--incident-management",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.3 and Appendix A to Part 741",
+       "url": "https://www.ecfr.gov/current/title-12/part-741"
+      }
+     ]
+    },
+    {
+     "id": "ERM-07",
+     "title": "Risk Acceptance & Exceptions",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/enterprise-risk-management/enterprise-risk-management.md#erm-07-risk-acceptance--exceptions",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.3 and Appendix A to Part 741",
+       "url": "https://www.ecfr.gov/current/title-12/part-741"
+      }
+     ]
+    },
+    {
+     "id": "ERM-08",
+     "title": "Risk Reporting & Governance Oversight",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/enterprise-risk-management/enterprise-risk-management.md#erm-08-risk-reporting--governance-oversight",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.3 and Appendix A to Part 741",
+       "url": "https://www.ecfr.gov/current/title-12/part-741"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "fair-lending",
+   "title": "Fair Lending",
+   "controls": [
+    {
+     "id": "FL-01",
+     "title": "Prohibition & Protected Bases",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/fair-lending/fair-lending.md#fl-01-prohibition--protected-bases",
+     "citations": [
+      {
+       "text": "ECOA/Reg B \u00a71002.4",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.4"
+      },
+      {
+       "text": "Fair Housing Act, 42 U.S.C. \u00a73605",
+       "url": "https://www.law.cornell.edu/uscode/text/42/3605"
+      },
+      {
+       "text": "NCUA 12 CFR \u00a7701.31",
+       "url": "https://www.ecfr.gov/current/title-12/part-701/section-701.31"
+      }
+     ]
+    },
+    {
+     "id": "FL-02",
+     "title": "Permissible Inquiries",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/fair-lending/fair-lending.md#fl-02-permissible-inquiries",
+     "citations": [
+      {
+       "text": "ECOA/Reg B \u00a71002.5",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.5"
+      },
+      {
+       "text": "ECOA/Reg B \u00a71002.6",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.6"
+      }
+     ]
+    },
+    {
+     "id": "FL-03",
+     "title": "Evaluation & Pricing Rules",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/fair-lending/fair-lending.md#fl-03-evaluation--pricing-rules",
+     "citations": [
+      {
+       "text": "ECOA/Reg B \u00a71002.6",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.6"
+      },
+      {
+       "text": "Reg Z \u00a71026.36(d)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1026#p-1026.36(d"
+      }
+     ]
+    },
+    {
+     "id": "FL-04",
+     "title": "Appraisal Independence & ROV",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/fair-lending/fair-lending.md#fl-04-appraisal-independence--rov",
+     "citations": [
+      {
+       "text": "ECOA/Reg B \u00a71002.14",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.14"
+      },
+      {
+       "text": "NCUA 12 CFR \u00a7701.31",
+       "url": "https://www.ecfr.gov/current/title-12/part-701/section-701.31"
+      },
+      {
+       "text": "Fair Housing Act, 42 U.S.C. \u00a73605",
+       "url": "https://www.law.cornell.edu/uscode/text/42/3605"
+      }
+     ]
+    },
+    {
+     "id": "FL-05",
+     "title": "Action-Taken Notices",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/fair-lending/fair-lending.md#fl-05-action-taken-notices",
+     "citations": [
+      {
+       "text": "ECOA/Reg B \u00a71002.9",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.9"
+      },
+      {
+       "text": "FCRA \u00a7615",
+       "url": "https://www.law.cornell.edu/uscode/text/15/1681m"
+      }
+     ]
+    },
+    {
+     "id": "FL-06",
+     "title": "Government Monitoring (GMI/HMDA)",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/fair-lending/fair-lending.md#fl-06-government-monitoring-gmihmda",
+     "citations": [
+      {
+       "text": "ECOA/Reg B \u00a71002.13",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.13"
+      },
+      {
+       "text": "HMDA/Reg C 12 CFR Part 1003, \u00a71003.4",
+       "url": "https://www.ecfr.gov/current/title-12/part-1003"
+      }
+     ]
+    },
+    {
+     "id": "FL-07",
+     "title": "Advertising & Fair Housing",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/fair-lending/fair-lending.md#fl-07-advertising--fair-housing",
+     "citations": [
+      {
+       "text": "Reg Z \u00a71026.24",
+       "url": "https://www.ecfr.gov/current/title-12/part-1026#p-1026.24"
+      },
+      {
+       "text": "Fair Housing Act, 42 U.S.C. \u00a73605",
+       "url": "https://www.law.cornell.edu/uscode/text/42/3605"
+      },
+      {
+       "text": "24 CFR Part 100",
+       "url": "https://www.ecfr.gov/current/title-24/part-100"
+      },
+      {
+       "text": "ADA, 28 CFR Part 36",
+       "url": "https://www.ecfr.gov/current/title-28/part-36"
+      }
+     ]
+    },
+    {
+     "id": "FL-08",
+     "title": "LO Compensation & Anti-Steering",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/fair-lending/fair-lending.md#fl-08-lo-compensation--anti-steering",
+     "citations": [
+      {
+       "text": "Reg Z \u00a71026.36(d)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1026#p-1026.36(d"
+      },
+      {
+       "text": "Reg Z \u00a71026.36(e)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1026#p-1026.36(e"
+      }
+     ]
+    },
+    {
+     "id": "FL-09",
+     "title": "Third-Party Fair-Lending Oversight",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/fair-lending/fair-lending.md#fl-09-third-party-fair-lending-oversight",
+     "citations": [
+      {
+       "text": "ECOA/Reg B \u00a71002.4",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.4"
+      },
+      {
+       "text": "Fair Housing Act, 42 U.S.C. \u00a73605",
+       "url": "https://www.law.cornell.edu/uscode/text/42/3605"
+      }
+     ]
+    },
+    {
+     "id": "FL-10",
+     "title": "Monitoring & Disparity Reviews",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/fair-lending/fair-lending.md#fl-10-monitoring--disparity-reviews",
+     "citations": [
+      {
+       "text": "ECOA/Reg B \u00a71002.4",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.4"
+      },
+      {
+       "text": "Fair Housing Act, 42 U.S.C. \u00a73605",
+       "url": "https://www.law.cornell.edu/uscode/text/42/3605"
+      }
+     ]
+    },
+    {
+     "id": "FL-11",
+     "title": "Training",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/fair-lending/fair-lending.md#fl-11-training",
+     "citations": [
+      {
+       "text": "ECOA/Reg B \u00a71002.4",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.4"
+      },
+      {
+       "text": "Fair Housing Act, 42 U.S.C. \u00a73605",
+       "url": "https://www.law.cornell.edu/uscode/text/42/3605"
+      }
+     ]
+    },
+    {
+     "id": "FL-12",
+     "title": "Record Retention",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/fair-lending/fair-lending.md#fl-12-record-retention",
+     "citations": [
+      {
+       "text": "ECOA/Reg B \u00a71002.12",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.12"
+      },
+      {
+       "text": "HMDA/Reg C \u00a71003.4",
+       "url": "https://www.ecfr.gov/current/title-12/part-1003"
+      },
+      {
+       "text": "Reg Z \u00a71026.36",
+       "url": "https://www.ecfr.gov/current/title-12/part-1026#p-1026.36"
+      }
+     ]
+    },
+    {
+     "id": "SC-02",
+     "title": "Record-Retention Lifecycle Mechanics",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/fair-lending/fair-lending.md#sc-02-record-retention-lifecycle-mechanics",
+     "citations": [
+      {
+       "text": "12 CFR Part 364, Appendix B",
+       "url": "https://www.ecfr.gov/current/title-12/part-364#Appendix-B-to-Part-364"
+      },
+      {
+       "text": "RR-03 \u2014 Document Destruction",
+       "url": "../record-retention/record-retention.md#rr-03-document-destruction"
+      },
+      {
+       "text": "RR-05 \u2014 Legal Holds",
+       "url": "../record-retention/record-retention.md#rr-05-legal-holds"
+      }
+     ]
+    },
+    {
+     "id": "FL-13",
+     "title": "Complaint Monitoring",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/fair-lending/fair-lending.md#fl-13-complaint-monitoring",
+     "citations": [
+      {
+       "text": "ECOA/Reg B \u00a71002.4",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.4"
+      },
+      {
+       "text": "Fair Housing Act, 42 U.S.C. \u00a73605",
+       "url": "https://www.law.cornell.edu/uscode/text/42/3605"
+      },
+      {
+       "text": "NCUA 12 CFR \u00a7701.31",
+       "url": "https://www.ecfr.gov/current/title-12/part-701/section-701.31"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "information-security",
+   "title": "Information Security",
+   "controls": [
+    {
+     "id": "IS-01",
+     "title": "Governance and Oversight",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/information-security/information-security.md#is-01-governance-and-oversight",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A \u00a7I",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "GLBA 15 USC \u00a7\u00a76801\u20136809",
+       "url": "https://www.law.cornell.edu/uscode/text/15/6801"
+      }
+     ]
+    },
+    {
+     "id": "IS-02",
+     "title": "Enterprise Risk Assessment",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/information-security/information-security.md#is-02-enterprise-risk-assessment",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A \u00a7II",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A \u00a7III",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "IS-03",
+     "title": "Asset Inventory and Classification",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/information-security/information-security.md#is-03-asset-inventory-and-classification",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A \u00a7II",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "GLBA 15 USC \u00a76801",
+       "url": "https://www.law.cornell.edu/uscode/text/15/6801"
+      }
+     ]
+    },
+    {
+     "id": "IS-04",
+     "title": "Change Management and Configuration Control",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/information-security/information-security.md#is-04-change-management-and-configuration-control",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A \u00a7III",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "NIST SP 800-53 Rev.5 CM-3",
+       "url": "https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final"
+      }
+     ]
+    },
+    {
+     "id": "IS-05",
+     "title": "Vulnerability and Penetration Testing",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/information-security/information-security.md#is-05-vulnerability-and-penetration-testing",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A \u00a7III",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "GLBA 15 USC \u00a76801",
+       "url": "https://www.law.cornell.edu/uscode/text/15/6801"
+      }
+     ]
+    },
+    {
+     "id": "IS-06",
+     "title": "Access Control and Authentication",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/information-security/information-security.md#is-06-access-control-and-authentication",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A \u00a7II\u2013III",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "GLBA 15 USC \u00a76801",
+       "url": "https://www.law.cornell.edu/uscode/text/15/6801"
+      }
+     ]
+    },
+    {
+     "id": "IS-07",
+     "title": "Data Protection, Encryption, and Disposal",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/information-security/information-security.md#is-07-data-protection-encryption-and-disposal",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A \u00a7II",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "FACTA Disposal Rule 16 CFR Part 682",
+       "url": "https://www.ecfr.gov/current/title-16/part-682"
+      },
+      {
+       "text": "GLBA 15 USC \u00a76801",
+       "url": "https://www.law.cornell.edu/uscode/text/15/6801"
+      }
+     ]
+    },
+    {
+     "id": "IS-08",
+     "title": "Backup and Disaster Recovery",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/information-security/information-security.md#is-08-backup-and-disaster-recovery",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A \u00a7III",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "NCUA 12 CFR Part 749",
+       "url": "https://www.ecfr.gov/current/title-12/part-749"
+      }
+     ]
+    },
+    {
+     "id": "SC-01",
+     "title": "NCUA Reportable Cyber-Incident & Member Notification",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/information-security/information-security.md#sc-01-ncua-reportable-cyber-incident-member-notification",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748 \u00a7748.1(c)",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix B",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "IS-19",
+     "title": "Incident Response Plan, Post-Mortem & Law Enforcement Coordination",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/information-security/information-security.md#is-19-incident-response-plan-post-mortem-law-enforcement-coordination",
+     "citations": [
+      {
+       "text": "GLBA 15 USC \u00a76801",
+       "url": "https://www.law.cornell.edu/uscode/text/15/6801"
+      },
+      {
+       "text": "SC-01",
+       "url": "#sc-01-ncua-reportable-cyber-incident-member-notification"
+      }
+     ]
+    },
+    {
+     "id": "SC-03",
+     "title": "Enterprise Incident Declaration & First-Hour Response",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/information-security/information-security.md#sc-03-enterprise-incident-declaration-first-hour-response",
+     "citations": [
+      {
+       "text": "12 CFR Part 748, Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "FFIEC Business Continuity Management guidance",
+       "url": "https://www.ffiec.gov/press/pdf/FFIEC_IT_Booklet_BCM.pdf"
+      },
+      {
+       "text": "BC-06 \u2014 Incident Declaration and Initial Actions",
+       "url": "../business-continuity-plan/business-continuity-plan.md#bc-06-incident-declaration-and-initial-actions"
+      }
+     ]
+    },
+    {
+     "id": "IS-10",
+     "title": "Identity Theft Red Flags Program",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/information-security/information-security.md#is-10-identity-theft-red-flags-program",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 717 Subpart J",
+       "url": "https://www.ecfr.gov/current/title-12/part-717"
+      },
+      {
+       "text": "FACTA (15 USC \u00a71681m(e))",
+       "url": "https://www.law.cornell.edu/uscode/text/15/1681m"
+      }
+     ]
+    },
+    {
+     "id": "IS-11",
+     "title": "Vendor Information Security Diligence",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/information-security/information-security.md#is-11-vendor-information-security-diligence",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A \u00a7IV",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "GLBA 15 USC \u00a76801\u20136802",
+       "url": "https://www.law.cornell.edu/uscode/text/15/6801"
+      }
+     ]
+    },
+    {
+     "id": "IS-12",
+     "title": "Physical Security and Facilities",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/information-security/information-security.md#is-12-physical-security-and-facilities",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A \u00a7II",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "ADA 28 CFR Part 36",
+       "url": "https://www.ecfr.gov/current/title-28/part-36"
+      }
+     ]
+    },
+    {
+     "id": "IS-13",
+     "title": "AI Governance and Usage Disclosure",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/information-security/information-security.md#is-13-ai-governance-and-usage-disclosure",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A \u00a7II\u2013III",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "GLBA 15 USC \u00a76801",
+       "url": "https://www.law.cornell.edu/uscode/text/15/6801"
+      }
+     ]
+    },
+    {
+     "id": "IS-14",
+     "title": "Logging, Monitoring, and Alerting",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/information-security/information-security.md#is-14-logging-monitoring-and-alerting",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A \u00a7III",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "NCUA 12 CFR Part 749",
+       "url": "https://www.ecfr.gov/current/title-12/part-749"
+      }
+     ]
+    },
+    {
+     "id": "IS-15",
+     "title": "Acceptable Use and Communications Systems",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/information-security/information-security.md#is-15-acceptable-use-and-communications-systems",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A \u00a7II",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "GLBA 15 USC \u00a76801",
+       "url": "https://www.law.cornell.edu/uscode/text/15/6801"
+      }
+     ]
+    },
+    {
+     "id": "IS-16",
+     "title": "Social Media",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/information-security/information-security.md#is-16-social-media",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A \u00a7II",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "GLBA 15 USC \u00a76801",
+       "url": "https://www.law.cornell.edu/uscode/text/15/6801"
+      }
+     ]
+    },
+    {
+     "id": "IS-17",
+     "title": "Training, Awareness, and Testing",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/information-security/information-security.md#is-17-training-awareness-and-testing",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A \u00a7IV",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "NCUA 12 CFR Part 717 Subpart J",
+       "url": "https://www.ecfr.gov/current/title-12/part-717"
+      }
+     ]
+    },
+    {
+     "id": "IS-18",
+     "title": "Records Management and Retention",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/information-security/information-security.md#is-18-records-management-and-retention",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 749",
+       "url": "https://www.ecfr.gov/current/title-12/part-749"
+      },
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix A \u00a7III",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "FACTA Disposal Rule 16 CFR Part 682",
+       "url": "https://www.ecfr.gov/current/title-16/part-682"
+      }
+     ]
+    },
+    {
+     "id": "SC-02",
+     "title": "Record-Retention Lifecycle Mechanics",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/information-security/information-security.md#sc-02-record-retention-lifecycle-mechanics",
+     "citations": [
+      {
+       "text": "12 CFR Part 364, Appendix B",
+       "url": "https://www.ecfr.gov/current/title-12/part-364#Appendix-B-to-Part-364"
+      },
+      {
+       "text": "RR-03 \u2014 Document Destruction",
+       "url": "../record-retention/record-retention.md#rr-03-document-destruction"
+      },
+      {
+       "text": "RR-05 \u2014 Legal Holds",
+       "url": "../record-retention/record-retention.md#rr-05-legal-holds"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "internal-controls",
+   "title": "Internal Controls",
+   "controls": [
+    {
+     "id": "IC-01",
+     "title": "Control Environment and Governance",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/internal-controls/internal-controls.md#ic-01-control-environment-and-governance",
+     "citations": [
+      {
+       "text": "12 U.S.C. \u00a71761b",
+       "url": "https://www.law.cornell.edu/uscode/text/12/1761b"
+      },
+      {
+       "text": "12 CFR Part 715",
+       "url": "https://www.ecfr.gov/current/title-12/part-715"
+      },
+      {
+       "text": "12 CFR \u00a7741.3",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.3"
+      }
+     ]
+    },
+    {
+     "id": "IC-02",
+     "title": "Segregation of Duties",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/internal-controls/internal-controls.md#ic-02-segregation-of-duties",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.3",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.3"
+      },
+      {
+       "text": "12 U.S.C. \u00a71761b",
+       "url": "https://www.law.cornell.edu/uscode/text/12/1761b"
+      }
+     ]
+    },
+    {
+     "id": "IC-03",
+     "title": "Authorization and Approval Limits",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/internal-controls/internal-controls.md#ic-03-authorization-and-approval-limits",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.3",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.3"
+      },
+      {
+       "text": "12 U.S.C. \u00a71761b",
+       "url": "https://www.law.cornell.edu/uscode/text/12/1761b"
+      }
+     ]
+    },
+    {
+     "id": "IC-04",
+     "title": "Reconciliations",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/internal-controls/internal-controls.md#ic-04-reconciliations",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.3",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.3"
+      },
+      {
+       "text": "12 CFR Part 715",
+       "url": "https://www.ecfr.gov/current/title-12/part-715"
+      }
+     ]
+    },
+    {
+     "id": "IC-05",
+     "title": "Access and Change Controls",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/internal-controls/internal-controls.md#ic-05-access-and-change-controls",
+     "citations": [
+      {
+       "text": "12 CFR Part 748",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "12 CFR \u00a7741.3",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.3"
+      }
+     ]
+    },
+    {
+     "id": "IC-06",
+     "title": "Exception and Override Management",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/internal-controls/internal-controls.md#ic-06-exception-and-override-management",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.3",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.3"
+      },
+      {
+       "text": "12 U.S.C. \u00a71761b",
+       "url": "https://www.law.cornell.edu/uscode/text/12/1761b"
+      }
+     ]
+    },
+    {
+     "id": "IC-07",
+     "title": "Monitoring and Self-Assessment",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/internal-controls/internal-controls.md#ic-07-monitoring-and-self-assessment",
+     "citations": [
+      {
+       "text": "12 CFR Part 715",
+       "url": "https://www.ecfr.gov/current/title-12/part-715"
+      },
+      {
+       "text": "12 CFR \u00a7741.3",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.3"
+      }
+     ]
+    },
+    {
+     "id": "IC-08",
+     "title": "Audit Trail and Recordkeeping",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/internal-controls/internal-controls.md#ic-08-audit-trail-and-recordkeeping",
+     "citations": [
+      {
+       "text": "12 CFR Part 748",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "12 CFR Part 715",
+       "url": "https://www.ecfr.gov/current/title-12/part-715"
+      },
+      {
+       "text": "12 CFR \u00a7741.3",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.3"
+      }
+     ]
+    },
+    {
+     "id": "SC-02",
+     "title": "Record-Retention Lifecycle Mechanics",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/internal-controls/internal-controls.md#sc-02-record-retention-lifecycle-mechanics",
+     "citations": [
+      {
+       "text": "12 CFR Part 364, Appendix B",
+       "url": "https://www.ecfr.gov/current/title-12/part-364#Appendix-B-to-Part-364"
+      },
+      {
+       "text": "RR-03 \u2014 Document Destruction",
+       "url": "../record-retention/record-retention.md#rr-03-document-destruction"
+      },
+      {
+       "text": "RR-05 \u2014 Legal Holds",
+       "url": "../record-retention/record-retention.md#rr-05-legal-holds"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "investment",
+   "title": "Investments",
+   "controls": [
+    {
+     "id": "IP-01",
+     "title": "Policy Record and Review Cycle",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/investment/investment.md#ip-01-policy-record-and-review-cycle",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7703.3",
+       "url": "https://www.ecfr.gov/current/title-12/part-703/section-703.3"
+      }
+     ]
+    },
+    {
+     "id": "IP-02",
+     "title": "Governance, Board Oversight, and Delegations",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/investment/investment.md#ip-02-governance-board-oversight-and-delegations",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7703.3",
+       "url": "https://www.ecfr.gov/current/title-12/part-703/section-703.3"
+      }
+     ]
+    },
+    {
+     "id": "IP-03",
+     "title": "Permissible Investments and Prohibited Activities",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/investment/investment.md#ip-03-permissible-investments-and-prohibited-activities",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7\u00a7703.13\u2013703.14",
+       "url": "https://www.ecfr.gov/current/title-12/part-703"
+      },
+      {
+       "text": "12 CFR \u00a7703.15",
+       "url": "https://www.ecfr.gov/current/title-12/part-703"
+      },
+      {
+       "text": "12 CFR \u00a7703.16",
+       "url": "https://www.ecfr.gov/current/title-12/part-703"
+      }
+     ]
+    },
+    {
+     "id": "IP-04",
+     "title": "Interest Rate Risk and ALM Integration",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/investment/investment.md#ip-04-interest-rate-risk-and-alm-integration",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7703.3(b)",
+       "url": "https://www.ecfr.gov/current/title-12/part-703/section-703.3"
+      }
+     ]
+    },
+    {
+     "id": "IP-05",
+     "title": "Credit Risk Standards and Downgrade Management",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/investment/investment.md#ip-05-credit-risk-standards-and-downgrade-management",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7703.6",
+       "url": "https://www.ecfr.gov/current/title-12/part-703/section-703.6"
+      },
+      {
+       "text": "LCU 2013-05",
+       "url": "https://www.ncua.gov/regulation-supervision/letters-credit-unions-other-guidance/supervisory-letter-investment-credit-analysis"
+      }
+     ]
+    },
+    {
+     "id": "IP-06",
+     "title": "Liquidity and Marketability Limits",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/investment/investment.md#ip-06-liquidity-and-marketability-limits",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7703.3(b)",
+       "url": "https://www.ecfr.gov/current/title-12/part-703/section-703.3"
+      },
+      {
+       "text": "12 CFR \u00a7741.12",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.12"
+      }
+     ]
+    },
+    {
+     "id": "IP-07",
+     "title": "Concentration and Counterparty Limits",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/investment/investment.md#ip-07-concentration-and-counterparty-limits",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7703.3(b)",
+       "url": "https://www.ecfr.gov/current/title-12/part-703/section-703.3"
+      },
+      {
+       "text": "IP-03",
+       "url": "#ip-03-permissible-investments-and-prohibited-activities"
+      }
+     ]
+    },
+    {
+     "id": "IP-08",
+     "title": "Approved Brokers, Dealers, and Safekeepers",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/investment/investment.md#ip-08-approved-brokers-dealers-and-safekeepers",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7703.8",
+       "url": "https://www.ecfr.gov/current/title-12/part-703/section-703.8"
+      },
+      {
+       "text": "12 CFR \u00a7703.9",
+       "url": "https://www.ecfr.gov/current/title-12/part-703/section-703.9"
+      },
+      {
+       "text": "\u00a7703.9(c)",
+       "url": "https://www.ecfr.gov/current/title-12/part-703/section-703.9"
+      }
+     ]
+    },
+    {
+     "id": "IP-09",
+     "title": "Repurchase and Reverse Repurchase Agreements",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/investment/investment.md#ip-09-repurchase-and-reverse-repurchase-agreements",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7703.13",
+       "url": "https://www.ecfr.gov/current/title-12/part-703/section-703.13"
+      }
+     ]
+    },
+    {
+     "id": "IP-10",
+     "title": "Valuation, Accounting, and Fair-Value Measurement",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/investment/investment.md#ip-10-valuation-accounting-and-fair-value-measurement",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7703.11",
+       "url": "https://www.ecfr.gov/current/title-12/part-703/section-703.11"
+      }
+     ]
+    },
+    {
+     "id": "IP-11",
+     "title": "Pre-Purchase Due Diligence and Exceptions",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/investment/investment.md#ip-11-pre-purchase-due-diligence-and-exceptions",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7703.6",
+       "url": "https://www.ecfr.gov/current/title-12/part-703/section-703.6"
+      },
+      {
+       "text": "12 CFR \u00a7703.3",
+       "url": "https://www.ecfr.gov/current/title-12/part-703/section-703.3"
+      }
+     ]
+    },
+    {
+     "id": "IP-12",
+     "title": "Ongoing Monitoring, Reporting, and Stress Testing",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/investment/investment.md#ip-12-ongoing-monitoring-reporting-and-stress-testing",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7703.12",
+       "url": "https://www.ecfr.gov/current/title-12/part-703/section-703.12"
+      },
+      {
+       "text": "12 CFR \u00a7703.3(b)",
+       "url": "https://www.ecfr.gov/current/title-12/part-703/section-703.3"
+      }
+     ]
+    },
+    {
+     "id": "IP-13",
+     "title": "Performance Measurement and Benchmarks",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/investment/investment.md#ip-13-performance-measurement-and-benchmarks",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7703.3(b)",
+       "url": "https://www.ecfr.gov/current/title-12/part-703/section-703.3"
+      }
+     ]
+    },
+    {
+     "id": "IP-14",
+     "title": "Trade Execution, Controls, and Segregation of Duties",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/investment/investment.md#ip-14-trade-execution-controls-and-segregation-of-duties",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7703.3(b)",
+       "url": "https://www.ecfr.gov/current/title-12/part-703/section-703.3"
+      },
+      {
+       "text": "12 CFR \u00a7703.15",
+       "url": "https://www.ecfr.gov/current/title-12/part-703/section-703.15"
+      }
+     ]
+    },
+    {
+     "id": "IP-15",
+     "title": "Recordkeeping and Documentation Retention",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/investment/investment.md#ip-15-recordkeeping-and-documentation-retention",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7703.4",
+       "url": "https://www.ecfr.gov/current/title-12/part-703/section-703.4"
+      }
+     ]
+    },
+    {
+     "id": "SC-02",
+     "title": "Record-Retention Lifecycle Mechanics",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/investment/investment.md#sc-02-record-retention-lifecycle-mechanics",
+     "citations": [
+      {
+       "text": "12 CFR Part 364, Appendix B",
+       "url": "https://www.ecfr.gov/current/title-12/part-364#Appendix-B-to-Part-364"
+      },
+      {
+       "text": "RR-03 \u2014 Document Destruction",
+       "url": "../record-retention/record-retention.md#rr-03-document-destruction"
+      },
+      {
+       "text": "RR-05 \u2014 Legal Holds",
+       "url": "../record-retention/record-retention.md#rr-05-legal-holds"
+      }
+     ]
+    },
+    {
+     "id": "IP-16",
+     "title": "Training, Competency, and Conflicts of Interest",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/investment/investment.md#ip-16-training-competency-and-conflicts-of-interest",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7703.15",
+       "url": "https://www.ecfr.gov/current/title-12/part-703/section-703.15"
+      },
+      {
+       "text": "\u00a7703.16",
+       "url": "https://www.ecfr.gov/current/title-12/part-703/section-703.16"
+      }
+     ]
+    },
+    {
+     "id": "IP-17",
+     "title": "Contingency Planning and Liquidity Stress Events",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/investment/investment.md#ip-17-contingency-planning-and-liquidity-stress-events",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.12",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.12"
+      }
+     ]
+    },
+    {
+     "id": "IP-18",
+     "title": "Policy Review, Amendments, and Version Control",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/investment/investment.md#ip-18-policy-review-amendments-and-version-control",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7703.3",
+       "url": "https://www.ecfr.gov/current/title-12/part-703/section-703.3"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "lending",
+   "title": "Lending",
+   "controls": [
+    {
+     "id": "LP-01",
+     "title": "Governance, Roles & Program Scope",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/lending/lending.md#lp-01-governance-roles--program-scope",
+     "citations": [
+      {
+       "text": "ECOA/Reg B 12 CFR \u00a71002.4",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.4"
+      },
+      {
+       "text": "NCUA 12 CFR Parts 701 and 741",
+       "url": "https://www.ecfr.gov/current/title-12/part-701"
+      }
+     ]
+    },
+    {
+     "id": "LP-02",
+     "title": "Product Eligibility & Prohibited Practices",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/lending/lending.md#lp-02-product-eligibility--prohibited-practices",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR \u00a7701.21",
+       "url": "https://www.ecfr.gov/current/title-12/part-701/section-701.21"
+      },
+      {
+       "text": "NCUA Parts 701 and 741",
+       "url": "https://www.ecfr.gov/current/title-12/part-701"
+      },
+      {
+       "text": "ECOA/Reg B 12 CFR \u00a71002.4",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.4"
+      },
+      {
+       "text": "FHA 42 USC \u00a73605",
+       "url": "https://www.law.cornell.edu/uscode/text/42/3605"
+      }
+     ]
+    },
+    {
+     "id": "LP-03",
+     "title": "Applications, Acceptance & Denial Standards",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/lending/lending.md#lp-03-applications-acceptance--denial-standards",
+     "citations": [
+      {
+       "text": "ECOA/Reg B 12 CFR \u00a71002.9(a)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.9"
+      },
+      {
+       "text": "ECOA/Reg B \u00a71002.6",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.6"
+      },
+      {
+       "text": "TILA/Reg Z \u00a71026.43(c)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1026#p-1026.43(c"
+      },
+      {
+       "text": "NCUA \u00a7701.21",
+       "url": "https://www.ecfr.gov/current/title-12/part-701/section-701.21"
+      }
+     ]
+    },
+    {
+     "id": "LP-04",
+     "title": "Credit Scoring & Adverse Credit History",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/lending/lending.md#lp-04-credit-scoring--adverse-credit-history",
+     "citations": [
+      {
+       "text": "ECOA/Reg B 12 CFR \u00a71002.6(b)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.6"
+      },
+      {
+       "text": "FCRA 15 USC \u00a71681m",
+       "url": "https://www.law.cornell.edu/uscode/text/15/1681m"
+      },
+      {
+       "text": "ECOA/Reg B \u00a71002.9",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.9"
+      }
+     ]
+    },
+    {
+     "id": "LP-05",
+     "title": "ATR/QM & Mortgage Underwriting",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/lending/lending.md#lp-05-atrqm--mortgage-underwriting",
+     "citations": [
+      {
+       "text": "TILA/Reg Z 12 CFR \u00a71026.43(c)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1026#p-1026.43(c"
+      },
+      {
+       "text": "\u00a71026.43(e)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1026#p-1026.43(e"
+      }
+     ]
+    },
+    {
+     "id": "LP-06",
+     "title": "Appraisals, Valuations & Collateral",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/lending/lending.md#lp-06-appraisals-valuations--collateral",
+     "citations": [
+      {
+       "text": "ECOA/Reg B 12 CFR \u00a71002.14(a)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.14"
+      },
+      {
+       "text": "\u00a71002.12(b)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.12"
+      },
+      {
+       "text": "TILA/Reg Z \u00a71026.35(c)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1026#p-1026.35(c"
+      },
+      {
+       "text": "FHA 42 USC \u00a73605",
+       "url": "https://www.law.cornell.edu/uscode/text/42/3605"
+      },
+      {
+       "text": "NCUA \u00a7701.31",
+       "url": "https://www.ecfr.gov/current/title-12/part-701/section-701.31"
+      }
+     ]
+    },
+    {
+     "id": "LP-07",
+     "title": "Adverse Action & Notifications",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/lending/lending.md#lp-07-adverse-action--notifications",
+     "citations": [
+      {
+       "text": "ECOA/Reg B 12 CFR \u00a71002.9",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.9"
+      },
+      {
+       "text": "FCRA 15 USC \u00a71681m",
+       "url": "https://www.law.cornell.edu/uscode/text/15/1681m"
+      },
+      {
+       "text": "ECOA/Reg B \u00a71002.12(b)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.12"
+      }
+     ]
+    },
+    {
+     "id": "LP-08",
+     "title": "Exceptions, Mitigating Factors & Overrides",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/lending/lending.md#lp-08-exceptions-mitigating-factors--overrides",
+     "citations": [
+      {
+       "text": "ECOA/Reg B 12 CFR \u00a71002.6(b)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.6"
+      },
+      {
+       "text": "NCUA Parts 701 and 741",
+       "url": "https://www.ecfr.gov/current/title-12/part-701"
+      }
+     ]
+    },
+    {
+     "id": "LP-09",
+     "title": "Documentation, Recordkeeping & Retention",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/lending/lending.md#lp-09-documentation-recordkeeping--retention",
+     "citations": [
+      {
+       "text": "ECOA/Reg B 12 CFR \u00a71002.12(b)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.12"
+      },
+      {
+       "text": "HMDA/Reg C 12 CFR \u00a71003.5",
+       "url": "https://www.ecfr.gov/current/title-12/part-1003#p-1003.5"
+      },
+      {
+       "text": "TILA/Reg Z \u00a71026.25",
+       "url": "https://www.ecfr.gov/current/title-12/part-1026#p-1026.25"
+      }
+     ]
+    },
+    {
+     "id": "SC-02",
+     "title": "Record-Retention Lifecycle Mechanics",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/lending/lending.md#sc-02-record-retention-lifecycle-mechanics",
+     "citations": [
+      {
+       "text": "12 CFR Part 364, Appendix B",
+       "url": "https://www.ecfr.gov/current/title-12/part-364#Appendix-B-to-Part-364"
+      },
+      {
+       "text": "RR-03 \u2014 Document Destruction",
+       "url": "../record-retention/record-retention.md#rr-03-document-destruction"
+      },
+      {
+       "text": "RR-05 \u2014 Legal Holds",
+       "url": "../record-retention/record-retention.md#rr-05-legal-holds"
+      }
+     ]
+    },
+    {
+     "id": "LP-10",
+     "title": "Pricing, Rate Sheets & HPML Controls",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/lending/lending.md#lp-10-pricing-rate-sheets--hpml-controls",
+     "citations": [
+      {
+       "text": "TILA/Reg Z 12 CFR \u00a71026.35",
+       "url": "https://www.ecfr.gov/current/title-12/part-1026#p-1026.35"
+      },
+      {
+       "text": "\u00a71026.36(d)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1026#p-1026.36(d"
+      },
+      {
+       "text": "\u00a71026.36(e)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1026#p-1026.36(e"
+      },
+      {
+       "text": "ECOA/Reg B \u00a71002.6",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.6"
+      }
+     ]
+    },
+    {
+     "id": "LP-11",
+     "title": "OFAC & Sanctions Gate",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/lending/lending.md#lp-11-ofac--sanctions-gate",
+     "citations": [
+      {
+       "text": "31 CFR Chapter V",
+       "url": "https://www.ecfr.gov/current/title-31/subtitle-B/chapter-V"
+      }
+     ]
+    },
+    {
+     "id": "LP-12",
+     "title": "Prequalification, Marketing & Steering Controls",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/lending/lending.md#lp-12-prequalification-marketing--steering-controls",
+     "citations": [
+      {
+       "text": "TILA/Reg Z 12 CFR \u00a71026.36(e)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1026#p-1026.36(e"
+      },
+      {
+       "text": "ECOA/Reg B 12 CFR \u00a71002.4",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.4"
+      },
+      {
+       "text": "FHA 42 USC \u00a73605",
+       "url": "https://www.law.cornell.edu/uscode/text/42/3605"
+      },
+      {
+       "text": "NCUA \u00a7701.31",
+       "url": "https://www.ecfr.gov/current/title-12/part-701/section-701.31"
+      }
+     ]
+    },
+    {
+     "id": "LP-13",
+     "title": "Fair Lending Risk Assessment & Monitoring",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/lending/lending.md#lp-13-fair-lending-risk-assessment--monitoring",
+     "citations": [
+      {
+       "text": "ECOA/Reg B 12 CFR \u00a71002.4",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.4"
+      },
+      {
+       "text": "\u00a71002.6",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.6"
+      },
+      {
+       "text": "FHA 42 USC \u00a73605",
+       "url": "https://www.law.cornell.edu/uscode/text/42/3605"
+      },
+      {
+       "text": "NCUA \u00a7701.31",
+       "url": "https://www.ecfr.gov/current/title-12/part-701/section-701.31"
+      },
+      {
+       "text": "HMDA/Reg C 12 CFR \u00a71003.5",
+       "url": "https://www.ecfr.gov/current/title-12/part-1003#p-1003.5"
+      }
+     ]
+    },
+    {
+     "id": "LP-14",
+     "title": "Insider Lending & Employee Conflicts",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/lending/lending.md#lp-14-insider-lending--employee-conflicts",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Parts 701 and 741",
+       "url": "https://www.ecfr.gov/current/title-12/part-701"
+      },
+      {
+       "text": "ECOA/Reg B 12 CFR \u00a71002.4",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.4"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "liquidity",
+   "title": "Liquidity",
+   "controls": [
+    {
+     "id": "LQ-01",
+     "title": "Policy Scope & Risk Appetite",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/liquidity/liquidity.md#lq-01-policy-scope--risk-appetite",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.12",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.12"
+      }
+     ]
+    },
+    {
+     "id": "LQ-02",
+     "title": "Maturity Mismatch Limits",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/liquidity/liquidity.md#lq-02-maturity-mismatch-limits",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.12",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.12"
+      }
+     ]
+    },
+    {
+     "id": "LQ-03",
+     "title": "Liquid Assets Ratio Bands",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/liquidity/liquidity.md#lq-03-liquid-assets-ratio-bands",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.12",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.12"
+      }
+     ]
+    },
+    {
+     "id": "LQ-04",
+     "title": "Survival Horizon & Coverage Days",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/liquidity/liquidity.md#lq-04-survival-horizon--coverage-days",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.12",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.12"
+      }
+     ]
+    },
+    {
+     "id": "LQ-05",
+     "title": "Stress Testing",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/liquidity/liquidity.md#lq-05-stress-testing",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.12",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.12"
+      }
+     ]
+    },
+    {
+     "id": "LQ-06",
+     "title": "Funding Concentration & Counterparty Limits",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/liquidity/liquidity.md#lq-06-funding-concentration--counterparty-limits",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.12",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.12"
+      }
+     ]
+    },
+    {
+     "id": "LQ-07",
+     "title": "Reporting Cadence",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/liquidity/liquidity.md#lq-07-reporting-cadence",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.12",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.12"
+      }
+     ]
+    },
+    {
+     "id": "LQ-08",
+     "title": "Data Quality & Model Governance",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/liquidity/liquidity.md#lq-08-data-quality--model-governance",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.12",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.12"
+      }
+     ]
+    },
+    {
+     "id": "LQ-09",
+     "title": "Contingent Federal Liquidity Access",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/liquidity/liquidity.md#lq-09-contingent-federal-liquidity-access",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.12",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.12"
+      },
+      {
+       "text": "12 U.S.C. \u00a7\u00a71795\u20131795k",
+       "url": "https://www.law.cornell.edu/uscode/text/12/chapter-14"
+      },
+      {
+       "text": "12 U.S.C. \u00a7347b",
+       "url": "https://www.law.cornell.edu/uscode/text/12/347b"
+      }
+     ]
+    },
+    {
+     "id": "LQ-10",
+     "title": "CFP Activation & Escalation Ladder",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/liquidity/liquidity.md#lq-10-cfp-activation--escalation-ladder",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.12",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.12"
+      }
+     ]
+    },
+    {
+     "id": "LQ-11",
+     "title": "Regulatory Notification",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/liquidity/liquidity.md#lq-11-regulatory-notification",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.12",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.12"
+      }
+     ]
+    },
+    {
+     "id": "LQ-12",
+     "title": "External Communications & Stakeholder Matrix",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/liquidity/liquidity.md#lq-12-external-communications--stakeholder-matrix",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.12",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.12"
+      }
+     ]
+    },
+    {
+     "id": "LQ-13",
+     "title": "Regulator Liaison Protocols",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/liquidity/liquidity.md#lq-13-regulator-liaison-protocols",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.12",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.12"
+      }
+     ]
+    },
+    {
+     "id": "LQ-14",
+     "title": "Liquidity Drills & After-Action Reviews",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/liquidity/liquidity.md#lq-14-liquidity-drills--after-action-reviews",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.12",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.12"
+      }
+     ]
+    },
+    {
+     "id": "LQ-15",
+     "title": "Documentation & Retention",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/liquidity/liquidity.md#lq-15-documentation--retention",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.12",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.12"
+      }
+     ]
+    },
+    {
+     "id": "SC-02",
+     "title": "Record-Retention Lifecycle Mechanics",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/liquidity/liquidity.md#sc-02-record-retention-lifecycle-mechanics",
+     "citations": [
+      {
+       "text": "12 CFR Part 364, Appendix B",
+       "url": "https://www.ecfr.gov/current/title-12/part-364#Appendix-B-to-Part-364"
+      },
+      {
+       "text": "RR-03 \u2014 Document Destruction",
+       "url": "../record-retention/record-retention.md#rr-03-document-destruction"
+      },
+      {
+       "text": "RR-05 \u2014 Legal Holds",
+       "url": "../record-retention/record-retention.md#rr-05-legal-holds"
+      }
+     ]
+    },
+    {
+     "id": "LQ-16",
+     "title": "Definitions & Ratios Catalogue",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/liquidity/liquidity.md#lq-16-definitions--ratios-catalogue",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.12",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.12"
+      }
+     ]
+    },
+    {
+     "id": "LQ-17",
+     "title": "Wholesale / Listing-Service Deposits Guardrails",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/liquidity/liquidity.md#lq-17-wholesale--listing-service-deposits-guardrails",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7741.12",
+       "url": "https://www.ecfr.gov/current/title-12/part-741/section-741.12"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "member",
+   "title": "Membership",
+   "controls": [
+    {
+     "id": "MP-01",
+     "title": "Membership Eligibility and Onboarding",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/member/member.md#mp-01-membership-eligibility-and-onboarding",
+     "citations": [
+      {
+       "text": "Cal. Fin. Code \u00a7\u00a7 14050\u201314052",
+       "url": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=FIN&sectionNum=14050."
+      }
+     ]
+    },
+    {
+     "id": "MP-02",
+     "title": "Account Maintenance and Change of Address",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/member/member.md#mp-02-account-maintenance-and-change-of-address",
+     "citations": [
+      {
+       "text": "FACT Act Red Flags Rule (16 CFR Part 681)",
+       "url": "https://www.ecfr.gov/current/title-16/part-681"
+      }
+     ]
+    },
+    {
+     "id": "MP-03",
+     "title": "Member Communications and Preferences",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/member/member.md#mp-03-member-communications-and-preferences",
+     "citations": [
+      {
+       "text": "Regulation P (12 CFR Part 1016)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1016"
+      }
+     ]
+    },
+    {
+     "id": "MP-04",
+     "title": "Member Disputes and Dispute Resolution",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/member/member.md#mp-04-member-disputes-and-dispute-resolution",
+     "citations": [
+      {
+       "text": "Regulation E (12 CFR Part 1005.11)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1005#p-1005.11"
+      }
+     ]
+    },
+    {
+     "id": "MP-05",
+     "title": "Account Restrictions and Closures",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/member/member.md#mp-05-account-restrictions-and-closures",
+     "citations": [
+      {
+       "text": "Cal. Fin. Code \u00a7\u00a7 14750\u201314752",
+       "url": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=FIN&sectionNum=14750."
+      }
+     ]
+    },
+    {
+     "id": "MP-06",
+     "title": "Member Expulsion",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/member/member.md#mp-06-member-expulsion",
+     "citations": [
+      {
+       "text": "Cal. Fin. Code \u00a7\u00a7 14850\u201314854",
+       "url": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=FIN&sectionNum=14850."
+      },
+      {
+       "text": "12 U.S.C. \u00a7 1764",
+       "url": "https://www.law.cornell.edu/uscode/text/12/1764"
+      }
+     ]
+    },
+    {
+     "id": "MP-07",
+     "title": "Member Death and Estate Handling",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/member/member.md#mp-07-member-death-and-estate-handling",
+     "citations": [
+      {
+       "text": "Regulation E (12 CFR Part 1005)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1005"
+      }
+     ]
+    },
+    {
+     "id": "MP-08",
+     "title": "Member Records and Privacy",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/member/member.md#mp-08-member-records-and-privacy",
+     "citations": [
+      {
+       "text": "Regulation P (12 CFR Part 1016)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1016"
+      }
+     ]
+    },
+    {
+     "id": "MP-09",
+     "title": "Member Service Standards",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/member/member.md#mp-09-member-service-standards",
+     "citations": []
+    }
+   ]
+  },
+  {
+   "slug": "privacy",
+   "title": "Privacy",
+   "controls": [
+    {
+     "id": "PR-01",
+     "title": "Privacy Notice Lifecycle",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/privacy/privacy.md#pr-01-privacy-notice-lifecycle",
+     "citations": [
+      {
+       "text": "Regulation P \u00a7\u00a71016.4, 1016.5, 1016.8, 1016.9",
+       "url": "https://www.ecfr.gov/current/title-12/part-1016"
+      }
+     ]
+    },
+    {
+     "id": "PR-02",
+     "title": "Opt-Out Capture and Honoring",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/privacy/privacy.md#pr-02-opt-out-capture-and-honoring",
+     "citations": [
+      {
+       "text": "Regulation P \u00a71016.7",
+       "url": "https://www.ecfr.gov/current/title-12/part-1016"
+      }
+     ]
+    },
+    {
+     "id": "PR-03",
+     "title": "Permissible Disclosures and Exceptions",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/privacy/privacy.md#pr-03-permissible-disclosures-and-exceptions",
+     "citations": [
+      {
+       "text": "Regulation P \u00a7\u00a71016.13 (service-provider/joint-marketing), 1016.14 (servicing/processing), and 1016.15 (legal/protective exceptions)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1016"
+      }
+     ]
+    },
+    {
+     "id": "PR-04",
+     "title": "Member Access and Authentication",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/privacy/privacy.md#pr-04-member-access-and-authentication",
+     "citations": [
+      {
+       "text": "Regulation P \u00a71016.9",
+       "url": "https://www.ecfr.gov/current/title-12/part-1016"
+      },
+      {
+       "text": "Right to Financial Privacy Act (12 USC \u00a73401 et seq.)",
+       "url": "https://www.law.cornell.edu/uscode/text/12/3401"
+      },
+      {
+       "text": "NCUA Part 748",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "PR-05",
+     "title": "Data Accuracy and Corrections",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/privacy/privacy.md#pr-05-data-accuracy-and-corrections",
+     "citations": [
+      {
+       "text": "FCRA/Regulation V (12 CFR Part 1022)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1022"
+      },
+      {
+       "text": "NCUA Part 717",
+       "url": "https://www.ecfr.gov/current/title-12/part-717"
+      },
+      {
+       "text": "NCUA Part 748",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "12 CFR Part 717",
+       "url": "https://www.ecfr.gov/current/title-12/part-717"
+      }
+     ]
+    },
+    {
+     "id": "PR-06",
+     "title": "Employee Access Minimization and Training",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/privacy/privacy.md#pr-06-employee-access-minimization-and-training",
+     "citations": [
+      {
+       "text": "NCUA Part 748, Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "PR-07",
+     "title": "Third-Party Oversight and Contracts",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/privacy/privacy.md#pr-07-third-party-oversight-and-contracts",
+     "citations": [
+      {
+       "text": "Regulation P \u00a71016.13",
+       "url": "https://www.ecfr.gov/current/title-12/part-1016"
+      },
+      {
+       "text": "NCUA Part 748",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "PR-08",
+     "title": "Secure Disposal of NPPI",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/privacy/privacy.md#pr-08-secure-disposal-of-nppi",
+     "citations": [
+      {
+       "text": "FACTA Disposal Rule (16 CFR Part 682)",
+       "url": "https://www.ecfr.gov/current/title-16/part-682"
+      },
+      {
+       "text": "NCUA Part 748",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "SC-01",
+     "title": "NCUA Reportable Cyber-Incident & Member Notification",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/privacy/privacy.md#sc-01-ncua-reportable-cyber-incident-member-notification",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748 \u00a7748.1(c)",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix B",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "PR-18",
+     "title": "Incident Detection, Classification & SAR Referral",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/privacy/privacy.md#pr-18-incident-detection-classification-sar-referral",
+     "citations": [
+      {
+       "text": "NCUA Part 748, Appendix B",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "SC-01",
+       "url": "#sc-01-ncua-reportable-cyber-incident-member-notification"
+      }
+     ]
+    },
+    {
+     "id": "PR-10",
+     "title": "Recordkeeping, Complaints, and Board Reporting",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/privacy/privacy.md#pr-10-recordkeeping-complaints-and-board-reporting",
+     "citations": [
+      {
+       "text": "NCUA Part 748",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "PR-11",
+     "title": "Website Posting and E-SIGN Delivery",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/privacy/privacy.md#pr-11-website-posting-and-e-sign-delivery",
+     "citations": [
+      {
+       "text": "Regulation P \u00a71016.9",
+       "url": "https://www.ecfr.gov/current/title-12/part-1016"
+      },
+      {
+       "text": "E-SIGN (15 USC \u00a77001)",
+       "url": "https://www.law.cornell.edu/uscode/text/15/7001"
+      }
+     ]
+    },
+    {
+     "id": "PR-12",
+     "title": "State Privacy Rights: Universal Floor",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/privacy/privacy.md#pr-12-state-privacy-rights-universal-floor",
+     "citations": [
+      {
+       "text": "Cal. Civ. Code \u00a7\u00a71798.100 et seq.",
+       "url": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=1798.100.&lawCode=CIV"
+      }
+     ]
+    },
+    {
+     "id": "PR-13",
+     "title": "Anonymization and Aggregation",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/privacy/privacy.md#pr-13-anonymization-and-aggregation",
+     "citations": []
+    },
+    {
+     "id": "PR-14",
+     "title": "Cookies and Online Tracking",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/privacy/privacy.md#pr-14-cookies-and-online-tracking",
+     "citations": [
+      {
+       "text": "PR-12",
+       "url": "#pr-12-state-privacy-rights-universal-floor"
+      }
+     ]
+    },
+    {
+     "id": "PR-15",
+     "title": "Third-Party App and Account Connections",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/privacy/privacy.md#pr-15-third-party-app-and-account-connections",
+     "citations": []
+    },
+    {
+     "id": "PR-16",
+     "title": "Biometric Data for KYC",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/privacy/privacy.md#pr-16-biometric-data-for-kyc",
+     "citations": []
+    },
+    {
+     "id": "PR-17",
+     "title": "Children's Data",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/privacy/privacy.md#pr-17-childrens-data",
+     "citations": [
+      {
+       "text": "COPPA (16 CFR Part 312)",
+       "url": "https://www.ecfr.gov/current/title-16/part-312"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "record-retention",
+   "title": "Record Retention",
+   "controls": [
+    {
+     "id": "RR-01",
+     "title": "Retention Schedule and Clock Setting",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/record-retention/record-retention.md#rr-01-retention-schedule-and-clock-setting",
+     "citations": [
+      {
+       "text": "BSA 31 CFR \u00a71010.430",
+       "url": "https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X/part-1010/subpart-D/section-1010.430"
+      },
+      {
+       "text": "Reg B/ECOA 12 CFR \u00a71002.12",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002#p-1002.12"
+      },
+      {
+       "text": "Reg Z/TILA 12 CFR \u00a71026.25",
+       "url": "https://www.ecfr.gov/current/title-12/part-1026#p-1026.25"
+      },
+      {
+       "text": "Reg CC 12 CFR \u00a7229.21",
+       "url": "https://www.ecfr.gov/current/title-12/part-229#p-229.21"
+      },
+      {
+       "text": "Reg E 12 CFR \u00a71005.13",
+       "url": "https://www.ecfr.gov/current/title-12/part-1005#p-1005.13"
+      },
+      {
+       "text": "HMDA/Reg C 12 CFR \u00a71003.5",
+       "url": "https://www.ecfr.gov/current/title-12/part-1003#p-1003.5"
+      },
+      {
+       "text": "ERISA 29 U.S.C. \u00a71027",
+       "url": "https://www.law.cornell.edu/uscode/text/29/1027"
+      },
+      {
+       "text": "FFIEC Third-Party Risk Management Guidance",
+       "url": "https://www.ffiec.gov/press/PDF/FFIEC_Third_Party_Relationships_Risk_Management_Guidance.pdf"
+      },
+      {
+       "text": "12 CFR Part 364 App. B",
+       "url": "https://www.ecfr.gov/current/title-12/part-364#Appendix-B-to-Part-364"
+      }
+     ]
+    },
+    {
+     "id": "RR-02",
+     "title": "Retention Methods and Electronic-Record Integrity",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/record-retention/record-retention.md#rr-02-retention-methods-and-electronic-record-integrity",
+     "citations": [
+      {
+       "text": "12 CFR Part 364 App. B",
+       "url": "https://www.ecfr.gov/current/title-12/part-364#Appendix-B-to-Part-364"
+      }
+     ]
+    },
+    {
+     "id": "RR-03",
+     "title": "Document Destruction",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/record-retention/record-retention.md#rr-03-document-destruction",
+     "citations": [
+      {
+       "text": "12 CFR Part 364 App. B",
+       "url": "https://www.ecfr.gov/current/title-12/part-364#Appendix-B-to-Part-364"
+      }
+     ]
+    },
+    {
+     "id": "RR-04",
+     "title": "Destruction Logging and Storage Labeling",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/record-retention/record-retention.md#rr-04-destruction-logging-and-storage-labeling",
+     "citations": [
+      {
+       "text": "12 CFR Part 364 App. B",
+       "url": "https://www.ecfr.gov/current/title-12/part-364#Appendix-B-to-Part-364"
+      }
+     ]
+    },
+    {
+     "id": "RR-05",
+     "title": "Legal Holds",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/record-retention/record-retention.md#rr-05-legal-holds",
+     "citations": [
+      {
+       "text": "12 CFR Part 364 App. B",
+       "url": "https://www.ecfr.gov/current/title-12/part-364#Appendix-B-to-Part-364"
+      }
+     ]
+    },
+    {
+     "id": "RR-06",
+     "title": "Core Processor and Email Archive Retention",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/record-retention/record-retention.md#rr-06-core-processor-and-email-archive-retention",
+     "citations": [
+      {
+       "text": "12 CFR Part 364 App. B",
+       "url": "https://www.ecfr.gov/current/title-12/part-364#Appendix-B-to-Part-364"
+      },
+      {
+       "text": "31 CFR \u00a71010.430",
+       "url": "https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X/part-1010/subpart-D/section-1010.430"
+      }
+     ]
+    },
+    {
+     "id": "RR-07",
+     "title": "BSA/AML Anonymization and Extended Analytical Retention",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/record-retention/record-retention.md#rr-07-bsaaml-anonymization-and-extended-analytical-retention",
+     "citations": [
+      {
+       "text": "31 CFR \u00a71010.430",
+       "url": "https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X/part-1010/subpart-D/section-1010.430"
+      }
+     ]
+    },
+    {
+     "id": "RR-08",
+     "title": "CDD Refresh Cycle and Stale-Record Disposition",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/record-retention/record-retention.md#rr-08-cdd-refresh-cycle-and-stale-record-disposition",
+     "citations": [
+      {
+       "text": "31 CFR \u00a71010.230",
+       "url": "https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X/part-1010/subpart-D/section-1010.230"
+      }
+     ]
+    },
+    {
+     "id": "RR-09",
+     "title": "Annual Policy and Schedule Review",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/record-retention/record-retention.md#rr-09-annual-policy-and-schedule-review",
+     "citations": [
+      {
+       "text": "12 CFR Part 1002",
+       "url": "https://www.ecfr.gov/current/title-12/part-1002"
+      },
+      {
+       "text": "12 CFR Part 1003",
+       "url": "https://www.ecfr.gov/current/title-12/part-1003"
+      },
+      {
+       "text": "12 CFR Part 1026",
+       "url": "https://www.ecfr.gov/current/title-12/part-1026"
+      },
+      {
+       "text": "31 CFR \u00a71010.430",
+       "url": "https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X/part-1010/subpart-D/section-1010.430"
+      },
+      {
+       "text": "NCUA 12 CFR \u00a7701.31",
+       "url": "https://www.ecfr.gov/current/title-12/part-701/section-701.31"
+      }
+     ]
+    },
+    {
+     "id": "RR-10",
+     "title": "Training",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/record-retention/record-retention.md#rr-10-training",
+     "citations": [
+      {
+       "text": "12 CFR Part 364 App. B",
+       "url": "https://www.ecfr.gov/current/title-12/part-364#Appendix-B-to-Part-364"
+      }
+     ]
+    },
+    {
+     "id": "RR-11",
+     "title": "Permanent Record Governance",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/record-retention/record-retention.md#rr-11-permanent-record-governance",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR \u00a7701.31",
+       "url": "https://www.ecfr.gov/current/title-12/part-701/section-701.31"
+      }
+     ]
+    },
+    {
+     "id": "RR-12",
+     "title": "Responsibility and Administration",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/record-retention/record-retention.md#rr-12-responsibility-and-administration",
+     "citations": [
+      {
+       "text": "12 CFR Part 364 App. B",
+       "url": "https://www.ecfr.gov/current/title-12/part-364#Appendix-B-to-Part-364"
+      },
+      {
+       "text": "NCUA 12 CFR \u00a7701.31",
+       "url": "https://www.ecfr.gov/current/title-12/part-701/section-701.31"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "reimbursement-insurance-indemnification",
+   "title": "Reimbursement & Indemnification",
+   "controls": [
+    {
+     "id": "RII-01",
+     "title": "Business Expense Reimbursement",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md#rii-01-business-expense-reimbursement",
+     "citations": []
+    },
+    {
+     "id": "RII-02",
+     "title": "Insurance Program Maintenance",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md#rii-02-insurance-program-maintenance",
+     "citations": []
+    },
+    {
+     "id": "RII-03",
+     "title": "Mandatory Indemnification",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md#rii-03-mandatory-indemnification",
+     "citations": [
+      {
+       "text": "California Corporations Code \u00a7317(d)",
+       "url": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=317.&lawCode=CORP"
+      },
+      {
+       "text": "12 CFR Part 359",
+       "url": "https://www.ecfr.gov/current/title-12/part-359"
+      },
+      {
+       "text": "12 U.S.C. \u00a71828(k)",
+       "url": "https://www.law.cornell.edu/uscode/text/12/1828"
+      }
+     ]
+    },
+    {
+     "id": "RII-04",
+     "title": "Permissive Indemnification",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md#rii-04-permissive-indemnification",
+     "citations": [
+      {
+       "text": "California Corporations Code \u00a7317(b)\u2013(c)",
+       "url": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=317.&lawCode=CORP"
+      },
+      {
+       "text": "12 CFR Part 359",
+       "url": "https://www.ecfr.gov/current/title-12/part-359"
+      },
+      {
+       "text": "12 U.S.C. \u00a71828(k)",
+       "url": "https://www.law.cornell.edu/uscode/text/12/1828"
+      }
+     ]
+    },
+    {
+     "id": "RII-05",
+     "title": "Advancement of Expenses",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md#rii-05-advancement-of-expenses",
+     "citations": [
+      {
+       "text": "California Corporations Code \u00a7317(f)",
+       "url": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=317.&lawCode=CORP"
+      },
+      {
+       "text": "12 CFR Part 359",
+       "url": "https://www.ecfr.gov/current/title-12/part-359"
+      },
+      {
+       "text": "12 U.S.C. \u00a71828(k)",
+       "url": "https://www.law.cornell.edu/uscode/text/12/1828"
+      }
+     ]
+    },
+    {
+     "id": "RII-06",
+     "title": "Indemnification Exclusions",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md#rii-06-indemnification-exclusions",
+     "citations": [
+      {
+       "text": "California Corporations Code \u00a7317(b)",
+       "url": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=317.&lawCode=CORP"
+      },
+      {
+       "text": "12 CFR Part 359",
+       "url": "https://www.ecfr.gov/current/title-12/part-359"
+      },
+      {
+       "text": "12 U.S.C. \u00a71828(k)",
+       "url": "https://www.law.cornell.edu/uscode/text/12/1828"
+      }
+     ]
+    },
+    {
+     "id": "RII-07",
+     "title": "Decision Process and Conflicts",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md#rii-07-decision-process-and-conflicts",
+     "citations": [
+      {
+       "text": "California Corporations Code \u00a7317(e)",
+       "url": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=317.&lawCode=CORP"
+      },
+      {
+       "text": "12 CFR Part 359",
+       "url": "https://www.ecfr.gov/current/title-12/part-359"
+      },
+      {
+       "text": "12 U.S.C. \u00a71828(k)",
+       "url": "https://www.law.cornell.edu/uscode/text/12/1828"
+      }
+     ]
+    },
+    {
+     "id": "RII-08",
+     "title": "Claims Procedures",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md#rii-08-claims-procedures",
+     "citations": [
+      {
+       "text": "RII-02",
+       "url": "#rii-02-insurance-program-maintenance"
+      }
+     ]
+    },
+    {
+     "id": "RII-09",
+     "title": "Recordkeeping",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md#rii-09-recordkeeping",
+     "citations": []
+    }
+   ]
+  },
+  {
+   "slug": "resolution",
+   "title": "Resolution",
+   "controls": [
+    {
+     "id": "RS-01",
+     "title": "Policy Scope Registry",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/resolution/resolution.md#rs-01-policy-scope-registry",
+     "citations": [
+      {
+       "text": "12 CFR Part 741",
+       "url": "https://www.ecfr.gov/current/title-12/part-741"
+      },
+      {
+       "text": "12 CFR \u00a7\u00a7748.0\u2013748.2",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "RS-02",
+     "title": "Early-Warning Indicators",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/resolution/resolution.md#rs-02-early-warning-indicators",
+     "citations": [
+      {
+       "text": "12 USC \u00a7\u00a71786\u20131787",
+       "url": "https://www.law.cornell.edu/uscode/text/12/1786"
+      },
+      {
+       "text": "12 CFR Part 741",
+       "url": "https://www.ecfr.gov/current/title-12/part-741"
+      }
+     ]
+    },
+    {
+     "id": "RS-03",
+     "title": "Safe-Mode Transaction Controls",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/resolution/resolution.md#rs-03-safe-mode-transaction-controls",
+     "citations": [
+      {
+       "text": "12 CFR Part 748",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "12 USC \u00a71786",
+       "url": "https://www.law.cornell.edu/uscode/text/12/1786"
+      }
+     ]
+    },
+    {
+     "id": "RS-04",
+     "title": "Targeted Account Freeze",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/resolution/resolution.md#rs-04-targeted-account-freeze",
+     "citations": [
+      {
+       "text": "12 USC \u00a71787",
+       "url": "https://www.law.cornell.edu/uscode/text/12/1787"
+      },
+      {
+       "text": "12 CFR Part 748",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "RS-05",
+     "title": "Institution-Wide Freeze",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/resolution/resolution.md#rs-05-institution-wide-freeze",
+     "citations": [
+      {
+       "text": "12 USC \u00a7\u00a71786\u20131787",
+       "url": "https://www.law.cornell.edu/uscode/text/12/1787"
+      }
+     ]
+    },
+    {
+     "id": "RS-06",
+     "title": "Next-Business-Day Member Availability",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/resolution/resolution.md#rs-06-next-business-day-member-availability",
+     "citations": [
+      {
+       "text": "12 CFR Part 741",
+       "url": "https://www.ecfr.gov/current/title-12/part-741"
+      },
+      {
+       "text": "12 USC \u00a71787",
+       "url": "https://www.law.cornell.edu/uscode/text/12/1787"
+      }
+     ]
+    },
+    {
+     "id": "RS-07",
+     "title": "Trustee/Conservator Handover",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/resolution/resolution.md#rs-07-trustee-conservator-handover",
+     "citations": [
+      {
+       "text": "12 USC \u00a7\u00a71786(h), 1787",
+       "url": "https://www.law.cornell.edu/uscode/text/12/1786"
+      },
+      {
+       "text": "12 CFR Part 709",
+       "url": "https://www.ecfr.gov/current/title-12/part-709"
+      }
+     ]
+    },
+    {
+     "id": "RS-08",
+     "title": "Records Preservation for Resolution",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/resolution/resolution.md#rs-08-records-preservation-for-resolution",
+     "citations": [
+      {
+       "text": "12 CFR Part 749",
+       "url": "https://www.ecfr.gov/current/title-12/part-749"
+      },
+      {
+       "text": "12 CFR Part 709",
+       "url": "https://www.ecfr.gov/current/title-12/part-709"
+      },
+      {
+       "text": "12 USC \u00a71787",
+       "url": "https://www.law.cornell.edu/uscode/text/12/1787"
+      }
+     ]
+    },
+    {
+     "id": "RS-09",
+     "title": "Testing and Validation",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/resolution/resolution.md#rs-09-testing-and-validation",
+     "citations": [
+      {
+       "text": "12 CFR \u00a7\u00a7748.0\u2013748.2",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "12 CFR Part 741",
+       "url": "https://www.ecfr.gov/current/title-12/part-741"
+      }
+     ]
+    },
+    {
+     "id": "RS-10",
+     "title": "Governance and Review Cadence",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/resolution/resolution.md#rs-10-governance-and-review-cadence",
+     "citations": [
+      {
+       "text": "12 USC \u00a7\u00a71786\u20131787",
+       "url": "https://www.law.cornell.edu/uscode/text/12/1786"
+      },
+      {
+       "text": "12 CFR Part 741",
+       "url": "https://www.ecfr.gov/current/title-12/part-741"
+      },
+      {
+       "text": "12 CFR \u00a7748.2",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "shared-controls",
+   "title": "Shared Controls",
+   "controls": [
+    {
+     "id": "SC-03",
+     "title": "Enterprise Incident Declaration & First-Hour Response",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/shared-controls/incident-declaration.md#sc-03-enterprise-incident-declaration-first-hour-response",
+     "citations": [
+      {
+       "text": "12 CFR Part 748, Appendix A",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "FFIEC Business Continuity Management guidance",
+       "url": "https://www.ffiec.gov/press/pdf/FFIEC_IT_Booklet_BCM.pdf"
+      },
+      {
+       "text": "BC-06 \u2014 Incident Declaration and Initial Actions",
+       "url": "../business-continuity-plan/business-continuity-plan.md#bc-06-incident-declaration-and-initial-actions"
+      }
+     ]
+    },
+    {
+     "id": "SC-01",
+     "title": "NCUA Reportable Cyber-Incident & Member Notification",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/shared-controls/ncua-incident-notification.md#sc-01-ncua-reportable-cyber-incident-member-notification",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748 \u00a7748.1(c)",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix B",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "SC-02",
+     "title": "Record-Retention Lifecycle Mechanics",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/shared-controls/record-retention-mechanics.md#sc-02-record-retention-lifecycle-mechanics",
+     "citations": [
+      {
+       "text": "12 CFR Part 364, Appendix B",
+       "url": "https://www.ecfr.gov/current/title-12/part-364#Appendix-B-to-Part-364"
+      },
+      {
+       "text": "RR-03 \u2014 Document Destruction",
+       "url": "../record-retention/record-retention.md#rr-03-document-destruction"
+      },
+      {
+       "text": "RR-05 \u2014 Legal Holds",
+       "url": "../record-retention/record-retention.md#rr-05-legal-holds"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "third-party-risk",
+   "title": "Third-Party Risk",
+   "controls": [
+    {
+     "id": "TR-01",
+     "title": "Governance & Accountability",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/third-party-risk/third-party-risk.md#tr-01-governance-accountability",
+     "citations": [
+      {
+       "text": "2023 Interagency Guidance on Third-Party Relationships (88 FR 37920)",
+       "url": "https://www.federalregister.gov/documents/2023/06/09/2023-12340/interagency-guidance-on-third-party-relationships-risk-management"
+      },
+      {
+       "text": "12 CFR Part 748",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "TR-02",
+     "title": "Vendor Inventory & Criticality Classification",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/third-party-risk/third-party-risk.md#tr-02-vendor-inventory-criticality-classification",
+     "citations": [
+      {
+       "text": "2023 Interagency Guidance (88 FR 37920)",
+       "url": "https://www.federalregister.gov/documents/2023/06/09/2023-12340/interagency-guidance-on-third-party-relationships-risk-management"
+      },
+      {
+       "text": "12 CFR Part 748",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "TR-03",
+     "title": "Risk Assessment & Planning",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/third-party-risk/third-party-risk.md#tr-03-risk-assessment-planning",
+     "citations": [
+      {
+       "text": "2023 Interagency Guidance (88 FR 37920)",
+       "url": "https://www.federalregister.gov/documents/2023/06/09/2023-12340/interagency-guidance-on-third-party-relationships-risk-management"
+      },
+      {
+       "text": "12 USC \u00a71867(c)",
+       "url": "https://www.law.cornell.edu/uscode/text/12/1867"
+      }
+     ]
+    },
+    {
+     "id": "TR-04",
+     "title": "Due Diligence & AML/KYC Expectations",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/third-party-risk/third-party-risk.md#tr-04-due-diligence-amlkyc-expectations",
+     "citations": [
+      {
+       "text": "2023 Interagency Guidance (88 FR 37920)",
+       "url": "https://www.federalregister.gov/documents/2023/06/09/2023-12340/interagency-guidance-on-third-party-relationships-risk-management"
+      },
+      {
+       "text": "31 CFR \u00a71020.220",
+       "url": "https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X/part-1020/subpart-C/section-1020.220"
+      }
+     ]
+    },
+    {
+     "id": "TR-05",
+     "title": "Contract Standards & Regulatory Clauses",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/third-party-risk/third-party-risk.md#tr-05-contract-standards-regulatory-clauses",
+     "citations": [
+      {
+       "text": "2023 Interagency Guidance (88 FR 37920)",
+       "url": "https://www.federalregister.gov/documents/2023/06/09/2023-12340/interagency-guidance-on-third-party-relationships-risk-management"
+      },
+      {
+       "text": "GLBA / Regulation P (12 CFR Part 1016)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1016"
+      },
+      {
+       "text": "12 CFR Part 748",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "TR-06",
+     "title": "Outsourcing of Core & Capital-Impacting Functions",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/third-party-risk/third-party-risk.md#tr-06-outsourcing-of-core-capital-impacting-functions",
+     "citations": [
+      {
+       "text": "2023 Interagency Guidance (88 FR 37920)",
+       "url": "https://www.federalregister.gov/documents/2023/06/09/2023-12340/interagency-guidance-on-third-party-relationships-risk-management"
+      },
+      {
+       "text": "12 CFR Part 748",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "TR-07",
+     "title": "Ongoing Monitoring, Performance & Risk Reporting",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/third-party-risk/third-party-risk.md#tr-07-ongoing-monitoring-performance-risk-reporting",
+     "citations": [
+      {
+       "text": "2023 Interagency Guidance (88 FR 37920)",
+       "url": "https://www.federalregister.gov/documents/2023/06/09/2023-12340/interagency-guidance-on-third-party-relationships-risk-management"
+      },
+      {
+       "text": "12 CFR Part 748",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "SC-01",
+     "title": "NCUA Reportable Cyber-Incident & Member Notification",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/third-party-risk/third-party-risk.md#sc-01-ncua-reportable-cyber-incident-member-notification",
+     "citations": [
+      {
+       "text": "NCUA 12 CFR Part 748 \u00a7748.1(c)",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "NCUA 12 CFR Part 748, Appendix B",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      }
+     ]
+    },
+    {
+     "id": "TR-11",
+     "title": "Vendor Incident Notification, Internal Triage & SAR Referral",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/third-party-risk/third-party-risk.md#tr-11-vendor-incident-notification-internal-triage-sar-referral",
+     "citations": [
+      {
+       "text": "12 CFR Part 748, Appendices A and B",
+       "url": "https://www.ecfr.gov/current/title-12/part-748"
+      },
+      {
+       "text": "31 CFR Chapter X",
+       "url": "https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X"
+      },
+      {
+       "text": "2023 Interagency Guidance (88 FR 37920)",
+       "url": "https://www.federalregister.gov/documents/2023/06/09/2023-12340/interagency-guidance-on-third-party-relationships-risk-management"
+      },
+      {
+       "text": "SC-01",
+       "url": "#sc-01-ncua-reportable-cyber-incident-member-notification"
+      }
+     ]
+    },
+    {
+     "id": "TR-09",
+     "title": "Termination & Exit Strategy",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/third-party-risk/third-party-risk.md#tr-09-termination-exit-strategy",
+     "citations": [
+      {
+       "text": "2023 Interagency Guidance (88 FR 37920)",
+       "url": "https://www.federalregister.gov/documents/2023/06/09/2023-12340/interagency-guidance-on-third-party-relationships-risk-management"
+      },
+      {
+       "text": "GLBA / Regulation P (12 CFR Part 1016)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1016"
+      }
+     ]
+    },
+    {
+     "id": "TR-10",
+     "title": "Key Third-Party Owners & RACI",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/third-party-risk/third-party-risk.md#tr-10-key-third-party-owners-raci",
+     "citations": [
+      {
+       "text": "2023 Interagency Guidance (88 FR 37920)",
+       "url": "https://www.federalregister.gov/documents/2023/06/09/2023-12340/interagency-guidance-on-third-party-relationships-risk-management"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "truth-in-savings",
+   "title": "Truth in Savings",
+   "controls": [
+    {
+     "id": "TIS-01",
+     "title": "Disclosure Standards",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/truth-in-savings/truth-in-savings.md#tis-01-disclosure-standards",
+     "citations": [
+      {
+       "text": "12 CFR \u00a71030.3",
+       "url": "https://www.ecfr.gov/current/title-12/part-1030#p-1030.3"
+      }
+     ]
+    },
+    {
+     "id": "TIS-02",
+     "title": "Pre-Opening Account Disclosures",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/truth-in-savings/truth-in-savings.md#tis-02-pre-opening-account-disclosures",
+     "citations": [
+      {
+       "text": "12 CFR \u00a71030.4",
+       "url": "https://www.ecfr.gov/current/title-12/part-1030#p-1030.4"
+      }
+     ]
+    },
+    {
+     "id": "TIS-03",
+     "title": "Change-in-Terms Notices",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/truth-in-savings/truth-in-savings.md#tis-03-change-in-terms-notices",
+     "citations": [
+      {
+       "text": "12 CFR \u00a71030.5",
+       "url": "https://www.ecfr.gov/current/title-12/part-1030#p-1030.5"
+      }
+     ]
+    },
+    {
+     "id": "TIS-04",
+     "title": "Maturity Notices",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/truth-in-savings/truth-in-savings.md#tis-04-maturity-notices",
+     "citations": [
+      {
+       "text": "12 CFR \u00a71030.5(b)",
+       "url": "https://www.ecfr.gov/current/title-12/part-1030#p-1030.5(b"
+      }
+     ]
+    },
+    {
+     "id": "TIS-05",
+     "title": "Periodic Statement Disclosures",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/truth-in-savings/truth-in-savings.md#tis-05-periodic-statement-disclosures",
+     "citations": [
+      {
+       "text": "12 CFR \u00a71030.6",
+       "url": "https://www.ecfr.gov/current/title-12/part-1030#p-1030.6"
+      }
+     ]
+    },
+    {
+     "id": "TIS-06",
+     "title": "Interest Calculation",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/truth-in-savings/truth-in-savings.md#tis-06-interest-calculation",
+     "citations": [
+      {
+       "text": "12 CFR \u00a71030.7",
+       "url": "https://www.ecfr.gov/current/title-12/part-1030#p-1030.7"
+      }
+     ]
+    },
+    {
+     "id": "TIS-07",
+     "title": "Advertising Review",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/truth-in-savings/truth-in-savings.md#tis-07-advertising-review",
+     "citations": [
+      {
+       "text": "12 CFR \u00a71030.8",
+       "url": "https://www.ecfr.gov/current/title-12/part-1030#p-1030.8"
+      }
+     ]
+    },
+    {
+     "id": "TIS-08",
+     "title": "Overdraft Service Disclosures",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/truth-in-savings/truth-in-savings.md#tis-08-overdraft-service-disclosures",
+     "citations": [
+      {
+       "text": "12 CFR \u00a71030.11",
+       "url": "https://www.ecfr.gov/current/title-12/part-1030#p-1030.11"
+      },
+      {
+       "text": "12 CFR \u00a71005.17",
+       "url": "https://www.ecfr.gov/current/title-12/part-1005#p-1005.17"
+      }
+     ]
+    },
+    {
+     "id": "TIS-09",
+     "title": "Recordkeeping",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/truth-in-savings/truth-in-savings.md#tis-09-recordkeeping",
+     "citations": [
+      {
+       "text": "12 CFR \u00a71030.9",
+       "url": "https://www.ecfr.gov/current/title-12/part-1030#p-1030.9"
+      }
+     ]
+    },
+    {
+     "id": "TIS-10",
+     "title": "Training and Monitoring",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/truth-in-savings/truth-in-savings.md#tis-10-training-and-monitoring",
+     "citations": [
+      {
+       "text": "12 CFR \u00a71030.3",
+       "url": "https://www.ecfr.gov/current/title-12/part-1030#p-1030.3"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

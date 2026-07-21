@@ -34,6 +34,9 @@ jobs:
       - name: Crosswalk integrity — no over-claims, no stale catalogue ids
         run: python3 scripts/build_crosswalk.py --check
 
+      - name: Dashboard hierarchy matches the catalogue
+        run: python3 scripts/build_dashboard.py --check
+
       - name: Float guard — amounts are integer minor units, everywhere
         run: |
           set -e
