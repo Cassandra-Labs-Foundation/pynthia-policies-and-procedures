@@ -181,8 +181,20 @@ Deno.test("the policy hierarchy covers the whole catalogue — every policy, eve
   assertEquals(extras, ["money-movement-gate"]);
   assertEquals(manifest.control_count, catalogue.controls.length + 6);
 
+  // every page loads the shared app under a CONTENT-STAMPED url: without the
+  // stamp a rebuilt app.js stays shadowed by the cached one, and the new
+  // catalogue renders through old code (observed live — 27 cards from a
+  // 28-policy manifest)
+  const stamps = new Set<string>();
   for (const p of manifest.policies) {
     const stub = await Deno.readTextFile(new URL(`${p.slug}/index.html`, dash));
-    assert(stub.includes("assets/app.js"), `${p.slug}: stub must load the shared app`);
+    const m = stub.match(/assets\/app\.js\?v=([0-9a-f]{12})/);
+    assert(m, `${p.slug}: stub must load the shared app under a versioned url`);
+    stamps.add(m[1]);
   }
+  const indexHtml = await Deno.readTextFile(new URL("index.html", dash));
+  const im = indexHtml.match(/assets\/app\.js\?v=([0-9a-f]{12})/);
+  assert(im, "index must load the shared app under a versioned url");
+  stamps.add(im[1]);
+  assertEquals(stamps.size, 1, "every page must carry the SAME asset stamp");
 });

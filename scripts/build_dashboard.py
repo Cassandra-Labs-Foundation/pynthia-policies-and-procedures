@@ -16,8 +16,10 @@ Outputs:
                                     load the shared app, which reads the
                                     policy slug from its own URL.
 """
+import hashlib
 import json
 import pathlib
+import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -64,14 +66,27 @@ STUB = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cassandra — Compliance</title>
-<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/style.css?v={v}">
 </head>
 <body>
 <div id="root"></div>
-<script src="../assets/app.js"></script>
+<script src="../assets/app.js?v={v}"></script>
 </body>
 </html>
 """
+
+
+def asset_version() -> str:
+    """Content hash of the shared assets.
+
+    Stamped into every asset URL so a rebuilt app.js can never be shadowed by
+    a cached one. Learned the hard way: the manifest's own no-cache fix was
+    invisible because the SCRIPT that fetches it was the stale thing.
+    """
+    h = hashlib.sha256()
+    for name in ("style.css", "app.js"):
+        h.update((DASH / "assets" / name).read_bytes())
+    return h.hexdigest()[:12]
 
 
 def title_for(slug: str, policy_title: str | None) -> str:
@@ -143,9 +158,19 @@ def build_manifest() -> dict:
 
 
 def desired_files(manifest: dict) -> dict[pathlib.Path, str]:
+    v = asset_version()
     files = {DASH / "manifest.json": json.dumps(manifest, indent=1) + "\n"}
     for p in manifest["policies"]:
-        files[DASH / p["slug"] / "index.html"] = STUB
+        files[DASH / p["slug"] / "index.html"] = STUB.format(v=v)
+
+    # the index is hand-written (it carries the explanatory header comment),
+    # so its asset URLs are re-stamped in place rather than regenerated
+    index = DASH / "index.html"
+    files[index] = re.sub(
+        r'(assets/(?:style\.css|app\.js))(\?v=[0-9a-f]+)?',
+        lambda m: f"{m.group(1)}?v={v}",
+        index.read_text(),
+    )
     return files
 
 
