@@ -169,7 +169,14 @@
   async function load() {
     let m, d;
     try {
-      const [mr, dr] = await Promise.all([fetch(base + "manifest.json"), fetch(dataUrl)]);
+      // no-cache on the manifest: Pages serves it with a long max-age, so a
+      // regenerated catalogue would otherwise keep rendering the old policy
+      // list (caught in a browser after adding a policy — the new page was
+      // live and invisible). The data route is already no-store.
+      const [mr, dr] = await Promise.all([
+        fetch(base + "manifest.json", { cache: "no-cache" }),
+        fetch(dataUrl),
+      ]);
       if (!mr.ok || !dr.ok) throw new Error("manifest " + mr.status + ", data " + dr.status);
       m = await mr.json();
       d = await dr.json();
