@@ -29,6 +29,13 @@ export interface InstanceClaims {
   /** issued-at and expiry, seconds since epoch */
   iat: number;
   exp: number;
+  /**
+   * Card 52: credential class within the aggregator. 'instance' (the
+   * default when absent) pushes events and originates for ITS instance;
+   * 'cu_admin' reads across every instance and writes NOTHING. The claim is
+   * minted by /auth/token from the credential row — never client-asserted.
+   */
+  role?: "instance" | "cu_admin";
 }
 
 export type VerifyOutcome =

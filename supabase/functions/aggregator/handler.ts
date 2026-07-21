@@ -14,7 +14,7 @@
 // Auth: instance JWT (D19). Deliberately NOT the partner token table; see
 // auth.ts for why that is a class distinction rather than a scope one.
 
-import { looksLikePartnerToken, verifyInstanceJwt } from "./auth.ts";
+import { looksLikePartnerToken, signInstanceJwt, verifyInstanceJwt } from "./auth.ts";
 
 const API_VERSION = "4.0.0";
 
@@ -67,6 +67,21 @@ export async function handleAggregator(
   },
   requestId: string,
 ): Promise<Response> {
+  // Card 64: /auth/token is the ONE pre-auth route — it exchanges a
+  // per-instance client secret for a 300s instance JWT, so the long-lived
+  // secret rides exactly one endpoint and everything else sees only its
+  // 5-minute derivative. The mTLS half of card 64 is platform-blocked:
+  // Supabase terminates TLS at its edge and does not forward client
+  // certificates, so it is documented as unenforceable here, not simulated.
+  {
+    const url = new URL(req.url);
+    const parts = url.pathname.split("/").filter(Boolean);
+    if (parts[0] === "aggregator") parts.shift();
+    if (req.method === "POST" && parts.join("/") === "auth/token") {
+      return await issueToken(req, deps, requestId);
+    }
+  }
+
   const token = extractBearer(req);
   if (!token) {
     return apiError(
@@ -121,6 +136,73 @@ export async function handleAggregator(
   if (parts[0] === "aggregator") parts.shift();
   const path = "/" + parts.join("/");
 
+  // Card 52: cu_admin READS across instances and WRITES nothing. The gate
+  // sits before every route so a new write route cannot forget it: admins
+  // may only GET.
+  const role = verified.claims.role ?? "instance";
+  if (role === "cu_admin" && req.method !== "GET") {
+    return apiError(
+      403,
+      "admin_read_only",
+      requestId,
+      "Admin Is Read-Only",
+      "the cu_admin credential reads across instances and writes nothing (card 52)",
+    );
+  }
+
+  // Card 52: the cross-instance overview — one row per instance.
+  if (req.method === "GET" && /^\/admin\/overview\/?$/.test(path)) {
+    if (role !== "cu_admin") {
+      return apiError(
+        403,
+        "cu_admin_only",
+        requestId,
+        "CU Admin Only",
+        "cross-instance reads require the cu_admin credential",
+      );
+    }
+    const { data, error } = await deps.db.schema("aggregator").rpc("admin_overview");
+    if (error) {
+      console.error(`[${requestId}] admin_overview failed: ${error.message}`);
+      return apiError(500, "internal_error", requestId, "Internal Error", "overview failed");
+    }
+    return jsonResponse({ instances: data }, 200, requestId);
+  }
+
+  // Card 54: cross-fintech search — by entity_hash only (identity never
+  // crosses the boundary, so identity cannot be the search key), and
+  // cu_admin only: an instance reading another instance's activity is the
+  // contamination D23 forbids, so this succeeds at the aggregator and
+  // nowhere else.
+  if (req.method === "GET" && /^\/search\/?$/.test(path)) {
+    if (role !== "cu_admin") {
+      return apiError(
+        403,
+        "cu_admin_only",
+        requestId,
+        "CU Admin Only",
+        "cross-fintech search requires the cu_admin credential",
+      );
+    }
+    const hash = url.searchParams.get("entity_hash");
+    if (!hash) {
+      return apiError(
+        400,
+        "validation_error",
+        requestId,
+        "Validation Error",
+        "entity_hash query parameter is required",
+      );
+    }
+    const { data, error } = await deps.db.schema("aggregator")
+      .rpc("search_entity", { p_hash: hash });
+    if (error) {
+      console.error(`[${requestId}] search_entity failed: ${error.message}`);
+      return apiError(500, "internal_error", requestId, "Internal Error", "search failed");
+    }
+    return jsonResponse(data, 200, requestId);
+  }
+
   if (req.method === "POST" && /^\/events\/ingest\/?$/.test(path)) {
     return await ingestEvents(req, deps.db, verified.claims.instance_id, requestId);
   }
@@ -134,6 +216,93 @@ export async function handleAggregator(
     if (error) {
       console.error(`[${requestId}] health failed: ${error.message}`);
       return apiError(500, "internal_error", requestId, "Internal Error", "health check failed");
+    }
+    return jsonResponse(data, 200, requestId);
+  }
+
+  // Card 65: FBO reads — consumer-built state only (position from the
+  // Payment Hub, available = position minus held reserves, inbound = what
+  // the hub has not applied yet). The instance in question is ALWAYS the
+  // token's; there is no path parameter to read someone else's FBO.
+  if (req.method === "GET" && /^\/fbo\/?$/.test(path)) {
+    const { data, error } = await deps.db.schema("aggregator")
+      .rpc("fbo_read", { p_instance: verified.claims.instance_id });
+    if (error) {
+      console.error(`[${requestId}] fbo_read failed: ${error.message}`);
+      return apiError(500, "internal_error", requestId, "Internal Error", "fbo read failed");
+    }
+    return jsonResponse(data, 200, requestId);
+  }
+
+  // Card 66: a clean origination reserves and returns pending; a stale
+  // Payment Hub is a 503 WITH Retry-After — the caller is told when trying
+  // again is reasonable, not just that now is not the time.
+  if (req.method === "POST" && /^\/originations\/?$/.test(path)) {
+    let body: Record<string, unknown>;
+    try {
+      body = await req.json();
+    } catch {
+      return apiError(400, "validation_error", requestId, "Validation Error", "body must be JSON");
+    }
+    const amount = body?.amount_cents;
+    if (typeof amount !== "number" || !Number.isInteger(amount) || amount <= 0) {
+      return apiError(
+        400,
+        "validation_error",
+        requestId,
+        "Validation Error",
+        "amount_cents must be a positive integer",
+      );
+    }
+    const { data, error } = await deps.db.schema("aggregator")
+      .rpc("originate", { p_instance: verified.claims.instance_id, p_amount: amount });
+    if (error) {
+      console.error(`[${requestId}] originate failed: ${error.message}`);
+      return apiError(500, "internal_error", requestId, "Internal Error", "origination failed");
+    }
+    if (data?.error === "consumer_stale") {
+      const res = apiError(
+        503,
+        "consumer_stale",
+        requestId,
+        "Consumer Stale",
+        String(data.detail ?? "payment hub state is stale"),
+      );
+      res.headers.set("Retry-After", String(data.retry_after_secs ?? 120));
+      return res;
+    }
+    if (data?.error === "insufficient_available") {
+      return apiError(
+        409,
+        "insufficient_available",
+        requestId,
+        "Insufficient Available Balance",
+        `requested ${data.requested_cents} cents against ${data.available_balance_cents} available`,
+      );
+    }
+    return jsonResponse(data, 201, requestId);
+  }
+
+  // Card 67: the saga's two exits.
+  const sagaMatch = path.match(/^\/originations\/([^/]+)\/(accept|reject)\/?$/);
+  if (req.method === "POST" && sagaMatch) {
+    const fn = sagaMatch[2] === "accept" ? "accept_origination" : "reject_origination";
+    const { data, error } = await deps.db.schema("aggregator").rpc(fn, { p_id: sagaMatch[1] });
+    if (error) {
+      console.error(`[${requestId}] ${fn} failed: ${error.message}`);
+      return apiError(500, "internal_error", requestId, "Internal Error", `${fn} failed`);
+    }
+    if (data?.error === "not_found") {
+      return apiError(404, "not_found", requestId, "Not Found", "no such origination");
+    }
+    if (data?.error) {
+      return apiError(
+        409,
+        "conflict",
+        requestId,
+        "Conflict",
+        `origination is ${data.status ?? "not in a resolvable state"}`,
+      );
     }
     return jsonResponse(data, 200, requestId);
   }
@@ -242,4 +411,82 @@ async function ingestEvents(
   }
 
   return jsonResponse({ ingested: rows.length, instance_id: instanceId }, 200, requestId);
+}
+
+/**
+ * POST /auth/token (card 64) — exchange a per-instance client secret for a
+ * 300s instance JWT. The stored value is sha256(secret); the plaintext exists
+ * only in the caller's config and on this one request. Wrong instance and
+ * wrong secret are the SAME 401 — this endpoint confirms nothing about which
+ * instance ids exist.
+ */
+async function issueToken(
+  req: Request,
+  deps: {
+    jwtSecret: string | undefined;
+    // deno-lint-ignore no-explicit-any
+    db: any;
+    now?: number;
+  },
+  requestId: string,
+): Promise<Response> {
+  if (!deps.jwtSecret) {
+    return apiError(
+      500,
+      "misconfigured",
+      requestId,
+      "Misconfigured",
+      "server misconfigured: AGGREGATOR_JWT_SECRET unset",
+    );
+  }
+
+  let body: Record<string, unknown>;
+  try {
+    body = await req.json();
+  } catch {
+    return apiError(400, "validation_error", requestId, "Validation Error", "body must be JSON");
+  }
+  const instanceId = body?.instance_id;
+  const secret = body?.client_secret;
+  if (typeof instanceId !== "string" || !instanceId || typeof secret !== "string" || !secret) {
+    return apiError(
+      400,
+      "validation_error",
+      requestId,
+      "Validation Error",
+      "instance_id and client_secret are required",
+    );
+  }
+
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(secret));
+  const hash = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+
+  // role is in the select because the JWT MINTS it — the select-list lesson
+  const { data, error } = await deps.db.schema("aggregator").from("instance_credential")
+    .select("instance_id, client_secret_hash, role").eq("instance_id", instanceId).maybeSingle();
+  if (error) {
+    console.error(`[${requestId}] credential lookup failed: ${error.message}`);
+    return apiError(500, "internal_error", requestId, "Internal Error", "token issuance failed");
+  }
+  if (!data || data.client_secret_hash !== hash) {
+    return apiError(
+      401,
+      "unauthorized",
+      requestId,
+      "Unauthorized",
+      "instance credentials rejected",
+    );
+  }
+
+  const now = Math.floor((deps.now ?? Date.now()) / 1000);
+  const role = data.role === "cu_admin" ? "cu_admin" as const : "instance" as const;
+  const jwt = await signInstanceJwt(
+    { instance_id: instanceId, iat: now, exp: now + 300, role },
+    deps.jwtSecret,
+  );
+  return jsonResponse(
+    { access_token: jwt, token_type: "Bearer", expires_in: 300, instance_id: instanceId, role },
+    200,
+    requestId,
+  );
 }
