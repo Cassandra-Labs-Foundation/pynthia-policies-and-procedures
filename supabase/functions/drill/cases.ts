@@ -72,9 +72,9 @@ export function seedInstitution(env: Env): void {
       });
     }
   };
-  put("partner", { id: "ptnr_drill", status: "active", instance_id: "inst_drill" });
+  put("partner", { id: "ptnr_drill", name: "Drill Partner", status: "active", instance_id: "inst_drill" });
   for (let i = 1; i <= 6; i++) {
-    put("entity", { id: `ent_${i}`, type: "person", name: `Member ${i}`, status: "active" });
+    put("entity", { id: `ent_${i}`, type: "person", name: `Member ${i}`, status: "active", partner_id: "ptnr_drill" });
     put("account", {
       id: `acct_${i}`, entity_id: `ent_${i}`, status: "open", lock_type: "none", account_type: "checking",
       balance: 5_000_00, blnk_balance_id: `bal_${i}`, partner_id: "ptnr_drill",
@@ -92,11 +92,11 @@ export function seedInstitution(env: Env): void {
     balance: 5_000_00, blnk_balance_id: "bal_l", partner_id: "ptnr_drill",
   });
   put("loan_application", {
-    id: "app_1", status: "completed", completed_at: "2026-06-01T00:00:00.000Z",
+    id: "app_1", status: "final_action", completed_at: "2026-06-01T00:00:00.000Z",
     decisioned_at: null, final_action: null, funding_block_state: "open",
   });
   put("loan_application", {
-    id: "app_2", status: "completed", completed_at: "2026-06-01T00:00:00.000Z",
+    id: "app_2", status: "final_action", completed_at: "2026-06-01T00:00:00.000Z",
     decisioned_at: null, final_action: null, funding_block_state: "open",
   });
 }

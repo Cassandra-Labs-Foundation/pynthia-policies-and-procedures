@@ -4,14 +4,16 @@
 // obligation attaches to currency crossing the counter for a MEMBER; this one
 // is the institution's own currency INVENTORY. See the migration header.
 //
-// WHAT IS DELIBERATELY ABSENT: nothing here creates an `employee` or an `hr`
-// record. CP-05 and CP-07 declare those and stay RED naming them. Turning two
-// controls green by inventing personnel facts would be the same error as
-// guessing an account's owner.
+// Personnel facts come from hr.ts — a WRITER, not an invention: employees,
+// separations, coaching and training are declared by an authorized internal
+// actor exactly like thresholds and board approvals. (This header used to
+// declare the employee concept deliberately absent and keep CP-05/CP-07 red
+// naming it; the HR seam is that backlog paid, not a change of stance.)
 
 import { type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { type PartnerContext } from "./auth.ts";
 import { type EvidenceScope, provenanceFor, raiseAlert } from "./bsa.ts";
+import { trainingCoveragePct } from "./hr.ts";
 import {
   apiError, internalErrorResponse, isNonEmptyString, jsonResponse, notFoundResponse,
   parseJsonBody, validationError, type ValidationErrorItem,
@@ -568,6 +570,147 @@ export async function postCashSuspenseClear(
       "gl.correction.txn_id": body.correction_txn_id,
     }, ctx);
   return jsonResponse({ data: { id: suspenseId, cleared: true } }, 200, requestId);
+}
+
+// ---------------------------------------- CP-05 custody, keys, combinations
+
+/** CP-05: keys and combinations rotate on a clock, not on a memory. */
+const CUSTODY_ROTATION_DAYS = 180;
+const CUSTODY_ATTESTATION_DAYS = 90;
+
+/**
+ * POST /cash-ops/custody {employee_id, kind, asset_id?}
+ *
+ * The registry entry IS the control: who holds which key/combination, when it
+ * rotates, when coverage was last attested. Granting custody to a separated
+ * employee is refused — that is not a validation nicety, it is the control.
+ */
+export async function postCashCustody(
+  req: Request, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const denied = requireInternalActor(ctx, requestId);
+  if (denied) return denied;
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  if (!isNonEmptyString(body.employee_id) || !isNonEmptyString(body.kind)) {
+    return validationError(requestId, [{
+      type: "missing_field", field: "employee_id",
+      message: "employee_id and kind (key|combination|keybox) are required",
+    }]);
+  }
+  const { data: emp } = await db.schema(scope).from("employee")
+    .select("id, status").eq("id", body.employee_id).maybeSingle();
+  if (!emp) return notFoundResponse(requestId, "employee", String(body.employee_id));
+  if (emp.status !== "active") {
+    return apiError(409, "custody_to_separated_employee", requestId, {
+      title: "Custody Refused",
+      detail: "custody cannot be granted to a separated employee — that is the CP-05 exposure itself",
+    });
+  }
+
+  const now = new Date();
+  const id = `custody_${crypto.randomUUID()}`;
+  const rotationDue = plusDays(now, CUSTODY_ROTATION_DAYS);
+  const attestDue = plusDays(now, CUSTODY_ATTESTATION_DAYS);
+  const { error } = await db.schema(scope).from("cash_custody").upsert({
+    id, employee_id: body.employee_id, kind: body.kind,
+    asset_id: isNonEmptyString(body.asset_id) ? body.asset_id : null,
+    rotation_due_at: rotationDue, attestation_due_at: attestDue,
+    provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id" });
+  if (error) return internalErrorResponse(requestId, error.message);
+
+  await emit(db, scope, `ev_${id}_cov`, "cash.coverage.updated", "cash_custody", id, {
+    "cash.coverage.registry": [id], "employee.id": body.employee_id, kind: body.kind,
+  }, ctx);
+  await emit(db, scope, `ev_${id}_rot`, "cash.custody.rotation_due_at", "cash_custody", id, {
+    rotation_due_at: rotationDue,
+  }, ctx);
+  await emit(db, scope, `ev_${id}_attdue`, "cash.coverage.attestation.due_at", "cash_custody", id, {
+    attestation_due_at: attestDue,
+  }, ctx);
+  await emit(db, scope, `ev_${id}_evid`, "cash.evidence.created", "cash_custody", id, {
+    "cash.evidence.type": "custody_grant", "employee.id": body.employee_id,
+  }, ctx);
+  return jsonResponse({ data: { id, rotation_due_at: rotationDue } }, 201, requestId);
+}
+
+/** POST /cash-ops/custody/{id}/attest {attested_by} */
+export async function postCashCustodyAttest(
+  req: Request, custodyId: string, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const denied = requireInternalActor(ctx, requestId);
+  if (denied) return denied;
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  const { data: cust } = await db.schema(scope).from("cash_custody")
+    .select("id, revoked_at").eq("id", custodyId).maybeSingle();
+  if (!cust) return notFoundResponse(requestId, "cash_custody", custodyId);
+  if (cust.revoked_at) {
+    return apiError(409, "custody_revoked", requestId, {
+      title: "Custody Revoked",
+      detail: "a revoked custody cannot be attested — attest the live registry, not history",
+    });
+  }
+  const now = new Date();
+  const { error } = await db.schema(scope).from("cash_custody").update({
+    attested_at: now.toISOString(),
+    attestation_due_at: plusDays(now, CUSTODY_ATTESTATION_DAYS),
+  }).eq("id", custodyId);
+  if (error) return internalErrorResponse(requestId, error.message);
+  await emit(db, scope, `ev_${custodyId}_att_${now.getTime()}`, "cash.coverage.attested",
+    "cash_custody", custodyId, {
+      attested_by: body.attested_by ?? ctx.tokenId,
+    }, ctx);
+  return jsonResponse({ data: { id: custodyId, attested: true } }, 200, requestId);
+}
+
+/**
+ * POST /cash-ops/custody/{id}/keybox-open {second_person_id, reason}
+ *
+ * DUAL CONTROL enforced, not described: no second person or no reason is a
+ * refusal, and the refusal names the rule.
+ */
+export async function postCashKeyboxOpen(
+  req: Request, custodyId: string, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const denied = requireInternalActor(ctx, requestId);
+  if (denied) return denied;
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  const { data: cust } = await db.schema(scope).from("cash_custody")
+    .select("id, employee_id, revoked_at").eq("id", custodyId).maybeSingle();
+  if (!cust) return notFoundResponse(requestId, "cash_custody", custodyId);
+  if (cust.revoked_at) {
+    return apiError(409, "custody_revoked", requestId, {
+      title: "Custody Revoked", detail: "a revoked custody cannot open the keybox",
+    });
+  }
+  if (!isNonEmptyString(body.second_person_id) || !isNonEmptyString(body.reason)) {
+    return apiError(422, "dual_control_required", requestId, {
+      title: "Dual Control Required",
+      detail: "keybox access requires a second person and a stated reason (CP-05)",
+    });
+  }
+  if (body.second_person_id === cust.employee_id) {
+    return apiError(422, "dual_control_required", requestId, {
+      title: "Dual Control Required",
+      detail: "the second person must be a DIFFERENT person — one keyholder twice is one keyholder",
+    });
+  }
+  const id = `keybox_${crypto.randomUUID()}`;
+  const { error } = await db.schema(scope).from("cash_keybox_access").upsert({
+    id, custody_id: custodyId, second_person_id: body.second_person_id,
+    reason: body.reason, provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id" });
+  if (error) return internalErrorResponse(requestId, error.message);
+  await emit(db, scope, `ev_${id}_log`, "cash.keybox_access.logged", "cash_keybox_access", id, {
+    "cash.keybox.reason": body.reason, "employee.id": cust.employee_id,
+    second_person_id: body.second_person_id,
+  }, ctx);
+  await emit(db, scope, `ev_${id}_dual`, "cash.dual_control.completed",
+    "cash_keybox_access", id, { second_person_id: body.second_person_id }, ctx);
+  return jsonResponse({ data: { id } }, 201, requestId);
 }
 
 // ------------------------------------------------------- CP-07 over / short
@@ -1217,6 +1360,11 @@ export async function postCashKriPublish(
   await emit(db, scope, `ev_${id}_due`, "cash.kri.publish.due_at", "cash_kri", id, {
     publish_due_at: dueAt,
   }, ctx);
+  // CP-12: training coverage is COMPUTED like every other KRI figure —
+  // trained cash-handlers over all cash-handlers, null (unassessed) when the
+  // institution has declared no personnel. Caller-supplied coverage would
+  // report whatever the caller believes.
+  const trainingCoverage = await trainingCoveragePct(db, scope);
   await emit(db, scope, `ev_${id}_pub`, "cash.kri.published", "cash_kri", id, {
     "cash.kri": {
       overshort_monthly_summary_cents: overshortTotal,
@@ -1224,6 +1372,8 @@ export async function postCashKriPublish(
     },
     "cash.kri.trend": (os ?? []).length > 0 ? "active" : "flat",
     "cash.overshort.monthly_summary": overshortTotal,
+    "training.coverage_pct": trainingCoverage,
+    ...(trainingCoverage === null ? { training_coverage_verdict: "unassessed" } : {}),
     period,
   }, ctx);
   // CP-07's monthly report is this section of the KRI pack, not a separate
@@ -1320,12 +1470,30 @@ export async function postCashRecordsPackage(
   const { data: recons } = await db.schema(scope).from("cash_reconciliation").select("id");
   const { data: counts } = await db.schema(scope).from("cash_surprise_count").select("id");
   const { data: oss } = await db.schema(scope).from("cash_overshort").select("id");
-  const itemCount = (recons ?? []).length + (counts ?? []).length + (oss ?? []).length;
+  const itemIds = [
+    ...(recons ?? []).map((r: Any) => String(r.id)),
+    ...(counts ?? []).map((r: Any) => String(r.id)),
+    ...(oss ?? []).map((r: Any) => String(r.id)),
+  ];
+  const itemCount = itemIds.length;
 
   const now = new Date();
   const id = `recpkg_${crypto.randomUUID()}`;
+  // RS-08 owns this table and its rule applies to exam exports too: a package
+  // without a manifest is "a directory somebody said was fine". The manifest
+  // is the item list itself; the checksum chain binds it. (Found LIVE: the
+  // shared table requires the manifest and this writer never carried one —
+  // the hermetic fake enforces no constraints, so only the live tier saw it.)
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(itemIds.join("\n")),
+  );
+  const checksum = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
   const { error } = await db.schema(scope).from("records_package").upsert({
     id, purpose: body.purpose, scope: exportScope, item_count: itemCount,
+    records_package_manifest_id: `manifest_${id}`,
+    records_package_checksum_chain: [{ seq: 1, items: itemCount, sha256: checksum }],
+    build_started_at: isNonEmptyString(body.requested_at) ? body.requested_at : now.toISOString(),
     requested_at: isNonEmptyString(body.requested_at) ? body.requested_at : now.toISOString(),
     completed_at: now.toISOString(),
     delivered_at: isNonEmptyString(body.delivered_to) ? now.toISOString() : null,
