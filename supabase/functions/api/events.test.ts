@@ -161,6 +161,27 @@ Deno.test("aggregator refusal reschedules the WHOLE batch with backoff — nothi
   assertEquals(updates.find((u) => u.id === "evt_2")?.patch.delivery_attempts, 3);
 });
 
+Deno.test("PII keys are redacted at the boundary — one legacy payload cannot starve the batch", async () => {
+  const dirty = {
+    ...EVT("evt_dirty"),
+    payload: { name: "Dana Whitfield", email: "d@w.test", kyc_tier: "full" },
+  };
+  const { db, updates } = outboxDb([dirty, EVT("evt_clean")]);
+  const { fetchFn, sent } = sink([json({ ingested: 2 })]);
+
+  const out = await deliverEvents(db, {
+    fetchFn,
+    targetUrl: "https://sink.test/hook",
+    apiKey: "k",
+    aggregator: AGG,
+  });
+
+  assertEquals(out.delivered, 2);
+  const sentDirty = sent[0].body.events.find((e: Any) => e.id === "evt_dirty");
+  assertEquals(sentDirty.payload, { kyc_tier: "full" }, "identity crosses only as entity_hash");
+  assertEquals(updates.length, 2, "both events marked delivered");
+});
+
 Deno.test("without aggregator config the sink path is untouched", async () => {
   const { db } = outboxDb([EVT("evt_1")]);
   const { fetchFn, sent } = sink([json({ ok: true })]);

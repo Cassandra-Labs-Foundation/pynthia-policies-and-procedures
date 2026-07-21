@@ -113,6 +113,22 @@ export async function deliverEvents(
   return { swept: rows.length, delivered, failed };
 }
 
+// Identity crosses the instance boundary only as entity_hash (card 55) — the
+// aggregator refuses these keys with a 400, and a 400 fails the WHOLE batch,
+// so one legacy entity.created payload carrying a name would starve every
+// event behind it (observed live: section-30 delivery stalled). Redacting at
+// the sender is the fix that matches the architecture, not an escape hatch;
+// the aggregator's named 400 stays as the boundary's own defense. Must match
+// RAW_PII_KEYS in ../aggregator/handler.ts.
+const BOUNDARY_PII_KEYS = ["name", "ssn", "date_of_birth", "dob", "address", "email", "phone"];
+
+function redactForBoundary(payload: unknown): unknown {
+  if (payload === null || typeof payload !== "object" || Array.isArray(payload)) return payload;
+  const copy = { ...(payload as Record<string, unknown>) };
+  for (const k of BOUNDARY_PII_KEYS) delete copy[k];
+  return copy;
+}
+
 /** One batched push to the aggregator's ingest (card 55). */
 async function deliverBatchToAggregator(
   db: SupabaseClient,
@@ -134,7 +150,7 @@ async function deliverBatchToAggregator(
           code: r.code,
           resource_id: r.resource_id,
           entity_hash: r.entity_hash ?? null,
-          payload: r.payload,
+          payload: redactForBoundary(r.payload),
           schema_version: 1,
         })),
       }),
