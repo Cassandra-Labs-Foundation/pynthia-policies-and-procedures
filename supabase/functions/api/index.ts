@@ -867,9 +867,9 @@ Deno.serve(async (req: Request): Promise<Response> => {
     try {
       const res = await matched.route.handler(req, matched.params, requestId, PUBLIC_CTX);
       res.headers.set("X-RateLimit-Tier", matched.route.tier);
-      return res;
+      return withCors(res);
     } catch (e) {
-      return internalErrorResponse(requestId, e);
+      return withCors(internalErrorResponse(requestId, e));
     }
   }
 
