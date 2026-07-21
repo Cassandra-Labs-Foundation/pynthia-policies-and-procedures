@@ -125,8 +125,40 @@ export async function handleAggregator(
     return await ingestEvents(req, deps.db, verified.claims.instance_id, requestId);
   }
 
+  // Card 61: the three gaps in one answer (staleness / ingest gap; delivery
+  // gap is measured instance-side by the outbox). The underlying SQL function
+  // also WRITES a consumer_stalled alert when it trips — an alarm, not a
+  // dashboard.
+  if (req.method === "GET" && /^\/health\/?$/.test(path)) {
+    const { data, error } = await deps.db.schema("aggregator").rpc("health");
+    if (error) {
+      console.error(`[${requestId}] health failed: ${error.message}`);
+      return apiError(500, "internal_error", requestId, "Internal Error", "health check failed");
+    }
+    return jsonResponse(data, 200, requestId);
+  }
+
+  // Cards 56-58: run a consumer on demand (the cron drives them in
+  // production; this is how tests and operators run one deterministically).
+  const runMatch = path.match(/^\/consumers\/(payment_hub|bsa_approver)\/run\/?$/);
+  if (req.method === "POST" && runMatch) {
+    const fn = runMatch[1] === "payment_hub" ? "run_payment_hub" : "run_bsa_approver";
+    const { data, error } = await deps.db.schema("aggregator").rpc(fn, { batch: 200 });
+    if (error) {
+      console.error(`[${requestId}] ${fn} failed: ${error.message}`);
+      return apiError(500, "internal_error", requestId, "Internal Error", `${fn} failed`);
+    }
+    return jsonResponse(data, 200, requestId);
+  }
+
   return apiError(404, "not_found", requestId, "Not Found", `no aggregator route for ${path}`);
 }
+
+// The PII rule, enforced at the door as well as by the table's check
+// constraint: identity travels as entity_hash (or ciphertext), never as
+// plaintext. Belt here for a NAMED 400; suspenders in the schema for writers
+// that bypass this handler.
+const RAW_PII_KEYS = ["name", "ssn", "date_of_birth", "dob", "address", "email", "phone"];
 
 /**
  * POST /events/ingest — an instance pushes outbox events (D4/D21).
@@ -170,6 +202,7 @@ async function ingestEvents(
       resource_id: ev.resource_id,
       entity_hash: ev.entity_hash ?? null,
       payload: ev.payload ?? {},
+      schema_version: typeof ev.schema_version === "number" ? ev.schema_version : 1,
     };
   });
 
@@ -181,6 +214,21 @@ async function ingestEvents(
       "Validation Error",
       "every event requires a string id",
     );
+  }
+
+  for (const r of rows) {
+    const payload = r.payload as Record<string, unknown>;
+    const leaked = RAW_PII_KEYS.find((k) => payload && typeof payload === "object" && k in payload);
+    if (leaked) {
+      return apiError(
+        400,
+        "raw_pii_refused",
+        requestId,
+        "Raw PII Refused",
+        `event ${r.event_id} carries plaintext '${leaked}' in its payload; ` +
+          "identity crosses the instance boundary only as entity_hash or ciphertext (card 55)",
+      );
+    }
   }
 
   // D4: dedup at the aggregator via the event_id unique constraint. At-least-

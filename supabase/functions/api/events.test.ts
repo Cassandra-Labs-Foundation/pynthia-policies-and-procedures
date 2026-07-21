@@ -24,6 +24,10 @@ function outboxDb(rows: Record<string, unknown>[]) {
           updates.push({ id, patch });
           return Promise.resolve({ data: null, error: null });
         },
+        in: (_c: string, ids: string[]) => {
+          for (const id of ids) updates.push({ id, patch });
+          return Promise.resolve({ data: null, error: null });
+        },
       };
       return self;
     },
@@ -107,4 +111,59 @@ Deno.test("an empty outbox sweep is a clean no-op", async () => {
   assertEquals(out, { swept: 0, delivered: 0, failed: 0 });
   assertEquals(sent.length, 0);
   assertEquals(updates.length, 0);
+});
+
+// ---- card 55: the outbox targets the aggregator for real ----
+
+const AGG = { url: "https://agg.test/aggregator", jwt: "hdr.claims.sig" };
+
+Deno.test("aggregator mode: one batched POST with a Bearer instance JWT, all marked delivered", async () => {
+  const { db, updates } = outboxDb([EVT("evt_1"), EVT("evt_2"), EVT("evt_3")]);
+  const { fetchFn, sent } = sink([json({ ingested: 3 })]);
+
+  const out = await deliverEvents(db, {
+    fetchFn,
+    targetUrl: "https://sink.test/hook",
+    apiKey: "k",
+    aggregator: AGG,
+  });
+
+  assertEquals(out, { swept: 3, delivered: 3, failed: 0 });
+  assertEquals(sent.length, 1); // ONE request, not one per event
+  assertEquals(sent[0].url, "https://agg.test/aggregator/events/ingest");
+  assertEquals(sent[0].body.events.length, 3);
+  assertEquals(sent[0].body.events[0].id, "evt_1");
+  assertEquals(sent[0].body.events[0].schema_version, 1);
+  assert("entity_hash" in sent[0].body.events[0], "batch must carry entity_hash");
+  assertEquals(updates.length, 3);
+  for (const u of updates) assert(u.patch.delivered_at, "every event marked delivered");
+});
+
+Deno.test("aggregator refusal reschedules the WHOLE batch with backoff — nothing is lost", async () => {
+  const { db, updates } = outboxDb([EVT("evt_1"), EVT("evt_2", 2)]);
+  const { fetchFn } = sink([new Response("{}", { status: 503 })]);
+
+  const out = await deliverEvents(db, {
+    fetchFn,
+    targetUrl: "https://sink.test/hook",
+    apiKey: "k",
+    aggregator: AGG,
+  });
+
+  assertEquals(out, { swept: 2, delivered: 0, failed: 2 });
+  assertEquals(updates.length, 2);
+  for (const u of updates) {
+    assert(!("delivered_at" in u.patch), "a refused batch delivers nothing");
+    assert(u.patch.next_attempt_at, "and everything is rescheduled");
+  }
+  // per-event attempt counts still advance independently
+  assertEquals(updates.find((u) => u.id === "evt_1")?.patch.delivery_attempts, 1);
+  assertEquals(updates.find((u) => u.id === "evt_2")?.patch.delivery_attempts, 3);
+});
+
+Deno.test("without aggregator config the sink path is untouched", async () => {
+  const { db } = outboxDb([EVT("evt_1")]);
+  const { fetchFn, sent } = sink([json({ ok: true })]);
+  await deliverEvents(db, { fetchFn, targetUrl: "https://sink.test/hook", apiKey: "k" });
+  assertEquals(sent[0].url, "https://sink.test/hook");
 });

@@ -1170,7 +1170,124 @@ ST=$(curl -sS -o /dev/null -w '%{http_code}' "$API/control-results?limit=1" -H "
 check "a read it was never granted is refused too" "$ST" "403"
 
 echo
-echo "-- 40. the demo narrative still runs (demo.sh) --"
+echo "-- 40. aggregator: ingest, cursor loop, payment hub, BSA approver, health (55-58, 61, 51) --"
+: "${AGGREGATOR_JWT_SECRET:?AGGREGATOR_JWT_SECRET not set in .env.local}"
+AGG="${AGGREGATOR_BASE:-https://jynsipdvrgqdkeqrlzcv.functions.supabase.co/aggregator}"
+b64url() { openssl base64 -A | tr '+/' '-_' | tr -d '='; }
+agg_jwt() {
+  local now h p s; now=$(date +%s)
+  h=$(printf '{"alg":"HS256","typ":"JWT"}' | b64url)
+  p=$(printf '{"instance_id":"inst_local","iat":%s,"exp":%s}' "$now" $((now+300)) | b64url)
+  s=$(printf '%s.%s' "$h" "$p" | openssl dgst -sha256 -hmac "$AGGREGATOR_JWT_SECRET" -binary | b64url)
+  printf '%s.%s.%s' "$h" "$p" "$s"
+}
+AGG_JWT=$(agg_jwt)
+
+# --- card 51, both halves: wrong credential CLASS at the aggregator; right
+# class but wrong INSTANCE at the api
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$AGG/events/ingest" \
+  -H 'Authorization: Bearer cass_pt_someone_elses_key' -H 'content-type: application/json' \
+  -d '{"events":[{"id":"x"}]}')
+check "a partner token at the aggregator -> 403, by credential class" "$ST" "403"
+check "and it says so by name" "$(jget type)" "partner_token_not_valid_here"
+FOREIGN_TOK="cass_e2e_$(openssl rand -hex 20)"
+FOREIGN_HASH=$(printf '%s' "$FOREIGN_TOK" | shasum -a 256 | awk '{print $1}')
+psql "$SUPABASE_DB_URL" -qc "insert into core.api_token (id, token_hash, token_prefix, actor_type, roles, partner_id, instance_id, allowed_endpoints, allowed_tiers, status) values ('tok_e2e_foreign_${RUN}', '${FOREIGN_HASH}', 'cass_e2e', 'pynthia_ops', '{}', null, 'inst_somewhere_else', '{*}', '{read,write,realtime,bulk}', 'active');" >/dev/null
+ST=$(curl -sS -o /dev/null -w '%{http_code}' "$API/changelog" -H "X-Api-Key: $FOREIGN_TOK")
+check "a token from ANOTHER instance is a 401 here, indistinguishable from unknown" "$ST" "401"
+
+# --- card 55: a real instance event flows outbox -> aggregator, with dedup
+AGA=$(new_account 200000 agg-src)
+AGB=$(new_account 10000  agg-dst)
+api POST /transfers agg-t1 "{\"source_account_id\":\"$AGA\",\"destination_account_id\":\"$AGB\",\"amount_cents\":5000,\"description\":\"agg walk\"}" >/dev/null
+AGT=$(jget id)
+POS0=$(sql "select coalesce((select position_cents from pg.aggregator.fbo_position where instance_id='inst_local'),0);")
+for i in 1 2 3 4 5 6; do
+  curl -sS -o /dev/null -X POST "$API/events/deliver" "${AUTH[@]}" -d '{}'
+  IN_AGG=$(sql "select count(*) from pg.aggregator.event where event_id='evt_${AGT}_settled';")
+  [ "$IN_AGG" = "1" ] && break
+done
+check "the settled event crossed the boundary into the aggregator" "$IN_AGG" "1"
+check "carrying its schema_version" \
+  "$(sql "select schema_version from pg.aggregator.event where event_id='evt_${AGT}_settled';")" "1"
+check "attributed to THIS instance from the verified token" \
+  "$(sql "select instance_id from pg.aggregator.event where event_id='evt_${AGT}_settled';")" "inst_local"
+curl -sS -o /dev/null -X POST "$API/events/deliver" "${AUTH[@]}" -d '{}'
+check "redelivery dedups by event_id — still exactly one" \
+  "$(sql "select count(*) from pg.aggregator.event where event_id='evt_${AGT}_settled';")" "1"
+if psql "$SUPABASE_DB_URL" -qc "update aggregator.event set code='tampered' where event_id='evt_${AGT}_settled';" >/dev/null 2>&1; then
+  bad "the event log must be append-only" "update refused by trigger" "the update succeeded"
+else
+  ok "the event log is append-only — history cannot be edited, even via psql"
+fi
+
+# --- card 56: the cursor advances only WITH processing, atomically
+KILL=$(psql "$SUPABASE_DB_URL" -tA <<'SQL'
+begin;
+select last_seq from aggregator.consumer_cursor where consumer='payment_hub';
+select aggregator.run_payment_hub(200)->>'processed';
+select last_seq from aggregator.consumer_cursor where consumer='payment_hub';
+rollback;
+select last_seq from aggregator.consumer_cursor where consumer='payment_hub';
+SQL
+)
+K_BEFORE=$(echo "$KILL" | sed -n 1p); K_IN=$(echo "$KILL" | sed -n 3p); K_AFTER=$(echo "$KILL" | sed -n 4p)
+check "inside the doomed txn the cursor HAD advanced (work was mid-flight)" \
+  "$([ "$K_IN" -gt "$K_BEFORE" ] && echo yes)" "yes"
+check "the kill rolled cursor AND effects back together — one txn, card 56" \
+  "$K_AFTER" "$K_BEFORE"
+
+# --- card 57: the payment hub applies the event exactly once, kill or no kill
+for i in 1 2 3 4 5 6; do
+  psql "$SUPABASE_DB_URL" -qc "select aggregator.run_payment_hub(200);" >/dev/null
+  POS1=$(sql "select position_cents from pg.aggregator.fbo_position where instance_id='inst_local';")
+  [ $((POS1 - POS0)) -ge 5000 ] && break
+  sleep 2
+done
+check "FBO position reflects the movement exactly once (+5000), despite the kill and the cron" \
+  "$((POS1 - POS0))" "5000"
+
+# --- card 58: CTR at the aggregator, deduped by UNIQUE(event_id, alert_type)
+api POST /transfers agg-ctr "{\"source_account_id\":\"$AGA\",\"destination_account_id\":\"$AGB\",\"amount_cents\":1100000,\"description\":\"agg ctr\"}" >/dev/null
+ACT=$(jget id)
+for i in 1 2 3 4 5 6; do
+  curl -sS -o /dev/null -X POST "$API/events/deliver" "${AUTH[@]}" -d '{}'
+  [ "$(sql "select count(*) from pg.aggregator.event where event_id='evt_${ACT}_settled';")" = "1" ] && break
+done
+psql "$SUPABASE_DB_URL" -qc "select aggregator.run_bsa_approver(200);" >/dev/null
+check "a \$11k event raises ctr_threshold at the aggregator" \
+  "$(sql "select count(*) from pg.aggregator.alert where event_id='evt_${ACT}_settled' and alert_type='ctr_threshold';")" "1"
+psql "$SUPABASE_DB_URL" -qc "select aggregator.run_bsa_approver(200);" >/dev/null
+check "re-running the consumer cannot mint a second alert (UNIQUE event_id, alert_type)" \
+  "$(sql "select count(*) from pg.aggregator.alert where event_id='evt_${ACT}_settled' and alert_type='ctr_threshold';")" "1"
+
+# --- card 58: sub-threshold aggregate flags structuring FOR LOOKBACK
+for i in 1 2 3; do
+  api POST /transfers "agg-str$i" "{\"source_account_id\":\"$AGA\",\"destination_account_id\":\"$AGB\",\"amount_cents\":400000,\"description\":\"agg drip $i\"}" >/dev/null
+  LAST_STR=$(jget id)
+done
+for i in 1 2 3 4 5 6; do
+  curl -sS -o /dev/null -X POST "$API/events/deliver" "${AUTH[@]}" -d '{}'
+  [ "$(sql "select count(*) from pg.aggregator.event where event_id='evt_${LAST_STR}_settled';")" = "1" ] && break
+done
+psql "$SUPABASE_DB_URL" -qc "select aggregator.run_bsa_approver(500);" >/dev/null
+check "three sub-threshold events aggregate into a structuring flag" \
+  "$(sql "select count(*)>0 from pg.aggregator.alert where alert_type='structuring' and event_id like 'evt_%_settled' and entity_hash=(select entity_hash from pg.aggregator.event where event_id='evt_${LAST_STR}_settled');")" "true"
+check "and it is marked for the 90-day lookback" \
+  "$(sql "select requires_lookback::text from pg.aggregator.alert where alert_type='structuring' and entity_hash=(select entity_hash from pg.aggregator.event where event_id='evt_${LAST_STR}_settled') limit 1;")" "true"
+
+# --- card 61: a stalled consumer trips the alarm (bsa_approver: replays dedup)
+psql "$SUPABASE_DB_URL" -qc "update aggregator.consumer_cursor set last_seq = last_seq - 1, updated_at = now() - interval '1 hour' where consumer='bsa_approver';" >/dev/null
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' "$AGG/health" -H "Authorization: Bearer $AGG_JWT")
+check "health answers over the wire" "$ST" "200"
+check "the stalled consumer is named" \
+  "$(python3 -c "import json;d=json.load(open('/tmp/e2e_body'));print('yes' if any(c['consumer']=='bsa_approver' and c['stalled'] for c in d['consumers']) else 'no')")" "yes"
+check "and the trip WROTE an alert — an alarm, not a dashboard" \
+  "$(sql "select count(*)>0 from pg.aggregator.alert where alert_type='consumer_stalled' and details like '%bsa_approver%';")" "true"
+psql "$SUPABASE_DB_URL" -qc "select aggregator.run_bsa_approver(500);" >/dev/null
+
+echo
+echo "-- 41. the demo narrative still runs (demo.sh) --"
 # The Aug-29 walkthrough is a TEST, run here so it cannot rot between
 # rehearsals: a demo script nobody executes fails in the room, not in CI.
 if PACE=0 ./supabase/tests/e2e/demo.sh >/tmp/e2e_demo.log 2>&1; then
