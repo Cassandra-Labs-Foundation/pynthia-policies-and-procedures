@@ -75,11 +75,30 @@ STUB = """<!doctype html>
 
 
 def title_for(slug: str, policy_title: str | None) -> str:
-    if policy_title:
-        return policy_title
+    # the hand-kept map wins: source-doc titles leak internal working names
+    # ("... Policy (Table-First, Design-Overlay v2)")
     if slug in TITLES:
         return TITLES[slug]
+    if policy_title:
+        return policy_title
     return slug.replace("-", " ").title()
+
+
+# The six gate controls are the RUNTIME layer — born in the banking core
+# before the catalogue existed, enforced on every money movement, and the
+# bulk of live evidence. They get their own page rather than being invisible.
+GATE_POLICY = {
+    "slug": "money-movement-gate",
+    "title": "Money-Movement Gate (runtime)",
+    "controls": [
+        {"id": "CG-VEL-01", "title": "Cross-rail daily velocity cap ($25k/day, blocks)"},
+        {"id": "CG-CTR-01", "title": "Large-transaction CTR (> $10k, alert-only)"},
+        {"id": "CG-STR-01", "title": "Inbound structuring — aggregate past $10k into one account"},
+        {"id": "CG-STR-02", "title": "Outbound structuring — aggregate past $10k out of one account"},
+        {"id": "CG-NSF-01", "title": "Insufficient funds (rejects before any hold)"},
+        {"id": "CG-OFAC-01", "title": "OFAC floor — unbypassable screen on every path"},
+    ],
+}
 
 
 def build_manifest() -> dict:
@@ -101,9 +120,22 @@ def build_manifest() -> dict:
                 for r in c.get("regulatory_citations", [])
             ],
         })
-    ordered = sorted(policies.values(), key=lambda p: p["title"].lower())
+    gate = {
+        "slug": GATE_POLICY["slug"],
+        "title": GATE_POLICY["title"],
+        "controls": [
+            {
+                "id": c["id"],
+                "title": c["title"],
+                "doc": REPO_BLOB + "supabase/functions/api/transfers.ts",
+                "citations": [],
+            }
+            for c in GATE_POLICY["controls"]
+        ],
+    }
+    ordered = sorted([*policies.values(), gate], key=lambda p: p["title"].lower())
     return {
-        "generated_from": "controls.json",
+        "generated_from": "controls.json + the runtime gate (build_dashboard.py)",
         "policy_count": len(ordered),
         "control_count": sum(len(p["controls"]) for p in ordered),
         "policies": ordered,

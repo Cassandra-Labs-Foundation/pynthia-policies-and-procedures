@@ -1,7 +1,7 @@
 {
- "generated_from": "controls.json",
- "policy_count": 27,
- "control_count": 333,
+ "generated_from": "controls.json + the runtime gate (build_dashboard.py)",
+ "policy_count": 28,
+ "control_count": 339,
  "policies": [
   {
    "slug": "audit",
@@ -1117,7 +1117,7 @@
   },
   {
    "slug": "charitable-donation-accounts",
-   "title": "Charitable Donation Accounts Policy (Table-First, Design-Overlay v2)",
+   "title": "Charitable Donation Accounts",
    "controls": [
     {
      "id": "CDA-01",
@@ -3927,6 +3927,48 @@
      "id": "MP-09",
      "title": "Member Service Standards",
      "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/member/member.md#mp-09-member-service-standards",
+     "citations": []
+    }
+   ]
+  },
+  {
+   "slug": "money-movement-gate",
+   "title": "Money-Movement Gate (runtime)",
+   "controls": [
+    {
+     "id": "CG-VEL-01",
+     "title": "Cross-rail daily velocity cap ($25k/day, blocks)",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/supabase/functions/api/transfers.ts",
+     "citations": []
+    },
+    {
+     "id": "CG-CTR-01",
+     "title": "Large-transaction CTR (> $10k, alert-only)",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/supabase/functions/api/transfers.ts",
+     "citations": []
+    },
+    {
+     "id": "CG-STR-01",
+     "title": "Inbound structuring \u2014 aggregate past $10k into one account",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/supabase/functions/api/transfers.ts",
+     "citations": []
+    },
+    {
+     "id": "CG-STR-02",
+     "title": "Outbound structuring \u2014 aggregate past $10k out of one account",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/supabase/functions/api/transfers.ts",
+     "citations": []
+    },
+    {
+     "id": "CG-NSF-01",
+     "title": "Insufficient funds (rejects before any hold)",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/supabase/functions/api/transfers.ts",
+     "citations": []
+    },
+    {
+     "id": "CG-OFAC-01",
+     "title": "OFAC floor \u2014 unbypassable screen on every path",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/supabase/functions/api/transfers.ts",
      "citations": []
     }
    ]

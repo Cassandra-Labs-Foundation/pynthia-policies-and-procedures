@@ -175,8 +175,11 @@ Deno.test("the policy hierarchy covers the whole catalogue — every policy, eve
   const manifestPolicies = new Set(
     manifest.policies.map((p: { slug: string }) => p.slug),
   );
-  assertEquals(manifestPolicies, cataloguePolicies);
-  assertEquals(manifest.control_count, catalogue.controls.length);
+  // manifest = catalogue policies + the declared runtime gate, nothing else
+  for (const p of cataloguePolicies) assert(manifestPolicies.has(p), `missing policy page: ${p}`);
+  const extras = [...manifestPolicies].filter((p) => !cataloguePolicies.has(p as string));
+  assertEquals(extras, ["money-movement-gate"]);
+  assertEquals(manifest.control_count, catalogue.controls.length + 6);
 
   for (const p of manifest.policies) {
     const stub = await Deno.readTextFile(new URL(`${p.slug}/index.html`, dash));
