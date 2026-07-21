@@ -49,6 +49,22 @@ import {
   notFoundResponse,
 } from "./lib.ts";
 import { authenticate, type EndpointScope, type PartnerContext } from "./auth.ts";
+import {
+  postDeathReport, postEstateClaim, postEstatePayout, postExpulsion,
+  postExpulsionClose, postExpulsionHearing, postSafeModeActivate,
+  postSafeModeDeactivate, postSafeModeProcessorConfirm,
+} from "./member_protection.ts";
+import {
+  postEmployee, postEmployeeCoaching, postEmployeeSeparate, postEmployeeTraining,
+} from "./hr.ts";
+import {
+  postConnectionScopeViolation, postPrivacyAccessRequest, postPrivacyConnection,
+  postPrivacyDisclosure,
+} from "./privacy.ts";
+import {
+  postCashCustody, postCashCustodyAttest, postCashKeyboxOpen,
+} from "./cash_ops.ts";
+import { postInsiderLoanReview, putInsider } from "./lending_underwriting.ts";
 
 type RouteHandler = (
   req: Request,
@@ -95,6 +111,158 @@ function stripFunctionPrefix(pathname: string): string {
 }
 
 const routes: Route[] = [
+  // ---- violation tier (MP-06/07, RS-03, PR-03/04/15, CP-05, DF-05, HR seam)
+  {
+    method: "POST", pattern: /^\/members\/([^/]+)\/death-report\/?$/,
+    endpoint: "POST /members/{id}/death-report", tier: "write", paramNames: ["id"],
+    handler: async (req, params, requestId, ctx) =>
+      await postDeathReport(req, params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST", pattern: /^\/members\/([^/]+)\/estate-claims\/?$/,
+    endpoint: "POST /members/{id}/estate-claims", tier: "write", paramNames: ["id"],
+    handler: async (req, params, requestId, ctx) =>
+      await postEstateClaim(req, params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST", pattern: /^\/estate-claims\/([^/]+)\/payout\/?$/,
+    endpoint: "POST /estate-claims/{id}/payout", tier: "write", paramNames: ["id"],
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, params, requestId, ctx) =>
+      await postEstatePayout(req, params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST", pattern: /^\/members\/([^/]+)\/expulsion\/?$/,
+    endpoint: "POST /members/{id}/expulsion", tier: "write", paramNames: ["id"],
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, params, requestId, ctx) =>
+      await postExpulsion(req, params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST", pattern: /^\/expulsions\/([^/]+)\/hearing\/?$/,
+    endpoint: "POST /expulsions/{id}/hearing", tier: "write", paramNames: ["id"],
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, params, requestId, ctx) =>
+      await postExpulsionHearing(req, params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST", pattern: /^\/expulsions\/([^/]+)\/close\/?$/,
+    endpoint: "POST /expulsions/{id}/close", tier: "write", paramNames: ["id"],
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, params, requestId, ctx) =>
+      await postExpulsionClose(req, params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST", pattern: /^\/resolution\/safe-mode\/?$/,
+    endpoint: "POST /resolution/safe-mode", tier: "write", paramNames: [],
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, _params, requestId, ctx) =>
+      await postSafeModeActivate(req, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST", pattern: /^\/resolution\/safe-mode\/([^/]+)\/processor-confirm\/?$/,
+    endpoint: "POST /resolution/safe-mode/{id}/processor-confirm", tier: "write",
+    paramNames: ["id"], actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, params, requestId, ctx) =>
+      await postSafeModeProcessorConfirm(req, params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST", pattern: /^\/resolution\/safe-mode\/([^/]+)\/deactivate\/?$/,
+    endpoint: "POST /resolution/safe-mode/{id}/deactivate", tier: "write",
+    paramNames: ["id"], actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, params, requestId, ctx) =>
+      await postSafeModeDeactivate(req, params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST", pattern: /^\/privacy\/disclosures\/?$/,
+    endpoint: "POST /privacy/disclosures", tier: "write", paramNames: [],
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, _params, requestId, ctx) =>
+      await postPrivacyDisclosure(req, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST", pattern: /^\/privacy\/access-requests\/?$/,
+    endpoint: "POST /privacy/access-requests", tier: "write", paramNames: [],
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, _params, requestId, ctx) =>
+      await postPrivacyAccessRequest(req, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST", pattern: /^\/privacy\/connections\/?$/,
+    endpoint: "POST /privacy/connections", tier: "write", paramNames: [],
+    handler: async (req, _params, requestId, ctx) =>
+      await postPrivacyConnection(req, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST", pattern: /^\/privacy\/connections\/([^/]+)\/scope-violation\/?$/,
+    endpoint: "POST /privacy/connections/{id}/scope-violation", tier: "write",
+    paramNames: ["id"], actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, params, requestId, ctx) =>
+      await postConnectionScopeViolation(req, params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST", pattern: /^\/hr\/employees\/?$/,
+    endpoint: "POST /hr/employees", tier: "write", paramNames: [],
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, _params, requestId, ctx) =>
+      await postEmployee(req, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST", pattern: /^\/hr\/employees\/([^/]+)\/separate\/?$/,
+    endpoint: "POST /hr/employees/{id}/separate", tier: "write", paramNames: ["id"],
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, params, requestId, ctx) =>
+      await postEmployeeSeparate(req, params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST", pattern: /^\/hr\/employees\/([^/]+)\/coaching\/?$/,
+    endpoint: "POST /hr/employees/{id}/coaching", tier: "write", paramNames: ["id"],
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, params, requestId, ctx) =>
+      await postEmployeeCoaching(req, params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST", pattern: /^\/hr\/employees\/([^/]+)\/training\/?$/,
+    endpoint: "POST /hr/employees/{id}/training", tier: "write", paramNames: ["id"],
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, params, requestId, ctx) =>
+      await postEmployeeTraining(req, params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST", pattern: /^\/cash-ops\/custody\/?$/,
+    endpoint: "POST /cash-ops/custody", tier: "write", paramNames: [],
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, _params, requestId, ctx) =>
+      await postCashCustody(req, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST", pattern: /^\/cash-ops\/custody\/([^/]+)\/attest\/?$/,
+    endpoint: "POST /cash-ops/custody/{id}/attest", tier: "write", paramNames: ["id"],
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, params, requestId, ctx) =>
+      await postCashCustodyAttest(req, params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST", pattern: /^\/cash-ops\/custody\/([^/]+)\/keybox-open\/?$/,
+    endpoint: "POST /cash-ops/custody/{id}/keybox-open", tier: "write", paramNames: ["id"],
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, params, requestId, ctx) =>
+      await postCashKeyboxOpen(req, params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "PUT", pattern: /^\/lending\/insiders\/([^/]+)\/?$/,
+    endpoint: "PUT /lending/insiders/{id}", tier: "write", paramNames: ["id"],
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, params, requestId, ctx) =>
+      await putInsider(req, params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST", pattern: /^\/lending\/applications\/([^/]+)\/insider-review\/?$/,
+    endpoint: "POST /lending/applications/{id}/insider-review", tier: "write",
+    paramNames: ["id"], actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, params, requestId, ctx) =>
+      await postInsiderLoanReview(req, params.id, createDb(), requestId, ctx),
+  },
   {
     method: "POST",
     pattern: /^\/accounts\/?$/,

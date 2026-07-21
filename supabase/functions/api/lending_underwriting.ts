@@ -1156,12 +1156,63 @@ export async function postInsiderLoanReview(
     "loan_application", appId, {
       subject_ref: subject, is_insider: true, role: active.role,
     }, ctx);
+  // DF-05 names the same facts under two codes each (the OQ-22 alias class):
+  // flagged/screened and terms_parity.checked/terms_parity. The writer emits
+  // both names so neither control is unsatisfiable for a naming reason.
+  await emit(db, scope, `ev_${id}_screen`, "loan_application.insider.screened",
+    "loan_application", appId, {
+      subject_ref: subject, "covered_person.id": active.id,
+      "loan_application.applicant": subject, "loan_application.insider": true,
+    }, ctx);
   await emit(db, scope, `ev_${id}_parity`, "insider.terms_parity.checked",
     "insider_loan_review", id, {
       terms_comparable: comparable, role: active.role,
       aggregate_credit_amount: body.aggregate_credit_amount ?? body.amount_cents ?? null,
       proposed_terms: body.proposed_terms ?? null,
     }, ctx);
+  await emit(db, scope, `ev_${id}_parity2`, "insider.terms_parity",
+    "insider_loan_review", id, {
+      "insider.terms_parity": comparable,
+      "insider.proposed_terms": body.proposed_terms ?? null,
+      "insider.comparable_terms": body.comparable_terms ?? null,
+    }, ctx);
+
+  // DF-05: Reg O limits are on AGGREGATE credit against unimpaired capital
+  // and surplus. The capital figure is INSTITUTIONAL — unset reports
+  // unassessed, never "not exceeded" (the statutory/institutional split).
+  const aggregate = typeof body.aggregate_credit_amount === "number"
+    ? body.aggregate_credit_amount
+    : (typeof body.amount_cents === "number" ? body.amount_cents : 0);
+  const capital = typeof body.unimpaired_capital_surplus_cents === "number"
+    ? body.unimpaired_capital_surplus_cents
+    : null;
+  const thresholdCents = capital === null ? null : Math.floor(capital * 0.05);
+  const exceeded = thresholdCents !== null && aggregate > thresholdCents;
+  await db.schema(scope).from("insider_credit").upsert({
+    id: `inscred_${appId}`, covered_person_id: String(active.id),
+    loan_application_id: appId, amount_cents: aggregate,
+    aggregate_after_cents: aggregate, threshold_cents: thresholdCents,
+    threshold_exceeded: exceeded,
+    board_approval_id: boardRes, proposed_terms: body.proposed_terms ?? null,
+    comparable_terms: body.comparable_terms ?? null, terms_parity: comparable,
+    status: exceeded && !boardRes ? "board_pending" : "screened",
+    provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id" });
+  await emit(db, scope, `ev_${id}_limits`, "insider.limits_recomputed",
+    "insider_credit", `inscred_${appId}`, {
+      "insider.aggregate_credit_amount": aggregate,
+      "cu.unimpaired_capital_surplus": capital,
+      threshold_cents: thresholdCents,
+      ...(thresholdCents === null ? { verdict: "unassessed" } : {}),
+    }, ctx);
+  if (exceeded) {
+    await emit(db, scope, `ev_${id}_thresh`, "insider.credit_threshold_exceeded",
+      "insider_credit", `inscred_${appId}`, {
+        "insider.aggregate_credit_amount": aggregate, threshold_cents: thresholdCents,
+        "insider.record_entry": `inscred_${appId}`,
+        "board.disinterested_quorum": body.board_disinterested_quorum ?? null,
+      }, ctx);
+  }
   await emit(db, scope, `ev_${id}_report`, "insider.board_report.issued",
     "insider_loan_review", id, {
       subject_ref: subject, role: active.role, amount_cents: body.amount_cents ?? null,
@@ -1181,6 +1232,10 @@ export async function postInsiderLoanReview(
   }
   await emit(db, scope, `ev_${id}_board`, "insider.board_approval.recorded",
     "insider_loan_review", id, { board_resolution_id: boardRes }, ctx);
+  await emit(db, scope, `ev_${id}_board2`, "insider.board_approval",
+    "insider_loan_review", id, {
+      "insider.board_approval": boardRes, "insider.funded_terms": body.proposed_terms ?? null,
+    }, ctx);
   return jsonResponse({ data: { id, approved: true } }, 200, requestId);
 }
 

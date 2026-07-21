@@ -426,6 +426,11 @@ async function runCashOpsLifecycle(env: FireEnv): Promise<void> {
   if ((env.rows["core.cash_asset"] ?? []).length > 0) return;
 
   const ops = env.actors.ops;
+  // HR basics: CP-07 needs a coachable employee; CP-12 computes training
+  // coverage over declared cash-handlers — both are personnel FACTS, declared
+  await postEmployee(R({ id: "emp_t1", name: "Teller One", role: "teller", cash_handler: true }), env.db, "d", ops);
+  await postEmployee(R({ id: "emp_t2", name: "Teller Two", role: "teller", cash_handler: true }), env.db, "d", ops);
+  await postEmployeeTraining(R({ course: "cash_handling" }), "emp_t1", env.db, "d", ops);
   const compliance = { ...ops, tokenId: "tok_cash_compliance", roles: ["bsa_compliance"] };
 
   await postCashPolicyAdoption(
@@ -532,9 +537,23 @@ async function runCashOpsLifecycle(env: FireEnv): Promise<void> {
         gl_balance_cents: 600_000_00, research_notes: "strap miscount under review" }),
     "casset_vault1", env.db, "d", ops,
   );
-  // age the suspense item so the sweep has a real escalation
+  // age the suspense item so the sweep has a real escalation — THROUGH the
+  // client, never by poking the row store: a direct mutation ages the fake's
+  // copy and leaves a real database untouched (found by the live tier, where
+  // the sweep found nothing due and CP-06 went red)
   const sus = (env.rows["core.gl_cash_suspense"] ?? [])[0];
-  if (sus) sus.escalate_at = "2020-01-01T00:00:00.000Z";
+  if (sus) {
+    // ALSO reset escalated/cleared: the suspense id is deterministic, so on a
+    // live database a prior run's clear survives into this run and the sweep
+    // would skip the row forever (cleared_at is its exit condition)
+    await env.db.schema("core").from("gl_cash_suspense")
+      .update({
+        escalate_at: "2020-01-01T00:00:00.000Z",
+        escalated_at: null,
+        cleared_at: null,
+      }).eq("id", String(sus.id));
+    sus.escalate_at = "2020-01-01T00:00:00.000Z";
+  }
   await postCashSuspenseSweep(R({}), env.db, "d", ops);
   await postCashSuspenseClear(
     R({ correction_txn_id: "gl_txn_9911" }), String(sus?.id ?? "none"), env.db, "d", ops,
@@ -556,6 +575,13 @@ async function runCashOpsLifecycle(env: FireEnv): Promise<void> {
   await postCashOverShortResolve(
     R({ research_notes: "recount located the difference" }),
     String(osRow?.id ?? "none"), env.db, "d", ops,
+  );
+  // CP-07: the pattern was real but below the BSA line — the graduated
+  // response is coaching, recorded like any other control evidence
+  await postEmployeeCoaching(
+    R({ cause_type: "cash_overshort", cause_id: String(osRow?.id ?? "none"),
+        notes: "repeat small shorts; recount training assigned" }),
+    "emp_t1", env.db, "d", ops,
   );
 
   // CP-08: a good shipment, a seal mismatch, and a border crossing over $10k
@@ -637,13 +663,13 @@ async function runCashOpsLifecycle(env: FireEnv): Promise<void> {
 
   // CP-12 also declares the retention lifecycle. Those writers already exist,
   // so the cash evidence is clocked through them rather than duplicated.
-  env.rows["core.record"] ??= [];
-  env.rows["core.record"].push({
+  // fixture THROUGH the client — a pushed row only ages the fake's copy
+  await env.db.schema("core").from("record").upsert({
     id: `rec_cash_${env.n()}`, record_class: "cash_operations", subject_ref: "casset_vault1",
     retention_anchor: "2014-01-01T00:00:00.000Z",
     retention_expires_at: "2019-01-01T00:00:00.000Z",
     legal_hold_flag: false, disposed_at: null, provenance: "production",
-  });
+  }, { onConflict: "id" });
   await setRetentionClocks(env.db, "casset_vault1", new Date());
   await postDisposalSweep(R({}), env.db, "d", env.actors.ops);
 }
@@ -760,13 +786,14 @@ async function runRecordsAdminLifecycle(env: FireEnv): Promise<void> {
   await postCddRefresh(R({ refreshed_by: "bsa_analyst" }), "cdd_high", env.db, "d", ops);
 
   // RR-07: a BSA record ANONYMIZED rather than destroyed
-  env.rows["core.record"] ??= [];
-  env.rows["core.record"].push({
+  // fixture THROUGH the client — a pushed row ages the fake's copy and
+  // leaves a real database untouched (the live tier read these controls red)
+  await env.db.schema("core").from("record").upsert({
     id: "rec_ra_bsa", record_class: "bsa_sar", subject_ref: "case_1",
     retention_anchor: "2014-01-01T00:00:00.000Z",
     retention_expires_at: "2019-01-01T00:00:00.000Z",
     legal_hold_flag: false, disposed_at: null, provenance: "production",
-  });
+  }, { onConflict: "id" });
   await postRecordDisposition(
     R({ method: "anonymized", approved_by: "bsa_officer",
         retained_fields: ["amount_band", "typology"] }),
@@ -1000,6 +1027,17 @@ async function runLendingUwLifecycle(env: FireEnv): Promise<void> {
         amount_cents: 25_000_000, aggregate_credit_amount: 42_000_000,
         proposed_terms: { rate_bp: 650, term_months: 360 } }),
     "app_uw_3", env.db, "d", ops,
+  );
+  // DF-05: the aggregate crosses 5% of unimpaired capital+surplus — the
+  // threshold event fires, board approval is on file, terms at parity
+  await postInsiderLoanReview(
+    R({ subject_ref: "dir_1", terms_comparable: true, board_resolution_id: "board-10",
+        amount_cents: 60_000_000, aggregate_credit_amount: 60_000_000,
+        unimpaired_capital_surplus_cents: 1_000_000_000,
+        board_disinterested_quorum: true,
+        proposed_terms: { rate_bp: 700, term_months: 240 },
+        comparable_terms: { rate_bp: 700, term_months: 240 } }),
+    "app_uw_4", env.db, "d", ops,
   );
 
   // LP-04 / LP-07: the adverse action, through the EXISTING notice table
@@ -3176,12 +3214,25 @@ import {
 import {
   postCashBoardSummary, postCashDeviationDecision, postCashDeviationRequest,
   postCashEnterprisePosition, postCashEnterpriseRemediation, postCashException,
+  postCashCustody, postCashCustodyAttest, postCashKeyboxOpen,
   postCashKriPublish, postCashLimitsSchedule, postCashLoad, postCashNightDropRetrieval,
   postCashOverShort, postCashOverShortResolve, postCashPolicyAdoption,
   postCashRecordsPackage, postCashReconciliation, postCashShipment,
   postCashShipmentVerify, postCashSurpriseCountComplete, postCashSurpriseCountSchedule,
   postCashSuspenseClear, postCashSuspenseSweep, putCashAsset,
 } from "../api/cash_ops.ts";
+import {
+  postEmployee, postEmployeeCoaching, postEmployeeSeparate, postEmployeeTraining,
+} from "../api/hr.ts";
+import {
+  postDeathReport, postEstateClaim, postEstatePayout, postExpulsion,
+  postExpulsionClose, postExpulsionHearing, postSafeModeActivate,
+  postSafeModeDeactivate, postSafeModeProcessorConfirm, safeModeGate,
+} from "../api/member_protection.ts";
+import {
+  postConnectionScopeViolation, postPrivacyAccessRequest, postPrivacyConnection,
+  postPrivacyDisclosure,
+} from "../api/privacy.ts";
 import {
   postCda, postCdaAgreement, postCdaAuditCycle, postCdaCallReportMapping, postCdaCapCure,
   postCdaCapTest, postCdaClose, postCdaCommunication, postCdaCommunicationApproval,
@@ -3285,7 +3336,159 @@ export async function fireViaObligation(code: string, uid: string, env: FireEnv)
  * Explicit firers for triggers with a real writer. Each returns nothing and is
  * judged only by whether the control's produced events land in the event log.
  */
+
+/**
+ * The VIOLATION TIER — MP-06/07, RS-03, PR-03/04/15, CP-05, DF-05's HR seam.
+ * Every flow runs its violating case as well as its clean one: the refusals
+ * ARE the controls, and each leaves durable evidence.
+ */
+async function runViolationTierLifecycle(env: FireEnv): Promise<void> {
+  if ((env.rows["core.safe_mode"] ?? []).length > 0) return;
+  const ops = env.actors.ops;
+
+  // ---- HR + custody (CP-05)
+  await postEmployee(R({ id: "emp_t1", name: "Teller One", role: "teller", cash_handler: true }), env.db, "d", ops);
+  await postEmployee(R({ id: "emp_t2", name: "Teller Two", role: "teller", cash_handler: true }), env.db, "d", ops);
+  await postEmployeeTraining(R({ course: "cash_handling" }), "emp_t1", env.db, "d", ops);
+  await postCashCustody(R({ employee_id: "emp_t1", kind: "key", asset_id: "casset_vault1" }), env.db, "d", ops);
+  const cust = (env.rows["core.cash_custody"] ?? [])[0];
+  // NEGATIVE: keybox without a second person is refused (dual control)
+  await postCashKeyboxOpen(R({ reason: "solo attempt" }), String(cust?.id ?? "none"), env.db, "d", ops);
+  await postCashKeyboxOpen(
+    R({ second_person_id: "emp_t2", reason: "morning vault open" }),
+    String(cust?.id ?? "none"), env.db, "d", ops,
+  );
+  await postCashCustodyAttest(R({ attested_by: "branch_mgr" }), String(cust?.id ?? "none"), env.db, "d", ops);
+  // separation REVOKES the custody in the same act — CP-05's whole point
+  await postEmployeeSeparate(R({ reason: "resigned" }), "emp_t1", env.db, "d", ops);
+
+  // ---- MP-07 death + estate
+  await postDeathReport(
+    R({ date_of_death: "2026-07-01", death_certificate_ref: "dc_1" }),
+    "ent_2", env.db, "d", ops,
+  );
+  await postEstateClaim(
+    R({ claimant: "Executor Ed", date_of_death: "2026-07-01",
+        death_certificate_ref: "dc_1", authority_document_ref: "letters_testamentary_1" }),
+    "ent_2", env.db, "d", ops,
+  );
+  const claim = (env.rows["core.estate_claim"] ?? [])[0];
+  // NEGATIVE: paying an unverified claimant is refused
+  await postEstatePayout(R({}), String(claim?.id ?? "none"), env.db, "d", ops);
+  await env.db.schema("core").from("verification")
+    .update({ status: "approved" }).eq("id", String(claim?.verification_id ?? "none"));
+  await postEstatePayout(R({ amounts_owed_cents: 5_000 }), String(claim?.id ?? "none"), env.db, "d", ops);
+
+  // ---- MP-06 expulsion
+  // NEGATIVE first: ent_4 has no contact on file — the notice cannot be
+  // delivered, so the expulsion is refused rather than pretended
+  await postExpulsion(
+    R({ grounds: "fraud", decided_by: "board-2026-07", meeting_date: "2026-08-01" }),
+    "ent_4", env.db, "d", ops,
+  );
+  await env.db.schema("core").from("entity")
+    .update({ email: "member3@example.com" }).eq("id", "ent_3");
+  const e3 = (env.rows["core.entity"] ?? []).find((r) => r.id === "ent_3");
+  if (e3) e3.email = "member3@example.com";
+  await postExpulsion(
+    R({ grounds: "abuse of services", decided_by: "board-2026-07",
+        meeting_date: "2026-08-01", amounts_owed_cents: 1_000 }),
+    "ent_3", env.db, "d", ops,
+  );
+  const exp = (env.rows["core.expulsion"] ?? [])[0];
+  await postExpulsionHearing(R({ kind: "requested" }), String(exp?.id ?? "none"), env.db, "d", ops);
+  await postExpulsionHearing(R({ kind: "held" }), String(exp?.id ?? "none"), env.db, "d", ops);
+  await postExpulsionClose(R({}), String(exp?.id ?? "none"), env.db, "d", ops);
+
+  // ---- RS-03 safe mode
+  await postSafeModeActivate(
+    R({ trigger_basis: "resolution_drill", per_txn_cap_cents: 1_000_000,
+        restricted_types: ["wire_transfer"], activated_by: "resolution_officer" }),
+    env.db, "d", ops,
+  );
+  const sm = (env.rows["core.safe_mode"] ?? [])[0];
+  await postSafeModeProcessorConfirm(R({ processor_ref: "proc_ack_1" }), String(sm?.id ?? "none"), env.db, "d", ops);
+  // one allowed and one REFUSED transaction decision under safe mode
+  await safeModeGate(env.db, 500_000, "transfer", "tr_sm_allowed", ops);
+  await safeModeGate(env.db, 5_000_000, "transfer", "tr_sm_refused", ops);
+  // NEGATIVE: one person twice is one person — deactivation refused
+  await postSafeModeDeactivate(
+    R({ authorized_by: "officer_a", second_authorizer: "officer_a" }),
+    String(sm?.id ?? "none"), env.db, "d", ops,
+  );
+  await postSafeModeDeactivate(
+    R({ authorized_by: "officer_a", second_authorizer: "officer_b" }),
+    String(sm?.id ?? "none"), env.db, "d", ops,
+  );
+
+  // ---- PR-03 disclosures: two BLOCKS, then a recorded basis
+  await postPrivacyDisclosure(R({ entity_id: "ent_1", recipient: "data_broker_x" }), env.db, "d", ops);
+  await postPrivacyDisclosure(
+    R({ entity_id: "ent_1", recipient: "vendor_y",
+        legal_basis: "service_provider_glba", vendor_id: "vend_1" }),
+    env.db, "d", ops,
+  );
+  await postPrivacyDisclosure(
+    R({ entity_id: "ent_1", recipient: "vendor_y", legal_basis: "service_provider_glba",
+        vendor_id: "vend_1", vendor_glba_addendum_id: "glba_add_7",
+        vendor_contract_id: "contract_9", data_scope: ["name", "account_number"] }),
+    env.db, "d", ops,
+  );
+
+  // ---- PR-04 access requests: the full decision surface
+  await postPrivacyAccessRequest(R({ entity_id: "ent_1", requester_kind: "self" }), env.db, "d", ops);
+  await postPrivacyAccessRequest(R({ entity_id: "ent_1", requester_kind: "agent_poa" }), env.db, "d", ops);
+  await postPrivacyAccessRequest(
+    R({ entity_id: "ent_1", requester_kind: "agent_poa",
+        agent_identity: "Agent A", poa_artifact_id: "poa_1" }),
+    env.db, "d", ops,
+  );
+  await postPrivacyAccessRequest(
+    R({ entity_id: "ent_1", requester_kind: "legal_process",
+        legal_process_artifact_id: "subpoena_1", rfpa_applicable: true }),
+    env.db, "d", ops,
+  );
+  await postPrivacyAccessRequest(
+    R({ entity_id: "ent_1", requester_kind: "other", agent_identity: "Nosy Neighbor" }),
+    env.db, "d", ops,
+  );
+
+  // ---- PR-15 connection: consent -> token -> scope violation -> revoked
+  await postPrivacyConnection(
+    R({ entity_id: "ent_1", party_id: "budget_app_z", scopes: ["GET /accounts/{id}"] }),
+    env.db, "d", ops,
+  );
+  const conn = (env.rows["core.connection"] ?? [])[0];
+  await postConnectionScopeViolation(
+    R({ attempted: "POST /transfers" }), String(conn?.id ?? "none"), env.db, "d", ops,
+  );
+}
+
 export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>> = {
+  // ---- violation tier (MP/RS/PR/CP-05 + HR seam)
+  "employee.hired": (env) => runViolationTierLifecycle(env),
+  "employee.separated": (env) => runViolationTierLifecycle(env),
+  "cash.custody.rotation_due_at": (env) => runViolationTierLifecycle(env),
+  "cash.keybox.opened": (env) => runViolationTierLifecycle(env),
+  "cash.dual_control.completed": (env) => runViolationTierLifecycle(env),
+  "cash.coverage_change.requested": (env) => runViolationTierLifecycle(env),
+  "safe_mode.triggered": (env) => runViolationTierLifecycle(env),
+  "safe_mode.activated": (env) => runViolationTierLifecycle(env),
+  "safe_mode.transaction.decided": (env) => runViolationTierLifecycle(env),
+  "safe_mode.deactivation.authorized": (env) => runViolationTierLifecycle(env),
+  "disclosure.initiated": (env) => runViolationTierLifecycle(env),
+  "vendor.glba_clause.verified": (env) => runViolationTierLifecycle(env),
+  "privacy.sharing.blocked": (env) => runViolationTierLifecycle(env),
+  "access.request.received": (env) => runViolationTierLifecycle(env),
+  "access.poa.presented": (env) => runViolationTierLifecycle(env),
+  "access.refused": (env) => runViolationTierLifecycle(env),
+  "legal.process.received": (env) => runViolationTierLifecycle(env),
+  "connection.consent.granted": (env) => runViolationTierLifecycle(env),
+  "connection.scope_violation.detected": (env) => runViolationTierLifecycle(env),
+  "connection.revoke.requested": (env) => runViolationTierLifecycle(env),
+  "insider.credit_threshold_exceeded": (env) => runLendingUwLifecycle(env),
+  "insider.credit.extended": (env) => runLendingUwLifecycle(env),
+  "insider.limits_recomputed": (env) => runLendingUwLifecycle(env),
   "account.closed": async (env) => {
     const id = `acct_f${env.n()}`;
     env.rows["core.account"].push({
@@ -3347,13 +3550,13 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   "legal_hold.created": async (env) => {
     const n = env.n();
     const subj = `acct_h${n}`;
-    env.rows["core.record"] ??= [];
-    env.rows["core.record"].push({
+    // fixture THROUGH the client — a pushed row only ages the fake's copy
+    await env.db.schema("core").from("record").upsert({
       id: `rec_${subj}_cip_identity`, record_class: "cip_identity", subject_ref: subj,
       retention_anchor: "2014-01-01T00:00:00.000Z",
       retention_expires_at: "2019-01-01T00:00:00.000Z",
       legal_hold_flag: false, disposed_at: null, provenance: "production",
-    });
+    }, { onConflict: "id" });
     // the FULL SC-02 lifecycle: place -> release -> dispose. All three phases
     // are needed because SC-02 declares consequences from each.
     await postLegalHold(R({ matter_id: `m${n}`, scope_subject_ref: subj, reason: "drill" }), env.db, "d", env.actors.ops);
@@ -3373,12 +3576,13 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
     // step that evaluates the three eligibility conditions. Disposing directly
     // skipped it, so RR-03 read red for a missing event that the system does
     // in fact produce, just not on this path.
-    env.rows["core.record"] ??= [];
-    env.rows["core.record"].push({
+    // fixture THROUGH the client — a pushed row ages the fake's copy and
+    // leaves a real database untouched (the live tier read these controls red)
+    await env.db.schema("core").from("record").upsert({
       id, record_class: "cip_identity", subject_ref: "acct_9",
       retention_anchor: "2014-01-01T00:00:00.000Z", retention_expires_at: "2019-01-01T00:00:00.000Z",
       legal_hold_flag: false, disposed_at: null, provenance: "production",
-    });
+    }, { onConflict: "id" });
     await postDisposalSweep(R({}), env.db, "d", env.actors.ops);
     await postDisposeRecord(R({ approved_by: "rm", certificate: "c" }), id, env.db, "d", env.actors.ops);
   },
@@ -3883,7 +4087,7 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   "application.option_shortfall.detected": (env) => runDepositsMemberLifecycle(env),
   "balance.inquiry.received": (env) => runDepositsMemberLifecycle(env),
   "card.request_during_address_hold": (env) => runDepositsMemberLifecycle(env),
-  "estate.claim.submitted": (env) => runDepositsMemberLifecycle(env),
+  "estate.claim.submitted": (env) => runViolationTierLifecycle(env),
   "expulsion.board_report.filed": (env) => runDepositsMemberLifecycle(env),
   "fee.overdraft.posted": (env) => runDepositsMemberLifecycle(env),
   "hmda.submission_window_open": (env) => runLendingUwLifecycle(env),
@@ -3891,14 +4095,14 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   "lo_comp.plan.submitted": (env) => runDepositsMemberLifecycle(env),
   "member.address_notice.sent": (env) => runDepositsMemberLifecycle(env),
   "member.application.submitted": (env) => runDepositsMemberLifecycle(env),
-  "member.death.reported": (env) => runDepositsMemberLifecycle(env),
+  "member.death.reported": (env) => runViolationTierLifecycle(env),
   "member.delivery.failed": (env) => runDepositsMemberLifecycle(env),
   "member.eligibility_rule.failed": (env) => runDepositsMemberLifecycle(env),
-  "member.expulsion.decided": (env) => runDepositsMemberLifecycle(env),
-  "member.expulsion_hearing.held": (env) => runDepositsMemberLifecycle(env),
-  "member.expulsion_hearing.requested": (env) => runDepositsMemberLifecycle(env),
-  "member.expulsion_notice.sent": (env) => runDepositsMemberLifecycle(env),
-  "member.expulsion_payout.sent": (env) => runDepositsMemberLifecycle(env),
+  "member.expulsion.decided": (env) => runViolationTierLifecycle(env),
+  "member.expulsion_hearing.held": (env) => runViolationTierLifecycle(env),
+  "member.expulsion_hearing.requested": (env) => runViolationTierLifecycle(env),
+  "member.expulsion_notice.sent": (env) => runViolationTierLifecycle(env),
+  "member.expulsion_payout.sent": (env) => runViolationTierLifecycle(env),
   "pricing.exception.requested": (env) => runDepositsMemberLifecycle(env),
   "privacy.esign_consent.recorded": (env) => runDepositsMemberLifecycle(env),
   "record.bulk_export.requested": (env) => runDepositsMemberLifecycle(env),

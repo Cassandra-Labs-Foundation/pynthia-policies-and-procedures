@@ -26,6 +26,7 @@ import {
 } from "./lib.ts";
 import { scopeToPartner } from "./ownership.ts";
 import { type PartnerContext } from "./auth.ts";
+import { safeModeGate } from "./member_protection.ts";
 
 export interface TransferRow {
   id: string;
@@ -697,6 +698,29 @@ export async function postTransfer(
   if (transferRow.status === "settled") {
     controlResults.push(...await loadControlResults(db, transferId));
   } else {
+    // RS-03: while safe mode is active, the cap gates BEFORE the control
+    // gate — resolution posture outranks ordinary controls, and the decision
+    // (either way) leaves safe_mode.transaction.decided evidence.
+    const safeMode = await safeModeGate(db, amount, "transfer", transferId, ctx);
+    if (safeMode.restricted) {
+      const body = {
+        status: 423,
+        type: "safe_mode_restricted",
+        title: "Safe Mode Restricted",
+        detail: safeMode.reason,
+        doc_url: "https://api.cassandra.bank/docs/errors/safe-mode-restricted",
+        resource_id: transferId,
+        resource_type: "transfer",
+      };
+      // "rejected" is THIS rail's blocked status — rails do not share vocab
+      await db.schema("core").from("transfer")
+        .update({ status: "rejected" }).eq("id", transferId);
+      await storeIdempotencyResponse(db, ctx.idempotencyScope, idempotencyKey, 423, {
+        ...body, request_id: requestId,
+      });
+      return errorResponse(423, requestId, body);
+    }
+
     const gate = await runGate(db, cfg, TRANSFER_RESOURCE(transferId), sourceAccount, destAccount, amount, ctx);
     if (gate.blocked) {
       const stored = { ...gate.body, request_id: requestId };

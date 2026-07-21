@@ -4,9 +4,11 @@
 // STANDING STATE rather than an event log, and state privacy rights are one
 // request type with the strictest deadline rather than a flow per statute.
 //
-// PR-03, PR-04 and PR-15 are NOT built: they need vendor attestations, outside
-// counsel's actions, and third-party connection telemetry respectively. See
-// BLUEPRINT §X.2.
+// PR-03, PR-04 and PR-15 are built at the bottom of this file as GATES:
+// sharing without a legal basis is blocked (not logged), access without
+// entitlement is refused (and the refusal recorded), and a third-party
+// connection is a scoped token whose scope violation revokes it. Each was
+// drawn from the drill's red spec — the TDD loop the corpus drives.
 
 import { type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { type PartnerContext } from "./auth.ts";
@@ -968,4 +970,320 @@ export async function postNotificationDecision(
       "incident", incidentId, { reason: body.rationale }, ctx);
   }
   return jsonResponse({ data: { incident_id: incidentId } }, 201, requestId);
+}
+
+// ------------------------------------------------ PR-03 permissible disclosures
+
+/** GLBA legal bases under which member data may leave the institution. */
+const DISCLOSURE_BASES = [
+  "consent", "service_provider_glba", "legal_process", "fraud_prevention",
+  "regulatory_examination", "joint_marketing_glba",
+];
+
+/**
+ * POST /privacy/disclosures {entity_id, recipient, legal_basis?, vendor_id?,
+ * vendor_glba_addendum_id?, data_scope?}
+ *
+ * PR-03 built as a GATE, not a log: a disclosure with no recognized legal
+ * basis — or to a vendor with no GLBA addendum — is BLOCKED, and the block
+ * itself is the evidence (privacy.sharing.blocked). Sharing member data first
+ * and papering it later is the violation.
+ */
+export async function postPrivacyDisclosure(
+  req: Request, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  if (!isNonEmptyString(body.entity_id) || !isNonEmptyString(body.recipient)) {
+    return validationError(requestId, [{
+      type: "missing_field", field: "entity_id",
+      message: "entity_id and recipient are required",
+    }]);
+  }
+  const id = `disc_${crypto.randomUUID()}`;
+  const basis = isNonEmptyString(body.legal_basis) ? body.legal_basis : null;
+  const vendorId = isNonEmptyString(body.vendor_id) ? body.vendor_id : null;
+  const addendum = isNonEmptyString(body.vendor_glba_addendum_id)
+    ? body.vendor_glba_addendum_id
+    : null;
+
+  const block = async (reason: string): Promise<Response> => {
+    await db.schema(scope).from("privacy_disclosure").upsert({
+      id, entity_id: body.entity_id, recipient: body.recipient,
+      legal_basis: basis, vendor_id: vendorId, vendor_glba_addendum_id: addendum,
+      data_scope: Array.isArray(body.data_scope) ? body.data_scope : null,
+      blocked: true, blocked_reason: reason, provenance: provenanceFor(scope, ctx),
+    }, { onConflict: "id" });
+    await emit(db, scope, `ev_${id}_blocked`, "privacy.sharing.blocked",
+      "privacy_disclosure", id, {
+        "disclosure.legal_basis": basis, "vendor.id": vendorId,
+        "vendor.data_scope": body.data_scope ?? null, reason,
+      }, ctx);
+    return apiError(422, "privacy_sharing_blocked", requestId, {
+      title: "Sharing Blocked", detail: reason,
+    });
+  };
+
+  if (!basis || !DISCLOSURE_BASES.includes(basis)) {
+    return await block(
+      basis
+        ? `'${basis}' is not a recognized GLBA legal basis`
+        : "no legal basis stated — member data does not leave on an unstated theory",
+    );
+  }
+  if (basis === "service_provider_glba" && (!vendorId || !addendum)) {
+    return await block(
+      "a service-provider disclosure requires the vendor and its GLBA addendum — " +
+        "an addendum promised later is an addendum absent now",
+    );
+  }
+
+  const { error } = await db.schema(scope).from("privacy_disclosure").upsert({
+    id, entity_id: body.entity_id, recipient: body.recipient,
+    legal_basis: basis, vendor_id: vendorId, vendor_glba_addendum_id: addendum,
+    data_scope: Array.isArray(body.data_scope) ? body.data_scope : null,
+    blocked: false, provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id" });
+  if (error) return internalErrorResponse(requestId, error.message);
+
+  await emit(db, scope, `ev_${id}_basis`, "disclosure.legal_basis.recorded",
+    "privacy_disclosure", id, {
+      "disclosure.legal_basis": basis, recipient: body.recipient,
+      "vendor.data_scope": body.data_scope ?? null,
+    }, ctx);
+  await emit(db, scope, `ev_${id}_init`, "disclosure.initiated",
+    "privacy_disclosure", id, { recipient: body.recipient }, ctx);
+  if (vendorId) {
+    await emit(db, scope, `ev_${id}_glba`, "vendor.glba_clause.verified",
+      "privacy_disclosure", id, {
+        "vendor.id": vendorId, "vendor.glba_addendum_id": addendum,
+        "vendor.contract_id": body.vendor_contract_id ?? null,
+      }, ctx);
+  }
+  return jsonResponse({ data: { id, blocked: false } }, 201, requestId);
+}
+
+// ------------------------------------------------ PR-04 member data access
+
+/**
+ * POST /privacy/access-requests {entity_id, requester_kind, agent_identity?,
+ * poa_artifact_id?, legal_process_artifact_id?, rfpa_applicable?}
+ *
+ * Who may see a member's data: the member, an agent with a VALID POA, or
+ * legal process. Anyone else is refused — and the refusal is recorded, not
+ * merely returned, because "we refused" is the compliance evidence.
+ */
+export async function postPrivacyAccessRequest(
+  req: Request, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  const kind = body.requester_kind;
+  if (
+    !isNonEmptyString(body.entity_id) ||
+    !["self", "agent_poa", "legal_process", "other"].includes(String(kind))
+  ) {
+    return validationError(requestId, [{
+      type: "invalid_value", field: "requester_kind",
+      message: "entity_id and requester_kind (self|agent_poa|legal_process|other) are required",
+    }]);
+  }
+  const id = `par_${crypto.randomUUID()}`;
+  const record = async (
+    status: "granted" | "refused", extra: Record<string, unknown>, refusal?: string,
+  ) => {
+    await db.schema(scope).from("privacy_access_request").upsert({
+      id, entity_id: body.entity_id, requester_kind: kind,
+      agent_identity: isNonEmptyString(body.agent_identity) ? body.agent_identity : null,
+      poa_artifact_id: isNonEmptyString(body.poa_artifact_id) ? body.poa_artifact_id : null,
+      legal_process_artifact_id: isNonEmptyString(body.legal_process_artifact_id)
+        ? body.legal_process_artifact_id
+        : null,
+      rfpa_applicable: body.rfpa_applicable === true,
+      status, refusal_reason: refusal ?? null, provenance: provenanceFor(scope, ctx),
+    }, { onConflict: "id" });
+    await emit(db, scope, `ev_${id}_recv`, "access.request.received",
+      "privacy_access_request", id, {
+        "entity.id": body.entity_id, requester_kind: kind,
+        "access.agent_identity": body.agent_identity ?? null,
+      }, ctx);
+    await emit(
+      db, scope, `ev_${id}_${status}`,
+      status === "granted" ? "access.granted" : "access.refused",
+      "privacy_access_request", id,
+      { "entity.id": body.entity_id, requester_kind: kind, ...extra },
+      ctx,
+    );
+  };
+
+  if (kind === "self") {
+    await record("granted", {});
+    return jsonResponse({ data: { id, status: "granted" } }, 201, requestId);
+  }
+  if (kind === "agent_poa") {
+    await emit(db, scope, `ev_${id}_poa`, "access.poa.presented",
+      "privacy_access_request", id, {
+        "access.poa_artifact_id": body.poa_artifact_id ?? null,
+        "access.agent_identity": body.agent_identity ?? null,
+      }, ctx);
+    if (!isNonEmptyString(body.poa_artifact_id) || !isNonEmptyString(body.agent_identity)) {
+      await emit(db, scope, `ev_${id}_poarej`, "access.poa.rejected",
+        "privacy_access_request", id, {
+          reason: "POA artifact or agent identity missing",
+        }, ctx);
+      await record("refused", {}, "POA artifact or agent identity missing");
+      return apiError(422, "poa_rejected", requestId, {
+        title: "POA Rejected",
+        detail: "an agent needs a POA artifact and an identity — a claimed POA is not a POA",
+      });
+    }
+    await record("granted", { "access.poa_artifact_id": body.poa_artifact_id });
+    return jsonResponse({ data: { id, status: "granted" } }, 201, requestId);
+  }
+  if (kind === "legal_process") {
+    await emit(db, scope, `ev_${id}_legal`, "legal.process.received",
+      "privacy_access_request", id, {
+        "legal.process_artifact_id": body.legal_process_artifact_id ?? null,
+        "legal.rfpa_applicable": body.rfpa_applicable === true,
+      }, ctx);
+    if (!isNonEmptyString(body.legal_process_artifact_id)) {
+      await record("refused", {}, "no legal process artifact");
+      return apiError(422, "legal_process_missing", requestId, {
+        title: "Legal Process Missing",
+        detail: "legal-process access requires the instrument itself",
+      });
+    }
+    await record("granted", {
+      "legal.process_artifact_id": body.legal_process_artifact_id,
+    });
+    return jsonResponse({ data: { id, status: "granted" } }, 201, requestId);
+  }
+  // kind === "other" — no entitlement, refused, recorded
+  await record("refused", {}, "requester has no entitlement to this member's data");
+  return apiError(403, "access_refused", requestId, {
+    title: "Access Refused",
+    detail: "no entitlement: not the member, no POA, no legal process (PR-04)",
+  });
+}
+
+// ------------------------------------------- PR-15 third-party connections
+
+/**
+ * POST /privacy/connections {entity_id, party_id, scopes[]}
+ *
+ * A connection IS a scoped token (card 45) with consent and a lifecycle: the
+ * member consents, a token is minted confined to the granted scopes, and the
+ * router's scope enforcement doubles as connection enforcement. The token's
+ * sha256 goes in api_token; the PLAINTEXT is returned once, here, and never
+ * stored — same property as every other token in the system.
+ */
+export async function postPrivacyConnection(
+  req: Request, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  const scopes = Array.isArray(body.scopes) ? body.scopes.map(String) : [];
+  if (!isNonEmptyString(body.entity_id) || !isNonEmptyString(body.party_id) || scopes.length === 0) {
+    return validationError(requestId, [{
+      type: "missing_field", field: "scopes",
+      message: "entity_id, party_id and at least one scope are required — an unscoped connection is not consent",
+    }]);
+  }
+
+  // The token is confined to the MEMBER's fintech, never to the minting
+  // actor: an ops-minted connection with the ops actor's (null) partner would
+  // be scoped to nothing and read as 404s everywhere — the live tier found
+  // exactly that. Entity first; a single-partner instance may fall back to
+  // its one partner; ambiguity refuses.
+  let partnerId: string | null = null;
+  const { data: ent } = await db.schema(scope).from("entity")
+    .select("id, partner_id").eq("id", String(body.entity_id)).maybeSingle();
+  partnerId = (ent as Any)?.partner_id ?? ctx.partnerId ?? null;
+  if (!partnerId) {
+    const { data: partners } = await db.schema(scope).from("partner")
+      .select("id").eq("status", "active").limit(2);
+    if ((partners ?? []).length === 1) partnerId = String((partners as Any)[0].id);
+  }
+  if (!partnerId) {
+    return apiError(422, "connection_unscopable", requestId, {
+      title: "Connection Unscopable",
+      detail: "the member's partner could not be determined; an unscoped connection token is confined to nothing",
+    });
+  }
+
+  const id = `conn_${crypto.randomUUID()}`;
+  const plaintext = `cass_pt_conn_${crypto.randomUUID().replace(/-/g, "")}`;
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(plaintext));
+  const hash = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+  const tokenId = `tok_conn_${crypto.randomUUID()}`;
+
+  const { error: tokErr } = await db.schema(scope).from("api_token").insert({
+    id: tokenId, token_hash: hash, token_prefix: plaintext.slice(0, 12),
+    actor_type: "partner", roles: [],
+    partner_id: partnerId, instance_id: ctx.instanceId,
+    allowed_endpoints: scopes, allowed_tiers: ["read"], status: "active",
+  });
+  if (tokErr) return internalErrorResponse(requestId, tokErr.message);
+
+  const { error } = await db.schema(scope).from("connection").upsert({
+    id, entity_id: body.entity_id, party_id: body.party_id, scopes,
+    token_id: tokenId, provenance: provenanceFor(scope, ctx),
+  }, { onConflict: "id" });
+  if (error) return internalErrorResponse(requestId, error.message);
+
+  await emit(db, scope, `ev_${id}_consent`, "connection.consent.granted", "connection", id, {
+    "connection.party_id": body.party_id, "entity.id": body.entity_id,
+    "connection.id": id, scopes,
+  }, ctx);
+  await emit(db, scope, `ev_${id}_token`, "connection.token.issued", "connection", id, {
+    "connection.party_id": body.party_id, token_id: tokenId, scopes,
+  }, ctx);
+  return jsonResponse({ data: { id, token: plaintext, token_id: tokenId, scopes } }, 201, requestId);
+}
+
+/**
+ * A scope violation on a connection token — called from the router's
+ * insufficient_scope path, so the VIOLATING REQUEST ITSELF triggers
+ * suspension and revocation. Also callable directly (POST
+ * /privacy/connections/{id}/scope-violation) for operator-driven cases.
+ */
+export async function recordConnectionScopeViolation(
+  db: SupabaseClient, connectionId: string, attempted: string,
+  ctx?: PartnerContext, scope: EvidenceScope = "core",
+): Promise<void> {
+  const { data: conn } = await db.schema(scope).from("connection")
+    .select("id, token_id, status, violation_count").eq("id", connectionId).maybeSingle();
+  if (!conn) return;
+  const now = new Date().toISOString();
+  await db.schema(scope).from("connection").update({
+    status: "revoked", violation_count: Number(conn.violation_count ?? 0) + 1,
+    suspended_at: conn.status === "active" ? now : undefined,
+    revoked_at: now,
+  }).eq("id", connectionId);
+  await db.schema(scope).from("api_token").update({ status: "revoked" })
+    .eq("id", String(conn.token_id));
+  await emit(db, scope, `ev_${connectionId}_viol_${Date.now()}`,
+    "connection.scope_violation.detected", "connection", connectionId, {
+      "connection.id": connectionId, attempted,
+      "connection.access_log_id": `viol_${connectionId}`,
+    }, ctx);
+  await emit(db, scope, `ev_${connectionId}_susp`, "connection.suspended",
+    "connection", connectionId, { cause: "scope_violation" }, ctx);
+  await emit(db, scope, `ev_${connectionId}_revoked`, "connection.token_revoked",
+    "connection", connectionId, { token_id: conn.token_id }, ctx);
+}
+
+/** POST /privacy/connections/{id}/scope-violation {attempted} */
+export async function postConnectionScopeViolation(
+  req: Request, connectionId: string, db: SupabaseClient, requestId: string,
+  ctx: PartnerContext, scope: EvidenceScope = "core",
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  const { data: conn } = await db.schema(scope).from("connection")
+    .select("id").eq("id", connectionId).maybeSingle();
+  if (!conn) return notFoundResponse(requestId, "connection", connectionId);
+  await recordConnectionScopeViolation(
+    db, connectionId, String(body.attempted ?? "unspecified"), ctx, scope,
+  );
+  return jsonResponse({ data: { id: connectionId, revoked: true } }, 200, requestId);
 }
