@@ -1112,5 +1112,38 @@ check "no simulated cash can exist in core" \
 
 
 echo
+echo "-- 38. compliance dashboard: public shell, authenticated data, partner blind --"
+# the dashboard URL redirects to the hosted shell (the Supabase gateway
+# rewrites every renderable content-type to text/plain on shared domains, so
+# the chrome lives on GitHub Pages and this route 302s to it)
+ST=$(curl -sS -o /dev/null -w '%{http_code}' "$API/compliance/dashboard")
+check "dashboard URL answers without any credential" "$ST" "302"
+LOC=$(curl -sS -o /dev/null -w '%{redirect_url}' "$API/compliance/dashboard")
+check "and redirects to the hosted shell" \
+  "$(case "$LOC" in https://*) echo yes;; *) echo no;; esac)" "yes"
+# the cross-origin shell needs CORS on the data route
+ST=$(curl -sS -o /dev/null -w '%{http_code}' -X OPTIONS "$API/compliance/dashboard/data" \
+  -H "Origin: https://example.github.io" -H "Access-Control-Request-Method: GET" \
+  -H "Access-Control-Request-Headers: x-api-key")
+check "preflight for the shell's fetch -> 204" "$ST" "204"
+check "preflight allows the X-Api-Key header" \
+  "$(curl -sS -D - -o /dev/null -X OPTIONS "$API/compliance/dashboard/data" -H "Origin: https://example.github.io" | grep -ci 'access-control-allow-headers.*x-api-key')" "1"
+# the data route authenticates like everything else
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' "$API/compliance/dashboard/data")
+check "data without a token -> 401" "$ST" "401"
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' "$API/compliance/dashboard/data" "${AUTH[@]}")
+check "data for an ops actor -> 200" "$ST" "200"
+check "control activity reflects this run's evidence" \
+  "$(python3 -c "import json;d=json.load(open('/tmp/e2e_body'));print('yes' if d['controls']['window_rows']>0 else 'no')")" "yes"
+check "open alerts panel sees the run's BSA alerts" \
+  "$(python3 -c "import json;d=json.load(open('/tmp/e2e_body'));print('yes' if d['alerts']['open']>0 else 'no')")" "yes"
+check "ops panel reports outbox depth as a number" \
+  "$(python3 -c "import json;d=json.load(open('/tmp/e2e_body'));print('yes' if isinstance(d['ops']['outbox_undelivered'],int) else 'no')")" "yes"
+# BSA-07 confidentiality: a partner cannot learn the dashboard exists
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' "$API/compliance/dashboard/data" \
+  -H "X-Api-Key: $PARTNER_TOKEN")
+check "a partner gets 404, never 403" "$ST" "404"
+
+echo
 echo "== $PASS passed, $FAIL failed =="
 [ "$FAIL" -eq 0 ] || exit 1

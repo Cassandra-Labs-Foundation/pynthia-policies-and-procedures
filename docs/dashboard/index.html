@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cassandra — Compliance</title>
+<!--
+  The compliance dashboard SHELL. Pure chrome, zero data, no secrets: it is
+  hosted publicly (GitHub Pages) precisely because it carries nothing. The
+  token is entered client-side, held in sessionStorage, and sent only as an
+  X-Api-Key header to the data endpoint — never in a URL. Data comes from
+  GET {api}/compliance/dashboard/data, which authenticates through the same
+  token pipeline as every other route (partners get 404, per BSA-07).
+
+  Hosted here rather than served by the edge function because the Supabase
+  gateway rewrites every renderable content-type to text/plain on its shared
+  domains (anti-phishing policy) — HTML serving needs a custom domain.
+  The ?api= query param overrides the API base (a base URL, not a secret).
+-->
+<style>
+  :root { --bg:#0e1116; --panel:#161b23; --line:#232b37; --txt:#dbe2ec; --dim:#8593a6;
+          --ok:#3fb27f; --warn:#e0a83a; --bad:#e05d5d; --acc:#5b8def; }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--bg); color:var(--txt); font:14px/1.45 -apple-system, "Segoe UI", Roboto, sans-serif; padding:24px; }
+  h1 { font-size:18px; font-weight:600; letter-spacing:.2px; }
+  header { display:flex; align-items:baseline; gap:14px; margin-bottom:18px; flex-wrap:wrap; }
+  header .meta { color:var(--dim); font-size:12px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:14px; }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px; }
+  .panel h2 { font-size:12px; text-transform:uppercase; letter-spacing:.8px; color:var(--dim); margin-bottom:10px; }
+  .big { font-size:30px; font-weight:650; }
+  .big small { font-size:12px; color:var(--dim); font-weight:400; margin-left:6px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  td, th { text-align:left; padding:4px 6px 4px 0; border-bottom:1px solid var(--line); }
+  th { color:var(--dim); font-weight:500; font-size:11px; text-transform:uppercase; letter-spacing:.5px; }
+  tr:last-child td { border-bottom:none; }
+  .ok { color:var(--ok); } .warn { color:var(--warn); } .bad { color:var(--bad); }
+  .pill { display:inline-block; padding:1px 8px; border-radius:999px; font-size:11px; border:1px solid var(--line); }
+  #gate { max-width:420px; margin:12vh auto; text-align:center; }
+  #gate input { width:100%; padding:10px 12px; margin:14px 0 10px; background:var(--panel);
+                border:1px solid var(--line); border-radius:8px; color:var(--txt); font-size:14px; }
+  #gate button { padding:9px 22px; background:var(--acc); color:#fff; border:0; border-radius:8px; font-size:14px; cursor:pointer; }
+  #err { color:var(--bad); font-size:13px; min-height:18px; margin-top:8px; }
+  .foot { margin-top:16px; color:var(--dim); font-size:11px; }
+</style>
+</head>
+<body>
+<div id="gate">
+  <h1>Compliance Dashboard</h1>
+  <p style="color:var(--dim);margin-top:8px">Enter an operator or CU-admin API token. It is held in this tab's session only — never in a URL.</p>
+  <input id="tok" type="password" placeholder="cass_… token" autocomplete="off">
+  <button id="go">Open</button>
+  <div id="err"></div>
+</div>
+<div id="app" style="display:none">
+  <header>
+    <h1>Compliance Dashboard</h1>
+    <span class="meta" id="stamp"></span>
+    <span class="meta">auto-refreshes every 30s</span>
+  </header>
+  <div class="grid" id="grid"></div>
+  <div class="foot">Every figure is read from the evidence tables the controls write — nothing is computed for display. Row caps are surfaced when hit.</div>
+</div>
+<script>
+const KEY = "cass_dash_token";
+const API = new URLSearchParams(location.search).get("api")
+  || "https://jynsipdvrgqdkeqrlzcv.functions.supabase.co/api";
+const dataUrl = API.replace(/\/+$/,"") + "/compliance/dashboard/data";
+const $ = (id) => document.getElementById(id);
+
+function n(x){ return (x ?? 0).toLocaleString(); }
+function panel(title, body){ return '<div class="panel"><h2>'+title+'</h2>'+body+'</div>'; }
+function kvTable(obj, headA, headB){
+  const rows = Object.entries(obj || {}).sort((a,b)=>b[1]-a[1])
+    .map(([k,v])=>'<tr><td>'+k+'</td><td style="text-align:right">'+n(v)+'</td></tr>').join("");
+  if (!rows) return '<div style="color:var(--dim)">none in window</div>';
+  return '<table><tr><th>'+headA+'</th><th style="text-align:right">'+headB+'</th></tr>'+rows+'</table>';
+}
+
+function render(d){
+  const decisions = {};
+  for (const per of Object.values(d.controls.by_control)) {
+    for (const [dec, c] of Object.entries(per)) decisions[dec] = (decisions[dec]||0)+c;
+  }
+  const blocked = (decisions.block||0)+(decisions.reject||0);
+  $("stamp").textContent = "generated " + new Date(d.generated_at).toLocaleString()
+    + " · window " + (d.window_hours/24) + "d" + (d.controls.window_capped ? " · CONTROL ROWS CAPPED" : "");
+  $("grid").innerHTML =
+    panel("Control activity — " + (d.window_hours/24) + "d",
+      '<div class="big">'+n(d.controls.window_rows)+'<small>evidence rows</small></div>'
+      + '<div style="margin:6px 0 10px"><span class="pill ok">'+n(decisions.pass||0)+' pass</span> '
+      + '<span class="pill bad">'+n(blocked)+' blocked / rejected</span> '
+      + '<span class="pill warn">'+n(decisions.alert||0)+' alert</span></div>'
+      + kvTable(Object.fromEntries(Object.entries(d.controls.by_control).map(([k,v])=>[k, Object.values(v).reduce((a,b)=>a+b,0)])), "control", "fires"))
+  + panel("Open BSA alerts",
+      '<div class="big '+(d.alerts.overdue_triage ? "bad":"")+'">'+n(d.alerts.open)
+      + '<small>'+n(d.alerts.overdue_triage)+' past the 2-business-day triage clock</small></div>'
+      + kvTable(d.alerts.by_type, "type", "open"))
+  + panel("Case / SAR pipeline",
+      kvTable(d.cases.by_status, "status", "cases")
+      + '<div style="margin-top:10px">'+kvTable(d.cases.sar_decisions, "SAR decision", "count")+'</div>')
+  + panel("CTR filings — 15-day FinCEN clock",
+      '<div class="big '+(d.ctr.overdue ? "bad":"")+'">'+n(d.ctr.unfiled)
+      + '<small>unfiled · '+n(d.ctr.overdue)+' overdue</small></div>'
+      + (d.ctr.due_next.length
+        ? '<table><tr><th>filing</th><th>due</th></tr>'
+          + d.ctr.due_next.map(f=>'<tr><td>'+f.id+'</td><td>'+(f.filing_due_at||"").slice(0,10)+'</td></tr>').join("")
+          + '</table>'
+        : '<div style="color:var(--dim)">nothing owed</div>'))
+  + panel("Awaiting second approver (EPS-06)",
+      '<div class="big '+(d.pending_approvals.count ? "warn":"")+'">'+n(d.pending_approvals.count)+'<small>payments held for dual control</small></div>'
+      + (d.pending_approvals.list.length
+        ? '<table><tr><th>payment</th><th>waiting since</th></tr>'
+          + d.pending_approvals.list.slice(0,8).map(a=>'<tr><td>'+a.resource_type+' '+String(a.resource_id).slice(0,8)+'…</td><td>'+(a.created_at||"").slice(0,16).replace("T"," ")+'</td></tr>').join("")
+          + '</table>' : ""))
+  + panel("Ledger &amp; delivery health",
+      kvTable(d.ops.events_7d, "reconciliation event — 7d", "count")
+      + '<div style="margin-top:10px" class="big '+(d.ops.outbox_undelivered>50 ? "warn":"")+'">'
+      + n(d.ops.outbox_undelivered)+(d.ops.outbox_capped ? "+" : "")+'<small>events awaiting delivery</small></div>'
+      + (d.ops.last_reconcile_at ? '<div style="color:var(--dim);font-size:12px;margin-top:6px">last heartbeat '+new Date(d.ops.last_reconcile_at).toLocaleString()+'</div>' : ""));
+}
+
+async function load(){
+  const tok = sessionStorage.getItem(KEY);
+  if (!tok) return;
+  let res;
+  try {
+    res = await fetch(dataUrl, { headers: { "X-Api-Key": tok } });
+  } catch (e) {
+    $("err").textContent = "cannot reach the API at " + API;
+    return;
+  }
+  if (!res.ok) {
+    sessionStorage.removeItem(KEY);
+    $("gate").style.display=""; $("app").style.display="none";
+    $("err").textContent = "refused ("+res.status+") — check the token's actor class";
+    return;
+  }
+  $("gate").style.display="none"; $("app").style.display="";
+  render(await res.json());
+}
+$("go").onclick = () => { sessionStorage.setItem(KEY, $("tok").value.trim()); $("tok").value=""; load(); };
+$("tok").addEventListener("keydown", (e)=>{ if(e.key==="Enter") $("go").click(); });
+setInterval(load, 30000);
+load();
+</script>
+</body>
+</html>

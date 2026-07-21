@@ -19,6 +19,7 @@ import { getControlResults } from "./controls.ts";
 import { getChangelog } from "./platform.ts";
 import { postSandboxReset } from "./sandbox.ts";
 import { postSimulate } from "./simulate.ts";
+import { getDashboardData, getDashboardShell } from "./dashboard.ts";
 import { getCase, postAlertTriage, postCaseDecision, postTimerSweep } from "./bsa.ts";
 import { postDisposalSweep, postDisposeRecord, postHoldRelease, postLegalHold } from "./retention.ts";
 import { getCashAggregation, postCashTransaction, postCtrFile, postCtrSweep } from "./cash.ts";
@@ -67,7 +68,25 @@ interface Route extends EndpointScope {
   pattern: RegExp;
   paramNames: string[];
   handler: RouteHandler;
+  /**
+   * Skip authentication entirely. Reserved for pure-chrome surfaces that
+   * carry ZERO data (the dashboard shell) — anything that reads state must
+   * go through authenticate. A public handler receives a sentinel ctx it
+   * must not use.
+   */
+  public?: true;
 }
+
+// The sentinel ctx for public routes. Deliberately hostile defaults: if a
+// public handler ever DOES consult it, the partner actor class hits the most
+// restrictive path everywhere (404 on BSA surfaces, scoped-out on rows).
+const PUBLIC_CTX = {
+  tokenId: "tok_public_shell",
+  tokenPrefix: "none",
+  actorType: "partner",
+  roles: [],
+  partnerId: null,
+} as unknown as PartnerContext;
 
 function stripFunctionPrefix(pathname: string): string {
   const parts = pathname.split("/").filter(Boolean);
@@ -541,6 +560,28 @@ const routes: Route[] = [
     handler: async (_req, params, requestId, ctx) =>
       await getCase(params.id, createDb(), requestId, ctx),
   },
+  // Compliance dashboard (demo surface). The shell is public because it is
+  // pure chrome — zero data, token entered client-side and sent as a header
+  // to the /data route, which authenticates like every other endpoint.
+  {
+    method: "GET",
+    pattern: /^\/compliance\/dashboard\/?$/,
+    paramNames: [],
+    endpoint: "GET /compliance/dashboard",
+    tier: "read",
+    public: true,
+    handler: async (_req, _params, requestId, _ctx) =>
+      await Promise.resolve(getDashboardShell(requestId)),
+  },
+  {
+    method: "GET",
+    pattern: /^\/compliance\/dashboard\/data\/?$/,
+    paramNames: [],
+    endpoint: "GET /compliance/dashboard/data",
+    tier: "read",
+    handler: async (req, _params, requestId, ctx) =>
+      await getDashboardData(req, createDb(), requestId, ctx),
+  },
   {
     method: "GET",
     pattern: /^\/control-results\/?$/,
@@ -775,6 +816,32 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
   const url = new URL(req.url);
   const path = stripFunctionPrefix(url.pathname);
+
+  // The dashboard shell is hosted cross-origin (GitHub Pages — the gateway
+  // rewrites HTML content-types on shared domains), so its data route speaks
+  // CORS. This must run BEFORE route matching: an OPTIONS preflight matches
+  // no GET route and would 405. Wildcard origin is safe here: CORS is not
+  // the protection — the X-Api-Key header is, and browsers only send it
+  // because this preflight allows it. Auth failures carry the header too, or
+  // the browser would swallow the 401 and the shell could not explain the
+  // refusal.
+  const corsRoute = /^\/compliance\/dashboard\/data\/?$/.test(path);
+  if (corsRoute && req.method === "OPTIONS") {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        "access-control-allow-origin": "*",
+        "access-control-allow-methods": "GET, OPTIONS",
+        "access-control-allow-headers": "x-api-key, authorization, content-type",
+        "access-control-max-age": "86400",
+      },
+    });
+  }
+  const withCors = (res: Response): Response => {
+    if (corsRoute) res.headers.set("access-control-allow-origin", "*");
+    return res;
+  };
+
   const matched = matchRoute(path, req.method);
 
   // Route resolution BEFORE auth, because the scope check needs to know which
@@ -787,6 +854,19 @@ Deno.serve(async (req: Request): Promise<Response> => {
   }
   if (matched === "method_not_allowed") {
     return methodNotAllowedResponse(requestId);
+  }
+
+  // Pure-chrome public routes (dashboard shell) skip authentication: they
+  // carry zero data. The sentinel ctx's partner actor class means a handler
+  // that wrongly consults it hits the most restrictive path everywhere.
+  if (matched.route.public) {
+    try {
+      const res = await matched.route.handler(req, matched.params, requestId, PUBLIC_CTX);
+      res.headers.set("X-RateLimit-Tier", matched.route.tier);
+      return res;
+    } catch (e) {
+      return internalErrorResponse(requestId, e);
+    }
   }
 
   const db = createDb();
@@ -803,15 +883,15 @@ Deno.serve(async (req: Request): Promise<Response> => {
       enabled: Deno.env.get("ALLOW_DEMO_KEY") !== "false",
     },
   );
-  if (!auth.ok) return auth.response;
+  if (!auth.ok) return withCors(auth.response);
 
   try {
     const res = await matched.route.handler(req, matched.params, requestId, auth.ctx);
     // D14: surface which tier the request was billed against, so partners can
     // reconcile their own usage. The limits themselves are a separate card.
     res.headers.set("X-RateLimit-Tier", matched.route.tier);
-    return res;
+    return withCors(res);
   } catch (e) {
-    return internalErrorResponse(requestId, e);
+    return withCors(internalErrorResponse(requestId, e));
   }
 });
