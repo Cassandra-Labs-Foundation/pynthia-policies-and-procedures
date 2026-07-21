@@ -2,8 +2,29 @@
 
 Local DuckDB attached **read-only** to the core Supabase project (architecture
 D18/D25: the per-instance analytical layer for aggregate control evaluation).
-No sync worker yet — views query Postgres live through the `postgres` extension;
-a watermark-sync + Parquet archive comes later with the aggregator.
+Views query Postgres live through the `postgres` extension.
+
+Since cards 62/59/60 this directory also holds the **aggregator's analytical
+tail**: watermark archiving to Parquet and the two scheduled reporters.
+
+## Aggregator jobs (cards 62, 59, 60)
+
+| Job | What it does |
+|---|---|
+| `./analytics/archive.sh` | Card 62's sync mechanism: exports `aggregator.event` rows up to the current max `sequence_id` into `analytics/archive/*.parquet`, then advances the watermark in `aggregator.archive_watermark`. Rows are not deleted from Postgres (append-only trigger stays intact); the spanning view partitions by watermark so each row has exactly one serving tier. An empty run still stamps `archived_at` — liveness evidence. |
+| `./analytics/bsa_reporter.sh` | Card 59: for every entity the BSA Approver flagged `requires_lookback`, totals sub-threshold movement over the trailing **90 days across hot Postgres + cold Parquet** and writes `aggregator.sar_candidate` rows. Idempotent per entity per day. |
+| `./analytics/report_5300.sh` | Card 60: one call-report aggregation row per instance per day into `aggregator.report_5300` (settled volume from the spanning view, alert counts, FBO position). Idempotent per day. |
+
+`analytics/aggregator_views.sql` defines the spanning views (`agg_events_cold`
+/ `agg_events_hot` / `agg_events_all` / `agg_money_events`). Load it after at
+least one archive run exists — `read_parquet` on an empty glob errors, and
+that error is correct.
+
+**Schedule:** `.github/workflows/aggregator-reporters.yml` runs all three
+daily and commits new Parquet files to main — git is the cold archive of
+record. Activating it needs the `SUPABASE_DB_URL` repo secret (session-pooler
+URI): `gh secret set SUPABASE_DB_URL --body "$SUPABASE_DB_URL"`. Until then
+the workflow reports itself skipped.
 
 ## Setup
 
