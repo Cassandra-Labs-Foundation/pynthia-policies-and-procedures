@@ -1174,10 +1174,10 @@ echo "-- 40. aggregator: ingest, cursor loop, payment hub, BSA approver, health 
 : "${AGGREGATOR_JWT_SECRET:?AGGREGATOR_JWT_SECRET not set in .env.local}"
 AGG="${AGGREGATOR_BASE:-https://jynsipdvrgqdkeqrlzcv.functions.supabase.co/aggregator}"
 b64url() { openssl base64 -A | tr '+/' '-_' | tr -d '='; }
-agg_jwt() {
-  local now h p s; now=$(date +%s)
+agg_jwt() { # agg_jwt [instance_id] — defaults to inst_local
+  local now h p s inst; now=$(date +%s); inst="${1:-inst_local}"
   h=$(printf '{"alg":"HS256","typ":"JWT"}' | b64url)
-  p=$(printf '{"instance_id":"inst_local","iat":%s,"exp":%s}' "$now" $((now+300)) | b64url)
+  p=$(printf '{"instance_id":"%s","iat":%s,"exp":%s}' "$inst" "$now" $((now+300)) | b64url)
   s=$(printf '%s.%s' "$h" "$p" | openssl dgst -sha256 -hmac "$AGGREGATOR_JWT_SECRET" -binary | b64url)
   printf '%s.%s.%s' "$h" "$p" "$s"
 }
@@ -1197,15 +1197,16 @@ ST=$(curl -sS -o /dev/null -w '%{http_code}' "$API/changelog" -H "X-Api-Key: $FO
 check "a token from ANOTHER instance is a 401 here, indistinguishable from unknown" "$ST" "401"
 
 # --- card 55: a real instance event flows outbox -> aggregator, with dedup
-AGA=$(new_account 200000 agg-src)
+AGA=$(new_account 10000000 agg-src)  # $100k: the $11k CTR + drips 422'd for months against $2k
 AGB=$(new_account 10000  agg-dst)
 api POST /transfers agg-t1 "{\"source_account_id\":\"$AGA\",\"destination_account_id\":\"$AGB\",\"amount_cents\":5000,\"description\":\"agg walk\"}" >/dev/null
 AGT=$(jget id)
 POS0=$(sql "select coalesce((select position_cents from pg.aggregator.fbo_position where instance_id='inst_local'),0);")
-for i in 1 2 3 4 5 6; do
+for i in 1 2 3 4 5 6 7 8 9 10; do
   curl -sS -o /dev/null -X POST "$API/events/deliver" "${AUTH[@]}" -d '{}'
   IN_AGG=$(sql "select count(*) from pg.aggregator.event where event_id='evt_${AGT}_settled';")
   [ "$IN_AGG" = "1" ] && break
+  sleep 7
 done
 check "the settled event crossed the boundary into the aggregator" "$IN_AGG" "1"
 check "carrying its schema_version" \
@@ -1221,21 +1222,31 @@ else
   ok "the event log is append-only — history cannot be edited, even via psql"
 fi
 
-# --- card 56: the cursor advances only WITH processing, atomically
-KILL=$(psql "$SUPABASE_DB_URL" -tA <<'SQL'
+# --- card 56: the cursor advances only WITH processing, atomically.
+# The doomed txn plants ITS OWN event so there is guaranteed mid-flight work
+# (the cron may already have consumed everything real), and takes the cursor
+# lock up front so a concurrent cron run cannot interleave. -q matters: psql
+# prints BEGIN/ROLLBACK tags even under -tA, which shifts every line index.
+KILL=$(psql "$SUPABASE_DB_URL" -qtA <<'SQL'
 begin;
-select last_seq from aggregator.consumer_cursor where consumer='payment_hub';
+select last_seq from aggregator.consumer_cursor where consumer='payment_hub' for update;
+insert into aggregator.event (event_id, instance_id, code, resource_id, payload)
+  values ('evt_kill_test_doomed', 'inst_kill_test', 'transfer.settled', 'kill', '{"amount_cents": 1}');
 select aggregator.run_payment_hub(200)->>'processed';
 select last_seq from aggregator.consumer_cursor where consumer='payment_hub';
 rollback;
 select last_seq from aggregator.consumer_cursor where consumer='payment_hub';
+select count(*) from aggregator.event where event_id='evt_kill_test_doomed';
+select count(*) from aggregator.fbo_position where instance_id='inst_kill_test';
 SQL
 )
-K_BEFORE=$(echo "$KILL" | sed -n 1p); K_IN=$(echo "$KILL" | sed -n 3p); K_AFTER=$(echo "$KILL" | sed -n 4p)
+K_BEFORE=$(echo "$KILL" | sed -n 1p); K_IN=$(echo "$KILL" | sed -n 3p)
+K_AFTER=$(echo "$KILL" | sed -n 4p); K_EVT=$(echo "$KILL" | sed -n 5p); K_FBO=$(echo "$KILL" | sed -n 6p)
 check "inside the doomed txn the cursor HAD advanced (work was mid-flight)" \
   "$([ "$K_IN" -gt "$K_BEFORE" ] && echo yes)" "yes"
 check "the kill rolled cursor AND effects back together — one txn, card 56" \
   "$K_AFTER" "$K_BEFORE"
+check "the doomed event itself vanished with its effects" "$K_EVT/$K_FBO" "0/0"
 
 # --- card 57: the payment hub applies the event exactly once, kill or no kill
 for i in 1 2 3 4 5 6; do
@@ -1250,14 +1261,24 @@ check "FBO position reflects the movement exactly once (+5000), despite the kill
 # --- card 58: CTR at the aggregator, deduped by UNIQUE(event_id, alert_type)
 api POST /transfers agg-ctr "{\"source_account_id\":\"$AGA\",\"destination_account_id\":\"$AGB\",\"amount_cents\":1100000,\"description\":\"agg ctr\"}" >/dev/null
 ACT=$(jget id)
-for i in 1 2 3 4 5 6; do
+for i in 1 2 3 4 5 6 7 8 9 10; do
   curl -sS -o /dev/null -X POST "$API/events/deliver" "${AUTH[@]}" -d '{}'
   [ "$(sql "select count(*) from pg.aggregator.event where event_id='evt_${ACT}_settled';")" = "1" ] && break
+  sleep 7
 done
-psql "$SUPABASE_DB_URL" -qc "select aggregator.run_bsa_approver(200);" >/dev/null
-check "a \$11k event raises ctr_threshold at the aggregator" \
-  "$(sql "select count(*) from pg.aggregator.alert where event_id='evt_${ACT}_settled' and alert_type='ctr_threshold';")" "1"
-psql "$SUPABASE_DB_URL" -qc "select aggregator.run_bsa_approver(200);" >/dev/null
+# retry loop, not one shot: a transient psql failure or a cron run holding
+# the cursor lock must not fail the check — the property is that the alert
+# EXISTS exactly once, however the consumer got driven (observed in v15: the
+# manual run lost a pooler connection and the cron minted the alert 59s
+# later, after the one-shot check had already read 0)
+for i in 1 2 3 4 5 6 7 8 9 10; do
+  psql "$SUPABASE_DB_URL" -qc "select aggregator.run_bsa_approver(200);" >/dev/null 2>&1
+  CTR_N=$(sql "select count(*) from pg.aggregator.alert where event_id='evt_${ACT}_settled' and alert_type='ctr_threshold';")
+  [ "$CTR_N" = "1" ] && break
+  sleep 8
+done
+check "a \$11k event raises ctr_threshold at the aggregator" "$CTR_N" "1"
+psql "$SUPABASE_DB_URL" -qc "select aggregator.run_bsa_approver(200);" >/dev/null 2>&1
 check "re-running the consumer cannot mint a second alert (UNIQUE event_id, alert_type)" \
   "$(sql "select count(*) from pg.aggregator.alert where event_id='evt_${ACT}_settled' and alert_type='ctr_threshold';")" "1"
 
@@ -1266,19 +1287,25 @@ for i in 1 2 3; do
   api POST /transfers "agg-str$i" "{\"source_account_id\":\"$AGA\",\"destination_account_id\":\"$AGB\",\"amount_cents\":400000,\"description\":\"agg drip $i\"}" >/dev/null
   LAST_STR=$(jget id)
 done
-for i in 1 2 3 4 5 6; do
+for i in 1 2 3 4 5 6 7 8 9 10; do
   curl -sS -o /dev/null -X POST "$API/events/deliver" "${AUTH[@]}" -d '{}'
   [ "$(sql "select count(*) from pg.aggregator.event where event_id='evt_${LAST_STR}_settled';")" = "1" ] && break
+  sleep 7
 done
-psql "$SUPABASE_DB_URL" -qc "select aggregator.run_bsa_approver(500);" >/dev/null
-check "three sub-threshold events aggregate into a structuring flag" \
-  "$(sql "select count(*)>0 from pg.aggregator.alert where alert_type='structuring' and event_id like 'evt_%_settled' and entity_hash=(select entity_hash from pg.aggregator.event where event_id='evt_${LAST_STR}_settled');")" "true"
+# same retry-loop reasoning as the CTR check above
+for i in 1 2 3 4 5 6 7 8 9 10; do
+  psql "$SUPABASE_DB_URL" -qc "select aggregator.run_bsa_approver(500);" >/dev/null 2>&1
+  STR_OK=$(sql "select count(*)>0 from pg.aggregator.alert where alert_type='structuring' and event_id like 'evt_%_settled' and entity_hash=(select entity_hash from pg.aggregator.event where event_id='evt_${LAST_STR}_settled');")
+  [ "$STR_OK" = "true" ] && break
+  sleep 8
+done
+check "three sub-threshold events aggregate into a structuring flag" "$STR_OK" "true"
 check "and it is marked for the 90-day lookback" \
   "$(sql "select requires_lookback::text from pg.aggregator.alert where alert_type='structuring' and entity_hash=(select entity_hash from pg.aggregator.event where event_id='evt_${LAST_STR}_settled') limit 1;")" "true"
 
 # --- card 61: a stalled consumer trips the alarm (bsa_approver: replays dedup)
 psql "$SUPABASE_DB_URL" -qc "update aggregator.consumer_cursor set last_seq = last_seq - 1, updated_at = now() - interval '1 hour' where consumer='bsa_approver';" >/dev/null
-ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' "$AGG/health" -H "Authorization: Bearer $AGG_JWT")
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' "$AGG/health" -H "Authorization: Bearer $(agg_jwt)")
 check "health answers over the wire" "$ST" "200"
 check "the stalled consumer is named" \
   "$(python3 -c "import json;d=json.load(open('/tmp/e2e_body'));print('yes' if any(c['consumer']=='bsa_approver' and c['stalled'] for c in d['consumers']) else 'no')")" "yes"
@@ -1287,7 +1314,272 @@ check "and the trip WROTE an alert — an alarm, not a dashboard" \
 psql "$SUPABASE_DB_URL" -qc "select aggregator.run_bsa_approver(500);" >/dev/null
 
 echo
-echo "-- 41. the demo narrative still runs (demo.sh) --"
+echo "-- 41. analytics tail: Parquet archive, spanning query, reporters (62, 59, 60) --"
+# Card 62's sync decision made concrete: watermark archiving. The archive job
+# exports events <= watermark to Parquet; the spanning view serves each row
+# from exactly one tier. Then the reporters (59/60) compute across BOTH tiers
+# and leave durable evidence rows in Postgres. Needs the duckdb CLI — a
+# missing binary is a loud FAIL, not a silent skip (the no-silent-caps rule).
+if command -v duckdb >/dev/null; then
+  duckq() { # like sql(), but with the card-62 spanning views loaded
+    duckdb -noheader -list \
+      -cmd "INSTALL json; LOAD json;" \
+      -cmd "ATTACH IF NOT EXISTS '${SUPABASE_DB_URL}' AS pg (TYPE postgres, READ_ONLY);" \
+      -cmd ".read analytics/aggregator_views.sql" \
+      -c "$1" 2>/dev/null | tr -d '\033' | sed 's/\[[0-9;]*m//g' | grep -vi 'rosetta\|duckdb.org\|warning' | tr -d '[:space:]'
+  }
+
+  # pin the head BEFORE archiving — events keep crossing every cron minute,
+  # so "reached the head" must mean the head as of the archive run, not now
+  PRE_MAX=$(sql "select coalesce(max(sequence_id),0) from pg.aggregator.event;")
+  ./analytics/archive.sh >/tmp/e2e_archive.log 2>&1
+  WM=$(sql "select archived_through from pg.aggregator.archive_watermark;")
+  check "the archive watermark reached the head of the event log" \
+    "$([ "$WM" -ge "$PRE_MAX" ] && echo true)" "true"
+  check "cold Parquet files exist" "$(ls analytics/archive/*.parquet >/dev/null 2>&1 && echo yes)" "yes"
+
+  # liveness: an archive run that finds nothing must still stamp archived_at.
+  # Compared as epoch seconds — sql() strips ALL whitespace, which mangles a
+  # timestamp literal into an unparseable string (the v15 lesson).
+  T_BEFORE=$(sql "select extract(epoch from archived_at)::bigint from pg.aggregator.archive_watermark;")
+  sleep 2; ./analytics/archive.sh >/dev/null 2>&1
+  check "an empty archive run still stamps liveness (card-18 lesson)" \
+    "$(sql "select extract(epoch from archived_at)::bigint > ${T_BEFORE} from pg.aggregator.archive_watermark;")" "true"
+
+  # a fresh event lands ABOVE the watermark -> the hot tier
+  api POST /transfers agg-span "{\"source_account_id\":\"$AGA\",\"destination_account_id\":\"$AGB\",\"amount_cents\":7000,\"description\":\"spanning proof\"}" >/dev/null
+  SPT=$(jget id)
+  for i in 1 2 3 4 5 6; do
+    curl -sS -o /dev/null -X POST "$API/events/deliver" "${AUTH[@]}" -d '{}'
+    [ "$(sql "select count(*) from pg.aggregator.event where event_id='evt_${SPT}_settled';")" = "1" ] && break
+  done
+  # pin the comparison to a fixed sequence range — the log is append-only, so
+  # everything <= PIN is immutable and the three counts cannot race the cron
+  PIN=$(sql "select max(sequence_id) from pg.aggregator.event;")
+  COLD=$(duckq "select count(*) from agg_events_cold where sequence_id <= ${PIN};")
+  HOT=$(duckq "select count(*) from agg_events_hot where sequence_id <= ${PIN};")
+  ALL=$(duckq "select count(*) from agg_events_all where sequence_id <= ${PIN};")
+  check "the cold tier holds the archive" "$([ "${COLD:-0}" -gt 0 ] && echo yes)" "yes"
+  check "the hot tier holds what came after the watermark" "$([ "${HOT:-0}" -gt 0 ] && echo yes)" "yes"
+  check "one query spans hot Postgres and cold Parquet, no double-count — card 62" \
+    "$ALL" "$((COLD + HOT))"
+
+  # card 59: the 90-day lookback pays the debt the 24h approver flagged
+  ./analytics/bsa_reporter.sh >/dev/null 2>&1
+  STR_HASH=$(sql "select entity_hash from pg.aggregator.alert where alert_type='structuring' and requires_lookback and entity_hash is not null limit 1;")
+  check "the lookback produced a SAR candidate for the flagged entity" \
+    "$(sql "select count(*)>0 from pg.aggregator.sar_candidate where entity_hash='${STR_HASH}';")" "true"
+  SARS=$(sql "select count(*) from pg.aggregator.sar_candidate;")
+  ./analytics/bsa_reporter.sh >/dev/null 2>&1
+  check "re-running the reporter mints no duplicate candidates" \
+    "$(sql "select count(*) from pg.aggregator.sar_candidate;")" "$SARS"
+
+  # card 60: the 5300 aggregation runs and leaves its row
+  ./analytics/report_5300.sh >/dev/null 2>&1
+  check "the 5300 aggregation left today's row for this instance" \
+    "$(sql "select count(*) from pg.aggregator.report_5300 where instance_id='inst_local' and as_of=current_date;")" "1"
+  check "with real settled volume in it" \
+    "$(sql "select settled_cents > 0 from pg.aggregator.report_5300 where instance_id='inst_local' and as_of=current_date;")" "true"
+else
+  bad "duckdb CLI is required for the analytics tail (62/59/60)" "duckdb on PATH" "missing"
+fi
+
+echo
+echo "-- 42. origination: /auth/token, FBO reads, reserve saga (64-67) --"
+# Card 64's JWT half: /auth/token exchanges the per-instance client secret
+# for a 300s JWT. The mTLS half is platform-blocked (Supabase terminates TLS
+# at its edge; client certs never reach the function) — documented, not
+# simulated. Saga checks run against a dedicated instance (inst_saga_test)
+# whose position only OUR saga touches, so no assertion races the cron.
+: "${AGGREGATOR_CLIENT_SECRET:?AGGREGATOR_CLIENT_SECRET missing from .env.local}"
+TOK_BODY=$(curl -sS -X POST "$AGG/auth/token" -H 'content-type: application/json' \
+  -d "{\"instance_id\":\"inst_local\",\"client_secret\":\"$AGGREGATOR_CLIENT_SECRET\"}")
+check "a valid client secret buys a short-lived token" \
+  "$(echo "$TOK_BODY" | python3 -c 'import json,sys;d=json.load(sys.stdin);print(d.get("expires_in"))')" "300"
+check "a wrong secret is a 401" \
+  "$(curl -sS -o /dev/null -w '%{http_code}' -X POST "$AGG/auth/token" -H 'content-type: application/json' \
+      -d '{"instance_id":"inst_local","client_secret":"wrong"}')" "401"
+WRONG=$(curl -sS -X POST "$AGG/auth/token" -H 'content-type: application/json' \
+  -d '{"instance_id":"inst_local","client_secret":"wrong"}' | python3 -c 'import json,sys;print(json.load(sys.stdin)["detail"])')
+GHOST=$(curl -sS -X POST "$AGG/auth/token" -H 'content-type: application/json' \
+  -d '{"instance_id":"inst_ghost","client_secret":"whatever"}' | python3 -c 'import json,sys;print(json.load(sys.stdin)["detail"])')
+check "wrong secret and unknown instance are indistinguishable" "$WRONG" "$GHOST"
+
+# card 65: FBO reads return consumer-built state, internally consistent
+FBO=$(curl -sS "$AGG/fbo" -H "Authorization: Bearer $(agg_jwt)")  # fresh: the section-40 token has expired by now
+check "FBO read carries position, available, inbound" \
+  "$(echo "$FBO" | python3 -c 'import json,sys;d=json.load(sys.stdin);print("yes" if all(k in d for k in ("position_cents","available_balance_cents","inbound_cents","reserved_cents")) else "no")')" "yes"
+check "available = position - reserved, to the cent" \
+  "$(echo "$FBO" | python3 -c 'import json,sys;d=json.load(sys.stdin);print("yes" if d["available_balance_cents"]==d["position_cents"]-d["reserved_cents"] else "no")')" "yes"
+
+# cards 66/67 on the dedicated saga instance
+psql "$SUPABASE_DB_URL" -qc "insert into aggregator.fbo_position (instance_id, position_cents, last_seq) values ('inst_saga_test', 100000, 0) on conflict (instance_id) do update set position_cents = 100000;" >/dev/null
+SAGA_JWT=$(agg_jwt inst_saga_test)
+psql "$SUPABASE_DB_URL" -qc "select aggregator.run_payment_hub(1);" >/dev/null  # freshen the hub
+ORG1=$(curl -sS -X POST "$AGG/originations" -H "Authorization: Bearer $SAGA_JWT" \
+  -H 'content-type: application/json' -d '{"amount_cents":30000}')
+check "a clean origination reserves and returns pending — card 66" \
+  "$(echo "$ORG1" | python3 -c 'import json,sys;print(json.load(sys.stdin).get("status"))')" "pending"
+O1=$(echo "$ORG1" | python3 -c 'import json,sys;print(json.load(sys.stdin)["origination_id"])')
+check "the reserve is held, not spent: position intact, available down by the hold" \
+  "$(curl -sS "$AGG/fbo" -H "Authorization: Bearer $SAGA_JWT" | python3 -c 'import json,sys;d=json.load(sys.stdin);print("yes" if d["position_cents"]==100000 and d["available_balance_cents"]==70000 else "no")')" "yes"
+
+# too-big origination refuses against AVAILABLE, not position
+check "a second origination larger than available is refused (409)" \
+  "$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$AGG/originations" -H "Authorization: Bearer $SAGA_JWT" \
+      -H 'content-type: application/json' -d '{"amount_cents":80000}')" "409"
+
+ACC=$(curl -sS -X POST "$AGG/originations/$O1/accept" -H "Authorization: Bearer $SAGA_JWT")
+check "accept: position moved by exactly the amount — card 67" \
+  "$(echo "$ACC" | python3 -c 'import json,sys;d=json.load(sys.stdin);print(d["position_before_cents"]-d["position_after_cents"])')" "30000"
+check "and the resolved origination cannot be resolved again" \
+  "$(curl -sS -o /dev/null -w '%{http_code}' -X POST "$AGG/originations/$O1/reject" -H "Authorization: Bearer $SAGA_JWT")" "409"
+
+O2=$(curl -sS -X POST "$AGG/originations" -H "Authorization: Bearer $SAGA_JWT" \
+  -H 'content-type: application/json' -d '{"amount_cents":10000}' | python3 -c 'import json,sys;print(json.load(sys.stdin)["origination_id"])')
+curl -sS -o /dev/null -X POST "$AGG/originations/$O2/reject" -H "Authorization: Bearer $SAGA_JWT"
+check "reject: the saga nets to zero — position untouched, hold released" \
+  "$(sql "select position_cents from pg.aggregator.fbo_position where instance_id='inst_saga_test';")" "70000"
+check "no residual holds on the saga instance" \
+  "$(sql "select count(*) from pg.aggregator.reserve where instance_id='inst_saga_test' and status='held';")" "0"
+
+# card 66's other half: a stale Payment Hub refuses with Retry-After
+psql "$SUPABASE_DB_URL" -qc "update aggregator.consumer_cursor set updated_at = now() - interval '1 hour' where consumer='payment_hub';" >/dev/null
+ST=$(curl -sS -D /tmp/e2e_hdrs -o /tmp/e2e_body -w '%{http_code}' -X POST "$AGG/originations" \
+  -H "Authorization: Bearer $SAGA_JWT" -H 'content-type: application/json' -d '{"amount_cents":100}')
+check "stale consumer state rejects the origination (503)" "$ST" "503"
+check "with a Retry-After header, not just a no" \
+  "$(grep -i '^retry-after:' /tmp/e2e_hdrs | tr -dc '0-9')" "120"
+psql "$SUPABASE_DB_URL" -qc "select aggregator.run_payment_hub(1);" >/dev/null  # heal
+echo
+echo "-- 43. chaos, shifted left: pause, block, recover exactly once (63) --"
+# The paused-consumer half of card 63, live: hold the payment_hub cursor's
+# row lock in a background transaction — every consumer run (cron included)
+# BLOCKS on the for-update rather than skipping past it. When the lock drops,
+# the blocked run proceeds and applies exactly once. The severed-link half is
+# proven at the unit tier (events.test.ts: 503 and thrown-fetch reschedule
+# the whole batch with per-event backoff, nothing lost or duplicated) — the
+# platform offers no switch to cut a deployed function's egress on demand,
+# and that limit is stated here rather than papered over.
+# lock FIRST, then plant the event — otherwise the every-minute cron can
+# apply it in the gap and the "sits unapplied" check races
+psql "$SUPABASE_DB_URL" -qc "begin; select last_seq from aggregator.consumer_cursor where consumer='payment_hub' for update; select pg_sleep(9); rollback;" >/dev/null 2>&1 &
+HOLD_PID=$!
+sleep 3  # the holder must CONNECT and take the lock before we proceed
+psql "$SUPABASE_DB_URL" -qc "delete from aggregator.fbo_position where instance_id='inst_chaos_test';" >/dev/null
+psql "$SUPABASE_DB_URL" -qc "insert into aggregator.event (event_id, instance_id, code, resource_id, payload) values ('evt_chaos_${RUN}', 'inst_chaos_test', 'transfer.settled', 'chaos', '{\"amount_cents\": 5500}');" >/dev/null
+check "while paused, the event sits unapplied" \
+  "$(sql "select count(*) from pg.aggregator.fbo_position where instance_id='inst_chaos_test';")" "0"
+T_RUN0=$(date +%s)
+psql "$SUPABASE_DB_URL" -qc "select aggregator.run_payment_hub(500);" >/dev/null  # blocks on the held lock
+T_RUN1=$(date +%s)
+wait "$HOLD_PID" 2>/dev/null
+check "the run BLOCKED on the pause instead of skipping past it" \
+  "$([ $((T_RUN1 - T_RUN0)) -ge 2 ] && echo yes)" "yes"
+check "and on release it applied the event — recovery, not loss" \
+  "$(sql "select position_cents from pg.aggregator.fbo_position where instance_id='inst_chaos_test';")" "5500"
+psql "$SUPABASE_DB_URL" -qc "select aggregator.run_payment_hub(500);" >/dev/null
+check "a second run after recovery is a no-op — exactly once, no dup" \
+  "$(sql "select position_cents from pg.aggregator.fbo_position where instance_id='inst_chaos_test';")" "5500"
+check "recovery left the liveness stamp fresh" \
+  "$(sql "select updated_at > now() - interval '30 seconds' from pg.aggregator.consumer_cursor where consumer='payment_hub';")" "true"
+echo
+echo "-- 44. saga under fire: concurrent races, pause-independence, conservation (69) --"
+# Every check runs on the dedicated saga instance so nothing races the cron.
+# Reset to a known position; prior sections' originations are all resolved.
+psql "$SUPABASE_DB_URL" -qc "update aggregator.reserve set status='released', updated_at=now() where instance_id='inst_saga_test' and status='held'; insert into aggregator.fbo_position (instance_id, position_cents, last_seq) values ('inst_saga_test', 20000, 0) on conflict (instance_id) do update set position_cents = 20000;" >/dev/null
+SAGA_JWT=$(agg_jwt inst_saga_test)
+T0=$(sql "select extract(epoch from now())::bigint;")  # epoch: sql() strips whitespace from timestamps
+psql "$SUPABASE_DB_URL" -qc "select aggregator.run_payment_hub(1);" >/dev/null  # freshen
+
+# race 1: two concurrent 15k originations against 20k available — the
+# position-row lock makes check-then-reserve atomic, so EXACTLY one wins
+curl -sS -o /tmp/e2e_race_a -X POST "$AGG/originations" -H "Authorization: Bearer $SAGA_JWT" \
+  -H 'content-type: application/json' -d '{"amount_cents":15000}' &
+RA=$!
+curl -sS -o /tmp/e2e_race_b -X POST "$AGG/originations" -H "Authorization: Bearer $SAGA_JWT" \
+  -H 'content-type: application/json' -d '{"amount_cents":15000}' &
+RB=$!
+wait $RA $RB
+WINS=$(cat /tmp/e2e_race_a /tmp/e2e_race_b | python3 -c 'import sys,json
+n=0
+for line in sys.stdin.read().replace("}{", "}\n{").splitlines():
+  try:
+    if json.loads(line).get("status")=="pending": n+=1
+  except Exception: pass
+print(n)')
+check "concurrent originations cannot oversubscribe — exactly one reserve" "$WINS" "1"
+check "held reserves never exceed the position" \
+  "$(sql "select coalesce(sum(amount_cents),0) <= 20000 from pg.aggregator.reserve where instance_id='inst_saga_test' and status='held';")" "true"
+
+# race 2: the winner is accepted TWICE concurrently — position moves once
+OW=$(sql "select id from pg.aggregator.origination where instance_id='inst_saga_test' and status='pending' order by created_at desc limit 1;")
+curl -sS -o /dev/null -X POST "$AGG/originations/$OW/accept" -H "Authorization: Bearer $SAGA_JWT" &
+A1=$!
+curl -sS -o /dev/null -X POST "$AGG/originations/$OW/accept" -H "Authorization: Bearer $SAGA_JWT" &
+A2=$!
+wait $A1 $A2
+check "a double-fired accept lands exactly once" \
+  "$(sql "select position_cents from pg.aggregator.fbo_position where instance_id='inst_saga_test';")" "5000"
+check "and left exactly one captured reserve for it" \
+  "$(sql "select count(*) from pg.aggregator.reserve where origination_id='${OW}' and status='captured';")" "1"
+
+# race 3: origination during a PAUSED consumer — the saga does not depend on
+# the hub's lock, only on its liveness stamp, so a pause is not an outage
+psql "$SUPABASE_DB_URL" -qc "begin; select last_seq from aggregator.consumer_cursor where consumer='payment_hub' for update; select pg_sleep(3); rollback;" >/dev/null 2>&1 &
+HOLD2=$!
+sleep 1
+ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$AGG/originations" \
+  -H "Authorization: Bearer $SAGA_JWT" -H 'content-type: application/json' -d '{"amount_cents":1000}')
+check "an origination during a consumer pause still lands (fresh stamp, held lock)" "$ST" "201"
+wait "$HOLD2" 2>/dev/null
+OP=$(jget origination_id)
+curl -sS -o /dev/null -X POST "$AGG/originations/$OP/reject" -H "Authorization: Bearer $SAGA_JWT"
+
+# conservation: seeded 20000 = position + everything captured since the seed.
+# "to-Fed": a captured reserve IS the money that left the FBO for the Fed.
+check "cross-path conservation: seed = position + captured outflow, to the cent" \
+  "$(sql "select 20000 = (select position_cents from pg.aggregator.fbo_position where instance_id='inst_saga_test')
+            + (select coalesce(sum(amount_cents),0) from pg.aggregator.reserve
+               where instance_id='inst_saga_test' and status='captured'
+                 and updated_at > to_timestamp(${T0}));")" "true"
+check "no dangling holds after the fire drill" \
+  "$(sql "select count(*) from pg.aggregator.reserve where instance_id='inst_saga_test' and status='held';")" "0"
+echo
+echo "-- 45. isolation tier: CU-admin reads, cross-fintech search (52, 54) --"
+: "${CU_ADMIN_SECRET:?CU_ADMIN_SECRET missing from .env.local}"
+ADM_BODY=$(curl -sS -X POST "$AGG/auth/token" -H 'content-type: application/json' \
+  -d "{\"instance_id\":\"cu_admin_main\",\"client_secret\":\"$CU_ADMIN_SECRET\"}")
+check "the admin credential mints a cu_admin token — role from the ROW, not the request" \
+  "$(echo "$ADM_BODY" | python3 -c 'import json,sys;print(json.load(sys.stdin).get("role"))')" "cu_admin"
+ADM_JWT=$(echo "$ADM_BODY" | python3 -c 'import json,sys;print(json.load(sys.stdin)["access_token"])')
+
+OVW=$(curl -sS "$AGG/admin/overview" -H "Authorization: Bearer $ADM_JWT")
+check "the admin reads ACROSS instances — card 52" \
+  "$(echo "$OVW" | python3 -c 'import json,sys;ids=[i["instance_id"] for i in json.load(sys.stdin)["instances"]];print("yes" if "inst_local" in ids and "inst_saga_test" in ids else "no")')" "yes"
+check "an admin WRITE is refused wholesale (403, by credential class)" \
+  "$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$AGG/originations" \
+      -H "Authorization: Bearer $ADM_JWT" -H 'content-type: application/json' -d '{"amount_cents":1}')" "403"
+check "and says why" "$(jget type)" "admin_read_only"
+check "admin event-ingest is refused the same way" \
+  "$(curl -sS -o /dev/null -w '%{http_code}' -X POST "$AGG/events/ingest" \
+      -H "Authorization: Bearer $ADM_JWT" -H 'content-type: application/json' -d '{"events":[{"id":"x","code":"y"}]}')" "403"
+
+# card 54: the cross-fintech query — keyed by entity_hash, never identity
+SHASH=$(sql "select entity_hash from pg.aggregator.alert where alert_type='structuring' and entity_hash is not null limit 1;")
+SRCH=$(curl -sS "$AGG/search?entity_hash=$SHASH" -H "Authorization: Bearer $ADM_JWT")
+check "a cross-fintech search succeeds via the aggregator — card 54" \
+  "$(echo "$SRCH" | python3 -c 'import json,sys;d=json.load(sys.stdin);print("yes" if len(d["instances"])>=1 and len(d["alerts"])>=1 else "no")')" "yes"
+check "identity cannot be the search key — entity_hash is required" \
+  "$(curl -sS -o /dev/null -w '%{http_code}' "$AGG/search" -H "Authorization: Bearer $ADM_JWT")" "400"
+check "an INSTANCE token is refused the cross-fintech view (D23)" \
+  "$(curl -sS -o /dev/null -w '%{http_code}' "$AGG/search?entity_hash=$SHASH" -H "Authorization: Bearer $(agg_jwt)")" "403"
+# "and nowhere else": the instance API's confinement was proven in section 40
+# (a foreign-instance token is an indistinguishable 401) — the aggregator is
+# the ONLY surface where cross-fintech data exists to be served.
+
+echo
+echo "-- 46. the demo narrative still runs (demo.sh) --"
 # The Aug-29 walkthrough is a TEST, run here so it cannot rot between
 # rehearsals: a demo script nobody executes fails in the room, not in CI.
 if PACE=0 ./supabase/tests/e2e/demo.sh >/tmp/e2e_demo.log 2>&1; then
