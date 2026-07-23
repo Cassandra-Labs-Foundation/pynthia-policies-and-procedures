@@ -21,8 +21,9 @@
 // are REPORTED in the payload: a dashboard that silently truncates reads as
 // complete when it is not.
 import { type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { internalErrorResponse, jsonResponse } from "./lib.ts";
+import { apiError, internalErrorResponse, jsonResponse } from "./lib.ts";
 import { type PartnerContext } from "./auth.ts";
+import { redactForBoundary } from "./events.ts";
 
 const WINDOW_HOURS = 168; // 7 days
 const ROW_CAP = 1000;
@@ -199,6 +200,174 @@ export async function getDashboardData(
         last_reconcile: reconcileSummary,
         last_reconcile_at: reconcile?.last_synced_at ?? null,
       },
+    }, 200, requestId);
+  } catch (e) {
+    return internalErrorResponse(requestId, e);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// The monitoring tier — three routes that together make every control
+// auditable by clicking:
+//
+//   GET /compliance/dashboard/heartbeat     bucketed pulses: every event code
+//                                           and every gate decision over time,
+//                                           core and sim worlds labeled apart
+//   GET /compliance/dashboard/events        raw event history for a set of
+//                                           codes (a control's watch list),
+//                                           newest first, cursor-paginated
+//   GET /compliance/dashboard/trace/{id}    the WHOLE transaction cycle for
+//                                           one resource: every event plus
+//                                           every gate decision about it
+//
+// Payloads are inspectable but pass the SAME PII boundary the aggregator
+// enforces (redactForBoundary) — the dashboard is a window, not a leak.
+
+const HB_DEFAULT_HOURS = 168;
+const HB_MAX_HOURS = 2160; // 90 days
+const HB_DEFAULT_BUCKET = 21600; // 6h
+const HB_MIN_BUCKET = 3600;
+const HB_MAX_BUCKET = 604800;
+const STREAM_MAX_CODES = 200;
+const STREAM_DEFAULT_LIMIT = 100;
+const STREAM_MAX_LIMIT = 200;
+const TRACE_CAP = 500;
+
+function intParam(url: URL, name: string, fallback: number, min: number, max: number): number {
+  const raw = Number.parseInt(url.searchParams.get(name) ?? "", 10);
+  const v = Number.isFinite(raw) ? raw : fallback;
+  return Math.min(max, Math.max(min, v));
+}
+
+async function rpcRows(
+  db: SupabaseClient,
+  fn: string,
+  args: Record<string, unknown>,
+): Promise<Row[]> {
+  const { data, error } = await db.schema("core").rpc(fn, args);
+  if (error) throw new Error(`${fn}: ${error.message}`);
+  return (data ?? []) as Row[];
+}
+
+export async function getDashboardHeartbeat(
+  req: Request,
+  db: SupabaseClient,
+  requestId: string,
+): Promise<Response> {
+  const url = new URL(req.url);
+  const hours = intParam(url, "hours", HB_DEFAULT_HOURS, 1, HB_MAX_HOURS);
+  const bucketSeconds = intParam(url, "bucket", HB_DEFAULT_BUCKET, HB_MIN_BUCKET, HB_MAX_BUCKET);
+  const since = new Date(Date.now() - hours * 3600 * 1000).toISOString();
+  try {
+    const [events, gate, lastSeen] = await Promise.all([
+      rpcRows(db, "event_heartbeat", { since, bucket_seconds: bucketSeconds }),
+      rpcRows(db, "gate_heartbeat", { since, bucket_seconds: bucketSeconds }),
+      rpcRows(db, "event_last_seen", {}),
+    ]);
+    return jsonResponse({
+      generated_at: new Date().toISOString(),
+      window_hours: hours,
+      bucket_seconds: bucketSeconds,
+      since,
+      events,
+      gate,
+      last_seen: lastSeen,
+    }, 200, requestId);
+  } catch (e) {
+    return internalErrorResponse(requestId, e);
+  }
+}
+
+const EVENT_COLS =
+  "id, code, type, resource_id, payload, provenance, created_at, delivered_at";
+
+type EventRow = Row & { payload?: unknown; created_at?: unknown };
+
+function redactRows(rows: Row[], src: string): Row[] {
+  return rows.map((r) => ({ ...r, payload: redactForBoundary((r as EventRow).payload), src }));
+}
+
+export async function getDashboardEvents(
+  req: Request,
+  db: SupabaseClient,
+  requestId: string,
+): Promise<Response> {
+  const url = new URL(req.url);
+  const codes = (url.searchParams.get("codes") ?? "")
+    .split(",").map((c) => c.trim()).filter(Boolean).slice(0, STREAM_MAX_CODES);
+  if (codes.length === 0) {
+    return apiError(422, "codes_required", requestId, {
+      detail: "pass ?codes=a.b.c,d.e.f — the watch list of the control being inspected",
+    });
+  }
+  const limit = intParam(url, "limit", STREAM_DEFAULT_LIMIT, 1, STREAM_MAX_LIMIT);
+  const before = url.searchParams.get("before");
+  const src = url.searchParams.get("src") ?? "all";
+
+  try {
+    const worlds = src === "core" ? ["core"] : src === "sim" ? ["sim"] : ["core", "sim"];
+    const pages = await Promise.all(worlds.map(async (schema) => {
+      let q = db.schema(schema).from("event")
+        .select(EVENT_COLS)
+        .in("code", codes)
+        .order("created_at", { ascending: false })
+        .limit(limit);
+      if (before) q = q.lt("created_at", before);
+      const { data, error } = await q;
+      if (error) throw new Error(`${schema}.event: ${error.message}`);
+      return redactRows((data ?? []) as Row[], schema);
+    }));
+    const merged = pages.flat()
+      .sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)))
+      .slice(0, limit);
+    const full = merged.length === limit;
+    return jsonResponse({
+      codes,
+      events: merged,
+      next_before: full ? merged[merged.length - 1].created_at : null,
+    }, 200, requestId);
+  } catch (e) {
+    return internalErrorResponse(requestId, e);
+  }
+}
+
+export async function getDashboardTrace(
+  resourceId: string,
+  db: SupabaseClient,
+  requestId: string,
+): Promise<Response> {
+  try {
+    const [coreEvents, simEvents, gateRows] = await Promise.all([
+      capped(
+        db.schema("core").from("event").select(EVENT_COLS)
+          .eq("resource_id", resourceId)
+          .order("created_at", { ascending: true })
+          .limit(TRACE_CAP),
+      ),
+      capped(
+        db.schema("sim").from("event").select(EVENT_COLS)
+          .eq("resource_id", resourceId)
+          .order("created_at", { ascending: true })
+          .limit(TRACE_CAP),
+      ),
+      capped(
+        db.schema("core").from("control_result")
+          .select("id, control_id, decision, event, score, subject_ref, provenance, created_at")
+          .eq("subject_ref", resourceId)
+          .order("created_at", { ascending: true })
+          .limit(TRACE_CAP),
+      ),
+    ]);
+    const events = [
+      ...redactRows(coreEvents, "core"),
+      ...redactRows(simEvents, "sim"),
+    ].sort((a, b) => String(a.created_at).localeCompare(String(b.created_at)));
+    return jsonResponse({
+      resource_id: resourceId,
+      events,
+      events_capped: coreEvents.length >= TRACE_CAP || simEvents.length >= TRACE_CAP,
+      control_results: gateRows,
+      control_results_capped: gateRows.length >= TRACE_CAP,
     }, 200, requestId);
   } catch (e) {
     return internalErrorResponse(requestId, e);

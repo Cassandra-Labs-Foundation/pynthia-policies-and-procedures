@@ -116,8 +116,31 @@ GATE_POLICY = {
 }
 
 
+def load_verdicts() -> dict[str, dict]:
+    """Per-uid test verdicts from the two baselines the drill maintains.
+
+    hermetic = control-tests.json (fake DB, frozen clock); live =
+    control-tests-live.json (same spec against the real database). The
+    dashboard shows both so an examiner sees the CLAIM (hermetic green), the
+    PROOF (live green) and the gap between them (the fake-vs-real backlog).
+    """
+    out: dict[str, dict] = {}
+    for tier, fname in (("hermetic", "control-tests.json"), ("live", "control-tests-live.json")):
+        path = ROOT / fname
+        if not path.exists():
+            continue
+        for r in json.loads(path.read_text())["results"]:
+            v = out.setdefault(r["uid"], {
+                "scoped_out": bool(r.get("scoped_out")),
+                "scope_reason": r.get("scope_reason"),
+            })
+            v[tier] = r["status"]
+    return out
+
+
 def build_manifest() -> dict:
     data = json.loads(CONTROLS.read_text())
+    verdicts = load_verdicts()
     policies: dict[str, dict] = {}
     for c in data["controls"]:
         slug = c["policy"]
@@ -126,14 +149,36 @@ def build_manifest() -> dict:
             "title": title_for(slug, c.get("policy_title")),
             "controls": [],
         })
+        # the monitoring spec: what the heartbeat watches for this control —
+        # trigger + produced event codes from the control's own rules, the
+        # same codes the per-control tests fire and grade against
+        rules = []
+        watch: set[str] = set()
+        for r in c.get("control_rules", []):
+            trig = r.get("trigger_event")
+            produced = r.get("produced_events", [])
+            if trig:
+                watch.add(trig)
+            watch.update(produced)
+            rules.append({
+                "trigger": trig,
+                "produced": produced,
+                "inputs": r.get("required_inputs", []),
+                "timer": r.get("deadline_timer"),
+                "deadline_text": r.get("deadline_text"),
+            })
         p["controls"].append({
             "id": c["control_id"],
+            "uid": c["uid"],
             "title": c["title"],
             "doc": REPO_BLOB + c["source_file"] + "#" + c["anchor"],
             "citations": [
                 {"text": r["text"], "url": r.get("url")}
                 for r in c.get("regulatory_citations", [])
             ],
+            "watch": sorted(watch),
+            "rules": rules,
+            "tests": verdicts.get(c["uid"], {}),
         })
     gate = {
         "slug": GATE_POLICY["slug"],
@@ -141,9 +186,15 @@ def build_manifest() -> dict:
         "controls": [
             {
                 "id": c["id"],
+                "uid": "money-movement-gate:" + c["id"],
                 "title": c["title"],
                 "doc": REPO_BLOB + "supabase/functions/api/transfers.ts",
                 "citations": [],
+                # the gate's evidence is core.control_result, not produced
+                # events — its heartbeat rides gate_heartbeat by control id
+                "watch": [],
+                "rules": [],
+                "tests": {},
             }
             for c in GATE_POLICY["controls"]
         ],

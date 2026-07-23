@@ -1717,7 +1717,67 @@ check "with a board resolution on file the loan may proceed (200)" \
 
 
 echo
-echo "-- 47. the demo narrative still runs (demo.sh) --"
+echo "-- 47. the monitoring dashboard is a faithful audit surface --"
+# The dashboard is the compliance team's transaction-monitoring system: every
+# control has a clickable heartbeat backed by three public routes (heartbeat /
+# events / trace). Prove them the compliance way: commit a REAL violation,
+# then audit it from the dashboard surface alone — the pulse shows the gate
+# firing, the stream shows the raw event with an inspectable (PII-redacted)
+# payload, and the trace reconstructs the whole transaction cycle.
+
+MON_A=$(new_account 200000 mon-a)   # $2,000 available
+MON_B=$(new_account 100000 mon-b)
+ST=$(api POST /transfers mon-nsf "{\"source_account_id\":\"$MON_A\",\"destination_account_id\":\"$MON_B\",\"amount_cents\":500000,\"description\":\"e2e monitor nsf\"}")
+check "the violation to audit: over-balance transfer rejected at the gate (422)" "$ST" "422"
+ST=$(api POST /transfers mon-ok "{\"source_account_id\":\"$MON_A\",\"destination_account_id\":\"$MON_B\",\"amount_cents\":10000,\"description\":\"e2e monitor ok\"}")
+MON_TR=$(jget id)
+check "and a compliant transfer settles beside it (201)" "$ST" "201"
+
+HB=$(curl -sS "$API/compliance/dashboard/heartbeat?hours=24")
+check "heartbeat: the NSF reject pulses on the gate lane, labeled core" \
+  "$(echo "$HB" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+print('yes' if any(g['control_id']=='CG-NSF-01' and g['decision']=='reject' and g['src']=='core' for g in d['gate']) else 'no')")" "yes"
+check "heartbeat: transfer.settled pulses in the event lanes" \
+  "$(echo "$HB" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+print('yes' if any(e['code']=='transfer.settled' and e['n']>0 for e in d['events']) else 'no')")" "yes"
+check "heartbeat: last_seen carries transfer.settled's all-time history" \
+  "$(echo "$HB" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+print('yes' if any(s['code']=='transfer.settled' and s['total']>0 for s in d['last_seen']) else 'no')")" "yes"
+
+check "stream: a codeless query is refused, not a full outbox dump (422)" \
+  "$(curl -sS -o /dev/null -w '%{http_code}' "$API/compliance/dashboard/events")" "422"
+check "stream: our settled transfer is inspectable, payload included" \
+  "$(curl -sS "$API/compliance/dashboard/events?codes=transfer.settled&limit=50" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+print('yes' if any(e['resource_id']=='$MON_TR' and isinstance(e.get('payload'),dict) for e in d['events']) else 'no')")" "yes"
+check "stream: entity payloads cross the same PII boundary the aggregator enforces" \
+  "$(curl -sS "$API/compliance/dashboard/events?codes=entity.created&limit=50" | python3 -c "
+import json,sys
+KEYS={'name','ssn','date_of_birth','dob','address','email','phone'}
+d=json.load(sys.stdin)
+ev=[e for e in d['events'] if isinstance(e.get('payload'),dict)]
+print('clean' if ev and not any(KEYS & set(e['payload']) for e in ev) else 'leak_or_empty')")" "clean"
+
+check "trace: the account's transaction cycle shows the gate's reject about it" \
+  "$(curl -sS "$API/compliance/dashboard/trace/$MON_A" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+print('yes' if any(c['control_id']=='CG-NSF-01' and c['decision']=='reject' for c in d['control_results']) else 'no')")" "yes"
+check "trace: the transfer's own chain carries its settled event" \
+  "$(curl -sS "$API/compliance/dashboard/trace/$MON_TR" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+print('yes' if any(e['code']=='transfer.settled' for e in d['events']) else 'no')")" "yes"
+
+echo
+echo "-- 48. the demo narrative still runs (demo.sh) --"
 # The Aug-29 walkthrough is a TEST, run here so it cannot rot between
 # rehearsals: a demo script nobody executes fails in the room, not in CI.
 if PACE=0 ./supabase/tests/e2e/demo.sh >/tmp/e2e_demo.log 2>&1; then

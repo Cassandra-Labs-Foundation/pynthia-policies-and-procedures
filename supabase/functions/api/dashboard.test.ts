@@ -9,16 +9,28 @@ import {
 } from "https://deno.land/std@0.224.0/assert/mod.ts";
 import { type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { type PartnerContext } from "./auth.ts";
-import { getDashboardData, getDashboardShell } from "./dashboard.ts";
+import {
+  getDashboardData,
+  getDashboardEvents,
+  getDashboardHeartbeat,
+  getDashboardShell,
+  getDashboardTrace,
+} from "./dashboard.ts";
 
 type Row = Record<string, unknown>;
 
-// Filter-aware stub: applies eq/is/gte/in for real, because core.event is
+// Filter-aware stub: applies eq/is/gte/lt/in for real, because core.event is
 // queried twice with different predicates and a stub that ignores filters
-// would let the two panels silently read each other's rows.
-function stubDb(rows: Record<string, Row[]>): SupabaseClient {
-  const makeBuilder = (table: string) => {
-    let out = [...(rows[table] ?? [])];
+// would let the two panels silently read each other's rows. Schema-aware:
+// rows keyed "sim.event" are only visible through schema("sim"); plain keys
+// resolve through schema("core") so the original fixtures keep working.
+// rpcs maps rpc name -> (args) => rows, for the heartbeat aggregations.
+function stubDb(
+  rows: Record<string, Row[]>,
+  rpcs: Record<string, (args: Record<string, unknown>) => Row[]> = {},
+): SupabaseClient {
+  const makeBuilder = (schema: string, table: string) => {
+    let out = [...(rows[`${schema}.${table}`] ?? (schema === "core" ? rows[table] : undefined) ?? [])];
     // deno-lint-ignore no-explicit-any
     const b: any = {};
     const chain = (fn?: (...a: unknown[]) => void) => (...a: unknown[]) => {
@@ -39,6 +51,9 @@ function stubDb(rows: Record<string, Row[]>): SupabaseClient {
     b.gte = chain((col, val) => {
       out = out.filter((r) => String(r[col as string] ?? "") >= String(val));
     });
+    b.lt = chain((col, val) => {
+      out = out.filter((r) => String(r[col as string] ?? "") < String(val));
+    });
     b.in = chain((col, vals) => {
       out = out.filter((r) => (vals as unknown[]).includes(r[col as string]));
     });
@@ -47,7 +62,15 @@ function stubDb(rows: Record<string, Row[]>): SupabaseClient {
     return b;
   };
   return {
-    schema: () => ({ from: (t: string) => makeBuilder(t) }),
+    schema: (s: string) => ({
+      from: (t: string) => makeBuilder(s, t),
+      rpc: (name: string, args: Record<string, unknown>) =>
+        Promise.resolve(
+          name in rpcs
+            ? { data: rpcs[name](args), error: null }
+            : { data: null, error: { message: `no rpc ${name}` } },
+        ),
+    }),
   } as unknown as SupabaseClient;
 }
 
@@ -143,6 +166,152 @@ Deno.test("empty tables produce an empty-but-well-formed payload, not an error",
   assertEquals(d.ops.last_reconcile, null);
 });
 
+// ---------------------------------------------------------------- heartbeat
+// The monitoring tier: every control's event codes bucketed over time, so the
+// dashboard can render a per-control pulse and a regulator can see exactly
+// when each control last produced evidence.
+
+Deno.test("heartbeat: event + gate pulses ride the RPCs; window and bucket are clamped and reported", async () => {
+  let evArgs: Record<string, unknown> = {};
+  const db = stubDb({}, {
+    event_heartbeat: (args) => {
+      evArgs = args;
+      return [{ src: "core", code: "transfer.settled", bucket: "2026-07-20T00:00:00+00:00", n: 3 }];
+    },
+    gate_heartbeat: () => [
+      { src: "core", control_id: "CG-NSF-01", decision: "reject", bucket: "2026-07-20T00:00:00+00:00", n: 2 },
+    ],
+    event_last_seen: () => [{ src: "core", code: "transfer.settled", last_at: RECENT, total: 9 }],
+  });
+  // absurd params must clamp, not 500 and not scan the whole table
+  const res = await getDashboardHeartbeat(
+    new Request("http://x/compliance/dashboard/heartbeat?hours=999999&bucket=1"),
+    db,
+    "t",
+  );
+  assertEquals(res.status, 200);
+  const d = await res.json();
+  assertEquals(d.window_hours, 2160);
+  assertEquals(d.bucket_seconds, 3600);
+  assertEquals(evArgs.bucket_seconds, 3600);
+  assertEquals(d.events, [
+    { src: "core", code: "transfer.settled", bucket: "2026-07-20T00:00:00+00:00", n: 3 },
+  ]);
+  assertEquals(d.gate[0].control_id, "CG-NSF-01");
+  assertEquals(d.last_seen[0].total, 9);
+});
+
+Deno.test("heartbeat: empty database yields empty-but-well-formed arrays", async () => {
+  const db = stubDb({}, {
+    event_heartbeat: () => [],
+    gate_heartbeat: () => [],
+    event_last_seen: () => [],
+  });
+  const res = await getDashboardHeartbeat(
+    new Request("http://x/compliance/dashboard/heartbeat"),
+    db,
+    "t",
+  );
+  assertEquals(res.status, 200);
+  const d = await res.json();
+  assertEquals(d.events, []);
+  assertEquals(d.gate, []);
+  assertEquals(d.window_hours, 168);
+});
+
+// ------------------------------------------------------------- event stream
+// Click a control -> its raw event history, newest first, payloads inspectable
+// but PII-redacted with the SAME boundary rules the aggregator enforces.
+
+const T1 = "2026-07-20T10:00:00.000Z";
+const T2 = "2026-07-20T11:00:00.000Z";
+const T3 = "2026-07-20T12:00:00.000Z";
+
+function streamFixture() {
+  return {
+    event: [
+      { id: "e3", code: "transfer.settled", type: "transfer", resource_id: "tr_3", payload: { amount_cents: 500, name: "Ada Lovelace" }, provenance: "production", created_at: T3, delivered_at: null },
+      { id: "e2", code: "transfer.settled", type: "transfer", resource_id: "tr_2", payload: { amount_cents: 300 }, provenance: "production", created_at: T2, delivered_at: T3 },
+      { id: "e1", code: "wire.completed", type: "wire", resource_id: "w_1", payload: { ssn: "000-11-2222" }, provenance: "production", created_at: T1, delivered_at: T2 },
+    ],
+    "sim.event": [
+      { id: "s1", code: "transfer.settled", type: "transfer", resource_id: "tr_sim", payload: { amount_cents: 100 }, provenance: "simulated", created_at: T1, delivered_at: null },
+    ],
+  };
+}
+
+Deno.test("event stream: refuses a codeless query rather than dumping the whole outbox", async () => {
+  const res = await getDashboardEvents(
+    new Request("http://x/compliance/dashboard/events"),
+    stubDb(streamFixture()),
+    "t",
+  );
+  assertEquals(res.status, 422);
+});
+
+Deno.test("event stream: filters by code across core AND sim, newest first, payload PII redacted", async () => {
+  const res = await getDashboardEvents(
+    new Request("http://x/compliance/dashboard/events?codes=transfer.settled"),
+    stubDb(streamFixture()),
+    "t",
+  );
+  assertEquals(res.status, 200);
+  const d = await res.json();
+  assertEquals(d.events.map((e: Row) => e.id), ["e3", "e2", "s1"]);
+  // the drill's simulated evidence is visible but labeled — never mixed silently
+  assertEquals(d.events[2].src, "sim");
+  assertEquals(d.events[0].src, "core");
+  // same boundary redaction the aggregator enforces: name never leaves
+  assertEquals(d.events[0].payload, { amount_cents: 500 });
+});
+
+Deno.test("event stream: cursor pages backwards through history and reports the next cursor", async () => {
+  const page1 = await (await getDashboardEvents(
+    new Request("http://x/compliance/dashboard/events?codes=transfer.settled&limit=2"),
+    stubDb(streamFixture()),
+    "t",
+  )).json();
+  assertEquals(page1.events.map((e: Row) => e.id), ["e3", "e2"]);
+  assertEquals(page1.next_before, T2);
+
+  const page2 = await (await getDashboardEvents(
+    new Request(`http://x/compliance/dashboard/events?codes=transfer.settled&limit=2&before=${page1.next_before}`),
+    stubDb(streamFixture()),
+    "t",
+  )).json();
+  assertEquals(page2.events.map((e: Row) => e.id), ["s1"]);
+  assertEquals(page2.next_before, null);
+});
+
+// ------------------------------------------------------------------- trace
+// Click an event -> the WHOLE transaction cycle for its resource: every event
+// it produced plus every gate decision made about it, oldest first.
+
+Deno.test("trace: full event chain + gate decisions for one resource, ascending, redacted", async () => {
+  const db = stubDb({
+    event: [
+      { id: "e2", code: "transfer.settled", type: "transfer", resource_id: "tr_1", payload: { amount_cents: 300, email: "a@b.c" }, provenance: "production", created_at: T2, delivered_at: null },
+      { id: "e1", code: "transfer.created", type: "transfer", resource_id: "tr_1", payload: {}, provenance: "production", created_at: T1, delivered_at: null },
+      { id: "eX", code: "transfer.created", type: "transfer", resource_id: "tr_OTHER", payload: {}, provenance: "production", created_at: T1, delivered_at: null },
+    ],
+    "sim.event": [
+      { id: "s1", code: "transfer.rejected", type: "transfer", resource_id: "tr_1", payload: {}, provenance: "simulated", created_at: T3, delivered_at: null },
+    ],
+    control_result: [
+      { id: "cr1", control_id: "CG-NSF-01", decision: "reject", event: "transfer.rejected", score: null, subject_ref: "tr_1", provenance: "production", created_at: T1 },
+      { id: "crX", control_id: "CG-NSF-01", decision: "pass", event: null, score: null, subject_ref: "tr_OTHER", provenance: "production", created_at: T1 },
+    ],
+  });
+  const res = await getDashboardTrace("tr_1", db, "t");
+  assertEquals(res.status, 200);
+  const d = await res.json();
+  assertEquals(d.resource_id, "tr_1");
+  assertEquals(d.events.map((e: Row) => e.id), ["e1", "e2", "s1"]);
+  assertEquals(d.events[2].src, "sim");
+  assertEquals(d.events[1].payload, { amount_cents: 300 });
+  assertEquals(d.control_results.map((c: Row) => c.id), ["cr1"]);
+});
+
 Deno.test("the dashboard route 302s to the hosted shell (the gateway cannot serve HTML)", () => {
   const res = getDashboardShell("t");
   assertEquals(res.status, 302);
@@ -180,6 +349,23 @@ Deno.test("the policy hierarchy covers the whole catalogue — every policy, eve
   const extras = [...manifestPolicies].filter((p) => !cataloguePolicies.has(p as string));
   assertEquals(extras, ["money-movement-gate"]);
   assertEquals(manifest.control_count, catalogue.controls.length + 6);
+
+  // the monitoring tier's contract: every control ships its watch list (the
+  // event codes its heartbeat sums), its spec rules, and its test verdicts —
+  // the three things that make a control auditable from the dashboard alone
+  let withVerdicts = 0;
+  for (const p of manifest.policies) {
+    for (const c of p.controls) {
+      assert(Array.isArray(c.watch), `${c.id}: watch codes missing`);
+      assert(Array.isArray(c.rules), `${c.id}: spec rules missing`);
+      assert(typeof c.tests === "object", `${c.id}: test verdicts missing`);
+      if (c.tests.hermetic && c.tests.live) withVerdicts++;
+      for (const r of c.rules) {
+        assert(Array.isArray(r.produced) && Array.isArray(r.inputs), `${c.id}: malformed rule`);
+      }
+    }
+  }
+  assert(withVerdicts >= 300, `only ${withVerdicts} controls carry both tiers' verdicts`);
 
   // every page loads the shared app under a CONTENT-STAMPED url: without the
   // stamp a rebuilt app.js stays shadowed by the cached one, and the new

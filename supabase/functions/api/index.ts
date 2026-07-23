@@ -19,7 +19,13 @@ import { getControlResults } from "./controls.ts";
 import { getChangelog } from "./platform.ts";
 import { postSandboxReset } from "./sandbox.ts";
 import { postSimulate } from "./simulate.ts";
-import { getDashboardData, getDashboardShell } from "./dashboard.ts";
+import {
+  getDashboardData,
+  getDashboardEvents,
+  getDashboardHeartbeat,
+  getDashboardShell,
+  getDashboardTrace,
+} from "./dashboard.ts";
 import { getCase, postAlertTriage, postCaseDecision, postTimerSweep } from "./bsa.ts";
 import { postDisposalSweep, postDisposeRecord, postHoldRelease, postLegalHold } from "./retention.ts";
 import { getCashAggregation, postCashTransaction, postCtrFile, postCtrSweep } from "./cash.ts";
@@ -754,6 +760,39 @@ const routes: Route[] = [
     handler: async (req, _params, requestId, ctx) =>
       await getDashboardData(req, createDb(), requestId, ctx),
   },
+  // The monitoring tier: per-control event heartbeat + clickable history.
+  // Same demo posture as /data — public, CORS, synthetic evidence; payloads
+  // pass the aggregator's PII boundary before leaving (dashboard.ts).
+  {
+    method: "GET",
+    pattern: /^\/compliance\/dashboard\/heartbeat\/?$/,
+    paramNames: [],
+    endpoint: "GET /compliance/dashboard/heartbeat",
+    tier: "read",
+    public: true,
+    handler: async (req, _params, requestId, _ctx) =>
+      await getDashboardHeartbeat(req, createDb(), requestId),
+  },
+  {
+    method: "GET",
+    pattern: /^\/compliance\/dashboard\/events\/?$/,
+    paramNames: [],
+    endpoint: "GET /compliance/dashboard/events",
+    tier: "read",
+    public: true,
+    handler: async (req, _params, requestId, _ctx) =>
+      await getDashboardEvents(req, createDb(), requestId),
+  },
+  {
+    method: "GET",
+    pattern: /^\/compliance\/dashboard\/trace\/([^/]+)\/?$/,
+    paramNames: ["resourceId"],
+    endpoint: "GET /compliance/dashboard/trace/{resourceId}",
+    tier: "read",
+    public: true,
+    handler: async (_req, params, requestId, _ctx) =>
+      await getDashboardTrace(params.resourceId, createDb(), requestId),
+  },
   {
     method: "GET",
     pattern: /^\/control-results\/?$/,
@@ -997,7 +1036,8 @@ Deno.serve(async (req: Request): Promise<Response> => {
   // because this preflight allows it. Auth failures carry the header too, or
   // the browser would swallow the 401 and the shell could not explain the
   // refusal.
-  const corsRoute = /^\/compliance\/dashboard\/data\/?$/.test(path);
+  const corsRoute =
+    /^\/compliance\/dashboard\/(?:data|heartbeat|events|trace\/[^/]+)\/?$/.test(path);
   if (corsRoute && req.method === "OPTIONS") {
     return new Response(null, {
       status: 204,

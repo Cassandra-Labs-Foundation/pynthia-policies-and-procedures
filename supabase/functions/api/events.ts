@@ -14,7 +14,14 @@ import { type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { internalErrorResponse, jsonResponse } from "./lib.ts";
 import { signInstanceJwt } from "../aggregator/auth.ts";
 
-const SWEEP_LIMIT = 50;
+// 500, not 50: the control-writer tier emits far more evidence than the money
+// rails, and at 50/min the outbox could never keep up — invisible while those
+// events were dateless (they sorted last and starved silently; defect class 8,
+// migration 20260722000200), visible the moment they got timestamps and the
+// backlog took the queue head. The aggregator path is one batched POST per
+// sweep either way, so a bigger sweep is the same request, just honest about
+// the required throughput.
+const SWEEP_LIMIT = 500;
 const BASE_BACKOFF_MS = 30_000; // 30s, 60s, 120s, ... capped below
 const MAX_BACKOFF_MS = 15 * 60_000;
 
@@ -122,7 +129,7 @@ export async function deliverEvents(
 // RAW_PII_KEYS in ../aggregator/handler.ts.
 const BOUNDARY_PII_KEYS = ["name", "ssn", "date_of_birth", "dob", "address", "email", "phone"];
 
-function redactForBoundary(payload: unknown): unknown {
+export function redactForBoundary(payload: unknown): unknown {
   if (payload === null || typeof payload !== "object" || Array.isArray(payload)) return payload;
   const copy = { ...(payload as Record<string, unknown>) };
   for (const k of BOUNDARY_PII_KEYS) delete copy[k];
