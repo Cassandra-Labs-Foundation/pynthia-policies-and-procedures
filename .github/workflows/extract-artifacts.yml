@@ -25,6 +25,8 @@ on:
     branches: [main]
     paths:
       - "*/*.md"             # generated {slug}/{slug}.md
+      - "!core/**"           # architecture log, research pipeline, verifier — docs, not policy
+      - "!ui/**"             # staff console
       - "!**/prompt.md"      # prompt.md is a regen INPUT, not an extraction input
       - "core-api.yaml"
       - "vocab-migration.json"

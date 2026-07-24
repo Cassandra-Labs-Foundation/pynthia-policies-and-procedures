@@ -47,9 +47,17 @@ from code_format import event_struct, timer_struct, canonical_code  # object.pro
 # --------------------------------------------------------------------------- #
 
 # Directory names (anywhere in the path) that never contain authored policies.
-EXCLUDE_PATH_PARTS = {".git", ".claude", ".skills", ".cache", "references", "scripts", "core-api-loop"}
+EXCLUDE_PATH_PARTS = {
+    ".git", ".claude", ".skills", ".cache", "references", "scripts", "core-api-loop",
+    "core", "ui",
+}
 # .claude holds session git worktrees (.claude/worktrees/*) — full stale copies of the policy
 # tree. Scanning them double-counts policies and inflates the demand with phantom duplicates.
+#
+# core/ holds the architecture decision log, the provider-research pipeline and the verifier;
+# ui/ holds the staff console. Both are full of markdown that is documentation, not policy —
+# ~60 files that would otherwise be parsed as control sources and silently rewrite
+# controls.json, which extract-artifacts.yml then auto-commits to main with no review.
 
 # Top-level markdown files that are repo scaffolding, not policies.
 EXCLUDE_FILENAMES = {
