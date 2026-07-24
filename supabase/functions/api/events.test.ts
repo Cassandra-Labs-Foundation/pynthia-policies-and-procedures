@@ -8,8 +8,14 @@ import { assert, assertEquals } from "jsr:@std/assert@1";
 import { deliverEvents } from "./events.ts";
 import { type Any, json } from "./test_helpers.ts";
 
-function outboxDb(rows: Record<string, unknown>[]) {
+function outboxDb(
+  rows: Record<string, unknown>[],
+  opts: { failMarkIn?: boolean } = {},
+) {
   const updates: { id: string; patch: Record<string, unknown> }[] = [];
+  // every .in() call's id list, verbatim — the URL-length defect lived in the
+  // SIZE of one call, which per-id `updates` cannot see
+  const inCalls: string[][] = [];
   let lastId = "";
   const chain: Any = {
     select: () => chain,
@@ -25,6 +31,11 @@ function outboxDb(rows: Record<string, unknown>[]) {
           return Promise.resolve({ data: null, error: null });
         },
         in: (_c: string, ids: string[]) => {
+          inCalls.push([...ids]);
+          if (opts.failMarkIn && patch.delivered_at) {
+            // the gateway's URL-limit 400, as PostgREST surfaces it
+            return Promise.resolve({ data: null, error: { message: "Bad Request" } });
+          }
           for (const id of ids) updates.push({ id, patch });
           return Promise.resolve({ data: null, error: null });
         },
@@ -34,7 +45,7 @@ function outboxDb(rows: Record<string, unknown>[]) {
     then: (res: (v: unknown) => unknown) => res({ data: rows, error: null }),
   };
   const db: Any = { schema: () => ({ from: () => chain }) };
-  return { db, updates };
+  return { db, updates, inCalls };
 }
 
 function sink(responses: Response[]) {
@@ -180,6 +191,59 @@ Deno.test("PII keys are redacted at the boundary — one legacy payload cannot s
   const sentDirty = sent[0].body.events.find((e: Any) => e.id === "evt_dirty");
   assertEquals(sentDirty.payload, { kyc_tier: "full" }, "identity crosses only as entity_hash");
   assertEquals(updates.length, 2, "both events marked delivered");
+});
+
+Deno.test("a full 500-row sweep marks delivery in URL-safe chunks, never one giant in-list", async () => {
+  // The July 23 egress loop: 500 ids in one `id=in.(...)` querystring is
+  // ~25KB of URL — the gateway 400s it, the error was swallowed, and the same
+  // batch re-delivered every cron minute forever. Chunked marks are the fix;
+  // this pins the chunk size at the measured-safe 50.
+  const rows = Array.from({ length: 500 }, (_, i) => EVT(`evt_${i}`));
+  const { db, updates, inCalls } = outboxDb(rows);
+  const { fetchFn, sent } = sink([json({ ingested: 500 })]);
+
+  const out = await deliverEvents(db, {
+    fetchFn,
+    targetUrl: "https://sink.test/hook",
+    apiKey: "k",
+    aggregator: AGG,
+  });
+
+  assertEquals(out, { swept: 500, delivered: 500, failed: 0 });
+  assertEquals(sent.length, 1, "delivery stays ONE batched POST");
+  assertEquals(inCalls.length, 10, "the mark is 10 chunks of 50");
+  for (const ids of inCalls) assert(ids.length <= 50, `an in-list of ${ids.length} rides the URL`);
+  assertEquals(updates.length, 500, "every row still gets marked");
+});
+
+Deno.test("a failed delivery MARK is failed-with-backoff, never reported delivered", async () => {
+  // The other half of the loop: when the mark 400'd, the sweep still returned
+  // delivered:500 and left the rows eligible, so the next minute re-delivered
+  // them. A mark failure must surface as failure and back the rows off.
+  const { db, updates, inCalls } = outboxDb(
+    [EVT("evt_1"), EVT("evt_2", 1)],
+    { failMarkIn: true },
+  );
+  const { fetchFn, sent } = sink([json({ ingested: 2 })]);
+
+  const out = await deliverEvents(db, {
+    fetchFn,
+    targetUrl: "https://sink.test/hook",
+    apiKey: "k",
+    aggregator: AGG,
+  });
+
+  assertEquals(sent.length, 1, "the aggregator did accept the batch");
+  assertEquals(out.delivered, 0, "but an unmarked delivery must NOT count as delivered");
+  assertEquals(out.failed, 2);
+  assertEquals(inCalls.length, 1, "one chunk attempted for two rows");
+  // the rows are rescheduled with growing backoff, so a persistent mark
+  // defect self-throttles to the 15-minute cap instead of spinning at 1/min
+  for (const u of updates) {
+    assert(!("delivered_at" in u.patch), "no delivery mark leaked through");
+    assert(u.patch.next_attempt_at, "each row is backed off");
+  }
+  assertEquals(updates.find((u) => u.id === "evt_2")?.patch.delivery_attempts, 2);
 });
 
 Deno.test("without aggregator config the sink path is untouched", async () => {

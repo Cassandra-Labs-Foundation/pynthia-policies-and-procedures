@@ -22,6 +22,15 @@ import { signInstanceJwt } from "../aggregator/auth.ts";
 // sweep either way, so a bigger sweep is the same request, just honest about
 // the required throughput.
 const SWEEP_LIMIT = 500;
+// The delivered-mark PATCHes `id=in.(...)` through the QUERYSTRING, and 500
+// event ids are ~25KB of URL — past the gateway's limit, a flat 400 (measured:
+// 500 ids reject, 50 pass). When that happened the error was logged-and-
+// swallowed, the batch still reported "delivered", and the same 500 rows
+// re-delivered every cron minute forever — the July 23 egress loop
+// (~450KB/min of reads and re-POSTs, backlog frozen at 15,246). The mark now
+// rides in chunks the URL can carry, and a failed chunk is FAILED: backoff,
+// honest counts, never "delivered".
+const MARK_CHUNK = 50;
 const BASE_BACKOFF_MS = 30_000; // 30s, 60s, 120s, ... capped below
 const MAX_BACKOFF_MS = 15 * 60_000;
 
@@ -169,13 +178,34 @@ async function deliverBatchToAggregator(
 
   const nowIso = new Date().toISOString();
   if (ok) {
-    const ids = rows.map((r) => r.id);
-    const { error } = await db.schema("core").from("event")
-      .update({ delivered_at: nowIso }).in("id", ids);
-    if (error) console.error(`aggregator batch mark failed: ${error.message}`);
-    return { swept: rows.length, delivered: rows.length, failed: 0 };
+    // Mark in MARK_CHUNK-sized slices — the in-list travels in the URL and
+    // must stay under the gateway's limit. A chunk whose mark fails is
+    // FAILED, not delivered: it gets backoff like any other failure, so a
+    // future mark defect degrades into a visible, self-throttling retry
+    // instead of an invisible every-minute redelivery loop.
+    let delivered = 0;
+    const unmarked: OutboxRow[] = [];
+    for (let i = 0; i < rows.length; i += MARK_CHUNK) {
+      const chunk = rows.slice(i, i + MARK_CHUNK);
+      const { error } = await db.schema("core").from("event")
+        .update({ delivered_at: nowIso }).in("id", chunk.map((r) => r.id));
+      if (error) {
+        console.error(`aggregator batch mark failed (${chunk.length} rows): ${error.message}`);
+        unmarked.push(...chunk);
+      } else {
+        delivered += chunk.length;
+      }
+    }
+    if (unmarked.length > 0) await scheduleRetry(db, unmarked);
+    return { swept: rows.length, delivered, failed: unmarked.length };
   }
 
+  await scheduleRetry(db, rows);
+  return { swept: rows.length, delivered: 0, failed: rows.length };
+}
+
+/** Backoff for rows whose delivery (or delivery MARK) did not complete. */
+async function scheduleRetry(db: SupabaseClient, rows: OutboxRow[]): Promise<void> {
   for (const row of rows) {
     const attempts = (row.delivery_attempts ?? 0) + 1;
     const backoff = Math.min(BASE_BACKOFF_MS * 2 ** (attempts - 1), MAX_BACKOFF_MS);
@@ -187,7 +217,6 @@ async function deliverBatchToAggregator(
       .eq("id", row.id);
     if (error) console.error(`aggregator retry schedule failed for ${row.id}: ${error.message}`);
   }
-  return { swept: rows.length, delivered: 0, failed: rows.length };
 }
 
 /** POST /events/deliver — one worker sweep (cron target; also callable ad hoc). */
