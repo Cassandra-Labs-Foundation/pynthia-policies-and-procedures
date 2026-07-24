@@ -1776,6 +1776,42 @@ import json,sys
 d=json.load(sys.stdin)
 print('yes' if any(e['code']=='transfer.settled' for e in d['events']) else 'no')")" "yes"
 
+# -- headline numbers are DATABASE counts, not page lengths. The defect this
+# pins: every panel's big number was rows.length off a 100-row page, so 1,475
+# open alerts rendered as "100" and a 15,246-event outbox as "1,000". Alerts
+# only move via API traffic and this harness runs exclusively, so equality
+# holds; the outbox count is cron-fed (reconcile heartbeats write events), so
+# that check retries once before judging.
+DASH=$(curl -sS "$API/compliance/dashboard/data")
+DB_OPEN=$(sql "SELECT count(*) FROM pg.core.bsa_alert WHERE status='open'")
+check "data: the open-alert headline is the database count, not the page length" \
+  "$(echo "$DASH" | python3 -c "import json,sys;print(json.load(sys.stdin)['alerts']['open'])")" "$DB_OPEN"
+check "data: a capped list SAYS it is a sample (listed <= cap, capped consistent)" \
+  "$(echo "$DASH" | python3 -c "
+import json,sys
+a=json.load(sys.stdin)['alerts']
+print('yes' if a['listed'] <= 100 and a['capped'] == (a['open'] > a['listed']) else 'no')")" "yes"
+check "data: the provenance blend is reported and sums to the unfiltered queue" \
+  "$(echo "$DASH" | python3 -c "
+import json,sys
+a=json.load(sys.stdin)['alerts']
+print('yes' if sum(a['by_provenance'].values()) == a['open'] else 'no')")" "yes"
+check "data: ?provenance=production narrows the queue but keeps the blend visible" \
+  "$(curl -sS "$API/compliance/dashboard/data?provenance=production" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+a=d['alerts']
+print('yes' if d['provenance']['filter']=='production'
+  and a['open'] == a['by_provenance']['production']
+  and sum(a['by_provenance'].values()) >= a['open'] else 'no')")" "yes"
+OUTBOX_OK=no
+for _try in 1 2; do
+  API_OUTBOX=$(curl -sS "$API/compliance/dashboard/data" | python3 -c "import json,sys;print(json.load(sys.stdin)['ops']['outbox_undelivered'])")
+  DB_OUTBOX=$(sql "SELECT count(*) FROM pg.core.event WHERE delivered_at IS NULL")
+  [ "$API_OUTBOX" = "$DB_OUTBOX" ] && { OUTBOX_OK=yes; break; }
+done
+check "data: outbox depth is the true undelivered count, not min(depth, cap)" "$OUTBOX_OK" "yes"
+
 echo
 echo "-- 48. the demo narrative still runs (demo.sh) --"
 # The Aug-29 walkthrough is a TEST, run here so it cannot rot between

@@ -75,13 +75,22 @@
       g.decisions[r.decision] = (g.decisions[r.decision] || 0) + r.n;
     }
 
-    const seen = new Map(); // code -> {last_at, total}
-    for (const r of hb.last_seen) {
-      const s = seen.get(r.code);
-      if (!s) seen.set(r.code, { last_at: r.last_at, total: r.total });
-      else {
-        s.total += r.total;
-        if (r.last_at > s.last_at) s.last_at = r.last_at;
+    // last_seen is the all-time census — the heaviest, slowest-moving block,
+    // so refresh polls request the heartbeat WITHOUT it (?last_seen=0 ->
+    // null) and the model keeps the census from the initial load. null means
+    // "not requested"; [] would mean a genuinely empty history.
+    let seen;
+    if (hb.last_seen === null && M) {
+      seen = M.seen;
+    } else {
+      seen = new Map(); // code -> {last_at, total}
+      for (const r of hb.last_seen || []) {
+        const s = seen.get(r.code);
+        if (!s) seen.set(r.code, { last_at: r.last_at, total: r.total });
+        else {
+          s.total += r.total;
+          if (r.last_at > s.last_at) s.last_at = r.last_at;
+        }
       }
     }
     M = { grid: { t0, step, B }, byCode, gateById, seen, data, hb };
@@ -142,6 +151,38 @@
   }
 
   const panel = (t, b) => '<div class="panel"><h2>' + esc(t) + "</h2>" + b + "</div>";
+
+  // A capped list rendered without saying so is how "100 open alerts" stood in
+  // for a backlog of 1,475. The API reports the truncation on every panel
+  // (`*_capped`, `listed`, the true count); rendering it is the contract's
+  // other half — silence here re-creates the bug no matter how honest the
+  // payload is.
+  function sampleNote(capped, listed, total) {
+    if (!capped) return "";
+    return '<div class="sample">list shows ' + n(listed) + " of " + n(total)
+      + " — a sample; the number above is the full set</div>";
+  }
+
+  // The provenance blend, ALWAYS the unfiltered composition. An officer
+  // narrowed to `production` still needs to see how much of the table is demo
+  // or unattributed: `unknown` is evidence that cannot be tied to real member
+  // activity, which is a finding in its own right.
+  function provControl(d) {
+    const bp = (d.alerts && d.alerts.by_provenance) || {};
+    const active = (d.provenance && d.provenance.filter) || "all";
+    const opts = ["all"].concat((d.provenance && d.provenance.available) || []);
+    const chips = opts.map((p) => {
+      const cnt = p === "all"
+        ? Object.values(bp).reduce((a, b) => a + b, 0)
+        : (bp[p] || 0);
+      return '<button class="prov' + (p === active ? " on" : "") + '" data-prov="' + esc(p) + '">'
+        + esc(p) + ' <span class="pn">' + n(cnt) + "</span></button>";
+    }).join("");
+    return '<div class="provbar"><span class="plab">evidence origin</span>' + chips
+      + '<div class="cit">open alerts by origin — <code>unknown</code> is evidence written before '
+      + "provenance was stamped; it is neither confirmed real nor confirmed test.</div></div>";
+  }
+
   function kvTable(obj, headA, headB) {
     const rows = Object.entries(obj || {}).sort((a, b) => b[1] - a[1])
       .map(([k, v]) => "<tr><td>" + esc(k) + '</td><td style="text-align:right">' + n(v) + "</td></tr>").join("");
@@ -157,10 +198,16 @@
       out.push(panel("Open BSA alerts",
         '<div class="big ' + (d.alerts.overdue_triage ? "bad" : "") + '">' + n(d.alerts.open)
         + "<small>" + n(d.alerts.overdue_triage) + " past the 2-business-day triage clock</small></div>"
-        + kvTable(d.alerts.by_type, "type", "open")));
+        + provControl(d)
+        + kvTable(d.alerts.by_type, "type", "open")
+        + (d.alerts.by_type_capped
+          ? '<div class="sample">by-type counts cover the ' + n(d.alerts.listed)
+            + " most-urgent alerts, not all " + n(d.alerts.open) + "</div>"
+          : "")));
       out.push(panel("Case / SAR pipeline",
         kvTable(d.cases.by_status, "status", "cases")
-        + '<div style="margin-top:10px">' + kvTable(d.cases.sar_decisions, "SAR decision", "count") + "</div>"));
+        + '<div style="margin-top:10px">' + kvTable(d.cases.sar_decisions, "SAR decision", "count") + "</div>"
+        + sampleNote(d.cases.capped, d.cases.listed, d.cases.total)));
     }
     if (slug === "bsa" || slug === "cash") {
       out.push(panel("CTR filings — 15-day FinCEN clock",
@@ -225,7 +272,12 @@
         + '<div class="none" style="font-size:12px;margin-top:8px">click any policy, then any control, for its full event history</div>')
       + panel("Ledger & delivery health",
         kvTable(M.data.ops.events_7d, "reconciliation event — 7d", "count")
-        + '<div style="margin-top:10px" class="big">' + n(M.data.ops.outbox_undelivered)
+        + (M.data.ops.events_7d_capped
+          ? '<div class="sample">reconciliation counts hit the ' + n(M.data.caps.aggregate_rows)
+            + "-row read cap — treat as a floor</div>"
+          : "")
+        + '<div style="margin-top:10px" class="big' + (M.data.ops.outbox_undelivered ? " warn" : "") + '">'
+        + n(M.data.ops.outbox_undelivered)
         + "<small>events awaiting delivery</small></div>"
         + (M.data.ops.last_reconcile_at
           ? '<div class="none" style="font-size:12px;margin-top:6px">last heartbeat ' + fmtT(M.data.ops.last_reconcile_at) + "</div>" : ""))
@@ -432,13 +484,24 @@
   }
 
   // -------------------------------------------------------------------- boot
+  // the active evidence-origin filter, kept in the URL so a narrowed view is
+  // shareable and survives the 60s refresh
+  function activeProv() {
+    return new URLSearchParams(location.search).get("provenance") || "all";
+  }
+
+  let lastLoadAt = 0;
+
   async function load() {
     let m, hb, d;
+    // refresh polls skip the all-time census (~80KB of the heartbeat) — the
+    // model keeps the copy from the first load; see buildModel
+    const slim = M && M.seen && M.seen.size ? "&last_seen=0" : "";
     try {
       const [mr, hr, dr] = await Promise.all([
         fetch(base + "manifest.json", { cache: "no-cache" }),
-        fetch(API + "/compliance/dashboard/heartbeat?hours=168&bucket=21600"),
-        fetch(API + "/compliance/dashboard/data"),
+        fetch(API + "/compliance/dashboard/heartbeat?hours=168&bucket=21600" + slim),
+        fetch(API + "/compliance/dashboard/data?provenance=" + encodeURIComponent(activeProv())),
       ]);
       if (!mr.ok || !hr.ok || !dr.ok) {
         throw new Error("manifest " + mr.status + ", heartbeat " + hr.status + ", data " + dr.status);
@@ -451,6 +514,7 @@
       return;
     }
     buildModel(hb, d);
+    lastLoadAt = Date.now();
     if (isIndex) indexView(m);
     else policyView(m);
     window.MANIFEST = m;
@@ -460,11 +524,35 @@
     if (!isIndex && window.MANIFEST) policyView(window.MANIFEST);
   });
 
-  // refresh the aggregates, but never yank an open drill-down out from under
-  // the reader: a control view holds its stream (it has its own load-more)
-  setInterval(() => {
+  // provenance chips: rewrite the query string (keeping the hash, so an open
+  // control drill-down survives the switch) and reload the data
+  root.addEventListener("click", (ev) => {
+    const b = ev.target.closest && ev.target.closest("button.prov");
+    if (!b) return;
+    const p = b.dataset.prov;
+    const u = new URL(location.href);
+    if (p === "all") u.searchParams.delete("provenance");
+    else u.searchParams.set("provenance", p);
+    history.replaceState(null, "", u);
+    load();
+  });
+
+  // Refresh the aggregates, but never yank an open drill-down out from under
+  // the reader: a control view holds its stream (it has its own load-more).
+  //
+  // Egress discipline (the page is public and every fetch spends the host's
+  // quota): refresh every 5 minutes, NOT every minute, and only while the tab
+  // is actually visible — a background tab polling forever is how a demo
+  // dashboard eats a bandwidth plan. A tab that comes back to the foreground
+  // after sleeping catches up immediately instead of waiting out the timer.
+  const REFRESH_MS = 300000;
+  function refreshIfDue() {
+    if (document.visibilityState !== "visible") return;
+    if (Date.now() - lastLoadAt < REFRESH_MS) return;
     const drilled = !isIndex && new URLSearchParams(location.hash.slice(1)).get("c");
     if (!drilled) load();
-  }, 60000);
+  }
+  setInterval(refreshIfDue, 30000); // cheap local tick; fetches only when due
+  document.addEventListener("visibilitychange", refreshIfDue);
   load();
 })();

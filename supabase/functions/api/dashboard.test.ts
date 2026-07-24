@@ -37,9 +37,18 @@ function stubDb(
       fn?.(...a);
       return b;
     };
-    b.select = chain();
+    // count:"exact" returns the size of the FILTERED set, and `limit` must not
+    // shrink it — that divergence is the whole point of the count queries, so
+    // the stub models it: `limit` slices the page, `total` keeps counting.
+    let counting = false;
+    let preLimit: number | null = null;
+    b.select = chain((_cols, opts) => {
+      const o = opts as { count?: string; head?: boolean } | undefined;
+      if (o?.count) counting = true;
+    });
     b.order = chain();
     b.limit = chain((n) => {
+      preLimit = out.length; // the size the count would report
       out = out.slice(0, n as number);
     });
     b.eq = chain((col, val) => {
@@ -57,8 +66,12 @@ function stubDb(
     b.in = chain((col, vals) => {
       out = out.filter((r) => (vals as unknown[]).includes(r[col as string]));
     });
-    b.then = (onFul: (v: unknown) => unknown, onRej?: (e: unknown) => unknown) =>
-      Promise.resolve({ data: out, error: null }).then(onFul, onRej);
+    b.then = (onFul: (v: unknown) => unknown, onRej?: (e: unknown) => unknown) => {
+      const total = preLimit ?? out.length;
+      return Promise.resolve(
+        counting ? { data: null, count: total, error: null } : { data: out, error: null },
+      ).then(onFul, onRej);
+    };
     return b;
   };
   return {
@@ -166,6 +179,89 @@ Deno.test("empty tables produce an empty-but-well-formed payload, not an error",
   assertEquals(d.ops.last_reconcile, null);
 });
 
+// ------------------------------------------------ truncation and provenance
+// The defect these pin, found by reading the dashboard as a CCO: every
+// headline number was `rows.length` taken off a CAPPED page, so a real
+// backlog of 1,475 open alerts rendered as "100 open · 100 past the triage
+// clock", and a 15,246-event outbox rendered as "1,000 awaiting delivery".
+// The officer read the cap as the queue. Counts now come from the database;
+// the row LIST stays capped and the payload says so.
+
+function manyAlerts(n: number, provenance: string, offset = 0): Row[] {
+  return Array.from({ length: n }, (_, i) => ({
+    id: `a${offset + i}`,
+    alert_type: "structuring",
+    status: "open",
+    provenance,
+    triage_due_at: PAST_DUE,
+    triaged_at: null,
+    created_at: RECENT,
+  }));
+}
+
+Deno.test("headline counts are TRUE totals, never the length of a capped page", async () => {
+  const db = stubDb({
+    bsa_alert: manyAlerts(250, "production"),
+    event: Array.from({ length: 1500 }, (_, i) => ({
+      id: `e${i}`,
+      code: "transfer.settled",
+      created_at: RECENT,
+      delivered_at: null,
+    })),
+  });
+
+  const d = await (await getDashboardData(req(), db, "t", ctx("cu_admin"))).json();
+
+  assertEquals(d.alerts.open, 250); // the QUEUE
+  assertEquals(d.alerts.listed, 100); // the PAGE (LIST_CAP)
+  assertEquals(d.alerts.capped, true); // and it admits the page is a sample
+  assertEquals(d.alerts.overdue_triage, 250); // counted in the db, not on the page
+  assertEquals(d.alerts.by_type_capped, true); // by_type is a page census only
+
+  // outbox depth is a count, not min(depth, ROW_CAP)
+  assertEquals(d.ops.outbox_undelivered, 1500);
+  assertEquals(d.ops.outbox_capped, false);
+});
+
+Deno.test("provenance: default hides nothing, the filter narrows, the blend stays visible", async () => {
+  const db = stubDb({
+    bsa_alert: [
+      ...manyAlerts(3, "production", 0),
+      ...manyAlerts(5, "demo", 100),
+      ...manyAlerts(7, "unknown", 200),
+    ],
+  });
+
+  // Default is `all`. Defaulting to production would hide the unknown rows —
+  // the same silent-understatement bug the counts above fix.
+  const all = await (await getDashboardData(req(), db, "t", ctx("cu_admin"))).json();
+  assertEquals(all.provenance.filter, "all");
+  assertEquals(all.alerts.open, 15);
+  assertEquals(all.alerts.by_provenance, { production: 3, demo: 5, unknown: 7 });
+
+  const prod = await (await getDashboardData(
+    new Request("http://x/compliance/dashboard/data?provenance=production"),
+    db,
+    "t",
+    ctx("cu_admin"),
+  )).json();
+  assertEquals(prod.provenance.filter, "production");
+  assertEquals(prod.alerts.open, 3); // his queue
+  // the composition is reported UNFILTERED even while narrowed: an officer
+  // looking at production must still see that most of the table is not
+  assertEquals(prod.alerts.by_provenance, { production: 3, demo: 5, unknown: 7 });
+
+  // an unrecognised value falls back to `all` — never to a silent empty slice
+  const bogus = await (await getDashboardData(
+    new Request("http://x/compliance/dashboard/data?provenance=drop-table"),
+    db,
+    "t",
+    ctx("cu_admin"),
+  )).json();
+  assertEquals(bogus.provenance.filter, "all");
+  assertEquals(bogus.alerts.open, 15);
+});
+
 // ---------------------------------------------------------------- heartbeat
 // The monitoring tier: every control's event codes bucketed over time, so the
 // dashboard can render a per-control pulse and a regulator can see exactly
@@ -199,6 +295,27 @@ Deno.test("heartbeat: event + gate pulses ride the RPCs; window and bucket are c
   ]);
   assertEquals(d.gate[0].control_id, "CG-NSF-01");
   assertEquals(d.last_seen[0].total, 9);
+});
+
+Deno.test("heartbeat: ?last_seen=0 skips the census RPC and answers null, not []", async () => {
+  // The census is ~900 codes and the heaviest block of the payload; refresh
+  // polls omit it for egress. null = "not requested" — distinguishable from a
+  // database with no history, which answers [].
+  let censusCalled = 0;
+  const db = stubDb({}, {
+    event_heartbeat: () => [],
+    gate_heartbeat: () => [],
+    event_last_seen: () => (censusCalled++, []),
+  });
+  const res = await getDashboardHeartbeat(
+    new Request("http://x/compliance/dashboard/heartbeat?last_seen=0"),
+    db,
+    "t",
+  );
+  assertEquals(res.status, 200);
+  const d = await res.json();
+  assertEquals(d.last_seen, null);
+  assertEquals(censusCalled, 0, "the RPC must not even run");
 });
 
 Deno.test("heartbeat: empty database yields empty-but-well-formed arrays", async () => {

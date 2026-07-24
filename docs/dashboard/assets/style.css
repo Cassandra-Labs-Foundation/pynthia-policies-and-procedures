@@ -77,3 +77,23 @@ tr.payload pre, .tl pre { font:11px/1.5 ui-monospace, Menlo, monospace; color:va
 .tl .cid { margin-right:8px; }
 .tl .code { margin-right:6px; }
 .tl pre { padding:2px 0 6px; color:var(--dim); }
+
+/* Truncation notice. A capped list that renders silently reads as a complete
+   one — this is the visible half of the payload's `*_capped` contract, so it
+   is deliberately not subtle. */
+.sample { margin-top:8px; font-size:11px; color:var(--warn);
+          border-left:2px solid var(--warn); padding:3px 0 3px 8px; }
+
+/* Evidence-origin filter. `unknown` is neither confirmed-real nor
+   confirmed-test, so it is styled as a caution, never as a clean slice. */
+.provbar { margin:10px 0 6px; }
+.provbar .plab { font-size:11px; color:var(--dim); text-transform:uppercase;
+                 letter-spacing:.06em; margin-right:8px; }
+button.prov { font:inherit; font-size:11px; cursor:pointer; margin:0 4px 4px 0;
+              padding:2px 8px; border-radius:999px; background:transparent;
+              color:var(--dim); border:1px solid var(--line); }
+button.prov:hover { color:var(--txt); border-color:var(--txt); }
+button.prov.on { color:var(--txt); border-color:var(--acc);
+                 background:rgba(91,141,239,.12); }
+button.prov .pn { color:var(--dim); margin-left:4px; }
+button.prov.on .pn { color:var(--txt); }
