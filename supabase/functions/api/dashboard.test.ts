@@ -278,6 +278,9 @@ Deno.test("heartbeat: event + gate pulses ride the RPCs; window and bucket are c
       { src: "core", control_id: "CG-NSF-01", decision: "reject", bucket: "2026-07-20T00:00:00+00:00", n: 2 },
     ],
     event_last_seen: () => [{ src: "core", code: "transfer.settled", last_at: RECENT, total: 9 }],
+    gate_last_seen: () => [
+      { src: "core", control_id: "CG-NSF-01", last_at: RECENT, total: 41 },
+    ],
   });
   // absurd params must clamp, not 500 and not scan the whole table
   const res = await getDashboardHeartbeat(
@@ -295,6 +298,12 @@ Deno.test("heartbeat: event + gate pulses ride the RPCs; window and bucket are c
   ]);
   assertEquals(d.gate[0].control_id, "CG-NSF-01");
   assertEquals(d.last_seen[0].total, 9);
+  // the gate tier's recency rides the payload — a gate control's "last
+  // evidence" comes from control_result rows, never from event codes, and
+  // without this field the UI can only render "never" (the CCO finding)
+  assertEquals(d.gate_last_seen, [
+    { src: "core", control_id: "CG-NSF-01", last_at: RECENT, total: 41 },
+  ]);
 });
 
 Deno.test("heartbeat: ?last_seen=0 skips the census RPC and answers null, not []", async () => {
@@ -306,6 +315,7 @@ Deno.test("heartbeat: ?last_seen=0 skips the census RPC and answers null, not []
     event_heartbeat: () => [],
     gate_heartbeat: () => [],
     event_last_seen: () => (censusCalled++, []),
+    gate_last_seen: () => [],
   });
   const res = await getDashboardHeartbeat(
     new Request("http://x/compliance/dashboard/heartbeat?last_seen=0"),
@@ -323,6 +333,7 @@ Deno.test("heartbeat: empty database yields empty-but-well-formed arrays", async
     event_heartbeat: () => [],
     gate_heartbeat: () => [],
     event_last_seen: () => [],
+    gate_last_seen: () => [],
   });
   const res = await getDashboardHeartbeat(
     new Request("http://x/compliance/dashboard/heartbeat"),
@@ -333,6 +344,7 @@ Deno.test("heartbeat: empty database yields empty-but-well-formed arrays", async
   const d = await res.json();
   assertEquals(d.events, []);
   assertEquals(d.gate, []);
+  assertEquals(d.gate_last_seen, []);
   assertEquals(d.window_hours, 168);
 });
 

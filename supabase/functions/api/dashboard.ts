@@ -419,10 +419,16 @@ export async function getDashboardHeartbeat(
   const wantLastSeen = url.searchParams.get("last_seen") !== "0";
   const since = new Date(Date.now() - hours * 3600 * 1000).toISOString();
   try {
-    const [events, gate, lastSeen] = await Promise.all([
+    const [events, gate, lastSeen, gateLastSeen] = await Promise.all([
       rpcRows(db, "event_heartbeat", { since, bucket_seconds: bucketSeconds }),
       rpcRows(db, "gate_heartbeat", { since, bucket_seconds: bucketSeconds }),
       wantLastSeen ? rpcRows(db, "event_last_seen", {}) : Promise.resolve(null),
+      // The gate tier's recency. Its evidence is control_result rows, not
+      // events, so event_last_seen can never answer for it — which is how
+      // every gate control rendered "LAST EVIDENCE: never" beside a live
+      // sparkline. A handful of rows, so it rides every poll, not just the
+      // first load.
+      rpcRows(db, "gate_last_seen", {}),
     ]);
     return jsonResponse({
       generated_at: new Date().toISOString(),
@@ -432,6 +438,7 @@ export async function getDashboardHeartbeat(
       events,
       gate,
       last_seen: lastSeen,
+      gate_last_seen: gateLastSeen,
     }, 200, requestId);
   } catch (e) {
     return internalErrorResponse(requestId, e);

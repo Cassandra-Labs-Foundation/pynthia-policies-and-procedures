@@ -93,16 +93,41 @@
         }
       }
     }
-    M = { grid: { t0, step, B }, byCode, gateById, seen, data, hb };
+    // gate recency: control_id -> {last_at, total}, all-time, both worlds
+    // folded. Before this map existed the gate branch of pulseOf hardcoded
+    // last_at null, so ago(null) rendered "LAST EVIDENCE: never" beside a
+    // sparkline full of pulses — a false negative on the controls that block
+    // real money.
+    const gateSeen = new Map();
+    for (const r of hb.gate_last_seen || []) {
+      const s = gateSeen.get(r.control_id);
+      if (!s) gateSeen.set(r.control_id, { last_at: r.last_at, total: r.total });
+      else {
+        s.total += r.total;
+        if (r.last_at > s.last_at) s.last_at = r.last_at;
+      }
+    }
+
+    M = { grid: { t0, step, B }, byCode, gateById, gateSeen, seen, data, hb };
   }
 
   // pulse of one control: sum its watch codes (or its gate series) on the grid
   function pulseOf(ctl) {
     const B = M.grid.B;
     const out = { core: new Array(B).fill(0), sim: new Array(B).fill(0), total: 0, last_at: null, everTotal: 0 };
-    if (ctl.watch.length === 0 && M.gateById.has(ctl.id)) {
+    if (ctl.watch.length === 0 && (M.gateById.has(ctl.id) || M.gateSeen.has(ctl.id))) {
+      // gateById only holds controls with in-window pulses; a gate that was
+      // quiet all week but has history must still show its last evidence,
+      // not "never"
       const g = M.gateById.get(ctl.id);
-      return { core: g.core, sim: g.sim, total: g.total, last_at: null, everTotal: g.total, decisions: g.decisions };
+      const gs = M.gateSeen.get(ctl.id);
+      return {
+        core: g ? g.core : out.core, sim: g ? g.sim : out.sim,
+        total: g ? g.total : 0,
+        last_at: gs ? gs.last_at : null,
+        everTotal: gs ? gs.total : (g ? g.total : 0),
+        decisions: g ? g.decisions : {},
+      };
     }
     for (const code of ctl.watch) {
       const e = M.byCode.get(code);

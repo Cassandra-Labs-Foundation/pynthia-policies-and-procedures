@@ -1749,6 +1749,17 @@ check "heartbeat: last_seen carries transfer.settled's all-time history" \
 import json,sys
 d=json.load(sys.stdin)
 print('yes' if any(s['code']=='transfer.settled' and s['total']>0 for s in d['last_seen']) else 'no')")" "yes"
+# The gate tier writes control_result rows, not events, so event last_seen
+# can never answer for it. Without gate_last_seen the UI rendered
+# "LAST EVIDENCE: never" for every gate control beside a live sparkline —
+# this pins the RENDERED value's source: a real timestamp for the very
+# gate control this section just tripped.
+check "heartbeat: gate_last_seen dates CG-NSF-01's evidence — the UI's 'never' bug stays dead" \
+  "$(echo "$HB" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+g=[s for s in d.get('gate_last_seen',[]) if s['control_id']=='CG-NSF-01' and s['src']=='core']
+print('yes' if g and g[0]['last_at'] and g[0]['total']>0 else 'no')")" "yes"
 
 check "stream: a codeless query is refused, not a full outbox dump (422)" \
   "$(curl -sS -o /dev/null -w '%{http_code}' "$API/compliance/dashboard/events")" "422"
