@@ -551,7 +551,7 @@ export async function getDashboardTrace(
  * DASHBOARD_SHELL_URL overrides the destination (e.g. a custom domain later).
  */
 export const DEFAULT_SHELL_URL =
-  "https://cassandra-labs-foundation.github.io/pynthia-policies-and-procedures/dashboard/";
+  "https://cassandra-labs-foundation.github.io/cassandra-platform/dashboard/";
 
 export function getDashboardShell(requestId: string): Response {
   const dest = Deno.env.get("DASHBOARD_SHELL_URL") ?? DEFAULT_SHELL_URL;

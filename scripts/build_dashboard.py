@@ -57,7 +57,7 @@ TITLES = {
 }
 
 REPO_BLOB = (
-    "https://github.com/Cassandra-Labs-Foundation/pynthia-policies-and-procedures/blob/main/"
+    "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/"
 )
 
 STUB = """<!doctype html>

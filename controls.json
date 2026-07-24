@@ -1,8 +1,8 @@
 {
   "meta": {
     "generator": "scripts/extract_controls.py",
-    "generated_at": "2026-07-23T22:14:59+00:00",
-    "repo_root": "pynthia-policies-and-procedures",
+    "generated_at": "2026-07-24T22:56:18+00:00",
+    "repo_root": "cassandra-platform",
     "api_model": {
       "spec_title": "Cassandra Banking Core API",
       "spec_version": "3.0.0",

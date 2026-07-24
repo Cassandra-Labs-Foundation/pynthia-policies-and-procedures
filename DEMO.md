@@ -89,7 +89,7 @@ visibly red rather than quietly fabricated, which is the whole posture.
 
 | | |
 |---|---|
-| Dashboard | https://cassandra-labs-foundation.github.io/pynthia-policies-and-procedures/dashboard/ |
+| Dashboard | https://cassandra-labs-foundation.github.io/cassandra-platform/dashboard/ |
 | Same, via the API | `{API}/compliance/dashboard` (302s to the above) |
 | API base | https://jynsipdvrgqdkeqrlzcv.functions.supabase.co/api |
 

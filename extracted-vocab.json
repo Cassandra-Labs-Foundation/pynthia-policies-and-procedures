@@ -1,8 +1,8 @@
 {
   "meta": {
     "parser_version": "0.1.0",
-    "parsed_at": "2026-07-23T22:14:59+00:00",
-    "repo": "pynthia-policies-and-procedures"
+    "parsed_at": "2026-07-24T22:56:19+00:00",
+    "repo": "cassandra-platform"
   },
   "stats": {
     "policies_scanned": 26,
