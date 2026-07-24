@@ -1,6 +1,6 @@
 # Table of contents
 
-* [Rulebook](README.md)
+* [Cassandra Platform](README.md)
 * [Privacy](privacy/privacy.md)
 * [BSA (AML/CFT, OFAC, CIP, CDD)](bsa/bsa.md)
 * [Fair Lending](fair-lending/fair-lending.md)

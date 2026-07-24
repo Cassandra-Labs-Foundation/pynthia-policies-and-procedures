@@ -10,6 +10,13 @@ on:
   push:
     paths:
       - "**/prompt.md"
+      # The import of core/ fired this workflow even though it added no prompt.md —
+      # core/research/ carries several *-prompt.md files (api-documentation-summary-prompt.md,
+      # complete-comparison-prompt.md) and the glob matched them. The detect job caught it and
+      # skipped, but this workflow holds contents:write + pull-requests:write and can open
+      # regeneration PRs, so it should not be woken by research prose at all.
+      - "!core/**"
+      - "!ui/**"
   workflow_dispatch:
     inputs:
       slugs:
