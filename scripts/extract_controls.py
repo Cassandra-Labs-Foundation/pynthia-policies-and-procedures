@@ -46,18 +46,18 @@ from code_format import event_struct, timer_struct, canonical_code  # object.pro
 # File discovery
 # --------------------------------------------------------------------------- #
 
-# Directory names (anywhere in the path) that never contain authored policies.
-EXCLUDE_PATH_PARTS = {
-    ".git", ".claude", ".skills", ".cache", "references", "scripts", "core-api-loop",
-    "core", "ui",
-}
-# .claude holds session git worktrees (.claude/worktrees/*) — full stale copies of the policy
-# tree. Scanning them double-counts policies and inflates the demand with phantom duplicates.
-#
-# core/ holds the architecture decision log, the provider-research pipeline and the verifier;
-# ui/ holds the staff console. Both are full of markdown that is documentation, not policy —
-# ~60 files that would otherwise be parsed as control sources and silently rewrite
-# controls.json, which extract-artifacts.yml then auto-commits to main with no review.
+# Every authored policy lives under this one directory. Scoping the walk here is what keeps
+# the extractor honest: core/ (architecture log, research, verifier), ui/, supabase/ and the
+# rest are simply outside it, so no denylist has to keep pace with new top-level directories.
+# Before this was scoped, any markdown anywhere in the repo was a candidate control source —
+# and controls.json is auto-committed to main by extract-artifacts.yml with no review.
+POLICY_ROOT_PARTS = ("compliance", "policies")
+
+# Directory names that never contain authored policies, *within* the policy tree.
+# references/ holds source material a policy cites (regulations, examiner guidance); .claude
+# holds session git worktrees — full stale copies of the policy tree, which would double-count
+# every policy and inflate the demand with phantom duplicates.
+EXCLUDE_PATH_PARTS = {".git", ".claude", ".skills", ".cache", "references"}
 
 # Top-level markdown files that are repo scaffolding, not policies.
 EXCLUDE_FILENAMES = {
@@ -67,13 +67,21 @@ EXCLUDE_FILENAMES = {
 EXCLUDE_FILENAME_PREFIXES = ("README",)
 
 
+def policy_root(root: str) -> str:
+    """The one directory authored policies live under."""
+    return os.path.join(root, *POLICY_ROOT_PARTS)
+
+
 def find_policy_files(root: str) -> list[str]:
-    """Return absolute paths to every authored policy markdown file."""
+    """Return absolute paths to every authored policy markdown file.
+
+    `root` is the repo root; the walk is scoped to the policy tree beneath it.
+    """
     out: list[str] = []
-    for dirpath, dirnames, filenames in os.walk(root):
+    for dirpath, dirnames, filenames in os.walk(policy_root(root)):
         # prune excluded directories in-place so os.walk doesn't descend
         dirnames[:] = [d for d in dirnames if d not in EXCLUDE_PATH_PARTS]
-        rel_parts = set(os.path.relpath(dirpath, root).split(os.sep))
+        rel_parts = set(os.path.relpath(dirpath, policy_root(root)).split(os.sep))
         if rel_parts & EXCLUDE_PATH_PARTS:
             continue
         for fn in filenames:
@@ -135,7 +143,9 @@ def parse_frontmatter(text: str) -> dict:
 
 
 def slug_from_path(root: str, path: str) -> str:
-    rel = os.path.relpath(path, root)
+    # Relative to the POLICY root, not the repo root: the slug is the policy's own folder
+    # name (`audit`), not the path that leads to it (`compliance/policies/audit`).
+    rel = os.path.relpath(path, policy_root(root))
     parent = os.path.dirname(rel)
     return parent if parent and parent != "." else os.path.splitext(os.path.basename(rel))[0]
 

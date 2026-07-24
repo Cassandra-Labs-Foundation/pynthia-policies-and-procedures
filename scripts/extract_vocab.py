@@ -41,19 +41,19 @@ EXT_BLOCKLIST = {
 }
 
 
-# Top-level directories that are not policy folders. A policy folder is only recognised
-# by holding {slug}/{slug}.md, so these are already safe by construction — but the rule is
-# an accident of naming, and the cost of it ever going wrong is a silently rewritten
-# artifact. Named explicitly so the invariant does not depend on the accident.
-EXCLUDE_DIRS = {"core", "ui", "scripts", "core-api-loop", "supabase", "docs", "analytics"}
+# Every authored policy lives under this one directory (mirrors extract_controls.py's
+# POLICY_ROOT_PARTS). Scoping here means new top-level directories — core/, ui/ — can never
+# be mistaken for policy folders, without a denylist that has to be maintained.
+POLICY_ROOT_PARTS = ("compliance", "policies")
 
 
 def generated_files(root: Path):
     """Yield (slug, path) for each generated policy doc."""
-    for folder in sorted(p for p in root.iterdir() if p.is_dir() and not p.name.startswith(".")):
+    base = root.joinpath(*POLICY_ROOT_PARTS)
+    if not base.is_dir():
+        return
+    for folder in sorted(p for p in base.iterdir() if p.is_dir() and not p.name.startswith(".")):
         slug = folder.name
-        if slug in EXCLUDE_DIRS:
-            continue
         candidate = folder / f"{slug}.md"
         if candidate.is_file():
             yield slug, candidate

@@ -12,11 +12,12 @@ wrong about every name.
 ## Layout
 
 ```
-compliance/     the policy side — currently at the repo root, see "Moving parts" below
-  <26 policy folders>/  prompt.md -> {slug}.md, plus references/
-  shared-controls/      cross-policy controls, hand-authored (no prompt.md)
-  scripts/              the extractors
-  docs/dashboard/       the evidence dashboard (GitHub Pages)
+compliance/
+  policies/             27 policy folders: prompt.md -> {slug}.md, plus references/
+    shared-controls/    cross-policy controls, hand-authored (no prompt.md)
+    manifest.yaml       which policies are regenerable
+  scripts/              the extractors — still at the repo root, see "Moving parts"
+  dashboard/            the evidence dashboard — still at docs/dashboard/
 
 core/           the banking core
   supabase/             39 tables, 66 migrations, 48 API modules, the drill harness
@@ -116,8 +117,11 @@ real ones — it is load-bearing, not decorative.
 This repo was consolidated from three (`pynthia-policies-and-procedures`, `cassandra-core`,
 `core-ui`) in July 2026. Two things are mid-flight:
 
-- The 26 policy folders, `scripts/`, and `docs/dashboard/` are still at the repo root; they
-  move under `compliance/` in a follow-up. The layout above is the target.
+- The 27 policy folders have moved to `compliance/policies/`. Still at the repo root and
+  still to move: `scripts/` (→ `compliance/scripts/`), `docs/dashboard/` (→
+  `compliance/dashboard/`, which needs Pages switched from `/docs` to an Actions deploy), and
+  `supabase/` + `core-api.yaml` + `core-api-loop/` (→ `core/`). The Supabase move needs
+  `--workdir core` on every CLI call, so it is deliberately last.
 - `core/verifier/` enumerates 529 test targets, but its control tier is already built — better
   — as `drill/`. Its remaining value is the other 208 targets (contract, property,
   state-machine). See `core/README.md`.

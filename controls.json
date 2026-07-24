@@ -1,7 +1,7 @@
 {
   "meta": {
     "generator": "scripts/extract_controls.py",
-    "generated_at": "2026-07-24T23:47:28+00:00",
+    "generated_at": "2026-07-24T23:57:10+00:00",
     "repo_root": "cassandra-platform",
     "api_model": {
       "spec_title": "Cassandra Banking Core API",
@@ -136,7 +136,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "audit/audit.md",
+      "source_file": "compliance/policies/audit/audit.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 715",
@@ -356,7 +356,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "audit/audit.md",
+      "source_file": "compliance/policies/audit/audit.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 715",
@@ -782,7 +782,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "audit/audit.md",
+      "source_file": "compliance/policies/audit/audit.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 715",
@@ -1127,7 +1127,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "audit/audit.md",
+      "source_file": "compliance/policies/audit/audit.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 715",
@@ -1475,7 +1475,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "audit/audit.md",
+      "source_file": "compliance/policies/audit/audit.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 715",
@@ -1820,7 +1820,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "audit/audit.md",
+      "source_file": "compliance/policies/audit/audit.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 715",
@@ -2121,7 +2121,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "audit/audit.md",
+      "source_file": "compliance/policies/audit/audit.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 715",
@@ -2521,7 +2521,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "audit/audit.md",
+      "source_file": "compliance/policies/audit/audit.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 715",
@@ -2897,7 +2897,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "audit/audit.md",
+      "source_file": "compliance/policies/audit/audit.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 715",
@@ -3241,7 +3241,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "audit/audit.md",
+      "source_file": "compliance/policies/audit/audit.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 715",
@@ -3490,7 +3490,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "audit/audit.md",
+      "source_file": "compliance/policies/audit/audit.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 364, Appendix B",
@@ -4058,7 +4058,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "basel-ii-standardized-approach-framework/basel-ii-standardized-approach-framework.md",
+      "source_file": "compliance/policies/basel-ii-standardized-approach-framework/basel-ii-standardized-approach-framework.md",
       "regulatory_citations": [
         {
           "text": "12 CFR § 702.104",
@@ -4495,7 +4495,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "basel-ii-standardized-approach-framework/basel-ii-standardized-approach-framework.md",
+      "source_file": "compliance/policies/basel-ii-standardized-approach-framework/basel-ii-standardized-approach-framework.md",
       "regulatory_citations": [
         {
           "text": "12 CFR § 702.2",
@@ -4807,7 +4807,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "basel-ii-standardized-approach-framework/basel-ii-standardized-approach-framework.md",
+      "source_file": "compliance/policies/basel-ii-standardized-approach-framework/basel-ii-standardized-approach-framework.md",
       "regulatory_citations": [
         {
           "text": "12 CFR § 702.104",
@@ -5107,7 +5107,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "basel-ii-standardized-approach-framework/basel-ii-standardized-approach-framework.md",
+      "source_file": "compliance/policies/basel-ii-standardized-approach-framework/basel-ii-standardized-approach-framework.md",
       "regulatory_citations": [
         {
           "text": "12 CFR § 702.104",
@@ -5433,7 +5433,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "basel-ii-standardized-approach-framework/basel-ii-standardized-approach-framework.md",
+      "source_file": "compliance/policies/basel-ii-standardized-approach-framework/basel-ii-standardized-approach-framework.md",
       "regulatory_citations": [
         {
           "text": "12 CFR § 741.12",
@@ -5911,7 +5911,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "basel-ii-standardized-approach-framework/basel-ii-standardized-approach-framework.md",
+      "source_file": "compliance/policies/basel-ii-standardized-approach-framework/basel-ii-standardized-approach-framework.md",
       "regulatory_citations": [],
       "why_text": "Basel III capital buffer standards (BIS, 2010) — Capital Conservation Buffer (CCB) of 2.5% of RWA in CET1, bringing combined CET1 target to ≥ 7%, and Countercyclical Capital Buffer (CCyB) of 0–2.5% — are adopted as internal targets. No direct NCUA regulation mandates these buffers for credit unions; they are implemented here as voluntary internal standards. The systemic risk buffer (G-SIB surcharge) is not applicable to credit unions and is excluded. Buffer breaches restrict dividends and other capital distributions per the Basel III payout restriction framework.",
       "system_behavior": "The system tracks the CCB and CCyB separately within the `capital` object. The CCB is assessed each quarter as part of the ratio computation; if CET1 falls below 7% (i.e., the 4.5% minimum plus the 2.5% CCB), a buffer breach is recorded and payout restrictions are applied automatically according to the restriction schedule: if the buffer shortfall is less than 1.25% of RWA, dividends and discretionary payouts are restricted by 60%; the restriction percentage scales down as the buffer is restored. The CCyB is activated by ALCO resolution when credit growth (year-over-year loan growth from `gl.loan_growth_yoy`) exceeds 10%; the proposed CCyB level (0–2.5%) is set by ALCO and recorded in `capital.proposed_ccyb_level`. The systemic buffer is not tracked. Payout restriction decisions are write-restricted to the Chief Financial Officer and Chief Compliance Officer; CCyB activation requires Board approval.",
@@ -6307,7 +6307,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "basel-ii-standardized-approach-framework/basel-ii-standardized-approach-framework.md",
+      "source_file": "compliance/policies/basel-ii-standardized-approach-framework/basel-ii-standardized-approach-framework.md",
       "regulatory_citations": [
         {
           "text": "12 CFR § 702.304",
@@ -6748,7 +6748,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "basel-ii-standardized-approach-framework/basel-ii-standardized-approach-framework.md",
+      "source_file": "compliance/policies/basel-ii-standardized-approach-framework/basel-ii-standardized-approach-framework.md",
       "regulatory_citations": [
         {
           "text": "12 CFR § 702.204",
@@ -7265,7 +7265,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "bsa/bsa.md",
+      "source_file": "compliance/policies/bsa/bsa.md",
       "regulatory_citations": [
         {
           "text": "12 CFR § 748.2",
@@ -7576,7 +7576,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "bsa/bsa.md",
+      "source_file": "compliance/policies/bsa/bsa.md",
       "regulatory_citations": [
         {
           "text": "12 CFR § 748.2",
@@ -7839,7 +7839,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "bsa/bsa.md",
+      "source_file": "compliance/policies/bsa/bsa.md",
       "regulatory_citations": [
         {
           "text": "31 CFR § 1020.220",
@@ -8212,7 +8212,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "bsa/bsa.md",
+      "source_file": "compliance/policies/bsa/bsa.md",
       "regulatory_citations": [
         {
           "text": "31 CFR § 1010.230",
@@ -8672,7 +8672,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "bsa/bsa.md",
+      "source_file": "compliance/policies/bsa/bsa.md",
       "regulatory_citations": [
         {
           "text": "31 CFR Part 501",
@@ -9136,7 +9136,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "bsa/bsa.md",
+      "source_file": "compliance/policies/bsa/bsa.md",
       "regulatory_citations": [
         {
           "text": "31 CFR § 1020.210",
@@ -9440,7 +9440,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "bsa/bsa.md",
+      "source_file": "compliance/policies/bsa/bsa.md",
       "regulatory_citations": [
         {
           "text": "31 CFR § 1020.320",
@@ -9760,7 +9760,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "bsa/bsa.md",
+      "source_file": "compliance/policies/bsa/bsa.md",
       "regulatory_citations": [
         {
           "text": "31 CFR § 1010.311",
@@ -10048,7 +10048,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "bsa/bsa.md",
+      "source_file": "compliance/policies/bsa/bsa.md",
       "regulatory_citations": [
         {
           "text": "31 CFR § 1010.415",
@@ -10292,7 +10292,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "bsa/bsa.md",
+      "source_file": "compliance/policies/bsa/bsa.md",
       "regulatory_citations": [
         {
           "text": "31 CFR § 1010.410(e) and (f)",
@@ -10550,7 +10550,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "bsa/bsa.md",
+      "source_file": "compliance/policies/bsa/bsa.md",
       "regulatory_citations": [
         {
           "text": "31 CFR § 1010.520",
@@ -10764,7 +10764,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "bsa/bsa.md",
+      "source_file": "compliance/policies/bsa/bsa.md",
       "regulatory_citations": [
         {
           "text": "31 CFR § 1010.340",
@@ -10955,7 +10955,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "bsa/bsa.md",
+      "source_file": "compliance/policies/bsa/bsa.md",
       "regulatory_citations": [
         {
           "text": "31 CFR § 1010.350",
@@ -11148,7 +11148,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "bsa/bsa.md",
+      "source_file": "compliance/policies/bsa/bsa.md",
       "regulatory_citations": [
         {
           "text": "12 CFR § 748.2",
@@ -11408,7 +11408,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "bsa/bsa.md",
+      "source_file": "compliance/policies/bsa/bsa.md",
       "regulatory_citations": [
         {
           "text": "12 CFR § 748.2",
@@ -11782,7 +11782,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "bsa/bsa.md",
+      "source_file": "compliance/policies/bsa/bsa.md",
       "regulatory_citations": [
         {
           "text": "12 CFR § 748.2",
@@ -12063,7 +12063,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "bsa/bsa.md",
+      "source_file": "compliance/policies/bsa/bsa.md",
       "regulatory_citations": [
         {
           "text": "31 CFR § 1020.210",
@@ -12317,7 +12317,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "bsa/bsa.md",
+      "source_file": "compliance/policies/bsa/bsa.md",
       "regulatory_citations": [
         {
           "text": "31 CFR § 1020.210",
@@ -12638,7 +12638,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "bsa/bsa.md",
+      "source_file": "compliance/policies/bsa/bsa.md",
       "regulatory_citations": [
         {
           "text": "31 USC § 5318A",
@@ -12895,7 +12895,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "bsa/bsa.md",
+      "source_file": "compliance/policies/bsa/bsa.md",
       "regulatory_citations": [
         {
           "text": "12 CFR § 748.2",
@@ -13192,7 +13192,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "bsa/bsa.md",
+      "source_file": "compliance/policies/bsa/bsa.md",
       "regulatory_citations": [
         {
           "text": "31 CFR § 1010.430",
@@ -13371,7 +13371,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "bsa/bsa.md",
+      "source_file": "compliance/policies/bsa/bsa.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 364, Appendix B",
@@ -13939,7 +13939,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "business-continuity-plan/business-continuity-plan.md",
+      "source_file": "compliance/policies/business-continuity-plan/business-continuity-plan.md",
       "regulatory_citations": [
         {
           "text": "12 CFR § 701.4",
@@ -14263,7 +14263,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "business-continuity-plan/business-continuity-plan.md",
+      "source_file": "compliance/policies/business-continuity-plan/business-continuity-plan.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 749 Appendix B",
@@ -14487,7 +14487,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "business-continuity-plan/business-continuity-plan.md",
+      "source_file": "compliance/policies/business-continuity-plan/business-continuity-plan.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 748 Appendix A",
@@ -14734,7 +14734,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "business-continuity-plan/business-continuity-plan.md",
+      "source_file": "compliance/policies/business-continuity-plan/business-continuity-plan.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 748 Appendix A",
@@ -15093,7 +15093,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "business-continuity-plan/business-continuity-plan.md",
+      "source_file": "compliance/policies/business-continuity-plan/business-continuity-plan.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 748 Appendix A",
@@ -15435,7 +15435,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "business-continuity-plan/business-continuity-plan.md",
+      "source_file": "compliance/policies/business-continuity-plan/business-continuity-plan.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 748 Appendix A",
@@ -15757,7 +15757,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "business-continuity-plan/business-continuity-plan.md",
+      "source_file": "compliance/policies/business-continuity-plan/business-continuity-plan.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 749",
@@ -16117,7 +16117,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "business-continuity-plan/business-continuity-plan.md",
+      "source_file": "compliance/policies/business-continuity-plan/business-continuity-plan.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 748 Appendix A",
@@ -16428,7 +16428,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "business-continuity-plan/business-continuity-plan.md",
+      "source_file": "compliance/policies/business-continuity-plan/business-continuity-plan.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 748 Appendix A",
@@ -16742,7 +16742,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "business-continuity-plan/business-continuity-plan.md",
+      "source_file": "compliance/policies/business-continuity-plan/business-continuity-plan.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748 §748.1(c)",
@@ -16946,7 +16946,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "business-continuity-plan/business-continuity-plan.md",
+      "source_file": "compliance/policies/business-continuity-plan/business-continuity-plan.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 748 Appendix A",
@@ -17251,7 +17251,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "business-continuity-plan/business-continuity-plan.md",
+      "source_file": "compliance/policies/business-continuity-plan/business-continuity-plan.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 748 Appendix A",
@@ -17627,7 +17627,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "business-continuity-plan/business-continuity-plan.md",
+      "source_file": "compliance/policies/business-continuity-plan/business-continuity-plan.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 748 Appendix A",
@@ -17887,7 +17887,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "business-continuity-plan/business-continuity-plan.md",
+      "source_file": "compliance/policies/business-continuity-plan/business-continuity-plan.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 748 Appendix A",
@@ -18226,7 +18226,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "business-continuity-plan/business-continuity-plan.md",
+      "source_file": "compliance/policies/business-continuity-plan/business-continuity-plan.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 748 Appendix A",
@@ -18582,7 +18582,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "capitalization/capitalization.md",
+      "source_file": "compliance/policies/capitalization/capitalization.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 702",
@@ -18790,7 +18790,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "capitalization/capitalization.md",
+      "source_file": "compliance/policies/capitalization/capitalization.md",
       "regulatory_citations": [
         {
           "text": "12 CFR § 702.2",
@@ -18985,7 +18985,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "capitalization/capitalization.md",
+      "source_file": "compliance/policies/capitalization/capitalization.md",
       "regulatory_citations": [
         {
           "text": "12 CFR § 702.102",
@@ -19253,7 +19253,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "capitalization/capitalization.md",
+      "source_file": "compliance/policies/capitalization/capitalization.md",
       "regulatory_citations": [],
       "why_text": "The Credit Union adopts the Basel III standardized approach 2.5% capital conservation buffer as an internal standard above the well-capitalized minimum. When the buffer is eroded, distributions are restricted consistent with the Basel III framework's maximum distributable amount (MDA) concept, applied here as an internal governance constraint rather than a direct regulatory mandate on credit unions.",
       "system_behavior": "The system computes the buffer as the net worth ratio minus the 7% well-capitalized floor; the buffer requirement is 2.5%, meaning the internal target net worth ratio is effectively 9.5% when the full buffer is maintained. When the computed ratio falls below 9.5%, `capital.buffer_eroded` is set and `capital.distribution_restriction` is applied, restricting dividends and other capital payouts to the maximum payout ratio defined in `capital.max_payout_ratio`. The buffer status is recorded in `capital.buffer_status` each quarter. Distribution restrictions are lifted automatically when the ratio returns above 9.5%. The `capital.buffer_status` and `capital.distribution_restriction` fields are write-restricted to the CFO with CCO attestation.",
@@ -19536,7 +19536,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "capitalization/capitalization.md",
+      "source_file": "compliance/policies/capitalization/capitalization.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 702",
@@ -19821,7 +19821,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "capitalization/capitalization.md",
+      "source_file": "compliance/policies/capitalization/capitalization.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 702",
@@ -20098,7 +20098,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "capitalization/capitalization.md",
+      "source_file": "compliance/policies/capitalization/capitalization.md",
       "regulatory_citations": [
         {
           "text": "12 CFR § 702.102",
@@ -20313,7 +20313,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "capitalization/capitalization.md",
+      "source_file": "compliance/policies/capitalization/capitalization.md",
       "regulatory_citations": [
         {
           "text": "12 CFR § 702.111",
@@ -20613,7 +20613,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "capitalization/capitalization.md",
+      "source_file": "compliance/policies/capitalization/capitalization.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 702 Subpart D",
@@ -20953,7 +20953,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "capitalization/capitalization.md",
+      "source_file": "compliance/policies/capitalization/capitalization.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 702",
@@ -21293,7 +21293,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "cash/cash.md",
+      "source_file": "compliance/policies/cash/cash.md",
       "regulatory_citations": [
         {
           "text": "Federal Credit Union Act (12 U.S.C. §§ 1751–1795k)",
@@ -21673,7 +21673,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "cash/cash.md",
+      "source_file": "compliance/policies/cash/cash.md",
       "regulatory_citations": [
         {
           "text": "12 U.S.C. § 1761b",
@@ -21936,7 +21936,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "cash/cash.md",
+      "source_file": "compliance/policies/cash/cash.md",
       "regulatory_citations": [
         {
           "text": "12 U.S.C. §§ 1757, 1761b",
@@ -22273,7 +22273,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "cash/cash.md",
+      "source_file": "compliance/policies/cash/cash.md",
       "regulatory_citations": [
         {
           "text": "12 CFR § 748.1",
@@ -22615,7 +22615,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "cash/cash.md",
+      "source_file": "compliance/policies/cash/cash.md",
       "regulatory_citations": [
         {
           "text": "12 CFR § 748.1",
@@ -23012,7 +23012,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "cash/cash.md",
+      "source_file": "compliance/policies/cash/cash.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 749",
@@ -23345,7 +23345,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "cash/cash.md",
+      "source_file": "compliance/policies/cash/cash.md",
       "regulatory_citations": [
         {
           "text": "12 CFR § 748.1",
@@ -23755,7 +23755,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "cash/cash.md",
+      "source_file": "compliance/policies/cash/cash.md",
       "regulatory_citations": [
         {
           "text": "12 CFR § 748.1",
@@ -24184,7 +24184,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "cash/cash.md",
+      "source_file": "compliance/policies/cash/cash.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 715",
@@ -24525,7 +24525,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "cash/cash.md",
+      "source_file": "compliance/policies/cash/cash.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 713",
@@ -24834,7 +24834,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "cash/cash.md",
+      "source_file": "compliance/policies/cash/cash.md",
       "regulatory_citations": [
         {
           "text": "31 CFR § 1020.210(a)(4)",
@@ -25244,7 +25244,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "cash/cash.md",
+      "source_file": "compliance/policies/cash/cash.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 749",
@@ -25669,7 +25669,7 @@
       "policy_owner": "Patrick Wilson, Chief Compliance Officer",
       "policy_version": "v1.0",
       "policy_effective": "2026-06-16",
-      "source_file": "charitable-donation-accounts/charitable-donation-accounts.md",
+      "source_file": "compliance/policies/charitable-donation-accounts/charitable-donation-accounts.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §721.3(b)(2)",
@@ -25967,7 +25967,7 @@
       "policy_owner": "Patrick Wilson, Chief Compliance Officer",
       "policy_version": "v1.0",
       "policy_effective": "2026-06-16",
-      "source_file": "charitable-donation-accounts/charitable-donation-accounts.md",
+      "source_file": "compliance/policies/charitable-donation-accounts/charitable-donation-accounts.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §721.3(b)(2)",
@@ -26103,7 +26103,7 @@
       "policy_owner": "Patrick Wilson, Chief Compliance Officer",
       "policy_version": "v1.0",
       "policy_effective": "2026-06-16",
-      "source_file": "charitable-donation-accounts/charitable-donation-accounts.md",
+      "source_file": "compliance/policies/charitable-donation-accounts/charitable-donation-accounts.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §721.3(b)(2)",
@@ -26241,7 +26241,7 @@
       "policy_owner": "Patrick Wilson, Chief Compliance Officer",
       "policy_version": "v1.0",
       "policy_effective": "2026-06-16",
-      "source_file": "charitable-donation-accounts/charitable-donation-accounts.md",
+      "source_file": "compliance/policies/charitable-donation-accounts/charitable-donation-accounts.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §721.3(b)(2)",
@@ -26516,7 +26516,7 @@
       "policy_owner": "Patrick Wilson, Chief Compliance Officer",
       "policy_version": "v1.0",
       "policy_effective": "2026-06-16",
-      "source_file": "charitable-donation-accounts/charitable-donation-accounts.md",
+      "source_file": "compliance/policies/charitable-donation-accounts/charitable-donation-accounts.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §721.3(b)(2)",
@@ -26730,7 +26730,7 @@
       "policy_owner": "Patrick Wilson, Chief Compliance Officer",
       "policy_version": "v1.0",
       "policy_effective": "2026-06-16",
-      "source_file": "charitable-donation-accounts/charitable-donation-accounts.md",
+      "source_file": "compliance/policies/charitable-donation-accounts/charitable-donation-accounts.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §721.3(b)(2)",
@@ -27023,7 +27023,7 @@
       "policy_owner": "Patrick Wilson, Chief Compliance Officer",
       "policy_version": "v1.0",
       "policy_effective": "2026-06-16",
-      "source_file": "charitable-donation-accounts/charitable-donation-accounts.md",
+      "source_file": "compliance/policies/charitable-donation-accounts/charitable-donation-accounts.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 703",
@@ -27221,7 +27221,7 @@
       "policy_owner": "Patrick Wilson, Chief Compliance Officer",
       "policy_version": "v1.0",
       "policy_effective": "2026-06-16",
-      "source_file": "charitable-donation-accounts/charitable-donation-accounts.md",
+      "source_file": "compliance/policies/charitable-donation-accounts/charitable-donation-accounts.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §721.3(b)(2)",
@@ -27446,7 +27446,7 @@
       "policy_owner": "Patrick Wilson, Chief Compliance Officer",
       "policy_version": "v1.0",
       "policy_effective": "2026-06-16",
-      "source_file": "charitable-donation-accounts/charitable-donation-accounts.md",
+      "source_file": "compliance/policies/charitable-donation-accounts/charitable-donation-accounts.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §721.3(b)(2)",
@@ -27722,7 +27722,7 @@
       "policy_owner": "Patrick Wilson, Chief Compliance Officer",
       "policy_version": "v1.0",
       "policy_effective": "2026-06-16",
-      "source_file": "charitable-donation-accounts/charitable-donation-accounts.md",
+      "source_file": "compliance/policies/charitable-donation-accounts/charitable-donation-accounts.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §721.3(b)(2)",
@@ -27994,7 +27994,7 @@
       "policy_owner": "Patrick Wilson, Chief Compliance Officer",
       "policy_version": "v1.0",
       "policy_effective": "2026-06-16",
-      "source_file": "charitable-donation-accounts/charitable-donation-accounts.md",
+      "source_file": "compliance/policies/charitable-donation-accounts/charitable-donation-accounts.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §721.3(b)(2)",
@@ -28358,7 +28358,7 @@
       "policy_owner": "Patrick Wilson, Chief Compliance Officer",
       "policy_version": "v1.0",
       "policy_effective": "2026-06-16",
-      "source_file": "charitable-donation-accounts/charitable-donation-accounts.md",
+      "source_file": "compliance/policies/charitable-donation-accounts/charitable-donation-accounts.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §721.3(b)(2)",
@@ -28622,7 +28622,7 @@
       "policy_owner": "Patrick Wilson, Chief Compliance Officer",
       "policy_version": "v1.0",
       "policy_effective": "2026-06-16",
-      "source_file": "charitable-donation-accounts/charitable-donation-accounts.md",
+      "source_file": "compliance/policies/charitable-donation-accounts/charitable-donation-accounts.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §721.3(b)(2)",
@@ -28888,7 +28888,7 @@
       "policy_owner": "Patrick Wilson, Chief Compliance Officer",
       "policy_version": "v1.0",
       "policy_effective": "2026-06-16",
-      "source_file": "charitable-donation-accounts/charitable-donation-accounts.md",
+      "source_file": "compliance/policies/charitable-donation-accounts/charitable-donation-accounts.md",
       "regulatory_citations": [
         {
           "text": "28 CFR Part 36",
@@ -29062,7 +29062,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "collections/collections.md",
+      "source_file": "compliance/policies/collections/collections.md",
       "regulatory_citations": [
         {
           "text": "Dodd-Frank §§ 1031 & 1036 (12 U.S.C. 5531, 5536)",
@@ -29444,7 +29444,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "collections/collections.md",
+      "source_file": "compliance/policies/collections/collections.md",
       "regulatory_citations": [
         {
           "text": "FDCPA/Reg F (12 CFR Part 1006)",
@@ -29946,7 +29946,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "collections/collections.md",
+      "source_file": "compliance/policies/collections/collections.md",
       "regulatory_citations": [
         {
           "text": "FFIEC Uniform Retail Credit Classification and Account Management Policy",
@@ -30580,7 +30580,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "collections/collections.md",
+      "source_file": "compliance/policies/collections/collections.md",
       "regulatory_citations": [
         {
           "text": "Dodd-Frank §§ 1031 & 1036 (12 U.S.C. 5531, 5536)",
@@ -30945,7 +30945,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "collections/collections.md",
+      "source_file": "compliance/policies/collections/collections.md",
       "regulatory_citations": [
         {
           "text": "FDCPA/Reg F (12 CFR Part 1006)",
@@ -31332,7 +31332,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "collections/collections.md",
+      "source_file": "compliance/policies/collections/collections.md",
       "regulatory_citations": [
         {
           "text": "Dodd-Frank §§ 1031 & 1036 (12 U.S.C. 5531, 5536)",
@@ -31816,7 +31816,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "collections/collections.md",
+      "source_file": "compliance/policies/collections/collections.md",
       "regulatory_citations": [
         {
           "text": "FCRA/Reg V (12 CFR Part 1022)",
@@ -32196,7 +32196,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "collections/collections.md",
+      "source_file": "compliance/policies/collections/collections.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748 §748.1(c)",
@@ -32400,7 +32400,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "collections/collections.md",
+      "source_file": "compliance/policies/collections/collections.md",
       "regulatory_citations": [
         {
           "text": "NCUA Part 748 (12 CFR Part 748)",
@@ -32624,7 +32624,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "collections/collections.md",
+      "source_file": "compliance/policies/collections/collections.md",
       "regulatory_citations": [],
       "why_text": "Interagency nonaccrual and problem-asset guidance (incorporated by NCUA into safety-and-soundness expectations) requires credit unions to maintain a five-tier risk-rating system (Pass/Watch/Substandard/Doubtful/Loss), place loans on nonaccrual at 90+ DPD or when full collection is doubtful, reverse accrued interest upon nonaccrual placement, and review Watch/Substandard/Doubtful ratings at least quarterly. Foreclosure actions require a pre-foreclosure financial-impact evaluation and senior management approval consistent with NCUA safety-and-soundness standards and applicable state foreclosure law.",
       "system_behavior": "Every loan carries a risk rating (`loan.risk_rating`) from the five-tier scale (Pass/Watch/Substandard/Doubtful/Loss). Loans are placed on nonaccrual (`loan.nonaccrual_placed`) automatically when they reach 90+ DPD or when a collectibility assessment determines full collection is doubtful (`loan.collectibility_assessment`); accrued interest is reversed upon placement (`loan.accrued_interest`). Return to accrual requires documented evidence of sustained performance (`loan.repayment_evidence`). Watch, Substandard, and Doubtful-rated loans are reviewed quarterly (`loan.rating_review_due_at`). Before initiating foreclosure, a financial-impact evaluation is required (`loan.foreclosure_impact_eval`) with CCO and President approval (`loan.foreclosure.approved`). OREO valuation and disposition are governed by separate OREO guidelines (out of scope here). Credit Risk owns risk ratings and nonaccrual decisions; Compliance and Legal must be consulted on foreclosure; CCO and President approve foreclosure initiation.",
@@ -32983,7 +32983,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "collections/collections.md",
+      "source_file": "compliance/policies/collections/collections.md",
       "regulatory_citations": [
         {
           "text": "Dodd-Frank §§ 1031 & 1036 (12 U.S.C. 5531, 5536)",
@@ -33361,7 +33361,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "compliance/compliance.md",
+      "source_file": "compliance/policies/compliance/compliance.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 701",
@@ -33646,7 +33646,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "compliance/compliance.md",
+      "source_file": "compliance/policies/compliance/compliance.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 701",
@@ -33902,7 +33902,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "compliance/compliance.md",
+      "source_file": "compliance/policies/compliance/compliance.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 701",
@@ -34150,7 +34150,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "compliance/compliance.md",
+      "source_file": "compliance/policies/compliance/compliance.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 701",
@@ -34352,7 +34352,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "compliance/compliance.md",
+      "source_file": "compliance/policies/compliance/compliance.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 701",
@@ -34811,7 +34811,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "compliance/compliance.md",
+      "source_file": "compliance/policies/compliance/compliance.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 701",
@@ -35138,7 +35138,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "compliance/compliance.md",
+      "source_file": "compliance/policies/compliance/compliance.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 701",
@@ -35492,7 +35492,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "compliance/compliance.md",
+      "source_file": "compliance/policies/compliance/compliance.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 701",
@@ -35909,7 +35909,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "compliance/compliance.md",
+      "source_file": "compliance/policies/compliance/compliance.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 701",
@@ -36256,7 +36256,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "director-fiduciary-duties/director-fiduciary-duties.md",
+      "source_file": "compliance/policies/director-fiduciary-duties/director-fiduciary-duties.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §701.4",
@@ -36627,7 +36627,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "director-fiduciary-duties/director-fiduciary-duties.md",
+      "source_file": "compliance/policies/director-fiduciary-duties/director-fiduciary-duties.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §563.200",
@@ -36917,7 +36917,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "director-fiduciary-duties/director-fiduciary-duties.md",
+      "source_file": "compliance/policies/director-fiduciary-duties/director-fiduciary-duties.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §701.4",
@@ -37370,7 +37370,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "director-fiduciary-duties/director-fiduciary-duties.md",
+      "source_file": "compliance/policies/director-fiduciary-duties/director-fiduciary-duties.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §563.200",
@@ -37653,7 +37653,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "director-fiduciary-duties/director-fiduciary-duties.md",
+      "source_file": "compliance/policies/director-fiduciary-duties/director-fiduciary-duties.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 215",
@@ -38116,7 +38116,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "director-fiduciary-duties/director-fiduciary-duties.md",
+      "source_file": "compliance/policies/director-fiduciary-duties/director-fiduciary-duties.md",
       "regulatory_citations": [
         {
           "text": "12 U.S.C. §§ 371c",
@@ -38534,7 +38534,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "director-fiduciary-duties/director-fiduciary-duties.md",
+      "source_file": "compliance/policies/director-fiduciary-duties/director-fiduciary-duties.md",
       "regulatory_citations": [
         {
           "text": "18 U.S.C. § 215",
@@ -38790,7 +38790,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "director-fiduciary-duties/director-fiduciary-duties.md",
+      "source_file": "compliance/policies/director-fiduciary-duties/director-fiduciary-duties.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §563.201",
@@ -39066,7 +39066,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "director-fiduciary-duties/director-fiduciary-duties.md",
+      "source_file": "compliance/policies/director-fiduciary-duties/director-fiduciary-duties.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §215.8",
@@ -39341,7 +39341,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "director-fiduciary-duties/director-fiduciary-duties.md",
+      "source_file": "compliance/policies/director-fiduciary-duties/director-fiduciary-duties.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §701.4",
@@ -39862,7 +39862,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "e-commerce/e-commerce.md",
+      "source_file": "compliance/policies/e-commerce/e-commerce.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748 and Appendix A",
@@ -40089,7 +40089,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "e-commerce/e-commerce.md",
+      "source_file": "compliance/policies/e-commerce/e-commerce.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748, Appendix A §III",
@@ -40455,7 +40455,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "e-commerce/e-commerce.md",
+      "source_file": "compliance/policies/e-commerce/e-commerce.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748, Appendix A",
@@ -40857,7 +40857,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "e-commerce/e-commerce.md",
+      "source_file": "compliance/policies/e-commerce/e-commerce.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748, Appendix A §III.C",
@@ -41205,7 +41205,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "e-commerce/e-commerce.md",
+      "source_file": "compliance/policies/e-commerce/e-commerce.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748, Appendix A §III.B",
@@ -41503,7 +41503,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "e-commerce/e-commerce.md",
+      "source_file": "compliance/policies/e-commerce/e-commerce.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748, Appendix A §III.D",
@@ -41793,7 +41793,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "e-commerce/e-commerce.md",
+      "source_file": "compliance/policies/e-commerce/e-commerce.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748, Appendix A",
@@ -41983,7 +41983,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "e-commerce/e-commerce.md",
+      "source_file": "compliance/policies/e-commerce/e-commerce.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748, Appendix A §III.B",
@@ -42173,7 +42173,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "e-commerce/e-commerce.md",
+      "source_file": "compliance/policies/e-commerce/e-commerce.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748, Appendix A §III.C",
@@ -42636,7 +42636,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "e-commerce/e-commerce.md",
+      "source_file": "compliance/policies/e-commerce/e-commerce.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748 §748.1(c)",
@@ -42840,7 +42840,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "e-commerce/e-commerce.md",
+      "source_file": "compliance/policies/e-commerce/e-commerce.md",
       "regulatory_citations": [
         {
           "text": "GLBA 15 USC §6801",
@@ -43131,7 +43131,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "e-commerce/e-commerce.md",
+      "source_file": "compliance/policies/e-commerce/e-commerce.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 748, Appendix A",
@@ -43461,7 +43461,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "e-commerce/e-commerce.md",
+      "source_file": "compliance/policies/e-commerce/e-commerce.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748, Appendix A §IV",
@@ -43786,7 +43786,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "e-commerce/e-commerce.md",
+      "source_file": "compliance/policies/e-commerce/e-commerce.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748, Appendix A §II",
@@ -44088,7 +44088,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "electronic-payment-systems/electronic-payment-systems.md",
+      "source_file": "compliance/policies/electronic-payment-systems/electronic-payment-systems.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748 Appendix A",
@@ -44476,7 +44476,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "electronic-payment-systems/electronic-payment-systems.md",
+      "source_file": "compliance/policies/electronic-payment-systems/electronic-payment-systems.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748 §748.1(c)",
@@ -44680,7 +44680,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "electronic-payment-systems/electronic-payment-systems.md",
+      "source_file": "compliance/policies/electronic-payment-systems/electronic-payment-systems.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748 Appendix A",
@@ -44965,7 +44965,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "electronic-payment-systems/electronic-payment-systems.md",
+      "source_file": "compliance/policies/electronic-payment-systems/electronic-payment-systems.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748 Appendix A",
@@ -45317,7 +45317,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "electronic-payment-systems/electronic-payment-systems.md",
+      "source_file": "compliance/policies/electronic-payment-systems/electronic-payment-systems.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748 Appendix A",
@@ -45629,7 +45629,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "electronic-payment-systems/electronic-payment-systems.md",
+      "source_file": "compliance/policies/electronic-payment-systems/electronic-payment-systems.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748 Appendix A",
@@ -45973,7 +45973,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "electronic-payment-systems/electronic-payment-systems.md",
+      "source_file": "compliance/policies/electronic-payment-systems/electronic-payment-systems.md",
       "regulatory_citations": [
         {
           "text": "NACHA Operating Rules",
@@ -46451,7 +46451,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "electronic-payment-systems/electronic-payment-systems.md",
+      "source_file": "compliance/policies/electronic-payment-systems/electronic-payment-systems.md",
       "regulatory_citations": [
         {
           "text": "Regulation E (12 CFR Part 1005)",
@@ -46791,7 +46791,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "electronic-payment-systems/electronic-payment-systems.md",
+      "source_file": "compliance/policies/electronic-payment-systems/electronic-payment-systems.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748 Appendix A",
@@ -47157,7 +47157,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "electronic-payment-systems/electronic-payment-systems.md",
+      "source_file": "compliance/policies/electronic-payment-systems/electronic-payment-systems.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748 Appendix A",
@@ -47754,7 +47754,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "electronic-payment-systems/electronic-payment-systems.md",
+      "source_file": "compliance/policies/electronic-payment-systems/electronic-payment-systems.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748 Appendix A",
@@ -48113,7 +48113,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "enterprise-risk-management/enterprise-risk-management.md",
+      "source_file": "compliance/policies/enterprise-risk-management/enterprise-risk-management.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.3 and Appendix A to Part 741",
@@ -48405,7 +48405,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "enterprise-risk-management/enterprise-risk-management.md",
+      "source_file": "compliance/policies/enterprise-risk-management/enterprise-risk-management.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.3 and Appendix A to Part 741",
@@ -48693,7 +48693,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "enterprise-risk-management/enterprise-risk-management.md",
+      "source_file": "compliance/policies/enterprise-risk-management/enterprise-risk-management.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.3 and Appendix A to Part 741",
@@ -48942,7 +48942,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "enterprise-risk-management/enterprise-risk-management.md",
+      "source_file": "compliance/policies/enterprise-risk-management/enterprise-risk-management.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.3 and Appendix A to Part 741",
@@ -49309,7 +49309,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "enterprise-risk-management/enterprise-risk-management.md",
+      "source_file": "compliance/policies/enterprise-risk-management/enterprise-risk-management.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.3 and Appendix A to Part 741",
@@ -49682,7 +49682,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "enterprise-risk-management/enterprise-risk-management.md",
+      "source_file": "compliance/policies/enterprise-risk-management/enterprise-risk-management.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.3 and Appendix A to Part 741",
@@ -50135,7 +50135,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "enterprise-risk-management/enterprise-risk-management.md",
+      "source_file": "compliance/policies/enterprise-risk-management/enterprise-risk-management.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.3 and Appendix A to Part 741",
@@ -50579,7 +50579,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "enterprise-risk-management/enterprise-risk-management.md",
+      "source_file": "compliance/policies/enterprise-risk-management/enterprise-risk-management.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.3 and Appendix A to Part 741",
@@ -50849,7 +50849,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "fair-lending/fair-lending.md",
+      "source_file": "compliance/policies/fair-lending/fair-lending.md",
       "regulatory_citations": [
         {
           "text": "ECOA/Reg B §1002.4",
@@ -51152,7 +51152,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "fair-lending/fair-lending.md",
+      "source_file": "compliance/policies/fair-lending/fair-lending.md",
       "regulatory_citations": [
         {
           "text": "ECOA/Reg B §1002.5",
@@ -51379,7 +51379,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "fair-lending/fair-lending.md",
+      "source_file": "compliance/policies/fair-lending/fair-lending.md",
       "regulatory_citations": [
         {
           "text": "ECOA/Reg B §1002.6",
@@ -51732,7 +51732,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "fair-lending/fair-lending.md",
+      "source_file": "compliance/policies/fair-lending/fair-lending.md",
       "regulatory_citations": [
         {
           "text": "ECOA/Reg B §1002.14",
@@ -52090,7 +52090,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "fair-lending/fair-lending.md",
+      "source_file": "compliance/policies/fair-lending/fair-lending.md",
       "regulatory_citations": [
         {
           "text": "ECOA/Reg B §1002.9",
@@ -52550,7 +52550,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "fair-lending/fair-lending.md",
+      "source_file": "compliance/policies/fair-lending/fair-lending.md",
       "regulatory_citations": [
         {
           "text": "ECOA/Reg B §1002.13",
@@ -52939,7 +52939,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "fair-lending/fair-lending.md",
+      "source_file": "compliance/policies/fair-lending/fair-lending.md",
       "regulatory_citations": [
         {
           "text": "Reg Z §1026.24",
@@ -53285,7 +53285,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "fair-lending/fair-lending.md",
+      "source_file": "compliance/policies/fair-lending/fair-lending.md",
       "regulatory_citations": [
         {
           "text": "Reg Z §1026.36(d)",
@@ -53674,7 +53674,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "fair-lending/fair-lending.md",
+      "source_file": "compliance/policies/fair-lending/fair-lending.md",
       "regulatory_citations": [
         {
           "text": "ECOA/Reg B §1002.4",
@@ -54052,7 +54052,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "fair-lending/fair-lending.md",
+      "source_file": "compliance/policies/fair-lending/fair-lending.md",
       "regulatory_citations": [
         {
           "text": "ECOA/Reg B §1002.4",
@@ -54379,7 +54379,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "fair-lending/fair-lending.md",
+      "source_file": "compliance/policies/fair-lending/fair-lending.md",
       "regulatory_citations": [
         {
           "text": "ECOA/Reg B §1002.4",
@@ -54736,7 +54736,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "fair-lending/fair-lending.md",
+      "source_file": "compliance/policies/fair-lending/fair-lending.md",
       "regulatory_citations": [
         {
           "text": "ECOA/Reg B §1002.12",
@@ -55019,7 +55019,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "fair-lending/fair-lending.md",
+      "source_file": "compliance/policies/fair-lending/fair-lending.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 364, Appendix B",
@@ -55587,7 +55587,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "fair-lending/fair-lending.md",
+      "source_file": "compliance/policies/fair-lending/fair-lending.md",
       "regulatory_citations": [
         {
           "text": "ECOA/Reg B §1002.4",
@@ -56242,7 +56242,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "information-security/information-security.md",
+      "source_file": "compliance/policies/information-security/information-security.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748, Appendix A §I",
@@ -56452,7 +56452,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "information-security/information-security.md",
+      "source_file": "compliance/policies/information-security/information-security.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748, Appendix A §II",
@@ -56741,7 +56741,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "information-security/information-security.md",
+      "source_file": "compliance/policies/information-security/information-security.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748, Appendix A §II",
@@ -56946,7 +56946,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "information-security/information-security.md",
+      "source_file": "compliance/policies/information-security/information-security.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748, Appendix A §III",
@@ -57245,7 +57245,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "information-security/information-security.md",
+      "source_file": "compliance/policies/information-security/information-security.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748, Appendix A §III",
@@ -57528,7 +57528,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "information-security/information-security.md",
+      "source_file": "compliance/policies/information-security/information-security.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748, Appendix A §II–III",
@@ -57902,7 +57902,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "information-security/information-security.md",
+      "source_file": "compliance/policies/information-security/information-security.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748, Appendix A §II",
@@ -58190,7 +58190,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "information-security/information-security.md",
+      "source_file": "compliance/policies/information-security/information-security.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748, Appendix A §III",
@@ -58540,7 +58540,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "information-security/information-security.md",
+      "source_file": "compliance/policies/information-security/information-security.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748 §748.1(c)",
@@ -58744,7 +58744,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "information-security/information-security.md",
+      "source_file": "compliance/policies/information-security/information-security.md",
       "regulatory_citations": [
         {
           "text": "GLBA 15 USC §6801",
@@ -58860,7 +58860,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "information-security/information-security.md",
+      "source_file": "compliance/policies/information-security/information-security.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 748, Appendix A",
@@ -59190,7 +59190,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "information-security/information-security.md",
+      "source_file": "compliance/policies/information-security/information-security.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 717 Subpart J",
@@ -59490,7 +59490,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "information-security/information-security.md",
+      "source_file": "compliance/policies/information-security/information-security.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748, Appendix A §IV",
@@ -59784,7 +59784,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "information-security/information-security.md",
+      "source_file": "compliance/policies/information-security/information-security.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748, Appendix A §II",
@@ -60130,7 +60130,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "information-security/information-security.md",
+      "source_file": "compliance/policies/information-security/information-security.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748, Appendix A §II–III",
@@ -60479,7 +60479,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "information-security/information-security.md",
+      "source_file": "compliance/policies/information-security/information-security.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748, Appendix A §III",
@@ -60744,7 +60744,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "information-security/information-security.md",
+      "source_file": "compliance/policies/information-security/information-security.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748, Appendix A §II",
@@ -61012,7 +61012,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "information-security/information-security.md",
+      "source_file": "compliance/policies/information-security/information-security.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748, Appendix A §II",
@@ -61267,7 +61267,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "information-security/information-security.md",
+      "source_file": "compliance/policies/information-security/information-security.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748, Appendix A §IV",
@@ -61622,7 +61622,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "information-security/information-security.md",
+      "source_file": "compliance/policies/information-security/information-security.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 749",
@@ -61803,7 +61803,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "information-security/information-security.md",
+      "source_file": "compliance/policies/information-security/information-security.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 364, Appendix B",
@@ -62371,7 +62371,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "internal-controls/internal-controls.md",
+      "source_file": "compliance/policies/internal-controls/internal-controls.md",
       "regulatory_citations": [
         {
           "text": "12 U.S.C. §1761b",
@@ -62655,7 +62655,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "internal-controls/internal-controls.md",
+      "source_file": "compliance/policies/internal-controls/internal-controls.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.3",
@@ -63019,7 +63019,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "internal-controls/internal-controls.md",
+      "source_file": "compliance/policies/internal-controls/internal-controls.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.3",
@@ -63352,7 +63352,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "internal-controls/internal-controls.md",
+      "source_file": "compliance/policies/internal-controls/internal-controls.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.3",
@@ -63717,7 +63717,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "internal-controls/internal-controls.md",
+      "source_file": "compliance/policies/internal-controls/internal-controls.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 748",
@@ -64201,7 +64201,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "internal-controls/internal-controls.md",
+      "source_file": "compliance/policies/internal-controls/internal-controls.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.3",
@@ -64618,7 +64618,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "internal-controls/internal-controls.md",
+      "source_file": "compliance/policies/internal-controls/internal-controls.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 715",
@@ -65064,7 +65064,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "internal-controls/internal-controls.md",
+      "source_file": "compliance/policies/internal-controls/internal-controls.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 748",
@@ -65314,7 +65314,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "internal-controls/internal-controls.md",
+      "source_file": "compliance/policies/internal-controls/internal-controls.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 364, Appendix B",
@@ -65882,7 +65882,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "investment/investment.md",
+      "source_file": "compliance/policies/investment/investment.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §703.3",
@@ -66358,7 +66358,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "investment/investment.md",
+      "source_file": "compliance/policies/investment/investment.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §703.3",
@@ -66900,7 +66900,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "investment/investment.md",
+      "source_file": "compliance/policies/investment/investment.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §§703.13–703.14",
@@ -67278,7 +67278,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "investment/investment.md",
+      "source_file": "compliance/policies/investment/investment.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §703.3(b)",
@@ -67689,7 +67689,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "investment/investment.md",
+      "source_file": "compliance/policies/investment/investment.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §703.6",
@@ -68126,7 +68126,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "investment/investment.md",
+      "source_file": "compliance/policies/investment/investment.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §703.3(b)",
@@ -68482,7 +68482,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "investment/investment.md",
+      "source_file": "compliance/policies/investment/investment.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §703.3(b)",
@@ -68837,7 +68837,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "investment/investment.md",
+      "source_file": "compliance/policies/investment/investment.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §703.8",
@@ -69208,7 +69208,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "investment/investment.md",
+      "source_file": "compliance/policies/investment/investment.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §703.13",
@@ -69570,7 +69570,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "investment/investment.md",
+      "source_file": "compliance/policies/investment/investment.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §703.11",
@@ -70010,7 +70010,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "investment/investment.md",
+      "source_file": "compliance/policies/investment/investment.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §703.6",
@@ -70293,7 +70293,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "investment/investment.md",
+      "source_file": "compliance/policies/investment/investment.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §703.12",
@@ -70609,7 +70609,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "investment/investment.md",
+      "source_file": "compliance/policies/investment/investment.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §703.3(b)",
@@ -70834,7 +70834,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "investment/investment.md",
+      "source_file": "compliance/policies/investment/investment.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §703.3(b)",
@@ -71231,7 +71231,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "investment/investment.md",
+      "source_file": "compliance/policies/investment/investment.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §703.4",
@@ -71441,7 +71441,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "investment/investment.md",
+      "source_file": "compliance/policies/investment/investment.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 364, Appendix B",
@@ -72009,7 +72009,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "investment/investment.md",
+      "source_file": "compliance/policies/investment/investment.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §703.15",
@@ -72529,7 +72529,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "investment/investment.md",
+      "source_file": "compliance/policies/investment/investment.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.12",
@@ -72873,7 +72873,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "investment/investment.md",
+      "source_file": "compliance/policies/investment/investment.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §703.3",
@@ -73212,7 +73212,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "lending/lending.md",
+      "source_file": "compliance/policies/lending/lending.md",
       "regulatory_citations": [
         {
           "text": "ECOA/Reg B 12 CFR §1002.4",
@@ -73592,7 +73592,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "lending/lending.md",
+      "source_file": "compliance/policies/lending/lending.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR §701.21",
@@ -73875,7 +73875,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "lending/lending.md",
+      "source_file": "compliance/policies/lending/lending.md",
       "regulatory_citations": [
         {
           "text": "ECOA/Reg B 12 CFR §1002.9(a)",
@@ -74278,7 +74278,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "lending/lending.md",
+      "source_file": "compliance/policies/lending/lending.md",
       "regulatory_citations": [
         {
           "text": "ECOA/Reg B 12 CFR §1002.6(b)",
@@ -74623,7 +74623,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "lending/lending.md",
+      "source_file": "compliance/policies/lending/lending.md",
       "regulatory_citations": [
         {
           "text": "TILA/Reg Z 12 CFR §1026.43(c)",
@@ -74882,7 +74882,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "lending/lending.md",
+      "source_file": "compliance/policies/lending/lending.md",
       "regulatory_citations": [
         {
           "text": "ECOA/Reg B 12 CFR §1002.14(a)",
@@ -75356,7 +75356,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "lending/lending.md",
+      "source_file": "compliance/policies/lending/lending.md",
       "regulatory_citations": [
         {
           "text": "ECOA/Reg B 12 CFR §1002.9",
@@ -75801,7 +75801,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "lending/lending.md",
+      "source_file": "compliance/policies/lending/lending.md",
       "regulatory_citations": [
         {
           "text": "ECOA/Reg B 12 CFR §1002.6(b)",
@@ -76136,7 +76136,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "lending/lending.md",
+      "source_file": "compliance/policies/lending/lending.md",
       "regulatory_citations": [
         {
           "text": "ECOA/Reg B 12 CFR §1002.12(b)",
@@ -76342,7 +76342,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "lending/lending.md",
+      "source_file": "compliance/policies/lending/lending.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 364, Appendix B",
@@ -76910,7 +76910,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "lending/lending.md",
+      "source_file": "compliance/policies/lending/lending.md",
       "regulatory_citations": [
         {
           "text": "TILA/Reg Z 12 CFR §1026.35",
@@ -77339,7 +77339,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "lending/lending.md",
+      "source_file": "compliance/policies/lending/lending.md",
       "regulatory_citations": [
         {
           "text": "31 CFR Chapter V",
@@ -77657,7 +77657,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "lending/lending.md",
+      "source_file": "compliance/policies/lending/lending.md",
       "regulatory_citations": [
         {
           "text": "TILA/Reg Z 12 CFR §1026.36(e)",
@@ -78091,7 +78091,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "lending/lending.md",
+      "source_file": "compliance/policies/lending/lending.md",
       "regulatory_citations": [
         {
           "text": "ECOA/Reg B 12 CFR §1002.4",
@@ -78578,7 +78578,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "lending/lending.md",
+      "source_file": "compliance/policies/lending/lending.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Parts 701 and 741",
@@ -78908,7 +78908,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "liquidity/liquidity.md",
+      "source_file": "compliance/policies/liquidity/liquidity.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.12",
@@ -79116,7 +79116,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "liquidity/liquidity.md",
+      "source_file": "compliance/policies/liquidity/liquidity.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.12",
@@ -79408,7 +79408,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "liquidity/liquidity.md",
+      "source_file": "compliance/policies/liquidity/liquidity.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.12",
@@ -79633,7 +79633,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "liquidity/liquidity.md",
+      "source_file": "compliance/policies/liquidity/liquidity.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.12",
@@ -79855,7 +79855,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "liquidity/liquidity.md",
+      "source_file": "compliance/policies/liquidity/liquidity.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.12",
@@ -80141,7 +80141,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "liquidity/liquidity.md",
+      "source_file": "compliance/policies/liquidity/liquidity.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.12",
@@ -80428,7 +80428,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "liquidity/liquidity.md",
+      "source_file": "compliance/policies/liquidity/liquidity.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.12",
@@ -80731,7 +80731,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "liquidity/liquidity.md",
+      "source_file": "compliance/policies/liquidity/liquidity.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.12",
@@ -81087,7 +81087,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "liquidity/liquidity.md",
+      "source_file": "compliance/policies/liquidity/liquidity.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.12",
@@ -81389,7 +81389,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "liquidity/liquidity.md",
+      "source_file": "compliance/policies/liquidity/liquidity.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.12",
@@ -81760,7 +81760,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "liquidity/liquidity.md",
+      "source_file": "compliance/policies/liquidity/liquidity.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.12",
@@ -81968,7 +81968,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "liquidity/liquidity.md",
+      "source_file": "compliance/policies/liquidity/liquidity.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.12",
@@ -82219,7 +82219,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "liquidity/liquidity.md",
+      "source_file": "compliance/policies/liquidity/liquidity.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.12",
@@ -82465,7 +82465,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "liquidity/liquidity.md",
+      "source_file": "compliance/policies/liquidity/liquidity.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.12",
@@ -82748,7 +82748,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "liquidity/liquidity.md",
+      "source_file": "compliance/policies/liquidity/liquidity.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.12",
@@ -82870,7 +82870,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "liquidity/liquidity.md",
+      "source_file": "compliance/policies/liquidity/liquidity.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 364, Appendix B",
@@ -83438,7 +83438,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "liquidity/liquidity.md",
+      "source_file": "compliance/policies/liquidity/liquidity.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.12",
@@ -83683,7 +83683,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "liquidity/liquidity.md",
+      "source_file": "compliance/policies/liquidity/liquidity.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §741.12",
@@ -83955,7 +83955,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "member/member.md",
+      "source_file": "compliance/policies/member/member.md",
       "regulatory_citations": [
         {
           "text": "Cal. Fin. Code §§ 14050–14052",
@@ -84371,7 +84371,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "member/member.md",
+      "source_file": "compliance/policies/member/member.md",
       "regulatory_citations": [
         {
           "text": "FACT Act Red Flags Rule (16 CFR Part 681)",
@@ -84859,7 +84859,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "member/member.md",
+      "source_file": "compliance/policies/member/member.md",
       "regulatory_citations": [
         {
           "text": "Regulation P (12 CFR Part 1016)",
@@ -85198,7 +85198,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "member/member.md",
+      "source_file": "compliance/policies/member/member.md",
       "regulatory_citations": [
         {
           "text": "Regulation E (12 CFR Part 1005.11)",
@@ -85819,7 +85819,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "member/member.md",
+      "source_file": "compliance/policies/member/member.md",
       "regulatory_citations": [
         {
           "text": "Cal. Fin. Code §§ 14750–14752",
@@ -86212,7 +86212,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "member/member.md",
+      "source_file": "compliance/policies/member/member.md",
       "regulatory_citations": [
         {
           "text": "Cal. Fin. Code §§ 14850–14854",
@@ -86645,7 +86645,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "member/member.md",
+      "source_file": "compliance/policies/member/member.md",
       "regulatory_citations": [
         {
           "text": "Regulation E (12 CFR Part 1005)",
@@ -86981,7 +86981,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "member/member.md",
+      "source_file": "compliance/policies/member/member.md",
       "regulatory_citations": [
         {
           "text": "Regulation P (12 CFR Part 1016)",
@@ -87290,7 +87290,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "member/member.md",
+      "source_file": "compliance/policies/member/member.md",
       "regulatory_citations": [],
       "why_text": "The California Consumer Financial Protection Law imposes UDAAP standards on member-facing interactions, including service responsiveness. Failure to respond to member inquiries in a timely manner may constitute an unfair or deceptive practice. Online and mobile channel-specific standards are governed by the E-Commerce Policy.",
       "system_behavior": "All member service inquiries received through any in-scope channel (branch, telephone, mail, secure message) are logged as service records upon receipt (`service.inquiry.received`) with category (`service.category`) and assigned staff (`service.assigned_to`). A first response (acknowledgement or resolution) is due within 1 business day (`service.first_response_due_at`). Full resolution is due within 5 business days (`service.resolution_due_at`). If an inquiry cannot be resolved within 5 business days, it is escalated to a supervisor and a status update is sent to the member. If the inquiry reveals a potential regulatory violation or UDAAP concern, it is reclassified as a complaint (`service.reclassified_as_dispute`) and the complaint process under [MP-04](#mp-04-member-disputes-and-dispute-resolution) governs from the original receipt date. Service records are write-restricted to Member Services; Compliance has read access for monitoring.",
@@ -87636,7 +87636,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "privacy/privacy.md",
+      "source_file": "compliance/policies/privacy/privacy.md",
       "regulatory_citations": [
         {
           "text": "Regulation P §§1016.4, 1016.5, 1016.8, 1016.9",
@@ -88004,7 +88004,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "privacy/privacy.md",
+      "source_file": "compliance/policies/privacy/privacy.md",
       "regulatory_citations": [
         {
           "text": "Regulation P §1016.7",
@@ -88346,7 +88346,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "privacy/privacy.md",
+      "source_file": "compliance/policies/privacy/privacy.md",
       "regulatory_citations": [
         {
           "text": "Regulation P §§1016.13 (service-provider/joint-marketing), 1016.14 (servicing/processing), and 1016.15 (legal/protective exceptions)",
@@ -88610,7 +88610,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "privacy/privacy.md",
+      "source_file": "compliance/policies/privacy/privacy.md",
       "regulatory_citations": [
         {
           "text": "Regulation P §1016.9",
@@ -88954,7 +88954,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "privacy/privacy.md",
+      "source_file": "compliance/policies/privacy/privacy.md",
       "regulatory_citations": [
         {
           "text": "FCRA/Regulation V (12 CFR Part 1022)",
@@ -89331,7 +89331,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "privacy/privacy.md",
+      "source_file": "compliance/policies/privacy/privacy.md",
       "regulatory_citations": [
         {
           "text": "NCUA Part 748, Appendix A",
@@ -89708,7 +89708,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "privacy/privacy.md",
+      "source_file": "compliance/policies/privacy/privacy.md",
       "regulatory_citations": [
         {
           "text": "Regulation P §1016.13",
@@ -90024,7 +90024,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "privacy/privacy.md",
+      "source_file": "compliance/policies/privacy/privacy.md",
       "regulatory_citations": [
         {
           "text": "FACTA Disposal Rule (16 CFR Part 682)",
@@ -90347,7 +90347,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "privacy/privacy.md",
+      "source_file": "compliance/policies/privacy/privacy.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748 §748.1(c)",
@@ -90551,7 +90551,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "privacy/privacy.md",
+      "source_file": "compliance/policies/privacy/privacy.md",
       "regulatory_citations": [
         {
           "text": "NCUA Part 748, Appendix B",
@@ -90846,7 +90846,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "privacy/privacy.md",
+      "source_file": "compliance/policies/privacy/privacy.md",
       "regulatory_citations": [
         {
           "text": "NCUA Part 748",
@@ -91197,7 +91197,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "privacy/privacy.md",
+      "source_file": "compliance/policies/privacy/privacy.md",
       "regulatory_citations": [
         {
           "text": "Regulation P §1016.9",
@@ -91479,7 +91479,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "privacy/privacy.md",
+      "source_file": "compliance/policies/privacy/privacy.md",
       "regulatory_citations": [
         {
           "text": "Cal. Civ. Code §§1798.100 et seq.",
@@ -91820,7 +91820,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "privacy/privacy.md",
+      "source_file": "compliance/policies/privacy/privacy.md",
       "regulatory_citations": [],
       "why_text": "CPRA-equivalent standards (applied as the universal floor per the Strictest-Standard Default) require that analytics and R&D use of personal data be limited to documented, non-identifiable data. Re-identification is prohibited. The Credit Union applies small-cohort thresholds and annual method reviews to ensure de-identification remains effective.",
       "system_behavior": "Analytics and R&D use of member data is permitted only on data that has been de-identified using a documented method (`analytics.deid_method_id`). The de-identification method is reviewed annually (`analytics.method_review_due_at`). Small-cohort thresholds (`analytics.cohort_threshold`) are enforced at query time to prevent re-identification through aggregation. Re-identification attempts are prohibited by policy and technically blocked; any re-identification risk assessment (`analytics.reid_risk_assessment`) that identifies a material risk triggers an immediate review. The de-identification method registry and cohort threshold configuration are write-restricted to Privacy Operations and the Data Governance function.",
@@ -92077,7 +92077,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "privacy/privacy.md",
+      "source_file": "compliance/policies/privacy/privacy.md",
       "regulatory_citations": [
         {
           "text": "PR-12",
@@ -92428,7 +92428,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "privacy/privacy.md",
+      "source_file": "compliance/policies/privacy/privacy.md",
       "regulatory_citations": [],
       "why_text": "CPRA-equivalent standards (applied as the universal floor) require purpose limitation and member control over data shared with third-party applications. The Credit Union's open-banking API connections must be scoped to the member's consented purpose, use purpose-limited tokens, and provide an immediate revocation path. Reuse of data beyond the consented scope is prohibited.",
       "system_behavior": "Third-party API connections are established only after the member grants explicit consent (`connection.consent.granted`) specifying the scope and purpose. The system issues a purpose-limited token (`connection.token.issued`) scoped to the consented data elements. The connection record captures the party ID (`connection.party_id`), consent artifact (`connection.consent`), and access log ID (`connection.access_log_id`). Scope violations are detected in real time (`connection.scope_violation.detected`) and result in immediate token suspension (`connection.suspended`). Members may revoke any connection at any time (`connection.revoke.requested`); revocation is immediate and the token is invalidated (`connection.token_revoked`). Connections are write-restricted to the API gateway; revocation can be initiated by the member through the online banking portal or by Privacy Operations.",
@@ -92700,7 +92700,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "privacy/privacy.md",
+      "source_file": "compliance/policies/privacy/privacy.md",
       "regulatory_citations": [],
       "why_text": "State biometric privacy laws (including Illinois BIPA, Texas, and Washington) impose strict requirements on the collection, use, retention, and destruction of biometric identifiers. CPRA-equivalent standards (applied as the universal floor) require explicit consent and purpose limitation. The Credit Union uses vendor-side face-match/liveness detection for KYC only under explicit contractual limits, prefers vendor-side storage, prohibits model reuse, and purges biometric data per applicable state law.",
       "system_behavior": "Biometric data collection for KYC is permitted only with explicit member consent (`verification.biometric_consent_id`) and only through vendors operating under contractual limits that prohibit model reuse and require vendor-side storage. The system records the biometric consent ID, the verification outcome (`verification.match_status`), and the purge deadline (`verification.biometric_purge_due_at`) at the time of collection. A non-biometric alternative path is offered where feasible (`verification.alt_path_available`); members who decline biometric verification are routed to the alternative (`verification.biometric_declined`). Biometric data is purged on schedule (`verification.biometric_purged`); the purge event is recorded. Biometric consent and purge records are write-restricted to Privacy Operations and the KYC vendor integration layer.",
@@ -92978,7 +92978,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "privacy/privacy.md",
+      "source_file": "compliance/policies/privacy/privacy.md",
       "regulatory_citations": [
         {
           "text": "COPPA (16 CFR Part 312)",
@@ -93198,7 +93198,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "record-retention/record-retention.md",
+      "source_file": "compliance/policies/record-retention/record-retention.md",
       "regulatory_citations": [
         {
           "text": "BSA 31 CFR §1010.430",
@@ -93520,7 +93520,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "record-retention/record-retention.md",
+      "source_file": "compliance/policies/record-retention/record-retention.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 364 App. B",
@@ -93758,7 +93758,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "record-retention/record-retention.md",
+      "source_file": "compliance/policies/record-retention/record-retention.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 364 App. B",
@@ -94036,7 +94036,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "record-retention/record-retention.md",
+      "source_file": "compliance/policies/record-retention/record-retention.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 364 App. B",
@@ -94353,7 +94353,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "record-retention/record-retention.md",
+      "source_file": "compliance/policies/record-retention/record-retention.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 364 App. B",
@@ -94662,7 +94662,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "record-retention/record-retention.md",
+      "source_file": "compliance/policies/record-retention/record-retention.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 364 App. B",
@@ -94904,7 +94904,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "record-retention/record-retention.md",
+      "source_file": "compliance/policies/record-retention/record-retention.md",
       "regulatory_citations": [
         {
           "text": "31 CFR §1010.430",
@@ -95154,7 +95154,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "record-retention/record-retention.md",
+      "source_file": "compliance/policies/record-retention/record-retention.md",
       "regulatory_citations": [
         {
           "text": "31 CFR §1010.230",
@@ -95403,7 +95403,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "record-retention/record-retention.md",
+      "source_file": "compliance/policies/record-retention/record-retention.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 1002",
@@ -95668,7 +95668,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "record-retention/record-retention.md",
+      "source_file": "compliance/policies/record-retention/record-retention.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 364 App. B",
@@ -95994,7 +95994,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "record-retention/record-retention.md",
+      "source_file": "compliance/policies/record-retention/record-retention.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR §701.31",
@@ -96256,7 +96256,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "record-retention/record-retention.md",
+      "source_file": "compliance/policies/record-retention/record-retention.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 364 App. B",
@@ -96472,7 +96472,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md",
+      "source_file": "compliance/policies/reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md",
       "regulatory_citations": [],
       "why_text": "Credit union governance best practice and NCUA supervisory expectations require that institutional funds disbursed to officials be limited to legitimate, documented business expenses. Pynthia's bylaws and California Corporations Code general fiduciary standards require that expenditures of institutional funds be reasonable and in the institution's interest. Excessive or unsupported reimbursements can constitute improper personal benefit, triggering indemnification exclusions and potential regulatory criticism.",
       "system_behavior": "The system enforces a two-gate workflow: (1) pre-approval for expenses above the defined threshold before the expense is incurred, and (2) post-submission review of the expense report with original receipts. Reimbursable categories are: travel (airfare, ground transport, lodging), meals (business purpose required), education and training (board-approved programs), and board materials (subscriptions, publications). Personal expenses, expenses lacking original receipts, and expenses that fail the reasonable-and-customary standard are excluded and returned without payment. The CCO or designee reviews all submissions; the Board Treasurer reviews submissions by the CCO. Write access to expense approval decisions is restricted to the CCO and Board Treasurer roles.",
@@ -96808,7 +96808,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md",
+      "source_file": "compliance/policies/reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md",
       "regulatory_citations": [],
       "why_text": "DFPI fidelity-bond requirements mandate minimum bond coverage for state-chartered credit unions. NCUA supervisory guidance and sound governance practice require that credit unions maintain adequate D&O, E&O, cyber, and EPLI coverage. Gaps in coverage leave directors and the institution exposed to unindemnified liability. The fidelity bond is a regulatory floor; all other coverages are governance floors set by the Board.",
       "system_behavior": "The CCO, in coordination with the insurance broker and risk function, maintains a coverage schedule (`insurance.coverage_schedule`) documenting each policy line: Directors & Officers liability (with Side A individual, Side B corporate reimbursement, and Side C entity coverage identified), Errors & Omissions, fidelity bond, cyber liability, and Employment Practices Liability. For each line the schedule records: carrier, policy number, limit, deductible, claims-made vs. occurrence basis, covered persons, and renewal date. The program is reviewed at least annually before renewal. If the fidelity bond falls below the DFPI minimum, the deficiency is reported immediately and cure is initiated. Write access to the coverage schedule is restricted to the CCO and the risk/broker function.",
@@ -97134,7 +97134,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md",
+      "source_file": "compliance/policies/reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md",
       "regulatory_citations": [
         {
           "text": "California Corporations Code §317(d)",
@@ -97484,7 +97484,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md",
+      "source_file": "compliance/policies/reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md",
       "regulatory_citations": [
         {
           "text": "California Corporations Code §317(b)–(c)",
@@ -97878,7 +97878,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md",
+      "source_file": "compliance/policies/reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md",
       "regulatory_citations": [
         {
           "text": "California Corporations Code §317(f)",
@@ -98206,7 +98206,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md",
+      "source_file": "compliance/policies/reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md",
       "regulatory_citations": [
         {
           "text": "California Corporations Code §317(b)",
@@ -98399,7 +98399,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md",
+      "source_file": "compliance/policies/reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md",
       "regulatory_citations": [
         {
           "text": "California Corporations Code §317(e)",
@@ -98683,7 +98683,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md",
+      "source_file": "compliance/policies/reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md",
       "regulatory_citations": [
         {
           "text": "RII-02",
@@ -99011,7 +99011,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md",
+      "source_file": "compliance/policies/reimbursement-insurance-indemnification/reimbursement-insurance-indemnification.md",
       "regulatory_citations": [],
       "why_text": "Sound governance and regulatory examination readiness require that reimbursement approvals, insurance program records, and indemnification decisions be retained for periods sufficient to support audit, litigation, and regulatory review. California Corporations Code §317 matters may be subject to statutes of limitations extending many years; indemnification records are typically retained permanently. Insurance policies and claims records are retained for the life of the policy plus the applicable claims period. Reimbursement records are retained consistent with general financial record requirements.",
       "system_behavior": "The system assigns retention classes to records produced by each control in this policy at the time of creation. Reimbursement approvals and supporting receipts are retained for 7 years from the date of approval. Insurance policies, coverage schedules, and claims records are retained for the life of the policy plus 10 years (or permanently if a claim remains open). Indemnification decisions, conduct records, counsel opinions, undertakings, and payment records are retained permanently. Legal holds placed under RII-08 suspend the retention clock for affected records until the hold is released. The CCO is responsible for ensuring records are indexed and retrievable for examination. Write access to retention class assignments is restricted to the CCO and the Records function; destruction requires CCO sign-off and confirmation that no legal hold is active.",
@@ -99432,7 +99432,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "resolution/resolution.md",
+      "source_file": "compliance/policies/resolution/resolution.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 741",
@@ -99708,7 +99708,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "resolution/resolution.md",
+      "source_file": "compliance/policies/resolution/resolution.md",
       "regulatory_citations": [
         {
           "text": "12 USC §§1786–1787",
@@ -100069,7 +100069,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "resolution/resolution.md",
+      "source_file": "compliance/policies/resolution/resolution.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 748",
@@ -100417,7 +100417,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "resolution/resolution.md",
+      "source_file": "compliance/policies/resolution/resolution.md",
       "regulatory_citations": [
         {
           "text": "12 USC §1787",
@@ -100729,7 +100729,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "resolution/resolution.md",
+      "source_file": "compliance/policies/resolution/resolution.md",
       "regulatory_citations": [
         {
           "text": "12 USC §§1786–1787",
@@ -101065,7 +101065,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "resolution/resolution.md",
+      "source_file": "compliance/policies/resolution/resolution.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 741",
@@ -101321,7 +101321,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "resolution/resolution.md",
+      "source_file": "compliance/policies/resolution/resolution.md",
       "regulatory_citations": [
         {
           "text": "12 USC §§1786(h), 1787",
@@ -101719,7 +101719,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "resolution/resolution.md",
+      "source_file": "compliance/policies/resolution/resolution.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 749",
@@ -102072,7 +102072,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "resolution/resolution.md",
+      "source_file": "compliance/policies/resolution/resolution.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §§748.0–748.2",
@@ -102463,7 +102463,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "resolution/resolution.md",
+      "source_file": "compliance/policies/resolution/resolution.md",
       "regulatory_citations": [
         {
           "text": "12 USC §§1786–1787",
@@ -102789,7 +102789,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "shared-controls/incident-declaration.md",
+      "source_file": "compliance/policies/shared-controls/incident-declaration.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 748, Appendix A",
@@ -103119,7 +103119,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "shared-controls/ncua-incident-notification.md",
+      "source_file": "compliance/policies/shared-controls/ncua-incident-notification.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748 §748.1(c)",
@@ -103323,7 +103323,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "shared-controls/record-retention-mechanics.md",
+      "source_file": "compliance/policies/shared-controls/record-retention-mechanics.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 364, Appendix B",
@@ -103891,7 +103891,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "third-party-risk/third-party-risk.md",
+      "source_file": "compliance/policies/third-party-risk/third-party-risk.md",
       "regulatory_citations": [
         {
           "text": "2023 Interagency Guidance on Third-Party Relationships (88 FR 37920)",
@@ -104190,7 +104190,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "third-party-risk/third-party-risk.md",
+      "source_file": "compliance/policies/third-party-risk/third-party-risk.md",
       "regulatory_citations": [
         {
           "text": "2023 Interagency Guidance (88 FR 37920)",
@@ -104466,7 +104466,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "third-party-risk/third-party-risk.md",
+      "source_file": "compliance/policies/third-party-risk/third-party-risk.md",
       "regulatory_citations": [
         {
           "text": "2023 Interagency Guidance (88 FR 37920)",
@@ -104715,7 +104715,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "third-party-risk/third-party-risk.md",
+      "source_file": "compliance/policies/third-party-risk/third-party-risk.md",
       "regulatory_citations": [
         {
           "text": "2023 Interagency Guidance (88 FR 37920)",
@@ -104955,7 +104955,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "third-party-risk/third-party-risk.md",
+      "source_file": "compliance/policies/third-party-risk/third-party-risk.md",
       "regulatory_citations": [
         {
           "text": "2023 Interagency Guidance (88 FR 37920)",
@@ -105266,7 +105266,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "third-party-risk/third-party-risk.md",
+      "source_file": "compliance/policies/third-party-risk/third-party-risk.md",
       "regulatory_citations": [
         {
           "text": "2023 Interagency Guidance (88 FR 37920)",
@@ -105563,7 +105563,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "third-party-risk/third-party-risk.md",
+      "source_file": "compliance/policies/third-party-risk/third-party-risk.md",
       "regulatory_citations": [
         {
           "text": "2023 Interagency Guidance (88 FR 37920)",
@@ -105937,7 +105937,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "third-party-risk/third-party-risk.md",
+      "source_file": "compliance/policies/third-party-risk/third-party-risk.md",
       "regulatory_citations": [
         {
           "text": "NCUA 12 CFR Part 748 §748.1(c)",
@@ -106141,7 +106141,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "third-party-risk/third-party-risk.md",
+      "source_file": "compliance/policies/third-party-risk/third-party-risk.md",
       "regulatory_citations": [
         {
           "text": "12 CFR Part 748, Appendices A and B",
@@ -106428,7 +106428,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "third-party-risk/third-party-risk.md",
+      "source_file": "compliance/policies/third-party-risk/third-party-risk.md",
       "regulatory_citations": [
         {
           "text": "2023 Interagency Guidance (88 FR 37920)",
@@ -106681,7 +106681,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "third-party-risk/third-party-risk.md",
+      "source_file": "compliance/policies/third-party-risk/third-party-risk.md",
       "regulatory_citations": [
         {
           "text": "2023 Interagency Guidance (88 FR 37920)",
@@ -106913,7 +106913,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "truth-in-savings/truth-in-savings.md",
+      "source_file": "compliance/policies/truth-in-savings/truth-in-savings.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §1030.3",
@@ -107172,7 +107172,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "truth-in-savings/truth-in-savings.md",
+      "source_file": "compliance/policies/truth-in-savings/truth-in-savings.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §1030.4",
@@ -107492,7 +107492,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "truth-in-savings/truth-in-savings.md",
+      "source_file": "compliance/policies/truth-in-savings/truth-in-savings.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §1030.5",
@@ -107752,7 +107752,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "truth-in-savings/truth-in-savings.md",
+      "source_file": "compliance/policies/truth-in-savings/truth-in-savings.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §1030.5(b)",
@@ -108020,7 +108020,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "truth-in-savings/truth-in-savings.md",
+      "source_file": "compliance/policies/truth-in-savings/truth-in-savings.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §1030.6",
@@ -108208,7 +108208,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "truth-in-savings/truth-in-savings.md",
+      "source_file": "compliance/policies/truth-in-savings/truth-in-savings.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §1030.7",
@@ -108485,7 +108485,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "truth-in-savings/truth-in-savings.md",
+      "source_file": "compliance/policies/truth-in-savings/truth-in-savings.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §1030.8",
@@ -108793,7 +108793,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "truth-in-savings/truth-in-savings.md",
+      "source_file": "compliance/policies/truth-in-savings/truth-in-savings.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §1030.11",
@@ -109085,7 +109085,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "truth-in-savings/truth-in-savings.md",
+      "source_file": "compliance/policies/truth-in-savings/truth-in-savings.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §1030.9",
@@ -109353,7 +109353,7 @@
       "policy_owner": null,
       "policy_version": null,
       "policy_effective": null,
-      "source_file": "truth-in-savings/truth-in-savings.md",
+      "source_file": "compliance/policies/truth-in-savings/truth-in-savings.md",
       "regulatory_citations": [
         {
           "text": "12 CFR §1030.3",

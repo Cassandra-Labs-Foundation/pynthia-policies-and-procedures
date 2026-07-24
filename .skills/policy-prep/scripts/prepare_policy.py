@@ -505,7 +505,8 @@ def main() -> int:
     if not meta_prompt_path.exists():
         return fail(f"meta-prompt.md not found at {meta_prompt_path}")
 
-    policy_folder = project_root / args.slug
+    # Policies live under compliance/policies/ (see extract_controls.POLICY_ROOT_PARTS).
+    policy_folder = project_root / "compliance" / "policies" / args.slug
     prompt_path = policy_folder / "prompt.md"
     if not prompt_path.exists():
         return fail(f"prompt.md not found at {prompt_path}")

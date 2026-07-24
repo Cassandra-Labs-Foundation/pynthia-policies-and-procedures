@@ -109,7 +109,8 @@ def main() -> int:
 
     root = (args.project_root or Path.cwd()).resolve()
     slug = args.slug
-    folder = root / slug
+    # Policies live under compliance/policies/ (see extract_controls.POLICY_ROOT_PARTS).
+    folder = root / "compliance" / "policies" / slug
     prompt_path = folder / "prompt.md"
     meta_path = root / "meta-prompt.md"
 

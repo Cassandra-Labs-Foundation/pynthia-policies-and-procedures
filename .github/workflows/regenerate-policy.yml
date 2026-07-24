@@ -68,7 +68,7 @@ jobs:
           enabled="$(awk '
             /^[[:space:]]*-[[:space:]]*folder:/ {f=$NF}
             /^[[:space:]]*enabled:[[:space:]]*true/ {print f}
-          ' manifest.yaml | tr "\n" " ")"
+          ' compliance/policies/manifest.yaml | tr "\n" " ")"
           kept=""
           for s in $slugs; do
             case " $enabled " in
@@ -129,7 +129,7 @@ jobs:
           # references/ is untouched -> every sidecar fresh -> nothing to install.
           stale() {  # stale <ext> -> echoes 1 if any matching source needs conversion
             local ext="$1"
-            for f in "${{ matrix.slug }}"/references/*."$ext"; do
+            for f in "compliance/policies/${{ matrix.slug }}"/references/*."$ext"; do
               [ -e "$f" ] || continue
               local sc="$f.md"
               [ -f "$sc" ] || { echo 1; return; }
@@ -208,14 +208,15 @@ jobs:
           # never touch a shared file (STATUS.md, __pycache__, etc.) and so
           # cannot conflict with each other.
           add-paths: |
-            ${{ matrix.slug }}/${{ matrix.slug }}.md
-            ${{ matrix.slug }}/${{ matrix.slug }}.status.md
-            ${{ matrix.slug }}/references/**
+            compliance/policies/${{ matrix.slug }}/${{ matrix.slug }}.md
+            compliance/policies/${{ matrix.slug }}/${{ matrix.slug }}.status.md
+            compliance/policies/${{ matrix.slug }}/references/**
           title: "Regenerate policy: ${{ matrix.slug }}"
           body: |
-            Automated regeneration triggered by a change to `${{ matrix.slug }}/prompt.md`.
+            Automated regeneration triggered by a change to
+            `compliance/policies/${{ matrix.slug }}/prompt.md`.
 
-            `${{ matrix.slug }}/${{ matrix.slug }}.md` was rebuilt from the current
+            `compliance/policies/${{ matrix.slug }}/${{ matrix.slug }}.md` was rebuilt from the current
             `prompt.md` + `references/` via the policy-prep pipeline and the meta-prompt
             (raw Anthropic API, prompt-cached).
 
