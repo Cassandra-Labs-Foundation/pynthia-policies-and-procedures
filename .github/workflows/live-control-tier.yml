@@ -21,6 +21,10 @@ on:
 jobs:
   live-check:
     runs-on: ubuntu-latest
+    # The dispatch-proof run took 43 minutes — ~10k sequential round-trips
+    # from the runner to the database, all latency. 90 gives 2x headroom;
+    # without a cap a genuine hang burns the 6-hour default.
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
 
