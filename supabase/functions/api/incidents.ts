@@ -380,14 +380,22 @@ export async function postContainIncident(
   const denied = requireIncidentActor(ctx, requestId);
   if (denied) return denied;
   const now = new Date().toISOString();
+  // 'contained' is the schema's word for this phase (declared -> responding ->
+  // contained -> postmortem -> closed). This writer said 'restored', which the
+  // status CHECK does not accept, so the update 23514'd and returned BEFORE
+  // emitting — losing containment_at, restored_at and incident.contained
+  // together, and reading four controls red across BCP, e-commerce, infosec
+  // and shared-controls. Containment and restoration are both still recorded,
+  // as the timestamps they are; the status is the lifecycle phase, and the
+  // vocabulary belongs to the schema (the status-divergence bug class).
   const { error } = await db.schema(scope).from("incident")
-    .update({ status: "restored", contained_at: now, restored_at: now }).eq("id", id);
+    .update({ status: "contained", contained_at: now, restored_at: now }).eq("id", id);
   if (error) return internalErrorResponse(requestId, error);
   try {
     await emit(db, scope, `evt_${id}_contained`, "incident.contained", id, {}, ctx);
     await emit(db, scope, `evt_${id}_restored`, "restore.completed", id, {}, ctx);
   } catch (e) { console.error(`contain events failed: ${e}`); }
-  return jsonResponse({ id, status: "restored" }, 200, requestId);
+  return jsonResponse({ id, status: "contained", restored_at: now }, 200, requestId);
 }
 
 export async function postCloseIncident(

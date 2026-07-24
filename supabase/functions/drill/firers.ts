@@ -3822,11 +3822,21 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
     // in fact produce, just not on this path.
     // fixture THROUGH the client — a pushed row ages the fake's copy and
     // leaves a real database untouched (the live tier read these controls red)
-    await env.db.schema("core").from("record").upsert({
+    //
+    // retention_anchor_kind is NOT NULL in the real schema and was absent
+    // here, so every live insert failed on 23502 — unchecked, so the sweep
+    // then found nothing to schedule and the disposal 404'd, and FOURTEEN
+    // controls across ten policies read red for events whose writers were
+    // complete all along. The error is checked now: a fixture that fails to
+    // land must fail loudly, not grade the control it was meant to exercise.
+    const { error: fixErr } = await env.db.schema("core").from("record").insert({
       id, record_class: "cip_identity", subject_ref: "acct_9",
-      retention_anchor: "2014-01-01T00:00:00.000Z", retention_expires_at: "2019-01-01T00:00:00.000Z",
-      legal_hold_flag: false, disposed_at: null, provenance: "production",
-    }, { onConflict: "id" });
+      retention_anchor: "2014-01-01T00:00:00.000Z",
+      retention_anchor_kind: "account_closed",
+      retention_expires_at: "2019-01-01T00:00:00.000Z",
+      legal_hold_flag: false, disposed_at: null, provenance: "demo",
+    });
+    if (fixErr) throw new Error(`retention fixture ${id}: ${fixErr.message}`);
     await postDisposalSweep(R({}), env.db, "d", env.actors.ops);
     await postDisposeRecord(R({ approved_by: "rm", certificate: "c" }), id, env.db, "d", env.actors.ops);
   },
