@@ -1,0 +1,569 @@
+# Cassandra Core — Curated Properties (the invariant + attack oracle)
+#
+# The cross-cutting, prose-only invariants the machine specs (core-api.yaml, controls.json)
+# don't carry. Distilled once from architecture-decisions.md + compliance-system-architecture.md,
+# reviewed, version-controlled. Consumed by the generator like another machine input
+# (see verifier/PRINCIPLES.md, P8). Doubles as the "must-never-happen" oracle for the
+# adversarial layer (P17).
+#
+# This file holds GENERIC / cross-cutting rules and prose-sourced (spec-ahead) invariants.
+# Per-control enforcement comes from controls.json enumeration; per-endpoint contract from
+# core-api.yaml enumeration — those are NOT duplicated here.
+
+meta:
+  spec_version: "2.2.0"          # core-api.yaml meta.spec_version this was curated against
+  pillars: [functional, detection, resiliency, compliance, security]
+  tiers: [light_api, heavy_chaos]
+  status_values:
+    ready:      "observable via existing endpoints; generate now"
+    spec_ahead: "executable spec for a surface not yet in core-api.yaml (banking core / aggregator)"
+    blocked:    "missing a source of truth or an observability surface — see blocked_on"
+    draft:      "statement not yet precise enough to generate"
+    deferred:   "out of current scope — white-label / multi-CU feature; revisit at white-label"
+  schema:                        # field docs — copy this shape to add a property
+    id:            "stable, citeable handle (P7)"
+    title:         "short human name"
+    kind:          "invariant | convention | state_machine | crash_semantics | control_rule | security"
+    pillars:       "1+ of meta.pillars"
+    statement:     "the property, precisely (prose)"
+    oracle:        "the concrete check a test asserts"
+    observable_via: "black-box surfaces that prove it (P2/P4) — endpoints, never DB internals"
+    adversarial:   "(optional) what chaos/red-team tries to do to violate it (P15/P17)"
+    source:        "decision# / invariant# / doc refs (traceability)"
+    tier:          "light_api | heavy_chaos"
+    severity:      "high | med | low"
+    status:        "ready | spec_ahead | blocked | draft"
+    blocked_on:    "(optional) what's missing"
+
+properties:
+
+  # ───────────────────────── Money / Ledger (Functional + Security oracle) ─────────────────────────
+  - id: MONEY-CONSERVATION-INSTANCE
+    title: "Customer balances reconcile to settlement and FBO"
+    kind: invariant
+    pillars: [functional, security]
+    statement: "For each fintech X, Sum(customer balances) == X settlement account == aggregator FBO sub-account for X."
+    oracle: "Sum(account.balance for accounts in instance X) == fbo_position(X).balance, after any operation sequence."
+    observable_via: ["GET /accounts (balances)", "GET /fbo/{instance_id}/position"]
+    adversarial: "double-spend, race the reserve, manipulate inflight to create/destroy money"
+    source: ["Invariant 1", "D28"]
+    tier: light_api
+    severity: high
+    status: spec_ahead
+    blocked_on: "banking-core balance endpoints + aggregator /fbo not yet in core-api.yaml"
+
+  - id: MONEY-CONSERVATION-FED
+    title: "All FBO sub-accounts sum to the Fed master"
+    kind: invariant
+    pillars: [functional, security]
+    statement: "Sum(all FBO sub-accounts) == Fed master account balance."
+    oracle: "Sum(fbo_position(X).balance for all X) == fed_master.balance."
+    observable_via: ["GET /fbo/{instance_id}/position", "Fed master balance endpoint"]
+    adversarial: "cross-tenant transfer that breaks the global sum"
+    source: ["Invariant 2"]
+    tier: light_api
+    severity: high
+    status: spec_ahead
+
+  - id: LEDGER-DOUBLE-ENTRY
+    title: "No money created or destroyed"
+    kind: invariant
+    pillars: [functional, security]
+    statement: "Every posting balances (debits == credits); no operation or attack changes total system money."
+    oracle: "Sum(all balances) before == after, for any non-external operation; each transfer has matching debit+credit."
+    observable_via: ["GET /accounts (balances)", "ledger/transaction read endpoints"]
+    adversarial: "negative/overflow amounts, rounding, partial-failure to leave dangling credit"
+    source: ["D3"]
+    tier: light_api
+    severity: high
+    status: spec_ahead
+
+  - id: RESERVE-SAGA-NET-ZERO
+    title: "Reserve saga is net-zero on failure"
+    kind: invariant
+    pillars: [functional, resiliency]
+    statement: "On approval balance→held; on Fed accept held cleared; on Fed reject balance restored. A failed origination leaves position unchanged."
+    oracle: "After reject path: fbo_position.balance and held_amount equal their pre-origination values."
+    observable_via: ["GET /fbo/{instance_id}/position (balance, held_amount)"]
+    adversarial: "crash mid-saga (chaos) to strand a hold or double-decrement"
+    source: ["D28"]
+    tier: heavy_chaos
+    severity: high
+    status: spec_ahead
+
+  - id: ACCTNUM-LUHN
+    title: "Account numbers are 12-digit Luhn-valid"
+    kind: invariant
+    pillars: [functional]
+    statement: "Every allocated account number is 12 digits = 3 prefix + 8 sequence + 1 Luhn check, and the check digit validates."
+    oracle: "len==12; luhn_valid(number); prefix matches the fintech; 000 reserved for CU-direct."
+    observable_via: ["account-number field in account/account-number responses"]
+    source: ["D20"]
+    tier: light_api
+    severity: med
+    status: spec_ahead
+
+  - id: ACCTNUM-NEVER-REUSE
+    title: "Account numbers are never reused"
+    kind: invariant
+    pillars: [functional, security]
+    statement: "A canceled or released account number is never re-issued."
+    oracle: "Across many allocate→cancel→allocate cycles, no number repeats."
+    observable_via: ["account-number allocation responses over a stress sequence"]
+    adversarial: "force collision via rapid allocate/cancel to reissue another tenant's number"
+    source: ["Invariant 5", "D20"]
+    tier: light_api
+    severity: high
+    status: spec_ahead
+
+  # ───────────────────────── Idempotency (Functional + Security oracle) ─────────────────────────
+  - id: IDEM-REPLAY
+    title: "Same key + same body replays, no duplicate effect"
+    kind: convention
+    pillars: [functional]
+    statement: "Reusing an Idempotency-Key with the same body returns the cached response + Idempotent-Replayed: true and creates no second resource."
+    oracle: "2nd call: identical body, header Idempotent-Replayed:true, resource count unchanged."
+    observable_via: ["mutation response + header", "list endpoint for the resource"]
+    source: ["D6"]
+    tier: light_api
+    severity: high
+    status: ready
+
+  - id: IDEM-CONFLICT
+    title: "Same key + different body → 409"
+    kind: convention
+    pillars: [functional, security]
+    statement: "Reusing an Idempotency-Key with a different body returns 409 with type idempotency_key_reused."
+    oracle: "status==409, error.type=='idempotency_key_reused'."
+    observable_via: ["mutation response"]
+    adversarial: "key collision / cache poisoning to overwrite a prior request's result"
+    source: ["D6"]
+    tier: light_api
+    severity: high
+    status: ready
+
+  - id: IDEM-RACE-EXACTLY-ONCE
+    title: "Concurrent identical-key requests apply exactly once"
+    kind: invariant
+    pillars: [functional, security]
+    statement: "Two concurrent requests with the same Idempotency-Key produce exactly one side effect."
+    oracle: "Fire N concurrent identical requests; exactly one resource created; others replay."
+    observable_via: ["list endpoint for the resource", "responses"]
+    adversarial: "replay race to double-execute a transfer"
+    source: ["D6"]
+    tier: heavy_chaos
+    severity: high
+    status: ready
+
+  # ───────────────────────── Event log (Functional + Security oracle) ─────────────────────────
+  - id: EVENTS-APPEND-ONLY
+    title: "Event log is append-only and immutable"
+    kind: invariant
+    pillars: [functional, security]
+    statement: "No API path mutates or deletes a past event; tamper/delete attempts fail."
+    oracle: "No write verb on /events except append; a past event's payload is byte-stable across reads."
+    observable_via: ["GET /events"]
+    adversarial: "attempt UPDATE/DELETE/overwrite of a historical event"
+    source: ["Invariant 8", "D4"]
+    tier: light_api
+    severity: high
+    status: ready
+
+  - id: EVENTS-ORDERED-DEDUP
+    title: "Events are globally ordered, replayable, deduplicated"
+    kind: invariant
+    pillars: [functional, detection]
+    statement: "Events have a global order; replay via ?after/?before is gap-free; duplicate event_id is a no-op."
+    oracle: "sequence strictly increasing; ?after=X returns the contiguous tail; re-POST of an event_id does not duplicate."
+    observable_via: ["GET /events?after=&before="]
+    adversarial: "inject a forged/duplicate event_id into the stream"
+    source: ["D4"]
+    tier: light_api
+    severity: high
+    status: ready
+
+  # ───────────────────────── State machines (Functional) ─────────────────────────
+  # Substrate state machines (Case/Incident/Filing/LoanApplication/Loan/Task) are ENUMERATED from
+  # core-api.yaml states — not duplicated here. These are the GENERIC rule + the prose-only banking SMs.
+  - id: SM-GENERIC-RULES
+    title: "State-machine discipline"
+    kind: state_machine
+    pillars: [functional]
+    statement: "Legal transitions succeed and emit an event; illegal transitions are rejected with the error envelope; lock_type and dormancy_status are orthogonal flags that gate actions without changing state."
+    oracle: "For each resource: every legal edge succeeds + emits event; every non-edge → 4xx; a COMPLIANCE lock blocks mutations but the state field is unchanged."
+    observable_via: ["transition endpoints", "GET /events", "resource read (status, lock_type)"]
+    source: ["D7"]
+    tier: light_api
+    severity: high
+    status: ready
+
+  - id: SM-ENTITY
+    title: "Entity lifecycle"
+    kind: state_machine
+    pillars: [functional]
+    statement: "Entity: PENDING → ACTIVE ↔ DISABLED → ARCHIVED. ARCHIVED is terminal."
+    oracle: "Legal path succeeds; ARCHIVED→ACTIVE and PENDING→ARCHIVED rejected."
+    observable_via: ["/entities endpoints", "GET /events"]
+    source: ["D7", "D1"]
+    tier: light_api
+    severity: med
+    status: spec_ahead
+
+  - id: SM-ACCOUNT
+    title: "Account lifecycle"
+    kind: state_machine
+    pillars: [functional]
+    statement: "Account: OPEN ↔ FROZEN → CLOSED. CLOSED is terminal."
+    oracle: "Legal path succeeds; transitions out of CLOSED rejected."
+    observable_via: ["account endpoints", "GET /events"]
+    source: ["D7", "D2"]
+    tier: light_api
+    severity: med
+    status: spec_ahead
+
+  - id: SM-ACH
+    title: "ACH transfer lifecycle"
+    kind: state_machine
+    pillars: [functional, compliance]
+    statement: "ACH: PENDING_APPROVAL → SUBMITTED → SETTLED → RETURNED, with → REJECTED / CANCELED branches. Control engine gates PENDING_APPROVAL→SUBMITTED."
+    oracle: "Control-fail → REJECTED; control-pass → SUBMITTED; response carries effective_date/expected_settlement/window/control_results."
+    observable_via: ["ACH endpoints", "GET /control-results", "GET /events"]
+    source: ["D7", "D8"]
+    tier: light_api
+    severity: high
+    status: spec_ahead
+
+  - id: SM-WIRE
+    title: "Wire transfer lifecycle"
+    kind: state_machine
+    pillars: [functional]
+    statement: "Wire: PENDING_APPROVAL → SUBMITTED → COMPLETED; RETURN_REQUESTED → RETURNED|COMPLETED. Domestic only."
+    oracle: "Legal path succeeds; international/SWIFT rejected; each return reason (FRAUD/DUPLICATE/INCORRECT_AMOUNT/INCORRECT_BENEFICIARY) accepted."
+    observable_via: ["wire endpoints", "GET /events"]
+    source: ["D7", "D9"]
+    tier: light_api
+    severity: med
+    status: spec_ahead
+
+  # ───────────────────────── Contract conventions (cross-cutting, Functional) ─────────────────────────
+  - id: ENV-ERROR-SINGLE
+    title: "Increase-style single error"
+    kind: convention
+    pillars: [functional]
+    statement: "Single errors carry status, type, title, detail, doc_url, request_id (+ resource_id/resource_type when applicable)."
+    oracle: "All listed fields present and well-formed on any single-error response."
+    observable_via: ["any error response"]
+    source: ["D12"]
+    tier: light_api
+    severity: med
+    status: ready
+
+  - id: ENV-ERROR-MULTI
+    title: "Validation multi-error"
+    kind: convention
+    pillars: [functional]
+    statement: "Validation failures return type validation_error with errors[] each having type/field/message."
+    oracle: "status 400, type=='validation_error', errors[] well-formed per field."
+    observable_via: ["any validation error response"]
+    source: ["D12"]
+    tier: light_api
+    severity: med
+    status: ready
+
+  - id: ENV-REQUEST-ID
+    title: "request_id present and unique"
+    kind: convention
+    pillars: [functional, detection]
+    statement: "Every response carries a unique request_id usable for support correlation."
+    oracle: "request_id present on success+error; unique across responses."
+    observable_via: ["any response"]
+    source: ["D12"]
+    tier: light_api
+    severity: low
+    status: ready
+
+  - id: ENV-API-VERSION
+    title: "Version header on every response"
+    kind: convention
+    pillars: [functional]
+    statement: "Every response carries X-API-Version in MAJOR.MINOR.PATCH form."
+    oracle: "header present and semver-shaped."
+    observable_via: ["any response headers"]
+    source: ["D13"]
+    tier: light_api
+    severity: low
+    status: ready
+
+  - id: ENV-PAGINATION
+    title: "Transparent cursor pagination"
+    kind: convention
+    pillars: [functional]
+    statement: "List endpoints return data + pagination{has_more,next_after,limit}; ?after cursor paginates with no overlap or gap; final page has_more:false, next_after:null."
+    oracle: "Two-page walk reconstructs the full set exactly once; limit bounds enforced."
+    observable_via: ["any list endpoint"]
+    source: ["D16"]
+    tier: light_api
+    severity: med
+    status: ready
+
+  - id: ENV-RATE-LIMIT
+    title: "Tiered rate limiting"
+    kind: convention
+    pillars: [functional]
+    statement: "Per-partner tiered limits expose X-RateLimit-Limit/Remaining/Reset/Tier; warning at 80%; 429 over limit; no burst."
+    oracle: "headers present per tier; warning header at 80%; 429 beyond limit."
+    observable_via: ["response headers", "429 responses"]
+    source: ["D14"]
+    tier: light_api
+    severity: low
+    status: spec_ahead
+
+  # ───────────────────────── Compliance ─────────────────────────
+  - id: FLOOR-ALWAYS-FIRES
+    title: "Floor controls fire on every qualifying op"
+    kind: control_rule
+    pillars: [compliance]
+    statement: "Every compliance_floor control runs on every qualifying operation and cannot be skipped."
+    oracle: "For each floor control, a qualifying op produces a control-result for it."
+    observable_via: ["GET /control-results", "GET /events"]
+    source: ["Invariant 3", "D22", "compliance-floor.yaml"]
+    tier: light_api
+    severity: high
+    status: ready
+    notes: "For Pynthia's single-CU core, ALL controls are mandatory, so this is effectively subsumed by CONTROL-ENFORCEMENT-GENERIC (every control must fire). The floor-subset distinction (compliance-floor.yaml) only matters at white-label and is deprioritized for now."
+
+  - id: FLOOR-CANNOT-DISABLE
+    title: "Floor controls cannot be disabled"
+    kind: control_rule
+    pillars: [compliance, security]
+    statement: "Any attempt to disable or weaken a compliance_floor control is rejected."
+    oracle: "config call to disable/lower a floor control → rejected; control still fires afterward."
+    observable_via: ["control config endpoint", "GET /control-results"]
+    adversarial: "disable OFAC/CTR via config to let a blocked op through"
+    source: ["D22", "compliance-floor.yaml"]
+    tier: light_api
+    severity: high
+    status: deferred
+    notes: "white-label/multi-CU guardrail — there is no control-disable surface in Pynthia's own core (all controls mandatory). Revisit when the core is licensed to other CUs."
+
+  - id: OFAC-ALWAYS
+    title: "OFAC runs regardless of KYC trust level"
+    kind: control_rule
+    pillars: [compliance, security]
+    statement: "OFAC screening runs on entities/payments regardless of partner KYC provider or trust_level (even full trust)."
+    oracle: "With partner trust_level=full, an OFAC control-result is still produced."
+    observable_via: ["GET /control-results after entity/payment"]
+    adversarial: "set trust_level=full / forge attestation to skip OFAC"
+    source: ["D11"]
+    tier: light_api
+    severity: high
+    status: spec_ahead
+
+  - id: CONTROL-BOUNDS
+    title: "Customizable controls respect min/max"
+    kind: control_rule
+    pillars: [compliance]
+    statement: "A customizable control accepts a threshold within [min,max] and rejects values outside the band."
+    oracle: "set threshold in-band → accepted; out-of-band → rejected."
+    observable_via: ["control config endpoint"]
+    source: ["D22"]
+    tier: light_api
+    severity: med
+    status: deferred
+    notes: "control customization is a white-label/multi-CU feature; deferred while optimizing Pynthia's single-CU core."
+
+  - id: CONTROL-ENFORCEMENT-GENERIC
+    title: "Resolvable controls enforce trigger→output within SLA"
+    kind: control_rule
+    pillars: [compliance, detection]
+    statement: "For every control whose trigger and outputs are API-resolvable, inducing the trigger produces the declared output codes and a control-result within the control's SLA window."
+    oracle: "Per controls.json events[]: trigger via the inducing endpoint → outputs[].codes appear in /events AND a control-result is recorded, within `within`."
+    observable_via: ["inducing endpoint", "GET /events", "GET /control-results"]
+    source: ["controls.json events[]", "compliance-system-architecture.md", "D26"]
+    tier: light_api
+    severity: high
+    status: ready
+    blocked_on: "per-control instances are generated from controls.json; coverage limited to controls with a registered trigger AND endpoint inducer (worklist auto-shrinks as upstream converges, P9)"
+
+  # ───────────────────────── Detection ─────────────────────────
+  - id: DET-CONSUMER-STALENESS
+    title: "Consumer staleness is observable"
+    kind: invariant
+    pillars: [detection]
+    statement: "A consumer whose cursor is stale (>60s) surfaces a staleness signal."
+    oracle: "Pause a consumer >60s → health/monitoring surface reports it stale."
+    observable_via: ["health/monitoring endpoint"]
+    source: ["D4 monitoring"]
+    tier: heavy_chaos
+    severity: med
+    status: blocked
+    blocked_on: "no health/monitoring observability endpoint in core-api.yaml yet (P4 — missing surface)"
+
+  - id: DET-RECONCILIATION-DIVERGENCE
+    title: "Ledger/mirror divergence is detected and healed"
+    kind: invariant
+    pillars: [detection, functional]
+    statement: "A Blnk transaction missing from the Supabase mirror is detected by the reconciliation heartbeat and pulled in."
+    oracle: "Induce a dropped webhook (chaos) → mirror missing the txn → after reconcile interval, txn appears via API."
+    observable_via: ["transaction read/list endpoints", "reconciliation status"]
+    source: ["D25", "Invariant 10"]
+    tier: heavy_chaos
+    severity: high
+    status: spec_ahead
+
+  - id: DET-MIRROR-COMPLETENESS
+    title: "Every ledger txn has an API-observable mirror"
+    kind: invariant
+    pillars: [detection, functional]
+    statement: "Every transaction in the ledger has a corresponding mirror observable via the API (no orphans)."
+    oracle: "Set(ledger txn ids) == Set(mirrored txn ids visible via API)."
+    observable_via: ["transaction list endpoints"]
+    source: ["Invariant 10"]
+    tier: light_api
+    severity: high
+    status: spec_ahead
+
+  # ───────────────────────── Resiliency (chaos tier — real infra faults) ─────────────────────────
+  - id: RES-CONSUMER-CRASH-RECOVERY
+    title: "Consumer crash recovers idempotently"
+    kind: crash_semantics
+    pillars: [resiliency]
+    statement: "Killing a consumer mid-batch causes it to restart from its last committed cursor and reprocess with no double effect."
+    oracle: "Pumba-kill a consumer under load → after restart, output state equals the no-crash baseline (idempotent)."
+    observable_via: ["consumer output via API (fbo_positions / bsa_alerts / control-results)"]
+    adversarial: "kill repeatedly under contention to force a double-apply"
+    source: ["D27"]
+    tier: heavy_chaos
+    severity: high
+    status: spec_ahead
+
+  - id: RES-ORIGINATION-HALTS-ON-STALE
+    title: "Origination halts on stale consumer, inbound still settles"
+    kind: crash_semantics
+    pillars: [resiliency, security]
+    statement: "When Payment Hub or BSA Approver is stale, origination rejects new outbound (retry-after) but inbound payments still settle."
+    oracle: "Pause Payment Hub until stale → POST originate rejected; inbound simulate still settles; unpause → origination resumes."
+    observable_via: ["origination endpoint (reject + retry-after)", "inbound settlement via API"]
+    adversarial: "race the staleness window to get a payment approved against unknown state"
+    source: ["Invariant 7", "D28"]
+    tier: heavy_chaos
+    severity: high
+    status: spec_ahead
+
+  - id: RES-NO-CASCADE
+    title: "Failures are isolated, not cascading"
+    kind: crash_semantics
+    pillars: [resiliency, security]
+    statement: "One fintech instance or one consumer going down does not affect other fintechs or halt the whole core."
+    oracle: "Take down instance X (chaos) → instances Y,Z keep serving; blast radius contained."
+    observable_via: ["per-instance API liveness/behavior"]
+    adversarial: "overload/partition one tenant to bottleneck the core"
+    source: ["Invariant 6", "D18", "D23"]
+    tier: heavy_chaos
+    severity: high
+    status: spec_ahead
+
+  - id: RES-OUTBOX-DURABILITY
+    title: "No events lost across aggregator outage"
+    kind: crash_semantics
+    pillars: [resiliency, detection]
+    statement: "If the aggregator is unreachable, instance outbox events accumulate (delivered_at null) and are delivered after recovery with no loss."
+    oracle: "Partition aggregator (Toxiproxy) during traffic → on restore, every produced event is present exactly once."
+    observable_via: ["GET /events at aggregator after recovery"]
+    adversarial: "partition + restart to drop or duplicate events"
+    source: ["D27", "D4"]
+    tier: heavy_chaos
+    severity: high
+    status: spec_ahead
+
+  - id: RES-INVARIANTS-SURVIVE-RECOVERY
+    title: "Invariants hold after any recovery"
+    kind: crash_semantics
+    pillars: [resiliency, functional, security]
+    statement: "After any injected fault clears, money-conservation, isolation, and append-only invariants all hold."
+    oracle: "Re-check MONEY-CONSERVATION-*, EVENTS-APPEND-ONLY, SEC-TENANT-ISOLATION after every chaos scenario."
+    observable_via: ["the oracles of the referenced invariants"]
+    source: ["D27", "D28"]
+    tier: heavy_chaos
+    severity: high
+    status: spec_ahead
+
+  # ───────────────────────── Security (red-team) ─────────────────────────
+  - id: SEC-TENANT-ISOLATION
+    title: "Cross-fintech access is denied"
+    kind: security
+    pillars: [security]
+    statement: "Per the D23 access matrix: Fintech X's API key has no access to Y's instance or the aggregator; CU-admin is read-only on instances; cross-fintech search is only via the aggregator."
+    oracle: "X-key → Y resource → 403; X-key → aggregator → denied; CU-admin write on instance → denied."
+    observable_via: ["cross-tenant API calls"]
+    adversarial: "use X's token against Y; reach the aggregator with an instance key"
+    source: ["Invariant 6", "D23"]
+    tier: light_api
+    severity: high
+    status: spec_ahead
+
+  - id: SEC-IDOR
+    title: "No cross-tenant object reference"
+    kind: security
+    pillars: [security]
+    statement: "Guessing or enumerating another tenant's resource IDs does not return or mutate their data."
+    oracle: "Request Y's known/guessed resource id with X's token → 403/404, never the object."
+    observable_via: ["resource GET/PATCH with foreign ids"]
+    adversarial: "enumerate sequential ids across the tenant boundary"
+    source: ["D23"]
+    tier: light_api
+    severity: high
+    status: spec_ahead
+
+  - id: SEC-AUTH-INTEGRITY
+    title: "Token integrity and scope"
+    kind: security
+    pillars: [security]
+    statement: "Tampered, expired, or alg:none JWTs are rejected; token scope is enforced; no partner→admin privilege escalation."
+    oracle: "alg:none → 401; tampered claim → 401; out-of-scope endpoint → 403; partner token on admin route → 403."
+    observable_via: ["any authenticated endpoint"]
+    adversarial: "alg:none, claim tampering, scope widening, role escalation"
+    source: ["D5", "D19"]
+    tier: light_api
+    severity: high
+    status: spec_ahead
+
+  - id: SEC-WEBHOOK-SIGNATURE
+    title: "Webhook signature integrity"
+    kind: security
+    pillars: [security]
+    statement: "A webhook with a forged or missing HMAC-SHA256 signature is rejected; a replayed valid webhook is idempotent."
+    oracle: "bad/missing signature → rejected; replay of a valid signed event → no double effect."
+    observable_via: ["webhook ingress endpoint", "resulting state via API"]
+    adversarial: "forge signature, replay a captured webhook"
+    source: ["D15"]
+    tier: light_api
+    severity: high
+    status: spec_ahead
+
+  - id: SEC-PII-CONFIDENTIALITY
+    title: "Aggregator PII is not cross-tenant readable"
+    kind: security
+    pillars: [security]
+    statement: "Aggregator-held PII cannot be read across the tenant boundary via the API."
+    oracle: "X-scoped principal cannot retrieve Y's entity PII through any endpoint."
+    observable_via: ["entity/event read endpoints across tenants"]
+    adversarial: "exfiltrate another tenant's PII via aggregator queries"
+    source: ["D21", "D23"]
+    tier: light_api
+    severity: high
+    status: spec_ahead
+    blocked_on: "encryption-at-rest is a storage property, NOT API-observable — only the cross-tenant read path is in scope here"
+
+  - id: SEC-PREFIX-SPOOF
+    title: "Account-number prefix cannot misroute funds"
+    kind: security
+    pillars: [security]
+    statement: "Crafting an account number carrying another fintech's prefix does not cause funds to route to that fintech."
+    oracle: "Inbound to a spoofed-prefix number → rejected or routed by authoritative ownership, never by the claimed prefix alone."
+    observable_via: ["inbound routing result via API"]
+    adversarial: "spoof a prefix to divert another tenant's inbound payment"
+    source: ["D20", "D23"]
+    tier: light_api
+    severity: high
+    status: spec_ahead

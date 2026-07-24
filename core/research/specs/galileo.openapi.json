@@ -1,0 +1,5014 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Galileo Pro Collection",
+      "version": "1.0.0",
+      "description": "Galileo Pro Program API"
+    },
+    "servers": [
+      {
+        "url": "{{url}}"
+      },
+      {
+        "url": "{{configApiUrl}}"
+      },
+      {
+        "url": "{{riskApiUrl}}"
+      },
+      {
+        "url": "{{base_url}}"
+      }
+    ],
+    "paths": {
+      "/createAccount": {
+        "post": {
+          "summary": "Create Account",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Enrollment"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/voidCreateAccount": {
+        "post": {
+          "summary": "Void Create Account",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Enrollment"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/createVirtualCard": {
+        "post": {
+          "summary": "Create Virtual Card Account",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Enrollment"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/forcePassCip": {
+        "post": {
+          "summary": "Force Pass CIP",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Enrollment"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/runCip": {
+        "post": {
+          "summary": "Run CIP",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Enrollment"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getEnrollmentInfo": {
+        "post": {
+          "summary": "Get Enrollment Info",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Enrollment"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/startEnrollment": {
+        "post": {
+          "summary": "Start Enrollment",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Enrollment"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/completeEnrollment": {
+        "post": {
+          "summary": "Complete Enrollment",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Enrollment"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/updateEnrollment": {
+        "post": {
+          "summary": "Update Enrollment",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Enrollment"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/verifyEnrollment": {
+        "post": {
+          "summary": "Verify Enrollment",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Enrollment"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/runEnrollmentCip": {
+        "post": {
+          "summary": "Run Enrollment CIP",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Enrollment"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getBalance": {
+        "post": {
+          "summary": "Get Balance",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Account Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/updateAccount": {
+        "post": {
+          "summary": "Update Account",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Account Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getAccountById": {
+        "post": {
+          "summary": "Get Account by ID",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Account Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getRelatedAccounts": {
+        "post": {
+          "summary": "Get Related Accounts",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Account Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/verifyAccount": {
+        "post": {
+          "summary": "Verify Account",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Account Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/addAccount": {
+        "post": {
+          "summary": "Add Account",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Account Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getInterest": {
+        "post": {
+          "summary": "Get Interest",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Account Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getSavingsInterest": {
+        "post": {
+          "summary": "Get Savings Interest",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Account Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/searchAccounts": {
+        "post": {
+          "summary": "Search Accounts",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Account Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/setUserDefinedAccountField": {
+        "post": {
+          "summary": "Set User-Defined Account Field",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Account Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getUserDefinedAccountFields": {
+        "post": {
+          "summary": "Get User-Defined Account Fields",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Account Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/chargeOffAccount": {
+        "post": {
+          "summary": "Charge Off Account",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Account Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/recoverChargedOffAccount": {
+        "post": {
+          "summary": "Recover Charged-Off Account",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Account Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getRoundupAccounts": {
+        "post": {
+          "summary": "Get Roundup Accounts",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Account Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/setRoundupAccounts": {
+        "post": {
+          "summary": "Set Roundup Accounts",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Account Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/switchProduct": {
+        "post": {
+          "summary": "Switch Product",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Account Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getAccountCards": {
+        "post": {
+          "summary": "Get Account Cards",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Card Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getCard": {
+        "post": {
+          "summary": "Get Card",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Card Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/activateCard": {
+        "post": {
+          "summary": "Activate Card",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Card Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/replaceLostStolenCard": {
+        "post": {
+          "summary": "Replace Lost Stolen Card",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Card Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getCardPinChangeKey": {
+        "post": {
+          "summary": "Get Card PIN-Change Key",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Card Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/commitCardPinChange": {
+        "post": {
+          "summary": "Commit Card PIN Change",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Card Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/resetCardPinFailCount": {
+        "post": {
+          "summary": "Reset Card PIN-Fail Count",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Card Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getAccessToken": {
+        "post": {
+          "summary": "Get Access Token",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Card Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/addCard": {
+        "post": {
+          "summary": "Add Card",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Card Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/createProvisioningRequest": {
+        "post": {
+          "summary": "Create Provisioning Request",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Card Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/verifyCardSecurityCode": {
+        "post": {
+          "summary": "Verify Card Security Code",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Card Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/voidAddCard": {
+        "post": {
+          "summary": "Void Add Card",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Card Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/reissueCard": {
+        "post": {
+          "summary": "Reissue Card",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Card Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/createSingleUseVirtualCard": {
+        "post": {
+          "summary": "Create Single-Use Virtual Card",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Card Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/modifyStatus": {
+        "post": {
+          "summary": "Modify Status",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Account and Card Behavior"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/setAccountFeature": {
+        "post": {
+          "summary": "Set Account Feature",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Account and Card Behavior"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getAccountFeatures": {
+        "post": {
+          "summary": "Get Account Features",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Account and Card Behavior"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/addCustomerNote": {
+        "post": {
+          "summary": "Add Customer Note",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Customer Notes"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/modifyCustomerNote": {
+        "post": {
+          "summary": "Modify Customer Note",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Customer Notes"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getCustomerNoteHistory": {
+        "post": {
+          "summary": "Get Customer Note History",
+          "tags": [
+            "Program API",
+            "Accounts and Cards",
+            "Customer Notes"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getAccountOverview": {
+        "post": {
+          "summary": "Get Account Overview",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Transaction History"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getTransHistory": {
+        "post": {
+          "summary": "Get Transaction History",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Transaction History"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getAllTransHistory": {
+        "post": {
+          "summary": "Get All Transaction History",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Transaction History"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getAuthHistory": {
+        "post": {
+          "summary": "Get Authorization History",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Network Transactions"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getPendingMerchantCredits": {
+        "post": {
+          "summary": "Get Pending Merchant Credits",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Network Transactions"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/updatePendingMerchantCredit": {
+        "post": {
+          "summary": "Update Pending Merchant Credit",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Network Transactions"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/expireAuthorization": {
+        "post": {
+          "summary": "Expire Authorization",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Network Transactions"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/createAdjustment": {
+        "post": {
+          "summary": "Create Adjustment",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Adjustments"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/reverseAdjustment": {
+        "post": {
+          "summary": "Reverse Adjustment",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Adjustments"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/createPayment": {
+        "post": {
+          "summary": "Create Payment",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Payments"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/updatePayment": {
+        "post": {
+          "summary": "Update Payment",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Payments"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getPaymentHistory": {
+        "post": {
+          "summary": "Get Payment History",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Payments"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/assessFee": {
+        "post": {
+          "summary": "Assess Fee",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Fees"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/reverseFee": {
+        "post": {
+          "summary": "Reverse Fee",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Fees"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getFeeHistory": {
+        "post": {
+          "summary": "Get Fee History",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Fees"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getFeeSummary": {
+        "post": {
+          "summary": "Get Fee Summary",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Fees"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getPendingFees": {
+        "post": {
+          "summary": "Get Pending Fees",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Fees"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/createAccountTransfer": {
+        "post": {
+          "summary": "Create Account Transfer",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Account To Account"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/reverseAccountTransfer": {
+        "post": {
+          "summary": "Reverse Account Transfer",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Account To Account"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/addAchAccount": {
+        "post": {
+          "summary": "Add ACH Account",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Ach"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/addAchAccountCorporate": {
+        "post": {
+          "summary": "Add ACH Account Corporate",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Ach"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getAchAccounts": {
+        "post": {
+          "summary": "Get ACH Accounts",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Ach"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/modifyAchAccount": {
+        "post": {
+          "summary": "Modify ACH Account",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Ach"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/removeAchAccount": {
+        "post": {
+          "summary": "Remove ACH Account",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Ach"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/createAchTransaction": {
+        "post": {
+          "summary": "Create ACH Transaction",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Ach"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/cancelAchTransaction": {
+        "post": {
+          "summary": "Cancel ACH Transaction",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Ach"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getAchTransHistory": {
+        "post": {
+          "summary": "Get ACH Transaction History",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Ach"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getDepositHistory": {
+        "post": {
+          "summary": "Get Deposit History",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Ach"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getPendingDeposits": {
+        "post": {
+          "summary": "Get Pending Deposits",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Ach"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/modifyPendingDepositStatus": {
+        "post": {
+          "summary": "Modify Pending Deposit Status",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Ach"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getDirectDepositSwitchToken": {
+        "post": {
+          "summary": "Get Direct Deposit Switch Token",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Direct Deposits"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getBillers": {
+        "post": {
+          "summary": "Get Billers",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Bill Payments"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/addPaperBiller": {
+        "post": {
+          "summary": "Add Paper Biller",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Bill Payments"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/modifyPaperBiller": {
+        "post": {
+          "summary": "Modify Paper Biller",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Bill Payments"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/addRppsBiller": {
+        "post": {
+          "summary": "Add RPPS Biller",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Bill Payments"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/modifyRppsBiller": {
+        "post": {
+          "summary": "Modify RPPS Biller",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Bill Payments"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/removeBiller": {
+        "post": {
+          "summary": "Remove Biller",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Bill Payments"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/searchBillerDirectory": {
+        "post": {
+          "summary": "Search Biller Directory",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Bill Payments"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/createBillPayment": {
+        "post": {
+          "summary": "Create Bill Payment",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Bill Payments"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getBillPayHistory": {
+        "post": {
+          "summary": "Get Bill Payment History",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Bill Payments"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/cancelBillPayment": {
+        "post": {
+          "summary": "Cancel Bill Payment",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Bill Payments"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getScheduledBillPayments": {
+        "post": {
+          "summary": "Get Scheduled Bill Payments",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Bill Payments"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/createHold": {
+        "post": {
+          "summary": "Create Hold",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Holds"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getHoldHistory": {
+        "post": {
+          "summary": "Get Hold History",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Holds"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/expireHold": {
+        "post": {
+          "summary": "Expire Hold",
+          "tags": [
+            "Program API",
+            "Transactions",
+            "Holds"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/createSimulatedCardAuth": {
+        "post": {
+          "summary": "Create Simulated Card Authorization",
+          "tags": [
+            "Program API",
+            "Transaction Simulation"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/createSimulatedCardSettle": {
+        "post": {
+          "summary": "Create Simulated Card Settlement",
+          "tags": [
+            "Program API",
+            "Transaction Simulation"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/createSimulatedAchTransaction": {
+        "post": {
+          "summary": "Create Simulated Incoming ACH Transaction",
+          "tags": [
+            "Program API",
+            "Transaction Simulation"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/cancelSimulatedAchTransaction": {
+        "post": {
+          "summary": "Cancel Simulated Incoming ACH Transaction",
+          "tags": [
+            "Program API",
+            "Transaction Simulation"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getSimulatedAchTransaction": {
+        "post": {
+          "summary": "Get Simulated Incoming ACH Transaction",
+          "tags": [
+            "Program API",
+            "Transaction Simulation"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getAllSimulatedAchTransactions": {
+        "post": {
+          "summary": "Get All Simulated Incoming ACH Transactions",
+          "tags": [
+            "Program API",
+            "Transaction Simulation"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getAuthControl": {
+        "post": {
+          "summary": "Get Auth Control",
+          "tags": [
+            "Program API",
+            "Account-Level Controls"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/setAccountLevelAuthControl": {
+        "post": {
+          "summary": "Set Account-Level Auth Control ",
+          "tags": [
+            "Program API",
+            "Account-Level Controls"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/deleteAccountLevelAuthControl": {
+        "post": {
+          "summary": "Delete Account Level Auth Control",
+          "tags": [
+            "Program API",
+            "Account-Level Controls"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getMccControls": {
+        "post": {
+          "summary": "Get MCC Controls",
+          "tags": [
+            "Program API",
+            "Account-Level Controls"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/setAccountLevelMccControl": {
+        "post": {
+          "summary": "Set Account-Level MCC Control",
+          "tags": [
+            "Program API",
+            "Account-Level Controls"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/deleteAccountLevelMccControl": {
+        "post": {
+          "summary": "Delete Account Level MCC Control",
+          "tags": [
+            "Program API",
+            "Account-Level Controls"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getMerchantControls": {
+        "post": {
+          "summary": "Get Merchant Controls",
+          "tags": [
+            "Program API",
+            "Account-Level Controls"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/setAccountLevelMerchantControl": {
+        "post": {
+          "summary": "Set Account-Level Merchant Control",
+          "tags": [
+            "Program API",
+            "Account-Level Controls"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/deleteAccountLevelMerchantControl": {
+        "post": {
+          "summary": "Delete Account Level Merchant Control",
+          "tags": [
+            "Program API",
+            "Account-Level Controls"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getOverdraftBalance": {
+        "post": {
+          "summary": "Get Overdraft Balance",
+          "tags": [
+            "Program API",
+            "Overdraft"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getCreditSummary": {
+        "post": {
+          "summary": "Get Credit Summary",
+          "tags": [
+            "Program API",
+            "Credit"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/setCreditLimit": {
+        "post": {
+          "summary": "Set Credit Limit",
+          "tags": [
+            "Program API",
+            "Credit"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getCreditLimitChangeHistory": {
+        "post": {
+          "summary": "Get Credit Limit Change History",
+          "tags": [
+            "Program API",
+            "Credit"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/setAutoPayPlan": {
+        "post": {
+          "summary": "Set Auto Pay Plan",
+          "tags": [
+            "Program API",
+            "Credit"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/setAutoPayAttempt": {
+        "post": {
+          "summary": "Set Auto Pay Attempt",
+          "tags": [
+            "Program API",
+            "Credit"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getAutoPayHistory": {
+        "post": {
+          "summary": "Get Auto Pay History",
+          "tags": [
+            "Program API",
+            "Credit"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/setCorporateCreditLimit": {
+        "post": {
+          "summary": "Set Corporate Credit Limit",
+          "tags": [
+            "Program API",
+            "Corporate Credit and RTF"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getCorporateCreditSummary": {
+        "post": {
+          "summary": "Get Corporate Credit Summary",
+          "tags": [
+            "Program API",
+            "Corporate Credit and RTF"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getCorporateCreditChangeHistory": {
+        "post": {
+          "summary": "Get Corporate Credit Change History",
+          "tags": [
+            "Program API",
+            "Corporate Credit and RTF"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/isCorpCreditFundingAccount": {
+        "post": {
+          "summary": "Is Corporate Credit Funding Account",
+          "tags": [
+            "Program API",
+            "Corporate Credit and RTF"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/isCorpCreditSpendingAccount": {
+        "post": {
+          "summary": "Is Corporate Credit Spending Account",
+          "tags": [
+            "Program API",
+            "Corporate Credit and RTF"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getRtfAccountRelationship": {
+        "post": {
+          "summary": "Get RTF Account Relationship",
+          "tags": [
+            "Program API",
+            "Corporate Credit and RTF"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/isRtfFundingAccount": {
+        "post": {
+          "summary": "Is RTF Funding Account",
+          "tags": [
+            "Program API",
+            "Corporate Credit and RTF"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/isRtfSpendingAccount": {
+        "post": {
+          "summary": "Is RTF Spending Account",
+          "tags": [
+            "Program API",
+            "Corporate Credit and RTF"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/verifyInstantIssueCard": {
+        "post": {
+          "summary": "Verify Instant-Issue Card",
+          "tags": [
+            "Program API",
+            "Instant Issue"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getBulkCardOrder": {
+        "post": {
+          "summary": "Get Bulk Card Order",
+          "tags": [
+            "Program API",
+            "Instant Issue"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/createBulkCardOrder": {
+        "post": {
+          "summary": "Create Bulk Card Order",
+          "tags": [
+            "Program API",
+            "Instant Issue"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getLoadLocations": {
+        "post": {
+          "summary": "Get Load Locations",
+          "tags": [
+            "Program API",
+            "Instant Issue"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/moveCardInventory": {
+        "post": {
+          "summary": "Move Card Inventory",
+          "tags": [
+            "Program API",
+            "Instant Issue"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/moveCard": {
+        "post": {
+          "summary": "Move Card",
+          "tags": [
+            "Program API",
+            "Instant Issue"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getFbEnrollments": {
+        "post": {
+          "summary": "Get Federal Benefit Enrollments",
+          "tags": [
+            "Program API",
+            "Federal Benefit Enrollment"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/createFbEnrollment": {
+        "post": {
+          "summary": "Create Federal Benefit Enrollment",
+          "tags": [
+            "Program API",
+            "Federal Benefit Enrollment"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/resubmitFbEnrollment": {
+        "post": {
+          "summary": "Resubmit Federal Benefit Enrollment",
+          "tags": [
+            "Program API",
+            "Federal Benefit Enrollment"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/updateFbEnrollment": {
+        "post": {
+          "summary": "Update Federal Benefit Enrollment",
+          "tags": [
+            "Program API",
+            "Federal Benefit Enrollment"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/createIvrCall": {
+        "post": {
+          "summary": "Create IVR Call",
+          "tags": [
+            "Program API",
+            "IVR"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getIvrCallStatus": {
+        "post": {
+          "summary": "Get IVR Call Status",
+          "tags": [
+            "Program API",
+            "IVR"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getIvrCallIdentifier": {
+        "post": {
+          "summary": "Get IVR Call Identifier",
+          "tags": [
+            "Program API",
+            "IVR"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getLocations": {
+        "post": {
+          "summary": "Get Locations",
+          "tags": [
+            "Program API",
+            "Location Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/createLocation": {
+        "post": {
+          "summary": "Create Location",
+          "tags": [
+            "Program API",
+            "Location Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/modifyLocation": {
+        "post": {
+          "summary": "Modify Location",
+          "tags": [
+            "Program API",
+            "Location Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/createLocationFee": {
+        "post": {
+          "summary": "Create Location Fee",
+          "tags": [
+            "Program API",
+            "Location Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/modifyLocationFee": {
+        "post": {
+          "summary": "Modify Location Fee",
+          "tags": [
+            "Program API",
+            "Location Management"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/createGroup": {
+        "post": {
+          "summary": "Create Group",
+          "tags": [
+            "Program API",
+            "Corporate Hierarchy"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/updateGroup": {
+        "post": {
+          "summary": "Update Group",
+          "tags": [
+            "Program API",
+            "Corporate Hierarchy"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/deleteGroups": {
+        "post": {
+          "summary": "Delete Groups",
+          "tags": [
+            "Program API",
+            "Corporate Hierarchy"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getGroupsInfo": {
+        "post": {
+          "summary": "Get Groups Info",
+          "tags": [
+            "Program API",
+            "Corporate Hierarchy"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getRootGroups": {
+        "post": {
+          "summary": "Get Root Groups",
+          "tags": [
+            "Program API",
+            "Corporate Hierarchy"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getGroupHierarchy": {
+        "post": {
+          "summary": "Get Group Hierarchy",
+          "tags": [
+            "Program API",
+            "Corporate Hierarchy"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/setAccountGroupRelationships": {
+        "post": {
+          "summary": "Set Account Group Relationships",
+          "tags": [
+            "Program API",
+            "Corporate Hierarchy"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/removeAccountGroupRelationship": {
+        "post": {
+          "summary": "Remove Account Group Relationship",
+          "tags": [
+            "Program API",
+            "Corporate Hierarchy"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getAccountGroupRelationships": {
+        "post": {
+          "summary": "Get Account Group Relationships",
+          "tags": [
+            "Program API",
+            "Corporate Hierarchy"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/setAlerts": {
+        "post": {
+          "summary": "Set Alerts",
+          "tags": [
+            "Program API",
+            "Alerts"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getAlerts": {
+        "post": {
+          "summary": "Get Alerts",
+          "tags": [
+            "Program API",
+            "Alerts"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/setAlertsBlackout": {
+        "post": {
+          "summary": "Set Alerts Blackout",
+          "tags": [
+            "Program API",
+            "Alerts"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getAlertsBlackout": {
+        "post": {
+          "summary": "Get Alerts Blackout",
+          "tags": [
+            "Program API",
+            "Alerts"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getCarrierList": {
+        "post": {
+          "summary": "Get Carriers List",
+          "tags": [
+            "Program API",
+            "Alerts"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/verifyOnDemandAlertStatus": {
+        "post": {
+          "summary": "Verify On-Demand Alert Status",
+          "tags": [
+            "Program API",
+            "Alerts"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/modifyOnDemandAlertStatus": {
+        "post": {
+          "summary": "Modify On-Demand Alert Status",
+          "tags": [
+            "Program API",
+            "Alerts"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/ping": {
+        "post": {
+          "summary": "Ping",
+          "tags": [
+            "Program API",
+            "Miscellaneous"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getProductInfo": {
+        "post": {
+          "summary": "Get Product Info",
+          "tags": [
+            "Program API",
+            "Miscellaneous"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getPromontoryBankList": {
+        "post": {
+          "summary": "Get Promontory Bank List",
+          "tags": [
+            "Program API",
+            "Miscellaneous"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getIngoCustomerId": {
+        "post": {
+          "summary": "Get Ingo Customer ID",
+          "tags": [
+            "Program API",
+            "Miscellaneous"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getCallStatus": {
+        "post": {
+          "summary": "Get Call Status",
+          "tags": [
+            "Program API",
+            "Miscellaneous"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getProductConfig": {
+        "post": {
+          "summary": "Get Product Config",
+          "tags": [
+            "Public Config API"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "security": [
+            {
+              "BasicAuth": []
+            }
+          ]
+        }
+      },
+      "/getCardTransactionFraud": {
+        "post": {
+          "summary": "Get Card Transaction Fraud",
+          "tags": [
+            "Risk API"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getInstantVerification": {
+        "post": {
+          "summary": "Get Instant Verification",
+          "tags": [
+            "Risk API"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/claim/intake/create": {
+        "post": {
+          "summary": "/claim/intake/create",
+          "tags": [
+            "Disputes API",
+            "Intake"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providerId": {
+                      "type": "string"
+                    },
+                    "transactionId": {
+                      "type": "string"
+                    },
+                    "CustomerId": {
+                      "type": "string"
+                    },
+                    "AccountNumber": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/claim/intake/retrieveReasons": {
+        "post": {
+          "summary": "/claim/intake/retrieveReasons",
+          "tags": [
+            "Disputes API",
+            "Intake"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providerId": {
+                      "type": "string"
+                    },
+                    "transactionId": {
+                      "type": "string"
+                    },
+                    "ClaimId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/claim/intake/addClaimReasons": {
+        "post": {
+          "summary": "/claim/intake/addClaimReasons",
+          "tags": [
+            "Disputes API",
+            "Intake"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providerId": {
+                      "type": "string"
+                    },
+                    "transactionId": {
+                      "type": "string"
+                    },
+                    "ClaimId": {
+                      "type": "string"
+                    },
+                    "Questionnaire": {
+                      "type": "object",
+                      "properties": {
+                        "QuestionList": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "Identifier": {
+                                "type": "string"
+                              },
+                              "AnswerValue": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/claim/intake/retrieveTransactions": {
+        "post": {
+          "summary": "/claim/intake/retrieveTransactions",
+          "tags": [
+            "Disputes API",
+            "Intake"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providerId": {
+                      "type": "string"
+                    },
+                    "transactionId": {
+                      "type": "string"
+                    },
+                    "ClaimId": {
+                      "type": "string"
+                    },
+                    "SearchAccountNumber": {
+                      "type": "string"
+                    },
+                    "SearchStartDate": {
+                      "type": "string"
+                    },
+                    "SearchEndDate": {
+                      "type": "string"
+                    },
+                    "SearchAmount": {
+                      "type": "string"
+                    },
+                    "SearchMerchantName": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/claim/intake/addTransactions": {
+        "post": {
+          "summary": "/claim/intake/addTransactions",
+          "tags": [
+            "Disputes API",
+            "Intake"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providerId": {
+                      "type": "string"
+                    },
+                    "transactionId": {
+                      "type": "string"
+                    },
+                    "ClaimId": {
+                      "type": "string"
+                    },
+                    "TransactionList": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "TransactionId": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "TransactionSearchStartDate": {
+                      "type": "string"
+                    },
+                    "TransactionSearchEndDate": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/claim/intake/retrieveQuestionnaire": {
+        "post": {
+          "summary": "/claim/intake/retrieveQuestionnaire",
+          "tags": [
+            "Disputes API",
+            "Intake"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providerId": {
+                      "type": "string"
+                    },
+                    "transactionId": {
+                      "type": "string"
+                    },
+                    "ClaimId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/claim/intake/retrieveOtherAccounts": {
+        "post": {
+          "summary": "/claim/intake/retrieveOtherAccounts",
+          "tags": [
+            "Disputes API",
+            "Intake"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providerId": {
+                      "type": "string"
+                    },
+                    "transactionId": {
+                      "type": "string"
+                    },
+                    "ClaimId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/claim/intake/retrieveCreditTransactions": {
+        "post": {
+          "summary": "/claim/intake/retrieveCreditTransactions",
+          "tags": [
+            "Disputes API",
+            "Intake"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providerId": {
+                      "type": "string"
+                    },
+                    "transactionId": {
+                      "type": "string"
+                    },
+                    "ClaimId": {
+                      "type": "string"
+                    },
+                    "SearchStartDate": {
+                      "type": "string"
+                    },
+                    "SearchEndDate": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/claim/intake/retrieveSimilarTransactions": {
+        "post": {
+          "summary": "/claim/intake/retrieveSimilarTransactions",
+          "tags": [
+            "Disputes API",
+            "Intake"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "SearchAccountNumber": {
+                      "type": "string"
+                    },
+                    "SearchStartDate": {
+                      "type": "string"
+                    },
+                    "SearchEndDate": {
+                      "type": "string"
+                    },
+                    "SearchAmount": {
+                      "type": "string"
+                    },
+                    "SearchMerchantName": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/claim/intake/addSimilarTransactions": {
+        "post": {
+          "summary": "/claim/intake/addSimilarTransactions",
+          "tags": [
+            "Disputes API",
+            "Intake"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providerId": {
+                      "type": "string"
+                    },
+                    "transactionId": {
+                      "type": "string"
+                    },
+                    "ClaimId": {
+                      "type": "string"
+                    },
+                    "TransactionList": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "TransactionId": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "TransactionSearchStartDate": {
+                      "type": "string"
+                    },
+                    "TransactionSearchEndDate": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/claim/intake/addQuestionnaire": {
+        "post": {
+          "summary": "/claim/intake/addQuestionnaire",
+          "tags": [
+            "Disputes API",
+            "Intake"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providerId": {
+                      "type": "string"
+                    },
+                    "transactionId": {
+                      "type": "string"
+                    },
+                    "ClaimId": {
+                      "type": "string"
+                    },
+                    "Questionnaire": {
+                      "type": "object",
+                      "properties": {
+                        "QuestionList": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "Identifier": {
+                                "type": "string"
+                              },
+                              "AnswerValue": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/claim/intake/retrieveDocRequirements": {
+        "post": {
+          "summary": "/claim/intake/retrieveDocRequirements",
+          "tags": [
+            "Disputes API",
+            "Intake"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providerId": {
+                      "type": "string"
+                    },
+                    "transactionId": {
+                      "type": "string"
+                    },
+                    "ClaimId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/claim/intake/addDocuments": {
+        "post": {
+          "summary": "/claim/intake/addDocuments",
+          "tags": [
+            "Disputes API",
+            "Intake"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providerId": {
+                      "type": "string"
+                    },
+                    "transactionId": {
+                      "type": "string"
+                    },
+                    "ClaimId": {
+                      "type": "string"
+                    },
+                    "DocumentRequirementList": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "DocumentStream": {
+                            "type": "string"
+                          },
+                          "Category": {
+                            "type": "string"
+                          },
+                          "FileName": {
+                            "type": "string"
+                          },
+                          "Label": {
+                            "type": "string"
+                          },
+                          "Identifier": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/claim/intake/retrieveSummary": {
+        "post": {
+          "summary": "/claim/intake/retrieveSummary",
+          "tags": [
+            "Disputes API",
+            "Intake"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providerId": {
+                      "type": "string"
+                    },
+                    "transactionId": {
+                      "type": "string"
+                    },
+                    "ClaimId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/claim/intake/submit": {
+        "post": {
+          "summary": "/claim/intake/submit",
+          "tags": [
+            "Disputes API",
+            "Intake"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/claim/intake/retrieveConfirmation": {
+        "post": {
+          "summary": "/claim/intake/retrieveConfirmation",
+          "tags": [
+            "Disputes API",
+            "Intake"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providerId": {
+                      "type": "string"
+                    },
+                    "transactionId": {
+                      "type": "string"
+                    },
+                    "ClaimId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/claim/intake/bulkCreate": {
+        "post": {
+          "summary": "/claim/intake/bulkCreate",
+          "tags": [
+            "Disputes API",
+            "Intake"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providerId": {
+                      "type": "string"
+                    },
+                    "transactionId": {
+                      "type": "string"
+                    },
+                    "ClaimList": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "Create": {
+                            "type": "object",
+                            "properties": {
+                              "AccountNumber": {
+                                "type": "string"
+                              },
+                              "CustomerId": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "AddClaimReasons": {
+                            "type": "object",
+                            "properties": {
+                              "Questionnaire": {
+                                "type": "object",
+                                "properties": {
+                                  "QuestionList": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "AnswerValue": {
+                                          "type": "string"
+                                        },
+                                        "Identifier": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "RetrieveTransactions": {
+                            "type": "object",
+                            "properties": {
+                              "SearchAmount": {
+                                "type": "string"
+                              },
+                              "SearchEndDate": {
+                                "type": "string"
+                              },
+                              "SearchMerchantName": {
+                                "type": "string"
+                              },
+                              "SearchStartDate": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "AddTransactions": {
+                            "type": "object",
+                            "properties": {
+                              "TransactionList": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "TransactionId": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "Submit": {
+                            "type": "object",
+                            "properties": {
+                              "CorrespondenceDetails": {
+                                "type": "object",
+                                "properties": {
+                                  "Address": {
+                                    "type": "object",
+                                    "properties": {
+                                      "City": {
+                                        "type": "string"
+                                      },
+                                      "Country": {
+                                        "type": "string"
+                                      },
+                                      "Line1": {
+                                        "type": "string"
+                                      },
+                                      "Line2": {
+                                        "type": "string"
+                                      },
+                                      "Line3": {
+                                        "type": "string"
+                                      },
+                                      "State": {
+                                        "type": "string"
+                                      },
+                                      "Zip": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  },
+                                  "EmailAddress": {
+                                    "type": "string"
+                                  },
+                                  "SelectedChannel": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "Questionnaire": {
+                                "type": "object",
+                                "properties": {
+                                  "QuestionList": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "AnswerValue": {
+                                          "type": "string"
+                                        },
+                                        "Identifier": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/claim/attachments/add": {
+        "post": {
+          "summary": "/claim/attachments/add",
+          "tags": [
+            "Disputes API",
+            "Attachments"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providerId": {
+                      "type": "string"
+                    },
+                    "transactionId": {
+                      "type": "string"
+                    },
+                    "ClaimId": {
+                      "type": "string"
+                    },
+                    "AttachmentList": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "DocumentStream": {
+                            "type": "string"
+                          },
+                          "Category": {
+                            "type": "string"
+                          },
+                          "FileName": {
+                            "type": "string"
+                          },
+                          "Label": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/claim/list": {
+        "post": {
+          "summary": "/claim/list",
+          "tags": [
+            "Disputes API",
+            "Claim"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providerId": {
+                      "type": "string"
+                    },
+                    "transactionId": {
+                      "type": "string"
+                    },
+                    "daysToLookBack": {
+                      "type": "string"
+                    },
+                    "customerId": {
+                      "type": "string"
+                    },
+                    "accountNumber": {
+                      "type": "string"
+                    },
+                    "claimId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/claim/details/retrieve": {
+        "post": {
+          "summary": "/claim/details/retrieve",
+          "tags": [
+            "Disputes API",
+            "Claim"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providerId": {
+                      "type": "string"
+                    },
+                    "transactionId": {
+                      "type": "string"
+                    },
+                    "ClaimId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/claim/documents/retrieveRequirements": {
+        "post": {
+          "summary": "/claim/documents/retrieveRequirements",
+          "tags": [
+            "Disputes API",
+            "Documents"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providerId": {
+                      "type": "string"
+                    },
+                    "transactionId": {
+                      "type": "string"
+                    },
+                    "ClaimId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/claim/documents/add": {
+        "post": {
+          "summary": "/claim/documents/add",
+          "tags": [
+            "Disputes API",
+            "Documents"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providerId": {
+                      "type": "string"
+                    },
+                    "transactionId": {
+                      "type": "string"
+                    },
+                    "ClaimId": {
+                      "type": "string"
+                    },
+                    "DocumentRequirementList": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "DocumentStream": {
+                            "type": "string"
+                          },
+                          "Identifier": {
+                            "type": "string"
+                          },
+                          "Category": {
+                            "type": "string"
+                          },
+                          "FileName": {
+                            "type": "string"
+                          },
+                          "Label": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/task/summary": {
+        "post": {
+          "summary": "/task/summary",
+          "tags": [
+            "Disputes API",
+            "Tasks"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providerId": {
+                      "type": "string"
+                    },
+                    "transactionId": {
+                      "type": "string"
+                    },
+                    "ClientId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/task/list": {
+        "post": {
+          "summary": "/task/list",
+          "tags": [
+            "Disputes API",
+            "Tasks"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providerId": {
+                      "type": "string"
+                    },
+                    "transactionId": {
+                      "type": "string"
+                    },
+                    "ClaimId": {
+                      "type": "string"
+                    },
+                    "PageNum": {
+                      "type": "string"
+                    },
+                    "PageSize": {
+                      "type": "string"
+                    },
+                    "SortBy": {
+                      "type": "string"
+                    },
+                    "SortType": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/task/details/list": {
+        "post": {
+          "summary": "/task/details/list",
+          "tags": [
+            "Disputes API",
+            "Tasks"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providerId": {
+                      "type": "string"
+                    },
+                    "transactionId": {
+                      "type": "string"
+                    },
+                    "ClaimId": {
+                      "type": "string"
+                    },
+                    "TaskLabel": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/task/action": {
+        "post": {
+          "summary": "/task/action",
+          "tags": [
+            "Disputes API",
+            "Tasks"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providerId": {
+                      "type": "string"
+                    },
+                    "transactionId": {
+                      "type": "string"
+                    },
+                    "Action": {
+                      "type": "string"
+                    },
+                    "TaskList": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "TaskId": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "Detail": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/claim/transactions/list": {
+        "post": {
+          "summary": "/claim/transactions/list",
+          "tags": [
+            "Disputes API",
+            "Disputed Transactions"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providerId": {
+                      "type": "string"
+                    },
+                    "transactionId": {
+                      "type": "string"
+                    },
+                    "ClaimId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/claim/retrieve": {
+        "post": {
+          "summary": "/claim/retrieve",
+          "tags": [
+            "Disputes API",
+            "Status"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "profile-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providerId": {
+                      "type": "string"
+                    },
+                    "transactionId": {
+                      "type": "string"
+                    },
+                    "claimId": {
+                      "type": "string"
+                    },
+                    "statusRole": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/createDestinationAccount": {
+        "post": {
+          "summary": "Create Destination Account",
+          "tags": [
+            "Payment Hub API",
+            "Destination Accounts"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/modifyDestinationAccount": {
+        "post": {
+          "summary": "Modify Destination Account",
+          "tags": [
+            "Payment Hub API",
+            "Destination Accounts"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/removeDestinationAccount": {
+        "post": {
+          "summary": "Remove Destination Account",
+          "tags": [
+            "Payment Hub API",
+            "Destination Accounts"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getDestinationAccounts": {
+        "post": {
+          "summary": "Get Destination Accounts",
+          "tags": [
+            "Payment Hub API",
+            "Destination Accounts"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/createWireTransaction": {
+        "post": {
+          "summary": "Create Wire Transaction",
+          "tags": [
+            "Payment Hub API",
+            "Wires"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/cancelWireTransaction": {
+        "post": {
+          "summary": "Cancel Wire Transaction",
+          "tags": [
+            "Payment Hub API",
+            "Wires"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getWireDetails": {
+        "post": {
+          "summary": "Get Wire Details",
+          "tags": [
+            "Payment Hub API",
+            "Wires"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/getWireHistory": {
+        "post": {
+          "summary": "Get Wire History",
+          "tags": [
+            "Payment Hub API",
+            "Wires"
+          ],
+          "parameters": [
+            {
+              "name": "response-content-type",
+              "in": "header",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      }
+    },
+    "components": {
+      "securitySchemes": {
+        "BasicAuth": {
+          "type": "http",
+          "scheme": "basic"
+        }
+      }
+    }
+  }

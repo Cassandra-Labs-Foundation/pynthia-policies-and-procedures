@@ -1,0 +1,5 @@
+# Pipeline outputs (regenerable via run_pipeline.py)
+build/
+__pycache__/
+*.pyc
+.venv/

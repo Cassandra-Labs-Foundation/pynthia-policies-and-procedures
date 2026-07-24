@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galileo API Analysis for Sponsor Banking</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --bg: #1a1a2e;
+            --surface: #16213e;
+            --border: #0f3460;
+            --text: #edf2f4;
+            --text-muted: #8d99ae;
+            --accent: #e94560;
+            --accent-soft: #533483;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --info: #3498db;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background: var(--bg);
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        h1, h2, h3, h4 {
+            color: var(--text);
+            margin-top: 2rem;
+        }
+        
+        h1 {
+            border-bottom: 3px solid var(--accent);
+            padding-bottom: 0.5rem;
+        }
+        
+        h2 {
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.3rem;
+        }
+        
+        h3 {
+            color: var(--accent);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: var(--surface);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        th {
+            background: var(--accent-soft);
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background: rgba(233, 69, 96, 0.1);
+        }
+        
+        code {
+            background: var(--surface);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9em;
+            color: var(--accent);
+        }
+        
+        .mermaid {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
+        
+        .summary-box {
+            background: var(--surface);
+            border-left: 4px solid var(--accent);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .confidence {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85em;
+            margin-right: 0.5rem;
+        }
+        
+        .confidence-high { background: var(--success); color: #000; }
+        .confidence-medium { background: var(--warning); color: #000; }
+        .confidence-low { background: var(--accent); color: #fff; }
+        
+        .status-active { color: var(--success); }
+        .status-terminal { color: var(--accent); }
+        .status-pending { color: var(--warning); }
+        
+        hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 2rem 0;
+        }
+
+        .toc {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+        
+        .toc ul {
+            list-style-type: none;
+            padding-left: 1rem;
+        }
+        
+        .toc a {
+            color: var(--info);
+            text-decoration: none;
+        }
+        
+        .toc a:hover {
+            color: var(--accent);
+        }
+        
+        blockquote {
+            border-left: 4px solid var(--warning);
+            background: rgba(243, 156, 18, 0.1);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'dark',
+            themeVariables: {
+                primaryColor: '#533483',
+                primaryTextColor: '#edf2f4',
+                primaryBorderColor: '#0f3460',
+                lineColor: '#8d99ae',
+                secondaryColor: '#16213e',
+                tertiaryColor: '#1a1a2e'
+            }
+        });
+    </script>
+
+    <h1>Galileo API Analysis for Sponsor Banking</h1>
+    
+    <p><strong>Provider:</strong> Galileo Financial Technologies<br>
+    <strong>Documentation Source:</strong> Program API Reference (v4.0)<br>
+    <strong>Analysis Date:</strong> December 2025</p>
+
+    <hr>
+
+    <div class="summary-box">
+        <h2 style="margin-top: 0;">Executive Summary</h2>
+        <p>Galileo is a processor-centric platform with a card-issuing heritage. Its architecture is heavily influenced by card-network paradigms (ISO 8583), with real-time authorization control but limited native banking rails. Key characteristics:</p>
+        <ul>
+            <li><strong>Account-Card Centric:</strong> Every account is implicitly tied to card issuance concepts</li>
+            <li><strong>Real-Time Auth Control:</strong> Auth API webhook gives partners full authorization decision control</li>
+            <li><strong>Processor Not Ledger:</strong> Galileo operates as a processor; the sponsor bank holds the actual ledger</li>
+            <li><strong>ACH as Overlay:</strong> ACH is bolted on rather than being a first-class rails primitive</li>
+            <li><strong>Product-Program Hierarchy:</strong> Multi-tenant via Programs → Products → Accounts structure</li>
+        </ul>
+    </div>
+
+    <div class="toc">
+        <h3 style="margin-top: 0;">Table of Contents</h3>
+        <ul>
+            <li><a href="#entities">1. Entity Relationships</a></li>
+            <li><a href="#states">2. State Machines</a></li>
+            <li><a href="#flows">3. Critical Flows</a></li>
+            <li><a href="#patterns">4. Key Architectural Patterns</a></li>
+            <li><a href="#confidence">5. Confidence Summary</a></li>
+            <li><a href="#comparison">6. Comparison Points</a></li>
+        </ul>
+    </div>
+
+    <hr>
+
+    <h2 id="entities">1. Entity Relationships</h2>
+
+    <h3>Core Entity Model</h3>
+
+    <div class="mermaid">
+erDiagram
+    PROGRAM ||--o{ PRODUCT : contains
+    PRODUCT ||--o{ ACCOUNT : issues
+    ACCOUNT ||--o{ CARD : "may have"
+    ACCOUNT ||--o{ TRANSACTION : contains
+    ACCOUNT ||--o{ ACH_ACCOUNT : "linked to"
+    ACCOUNT ||--o{ DESTINATION_ACCOUNT : "linked to"
+    ACCOUNT ||--|{ RELATED_ACCOUNT : "primary/secondary"
+    ACCOUNT }o--o{ GROUP : "belongs to"
+    GROUP ||--o{ GROUP : "hierarchy"
+    
+    PROGRAM {
+        int prog_id PK
+        string name
+    }
+    
+    PRODUCT {
+        int prod_id PK
+        int prog_id FK
+        string product_type
+        string product_category
+    }
+    
+    ACCOUNT {
+        string prn PK
+        int balance_id
+        string xid
+        string account_status
+        string active_flag
+        date start_date
+    }
+    
+    CARD {
+        int cad PK
+        string pan
+        string card_status
+        string emboss_status
+        date expiry_date
+    }
+    
+    ACH_ACCOUNT {
+        int ach_account_id PK
+        string routing_number
+        string account_number
+        string status
+    }
+    
+    TRANSACTION {
+        string pmt_ref_no
+        int auth_id
+        string trans_code
+        float amount
+        string act_type
+    }
+    
+    GROUP {
+        int ch_group_id PK
+        string group_name
+        int parent_group_id FK
+    }
+    </div>
+
+    <h3>Key Design Decisions</h3>
+    <table>
+        <tr>
+            <th>Decision Point</th>
+            <th>Galileo Approach</th>
+            <th>Notes</th>
+        </tr>
+        <tr>
+            <td>Primary Identifier</td>
+            <td>PRN (12-digit Payment Reference Number)</td>
+            <td>Not the PAN; more like an internal account ID</td>
+        </tr>
+        <tr>
+            <td>Card-Account Relationship</td>
+            <td>1 Account : Many Cards</td>
+            <td>Multiple cards can share one balance_id</td>
+        </tr>
+        <tr>
+            <td>Customer Model</td>
+            <td>Implicit via Account</td>
+            <td>No separate Customer entity; customer info embedded in Account</td>
+        </tr>
+        <tr>
+            <td>Joint Account Support</td>
+            <td>Via Related Accounts</td>
+            <td>Primary/Secondary pattern, optional shared_balance</td>
+        </tr>
+        <tr>
+            <td>Business vs Individual</td>
+            <td>Product-level distinction</td>
+            <td>Business products require <code>businessName</code>; no separate entity</td>
+        </tr>
+    </table>
+
+    <h3>Account Identifiers (Multiple!)</h3>
+    <table>
+        <tr>
+            <th>Identifier</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td><code>PRN</code></td>
+            <td>Payment Reference Number - 12-digit primary API identifier</td>
+        </tr>
+        <tr>
+            <td><code>PAN</code></td>
+            <td>Primary Account Number - Card number (sensitive)</td>
+        </tr>
+        <tr>
+            <td><code>CAD</code></td>
+            <td>Card Account Designator - Galileo-generated card ID</td>
+        </tr>
+        <tr>
+            <td><code>balance_id</code></td>
+            <td>Internal balance tracking ID</td>
+        </tr>
+        <tr>
+            <td><code>XID</code></td>
+            <td>External Account ID - Partner-provided</td>
+        </tr>
+    </table>
+
+    <hr>
+
+    <h2 id="states">2. State Machines</h2>
+
+    <h3>2.1 Account Status</h3>
+
+    <div class="mermaid">
+stateDiagram-v2
+    [*] --> V: Application Submitted
+    V --> T: ID Verification Started
+    V --> N: Direct Create
+    T --> P: CIP Passed
+    T --> F: CIP Failed
+    P --> N: Account Activated
+    F --> N: Force Pass CIP
+    N --> D: Disabled
+    N --> K: Suspended
+    N --> Q: Delinquent
+    N --> C: Closed
+    N --> Z: Closed Without Refund
+    N --> R: Charged Off
+    D --> N: Re-enabled
+    K --> N: Reinstated
+    Q --> N: Brought Current
+    Q --> R: Charge Off
+    R --> [*]: Terminal
+    C --> [*]: Terminal
+    Z --> [*]: Terminal
+    </div>
+
+    <table>
+        <tr>
+            <th>Status</th>
+            <th>Description</th>
+            <th>Permits Network Txns</th>
+            <th>Recoverable</th>
+        </tr>
+        <tr>
+            <td><code class="status-active">N</code></td>
+            <td>Normal (Active)</td>
+            <td>✅</td>
+            <td>N/A</td>
+        </tr>
+        <tr>
+            <td><code class="status-pending">V</code></td>
+            <td>Application Submitted</td>
+            <td>❌</td>
+            <td>→ N</td>
+        </tr>
+        <tr>
+            <td><code class="status-pending">T</code></td>
+            <td>ID Verification In Process</td>
+            <td>❌</td>
+            <td>→ P or F</td>
+        </tr>
+        <tr>
+            <td><code>D</code></td>
+            <td>Disabled</td>
+            <td>❌</td>
+            <td>→ N</td>
+        </tr>
+        <tr>
+            <td><code class="status-terminal">C</code></td>
+            <td>Canceled</td>
+            <td>❌</td>
+            <td>⚠️ Mastercard penalty risk</td>
+        </tr>
+        <tr>
+            <td><code class="status-terminal">Z</code></td>
+            <td>Canceled Without Refund</td>
+            <td>❌</td>
+            <td>⚠️ Mastercard penalty risk</td>
+        </tr>
+    </table>
+
+    <blockquote>
+        <strong>⚠️ Critical:</strong> Mastercard considers C and Z as <strong>permanent statuses</strong>. Reactivating closed cards risks Mastercard penalties (as of June 2025). Use <code>D</code> (Disabled) for temporary closures.
+    </blockquote>
+
+    <h3>2.2 Card Status</h3>
+
+    <div class="mermaid">
+stateDiagram-v2
+    [*] --> W: Card Created
+    W --> X: Sufficient Funds
+    X --> Y: Sent to Embosser
+    Y --> N: Activated
+    N --> D: Disabled
+    N --> L: Lost
+    N --> S: Stolen
+    N --> B: Blocked
+    N --> C: Canceled
+    L --> [*]: New card issued
+    S --> [*]: New card issued
+    D --> N: Reactivated
+    B --> N: Unblocked
+    C --> [*]: Terminal
+    </div>
+
+    <h3>2.3 ACH Transaction Status</h3>
+
+    <div class="mermaid">
+stateDiagram-v2
+    [*] --> N: Queued for Transfer
+    N --> P: Validated
+    N --> V: Validation Failed
+    N --> C: Canceled
+    P --> S: Sent in Nacha
+    S --> S: Success
+    S --> E: Returned
+    V --> E: Error
+    E --> [*]: Terminal
+    S --> [*]: Terminal
+    </div>
+
+    <table>
+        <tr>
+            <th>Status</th>
+            <th>Description</th>
+            <th>Terminal?</th>
+        </tr>
+        <tr>
+            <td><code>N</code></td>
+            <td>Queued for transfer (initial)</td>
+            <td>❌ (Cancellable)</td>
+        </tr>
+        <tr>
+            <td><code>P</code></td>
+            <td>Validated, ready for Nacha file</td>
+            <td>❌</td>
+        </tr>
+        <tr>
+            <td><code>S</code></td>
+            <td>Sent in Nacha file</td>
+            <td>✅ (success)</td>
+        </tr>
+        <tr>
+            <td><code>E</code></td>
+            <td>Error (failed or returned)</td>
+            <td>✅</td>
+        </tr>
+    </table>
+
+    <hr>
+
+    <h2 id="flows">3. Critical Flows</h2>
+
+    <h3>3.1 ACH Origination Flow</h3>
+
+    <div class="mermaid">
+sequenceDiagram
+    participant Client as API Consumer
+    participant Galileo as Galileo API
+    participant Nacha as Nacha Processing
+    participant Fed as Federal Reserve
+    
+    Client->>Galileo: POST /createAchTransaction
+    Galileo-->>Client: 200 OK (status: N)
+    
+    Galileo->>Galileo: Internal Validation
+    
+    alt Validation Passes
+        Galileo->>Galileo: Status → P
+    else Validation Fails
+        Galileo->>Client: Webhook: ach_fail
+    end
+    
+    Galileo->>Nacha: Include in Nacha file
+    Galileo->>Galileo: Status → S
+    
+    Nacha->>Fed: Nacha file transmitted
+    
+    alt Success
+        Note over Client: Stays in S
+    else Return
+        Fed-->>Galileo: Return file
+        Galileo->>Galileo: Status → E
+        Galileo->>Client: Webhook: ach_return
+    end
+    </div>
+
+    <h3>3.2 Account Opening Flow</h3>
+
+    <div class="mermaid">
+sequenceDiagram
+    participant Client as API Consumer
+    participant Galileo as Galileo API
+    participant CIP as CIP/KYC Vendor
+    participant Emboss as Embosser
+    
+    Client->>Galileo: POST /createAccount
+    
+    Galileo->>Galileo: Create Account (Status: V)
+    
+    alt Integrated CIP
+        Galileo->>CIP: ID Verification
+        CIP-->>Galileo: Result
+        
+        alt Pass
+            Galileo->>Galileo: Status → N
+            Galileo->>Client: Webhook: pass_id
+        else Fail
+            Galileo->>Galileo: Status: F
+            Galileo->>Client: Webhook: fail_id
+        end
+    end
+    
+    Galileo-->>Client: 200 OK (PRN, CAD)
+    
+    Galileo->>Emboss: Emboss Batch
+    Galileo->>Client: Webhook: card_shipped
+    
+    Client->>Galileo: POST /activateCard
+    Galileo->>Client: Webhook: card_activated
+    </div>
+
+    <h3>3.3 Card Authorization Flow (Auth API)</h3>
+
+    <div class="mermaid">
+sequenceDiagram
+    participant Merchant
+    participant Network as Card Network
+    participant Galileo
+    participant Client as Auth API Consumer
+    
+    Merchant->>Network: Auth Request
+    Network->>Galileo: ISO 8583
+    
+    Galileo->>Galileo: Initial Checks
+    
+    Galileo->>Client: POST /auth-webhook
+    Note right of Galileo: amount, merchant,<br/>response_code
+    
+    Client->>Client: Business Logic
+    
+    alt Accept
+        Client-->>Galileo: {response_code: null}
+    else Override
+        Client-->>Galileo: {response_code: "05"}
+    end
+    
+    Galileo-->>Network: Response
+    Network-->>Merchant: Approved/Declined
+    
+    Galileo->>Client: Webhook: auth/denied_auth
+    </div>
+
+    <blockquote>
+        <strong>Auth API Override Power:</strong> Client can <strong>approve</strong> transactions Galileo would deny, or <strong>deny</strong> transactions Galileo would approve.
+    </blockquote>
+
+    <hr>
+
+    <h2 id="patterns">4. Key Architectural Patterns</h2>
+
+    <h3>4.1 Ledger Model</h3>
+    <div class="summary-box">
+        <p><strong>Galileo is NOT the ledger.</strong></p>
+        <ul>
+            <li>Galileo is a <strong>processor</strong> that tracks balances</li>
+            <li>Sponsor bank holds the actual FBO account and GL</li>
+            <li><code>balance_id</code> is Galileo's internal balance tracking</li>
+            <li>Multiple accounts can share a <code>balance_id</code></li>
+        </ul>
+    </div>
+
+    <h3>4.2 Program/Product Hierarchy</h3>
+    <pre><code>Provider (You)
+  └── Program(s) (prog_id)
+        └── Product(s) (prod_id)
+              └── Account(s) (PRN)
+                    └── Card(s) (CAD)</code></pre>
+
+    <h3>4.3 Real-Time vs Batch</h3>
+    <table>
+        <tr>
+            <th>Function</th>
+            <th>Real-Time</th>
+            <th>Batch</th>
+        </tr>
+        <tr>
+            <td>Card Authorization</td>
+            <td>✅ (Auth API)</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>ACH Origination</td>
+            <td></td>
+            <td>✅ (Nacha files)</td>
+        </tr>
+        <tr>
+            <td>ACH Returns</td>
+            <td></td>
+            <td>✅ (Return files)</td>
+        </tr>
+        <tr>
+            <td>Card Settlement</td>
+            <td></td>
+            <td>✅ (Clearing files)</td>
+        </tr>
+        <tr>
+            <td>Wire Transfers</td>
+            <td>✅ (limited)</td>
+            <td></td>
+        </tr>
+    </table>
+
+    <hr>
+
+    <h2 id="confidence">5. Confidence Summary</h2>
+
+    <table>
+        <tr>
+            <th>Area</th>
+            <th>Confidence</th>
+            <th>Notes</th>
+        </tr>
+        <tr>
+            <td>Account/Card States</td>
+            <td><span class="confidence confidence-high">✅ High</span></td>
+            <td>Explicitly documented with transitions</td>
+        </tr>
+        <tr>
+            <td>ACH Flow</td>
+            <td><span class="confidence confidence-high">✅ High</span></td>
+            <td>Well documented</td>
+        </tr>
+        <tr>
+            <td>Auth API Flow</td>
+            <td><span class="confidence confidence-high">✅ High</span></td>
+            <td>Detailed webhook spec</td>
+        </tr>
+        <tr>
+            <td>Entity Model</td>
+            <td><span class="confidence confidence-medium">🔶 Medium</span></td>
+            <td>Some IDs/relationships inferred</td>
+        </tr>
+        <tr>
+            <td>ACH Same-Day Cutoffs</td>
+            <td><span class="confidence confidence-low">❓ Low</span></td>
+            <td>Not found in reference</td>
+        </tr>
+        <tr>
+            <td>Beneficial Owner Model</td>
+            <td><span class="confidence confidence-low">❓ Low</span></td>
+            <td>Not explicitly documented</td>
+        </tr>
+        <tr>
+            <td>FBO Account Patterns</td>
+            <td><span class="confidence confidence-low">❓ Low</span></td>
+            <td>Sponsor bank specific</td>
+        </tr>
+    </table>
+
+    <hr>
+
+    <h2 id="comparison">6. Cross-Provider Comparison Points</h2>
+
+    <table>
+        <tr>
+            <th>Decision Point</th>
+            <th>Galileo</th>
+        </tr>
+        <tr>
+            <td>Customer model</td>
+            <td>Implicit (embedded in Account)</td>
+        </tr>
+        <tr>
+            <td>Joint account support</td>
+            <td>Yes (Related Accounts with shared_balance)</td>
+        </tr>
+        <tr>
+            <td>Sub-account model</td>
+            <td>Secondary Accounts linked to Primary</td>
+        </tr>
+        <tr>
+            <td>Transaction linking</td>
+            <td>auth_id → settlement matching</td>
+        </tr>
+        <tr>
+            <td>Account states</td>
+            <td>N, V, T, P, F, D, K, Q, R, C, Z</td>
+        </tr>
+        <tr>
+            <td>ACH same-day cutoff</td>
+            <td>❓ Sponsor bank specific</td>
+        </tr>
+        <tr>
+            <td>Ledger exposure</td>
+            <td>Abstract (Galileo tracks balance, not GL)</td>
+        </tr>
+        <tr>
+            <td>Real-time auth control</td>
+            <td>✅ Auth API webhook</td>
+        </tr>
+        <tr>
+            <td>Wire support</td>
+            <td>Limited (sponsor bank dependent)</td>
+        </tr>
+    </table>
+
+</body>
+</html>

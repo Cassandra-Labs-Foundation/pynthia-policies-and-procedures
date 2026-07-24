@@ -1,0 +1,42 @@
+{
+  "_comment": "Declarative provider list for run_pipeline.py. Paths are relative to research/. A provider with 'doc_url' is crawled -> extracted -> verified (contributes its semantic map to the compare). A provider with 'openapi' is minified (contributes its spec to the compare). A provider may have both.",
+  "build_dir": "build",
+  "providers": [
+    {
+      "name": "column",
+      "doc_url": "https://column.com/docs/api"
+    },
+    {
+      "name": "increase",
+      "openapi": "specs/increase.openapi.json"
+    },
+    {
+      "name": "unit",
+      "openapi": "specs/unit.openapi.json"
+    },
+    {
+      "name": "q2helix",
+      "openapi": "specs/q2helix.openapi.json",
+      "note": "q2helix.openapi.json is the q2_openapi.json variant (131 paths); the schema-only fragment had 0 paths"
+    },
+    {
+      "name": "moov",
+      "openapi": "specs/moov.openapi.json"
+    },
+    {
+      "name": "galileo",
+      "openapi": "specs/galileo.openapi.json"
+    },
+    {
+      "name": "mambu",
+      "enabled": false,
+      "note": "summary only — no crawl URL or OpenAPI spec on hand"
+    },
+    {
+      "name": "greendot",
+      "enabled": false,
+      "note": "never crawled — add a doc_url to enable",
+      "doc_url": ""
+    }
+  ]
+}
