@@ -7,10 +7,10 @@
   },
   "summary": {
     "ran": 333,
-    "green": 157,
-    "red": 176,
-    "in_scope_green": 156,
-    "in_scope_red": 69,
+    "green": 164,
+    "red": 169,
+    "in_scope_green": 163,
+    "in_scope_red": 62,
     "fake_vs_real_defects": [
       {
         "uid": "audit:SC-02",
@@ -23,30 +23,6 @@
       {
         "uid": "basel-ii-standardized-approach-framework:BA-08",
         "blocked_on": "inputs not supplied: training.annual_due_at, training.capital, training.required_curriculum"
-      },
-      {
-        "uid": "bsa:BSA-03",
-        "blocked_on": "inputs not supplied: verification.provider_result, verification.type, verification.match_status, verification.trust_level"
-      },
-      {
-        "uid": "bsa:BSA-05",
-        "blocked_on": "inputs not supplied: originator.name, originator.routing_number"
-      },
-      {
-        "uid": "bsa:BSA-06",
-        "blocked_on": "produced 2/3: missing sar.decision_no_file"
-      },
-      {
-        "uid": "bsa:BSA-08",
-        "blocked_on": "produced 2/3: missing ctr.filed"
-      },
-      {
-        "uid": "bsa:BSA-10",
-        "blocked_on": "inputs not supplied: originator.name, originator.reference, originator.routing_number"
-      },
-      {
-        "uid": "bsa:BSA-12",
-        "blocked_on": "produced 0/2: missing cmir.filed, cmir.filing.timer"
       },
       {
         "uid": "bsa:SC-02",
@@ -239,10 +215,6 @@
       {
         "uid": "liquidity:SC-02",
         "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
-      },
-      {
-        "uid": "member:MP-01",
-        "blocked_on": "inputs not supplied: verification.provider, verification.type, verification.provider_result, verification.status"
       },
       {
         "uid": "privacy:PR-05",
@@ -1381,7 +1353,7 @@
       "policy": "bsa",
       "control_id": "BSA-03",
       "title": "Customer Identification Program (CIP)",
-      "status": "red",
+      "status": "green",
       "expected": [
         "ofac.cleared",
         "ofac.hold.placed",
@@ -1418,13 +1390,16 @@
         "entity.address",
         "entity.date_of_birth",
         "entity.name",
-        "entity.tin"
+        "entity.tin",
+        "verification.provider_result",
+        "verification.type",
+        "verification.match_status",
+        "verification.trust_level"
       ],
       "inputs_unverifiable": [
         "member.id"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "inputs not supplied: verification.provider_result, verification.type, verification.match_status, verification.trust_level"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -1489,7 +1464,7 @@
       "policy": "bsa",
       "control_id": "BSA-05",
       "title": "OFAC Screening & Holds",
-      "status": "red",
+      "status": "green",
       "expected": [
         "ofac.cleared",
         "ofac.hold.placed",
@@ -1527,6 +1502,8 @@
         "entity.date_of_birth",
         "entity.name",
         "entity.tin",
+        "originator.name",
+        "originator.routing_number",
         "wire_transfer.amount"
       ],
       "inputs_unverifiable": [
@@ -1535,8 +1512,7 @@
         "beneficiary.routing_number",
         "ofac.blocked_property"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "inputs not supplied: originator.name, originator.routing_number"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -1545,7 +1521,7 @@
       "policy": "bsa",
       "control_id": "BSA-06",
       "title": "Transaction Monitoring & Case Management",
-      "status": "red",
+      "status": "green",
       "expected": [
         "bsa_alert.triage.timer",
         "sar.decision_no_file",
@@ -1553,6 +1529,7 @@
       ],
       "observed": [
         "bsa_alert.triage.timer",
+        "sar.decision_no_file",
         "sar.filed"
       ],
       "triggers": [
@@ -1576,8 +1553,7 @@
         "case.summary"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 2/3: missing sar.decision_no_file"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -1625,13 +1601,14 @@
       "policy": "bsa",
       "control_id": "BSA-08",
       "title": "Currency Transaction Reporting (CTR)",
-      "status": "red",
+      "status": "green",
       "expected": [
         "ctr.filed",
         "ctr.filing.timer",
         "ctr.exemption.reviewed"
       ],
       "observed": [
+        "ctr.filed",
         "ctr.filing.timer",
         "ctr.exemption.reviewed"
       ],
@@ -1653,8 +1630,7 @@
         "ctr.cash_in_total",
         "ctr.cash_out_total"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 2/3: missing ctr.filed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -1699,7 +1675,7 @@
       "policy": "bsa",
       "control_id": "BSA-10",
       "title": "Travel Rule (Wires ≥$3,000)",
-      "status": "red",
+      "status": "green",
       "expected": [
         "wire_transfer.created",
         "wire_transfer.record.retained"
@@ -1722,6 +1698,9 @@
         "wire_transfer.amount"
       ],
       "inputs_supplied": [
+        "originator.name",
+        "originator.reference",
+        "originator.routing_number",
         "wire_transfer.amount"
       ],
       "inputs_unverifiable": [
@@ -1730,8 +1709,7 @@
         "beneficiary.name",
         "beneficiary.routing_number"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "inputs not supplied: originator.name, originator.reference, originator.routing_number"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -1766,12 +1744,15 @@
       "policy": "bsa",
       "control_id": "BSA-12",
       "title": "CMIR (Cross-Border Currency)",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cmir.filed",
         "cmir.filing.timer"
       ],
-      "observed": [],
+      "observed": [
+        "cmir.filed",
+        "cmir.filing.timer"
+      ],
       "triggers": [
         "cmir.reportable.identified"
       ],
@@ -1788,8 +1769,7 @@
         "cmir_data.direction",
         "cmir_data.shipment_manifest"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 0/2: missing cmir.filed, cmir.filing.timer"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -11355,7 +11335,7 @@
       "policy": "member",
       "control_id": "MP-01",
       "title": "Membership Eligibility and Onboarding",
-      "status": "red",
+      "status": "green",
       "expected": [
         "member.eligibility.denied",
         "member.eligibility.determined",
@@ -11396,15 +11376,18 @@
         "entity.date_of_birth",
         "entity.name",
         "entity.tin",
-        "entity.contact"
+        "entity.contact",
+        "verification.provider",
+        "verification.type",
+        "verification.provider_result",
+        "verification.status"
       ],
       "inputs_unverifiable": [
         "member.eligibility_basis",
         "member.eligibility_rule",
         "member.eligibility.determined"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "inputs not supplied: verification.provider, verification.type, verification.provider_result, verification.status"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,

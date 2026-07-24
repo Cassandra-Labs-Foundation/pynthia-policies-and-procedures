@@ -1,0 +1,50 @@
+# The live control tier, on a clock. The hermetic tier gates every push, but
+# the live tier (same 333 controls, same grader, real database) only ran when
+# someone remembered to run it — so the claim/proof gap could rot silently
+# between manual runs. Weekly --check keeps the scoreboard honest: any control
+# that was live-green in the committed baseline and stops producing its
+# evidence against the real schema fails this workflow by name.
+#
+# Sunday 05:23 UTC: clear of the daily reporters (06:17), the Monday smoke
+# (13:00), and any waking human likely to be mid-harness-run — live runs are
+# exclusive; nothing else may load the drill schemas while one is in flight.
+#
+# Requires SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY secrets. Until both are
+# set the job reports itself skipped rather than failing the schedule (the
+# aggregator-reporters guard pattern).
+name: live-control-tier
+on:
+  schedule:
+    - cron: "23 5 * * 0" # weekly, Sunday 05:23 UTC
+  workflow_dispatch:
+
+jobs:
+  live-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Guard — secrets present?
+        id: guard
+        env:
+          URL: ${{ secrets.SUPABASE_URL }}
+          KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            echo "SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY not set — skipping (set both to activate the schedule)" >> "$GITHUB_STEP_SUMMARY"
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: denoland/setup-deno@v2
+        if: steps.guard.outputs.run == 'true'
+        with:
+          deno-version: v2.x
+
+      - name: Live control tier — a control proven live must stay proven
+        if: steps.guard.outputs.run == 'true'
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: deno run --allow-all supabase/functions/drill/controls_live_run.ts --check

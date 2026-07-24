@@ -853,8 +853,13 @@ export async function postCipVerification(
         : "OFAC hold placed",
     });
   }
-  await db.schema(scope).from("verification").upsert({
-    id, entity_id: body.entity_ref,
+  // No entity_id column exists on core.verification — the entity linkage is
+  // the deterministic id (cipv_<entity_ref>) plus the event payload. Sending
+  // a phantom column fails the WHOLE upsert (PGRST204), which is how BSA-03's
+  // evidence row silently never landed live while every event still emitted.
+  // Checked for the same reason as the originator row: this IS the evidence.
+  const { error: verErr } = await db.schema(scope).from("verification").upsert({
+    id,
     type: "cip_documentary",
     method: "documentary",
     result: "verified",
@@ -867,6 +872,7 @@ export async function postCipVerification(
     trust_level: isNonEmptyString(body.trust_level) ? body.trust_level : "high",
     provenance: provenanceFor(scope, ctx),
   }, { onConflict: "id" });
+  if (verErr) return internalErrorResponse(requestId, verErr.message);
   await emit(db, scope, `ev_${id}_done`, "verification.completed", "verification", id, {
     "verification.entity_ref": body.entity_ref, elements_present: 4,
     "entity.date_of_birth": body.dob, "entity.address": body.address,
@@ -952,7 +958,10 @@ export async function postTravelRuleRecord(
   // `core.originator` is another of the 22 abandoned tables. The Travel Rule
   // record has to be a ROW, not a payload: 31 CFR 1010.410(f) requires it be
   // RETAINED for five years and retrievable, which an event payload is not.
-  await db.schema(scope).from("originator").upsert({
+  // Checked, not fire-and-forget: this row IS the retained record. A wire
+  // whose retention write fails but whose events emit anyway would read as
+  // retained on every dashboard while nothing is retrievable in five years.
+  const { error: retainErr } = await db.schema(scope).from("originator").upsert({
     id: `orig_${body.wire_ref}`,
     name: orig?.name ?? null, address: orig?.address ?? null,
     reference: orig?.account ?? orig?.reference ?? null,
@@ -962,6 +971,7 @@ export async function postTravelRuleRecord(
     wire_ref: body.wire_ref, amount_cents: amount,
     provenance: provenanceFor(scope, ctx),
   }, { onConflict: "id" });
+  if (retainErr) return internalErrorResponse(requestId, retainErr.message);
   await emit(db, scope, `ev_tr_${body.wire_ref}_ret`, "wire_transfer.record.retained",
     "wire_transfer", String(body.wire_ref), {
       "wire_transfer.originator": orig, "wire_transfer.beneficiary": bene,

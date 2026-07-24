@@ -1659,14 +1659,25 @@ async function runBsaProgramLifecycle(env: FireEnv): Promise<void> {
     R({ wire_ref: "wire_tr3", amount_cents: 100_000 }), env.db, "d", ops,
   );
 
-  // CMIR — the shipment register is built by cash operations
-  env.rows["core.cmir_filing"] ??= [];
-  env.rows["core.cmir_filing"].push({
-    id: "cmir_ship1", shipment_id: "cship_intl", amount_cents: 4_500_000,
-    identified_at: "2026-07-01T00:00:00.000Z", provenance: "production",
+  // CMIR — the shipment register is built by cash operations. Seed it
+  // through the DATABASE, not by pushing into env.rows: the recording array
+  // is only a mirror of the fake, and a row planted there never exists in
+  // Postgres — live, the filing 404s and BSA-12 produces nothing (fixture
+  // mutation, fake-vs-real defect class 7). The cmir_filing row's FK means
+  // the border-crossing cash_shipment must exist FIRST (FKs are enforced
+  // only in Postgres — defect class 1). Run-unique ids, demo provenance:
+  // a drill fixture must not masquerade as production evidence.
+  const shipId = `cmir_ship_${env.n()}`;
+  await env.db.schema("core").from("cash_shipment").insert({
+    id: `cship_intl_${shipId}`, direction: "outbound", amount_cents: 4_500_000,
+    seal_expected: "SEAL-77", crosses_border: true, provenance: "demo",
+  });
+  await env.db.schema("core").from("cmir_filing").insert({
+    id: shipId, shipment_id: `cship_intl_${shipId}`, amount_cents: 4_500_000,
+    identified_at: "2026-07-01T00:00:00.000Z", provenance: "demo",
   });
   await postCmirFiling(
-    R({ filed_by: "bsa_officer", fincen_ref: "F105-2026-1" }), "cmir_ship1",
+    R({ filed_by: "bsa_officer", fincen_ref: "F105-2026-1" }), shipId,
     env.db, "d", officer,
   );
 
@@ -1735,8 +1746,17 @@ async function runBsaProgramLifecycle(env: FireEnv): Promise<void> {
 
   // BSA-08: a CTR aggregation that reaches the threshold is FILED. The
   // aggregation writer exists; nothing was calling the filing step.
+  //
+  // The business_date must be RUN-UNIQUE: uq_ctr_entity_date means a fixed
+  // date makes every live run after the first a duplicate — the upsert
+  // no-ops, this run's recording never sees a ctr_filing row, and the filing
+  // step silently never fires (green in the fake, which starts empty).
+  const cn = env.n();
+  const ctrDate = `${2000 + (cn % 40)}-${String(1 + Math.floor(cn / 40) % 12).padStart(2, "0")}-${
+    String(1 + Math.floor(cn / 480) % 28).padStart(2, "0")
+  }`;
   await postCashTransaction(
-    R({ direction: "cash_in", amount_cents: 1_200_000, business_date: "2026-07-11",
+    R({ direction: "cash_in", amount_cents: 1_200_000, business_date: ctrDate,
         account_id: "acct_1" }),
     env.db, "d", ops,
   );
@@ -1750,12 +1770,18 @@ async function runBsaProgramLifecycle(env: FireEnv): Promise<void> {
 
   // BSA-06: a case decided NOT to file is a decision with its own evidence.
   // "no SAR filed" and "nobody decided" must not look alike.
+  //
+  // Run-unique causeId: the alert id derives from it, and a fixed id means
+  // every live run after the first finds the alert already triaged — the
+  // triage replies without a case, the no_file decision is never posted,
+  // and sar.decision_no_file quietly vanishes from the run's evidence.
+  const nf = env.n();
   await raiseAlert(env.db, {
     ctx: ops, alertType: "structuring", entityHash: "h_nofile",
-    causeType: "transfer", causeId: "t_nofile", details: "bsa program drill",
+    causeType: "transfer", causeId: `t_nofile_${nf}`, details: "bsa program drill",
   });
   const tri = await postAlertTriage(
-    R({ outcome: "escalated" }), "alert_t_nofile_structuring", env.db, "d",
+    R({ outcome: "escalated" }), `alert_t_nofile_${nf}_structuring`, env.db, "d",
     env.actors.investigator,
   );
   const tb = await tri.clone().json().catch(() => ({}));
