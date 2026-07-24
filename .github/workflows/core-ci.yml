@@ -31,6 +31,14 @@ jobs:
       - name: Drill regression gate — a case that passed yesterday must pass today
         run: deno run --allow-all supabase/functions/drill/run.ts --check
 
+      - name: Decision refs resolve — no DN cites a decision the log lacks
+        # The code justifies its shape by citing architecture decisions ("per
+        # D4", "(D23)"). Before the consolidation the log lived in another repo
+        # and those citations resolved to nothing. Now they must resolve, so a
+        # renumbered or deleted decision breaks the build instead of quietly
+        # leaving 326 comments pointing at nothing.
+        run: python3 scripts/check_decision_refs.py --strict
+
       - name: Crosswalk integrity — no over-claims, no stale catalogue ids
         run: python3 scripts/build_crosswalk.py --check
 
