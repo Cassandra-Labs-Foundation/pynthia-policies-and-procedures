@@ -56,9 +56,16 @@ jobs:
             if [ -z "$before" ] || [ "$before" = "0000000000000000000000000000000000000000" ]; then
               before="$(git rev-parse HEAD^ 2>/dev/null || git rev-parse HEAD)"
             fi
-            changed="$(git diff --name-only "$before" "${{ github.sha }}" -- '**/prompt.md' || true)"
+            # -M so pure renames surface as R100 and can be dropped. Moving the policy tree
+            # to compliance/policies/ renamed all 26 prompt.md at once; without this the
+            # workflow fanned out 26 LLM regenerations and 26 PRs for files whose CONTENT
+            # had not changed at all. A rename is not a new prompt.
+            changed="$(git diff --name-status -M "$before" "${{ github.sha }}" -- '**/prompt.md' || true)"
+            # Keep adds and real edits; keep renames ONLY if the content also changed
+            # (R100 = byte-identical). Take the last field: the post-rename path.
+            paths="$(echo "$changed" | awk '$1 == "R100" { next } { print $NF }')"
             # slug = name of the folder directly containing prompt.md
-            slugs="$(echo "$changed" | sed -n 's#\(.*\)/prompt.md$#\1#p' | xargs -n1 basename 2>/dev/null | sort -u | tr '\n' ' ' || true)"
+            slugs="$(echo "$paths" | sed -n 's#\(.*\)/prompt.md$#\1#p' | xargs -n1 basename 2>/dev/null | sort -u | tr '\n' ' ' || true)"
           fi
           slugs="$(echo "$slugs" | xargs || true)"   # trim
 
