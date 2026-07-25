@@ -16,8 +16,7 @@ compliance/
   policies/             27 policy folders: prompt.md -> {slug}.md, plus references/
     shared-controls/    cross-policy controls, hand-authored (no prompt.md)
     manifest.yaml       which policies are regenerable
-  scripts/              the extractors — still at the repo root, see "Moving parts"
-  dashboard/            the evidence dashboard — still at docs/dashboard/
+  dashboard/            the evidence dashboard (GitHub Pages)
 
 core/           the banking core
   supabase/             39 tables, 66 migrations, 48 API modules, the drill harness
@@ -30,6 +29,7 @@ core/           the banking core
 ui/             the staff console (Next.js) — early, mock-data
 
 analytics/      DuckDB views, the 5300 and BSA reporters
+scripts/        repo-wide tooling: extractors, checkers, generators
 ```
 
 Generated artifacts (`controls.json`, `core-vocabulary.json`, `control-vocabulary.json`,
@@ -103,7 +103,7 @@ red — usually "no writer" for a noun the core does not model yet.
 
 ## Dashboard
 
-`docs/dashboard/` renders the catalogue and its evidence: per-policy pages generated from
+`compliance/dashboard/` renders the catalogue and its evidence: per-policy pages generated from
 `controls.json`, plus a synthetic `money-movement-gate` view that cuts across policies. Hosted
 on GitHub Pages because the Supabase gateway rewrites renderable content types on shared
 domains.
@@ -115,13 +115,14 @@ real ones — it is load-bearing, not decorative.
 ## Moving parts
 
 This repo was consolidated from three (`pynthia-policies-and-procedures`, `cassandra-core`,
-`core-ui`) in July 2026. Two things are mid-flight:
+`core-ui`) in July 2026. Some things are mid-flight:
 
-- The 27 policy folders have moved to `compliance/policies/`. Still at the repo root and
-  still to move: `scripts/` (→ `compliance/scripts/`), `docs/dashboard/` (→
-  `compliance/dashboard/`, which needs Pages switched from `/docs` to an Actions deploy), and
-  `supabase/` + `core-api.yaml` + `core-api-loop/` (→ `core/`). The Supabase move needs
-  `--workdir core` on every CLI call, so it is deliberately last.
+- `supabase/`, `core-api.yaml` and `core-api-loop/` are still at the repo root; they move
+  under `core/` in a follow-up. That move needs `--workdir core` on every Supabase CLI call
+  and touches the migrations CI job, so it is deliberately last.
+- `scripts/` stays at the repo root on purpose. It is repo-wide tooling, not compliance
+  tooling: `check_decision_refs.py` reads `core/`, `exists_check.py` and `estimate_domain.py`
+  read `supabase/`. Filing it under `compliance/` would misplace half of it.
 - `core/verifier/` enumerates 529 test targets, but its control tier is already built — better
   — as `drill/`. Its remaining value is the other 208 targets (contract, property,
   state-machine). See `core/README.md`.

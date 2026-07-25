@@ -450,7 +450,7 @@ Deno.test("the dashboard route 302s to the hosted shell (the gateway cannot serv
 Deno.test("the hosted shell carries no credentials at all (demo posture)", async () => {
   for (const f of ["index.html", "assets/app.js"]) {
     const src = await Deno.readTextFile(
-      new URL(`../../../docs/dashboard/${f}`, import.meta.url),
+      new URL(`../../../compliance/dashboard/${f}`, import.meta.url),
     );
     assert(!src.includes("token="), `${f}: no token may ride in a URL`);
     assert(!/cass_(?:demo|e2e|pt)_[a-f0-9]/.test(src), `${f}: no live token may be baked in`);
@@ -459,7 +459,7 @@ Deno.test("the hosted shell carries no credentials at all (demo posture)", async
 });
 
 Deno.test("the policy hierarchy covers the whole catalogue — every policy, every control, a page each", async () => {
-  const dash = new URL("../../../docs/dashboard/", import.meta.url);
+  const dash = new URL("../../../compliance/dashboard/", import.meta.url);
   const manifest = JSON.parse(
     await Deno.readTextFile(new URL("manifest.json", dash)),
   );

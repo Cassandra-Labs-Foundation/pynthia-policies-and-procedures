@@ -546,7 +546,7 @@ export async function getDashboardTrace(
  * itself CANNOT be served from here: the Supabase gateway rewrites every
  * renderable content-type (text/html, xhtml, even via Storage) to text/plain
  * on its shared domains — an anti-phishing policy; HTML needs a custom
- * domain. So the shell lives on GitHub Pages (docs/dashboard/index.html —
+ * domain. So the shell lives on GitHub Pages (compliance/dashboard/index.html —
  * pure chrome, zero data, safe to host publicly) and this route 302s to it.
  * DASHBOARD_SHELL_URL overrides the destination (e.g. a custom domain later).
  */

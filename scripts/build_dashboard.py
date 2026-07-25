@@ -2,7 +2,7 @@
 """Generate the compliance dashboard's policy hierarchy from controls.json.
 
 The dashboard mirrors the repo's policy structure: one page per policy at
-docs/dashboard/<slug>/, driven by a manifest generated from the same
+compliance/dashboard/<slug>/, driven by a manifest generated from the same
 controls.json the crosswalk builds from — so the dashboard can never drift
 from the catalogue without CI noticing.
 
@@ -10,9 +10,9 @@ from the catalogue without CI noticing.
   python3 scripts/build_dashboard.py --check   # fail if anything is stale
 
 Outputs:
-  docs/dashboard/manifest.json      policy -> controls (id, title, anchor,
+  compliance/dashboard/manifest.json      policy -> controls (id, title, anchor,
                                     citations, source link)
-  docs/dashboard/<slug>/index.html  one stub per policy, all identical: they
+  compliance/dashboard/<slug>/index.html  one stub per policy, all identical: they
                                     load the shared app, which reads the
                                     policy slug from its own URL.
 """
@@ -24,7 +24,7 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 CONTROLS = ROOT / "controls.json"
-DASH = ROOT / "docs" / "dashboard"
+DASH = ROOT / "compliance" / "dashboard"
 
 TITLES = {
     "audit": "Audit",

@@ -1,0 +1,62 @@
+# Publish the compliance dashboard to GitHub Pages.
+#
+# Pages can only serve from the repo root or a directory literally named
+# `docs/`. The dashboard now lives at compliance/dashboard/, which is neither,
+# so the old "deploy from branch" source cannot see it — this workflow replaces
+# it (repo Pages source switched from `legacy` to `workflow`).
+#
+# The staging step is what keeps the public URL unchanged. Uploading
+# compliance/dashboard/ directly would serve it at the site ROOT, moving the
+# dashboard from /cassandra-platform/dashboard/ to /cassandra-platform/ and
+# breaking every link in DEMO.md, the API's /compliance/dashboard redirect and
+# the e2e smoke test. Staging it one level down preserves the old path exactly.
+#
+# It also publishes ONLY the dashboard. Pointing Pages at compliance/ wholesale
+# would publish the 27 policy folders as a website too — they are already public
+# on GitHub, but that is a different thing from hosting them.
+name: pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "compliance/dashboard/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two deploys race; let an in-flight one finish rather than
+# publishing a half-built site.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Stage the dashboard one level down
+        run: |
+          set -euo pipefail
+          mkdir -p _site/dashboard
+          cp -R compliance/dashboard/. _site/dashboard/
+          # Fail loudly rather than deploying an empty site.
+          test -f _site/dashboard/index.html
+          test -f _site/dashboard/assets/app.js
+          echo "staged $(find _site -type f | wc -l) files"
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
