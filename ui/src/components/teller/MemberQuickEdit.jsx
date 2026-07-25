@@ -1,47 +1,49 @@
 // src/components/teller/MemberQuickEdit.jsx
 import React, { useState } from 'react';
 import { Search, X, CreditCard, DollarSign, User, AlertCircle } from 'lucide-react';
-import { fetchMember, mockMembers } from '../../lib/mock';
+import { fetchAccounts, searchMembers } from '../../lib/api';
 
 export default function MemberQuickEdit() {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [member, setMember] = useState(null);
+  const [memberAccounts, setMemberAccounts] = useState([]);
   const [error, setError] = useState('');
   const [selectedTab, setSelectedTab] = useState('info');
   const [transactionType, setTransactionType] = useState('deposit');
   const [transactionAmount, setTransactionAmount] = useState('');
 
-  // Mock account details
-  const memberAccounts = [
-    { id: 1, name: 'Primary Checking', number: '987654-10', balance: '$2,450.75', type: 'checking' },
-    { id: 2, name: 'Savings', number: '987654-20', balance: '$12,345.67', type: 'savings' },
-    { id: 3, name: 'Auto Loan', number: 'L-45678', balance: '$15,750.00', type: 'loan' }
-  ];
-
   const handleSearch = async () => {
     if (!searchTerm.trim()) return;
-    
+
     setIsLoading(true);
     setError('');
-    
+
     try {
-      // For the prototype, let's just find a matching member from our mock data
-      const foundMember = mockMembers.find(m => 
-        m.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        m.id.includes(searchTerm)
-      );
-      
-      if (foundMember) {
-        setMember(foundMember);
-        setIsOpen(true);
-      } else {
+      const matches = await searchMembers(searchTerm);
+
+      if (matches.length === 0) {
         setError('No member found matching your search');
+        return;
       }
-    } catch (error) {
-      setError('Error searching for member');
-      console.error(error);
+
+      const found = matches[0];
+      setMember(found);
+      setIsOpen(true);
+
+      // The member -> accounts walk, which is what GET /accounts?entity_id=
+      // exists for. Its own failure must not clear the member we just found,
+      // so the accounts list empties and the rest of the panel stands.
+      try {
+        setMemberAccounts(await fetchAccounts({ entityId: found.id }));
+      } catch (accountsError) {
+        console.error('Error loading member accounts:', accountsError);
+        setMemberAccounts([]);
+      }
+    } catch (searchError) {
+      setError(searchError.message || 'Error searching for member');
+      console.error(searchError);
     } finally {
       setIsLoading(false);
     }
@@ -54,9 +56,15 @@ export default function MemberQuickEdit() {
   };
 
   const handleTransaction = () => {
-    // In a real app, you'd actually process the transaction
-    // For the prototype, just show a success message
-    alert(`${transactionType.charAt(0).toUpperCase() + transactionType.slice(1)} of $${transactionAmount} processed successfully!`);
+    // Reads are wired to the core; writes are not. The proxy in
+    // pages/api/core/ is read-only by design, so this form has nowhere to post
+    // yet — and now that the panel around it shows REAL member and account
+    // records, a "processed successfully" alert would be a false confirmation
+    // sitting next to true data. It says what actually happened instead.
+    alert(
+      `Not submitted. The ${transactionType} form is not wired to POST /transfers yet — ` +
+      `this panel is read-only.`
+    );
     setTransactionAmount('');
   };
 
@@ -167,7 +175,8 @@ export default function MemberQuickEdit() {
                         </div>
                         <div>
                           <div className="text-xs text-slate-500">Phone</div>
-                          <div className="text-sm">{member.phone}</div>
+                          {/* core.entity holds no phone number — see lib/api.js */}
+                          <div className="text-sm">{member.phone || 'Not on file'}</div>
                         </div>
                       </div>
                     </div>
@@ -180,8 +189,8 @@ export default function MemberQuickEdit() {
                           }`}></div>
                           <span className="text-sm capitalize">{member.status}</span>
                         </div>
-                        <div className="text-xs text-slate-500 mt-2">
-                          Last account activity: Today at 10:45 AM
+                        <div className="text-xs text-slate-500 mt-2 capitalize">
+                          {member.type}
                         </div>
                       </div>
                     </div>
@@ -193,17 +202,27 @@ export default function MemberQuickEdit() {
                       <thead>
                         <tr className="bg-slate-100 border-b border-slate-200">
                           <th className="text-left py-2 px-3 text-xs font-medium text-slate-500">Account</th>
-                          <th className="text-left py-2 px-3 text-xs font-medium text-slate-500">Number</th>
+                          {/* the issued routing/account-number pair lives behind
+                              GET /accounts/{id}/numbers — a per-row call this
+                              panel does not make, so the id stands in for it */}
+                          <th className="text-left py-2 px-3 text-xs font-medium text-slate-500">Status</th>
                           <th className="text-left py-2 px-3 text-xs font-medium text-slate-500">Type</th>
                           <th className="text-right py-2 px-3 text-xs font-medium text-slate-500">Balance</th>
                           <th className="text-right py-2 px-3 text-xs font-medium text-slate-500">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
+                        {memberAccounts.length === 0 && (
+                          <tr>
+                            <td colSpan={5} className="py-3 px-3 text-sm text-slate-500 text-center">
+                              No accounts for this member.
+                            </td>
+                          </tr>
+                        )}
                         {memberAccounts.map(account => (
                           <tr key={account.id} className="border-b border-slate-200 last:border-b-0">
-                            <td className="py-2 px-3 text-sm">{account.name}</td>
-                            <td className="py-2 px-3 text-sm">{account.number}</td>
+                            <td className="py-2 px-3 text-sm font-mono text-xs">{account.id}</td>
+                            <td className="py-2 px-3 text-sm capitalize">{account.status}</td>
                             <td className="py-2 px-3 text-sm capitalize">{account.type}</td>
                             <td className="py-2 px-3 text-sm text-right">{account.balance}</td>
                             <td className="py-2 px-3 text-right">
@@ -284,7 +303,7 @@ export default function MemberQuickEdit() {
                     <select className="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                       {memberAccounts.map(account => (
                         <option key={account.id} value={account.id}>
-                          {account.name} ({account.number}) - {account.balance}
+                          {account.id} ({account.type}) - {account.balance}
                         </option>
                       ))}
                     </select>

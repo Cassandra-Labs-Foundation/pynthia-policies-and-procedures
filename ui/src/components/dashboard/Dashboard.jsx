@@ -13,31 +13,36 @@ import {
   Download
 } from 'lucide-react';
 import MainLayout from '../layout/MainLayout';
-import { fetchAccounts, fetchTransactions } from '../../lib/mock';
+import { fetchAccounts, fetchTransactions } from '../../lib/api';
 
 export default function Dashboard() {
   const [accounts, setAccounts] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  
-  // Load data from mock API
+  const [error, setError] = useState('');
+
+  // Real records from the banking core, via the server-side proxy
   useEffect(() => {
     async function loadData() {
       try {
         const [accountsData, transactionsData] = await Promise.all([
-          fetchAccounts(),
-          fetchTransactions()
+          fetchAccounts({ limit: 12 }),
+          fetchTransactions({ limit: 25 })
         ]);
-        
+
         setAccounts(accountsData);
         setTransactions(transactionsData);
-      } catch (error) {
-        console.error("Error loading dashboard data:", error);
+      } catch (err) {
+        // Shown, not just logged: an empty dashboard and a dashboard that
+        // could not reach the core look identical, and only one of them is
+        // something to act on.
+        console.error("Error loading dashboard data:", err);
+        setError(err.message);
       } finally {
         setIsLoading(false);
       }
     }
-    
+
     loadData();
   }, []);
     
@@ -68,6 +73,14 @@ export default function Dashboard() {
       subtitle="Welcome back. Here's what's happening today."
       actions={actionButtons}
     >
+      {/* Core API unreachable — say so rather than rendering an empty page */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-6">
+          <h3 className="font-medium text-red-800">Could not load data from the core</h3>
+          <p className="text-sm text-red-600 mt-0.5">{error}</p>
+        </div>
+      )}
+
       {/* System Alert */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6 flex items-center">
         <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
@@ -113,6 +126,10 @@ export default function Dashboard() {
           <div className="p-6 text-center bg-white rounded-lg border border-slate-200">
             <div className="animate-spin inline-block w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mb-2"></div>
             <div>Loading accounts...</div>
+          </div>
+        ) : accounts.length === 0 ? (
+          <div className="p-6 text-center bg-white rounded-lg border border-slate-200 text-slate-500">
+            No accounts yet.
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -162,6 +179,8 @@ export default function Dashboard() {
               <div className="animate-spin inline-block w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mb-2"></div>
               <div>Loading transactions...</div>
             </div>
+          ) : transactions.length === 0 ? (
+            <div className="p-6 text-center text-slate-500">No transactions yet.</div>
           ) : (
             <table className="w-full">
               <thead>

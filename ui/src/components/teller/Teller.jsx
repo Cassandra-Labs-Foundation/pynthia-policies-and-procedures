@@ -4,27 +4,28 @@ import { DollarSign, Filter, Download, Calendar, Clock, ArrowRight } from 'lucid
 import MainLayout from '../layout/MainLayout';
 import TellerDrawer from './TellerDrawer';
 import MemberQuickEdit from './MemberQuickEdit';
-import { fetchTransactions } from '../../lib/mock';
+import { fetchTransactions } from '../../lib/api';
 
 
 export default function Teller() {
   const [showFilters, setShowFilters] = useState(false);
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  
-  // Load transactions from mock API
+  const [error, setError] = useState('');
+
+  // Real transfers from the banking core, via the server-side proxy
   useEffect(() => {
     async function loadData() {
       try {
-        const data = await fetchTransactions();
-        setTransactions(data);
-      } catch (error) {
-        console.error("Error loading transactions:", error);
+        setTransactions(await fetchTransactions({ limit: 50 }));
+      } catch (err) {
+        console.error("Error loading transactions:", err);
+        setError(err.message);
       } finally {
         setIsLoading(false);
       }
     }
-    
+
     loadData();
   }, []);
     
@@ -122,12 +123,21 @@ export default function Teller() {
           </div>
         )}
         
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+            <h3 className="font-medium text-red-800">Could not load the journal</h3>
+            <p className="text-sm text-red-600 mt-0.5">{error}</p>
+          </div>
+        )}
+
         <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
           {isLoading ? (
             <div className="p-6 text-center">
               <div className="animate-spin inline-block w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mb-2"></div>
               <div>Loading transactions...</div>
             </div>
+          ) : transactions.length === 0 ? (
+            <div className="p-6 text-center text-slate-500">No transactions yet.</div>
           ) : (
             <table className="w-full">
               <thead>
