@@ -33,8 +33,13 @@ jobs:
       - name: Pagination walks forward (card 04)
         run: |
           p1=$(curl -sS "$API/control-results?limit=1" -H "X-Api-Key: $KEY")
-          # URL-encode: timestamptz cursors carry '+00:00'
-          after=$(echo "$p1" | python3 -c "import json,sys,urllib.parse;d=json.load(sys.stdin);assert d['has_more'];print(urllib.parse.quote(d['next_after']))")
+          # d['pagination'], not d — D16 nests the cursor, and so does the
+          # Pagination schema in core-api.yaml. The implementations returned it
+          # FLAT for months and this step asserted the flat shape, so the two
+          # agreed with each other and neither agreed with the decision they
+          # cited. Reading it from where D16 says it lives is what makes this
+          # step a check rather than a mirror.
+          after=$(echo "$p1" | python3 -c "import json,sys,urllib.parse;d=json.load(sys.stdin)['pagination'];assert d['has_more'];print(urllib.parse.quote(d['next_after']))")
           p2=$(curl -sS "$API/control-results?limit=1&after=$after" -H "X-Api-Key: $KEY")
           python3 -c "
           import json,sys

@@ -2,7 +2,7 @@
 # e2e compliance harness — drives the DEPLOYED api against real Blnk and asserts
 # that non-compliant transactions are actually FLAGGED, not merely rejected.
 #
-#   ./supabase/tests/e2e/compliance_e2e.sh
+#   ./core/supabase/tests/e2e/compliance_e2e.sh
 #
 # Why this exists (see memory: tdd-with-compliance-e2e): a control that silently
 # fails to fire produces a false clean audit, which is worse than a crash. An
@@ -13,7 +13,13 @@
 #
 # Needs DEMO_API_KEY + SUPABASE_DB_URL in .env.local, and duckdb on PATH.
 set -uo pipefail
-cd "$(dirname "$0")/../../.."
+# FOUR levels, not three. This script sat at supabase/tests/e2e/ when the repo
+# root WAS the supabase project root; the consolidation moved it under core/ and
+# renamed the file without touching what it computes, so ../../.. started
+# resolving to core/ — where there is no .env.local, no analytics/ and no
+# .git. The DEMO_API_KEY guard below turned that into a loud failure, which is
+# the only reason it was caught: nothing runs this on push.
+cd "$(dirname "$0")/../../../.."
 if [ -f .env.local ]; then set -a; source .env.local; set +a; fi
 : "${DEMO_API_KEY:?DEMO_API_KEY not set in .env.local}"
 : "${SUPABASE_DB_URL:?SUPABASE_DB_URL not set in .env.local}"
@@ -1827,7 +1833,7 @@ echo
 echo "-- 48. the demo narrative still runs (demo.sh) --"
 # The Aug-29 walkthrough is a TEST, run here so it cannot rot between
 # rehearsals: a demo script nobody executes fails in the room, not in CI.
-if PACE=0 ./supabase/tests/e2e/demo.sh >/tmp/e2e_demo.log 2>&1; then
+if PACE=0 ./core/supabase/tests/e2e/demo.sh >/tmp/e2e_demo.log 2>&1; then
   ok "the full demo narrative ran green ($(grep -c '✓' /tmp/e2e_demo.log) checks)"
 else
   bad "the demo narrative broke" "green" "$(grep -c '✗' /tmp/e2e_demo.log) failed — see /tmp/e2e_demo.log"
