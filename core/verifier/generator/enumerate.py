@@ -24,8 +24,35 @@ shape), so the tool has zero third-party deps. Swap in pyyaml if the shapes drif
 import json, re, sys, collections
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
-VERIFIER = ROOT / "verifier"
+CORE = Path(__file__).resolve().parents[2]          # core/
+ROOT = CORE.parent                                   # repo root
+VERIFIER = CORE / "verifier"
+
+# The enumerator's four inputs no longer share a directory. In cassandra-core they all sat at
+# that repo's root; here the spec and the floor designation live with the core, while
+# controls.json is a generated artifact at the repo root because both halves of the system
+# read it.
+SPEC = CORE / "core-api.yaml"
+FLOOR = CORE / "compliance-floor.yaml"
+CONTROLS = ROOT / "controls.json"
+
+# ⚠ DO NOT RUN THIS AGAINST THE COMMITTED targets.json UNTIL parse_core_api IS REWRITTEN.
+#
+# parse_core_api below reads the ORIGINAL bespoke flat format — top-level `resources:` and
+# `endpoints:` keys at a fixed indentation. This repo's core-api.yaml is OpenAPI 3.0.3
+# (`openapi: 3.0.3` / `paths:`), which that parser matches ZERO of. It does not raise; it
+# returns two empty dicts, and the run completes "successfully" with
+# core_api_resources: 0, endpoints: 0 — dropping all 143 contract targets and all 24
+# state-machine targets, and reclassifying ~276 controls as no_api_inducer.
+#
+# The committed targets.json (529 targets, 75 resources, 143 endpoints) was enumerated in
+# cassandra-core against the old format and is the last VALID output. Regenerating here
+# overwrites it with a quieter, emptier lie.
+#
+# Fix: port parse_core_api to read OpenAPI paths/components — resources from
+# components.schemas (+ x-states), endpoints from paths. Then re-enumerate and expect the
+# target count to CHANGE, because the live catalogue has 333 controls, not the 321 this
+# snapshot was built from.
 
 # Substrate resources whose endpoints can INDUCE an event (have a POST/transition op).
 # Read-only resources (control_result, event) are observers, not inducers.
@@ -207,10 +234,10 @@ def enum_properties(props):
 
 # ────────────────────────────── main ──────────────────────────────
 def main():
-    resources, endpoints = parse_core_api(ROOT / "core-api.yaml")
-    controls = json.loads((ROOT / "controls.json").read_text())["controls"]
+    resources, endpoints = parse_core_api(SPEC)
+    controls = json.loads(CONTROLS.read_text())["controls"]
     props = parse_properties(VERIFIER / "properties.yaml")
-    floor_ids = parse_floor(ROOT / "compliance-floor.yaml")
+    floor_ids = parse_floor(FLOOR)
 
     targets = (enum_contract(endpoints) + enum_state_machines(resources, endpoints)
                + enum_controls(controls, floor_ids) + enum_properties(props))

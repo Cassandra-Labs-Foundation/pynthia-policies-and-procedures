@@ -1,0 +1,86 @@
+# Compliance-Floor Designation (SEED / bridge artifact)
+#
+# Which controls are `compliance_floor` — controls that CANNOT be disabled or weakened by any
+# credit union or fintech (architecture-decisions.md D22; Invariant 3; the "hostile examiner
+# assumption" in compliance-system-architecture.md).
+#
+# WHY THIS FILE EXISTS: controls.json (317 controls, spec v2.2.0) carries NO compliance_floor
+# field (0/317). The architecture expects one. This is a stopgap.
+#
+# AUTHORITATIVE SOURCE (long-term): a `compliance_floor: true` field per control in controls.json,
+#   authored upstream by the compliance/legal team. When that lands, the generator prefers it and
+#   this seed shrinks to empty (P9). This file should be PROMOTED upstream, not maintained forever.
+#
+# PROVENANCE: seed — derived by the test effort from reg citations in controls.json, NOT an
+#   authoritative legal designation. Conservative: only black-letter, non-waivable federal mandates
+#   (OFAC, CIP, CDD/beneficial-ownership, CTR, SAR, transaction monitoring). NEEDS LEGAL SIGN-OFF.
+#   Mis-including a control here would make tests demand enforcement that may be wrong; we therefore
+#   include only controls no CU/fintech may lawfully disable, and list everything else as a candidate.
+
+meta:
+  provenance: seed
+  needs_legal_review: true
+  authoritative_source: "controls.json compliance_floor field (upstream — pending)"
+  basis: "non-waivable federal BSA/AML/OFAC mandates"
+  spec_version: "2.2.0"
+  scope: "DEPRIORITIZED — the floor/customizable split matters at WHITE-LABEL (other credit unions
+    customizing controls). Pynthia's own core runs ALL controls as mandatory, so this file is kept as
+    documentation for the eventual white-label phase, not a gating input for the current single-CU core."
+
+# ── Asserted floor controls — tests enforce FLOOR-ALWAYS-FIRES + FLOOR-CANNOT-DISABLE against these.
+# floor_triggers = the qualifying event(s) (from controls.json events[]) whose occurrence must
+# produce a control-result; the control must also be non-disableable.
+floor_controls:
+  - control_id: BS-05
+    title: "OFAC Screening & Holds"
+    basis: "31 CFR Part 501 / §501.601 / §501.603 — OFAC sanctions; non-waivable"
+    floor_triggers: [ofac.hold_placed, ofac.blocked, ofac.rejected, ofac.cleared]
+    confidence: high          # canonical floor control (D22 names OFAC explicitly)
+
+  - control_id: LN-11
+    title: "OFAC & Sanctions Gate (lending)"
+    basis: "31 CFR Chapter V; NCUA Part 748 — OFAC at loan-party add; non-waivable"
+    floor_triggers: [loan_party.ofac_potential_match, loan_party.added]
+    confidence: high
+
+  - control_id: BS-03
+    title: "Customer Identification Program (CIP)"
+    basis: "31 CFR §1020.220 — CIP; non-waivable"
+    floor_triggers: [member.application_submitted, entity.activated]
+    confidence: high
+
+  - control_id: BS-04
+    title: "CDD / EDD & Beneficial Ownership"
+    basis: "31 CFR §1010.230 — beneficial ownership / CDD; non-waivable"
+    floor_triggers: [cdd.profile_created, cdd.bo_certified]
+    confidence: high
+
+  - control_id: BS-07
+    title: "CTR Filing & Exemptions"
+    basis: "31 CFR §1010.311 / §1010.306 — currency transaction reports; non-waivable"
+    floor_triggers: [ctr.threshold_reached, ctr.filed]
+    confidence: high
+
+  - control_id: BS-08
+    title: "SAR Filing & Confidentiality"
+    basis: "31 CFR §1020.320; 12 CFR §748.1(c) — suspicious activity reports; non-waivable"
+    floor_triggers: [sar.decision_file]
+    confidence: high
+
+  - control_id: BS-06
+    title: "Transaction Monitoring & Case Management"
+    basis: "31 CFR §1020.210 / §1020.320 — mandated monitoring that feeds SAR; non-waivable program element"
+    floor_triggers: [bsa_alert.created]
+    confidence: medium        # program element rather than a single statutory 'shall'
+
+# ── Candidates — likely floor but risk-based or program-level; NOT asserted by tests until legal
+# confirms. Listed so the gap is explicit, not silent.
+candidates:
+  - control_id: BS-02
+    title: "Enterprise BSA/AML Risk Assessment"
+    basis: "31 CFR §1020.210 — AML program pillar; arguably non-waivable program requirement"
+    reason_held: "program-level, not a discrete enforceable gate"
+  - control_id: BS-20
+    title: "PEP Screening & EDD"
+    basis: "31 CFR §1010.230 / §1020.210 — risk-based EDD"
+    reason_held: "PEP screening is risk-based, not a hard US statutory mandate like OFAC/CTR"

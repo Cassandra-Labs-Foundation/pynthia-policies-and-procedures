@@ -10,7 +10,7 @@ Imported from `Cassandra-Labs-Foundation/cassandra-core` @ `af1c062` on 2026-07-
 
 ## architecture-decisions.md is the reason this directory exists
 
-`supabase/` cites these decisions **87 times across 24 files** — `-- per D4`, `(D23)`,
+`core/supabase/` cites these decisions **87 times across 24 files** — `-- per D4`, `(D23)`,
 `D25` — and until this import none of those citations resolved, because the log lived in
 another repo. Code compensated by re-narrating decisions inline, which is how a decision
 log and its implementation drift apart without anyone noticing.
@@ -41,12 +41,19 @@ Two things did **not** come across:
 `compliance-floor.yaml` into `targets.json` (529 targets) and `worklist.md`. Deterministic;
 the model never decides *what* to test, only *how*.
 
-Two caveats:
+Three caveats:
 
-1. **Its targets are stale.** They were enumerated against cassandra-core's pinned June
-   snapshots, not this repo's live artifacts. Re-running it here against the current
-   catalogue is the point of the import — and will change the list.
-2. **Its control tier is already built, better, as `supabase/functions/drill/`.** Drill has
+1. **It cannot currently run here.** `parse_core_api` reads the original bespoke flat format
+   (top-level `resources:` / `endpoints:`). This repo's `core-api.yaml` is OpenAPI 3.0.3, which
+   it matches none of — and it does not fail, it returns empty and completes "successfully"
+   with `core_api_resources: 0, endpoints: 0`, silently dropping all 143 contract and 24
+   state-machine targets. The committed `targets.json` (529 targets, 75 resources, 143
+   endpoints) is the last valid output, enumerated in cassandra-core against the old format.
+   Porting the parser to OpenAPI is prerequisite work for anything else here.
+
+2. **Its targets are stale even once that is fixed.** They were enumerated against
+   cassandra-core's pinned June snapshots — 321 controls, against today's 333.
+3. **Its control tier is already built, better, as `core/supabase/functions/drill/`.** Drill has
    the hermetic backend (`fake_db.ts`), the live one (`live_db.ts`), 964 lines of cases and
    a grader, and produces 333 results in `control-tests.json` / `control-tests-live.json`.
    Verifier's 321 control targets are the same population.
