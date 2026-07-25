@@ -5,6 +5,7 @@
 // against the deployed function and real Blnk.
 
 import { type BlnkConfig } from "../_shared/blnk.ts";
+import { pgOrderBy, type PgOrder } from "../_shared/pg_order.ts";
 import { type PartnerContext } from "./auth.ts";
 
 // deno-lint-ignore no-explicit-any
@@ -117,7 +118,24 @@ export function listDb(rows: unknown[]) {
     lt: record("lt"),
     order: record("order"),
     limit: record("limit"),
-    then: (res: (v: unknown) => unknown) => res({ data: rows, error: null }),
+    then: (res: (v: unknown) => unknown) => {
+      // ORDER BY is APPLIED, not just recorded. Returning the fixture in the
+      // order it was written made every list test agree with itself about
+      // ordering and with the database about nothing — which is how a page
+      // that really LEADS with null-cursor rows (Postgres sorts NULLS FIRST
+      // under DESC) came back from this double with those rows last, hiding
+      // the dead cursor on GET /accounts. Recording a call proves the query
+      // was BUILT; running it is what proves the result.
+      const order = calls.find((c) => c.fn === "order");
+      const data = order
+        ? pgOrderBy(
+          rows as Record<string, unknown>[],
+          order.args[0] as string,
+          order.args[1] as PgOrder,
+        )
+        : rows;
+      return res({ data, error: null });
+    },
   };
   const db: Any = { schema: () => ({ from: () => chain }) };
   return { db, calls };

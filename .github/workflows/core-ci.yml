@@ -39,6 +39,14 @@ jobs:
         # leaving 326 comments pointing at nothing.
         run: python3 scripts/check_decision_refs.py --strict
 
+      - name: Cursor columns are NOT NULL — no page may end on a dead cursor
+        # D16 reads next_after off the last row it serves, so a nullable cursor
+        # column yields has_more:true with next_after:null — a 200 nobody can
+        # paginate. GET /accounts shipped that way. The check discovers cursor
+        # sites from the code rather than a list, so a new list endpoint on a
+        # nullable column fails here instead of in production.
+        run: python3 scripts/check_cursor_columns.py --strict
+
       - name: Crosswalk integrity — no over-claims, no stale catalogue ids
         run: python3 scripts/build_crosswalk.py --check
 

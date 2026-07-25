@@ -14,6 +14,8 @@
 // ones that are NOT. The unenforced list is the one a reader needs; see
 // DRILL.md, where it is printed first.
 
+import { pgCompare } from "../_shared/pg_order.ts";
+
 // deno-lint-ignore no-explicit-any
 type Any = any;
 
@@ -467,6 +469,7 @@ export function makeDrillDb(): DrillDb {
           const preds: { op: string; col: string; val: Any }[] = [];
           let orderCol: string | null = null;
           let orderAsc = true;
+          let orderNullsFirst = false;
           let lim = Infinity;
 
           const chain: Any = {
@@ -479,9 +482,13 @@ export function makeDrillDb(): DrillDb {
             lte: (c: string, v: Any) => (preds.push({ op: "lte", col: c, val: v }), chain),
             gte: (c: string, v: Any) => (preds.push({ op: "gte", col: c, val: v }), chain),
             contains: (c: string, v: Any) => (preds.push({ op: "contains", col: c, val: v }), chain),
-            order: (c: string, o?: { ascending?: boolean }) => {
+            order: (c: string, o?: { ascending?: boolean; nullsFirst?: boolean }) => {
               orderCol = c;
               orderAsc = o?.ascending !== false;
+              // Postgres' DEFAULT, not a convenience: NULLS LAST for ASC,
+              // NULLS FIRST for DESC. See the sort in `then` for why this
+              // matters enough to model.
+              orderNullsFirst = o?.nullsFirst ?? !orderAsc;
               return chain;
             },
             limit: (n: number) => (lim = n, chain),
@@ -582,10 +589,17 @@ export function makeDrillDb(): DrillDb {
             then: (res: (v: Any) => Any) => {
               let out = rows[key].filter((r) => matches(r, preds)).map((r) => ({ ...r }));
               if (orderCol) {
-                out.sort((a, b) => {
-                  const x = String(a[orderCol!] ?? ""), y = String(b[orderCol!] ?? "");
-                  return orderAsc ? (x < y ? -1 : x > y ? 1 : 0) : (x > y ? -1 : x < y ? 1 : 0);
-                });
+                // NULLs are sorted, not coerced. This used to read
+                // `String(a[orderCol] ?? "")`, which turns NULL into the empty
+                // string — and "" sorts LAST under DESC, whereas Postgres sorts
+                // NULLS FIRST. The fake's null ordering was the exact INVERSE
+                // of the database's, so the null-cursor bug on GET /accounts
+                // could not be reproduced by any hermetic test. Same shape as
+                // the undefined-vs-NULL correction that broke 17 tests: the
+                // double was being asserted against instead of the schema.
+                out.sort((a, b) =>
+                  pgCompare(a, b, orderCol!, { ascending: orderAsc, nullsFirst: orderNullsFirst })
+                );
               }
               if (lim !== Infinity) out = out.slice(0, lim);
               return res({ data: out, error: null });

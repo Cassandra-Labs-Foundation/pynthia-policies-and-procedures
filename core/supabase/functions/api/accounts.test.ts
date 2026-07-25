@@ -6,7 +6,7 @@
 // direction is a real bug: demanding the key for a zero-balance open would
 // break callers, and NOT demanding it when funding would allow a duplicate
 // opening deposit.
-import { assertEquals } from "jsr:@std/assert@1";
+import { assertEquals, assertRejects } from "jsr:@std/assert@1";
 import { getAccount, getAccounts, postAccount } from "./accounts.ts";
 import {
   type Any, filtersOf, json, listDb, OPS_CTX, req, reqWithoutIdempotencyKey,
@@ -255,4 +255,62 @@ Deno.test("the list envelope is the one core-api.yaml specifies", async () => {
   for (const leaked of ["limit", "has_more", "next_after"]) {
     assertEquals(body[leaked], undefined, `${leaked} must live under pagination, not beside data`);
   }
+});
+
+// ---------------------------------------------- the null-cursor regression
+//
+// This is the test that SHOULD have existed before GET /accounts shipped. It
+// could not have been written against the old doubles: listDb returned the
+// fixture unsorted, so a page whose real leading rows are dateless never
+// appeared. With Postgres ordering modelled, the fixture below reproduces
+// exactly what the live database returned.
+
+Deno.test("NULLS FIRST under DESC — dateless rows LEAD the page, as in Postgres", async () => {
+  const rows = [
+    { id: "acct_dated", created_at: "2026-07-01T00:00:00Z" },
+    { id: "acct_null_a", created_at: null },
+    { id: "acct_null_b", created_at: null },
+  ];
+  const { db } = listDb(rows);
+  const res = await getAccounts(new Request("https://x/accounts?limit=3"), db, "n1", TEST_CTX);
+  assertEquals(
+    (await res.json()).data.map((r: Any) => r.id),
+    ["acct_null_a", "acct_null_b", "acct_dated"],
+    "Postgres sorts NULLS FIRST for DESC; a double that sorts them last hides the cursor bug",
+  );
+});
+
+Deno.test("a page cannot advertise more with a cursor the caller cannot use", async () => {
+  // limit=1 over rows whose leading entries are dateless: has_more is true and
+  // the cursor would be null. Serving that 200 tells a correct client to keep
+  // asking with nothing to ask WITH — it loops on page 1 forever.
+  //
+  // It THROWS rather than returning a status because the handler is not where
+  // this is decided: index.ts wraps every handler and turns a throw into the
+  // 500 the caller sees (see internalErrorResponse there). Asserting a status
+  // here would assert the wrapper, not this code — and a loud 500 is the
+  // designed outcome, being the one thing a dead cursor cannot be mistaken for.
+  const rows = [
+    { id: "acct_null_a", created_at: null },
+    { id: "acct_null_b", created_at: null },
+  ];
+  const { db } = listDb(rows);
+  await assertRejects(
+    () => getAccounts(new Request("https://x/accounts?limit=1"), db, "n2", TEST_CTX),
+    Error,
+    "pagination cursor is null",
+  );
+});
+
+Deno.test("the normal case still advertises a cursor the caller CAN use", async () => {
+  const rows = [
+    { id: "acct_3", created_at: "2026-07-03T00:00:00Z" },
+    { id: "acct_2", created_at: "2026-07-02T00:00:00Z" },
+    { id: "acct_1", created_at: "2026-07-01T00:00:00Z" },
+  ];
+  const { db } = listDb(rows);
+  const res = await getAccounts(new Request("https://x/accounts?limit=2"), db, "n3", TEST_CTX);
+  const body = await res.json();
+  assertEquals(body.pagination.has_more, true);
+  assertEquals(body.pagination.next_after, "2026-07-02T00:00:00Z");
 });

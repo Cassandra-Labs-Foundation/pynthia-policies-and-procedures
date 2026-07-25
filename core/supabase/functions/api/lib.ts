@@ -205,18 +205,39 @@ export function parsePageParams(q: URLSearchParams): PageParams {
  *
  * The over-fetch is how `has_more` stays honest without a second count query:
  * ask for one more row than the caller wanted, and its presence IS the answer.
+ *
+ * THE THROW IS THE POINT. `has_more: true` with `next_after: null` is not a
+ * degraded response, it is an unanswerable one: the caller is told there is
+ * another page and handed nothing to ask for it with, so a correct client
+ * loops on page 1 forever and an incorrect one stops early and under-reports.
+ * That shipped on GET /accounts because core.account.created_at was nullable
+ * and Postgres sorts NULLS FIRST under DESC — a 200 with a well-formed body
+ * and a dead cursor, which no status code and no schema check would flag.
+ *
+ * A 500 here is strictly better than that. The invariant is enforced where the
+ * envelope is BUILT rather than in a test per endpoint, so it covers the list
+ * endpoints that do not exist yet — which is the only kind of coverage that
+ * survives someone adding one. 20260725000100 removes the cause; this makes
+ * the symptom impossible to serve if a nullable cursor ever returns.
  */
 export function paginate<T extends Record<string, unknown>>(
   rows: T[],
   limit: number,
+  cursorField = "created_at",
 ): { page: T[]; has_more: boolean; next_after: unknown } {
   const has_more = rows.length > limit;
   const page = has_more ? rows.slice(0, limit) : rows;
-  return {
-    page,
-    has_more,
-    next_after: has_more && page.length ? page[page.length - 1].created_at : null,
-  };
+  const next_after = has_more && page.length ? page[page.length - 1][cursorField] : null;
+
+  if (has_more && (next_after === null || next_after === undefined)) {
+    throw new Error(
+      `pagination cursor is null: the last row of this page has no ${cursorField}, ` +
+        `so has_more cannot be honoured. The cursor column must be NOT NULL — ` +
+        `see scripts/check_cursor_columns.py.`,
+    );
+  }
+
+  return { page, has_more, next_after };
 }
 
 /**
