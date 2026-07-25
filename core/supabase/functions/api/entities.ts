@@ -10,7 +10,10 @@ import {
   isNonEmptyString,
   jsonResponse,
   notFoundResponse,
+  pageEnvelope,
+  paginate,
   parseJsonBody,
+  parsePageParams,
   sha256Hex,
   validationError,
   type ValidationErrorItem,
@@ -133,22 +136,10 @@ export async function getEntities(
   ctx: PartnerContext,
 ): Promise<Response> {
   const q = new URL(req.url).searchParams;
-  const errors: ValidationErrorItem[] = [];
+  const { limit, after, errors } = parsePageParams(q);
   const type = q.get("type");
   if (type !== null && !TYPES.includes(type as EntityType)) {
     errors.push({ type: "invalid_value", field: "type", message: `must be one of: ${TYPES.join(", ")}` });
-  }
-  const after = q.get("after");
-  if (after !== null && Number.isNaN(Date.parse(after))) {
-    errors.push({ type: "invalid_value", field: "after", message: "must be an ISO-8601 timestamp" });
-  }
-  let limit = 50;
-  const rawLimit = q.get("limit");
-  if (rawLimit !== null) {
-    const n = Number(rawLimit);
-    if (!Number.isInteger(n) || n < 1 || n > 200) {
-      errors.push({ type: "invalid_value", field: "limit", message: "must be an integer between 1 and 200" });
-    } else limit = n;
   }
   if (errors.length) return validationError(requestId, errors);
 
@@ -165,15 +156,15 @@ export async function getEntities(
 
   const { data, error } = await query;
   if (error) return internalErrorResponse(requestId, error);
-  const rows = (data ?? []) as Record<string, unknown>[];
-  const hasMore = rows.length > limit;
-  const page = hasMore ? rows.slice(0, limit) : rows;
-  return jsonResponse({
-    data: page.map(entityResponse),
+  const { page, has_more, next_after } = paginate(
+    (data ?? []) as Record<string, unknown>[],
     limit,
-    has_more: hasMore,
-    next_after: hasMore && page.length ? page[page.length - 1].created_at : null,
-  }, 200, requestId);
+  );
+  return jsonResponse(
+    pageEnvelope(page.map(entityResponse), { limit, has_more, next_after }),
+    200,
+    requestId,
+  );
 }
 
 /** GET /entities/{id} */

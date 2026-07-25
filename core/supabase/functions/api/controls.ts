@@ -2,6 +2,8 @@ import { type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
   internalErrorResponse,
   jsonResponse,
+  pageEnvelope,
+  paginate,
   validationError,
   type ValidationErrorItem,
 } from "./lib.ts";
@@ -78,13 +80,9 @@ export async function getControlResults(
   const { data, error } = await query;
   if (error) return internalErrorResponse(requestId, error);
 
-  const rows = (data ?? []) as { created_at: string }[];
-  const hasMore = rows.length > limit;
-  const page = hasMore ? rows.slice(0, limit) : rows;
-  return jsonResponse({
-    data: page,
+  const { page, has_more, next_after } = paginate(
+    (data ?? []) as Record<string, unknown>[],
     limit,
-    has_more: hasMore,
-    next_after: hasMore && page.length ? page[page.length - 1].created_at : null,
-  }, 200, requestId);
+  );
+  return jsonResponse(pageEnvelope(page, { limit, has_more, next_after }), 200, requestId);
 }

@@ -17,7 +17,10 @@ import {
   isNonEmptyString,
   jsonResponse,
   notFoundResponse,
+  pageEnvelope,
+  paginate,
   parseJsonBody,
+  parsePageParams,
   sha256Hex,
   storeIdempotencyResponse,
   transferRequestHash,
@@ -828,24 +831,27 @@ export async function postTransfer(
   return jsonResponse(successBody, 201, requestId);
 }
 
-export async function getTransfer(
-  transferId: string,
-  db: SupabaseClient,
-  requestId: string,
-  ctx: PartnerContext,
-): Promise<Response> {
-  const { data, error } = await scopeToPartner(
-    db.schema("core").from("transfer")
-      .select("id, status, amount, originator, beneficiary, blnk_transaction_id, blnk_status, created_at")
-      .eq("id", transferId),
-    ctx,
-  ).maybeSingle();
+const TRANSFER_COLS =
+  "id, status, amount, originator, beneficiary, blnk_transaction_id, blnk_status, created_at";
 
-  if (error) return internalErrorResponse(requestId, error);
-  if (!data) return notFoundResponse(requestId, "transfer", transferId);
+const TRANSFER_STATUSES = [
+  "pending_approval",
+  "submitted",
+  "settled",
+  "returned",
+  "rejected",
+  "canceled",
+];
 
-  const row = data as TransferRow;
-  return jsonResponse({
+// Ids that may be interpolated into a PostgREST `or=` filter. That filter is a
+// COMMA-SEPARATED expression list, so an id containing `,` or `)` would not be
+// a bad lookup — it would be a second filter term of the caller's choosing.
+// Every id this API mints is `<prefix>_<uuid>`; anything else is refused before
+// it reaches the query string rather than escaped after.
+const SAFE_ID = /^[A-Za-z0-9_-]{1,128}$/;
+
+function transferResponse(row: TransferRow): Record<string, unknown> {
+  return {
     id: row.id,
     status: row.status,
     amount_cents: row.amount,
@@ -854,5 +860,95 @@ export async function getTransfer(
     blnk_transaction_id: row.blnk_transaction_id,
     blnk_status: row.blnk_status,
     created_at: row.created_at,
-  }, 200, requestId);
+  };
+}
+
+/**
+ * GET /transfers — one partner's transfers, newest first.
+ *
+ * `?account_id=` matches EITHER leg. A transfer is not owned by one side of
+ * itself: the same row is a debit to the originator and a credit to the
+ * beneficiary, and an account statement that showed only the legs where the
+ * account happened to be the source would silently omit every payment received.
+ * Sign is therefore the caller's to derive from which leg matched — this
+ * endpoint reports the transfer, not a per-account ledger view.
+ */
+export async function getTransfers(
+  req: Request,
+  db: SupabaseClient,
+  requestId: string,
+  ctx: PartnerContext,
+): Promise<Response> {
+  const q = new URL(req.url).searchParams;
+  const { limit, after, errors } = parsePageParams(q);
+
+  const status = q.get("status");
+  if (status !== null && !TRANSFER_STATUSES.includes(status)) {
+    errors.push({
+      type: "invalid_value",
+      field: "status",
+      message: `must be one of: ${TRANSFER_STATUSES.join(", ")}`,
+    });
+  }
+  const accountId = q.get("account_id");
+  if (accountId !== null && !SAFE_ID.test(accountId)) {
+    errors.push({
+      type: "invalid_value",
+      field: "account_id",
+      message: "must be an account id: letters, digits, underscore or hyphen",
+    });
+  }
+  if (errors.length) return validationError(requestId, errors);
+
+  let query = scopeToPartner(
+    db.schema("core").from("transfer").select(TRANSFER_COLS),
+    ctx,
+  )
+    .order("created_at", { ascending: false })
+    .limit(limit + 1);
+  if (status) query = query.eq("status", status);
+  if (accountId) {
+    // ->> rather than jsonb containment: `cs.{"account_id":"..."}` puts braces
+    // and a comma inside a comma-separated filter list, which PostgREST then
+    // has to be told to re-quote. The arrow operator has no such characters.
+    query = query.or(
+      `originator->>account_id.eq.${accountId},beneficiary->>account_id.eq.${accountId}`,
+    );
+  }
+  if (after) query = query.lt("created_at", after);
+
+  const { data, error } = await query;
+  if (error) return internalErrorResponse(requestId, error);
+
+  const { page, has_more, next_after } = paginate(
+    (data ?? []) as unknown as Record<string, unknown>[],
+    limit,
+  );
+  return jsonResponse(
+    pageEnvelope(
+      (page as unknown as TransferRow[]).map(transferResponse),
+      { limit, has_more, next_after },
+    ),
+    200,
+    requestId,
+  );
+}
+
+export async function getTransfer(
+  transferId: string,
+  db: SupabaseClient,
+  requestId: string,
+  ctx: PartnerContext,
+): Promise<Response> {
+  const { data, error } = await scopeToPartner(
+    db.schema("core").from("transfer")
+      .select(TRANSFER_COLS)
+      .eq("id", transferId),
+    ctx,
+  ).maybeSingle();
+
+  if (error) return internalErrorResponse(requestId, error);
+  if (!data) return notFoundResponse(requestId, "transfer", transferId);
+
+  return jsonResponse(transferResponse(data as TransferRow), 200, requestId);
 }

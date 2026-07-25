@@ -6,7 +6,7 @@
 import { assert, assertEquals } from "jsr:@std/assert@1";
 import { getEntities, postEntity, postEntityOwner, postEntityTransition } from "./entities.ts";
 import { postAccountLock, postAccountTransition } from "./accounts.ts";
-import { type Any, req, stubApiDb, OPS_CTX, TEST_CTX } from "./test_helpers.ts";
+import { type Any, listDb, req, stubApiDb, OPS_CTX, TEST_CTX } from "./test_helpers.ts";
 
 const PERSON = { type: "person", name: "Ada Member", date_of_birth: "1990-01-01" };
 
@@ -53,20 +53,6 @@ Deno.test("per-type required fields are enforced", async () => {
 });
 
 // ---------------------------------------------------------------- 21: list
-
-function listDb(rows: unknown[]) {
-  const calls: { fn: string; args: unknown[] }[] = [];
-  const chain: Any = {
-    select: (...a: unknown[]) => (calls.push({ fn: "select", args: a }), chain),
-    eq: (...a: unknown[]) => (calls.push({ fn: "eq", args: a }), chain),
-    lt: (...a: unknown[]) => (calls.push({ fn: "lt", args: a }), chain),
-    order: (...a: unknown[]) => (calls.push({ fn: "order", args: a }), chain),
-    limit: (...a: unknown[]) => (calls.push({ fn: "limit", args: a }), chain),
-    then: (res: (v: unknown) => unknown) => res({ data: rows, error: null }),
-  };
-  const db: Any = { schema: () => ({ from: () => chain }) };
-  return { db, calls };
-}
 
 Deno.test("the unified list returns mixed types and filters by type", async () => {
   const { db, calls } = listDb([]);

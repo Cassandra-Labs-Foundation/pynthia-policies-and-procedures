@@ -85,16 +85,16 @@ Deno.test("a full page signals has_more and hands back a cursor", async () => {
   const res = await getControlResults(get("?limit=2"), db, "p1");
   const b = await res.json();
   assertEquals(b.data.length, 2, "over-fetched probe row must not leak into the page");
-  assertEquals(b.has_more, true);
-  assertEquals(b.next_after, rowAt(8).created_at, "cursor is the last returned row's created_at");
+  assertEquals(b.pagination.has_more, true);
+  assertEquals(b.pagination.next_after, rowAt(8).created_at, "cursor is the last returned row's created_at");
 });
 
 Deno.test("a short page says has_more false with no cursor", async () => {
   const { db } = pagedDb([rowAt(3)]);
   const res = await getControlResults(get("?limit=2"), db, "p2");
   const b = await res.json();
-  assertEquals(b.has_more, false);
-  assertEquals(b.next_after, null);
+  assertEquals(b.pagination.has_more, false);
+  assertEquals(b.pagination.next_after, null);
 });
 
 Deno.test("after= filters strictly older than the cursor", async () => {

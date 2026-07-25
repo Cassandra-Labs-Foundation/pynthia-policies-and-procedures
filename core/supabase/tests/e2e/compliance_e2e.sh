@@ -520,7 +520,7 @@ check "changelog leads with the current version" \
   "$(python3 -c "import json;d=json.load(open('/tmp/e2e_body'));print(d['data'][0]['version'])")" "4.0.0"
 curl -sS -o /tmp/e2e_body "$API/control-results?limit=1" "${AUTH[@]}"
 # URL-encode: timestamptz cursors carry '+00:00', and a raw '+' decodes to a space
-PAGE_AFTER=$(python3 -c "import json,urllib.parse;d=json.load(open('/tmp/e2e_body'));print(urllib.parse.quote(d['next_after']) if d['has_more'] else '')")
+PAGE_AFTER=$(python3 -c "import json,urllib.parse;d=json.load(open('/tmp/e2e_body'))['pagination'];print(urllib.parse.quote(d['next_after']) if d['has_more'] else '')")
 PAGE1_ID=$(python3 -c "import json;d=json.load(open('/tmp/e2e_body'));print(d['data'][0]['id'])")
 check "page 1 signals has_more with a cursor"   "$([ -n "$PAGE_AFTER" ] && echo yes)" "yes"
 curl -sS -o /tmp/e2e_body "$API/control-results?limit=1&after=$PAGE_AFTER" "${AUTH[@]}"

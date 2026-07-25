@@ -98,6 +98,39 @@ export function stubDb(row: unknown) {
 }
 
 /**
+ * A query builder that RECORDS instead of querying — for the list endpoints.
+ *
+ * List handlers are almost entirely query construction, so what has to be
+ * asserted is the query itself: that the partner predicate is present, that it
+ * is applied BEFORE any caller-supplied filter, and that a filter narrows the
+ * page rather than replacing the predicate. A fake that returned rows would
+ * verify none of that — the predicate could be missing entirely and the rows
+ * would still come back.
+ */
+export function listDb(rows: unknown[]) {
+  const calls: { fn: string; args: unknown[] }[] = [];
+  const record = (fn: string) => (...args: unknown[]) => (calls.push({ fn, args }), chain);
+  const chain: Any = {
+    select: record("select"),
+    eq: record("eq"),
+    or: record("or"),
+    lt: record("lt"),
+    order: record("order"),
+    limit: record("limit"),
+    then: (res: (v: unknown) => unknown) => res({ data: rows, error: null }),
+  };
+  const db: Any = { schema: () => ({ from: () => chain }) };
+  return { db, calls };
+}
+
+/** The filter calls in order, as `fn:col=value` — what a list test asserts on. */
+export function filtersOf(calls: { fn: string; args: unknown[] }[]): string[] {
+  return calls
+    .filter((c) => c.fn === "eq" || c.fn === "lt" || c.fn === "or")
+    .map((c) => c.fn === "or" ? `or:${c.args[0]}` : `${c.fn}:${c.args[0]}=${c.args[1]}`);
+}
+
+/**
  * Partner context for writer tests (card 45).
  *
  * Every writer that claims an Idempotency-Key now needs one, because the key is

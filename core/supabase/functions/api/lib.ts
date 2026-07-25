@@ -155,6 +155,93 @@ export function dollarsFromCents(cents: number): string {
   return (cents / 100).toFixed(2); // float-ok: display-only, never serialized as money
 }
 
+// ---- cursor pagination (D16) ------------------------------------------------
+
+/**
+ * The `?limit=` / `?after=` pair every list endpoint accepts, parsed once.
+ *
+ * Shared rather than re-derived per endpoint because the bound matters: `limit`
+ * is what stands between a caller and a full table scan, and three hand-written
+ * copies of the same ceiling drift into two ceilings and an unbounded one. The
+ * caller adds the returned `errors` to its own before deciding, so a bad cursor
+ * and a bad domain filter come back in ONE 400 rather than whichever the
+ * endpoint happened to check first.
+ */
+export interface PageParams {
+  limit: number;
+  after: string | null;
+  errors: ValidationErrorItem[];
+}
+
+export const PAGE_LIMIT_DEFAULT = 50;
+export const PAGE_LIMIT_MAX = 200;
+
+export function parsePageParams(q: URLSearchParams): PageParams {
+  const errors: ValidationErrorItem[] = [];
+
+  const after = q.get("after");
+  if (after !== null && Number.isNaN(Date.parse(after))) {
+    errors.push({ type: "invalid_value", field: "after", message: "must be an ISO-8601 timestamp" });
+  }
+
+  let limit = PAGE_LIMIT_DEFAULT;
+  const rawLimit = q.get("limit");
+  if (rawLimit !== null) {
+    const n = Number(rawLimit);
+    if (!Number.isInteger(n) || n < 1 || n > PAGE_LIMIT_MAX) {
+      errors.push({
+        type: "invalid_value",
+        field: "limit",
+        message: `must be an integer between 1 and ${PAGE_LIMIT_MAX}`,
+      });
+    } else limit = n;
+  }
+
+  return { limit, after, errors };
+}
+
+/**
+ * Split an over-fetched result (limit + 1 rows) into a page and its cursor.
+ *
+ * The over-fetch is how `has_more` stays honest without a second count query:
+ * ask for one more row than the caller wanted, and its presence IS the answer.
+ */
+export function paginate<T extends Record<string, unknown>>(
+  rows: T[],
+  limit: number,
+): { page: T[]; has_more: boolean; next_after: unknown } {
+  const has_more = rows.length > limit;
+  const page = has_more ? rows.slice(0, limit) : rows;
+  return {
+    page,
+    has_more,
+    next_after: has_more && page.length ? page[page.length - 1].created_at : null,
+  };
+}
+
+/**
+ * The list envelope every paginated endpoint returns.
+ *
+ * `{data, pagination: {...}}`, which is what core-api.yaml has specified all
+ * along via the Pagination schema. The implementations had drifted to a FLAT
+ * `{data, limit, has_more, next_after}` — spec and code disagreeing about the
+ * shape of every list response in the API. Built here rather than spelled out
+ * per endpoint so the next list endpoint cannot drift a third way.
+ */
+export function pageEnvelope(
+  data: unknown[],
+  page: { limit: number; has_more: boolean; next_after: unknown },
+): Record<string, unknown> {
+  return {
+    data,
+    pagination: {
+      limit: page.limit,
+      has_more: page.has_more,
+      next_after: page.next_after,
+    },
+  };
+}
+
 // ---- idempotency (D6) -------------------------------------------------------
 
 export interface TransferIdempotencyPayload {

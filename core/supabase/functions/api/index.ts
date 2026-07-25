@@ -5,8 +5,8 @@
 import { blnkConfigFromEnv } from "../_shared/blnk.ts";
 import {
   postAccountLock,
-  postAccountTransition, getAccount, postAccount } from "./accounts.ts";
-import { getTransfer, postTransfer } from "./transfers.ts";
+  postAccountTransition, getAccount, getAccounts, postAccount } from "./accounts.ts";
+import { getTransfer, getTransfers, postTransfer } from "./transfers.ts";
 import {
   postWireCancel,
   postWireConfirm,
@@ -283,6 +283,17 @@ const routes: Route[] = [
   },
   {
     method: "GET",
+    pattern: /^\/accounts\/?$/,
+    endpoint: "GET /accounts",
+    tier: "read",
+    paramNames: [],
+    handler: async (req, _params, requestId, ctx) => {
+      const db = createDb();
+      return await getAccounts(req, db, requestId, ctx);
+    },
+  },
+  {
+    method: "GET",
     pattern: /^\/accounts\/([^/]+)\/?$/,
     endpoint: "GET /accounts/{id}",
     tier: "read",
@@ -302,6 +313,17 @@ const routes: Route[] = [
       const db = createDb();
       const cfg = blnkConfigFromEnv();
       return await postTransfer(req, db, cfg, requestId, ctx);
+    },
+  },
+  {
+    method: "GET",
+    pattern: /^\/transfers\/?$/,
+    endpoint: "GET /transfers",
+    tier: "read",
+    paramNames: [],
+    handler: async (req, _params, requestId, ctx) => {
+      const db = createDb();
+      return await getTransfers(req, db, requestId, ctx);
     },
   },
   {

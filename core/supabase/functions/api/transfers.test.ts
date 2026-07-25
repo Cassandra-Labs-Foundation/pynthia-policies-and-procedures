@@ -7,9 +7,9 @@
 // which control artifacts get written, and the per-rail differences that have
 // caused production breaks.
 import { assert, assertEquals } from "jsr:@std/assert@1";
-import { runGate, TRANSFER_RESOURCE, type GateResource } from "./transfers.ts";
+import { getTransfers, runGate, TRANSFER_RESOURCE, type GateResource } from "./transfers.ts";
 import { type AccountRow } from "./accounts.ts";
-import { type Any, json, stubCfg } from "./test_helpers.ts";
+import { type Any, filtersOf, json, listDb, OPS_CTX, stubCfg, TEST_CTX } from "./test_helpers.ts";
 
 const CENTS = (dollars: number) => dollars * 100;
 const CTR_LINE = CENTS(10_000);
@@ -370,4 +370,87 @@ Deno.test("settlement artifacts are duplicate-ignoring upserts (resume-safe)", a
     const rec = inserts.find((i) => i.table === t);
     assertEquals((rec?.opts as Any)?.ignoreDuplicates, true, `${t} must ignore duplicates`);
   }
+});
+
+// ------------------------------------------------------------ GET /transfers
+//
+// `list_transfer` is the other endpoint core-api.yaml declared and nothing
+// served. Its filter is the interesting one: a transfer has TWO account legs.
+
+Deno.test("the transfer list is confined to one partner, before any filter", async () => {
+  const { db, calls } = listDb([]);
+  await getTransfers(new Request("https://x/transfers?status=settled"), db, "t1", TEST_CTX);
+  assertEquals(filtersOf(calls), ["eq:partner_id=ptnr_test", "eq:status=settled"]);
+});
+
+Deno.test("account_id matches EITHER leg — a statement that omits credits is wrong", async () => {
+  const { db, calls } = listDb([]);
+  await getTransfers(new Request("https://x/transfers?account_id=acct_1"), db, "t2", TEST_CTX);
+  assertEquals(filtersOf(calls), [
+    "eq:partner_id=ptnr_test",
+    "or:originator->>account_id.eq.acct_1,beneficiary->>account_id.eq.acct_1",
+  ]);
+});
+
+Deno.test("an account_id cannot smuggle a second filter term into the or-list", async () => {
+  // PostgREST's `or=` takes a COMMA-SEPARATED expression list. An id carrying a
+  // comma or a paren would not be a failed lookup — it would be a filter the
+  // caller wrote. Refused at the edge rather than escaped downstream.
+  const injections = [
+    "acct_1,partner_id.neq.ptnr_test",
+    "acct_1)",
+    "acct_1.or.(status.eq.settled",
+    "acct 1",
+    "acct_1'",
+  ];
+  for (const bad of injections) {
+    const { db, calls } = listDb([]);
+    const res = await getTransfers(
+      new Request(`https://x/transfers?account_id=${encodeURIComponent(bad)}`), db, "t3", TEST_CTX,
+    );
+    assertEquals(res.status, 400, `${bad} must be refused`);
+    assertEquals(
+      calls.filter((c) => c.fn === "or").length, 0,
+      `${bad} must never reach the query builder`,
+    );
+  }
+});
+
+Deno.test("an ops actor lists transfers across partners — D23", async () => {
+  const { db, calls } = listDb([]);
+  await getTransfers(new Request("https://x/transfers"), db, "t4", OPS_CTX);
+  assertEquals(filtersOf(calls), []);
+});
+
+Deno.test("an unknown transfer status is refused", async () => {
+  const { db } = listDb([]);
+  const res = await getTransfers(new Request("https://x/transfers?status=cleared"), db, "t5", TEST_CTX);
+  assertEquals(res.status, 400);
+  assertEquals((await res.json()).errors[0].field, "status");
+});
+
+Deno.test("every legal transfer status is accepted", async () => {
+  const legal = ["pending_approval", "submitted", "settled", "returned", "rejected", "canceled"];
+  for (const status of legal) {
+    const { db } = listDb([]);
+    const res = await getTransfers(
+      new Request(`https://x/transfers?status=${status}`), db, "t6", TEST_CTX,
+    );
+    assertEquals(res.status, 200, `${status} is in the schema's check constraint and must list`);
+  }
+});
+
+Deno.test("the list serves amount_cents, matching the single-transfer read", async () => {
+  const row = {
+    id: "trf_1", status: "settled", amount: 125_000,
+    originator: { account_id: "acct_1" }, beneficiary: { account_id: "acct_2" },
+    blnk_transaction_id: "txn_1", blnk_status: "APPLIED",
+    created_at: "2026-07-01T00:00:00Z",
+  };
+  const { db } = listDb([row]);
+  const res = await getTransfers(new Request("https://x/transfers"), db, "t7", TEST_CTX);
+  const body = await res.json();
+  assertEquals(body.data[0].amount_cents, 125_000, "integer minor units, named as such");
+  assertEquals(body.data[0].amount, undefined, "the raw column name must not leak alongside it");
+  assertEquals(body.data[0].originator.account_id, "acct_1");
 });

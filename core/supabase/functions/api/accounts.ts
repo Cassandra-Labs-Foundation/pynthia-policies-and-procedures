@@ -15,7 +15,10 @@ import {
   isNonEmptyString,
   jsonResponse,
   notFoundResponse,
+  pageEnvelope,
+  paginate,
   parseJsonBody,
+  parsePageParams,
   sha256Hex,
   storeIdempotencyResponse,
   validationError,
@@ -214,6 +217,67 @@ export async function postAccount(
     if (e instanceof BlnkError) return bankErrorResponse(requestId);
     throw e;
   }
+}
+
+const ACCOUNT_COLS =
+  "id, account_type, status, balance, balance_synced_at, blnk_balance_id, entity_id, created_at";
+
+// The account lifecycle (card 29). Repeated here as a filter allowlist rather
+// than imported from ACCOUNT_TRANSITIONS below, because that map's KEYS are
+// the states a transition may start FROM — reusing it would silently drop any
+// terminal state from the filter the day one is added.
+const ACCOUNT_STATUSES = ["open", "frozen", "closed"];
+
+/**
+ * GET /accounts — one partner's accounts, newest first.
+ *
+ * `?entity_id=` is the member -> accounts walk. It is a filter on top of the
+ * partner predicate, never instead of it: core.account carries no derivable
+ * ownership (see 20260719000800_partner_ownership.sql), so an entity_id that
+ * belongs to another partner must narrow this page to nothing rather than
+ * reach across.
+ */
+export async function getAccounts(
+  req: Request,
+  db: SupabaseClient,
+  requestId: string,
+  ctx: PartnerContext,
+): Promise<Response> {
+  const q = new URL(req.url).searchParams;
+  const { limit, after, errors } = parsePageParams(q);
+
+  const status = q.get("status");
+  if (status !== null && !ACCOUNT_STATUSES.includes(status)) {
+    errors.push({
+      type: "invalid_value",
+      field: "status",
+      message: `must be one of: ${ACCOUNT_STATUSES.join(", ")}`,
+    });
+  }
+  const entityId = q.get("entity_id");
+  if (entityId !== null && entityId.length === 0) {
+    errors.push({ type: "invalid_value", field: "entity_id", message: "must not be empty" });
+  }
+  if (errors.length) return validationError(requestId, errors);
+
+  let query = scopeToPartner(
+    db.schema("core").from("account").select(ACCOUNT_COLS),
+    ctx,
+  )
+    .order("created_at", { ascending: false })
+    .limit(limit + 1);
+  if (status) query = query.eq("status", status);
+  if (entityId) query = query.eq("entity_id", entityId);
+  if (after) query = query.lt("created_at", after);
+
+  const { data, error } = await query;
+  if (error) return internalErrorResponse(requestId, error);
+
+  const { page, has_more, next_after } = paginate(
+    (data ?? []) as Record<string, unknown>[],
+    limit,
+  );
+  return jsonResponse(pageEnvelope(page, { limit, has_more, next_after }), 200, requestId);
 }
 
 export async function getAccount(
