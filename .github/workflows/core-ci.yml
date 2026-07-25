@@ -18,18 +18,18 @@ jobs:
           deno-version: v2.x
       - name: Typecheck every function entrypoint
         run: |
-          deno check supabase/functions/api/index.ts
-          deno check supabase/functions/blnk-webhook/index.ts
-          deno check supabase/functions/blnk-reconcile/index.ts
-          deno check supabase/functions/aggregator/index.ts
+          deno check core/supabase/functions/api/index.ts
+          deno check core/supabase/functions/blnk-webhook/index.ts
+          deno check core/supabase/functions/blnk-reconcile/index.ts
+          deno check core/supabase/functions/aggregator/index.ts
       - name: Hermetic suite (unit + behavioral)
         # --allow-read is load-bearing: drill/fake_db.ts derives column
-        # defaults and NULL backfill by PARSING supabase/migrations/*.sql at
+        # defaults and NULL backfill by PARSING core/supabase/migrations/*.sql at
         # test time. Without read permission it silently degrades to empty
         # maps and two dozen null-vs-undefined assertions fail.
-        run: deno test --allow-net --allow-env --allow-read supabase/functions/
+        run: deno test --allow-net --allow-env --allow-read core/supabase/functions/
       - name: Drill regression gate — a case that passed yesterday must pass today
-        run: deno run --allow-all supabase/functions/drill/run.ts --check
+        run: deno run --allow-all core/supabase/functions/drill/run.ts --check
 
       - name: Decision refs resolve — no DN cites a decision the log lacks
         # The code justifies its shape by citing architecture decisions ("per
@@ -49,11 +49,11 @@ jobs:
         run: |
           set -e
           # no float parsing anywhere near the functions
-          if grep -rnE "parseFloat" supabase/functions --include='*.ts' | grep -v ".test.ts"; then
+          if grep -rnE "parseFloat" core/supabase/functions --include='*.ts' | grep -v ".test.ts"; then
             echo "::error::parseFloat on the money path"; exit 1
           fi
           # no float math on amounts outside explicitly-marked display code
-          if grep -rnE "(amount|cents)[a-zA-Z_]*.*(/ *100[^0-9]|toFixed)" supabase/functions --include='*.ts' \
+          if grep -rnE "(amount|cents)[a-zA-Z_]*.*(/ *100[^0-9]|toFixed)" core/supabase/functions --include='*.ts' \
             | grep -v ".test.ts" | grep -v "float-ok" | grep -v "precision"; then
             echo "::error::float arithmetic on an amount; serialize integer minor units"; exit 1
           fi
@@ -66,6 +66,10 @@ jobs:
         with:
           version: latest
       - name: Apply the full migration chain to a clean database
+        # --workdir: the CLI locates a project by finding supabase/config.toml
+        # relative to the working directory, and the project now lives at
+        # core/supabase/. Without this the CLI reports "no project found" rather
+        # than applying anything — a green-looking skip, not a failure.
         run: |
-          supabase db start
-          supabase db reset --no-seed || supabase db reset
+          supabase db start --workdir core
+          supabase db reset --no-seed --workdir core || supabase db reset --workdir core

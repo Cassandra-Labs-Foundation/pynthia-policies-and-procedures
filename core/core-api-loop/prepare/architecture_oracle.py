@@ -1,0 +1,245 @@
+#!/usr/bin/env python3
+"""
+architecture_oracle.py — Coverage oracle for the system architecture (IMMUTABLE eval harness).
+
+The second of the two coverage oracles. Where control_oracle.py checks that the spec covers
+what the *policies* demand, this checks that the spec covers what the *architecture* mandates.
+
+It diffs core-api-loop/prepare/architecture-spec.json (a hand-reviewed, version-pinned
+distillation of architecture-decisions.md v1.1) against a candidate's parsed core-vocabulary.json
+and returns the list of uncovered architectural elements across five categories:
+
+  * resources       — a named resource must exist as a parsed entity (snake name)
+  * state_machines  — a named state machine must exist AND cover its required states
+  * event_families  — at least one event must exist under the required dotted prefix
+  * endpoints       — a method+path must exist (path params normalized, e.g. {id} -> {})
+  * fields          — a specific dotted field path must exist
+  * conventions     — representative cross-cutting tokens (idempotency_key, request_id, ...)
+                      appear as a substring of some field path (soft signals)
+
+The candidate vocab is produced by reusing scripts/parse_core_api.py (no reimplementation).
+The agent must never edit this file or architecture-spec.json.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
+SCRIPTS_DIR = os.path.join(REPO_ROOT, "scripts")
+if SCRIPTS_DIR not in sys.path:
+    sys.path.insert(0, SCRIPTS_DIR)
+
+import parse_core_api   # noqa: E402
+import endpoint_rules    # noqa: E402  (derives per-resource REST surface)
+
+try:
+    import yaml  # noqa: E402
+except ModuleNotFoundError:  # pragma: no cover
+    sys.exit("error: PyYAML not installed. Use core-api-loop/.venv "
+             "(pip install -r core-api-loop/requirements.txt).")
+
+DEFAULT_SPEC_CHECKLIST = os.path.join(HERE, "architecture-spec.json")
+
+
+def parse_vocab(spec_path: str, migration_path: str | None) -> dict:
+    spec = yaml.safe_load(open(spec_path).read())
+    migration_doc = None
+    if migration_path and os.path.exists(migration_path):
+        migration_doc = json.load(open(migration_path))
+    vocab, _warnings = parse_core_api.build(spec, migration_doc)
+    return vocab
+
+
+def _norm_path(path: str) -> str:
+    """Normalize an endpoint path for matching: lowercase, strip trailing slash,
+    collapse every {param} to {} so {id} and {instance_id} compare equal."""
+    p = re.sub(r"\{[^}]*\}", "{}", path.strip().lower())
+    if len(p) > 1 and p.endswith("/"):
+        p = p[:-1]
+    return p
+
+
+def _contract_gaps(doc: dict) -> list:
+    """Every existing operation must carry a contract: a content-bearing success response, and a
+    requestBody for write methods. An uncontracted endpoint (bare 200) is a scored gap so the loop
+    (and the local gate) can't let contracts silently regress."""
+    gaps = []
+    for path, methods in (doc.get("paths") or {}).items():
+        for m, op in (methods or {}).items():
+            if m.lower() not in ("get", "post", "put", "patch", "delete") or not isinstance(op, dict):
+                continue
+            responses = op.get("responses") or {}
+            has_resp = "204" in responses or any("content" in (r or {}) for r in responses.values())
+            needs_body = m.lower() in ("post", "put", "patch")
+            missing = []
+            if needs_body and not op.get("requestBody"):
+                missing.append("requestBody")
+            if not has_resp:
+                missing.append("response schema")
+            if missing:
+                gaps.append({"category": "contract", "element": f"{m.upper()} {path}",
+                             "decision": "D12/D16", "detail": "missing " + ", ".join(missing)})
+    return gaps
+
+
+def evaluate(vocab: dict, checklist: dict, doc: dict | None = None) -> dict:
+    # --- index the parsed vocab -------------------------------------------------
+    entity_names = {e["name"] for e in vocab.get("entities", [])}
+    sm_index = {sm["name"]: set(sm.get("states") or []) for sm in vocab.get("state_machines", [])}
+    event_prefixes = {e["name"].split(".", 1)[0] for e in vocab.get("events", [])}
+    field_paths = {f["path"] for f in vocab.get("fields", []) if f.get("path")}
+    endpoint_set = {(ep["method"].upper(), _norm_path(ep["path"])) for ep in vocab.get("endpoints", [])}
+
+    gaps: list[dict] = []
+    covered = 0
+
+    # --- resources --------------------------------------------------------------
+    for r in checklist.get("resources", []):
+        if r["name"] in entity_names:
+            covered += 1
+        else:
+            gaps.append({"category": "resource", "element": r["name"],
+                         "decision": r.get("decision"), "detail": "no parsed entity with this name"})
+
+    # --- state machines ---------------------------------------------------------
+    for sm in checklist.get("state_machines", []):
+        have = sm_index.get(sm["name"])
+        required = set(sm.get("states") or [])
+        if have is None:
+            gaps.append({"category": "state_machine", "element": sm["name"],
+                         "decision": sm.get("decision"), "detail": "state machine absent"})
+        elif not required <= have:
+            gaps.append({"category": "state_machine", "element": sm["name"],
+                         "decision": sm.get("decision"),
+                         "detail": f"missing states {sorted(required - have)}"})
+        else:
+            covered += 1
+
+    # --- event families ---------------------------------------------------------
+    for ef in checklist.get("event_families", []):
+        if ef["prefix"] in event_prefixes:
+            covered += 1
+        else:
+            gaps.append({"category": "event_family", "element": ef["prefix"] + ".*",
+                         "decision": ef.get("decision"), "detail": "no events under this prefix"})
+
+    # --- endpoints (architecture-mandated specials + DERIVED per-resource REST) --
+    # (a) architecture-mandated special endpoints (payment hub, sandbox sims, entity
+    #     creation, etc.) — explicit in the checklist.
+    for ep in checklist.get("endpoints", []):
+        key = (ep["method"].upper(), _norm_path(ep["path"]))
+        if key in endpoint_set:
+            covered += 1
+        else:
+            gaps.append({"category": "endpoint", "element": f"{ep['method'].upper()} {ep['path']}",
+                         "decision": ep.get("decision"), "detail": "architecture-mandated endpoint absent"})
+
+    # (b) DERIVED per-resource REST — a resource's endpoints are a consequence of the resource
+    #     existing, so they are load-bearing: deleting them opens a gap.
+    mode = checklist.get("endpoint_derivation", "stateful")
+    required, plural_map = endpoint_rules.derive_required(vocab, mode)
+    for req in required:
+        if req["kind"] == "rest":
+            if (req["method"], _norm_path(req["path"])) in endpoint_set:
+                covered += 1
+            else:
+                gaps.append({"category": "endpoint", "element": f"{req['method']} {req['path']}",
+                             "decision": f"REST({req['resource']})",
+                             "detail": "resource REST endpoint absent"})
+        else:  # lifecycle: any POST under /P/{id}/...
+            prefix = _norm_path(req["path"]) + "/"
+            if any(m == "POST" and p.startswith(prefix) for (m, p) in endpoint_set):
+                covered += 1
+            else:
+                gaps.append({"category": "endpoint", "element": f"POST {req['path']}/<action>",
+                             "decision": f"lifecycle({req['resource']})",
+                             "detail": "stateful resource has no transition/action endpoint"})
+
+    # endpoints with no backing resource and not an exempt non-resource prefix -> reported as
+    # orphans (informational; not gated — the complexity term handles genuine orphans).
+    exempt = set(checklist.get("endpoint_exempt_prefixes", []))
+    special_segs = {endpoint_rules.first_segment(ep["path"]) for ep in checklist.get("endpoints", [])}
+    all_plurals = endpoint_rules.all_resource_plurals(vocab)  # attribute to ANY resource, not just in-scope
+    endpoint_orphans = sorted({
+        f"{m} {p}" for (m, p) in endpoint_set
+        if endpoint_rules.first_segment(p) not in all_plurals
+        and endpoint_rules.first_segment(p) not in exempt
+        and endpoint_rules.first_segment(p) not in special_segs
+    })
+
+    # --- fields -----------------------------------------------------------------
+    for f in checklist.get("fields", []):
+        if f["path"] in field_paths:
+            covered += 1
+        else:
+            gaps.append({"category": "field", "element": f["path"],
+                         "decision": f.get("decision"), "detail": "field path absent"})
+
+    # --- conventions (soft) -----------------------------------------------------
+    doc_norm = re.sub(r"[-_]", "", json.dumps(doc).lower()) if doc is not None else ""
+    for tok in checklist.get("conventions", {}).get("tokens", []):
+        needle = tok["token"]
+        # satisfied if it appears as a field path OR (separator/case-insensitively) anywhere in the
+        # spec doc — e.g. the Error/Pagination components or the Idempotency-Key parameter.
+        if any(needle in p for p in field_paths) or re.sub(r"[-_]", "", needle.lower()) in doc_norm:
+            covered += 1
+        else:
+            gaps.append({"category": "convention", "element": needle,
+                         "decision": tok.get("decision"),
+                         "detail": "convention not present in spec"})
+
+    # --- contract completeness (existing operations must be contracted) ---------
+    if doc is not None:
+        gaps.extend(_contract_gaps(doc))
+
+    total = covered + len(gaps)
+    return {
+        "checklist_elements": total,
+        "covered": covered,
+        "uncovered_count": len(gaps),
+        "gaps": gaps,
+        "endpoint_orphans": endpoint_orphans,
+        "by_category": {
+            cat: sum(1 for g in gaps if g["category"] == cat)
+            for cat in ("resource", "state_machine", "event_family", "endpoint", "field",
+                        "convention", "contract")
+        },
+    }
+
+
+def main(argv: list[str]) -> int:
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[1])
+    ap.add_argument("-s", "--spec", default=os.path.join(REPO_ROOT, "core", "core-api.yaml"))
+    ap.add_argument("-m", "--migration", default=os.path.join(REPO_ROOT, "vocab-migration.json"))
+    ap.add_argument("-c", "--checklist", default=DEFAULT_SPEC_CHECKLIST)
+    ap.add_argument("--json", action="store_true", help="Emit JSON only.")
+    args = ap.parse_args(argv)
+
+    checklist = json.load(open(args.checklist))
+    vocab = parse_vocab(args.spec, args.migration)
+    raw = yaml.safe_load(open(args.spec).read())
+    doc = raw if isinstance(raw, dict) and raw.get("openapi") else None
+    result = evaluate(vocab, checklist, doc)
+
+    if args.json:
+        print(json.dumps(result, indent=2))
+    else:
+        print(f"checklist elements  : {result['checklist_elements']}")
+        print(f"covered             : {result['covered']}")
+        print(f"UNCOVERED (arch gap): {result['uncovered_count']}")
+        print(f"  by category       : {json.dumps(result['by_category'])}")
+        if result["gaps"]:
+            print("  gaps:")
+            for g in result["gaps"]:
+                print(f"    [{g['category']:13}] {g['element']:42} ({g['decision']}) — {g['detail']}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))

@@ -20,6 +20,7 @@ compliance/
 
 core/           the banking core
   supabase/             39 tables, 66 migrations, 48 API modules, the drill harness
+                        (Supabase CLI needs --workdir core)
   core-api.yaml         the spec (OpenAPI 3.0.3)
   core-api-loop/        the spec's self-minimising loop
   architecture-decisions.md   28 decisions, D1-D28 — hand-authored, authoritative
@@ -60,7 +61,7 @@ core-api.yaml ──parse_core_api.py──> core-vocabulary.json ─> controls.
                    core schema            pgTAP suite                 the evidence site
 ```
 
-Every arrow is a script in `scripts/` or `supabase/generate/`, and CI re-runs them on every
+Every arrow is a script in `scripts/` or `core/supabase/generate/`, and CI re-runs them on every
 push that touches an input. `extract-artifacts.yml` commits the regenerated JSON straight to
 `main` — no PR, because a pure function of already-reviewed inputs has nothing to review.
 
@@ -89,9 +90,9 @@ separate service — `bsa.ts` and `wires.ts` are in the same deployment and shar
 
 | tier | what it proves | where |
 |---|---|---|
-| **hermetic** | unit + behavioural, against `fake_db.ts` (which parses the real migrations for column defaults) | `deno test supabase/functions/` |
-| **schema** | pgTAP — structure, CHECK enforcement, per-control field coverage | `supabase/tests/` |
-| **drill** | one test per control: fire its trigger, assert its produced events | `supabase/functions/drill/` |
+| **hermetic** | unit + behavioural, against `fake_db.ts` (which parses the real migrations for column defaults) | `deno test core/supabase/functions/` |
+| **schema** | pgTAP — structure, CHECK enforcement, per-control field coverage | `core/supabase/tests/` |
+| **drill** | one test per control: fire its trigger, assert its produced events | `core/supabase/functions/drill/` |
 
 The drill runs twice — against the fake (`control-tests.json`) and against the real database
 (`control-tests-live.json`). **A control that is hermetic-green and live-red is a fake-vs-real
@@ -112,17 +113,14 @@ domains.
 column (`production` / `demo` / `unknown`) is what keeps synthetic rows from being mistaken for
 real ones — it is load-bearing, not decorative.
 
-## Moving parts
+## Notes
 
 This repo was consolidated from three (`pynthia-policies-and-procedures`, `cassandra-core`,
-`core-ui`) in July 2026. Some things are mid-flight:
+`core-ui`) in July 2026.
 
-- `supabase/`, `core-api.yaml` and `core-api-loop/` are still at the repo root; they move
-  under `core/` in a follow-up. That move needs `--workdir core` on every Supabase CLI call
-  and touches the migrations CI job, so it is deliberately last.
 - `scripts/` stays at the repo root on purpose. It is repo-wide tooling, not compliance
   tooling: `check_decision_refs.py` reads `core/`, `exists_check.py` and `estimate_domain.py`
-  read `supabase/`. Filing it under `compliance/` would misplace half of it.
+  read `core/supabase/`. Filing it under `compliance/` would misplace half of it.
 - `core/verifier/` enumerates 529 test targets, but its control tier is already built — better
   — as `drill/`. Its remaining value is the other 208 targets (contract, property,
   state-machine). See `core/README.md`.

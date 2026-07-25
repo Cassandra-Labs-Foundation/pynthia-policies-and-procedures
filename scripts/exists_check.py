@@ -40,13 +40,13 @@ def main():
         print("no in-scope reds for", ", ".join(sorted(wanted)))
         return
 
-    sql = "\n".join(p.read_text() for p in sorted((ROOT / "supabase/migrations").glob("*.sql")))
+    sql = "\n".join(p.read_text() for p in sorted((ROOT / "core/supabase/migrations").glob("*.sql")))
     tables = set(re.findall(r'create table if not exists "core"\."(\w+)"', sql))
     tables |= set(re.findall(r'alter table "core"\."(\w+)"', sql))
     columns = set(re.findall(r'add column if not exists "(\w+)"', sql))
     columns |= set(re.findall(r'^\s+"(\w+)" ', sql, re.M))
 
-    api = ROOT / "supabase/functions/api"
+    api = ROOT / "core/supabase/functions/api"
     codes = set()
     fns = defaultdict(set)
     for p in api.glob("*.ts"):

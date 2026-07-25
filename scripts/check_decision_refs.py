@@ -43,7 +43,7 @@ CITATION_RE = re.compile(r"\bD(\d{1,2})\b")
 
 # Where citations are expected to live. The log itself is excluded — it uses
 # "Decision N" prose, and self-citation would be circular.
-SEARCH_GLOBS = ("supabase/**", "core/**", "scripts/**", "analytics/**", ".github/**")
+SEARCH_GLOBS = ("core/**", "compliance/**", "scripts/**", "analytics/**", ".github/**")
 SEARCH_SUFFIXES = {".ts", ".sql", ".py", ".md", ".yaml", ".yml", ".sh"}
 
 

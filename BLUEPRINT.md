@@ -489,7 +489,7 @@ partners — that is intended behaviour, not a bug to work around.
 | 36 | Segregation of duties + record retention | SoD round |
 | 37 | Cash + CTR — per-person aggregation, unattributable currency | cash round |
 
-The harness is `supabase/tests/e2e/compliance_e2e.sh` (254 `check` assertions
+The harness is `core/supabase/tests/e2e/compliance_e2e.sh` (254 `check` assertions
 total). It needs `DEMO_API_KEY`, `SUPABASE_DB_URL`, `BLNK_API_URL`,
 `BLNK_API_KEY` and a deployed function. Syntax is validated (`bash -n`);
 nothing else about it is.
@@ -577,7 +577,7 @@ Distinct from feature gaps. These are things that are *wrong* or that will
   reached → the control writes a clean passing `control_result` while permitting
   the transaction. A cap that never trips is indistinguishable from a cap that
   was never exceeded. There is a blunt comment at the site
-  (`supabase/functions/api/transfers.ts`) and `INSTANCE_SCOPED_TABLES` in
+  (`core/supabase/functions/api/transfers.ts`) and `INSTANCE_SCOPED_TABLES` in
   `ownership.ts` is asserted by tests rather than left to a comment.
 - **`account_code_5300` is hardcoded to `"018"`** on every bookkeeping entry.
   See decision 2 above.
@@ -1307,7 +1307,7 @@ held the RIGHT value, and that ceiling remains.
 ### The fourth-instance guard on `fake_db` column defaults
 
 Three sessions had lost time to the same gap and each fix was another hand-written
-column. `COLUMN_DEFAULTS` is now PARSED from `supabase/migrations/*.sql` at load,
+column. `COLUMN_DEFAULTS` is now PARSED from `core/supabase/migrations/*.sql` at load,
 so a column added with a default is modelled the moment the migration exists.
 Function-call defaults (`now()`, `gen_random_uuid()`) are deliberately excluded —
 they are not constants and pretending otherwise is a different lie. If the

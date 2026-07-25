@@ -188,7 +188,7 @@ def build_manifest() -> dict:
                 "id": c["id"],
                 "uid": "money-movement-gate:" + c["id"],
                 "title": c["title"],
-                "doc": REPO_BLOB + "supabase/functions/api/transfers.ts",
+                "doc": REPO_BLOB + "core/supabase/functions/api/transfers.ts",
                 "citations": [],
                 # the gate's evidence is core.control_result, not produced
                 # events — its heartbeat rides gate_heartbeat by control id

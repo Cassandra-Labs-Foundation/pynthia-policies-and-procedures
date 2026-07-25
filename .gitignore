@@ -7,7 +7,10 @@ __pycache__/
 analytics/core.duckdb
 analytics/core.duckdb.wal
 
-# python venv for the schema generators
-supabase/generate/.venv/
+# Python venvs, wherever they are. Deliberately NOT anchored: this was
+# `supabase/generate/.venv/`, and moving supabase/ under core/ silently stopped it
+# matching — 598 vendored site-packages files staged themselves into the move commit
+# before anyone noticed. An anchored ignore is a rule with an expiry date.
+.venv/
 # supabase CLI scratch
-supabase/.temp/
+core/supabase/.temp/

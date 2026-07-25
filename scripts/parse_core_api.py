@@ -363,7 +363,9 @@ def openapi_to_spec(doc):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     root = Path(__file__).resolve().parent.parent
-    ap.add_argument("-s", "--spec", default=str(root / "core-api.yaml"))
+    # The spec moved under core/ with the rest of the banking core; the migration map
+    # and the generated vocabulary stay at the repo root, where both halves read them.
+    ap.add_argument("-s", "--spec", default=str(root / "core" / "core-api.yaml"))
     ap.add_argument("-m", "--migration", default=str(root / "vocab-migration.json"))
     ap.add_argument("-o", "--output", default=str(root / "core-vocabulary.json"))
     args = ap.parse_args()

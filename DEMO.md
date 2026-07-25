@@ -66,7 +66,7 @@ to show the six runtime controls and their live fire counts.
 - **The dashboard says "cannot reach the API".** Cold start; reload once.
 - **Everything 500s.** Almost certainly an env/secret problem on the function
   rather than logic — check `INSTANCE_ID` is set (see
-  `supabase/functions/api/README.md`).
+  `core/supabase/functions/api/README.md`).
 
 ## What to say, and what not to
 
@@ -94,4 +94,4 @@ visibly red rather than quietly fabricated, which is the whole posture.
 | API base | https://jynsipdvrgqdkeqrlzcv.functions.supabase.co/api |
 
 The dashboard loads with **no credential** — a deliberate demo posture. The
-re-locking recipe is in `supabase/functions/api/dashboard.ts`.
+re-locking recipe is in `core/supabase/functions/api/dashboard.ts`.

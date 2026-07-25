@@ -78,7 +78,7 @@ def literal_codes_in_source():
     inventory cannot drift unnoticed. Templated codes are invisible here by
     construction -- that is why the inventory is hand-maintained."""
     found = set()
-    for p in (ROOT / "supabase" / "functions").rglob("*.ts"):
+    for p in (ROOT / "core" / "supabase" / "functions").rglob("*.ts"):
         if p.name.endswith(".test.ts"):
             continue
         # The DRILL is not the core. Its fixture data names trigger codes it
