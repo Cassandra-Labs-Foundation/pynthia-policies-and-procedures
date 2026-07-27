@@ -96,10 +96,13 @@ a:hover{text-decoration:underline;text-underline-offset:2px}
 h1{font-family:var(--serif);font-size:38px;line-height:1.12;letter-spacing:-.02em;
   margin:0 0 6px;font-weight:600}
 .subtitle{color:var(--muted);font-size:14px;margin-bottom:22px}
-.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;
-  background:var(--rule);border:1px solid var(--rule);border-radius:10px;overflow:hidden;
-  margin-bottom:14px}
-.meta div{background:var(--surface);padding:10px 13px}
+/* flex, not grid: grid's auto-fit leaves empty tracks when the cell count
+   does not divide evenly, which rendered as three grey voids. Flex items
+   grow to fill the final row instead. */
+.meta{display:flex;flex-wrap:wrap;background:var(--surface);
+  border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin-bottom:14px}
+.meta div{flex:1 1 150px;padding:10px 13px;border-left:1px solid var(--rule)}
+.meta div:first-child{border-left:none}
 .meta dt{font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--faint);
   margin-bottom:3px;font-weight:600}
 .meta dd{margin:0;font-size:13.5px;color:var(--ink)}
@@ -371,7 +374,7 @@ code.out{background:var(--green-soft);border-color:transparent;color:var(--green
   <h2 id="timing-matrix">Deadline Register</h2>
   <div class="reg">
     <div class="regbar">
-      <input id="q" type="search" placeholder="Filter 30 obligations by scenario, event code, or deadline…">
+      <input id="q" type="search" placeholder="Filter 31 obligations by scenario, event code, or deadline…">
       <select id="ctlf"><option value="">All controls</option></select>
       <select id="sort">
         <option value="doc">Document order</option>
@@ -382,7 +385,7 @@ code.out{background:var(--green-soft);border-color:transparent;color:var(--green
     <div id="rows"></div>
   </div>
   <p class="note">Generated from the <code>## Timing Matrix</code> table in <code>bsa.md</code>.
-  Same 30 rows, same source of truth &mdash; filterable, sortable, and readable on a phone.</p>
+  Same 31 rows, same source of truth &mdash; filterable, sortable, and readable on a phone.</p>
 
   <h2>Controls</h2>
 
