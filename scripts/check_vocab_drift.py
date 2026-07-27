@@ -130,8 +130,16 @@ def main() -> int:
     total_now = sum(len(v["omissions"]) for v in current.values())
     total_fa = sum(v["false_alarms"] for v in current.values())
     print(f"{len(current)} enabled policies — {total_now} omissions "
-          f"(baseline {sum(len(v) for v in base.values())}), "
-          f"{total_fa} false alarms (informational)")
+          f"(baseline {sum(len(v) for v in base.values())})")
+    # Not a drift signal and NOT "prose lagging reality": these are codes the
+    # provisional bullet names that the spec does register. meta-prompt.md:114
+    # says the bullet should "only flag the specific codes still missing", but
+    # several policies enumerate their confirmed codes too — third-party-risk
+    # lists 81 under "drawn from the registered vocabulary and confirmed". So
+    # this counts prompt non-compliance, fixable only by regeneration. Reported,
+    # never failed.
+    print(f"  {total_fa} codes listed in a bullet that should name only missing "
+          f"ones (see meta-prompt.md:114) — regeneration debt, not drift")
 
     for slug, fixed in improvements.items():
         print(f"  improved  {slug}: {fixed} fewer")
