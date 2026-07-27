@@ -18,6 +18,9 @@ import {
   isNonEmptyString,
   jsonResponse,
   notFoundResponse,
+  pageEnvelope,
+  paginate,
+  parsePageParams,
   parseJsonBody,
   sha256Hex,
   storeIdempotencyResponse,
@@ -627,4 +630,92 @@ export async function postCardReissue(
   if (evErr) return internalErrorResponse(requestId, evErr.message);
 
   return jsonResponse({ data: { id, blocked: onHold } }, 201, requestId);
+}
+
+// ---------------------------------------------------------------- reads
+
+/**
+ * Cards need no extra read columns: CARD_COLS already carries everything
+ * cardResponse derives, including the hold arithmetic that makes
+ * remaining_cents honest on a reversed or expired auth. Reusing it verbatim
+ * keeps a card the same shape whether it arrives from authorize or from here.
+ */
+const CARD_STATUSES = [
+  "authorized",
+  "partially_captured",
+  "captured",
+  "declined",
+  "reversed",
+  "expired",
+];
+
+/** GET /cards */
+export async function getCards(
+  req: Request,
+  db: SupabaseClient,
+  requestId: string,
+  ctx: PartnerContext,
+): Promise<Response> {
+  const q = new URL(req.url).searchParams;
+  const { limit, after, errors } = parsePageParams(q);
+
+  const status = q.get("status");
+  if (status !== null && !CARD_STATUSES.includes(status)) {
+    errors.push({
+      type: "invalid_value",
+      field: "status",
+      message: `must be one of: ${CARD_STATUSES.join(", ")}`,
+    });
+  }
+  if (errors.length) return validationError(requestId, errors);
+
+  let query = scopeToPartner(
+    db.schema("core").from("card_authorization").select(`${CARD_COLS}, control_results`),
+    ctx,
+  )
+    .order("created_at", { ascending: false })
+    .limit(limit + 1);
+  if (status) query = query.eq("status", status);
+  if (after) query = query.lt("created_at", after);
+
+  const { data, error } = await query;
+  if (error) return internalErrorResponse(requestId, error);
+
+  const { page, has_more, next_after } = paginate(
+    (data ?? []) as unknown as Record<string, unknown>[],
+    limit,
+  );
+  const rows = page as unknown as (CardAuthRow & {
+    control_results?: { control_id: string; decision: string }[] | null;
+  })[];
+  return jsonResponse(
+    pageEnvelope(rows.map((r) => cardResponse(r, r.control_results ?? [])), {
+      limit,
+      has_more,
+      next_after,
+    }),
+    200,
+    requestId,
+  );
+}
+
+/** GET /cards/{id}. 404 across partners, as on the other rails. */
+export async function getCard(
+  _req: Request,
+  cardId: string,
+  db: SupabaseClient,
+  requestId: string,
+  ctx: PartnerContext,
+): Promise<Response> {
+  const { data, error } = await scopeToPartner(
+    db.schema("core").from("card_authorization")
+      .select(`${CARD_COLS}, control_results`).eq("id", cardId),
+    ctx,
+  ).maybeSingle();
+  if (error) return internalErrorResponse(requestId, error);
+  if (!data) return notFoundResponse(requestId, "card_authorization", cardId);
+  const row = data as unknown as CardAuthRow & {
+    control_results?: { control_id: string; decision: string }[] | null;
+  };
+  return jsonResponse(cardResponse(row, row.control_results ?? []), 200, requestId);
 }

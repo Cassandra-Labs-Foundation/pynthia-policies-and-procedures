@@ -15,9 +15,13 @@ import {
   claimIdempotency,
   internalErrorResponse,
   isNonEmptyString,
+  isUuid,
   jsonResponse,
   notFoundResponse,
+  pageEnvelope,
+  paginate,
   parseJsonBody,
+  parsePageParams,
   sha256Hex,
   storeIdempotencyResponse,
   validationError,
@@ -25,7 +29,7 @@ import {
 } from "./lib.ts";
 import { scopeToPartner } from "./ownership.ts";
 import { provenanceFor, raiseAlert } from "./bsa.ts";
-import { achDualControl, clientLimitFor, openApproval } from "./eps.ts";
+import { achDualControl, clientLimitFor, DUAL_CONTROL_STATUSES, openApproval } from "./eps.ts";
 import { type PartnerContext } from "./auth.ts";
 
 // Outbound ACH debits leave the customer balance for the ACH network. Blnk
@@ -696,4 +700,114 @@ export async function postAchNoc(
   }
 
   return jsonResponse(achResponse(updated as AchRow), 200, requestId);
+}
+
+// ---------------------------------------------------------------- reads
+
+/**
+ * `dual_control_status` is included for the same reason as on wires: an entry
+ * id from GET /eps/pending-approvals is otherwise unresolvable. `window` comes
+ * along because an ACH entry's settlement window is what tells an operator
+ * whether a submitted entry is late or merely not due yet.
+ */
+const ACH_READ_COLS =
+  "id, amount, counterparty, window, status, dual_control_status, return_reason, noc, " +
+  "control_results, blnk_transaction_id, blnk_reference, blnk_status, created_at";
+
+const ACH_STATUSES = [
+  "pending_approval",
+  "submitted",
+  "settled",
+  "returned",
+  "rejected",
+  "canceled",
+];
+
+type AchReadRow = AchRow & {
+  dual_control_status: string;
+  control_results?: { control_id: string; decision: string }[] | null;
+};
+
+function achReadResponse(row: AchReadRow): Record<string, unknown> {
+  return {
+    ...achResponse(row, row.control_results ?? []),
+    dual_control_status: row.dual_control_status,
+  };
+}
+
+/** GET /ach-transfers */
+export async function getAchTransfers(
+  req: Request,
+  db: SupabaseClient,
+  requestId: string,
+  ctx: PartnerContext,
+): Promise<Response> {
+  const q = new URL(req.url).searchParams;
+  const { limit, after, errors } = parsePageParams(q);
+
+  const status = q.get("status");
+  if (status !== null && !ACH_STATUSES.includes(status)) {
+    errors.push({
+      type: "invalid_value",
+      field: "status",
+      message: `must be one of: ${ACH_STATUSES.join(", ")}`,
+    });
+  }
+  const dualControl = q.get("dual_control_status");
+  if (dualControl !== null && !DUAL_CONTROL_STATUSES.includes(dualControl)) {
+    errors.push({
+      type: "invalid_value",
+      field: "dual_control_status",
+      message: `must be one of: ${DUAL_CONTROL_STATUSES.join(", ")}`,
+    });
+  }
+  if (errors.length) return validationError(requestId, errors);
+
+  let query = scopeToPartner(
+    db.schema("core").from("ach_transfer").select(ACH_READ_COLS),
+    ctx,
+  )
+    .order("created_at", { ascending: false })
+    .limit(limit + 1);
+  if (status) query = query.eq("status", status);
+  if (dualControl) query = query.eq("dual_control_status", dualControl);
+  if (after) query = query.lt("created_at", after);
+
+  const { data, error } = await query;
+  if (error) return internalErrorResponse(requestId, error);
+
+  const { page, has_more, next_after } = paginate(
+    (data ?? []) as unknown as Record<string, unknown>[],
+    limit,
+  );
+  return jsonResponse(
+    pageEnvelope((page as unknown as AchReadRow[]).map(achReadResponse), {
+      limit,
+      has_more,
+      next_after,
+    }),
+    200,
+    requestId,
+  );
+}
+
+/** GET /ach-transfers/{id}. 404 across partners, as on wires. */
+export async function getAchTransfer(
+  _req: Request,
+  achId: string,
+  db: SupabaseClient,
+  requestId: string,
+  ctx: PartnerContext,
+): Promise<Response> {
+  // As on wires: ach_transfer keys on uuid, so a malformed id is a cast error
+  // in Postgres rather than an empty result. 404 before it gets there.
+  if (!isUuid(achId)) return notFoundResponse(requestId, "ach_transfer", achId);
+
+  const { data, error } = await scopeToPartner(
+    db.schema("core").from("ach_transfer").select(ACH_READ_COLS).eq("id", achId),
+    ctx,
+  ).maybeSingle();
+  if (error) return internalErrorResponse(requestId, error);
+  if (!data) return notFoundResponse(requestId, "ach_transfer", achId);
+  return jsonResponse(achReadResponse(data as unknown as AchReadRow), 200, requestId);
 }

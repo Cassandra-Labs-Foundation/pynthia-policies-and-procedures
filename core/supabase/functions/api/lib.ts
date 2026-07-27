@@ -2,10 +2,26 @@ import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supa
 
 const enc = new TextEncoder();
 
+/**
+ * The service-role client every handler reads and writes through.
+ *
+ * `SUPABASE_SERVICE_ROLE_KEY` is injected by the Edge Runtime and CANNOT be
+ * overridden: `supabase secrets set` refuses any name beginning with
+ * SUPABASE_. That is fine right up until the injected key is itself broken —
+ * a mis-issued service-role JWT whose `iat` runs ahead of the database's clock
+ * is rejected by PostgREST as "JWT issued at future", and then every query in
+ * the process fails with no way to substitute a working credential.
+ *
+ * CORE_SERVICE_ROLE_KEY is that way out: a settable name, checked first, and
+ * unset in a healthy deployment. It is not a second credential to rotate — it
+ * is the override that has to exist because the primary one cannot be set.
+ */
 export function createDb(): SupabaseClient {
+  const key = Deno.env.get("CORE_SERVICE_ROLE_KEY") ||
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   return createClient(
     Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    key,
     { auth: { persistSession: false } },
   );
 }
@@ -30,6 +46,23 @@ export async function timingSafeEqual(a: string, b: string): Promise<boolean> {
 export async function sha256Hex(input: string): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", enc.encode(input));
   return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/**
+ * Is this a syntactically valid UUID?
+ *
+ * core.wire_transfer and core.ach_transfer key on `uuid`; every other readable
+ * table keys on `text`. That difference is invisible until someone fetches a
+ * malformed id: PostgREST passes it straight to Postgres, which raises a cast
+ * error rather than returning no rows, and the handler's error branch turns
+ * that into a 500. A caller who typos an id gets "an unexpected error
+ * occurred" where the text-keyed tables all say "not found".
+ *
+ * Checked BEFORE the query rather than caught after it, so the database is
+ * never asked a question that cannot parse.
+ */
+export function isUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 }
 
 export function docUrl(type: string): string {
@@ -125,6 +158,25 @@ export function bankErrorResponse(requestId: string): Response {
   return apiError(502, "bank_error", requestId, {
     title: "Bank Error",
     detail: "The banking service is temporarily unavailable",
+  });
+}
+
+/**
+ * 503, for a dependency that failed AFTER the request was already understood.
+ *
+ * Distinct from 401 deliberately. A database that cannot be reached is not a
+ * credential that is wrong, and reporting it as one sends whoever is on call
+ * to rotate a key that was never the problem — which is exactly what happened
+ * when a bad service-role JWT surfaced as "Invalid or missing API token" on
+ * every route at once.
+ *
+ * Distinct from 500 too: 500 says this request will fail the same way if you
+ * send it again, and that is not what a transient dependency outage means.
+ */
+export function serviceUnavailableResponse(requestId: string, detail?: string): Response {
+  return apiError(503, "service_unavailable", requestId, {
+    title: "Service Unavailable",
+    detail: detail ?? "A required backend service is temporarily unavailable",
   });
 }
 

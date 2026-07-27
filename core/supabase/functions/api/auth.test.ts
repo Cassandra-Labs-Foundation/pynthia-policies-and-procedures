@@ -190,14 +190,32 @@ Deno.test("an expired token is a 401", async () => {
   assertEquals(out.response.status, 401);
 });
 
-Deno.test("a database error during auth fails CLOSED", async () => {
+Deno.test("a database error during auth fails CLOSED, as 503 not 401", async () => {
   const plain = "cass_pt_dberr";
   const db = authDb([tokenRow({ token_hash: await sha256Hex(plain) })], [partnerRow()], {
     error: "connection reset",
   });
   const out = await authenticate(bearer(plain), db, WRITE_SCOPE, THIS_INSTANCE, "a7");
   assert(!out.ok, "an unavailable database must not admit the request");
-  assertEquals(out.response.status, 401);
+  // Closed is not the same as unauthorized. This token is VALID — the row above
+  // says so — and the only thing wrong is the database. Answering 401 sent
+  // whoever was on call to rotate a credential that was never the problem,
+  // which is exactly what happened when a bad service-role JWT took out every
+  // route at once. The request still does not proceed; it just says why.
+  assertEquals(out.response.status, 503);
+});
+
+Deno.test("a database error is 503 for an UNKNOWN token too — no probe surface", async () => {
+  // The indistinguishable-401 property is about tokens, not about the database.
+  // A caller holding a garbage token gets the same 503 as one holding a valid
+  // token, so a database outage still discloses nothing about which tokens
+  // exist or which instance they belong to.
+  const db = authDb([tokenRow({ token_hash: await sha256Hex("cass_pt_other") })], [partnerRow()], {
+    error: "connection reset",
+  });
+  const out = await authenticate(bearer("cass_pt_nonexistent"), db, WRITE_SCOPE, THIS_INSTANCE, "a8");
+  assert(!out.ok);
+  assertEquals(out.response.status, 503);
 });
 
 // ------------------------------------------------------------------- scoping

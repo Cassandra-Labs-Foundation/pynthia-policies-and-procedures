@@ -24,6 +24,7 @@
 
 import { type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { type PartnerContext } from "./auth.ts";
+import { isConfined } from "./ownership.ts";
 import { type EvidenceScope, provenanceFor, raiseAlert } from "./bsa.ts";
 import {
   apiError,
@@ -31,6 +32,9 @@ import {
   isNonEmptyString,
   jsonResponse,
   notFoundResponse,
+  pageEnvelope,
+  paginate,
+  parsePageParams,
   parseJsonBody,
   sha256Hex,
   validationError,
@@ -520,4 +524,139 @@ export async function postLendingSweep(
 /** Exported for the funding gate — LP-11's actual teeth. */
 export function fundingPermitted(parties: { ofac_status: string }[]): boolean {
   return parties.every((p) => FUNDABLE_OFAC.has(p.ofac_status));
+}
+
+// ---------------------------------------------------------------- reads
+
+/**
+ * core.loan_application carries NO partner_id.
+ *
+ * Every other readable table has one, and scopeToPartner leans on it to keep
+ * one fintech out of another's rows. This table cannot be scoped that way, so
+ * a `partner` actor is refused outright rather than served everything: the
+ * alternative is a confined caller silently reading the whole instance's loan
+ * book, which is the exact failure OWN-01 and OWN-02 exist to prevent.
+ *
+ * cu_admin and pynthia_ops are unconfined by D23 and reach it normally, which
+ * is the operator audience this endpoint was asked for. Adding partner_id to
+ * the table is the real fix; refusing is what is correct until then.
+ */
+const LOAN_APPLICATION_STATUSES = [
+  "created",
+  "decisioned",
+  "counteroffer",
+  "final_action",
+  "completed",
+  "withdrawn",
+];
+
+/**
+ * A deliberately narrow projection. The table has 40+ columns including
+ * applicant PII, full credit structure and raw decision payloads; a list view
+ * for an operator queue needs none of it. Widening this is a decision someone
+ * should have to make on purpose.
+ */
+const LOAN_APPLICATION_LIST_COLS =
+  "id, status, amount, product_type, product_code, channel, decision_due_at, aan_due_at, " +
+  "final_action, adverse_action, counteroffer_status, funding_block_state, decisioned_at, " +
+  "decisioned_by, completed_at, provenance, created_at";
+
+function loanApplicationResponse(row: Record<string, unknown>): Record<string, unknown> {
+  return {
+    id: row.id,
+    status: row.status,
+    // integer cents, consistent with every other amount in this API
+    amount_cents: row.amount,
+    product_type: row.product_type,
+    product_code: row.product_code,
+    channel: row.channel,
+    // The two ECOA clocks. Null means not anchored yet, NOT "no deadline" —
+    // an application with a null decision_due_at has not been decisioned, and
+    // rendering that as "no deadline" is how a late notice goes unnoticed.
+    decision_due_at: row.decision_due_at,
+    aan_due_at: row.aan_due_at,
+    final_action: row.final_action,
+    adverse_action: row.adverse_action,
+    counteroffer_status: row.counteroffer_status,
+    funding_block_state: row.funding_block_state,
+    decisioned_at: row.decisioned_at,
+    decisioned_by: row.decisioned_by,
+    completed_at: row.completed_at,
+    provenance: row.provenance,
+    created_at: row.created_at,
+  };
+}
+
+function refuseConfined(requestId: string): Response {
+  return apiError(403, "insufficient_scope", requestId, {
+    title: "Insufficient Scope",
+    detail:
+      "loan applications are not partner-scoped and cannot be served to a partner actor",
+  });
+}
+
+/** GET /loan-applications */
+export async function getLoanApplications(
+  req: Request,
+  db: SupabaseClient,
+  requestId: string,
+  ctx: PartnerContext,
+): Promise<Response> {
+  if (isConfined(ctx)) return refuseConfined(requestId);
+
+  const q = new URL(req.url).searchParams;
+  const { limit, after, errors } = parsePageParams(q);
+
+  const status = q.get("status");
+  if (status !== null && !LOAN_APPLICATION_STATUSES.includes(status)) {
+    errors.push({
+      type: "invalid_value",
+      field: "status",
+      message: `must be one of: ${LOAN_APPLICATION_STATUSES.join(", ")}`,
+    });
+  }
+  if (errors.length) return validationError(requestId, errors);
+
+  let query = db.schema("core").from("loan_application")
+    .select(LOAN_APPLICATION_LIST_COLS)
+    .order("created_at", { ascending: false })
+    .limit(limit + 1);
+  if (status) query = query.eq("status", status);
+  if (after) query = query.lt("created_at", after);
+
+  const { data, error } = await query;
+  if (error) return internalErrorResponse(requestId, error);
+
+  const { page, has_more, next_after } = paginate(
+    (data ?? []) as unknown as Record<string, unknown>[],
+    limit,
+  );
+  return jsonResponse(
+    pageEnvelope(page.map(loanApplicationResponse), { limit, has_more, next_after }),
+    200,
+    requestId,
+  );
+}
+
+/** GET /loan-applications/{id} */
+export async function getLoanApplication(
+  _req: Request,
+  applicationId: string,
+  db: SupabaseClient,
+  requestId: string,
+  ctx: PartnerContext,
+): Promise<Response> {
+  if (isConfined(ctx)) return refuseConfined(requestId);
+
+  const { data, error } = await db.schema("core").from("loan_application")
+    .select(LOAN_APPLICATION_LIST_COLS)
+    .eq("id", applicationId)
+    .maybeSingle();
+  if (error) return internalErrorResponse(requestId, error);
+  if (!data) return notFoundResponse(requestId, "loan_application", applicationId);
+  return jsonResponse(
+    loanApplicationResponse(data as unknown as Record<string, unknown>),
+    200,
+    requestId,
+  );
 }

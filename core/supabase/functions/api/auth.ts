@@ -18,7 +18,7 @@
 // at the edge, plus the instance predicate baked into the lookup query.
 
 import { type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { apiError, sha256Hex, timingSafeEqual } from "./lib.ts";
+import { apiError, serviceUnavailableResponse, sha256Hex, timingSafeEqual } from "./lib.ts";
 
 /** D14 rate-limit tiers, used here as an authorization dimension. */
 export type Tier = "read" | "write" | "realtime" | "bulk";
@@ -252,10 +252,18 @@ export async function authenticate(
       .maybeSingle();
 
     if (error) {
-      // Fail CLOSED. A database error during authentication is not a reason to
-      // let a request through.
+      // Fail CLOSED — the request does NOT proceed. But it fails as a 503,
+      // because a database error is not a bad token and must not be reported
+      // as one.
+      //
+      // This does not weaken the indistinguishable-401 property above. That
+      // property exists so a token cannot be used to probe which INSTANCE it
+      // is valid on; the 503 here is returned identically for every token,
+      // including absent and malformed ones, so it separates no token from any
+      // other. What it discloses is that the database is unreachable, which is
+      // true, and is already plain from any unauthenticated route.
       console.error(`[${requestId}] token lookup failed: ${error.message}`);
-      return { ok: false, response: unauthorized(requestId) };
+      return { ok: false, response: serviceUnavailableResponse(requestId) };
     }
     if (!data) return { ok: false, response: unauthorized(requestId) };
     row = data as TokenRow;
@@ -316,8 +324,12 @@ export async function authenticate(
       .eq("instance_id", instanceId)
       .eq("status", "active");
     if (soleErr) {
+      // Authentication has ALREADY SUCCEEDED by this point — the token was
+      // recognised, in scope, and unexpired. This query is ownership
+      // resolution, and when it fails the caller's credential is not in
+      // question at all. 503, for the same reason as the lookup above.
       console.error(`[${requestId}] owner partner lookup failed: ${soleErr.message}`);
-      return { ok: false, response: unauthorized(requestId) };
+      return { ok: false, response: serviceUnavailableResponse(requestId) };
     }
     const rows = (sole ?? []) as { id: string }[];
     // D18 says one instance hosts one fintech. If that ever stops holding, an

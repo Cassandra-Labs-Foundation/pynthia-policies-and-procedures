@@ -50,6 +50,31 @@ export type DualControlStatus =
   | "rejected"
   | "unassessed";
 
+/**
+ * The same vocabulary as a runtime value, for read endpoints that validate a
+ * `dual_control_status` filter.
+ *
+ * Built from a Record keyed by the union rather than written out as an array:
+ * Record<DualControlStatus, true> is only satisfied when EVERY member is
+ * present, so adding a status above and forgetting it here is a compile error
+ * rather than a filter that silently rejects a legitimate value. An array
+ * literal would type-check while missing entries, which is the bug this shape
+ * exists to make impossible.
+ *
+ * Exported as readonly string[] because callers test unvalidated query
+ * parameters against it; a DualControlStatus[] would narrow .includes() to
+ * reject the very `string` it is meant to validate.
+ */
+const DUAL_CONTROL_STATUS_SET: Record<DualControlStatus, true> = {
+  not_required: true,
+  required: true,
+  approved: true,
+  rejected: true,
+  unassessed: true,
+};
+
+export const DUAL_CONTROL_STATUSES: readonly string[] = Object.keys(DUAL_CONTROL_STATUS_SET);
+
 /** What dual control a payment needs, and why. */
 export interface DualControlDecision {
   status: DualControlStatus;

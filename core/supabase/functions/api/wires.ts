@@ -15,16 +15,20 @@ import {
   claimIdempotency,
   internalErrorResponse,
   isNonEmptyString,
+  isUuid,
   jsonResponse,
   notFoundResponse,
+  pageEnvelope,
+  paginate,
   parseJsonBody,
+  parsePageParams,
   sha256Hex,
   storeIdempotencyResponse,
   validationError,
   type ValidationErrorItem,
 } from "./lib.ts";
 import { scopeToPartner } from "./ownership.ts";
-import { openApproval, wireDualControl } from "./eps.ts";
+import { DUAL_CONTROL_STATUSES, openApproval, wireDualControl } from "./eps.ts";
 import { provenanceFor } from "./bsa.ts";
 import { startRetentionFor } from "./retention.ts";
 import { type PartnerContext } from "./auth.ts";
@@ -816,4 +820,129 @@ export async function postWireReturnResolve(
   }
 
   return jsonResponse(wireResponse(updated as WireRow), 200, requestId);
+}
+
+// ---------------------------------------------------------------- reads
+
+/**
+ * The columns a wire read serves. `dual_control_status` is here and absent
+ * from wireResponse because it is the whole point of reading a wire back:
+ * GET /eps/pending-approvals hands out a resource_id and nothing else, and
+ * without this field there is no way to tell an approved wire from one still
+ * waiting. `partner_id` is selected but never returned — scopeToPartner
+ * filters on it, and echoing a tenant key to the tenant serves nothing.
+ */
+const WIRE_READ_COLS =
+  "id, amount, beneficiary, purpose, imad, status, dual_control_status, return_reason, " +
+  "control_results, blnk_transaction_id, blnk_reference, blnk_status, created_at";
+
+const WIRE_STATUSES = [
+  "pending_approval",
+  "submitted",
+  "completed",
+  "return_requested",
+  "returned",
+  "rejected",
+  "canceled",
+];
+
+type WireReadRow = WireRow & {
+  dual_control_status: string;
+  control_results?: { control_id: string; decision: string }[] | null;
+};
+
+/**
+ * Reuses wireResponse so a wire has ONE shape whether it arrives from a POST
+ * or a GET, then adds the two fields only a reader needs. Divergent read and
+ * write shapes for the same resource is the drift this avoids.
+ */
+function wireReadResponse(row: WireReadRow): Record<string, unknown> {
+  return {
+    ...wireResponse(row, row.control_results ?? []),
+    dual_control_status: row.dual_control_status,
+  };
+}
+
+/** GET /wire-transfers */
+export async function getWireTransfers(
+  req: Request,
+  db: SupabaseClient,
+  requestId: string,
+  ctx: PartnerContext,
+): Promise<Response> {
+  const q = new URL(req.url).searchParams;
+  const { limit, after, errors } = parsePageParams(q);
+
+  const status = q.get("status");
+  if (status !== null && !WIRE_STATUSES.includes(status)) {
+    errors.push({
+      type: "invalid_value",
+      field: "status",
+      message: `must be one of: ${WIRE_STATUSES.join(", ")}`,
+    });
+  }
+  const dualControl = q.get("dual_control_status");
+  if (dualControl !== null && !DUAL_CONTROL_STATUSES.includes(dualControl)) {
+    errors.push({
+      type: "invalid_value",
+      field: "dual_control_status",
+      message: `must be one of: ${DUAL_CONTROL_STATUSES.join(", ")}`,
+    });
+  }
+  if (errors.length) return validationError(requestId, errors);
+
+  let query = scopeToPartner(
+    db.schema("core").from("wire_transfer").select(WIRE_READ_COLS),
+    ctx,
+  )
+    .order("created_at", { ascending: false })
+    .limit(limit + 1);
+  if (status) query = query.eq("status", status);
+  if (dualControl) query = query.eq("dual_control_status", dualControl);
+  if (after) query = query.lt("created_at", after);
+
+  const { data, error } = await query;
+  if (error) return internalErrorResponse(requestId, error);
+
+  const { page, has_more, next_after } = paginate(
+    (data ?? []) as unknown as Record<string, unknown>[],
+    limit,
+  );
+  return jsonResponse(
+    pageEnvelope((page as unknown as WireReadRow[]).map(wireReadResponse), {
+      limit,
+      has_more,
+      next_after,
+    }),
+    200,
+    requestId,
+  );
+}
+
+/**
+ * GET /wire-transfers/{id}
+ *
+ * 404 rather than 403 when the wire belongs to another partner: whether a
+ * given id exists on this instance is itself the thing a foreign caller must
+ * not learn. Same rule OWN-01 pins for accounts.
+ */
+export async function getWireTransfer(
+  _req: Request,
+  wireId: string,
+  db: SupabaseClient,
+  requestId: string,
+  ctx: PartnerContext,
+): Promise<Response> {
+  // 404, not 400: an id that cannot be a uuid is an id that does not exist,
+  // and answering the two cases identically is what keeps "does this id exist"
+  // unlearnable — the same reason the cross-partner case below is 404.
+  if (!isUuid(wireId)) return notFoundResponse(requestId, "wire_transfer", wireId);
+
+  const { data, error } = await scopeToPartner(
+    db.schema("core").from("wire_transfer").select(WIRE_READ_COLS).eq("id", wireId),
+    ctx,
+  ).maybeSingle();
+  if (error) return internalErrorResponse(requestId, error);
+  if (!data) return notFoundResponse(requestId, "wire_transfer", wireId);
+  return jsonResponse(wireReadResponse(data as unknown as WireReadRow), 200, requestId);
 }

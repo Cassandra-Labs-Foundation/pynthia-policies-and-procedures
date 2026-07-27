@@ -14,6 +14,8 @@ import {
   postWireReject,
   postWireReturn,
   postWireReturnResolve,
+  getWireTransfer,
+  getWireTransfers,
 } from "./wires.ts";
 import { getControlResults } from "./controls.ts";
 import { getChangelog } from "./platform.ts";
@@ -31,7 +33,14 @@ import { postDisposalSweep, postDisposeRecord, postHoldRelease, postLegalHold } 
 import { getCashAggregation, postCashTransaction, postCtrFile, postCtrSweep } from "./cash.ts";
 import { getPendingApprovals, postPaymentApproval, putClientLimit } from "./eps.ts";
 import { getObligations, postCalendarSweep, postObligation, postObligationComplete } from "./governance.ts";
-import { postAanIssue, postLendingSweep, postLoanDecision, postLoanParty } from "./lending.ts";
+import {
+  getLoanApplication,
+  getLoanApplications,
+  postAanIssue,
+  postLendingSweep,
+  postLoanDecision,
+  postLoanParty,
+} from "./lending.ts";
 import {
   postAttestation,
   postObservation,
@@ -44,8 +53,22 @@ import { getEntities, getEntity, postEntity, postEntityOwner, postEntityTransiti
 import { getAccountNumbers, postAccountNumber, postNumberTransition } from "./numbers.ts";
 import { postVerification } from "./kyc.ts";
 import { postDeliverEvents, postEventSink } from "./events.ts";
-import { postAch, postAchNoc, postAchReturn, postAchSettle } from "./ach.ts";
-import { postCardAuthorize, postCardCapture, postCardExpire, postCardReverse } from "./cards.ts";
+import {
+  getAchTransfer,
+  getAchTransfers,
+  postAch,
+  postAchNoc,
+  postAchReturn,
+  postAchSettle,
+} from "./ach.ts";
+import {
+  getCard,
+  getCards,
+  postCardAuthorize,
+  postCardCapture,
+  postCardExpire,
+  postCardReverse,
+} from "./cards.ts";
 import {
   createDb,
   createRequestId,
@@ -314,6 +337,84 @@ const routes: Route[] = [
       const cfg = blnkConfigFromEnv();
       return await postTransfer(req, db, cfg, requestId, ctx);
     },
+  },
+  // ---- rail + lending reads. The write endpoints for these resources all
+  // predate any way to read them back: a wire could be prepared, approved and
+  // confirmed, and never fetched. GET /eps/pending-approvals hands out a
+  // resource_id that had no route to resolve it, which is why the approvals UI
+  // renders raw ids. Paths follow core-api.yaml, which has declared all four
+  // since before they were implemented.
+  {
+    method: "GET",
+    pattern: /^\/wire-transfers\/?$/,
+    endpoint: "GET /wire-transfers",
+    tier: "read",
+    paramNames: [],
+    handler: async (req, _params, requestId, ctx) =>
+      await getWireTransfers(req, createDb(), requestId, ctx),
+  },
+  {
+    method: "GET",
+    pattern: /^\/wire-transfers\/([^/]+)\/?$/,
+    endpoint: "GET /wire-transfers/{id}",
+    tier: "read",
+    paramNames: ["id"],
+    handler: async (req, params, requestId, ctx) =>
+      await getWireTransfer(req, params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "GET",
+    pattern: /^\/ach-transfers\/?$/,
+    endpoint: "GET /ach-transfers",
+    tier: "read",
+    paramNames: [],
+    handler: async (req, _params, requestId, ctx) =>
+      await getAchTransfers(req, createDb(), requestId, ctx),
+  },
+  {
+    method: "GET",
+    pattern: /^\/ach-transfers\/([^/]+)\/?$/,
+    endpoint: "GET /ach-transfers/{id}",
+    tier: "read",
+    paramNames: ["id"],
+    handler: async (req, params, requestId, ctx) =>
+      await getAchTransfer(req, params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "GET",
+    pattern: /^\/cards\/?$/,
+    endpoint: "GET /cards",
+    tier: "read",
+    paramNames: [],
+    handler: async (req, _params, requestId, ctx) =>
+      await getCards(req, createDb(), requestId, ctx),
+  },
+  {
+    method: "GET",
+    pattern: /^\/cards\/([^/]+)\/?$/,
+    endpoint: "GET /cards/{id}",
+    tier: "read",
+    paramNames: ["id"],
+    handler: async (req, params, requestId, ctx) =>
+      await getCard(req, params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "GET",
+    pattern: /^\/loan-applications\/?$/,
+    endpoint: "GET /loan-applications",
+    tier: "read",
+    paramNames: [],
+    handler: async (req, _params, requestId, ctx) =>
+      await getLoanApplications(req, createDb(), requestId, ctx),
+  },
+  {
+    method: "GET",
+    pattern: /^\/loan-applications\/([^/]+)\/?$/,
+    endpoint: "GET /loan-applications/{id}",
+    tier: "read",
+    paramNames: ["id"],
+    handler: async (req, params, requestId, ctx) =>
+      await getLoanApplication(req, params.id, createDb(), requestId, ctx),
   },
   {
     method: "GET",
