@@ -33,8 +33,8 @@ are enforced **only in the database** and are therefore **NOT proven here**:
 - **Type and range coercion (numeric precision, timestamptz normalisation, enum CHECKs on status columns)**  
   Status vocabularies are enforced by CHECK in the schema but compared as plain strings here, so a typo'd status would be caught by Postgres and not by the drill.
 
-For completeness, 12 CHECK constraints ARE
-re-implemented in the fake and are exercised: `ck_case_four_eyes`, `ck_payment_approval_four_eyes`, `ck_record_disposal_not_held`, `ck_record_disposal_after_expiry`, `ck_record_disposal_approved`, `ck_aan_reviewed_before_issue`, `ck_wire_dual_control_before_complete`, `ck_work_item_adverse_rationale`, `ck_obligation_due_iff_anchored`, `ck_ctr_filed_has_ref`, `ck_aan_has_reasons`, `ck_threshold_warn_before_limit`.
+For completeness, 18 CHECK constraints ARE
+re-implemented in the fake and are exercised: `ck_eps_auth_lockout_stamped`, `ck_eps_auth_challenge_method`, `ck_eps_pospay_decision_complete`, `ck_capital_ratio_matches_components`, `ck_capital_nwrp_only_if_under`, `ck_capital_internal_verdict`, `ck_case_four_eyes`, `ck_payment_approval_four_eyes`, `ck_record_disposal_not_held`, `ck_record_disposal_after_expiry`, `ck_record_disposal_approved`, `ck_aan_reviewed_before_issue`, `ck_wire_dual_control_before_complete`, `ck_work_item_adverse_rationale`, `ck_obligation_due_iff_anchored`, `ck_ctr_filed_has_ref`, `ck_aan_has_reasons`, `ck_threshold_warn_before_limit`.
 
 ## Result
 
@@ -124,7 +124,7 @@ Codes fired during a DRILL are not grounds for adding anything to crosswalk-emit
 
 Already in the inventory (24): `aan.notice_overdue`, `aan.queued`, `application.final_action.recorded`, `bsa_alert.created`, `bsa_alert.triage.timer`, `bsa_alert.triage_overdue`, `bsa_alert.triaged`, `case.investigation_complete`, `case.opened`, `case.sar.decision.timer`, `ctr.filing.timer`, `ctr.filing_overdue`, `ctr.threshold.reached`, `disposal.held`, `eps.client_limit.changed`, `eps.wire.second_approval`, `governance.obligation.completed`, `governance.obligation.overdue`, `legal_hold.created`, `loan_party.added`, `loan_party.ofac.escalated`, `record.retention_anchor`, `record.retention_clock_set`, `sar.filed`
 
-Fired here but **NOT** in the inventory (7): `attestation.recorded`, `audit.cycle_timer`, `inbound.opened`, `request.opened`, `task.opened`, `task.overdue`, `threshold.breached`
+Fired here but **NOT** in the inventory (15): `attestation.recorded`, `audit.cycle_timer`, `inbound.opened`, `legal.hold.placed`, `loan_party.ofac.screened`, `loan_party.ofac_potential_match`, `record.created`, `record.hold.applied`, `record.hold.placed`, `record.legal_hold_flag`, `record.retention.expires_at`, `request.opened`, `task.opened`, `task.overdue`, `threshold.breached`
 
 The second list is the interesting one and it stays where it is. Those codes
 were fired by synthetic configuration; adding them to the inventory would
