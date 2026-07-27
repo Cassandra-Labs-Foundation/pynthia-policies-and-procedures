@@ -12,8 +12,10 @@ import {
   Users, 
   FileText, 
   Shield, 
-  Grid, 
-  Book, 
+  Grid,
+  Book,
+  CheckSquare,
+  CalendarClock,
   Link as LinkIcon
 } from 'lucide-react';
 import { useSession } from '../../lib/context/SessionContext';
@@ -68,11 +70,23 @@ export default function MainLayout({ children, title, subtitle, actions }) {
               label="Accounting" 
               active={currentPath === '/accounting'} 
             />
-            <NavItem 
+            <NavItem
+              href="/approvals"
+              icon={<CheckSquare size={20} />}
+              label="Approvals"
+              active={currentPath === '/approvals'}
+            />
+            <NavItem
+              href="/compliance"
+              icon={<CalendarClock size={20} />}
+              label="Compliance"
+              active={currentPath === '/compliance'}
+            />
+            <NavItem
               href="/reports"
-              icon={<Book size={20} />} 
-              label="Reports" 
-              active={currentPath === '/reports'} 
+              icon={<Book size={20} />}
+              label="Reports"
+              active={currentPath === '/reports'}
             />
             <NavItem 
               href="/administrator"

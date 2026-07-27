@@ -27,6 +27,13 @@ const ALLOWED = [
   /^accounts\/[A-Za-z0-9_-]+$/,
   /^transfers$/,
   /^transfers\/[A-Za-z0-9_-]+$/,
+  // Compliance/ops reads. All four are GET-only in the core's route table and
+  // gate on cu_admin/pynthia_ops (control-results is instance-scoped rather
+  // than actor-scoped), so the shared staff key reaches them as-is.
+  /^control-results$/,
+  /^governance\/obligations$/,
+  /^eps\/pending-approvals$/,
+  /^cash\/aggregation$/,
 ];
 
 /**
@@ -37,7 +44,21 @@ const ALLOWED = [
  * than passed through, so a param the core API grows later cannot become
  * browser-reachable just by existing.
  */
-const ALLOWED_PARAMS = ["limit", "after", "type", "status", "entity_id", "account_id"];
+const ALLOWED_PARAMS = [
+  "limit",
+  "after",
+  "type",
+  "status",
+  "entity_id",
+  "account_id",
+  // GET /cash/aggregation 400s without this one — it is not an optional filter
+  "business_date",
+  // GET /control-results filters
+  "control_id",
+  "decision",
+  "subject_ref",
+  "event",
+];
 
 export function isAllowedPath(path) {
   return ALLOWED.some((p) => p.test(path));

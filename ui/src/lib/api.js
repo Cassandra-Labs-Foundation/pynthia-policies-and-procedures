@@ -18,7 +18,17 @@ async function get(path, params = {}) {
     // The core API's error envelope carries `detail`; surface it rather than a
     // bare status, because the useful cases (405 before the function is
     // deployed, 503 with no key configured) are diagnosable only from it.
-    throw new Error(body?.detail || body?.title || `request failed (${res.status})`);
+    //
+    // A 400 is shaped differently: type "validation_error" with a per-field
+    // `errors` array and no `detail` at all. Flattened here, because "request
+    // failed (400)" hides the one thing the response was written to say —
+    // which field was wrong, e.g. business_date is required on cash/aggregation.
+    const fields = Array.isArray(body?.errors)
+      ? body.errors.map((e) => [e.field, e.message].filter(Boolean).join(" ")).join("; ")
+      : "";
+    throw new Error(
+      body?.detail || body?.title || fields || `request failed (${res.status})`,
+    );
   }
   return body;
 }
@@ -187,4 +197,138 @@ export async function fetchTransactions({ limit = 50, accountId, status } = {}) 
 
 export function fetchAccountTransactions(accountId, opts = {}) {
   return fetchTransactions({ ...opts, accountId });
+}
+
+// ------------------------------------------------------------ control results
+
+/**
+ * Control evidence, newest first.
+ *
+ * The only endpoint here with a real cursor: `next_after` is the created_at of
+ * the page's last row and the core filters strictly older, so paging forward
+ * cannot serve a row twice. Passed straight through rather than folded into a
+ * page number, because that is the only token the core accepts.
+ *
+ * Rows are returned unmapped. `score` is nullable in core.control_result and a
+ * null there means "this control does not score", not zero — the distinction
+ * survives only if nothing in this layer defaults it.
+ */
+export async function fetchControlResults({
+  control_id,
+  decision,
+  subject_ref,
+  event,
+  limit = 50,
+  after,
+} = {}) {
+  const body = await get("control-results", {
+    control_id,
+    decision,
+    subject_ref,
+    event,
+    limit,
+    after,
+  });
+  return {
+    results: body.data ?? [],
+    limit: body.pagination?.limit ?? limit,
+    hasMore: Boolean(body.pagination?.has_more),
+    nextAfter: body.pagination?.next_after ?? null,
+  };
+}
+
+// --------------------------------------------------------------- obligations
+
+/**
+ * The governance calendar's hard ceiling. The endpoint takes no limit param and
+ * no cursor: it returns at most this many rows and says nothing about whether
+ * there were more. A caller that renders `total` without this number cannot
+ * tell a 500-obligation register from a truncated one.
+ */
+export const OBLIGATIONS_CAP = 500;
+
+/**
+ * Every obligation, ordered by next_due_at ascending.
+ *
+ * `scheduled`/`unscheduled` are the core's own counts, split on anchor_date:
+ * an obligation with no anchor has next_due_at null and therefore no position
+ * in the calendar at all. Kept as its own bucket rather than sorted to one end.
+ */
+export async function fetchObligations() {
+  const body = await get("governance/obligations");
+  return {
+    obligations: body.obligations ?? [],
+    total: body.total ?? 0,
+    scheduled: body.scheduled ?? 0,
+    unscheduled: body.unscheduled ?? 0,
+  };
+}
+
+// ---------------------------------------------------------- dual-control (EPS)
+
+/** Per-list ceiling on GET /eps/pending-approvals. Same blindness as above. */
+export const APPROVALS_CAP = 200;
+
+/**
+ * The dual-control queue, and separately the payments nobody assessed.
+ *
+ * Two lists, never merged. `pending` is a payment_approval row awaiting a
+ * second pair of eyes. `unassessed` is a payment for which no client limit was
+ * configured, so it was neither held for approval nor found exempt — a gap in
+ * the policy, not an item in a queue. The core's `warning` states that; it is
+ * passed through verbatim rather than restated.
+ */
+export async function fetchPendingApprovals() {
+  const body = await get("eps/pending-approvals");
+  return {
+    pending: body.pending ?? [],
+    pendingCount: body.pending_count ?? 0,
+    unassessed: body.unassessed ?? [],
+    unassessedCount: body.unassessed_count ?? 0,
+    warning: body.warning ?? null,
+  };
+}
+
+// ---------------------------------------------------------------------- cash
+
+/**
+ * One business day of cash, aggregated per person.
+ *
+ * `businessDate` is required — the core 400s without it rather than defaulting
+ * to today, so there is no such thing as "the current day" here.
+ *
+ * Two requests, for the same reason fetchAccounts makes two: the response
+ * identifies people by entity_id only, and the API exposes no join. A person
+ * outside the page of entities keeps their id as their label.
+ *
+ * Amounts are integer cents, and cash_in/cash_out are deliberately not summed:
+ * the CTR threshold is assessed against each direction separately.
+ */
+export async function fetchCashAggregation(businessDate) {
+  const [body, members] = await Promise.all([
+    get("cash/aggregation", { business_date: businessDate }),
+    fetchMembers({ limit: 200 }).catch(() => []),
+  ]);
+  const nameByEntityId = new Map(members.map((m) => [m.id, m.name]));
+
+  return {
+    businessDate: body.business_date,
+    // false => the per-person totals below are a LOWER BOUND
+    complete: Boolean(body.complete),
+    people: (body.people ?? []).map((p) => ({
+      entityId: p.entity_id,
+      name: nameByEntityId.get(p.entity_id) ?? null,
+      cashIn: p.cash_in,
+      cashOut: p.cash_out,
+      transactionCount: p.transaction_count,
+      ctrRequired: Boolean(p.ctr_required),
+    })),
+    unattributable: {
+      transactionCount: body.unattributable?.transaction_count ?? 0,
+      cashIn: body.unattributable?.cash_in ?? 0,
+      cashOut: body.unattributable?.cash_out ?? 0,
+      transactionIds: body.unattributable?.transaction_ids ?? [],
+    },
+    warning: body.warning ?? null,
+  };
 }

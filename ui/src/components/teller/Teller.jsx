@@ -4,6 +4,7 @@ import { DollarSign, Filter, Download, Calendar, Clock, ArrowRight } from 'lucid
 import MainLayout from '../layout/MainLayout';
 import TellerDrawer from './TellerDrawer';
 import MemberQuickEdit from './MemberQuickEdit';
+import CashPosition from './CashPosition';
 import { fetchTransactions } from '../../lib/api';
 
 
@@ -65,7 +66,10 @@ export default function Teller() {
       
       {/* Member Quick Edit Component */}
       <MemberQuickEdit />
-      
+
+      {/* Cash aggregated for one business day, per person */}
+      <CashPosition />
+
       {/* Transaction Journal */}
       <div>
         <div className="flex justify-between items-center mb-4">
