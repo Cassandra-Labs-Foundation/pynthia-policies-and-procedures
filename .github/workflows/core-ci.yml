@@ -39,6 +39,16 @@ jobs:
         # leaving 326 comments pointing at nothing.
         run: python3 scripts/check_decision_refs.py --strict
 
+      - name: Vocabulary drift — no policy may cite a code the core dropped
+        # The compliance system assumes every `entity.event` in a policy resolves
+        # to something core-api.yaml implements. Rename or drop one and the
+        # obligation stays written down with nothing behind it.
+        #
+        # Ratchets against vocab-drift-baseline.json rather than demanding zero:
+        # 59 codes already resolve nowhere, and a gate that starts red is a gate
+        # nobody reads. Only NEW ones fail. Shrink the baseline, never grow it.
+        run: python3 scripts/check_vocab_drift.py --check
+
       - name: Cursor columns are NOT NULL — no page may end on a dead cursor
         # D16 reads next_after off the last row it serves, so a nullable cursor
         # column yields has_more:true with next_after:null — a 200 nobody can

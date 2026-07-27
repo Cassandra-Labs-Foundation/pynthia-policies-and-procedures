@@ -1,0 +1,110 @@
+{
+ "note": "Per-policy codes that resolve nowhere in core-vocabulary.json. The gate fails when a policy gains a code not listed here. Shrink it; never grow it by hand.",
+ "generated_from": "check_vocab_drift.py --update",
+ "total": 59,
+ "policies": {
+  "audit": [
+   "regulatory.change_identified"
+  ],
+  "basel-ii-standardized-approach-framework": [
+   "bookkeeping.account_code_5300",
+   "icaap.due_at",
+   "icaap.material_risk_identified"
+  ],
+  "bsa": [
+   "deficiency.plan_timer",
+   "employee.role",
+   "regulatory.change_identified",
+   "vendor.monitoring_alert",
+   "wire_transfer.originator",
+   "wire_transfer.record_retained"
+  ],
+  "business-continuity-plan": [
+   "board.approval.id",
+   "cap.approval_timer",
+   "regulatory.change_identified",
+   "restore.point_validated",
+   "site.capacity_validated",
+   "vendor.evidence_refreshed"
+  ],
+  "capitalization": [
+   "icaap.material_risk_identified"
+  ],
+  "cash": [
+   "cash.evidence.type"
+  ],
+  "collections": [
+   "furnishing.correction_identified"
+  ],
+  "compliance": [],
+  "director-fiduciary-duties": [
+   "insider.credit_extended",
+   "training.curriculum_version"
+  ],
+  "e-commerce": [
+   "access.review_due_at"
+  ],
+  "electronic-payment-systems": [
+   "eps.auth.failure_threshold_reached",
+   "eps.incident.reportable_determined",
+   "eps.vendor.soc2_report",
+   "eps.vendor_soc2.received",
+   "eps.vendor_soc2.reviewed"
+  ],
+  "enterprise-risk-management": [
+   "kri.id"
+  ],
+  "fair-lending": [
+   "employee.role"
+  ],
+  "information-security": [
+   "access.review_due_at",
+   "aup.version",
+   "disposal.due_at",
+   "phishing.repeat_failure.detected",
+   "product.description",
+   "record.retention_timer",
+   "sar.filing_id",
+   "siem.alert_critical.detected"
+  ],
+  "internal-controls": [
+   "deficiency.plan_timer",
+   "exception.expiry_timer",
+   "override.escalation_timer",
+   "sod.grant_blocked",
+   "sod.review_timer"
+  ],
+  "investment": [
+   "coi.conflict_identified",
+   "trade.intermediary_blocked",
+   "trade.limit_blocked"
+  ],
+  "lending": [],
+  "liquidity": [],
+  "member": [
+   "complaint.regulator_case_id",
+   "member.expulsion_hearing.held"
+  ],
+  "privacy": [
+   "access.poa_validated",
+   "access.review_due_at",
+   "privacy.age_gate_blocked",
+   "vendor.alert_details",
+   "vendor.impact_scope",
+   "vendor.monitoring_alert",
+   "vendor.privacy_blocked",
+   "verification.biometric_declined"
+  ],
+  "record-retention": [
+   "record.subject_ref",
+   "records.contacts.assigned",
+   "schedule_a.entry.amended"
+  ],
+  "reimbursement-insurance-indemnification": [],
+  "resolution": [
+   "transaction.type"
+  ],
+  "third-party-risk": [],
+  "truth-in-savings": []
+ }
+}

@@ -96,3 +96,17 @@ jobs:
           # --autostash is a no-op here (tree is clean post-commit) but harmless.
           git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
           git push origin "HEAD:${GITHUB_REF_NAME}"
+
+      # This gate lives HERE and not only in core-ci.yml because of loop-safety
+      # guarantee #1 above: the push made one step up uses GITHUB_TOKEN, so it
+      # triggers no further workflow runs. core-ci.yml never sees the rebuilt
+      # core-vocabulary.json. A core-api.yaml change that drops a term a policy
+      # depends on would rebuild the vocabulary, commit it, and go green — the
+      # break surfacing on whoever pushed next, detached from its cause.
+      #
+      # It runs AFTER the commit deliberately. The artifacts are a pure function
+      # of the spec and are true whatever the policies say; withholding them
+      # would only make the next run diff against a stale base. So: record the
+      # truth, then fail the build about it.
+      - name: Vocabulary drift — no policy may cite a code the core dropped
+        run: python3 scripts/check_vocab_drift.py --check
