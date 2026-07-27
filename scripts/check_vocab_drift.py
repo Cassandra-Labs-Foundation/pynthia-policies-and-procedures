@@ -11,11 +11,13 @@ nothing — the obligation is still written down, and nothing enforces it.
 This is the gate for that. It is deliberately NOT check_vocab_refs.py --strict:
 
   check_vocab_refs --strict fails when the policy's "Engineering vocabulary is
-  provisional" bullet disagrees with reality in EITHER direction. Across the 26
-  enabled policies that is 474 false alarms (bullet lists a code the spec has
-  SINCE registered — engineering caught up and nobody updated the prose) versus
-  116 omissions (code registered nowhere at all). Wiring it as-is pins the build
-  red on 474 cosmetic staleness findings, which trains everyone to ignore it.
+  provisional" bullet disagrees with reality in EITHER direction. Across the 25
+  enabled policies that is 474 over-listings versus 59 omissions. An over-listing
+  is a code the bullet names that the spec DOES register — meta-prompt.md forbids
+  those (the bullet names only what is missing), but 21 of 25 policies enumerate
+  their confirmed codes anyway; third-party-risk lists 81 in one sentence. Wiring
+  --strict as-is pins the build red on 474 findings that no core change can fix,
+  which trains everyone to ignore it.
 
 So this checks OMISSIONS ONLY, and ratchets rather than demanding zero:
 
@@ -24,8 +26,9 @@ So this checks OMISSIONS ONLY, and ratchets rather than demanding zero:
   improvement fewer omissions than baseline  ->  pass, and say so; run --update
               to bank the win so it cannot silently regress later
 
-False alarms are reported but never fail: a bullet that over-claims uncertainty
-is wrong prose, not a broken control.
+Over-listings are reported but never fail: no control is broken by one, and only
+a regeneration can clear it. They heal as each policy regenerates for its own
+reasons, against the tightened meta-prompt rule.
 
   python3 scripts/check_vocab_drift.py           # report
   python3 scripts/check_vocab_drift.py --check   # exit 1 on regression (CI)
@@ -131,15 +134,13 @@ def main() -> int:
     total_fa = sum(v["false_alarms"] for v in current.values())
     print(f"{len(current)} enabled policies — {total_now} omissions "
           f"(baseline {sum(len(v) for v in base.values())})")
-    # Not a drift signal and NOT "prose lagging reality": these are codes the
-    # provisional bullet names that the spec does register. meta-prompt.md:114
-    # says the bullet should "only flag the specific codes still missing", but
-    # several policies enumerate their confirmed codes too — third-party-risk
-    # lists 81 under "drawn from the registered vocabulary and confirmed". So
-    # this counts prompt non-compliance, fixable only by regeneration. Reported,
-    # never failed.
-    print(f"  {total_fa} codes listed in a bullet that should name only missing "
-          f"ones (see meta-prompt.md:114) — regeneration debt, not drift")
+    # Not drift, and not "prose lagging reality": these are codes the bullet
+    # names that the spec DOES register. meta-prompt.md's ASSUMPTIONS & GAPS
+    # rule says the bullet names only what is missing — third-party-risk lists
+    # 81 under "drawn from the registered vocabulary and confirmed". Prompt
+    # non-compliance, clearable only by regeneration. Reported, never failed.
+    print(f"  {total_fa} codes over-listed in a bullet that should name only "
+          f"missing ones — regeneration debt, not drift")
 
     for slug, fixed in improvements.items():
         print(f"  improved  {slug}: {fixed} fewer")

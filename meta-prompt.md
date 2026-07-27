@@ -108,10 +108,14 @@ Owner, approvals, review cadence, cross-refs.
 A single consolidated list at the end of the document. Each bullet is one assumption or gap, in business terms. Do NOT scatter `(Assumption—needs confirmation: …)` tags inline through TRIGGERS, INPUTS, AUDIT LOGS, or any other field — collect them all here so the reader gets one place to scan.
 
 Typical entries:
-- **Engineering vocabulary is provisional.** The lending-side resources, fields, and events referenced in TRIGGERS / INPUTS / AUDIT LOGS throughout this document are not yet registered in `core-vocabulary.json` (parsed spec is banking-core only). Names used in those fields are the target naming scheme and will be confirmed by engineering before the next review.
+- **Engineering vocabulary is provisional.** The following codes used in this policy are not yet registered in `core-vocabulary.json` and must be confirmed by engineering before the next review: `loan_application.adverse_action_reason`, `loan_application.pricing_exception_id`. No new object prefixes or actions were coined.
 - Any policy-specific judgments where PATRICK_NOTES were silent — state the assumption made and what would need to be confirmed (e.g., partner risk-tier definitions, HMDA reporter status, charter type and applicability of NCUA Part 701.31).
 
-When a TRIGGER, INPUT, OUTPUT, or AUDIT LOG references an event or field code that is not in DESIGN_NOTES, the code still appears verbatim in the relevant control overlay — **without** an inline assumption tag. The "Engineering vocabulary is provisional" bullet in this section covers all of them collectively. If DESIGN_NOTES is non-empty, only flag the specific codes still missing.
+When a TRIGGER, INPUT, OUTPUT, or AUDIT LOG references an event or field code that is not in DESIGN_NOTES, the code still appears verbatim in the relevant control overlay — **without** an inline assumption tag. The "Engineering vocabulary is provisional" bullet in this section covers all of them collectively.
+
+**The bullet lists ONLY codes that are missing from DESIGN_NOTES.** Do not enumerate codes that DESIGN_NOTES already registers. Do not add a sentence naming the codes you checked and confirmed, or listing what is "drawn from the registered vocabulary" — a registered code is the unremarkable default and belongs nowhere in ASSUMPTIONS & GAPS. Naming it there asserts a registration status inside a document that cannot be updated when the spec changes, so the claim is stale the moment engineering registers anything else.
+
+This is the single most-violated rule in the file: 21 of 25 policies currently over-list, one of them by 81 codes. If every code you used is registered, write the bullet as `**Engineering vocabulary is provisional.** None — every code used in this policy is registered in \`core-vocabulary.json\`.` and stop. A short bullet is the correct output, not a sign you skipped the check.
 
 QUALITY BAR / ACCEPTANCE CRITERIA
 - All internal Control links are **fragment-only** and resolve to headings present in the document.
@@ -121,6 +125,7 @@ QUALITY BAR / ACCEPTANCE CRITERIA
 - Every EVENTS table row cites vocabulary codes in all applicable columns: `event.code` in *When*, `field.code` (or `field.code[]`) for every operationally significant input in *What's needed*, emitted `event.code` in *Produced (and logged)*, and a timer / scheduler `event.code` in *Within* where vocabulary registers one.
 - Codes appear in backticks. Where vocabulary does not yet register a code, follow the Vocabulary policy order (reuse registered → reuse provisional spelling → compose per grammar) rather than omitting or freely inventing it.
 - No inline `(Assumption—needs confirmation)` tags anywhere — assumptions live in the consolidated Assumptions & Gaps section.
+- The "Engineering vocabulary is provisional" bullet names **only** codes absent from DESIGN_NOTES. A code that DESIGN_NOTES registers must not appear in that bullet — not in a confirmed-codes list, not as a parenthetical `(registered — confirmed)`, not anywhere. If nothing is missing, the bullet says so in one sentence.
 - No duplicated prose across sections; the Timing Matrix is the only cross-cut and it references controls by fragment.
 - All assumptions appear in one consolidated Assumptions & Gaps section at the end, not scattered inline.
 - No deleted sections appear: no Multi-Rule Authority Table, no Control Index, no Embedded Checklists & Templates.
