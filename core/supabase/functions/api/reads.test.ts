@@ -12,7 +12,8 @@ import { getWireTransfer, getWireTransfers } from "./wires.ts";
 import { getAchTransfer, getAchTransfers } from "./ach.ts";
 import { getCards } from "./cards.ts";
 import { getLoanApplications } from "./lending.ts";
-import { filtersOf, listDb, OPS_CTX, stubDb, TEST_CTX } from "./test_helpers.ts";
+import { getEntityVerifications } from "./kyc.ts";
+import { type Any, filtersOf, listDb, OPS_CTX, stubDb, TEST_CTX } from "./test_helpers.ts";
 
 // ------------------------------------------------------------- partner scoping
 
@@ -224,4 +225,117 @@ Deno.test("a loan application read omits applicant PII and the raw decision payl
   assertEquals(row.amount_cents, 2500000);
   // a null clock is "not anchored yet", and must stay null rather than becoming a date
   assertEquals(row.aan_due_at, null);
+});
+
+// ------------------------------------------------- GET /entities/{id}/verifications
+//
+// core.verification has no partner_id, so this endpoint is scoped through the
+// ENTITY. The tests that matter are about what it refuses and what it omits.
+
+/**
+ * Two tables, two answers. Purpose-built rather than reusing listDb, because
+ * the whole behaviour under test is "what the entity lookup returned decides
+ * whether the verification query runs at all".
+ */
+function entityVerificationDb(
+  entity: unknown,
+  verifications: Record<string, unknown>[],
+) {
+  const calls: { table: string; fn: string; args: unknown[] }[] = [];
+  const from = (table: string) => {
+    const chain: Any = {
+      select: (...a: unknown[]) => (calls.push({ table, fn: "select", args: a }), chain),
+      eq: (...a: unknown[]) => (calls.push({ table, fn: "eq", args: a }), chain),
+      order: (...a: unknown[]) => (calls.push({ table, fn: "order", args: a }), chain),
+      maybeSingle: () => Promise.resolve({ data: entity, error: null }),
+      then: (res: (v: unknown) => unknown) => res({ data: verifications, error: null }),
+    };
+    return chain;
+  };
+  const db: Any = { schema: () => ({ from }) };
+  return { db, calls };
+}
+
+Deno.test("a member the caller cannot see is 404, NOT an empty verification list", async () => {
+  // An empty list asserts "this member has never been verified". A 404 says
+  // "no such member here". For a compliance surface those are entirely
+  // different claims, and returning the wrong one about another partner's
+  // member is the OWN-01 failure in a new place.
+  const { db, calls } = entityVerificationDb(null, []);
+  const res = await getEntityVerifications(
+    new Request("https://x/x"),
+    "ent_someone_elses",
+    db,
+    "v1",
+    TEST_CTX,
+  );
+  assertEquals(res.status, 404);
+  assertEquals(
+    calls.filter((c) => c.table === "verification").length,
+    0,
+    "the verification table must not be queried for an invisible entity",
+  );
+});
+
+Deno.test("the entity gate is partner-scoped, and the list is keyed on entity_id", async () => {
+  const { db, calls } = entityVerificationDb({ id: "ent_1" }, []);
+  await getEntityVerifications(new Request("https://x/x"), "ent_1", db, "v2", TEST_CTX);
+  const eqs = calls.filter((c) => c.fn === "eq").map((c) => `${c.table}:${c.args[0]}=${c.args[1]}`);
+  assertEquals(eqs, [
+    "entity:id=ent_1",
+    "entity:partner_id=ptnr_test",
+    "verification:entity_id=ent_1",
+  ]);
+});
+
+Deno.test("a verification read omits provider_result — it is the vendor's raw payload", async () => {
+  // For a full-trust attestation provider_result carries the attesting partner;
+  // for a live run it is whatever the vendor returned. Member Services needs
+  // the decision and the OFAC outcome, not third-party PII.
+  const { db } = entityVerificationDb({ id: "ent_1" }, [{
+    id: "ver_1",
+    entity_id: "ent_1",
+    type: "kyc",
+    status: "approved",
+    ofac_result: "clear",
+    match_status: "no_match",
+    trust_level: null,
+    provider: "alloy",
+    created_at: "2026-07-20T00:00:00Z",
+  }]);
+  const res = await getEntityVerifications(new Request("https://x/x"), "ent_1", db, "v3", TEST_CTX);
+  const body = await res.json();
+  assertEquals(res.status, 200);
+  assertEquals(body.count, 1);
+  assertEquals(body.entity_id, "ent_1");
+  assertEquals(body.verifications[0].ofac_result, "clear");
+  assertEquals(body.verifications[0].provider_result, undefined);
+});
+
+Deno.test("the projection itself never names provider_result", async () => {
+  // The assertion above only proves the fixture lacked the field. This proves
+  // the SELECT could not have asked for it, which is what actually keeps the
+  // vendor payload out when the row does carry one.
+  const { db, calls } = entityVerificationDb({ id: "ent_1" }, []);
+  await getEntityVerifications(new Request("https://x/x"), "ent_1", db, "v4", TEST_CTX);
+  const projection = calls.find((c) => c.table === "verification" && c.fn === "select");
+  assert(projection, "the verification table must be selected from");
+  assert(
+    !String(projection.args[0]).includes("provider_result"),
+    "provider_result must not be in the projection",
+  );
+});
+
+Deno.test("an empty list still says the pre-migration rows cannot appear", async () => {
+  // 171 rows predate entity_id and are unattributable. A compliance reader who
+  // takes an empty list as "nothing was ever run" would be wrong, so the
+  // response says so rather than leaving the caller to know it.
+  const { db } = entityVerificationDb({ id: "ent_1" }, []);
+  const res = await getEntityVerifications(new Request("https://x/x"), "ent_1", db, "v5", TEST_CTX);
+  const body = await res.json();
+  assertEquals(body.count, 0);
+  assert(
+    String(body.unattributable_note).includes("20260727000100"),
+    "the caveat must name the migration that draws the line",
+  );
 });

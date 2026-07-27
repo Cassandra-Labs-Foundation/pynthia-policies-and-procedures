@@ -51,7 +51,7 @@ import {
 } from "./primitives.ts";
 import { getEntities, getEntity, postEntity, postEntityOwner, postEntityTransition } from "./entities.ts";
 import { getAccountNumbers, postAccountNumber, postNumberTransition } from "./numbers.ts";
-import { postVerification } from "./kyc.ts";
+import { getEntityVerifications, postVerification } from "./kyc.ts";
 import { postDeliverEvents, postEventSink } from "./events.ts";
 import {
   getAchTransfer,
@@ -490,6 +490,15 @@ const routes: Route[] = [
     tier: "read",
     paramNames: [],
     handler: async (req, _params, requestId, ctx) => await getEntities(req, createDb(), requestId, ctx),
+  },
+  {
+    method: "GET",
+    pattern: /^\/entities\/([^/]+)\/verifications\/?$/,
+    endpoint: "GET /entities/{id}/verifications",
+    tier: "read",
+    paramNames: ["id"],
+    handler: async (req, params, requestId, ctx) =>
+      await getEntityVerifications(req, params.id, createDb(), requestId, ctx),
   },
   {
     method: "POST",

@@ -152,6 +152,12 @@ export async function postVerification(
 
   const row: Record<string, unknown> = {
     id: verificationId,
+    // WHO was verified. The 201 below has always returned this field; until
+    // 20260727000100 there was no column to put it in, so the handler told the
+    // caller which member it verified and then forgot. 179 rows had to be
+    // recovered from event payloads to answer a question this row should have
+    // answered itself.
+    entity_id: entityId,
     type: "kyc",
     provider,
     provider_result: JSON.stringify(providerRaw),
@@ -184,4 +190,67 @@ export async function postVerification(
     ofac_result: ofac,
     created_at: new Date().toISOString(),
   }, 201, requestId);
+}
+
+// ---------------------------------------------------------------- reads
+
+/**
+ * What a verification read serves.
+ *
+ * `provider_result` is deliberately NOT here. It is the raw provider payload —
+ * for a full-trust attestation it carries the attesting partner, and for a live
+ * run whatever the vendor returned. Member Services needs the DECISION and the
+ * OFAC outcome, not the vendor's body, and a projection that widens by accident
+ * is how third-party PII leaves a system.
+ */
+const VERIFICATION_READ_COLS =
+  "id, entity_id, type, status, method, result, provider, ofac_result, " +
+  "match_status, trust_level, expires_at, provenance, created_at";
+
+/**
+ * GET /entities/{id}/verifications
+ *
+ * core.verification has no partner_id, so it cannot be scoped directly. It is
+ * scoped through the ENTITY instead: the caller must be able to see the member
+ * before it can see what was run against them, and a partner who cannot see the
+ * entity gets the entity's own 404 rather than an empty list. An empty list
+ * would say "this member has never been verified", which is a different and
+ * much worse claim than "no such member here".
+ */
+export async function getEntityVerifications(
+  _req: Request,
+  entityId: string,
+  db: SupabaseClient,
+  requestId: string,
+  ctx: PartnerContext,
+): Promise<Response> {
+  const { data: entity, error: entErr } = await scopeToPartner(
+    db.schema("core").from("entity").select("id").eq("id", entityId),
+    ctx,
+  ).maybeSingle();
+  if (entErr) return internalErrorResponse(requestId, entErr);
+  if (!entity) return notFoundResponse(requestId, "entity", entityId);
+
+  const { data, error } = await db.schema("core").from("verification")
+    .select(VERIFICATION_READ_COLS)
+    .eq("entity_id", entityId)
+    .order("created_at", { ascending: false });
+  if (error) return internalErrorResponse(requestId, error);
+
+  const rows = (data ?? []) as unknown as Record<string, unknown>[];
+  return jsonResponse({
+    entity_id: entityId,
+    verifications: rows,
+    count: rows.length,
+    // Says the quiet part out loud. 171 verification rows predate the entity_id
+    // column (20260727000100) and could not be attributed to anyone: 170
+    // estate_claimant rows verify a CLAIMANT rather than the member, and one
+    // cip_documentary row points at an entity that does not exist. None of them
+    // can appear in any member's list, so an empty or short list here is not
+    // proof that nothing was run — and a compliance reader must not read it as
+    // proof.
+    unattributable_note:
+      "verifications recorded before 20260727000100 may have no entity linkage " +
+      "and cannot appear here",
+  }, 200, requestId);
 }

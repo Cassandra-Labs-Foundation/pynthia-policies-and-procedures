@@ -853,13 +853,16 @@ export async function postCipVerification(
         : "OFAC hold placed",
     });
   }
-  // No entity_id column exists on core.verification — the entity linkage is
-  // the deterministic id (cipv_<entity_ref>) plus the event payload. Sending
-  // a phantom column fails the WHOLE upsert (PGRST204), which is how BSA-03's
-  // evidence row silently never landed live while every event still emitted.
+  // entity_id exists as of 20260727000100 and is written here directly. It
+  // used to not, and the workaround was the deterministic id (cipv_<entity_ref>)
+  // plus the event payload — because sending a phantom column fails the WHOLE
+  // upsert (PGRST204), which is how BSA-03's evidence row silently never landed
+  // live while every event still emitted. The id stays deterministic for
+  // idempotency; the linkage no longer has to be decoded from it.
   // Checked for the same reason as the originator row: this IS the evidence.
   const { error: verErr } = await db.schema(scope).from("verification").upsert({
     id,
+    entity_id: String(body.entity_ref),
     type: "cip_documentary",
     method: "documentary",
     result: "verified",
