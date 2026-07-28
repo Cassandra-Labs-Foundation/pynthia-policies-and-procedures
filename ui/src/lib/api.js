@@ -332,3 +332,34 @@ export async function fetchCashAggregation(businessDate) {
     warning: body.warning ?? null,
   };
 }
+
+// ------------------------------------------------------------- 5300 report
+
+/**
+ * The NCUA 5300 operator view.
+ *
+ * Returns two things that are NOT the same clock, and the caller has to keep
+ * them apart:
+ *
+ *   - `current` is live. The Payment Hub advances the FBO position against an
+ *     event sequence, so it moves between page loads.
+ *   - `history` is a daily snapshot table written by a scheduled job. Its
+ *     newest row can be a day old, and `stale` says whether today's run has
+ *     landed at all.
+ *
+ * Both are passed through unflattened. Collapsing them into one "current
+ * position" would show an operator a figure that stops moving at midnight with
+ * nothing on screen explaining why.
+ */
+export async function fetchReport5300() {
+  const body = await get("reports/5300");
+  return {
+    instanceId: body.instance_id,
+    current: body.current ?? null,
+    history: body.history ?? [],
+    asOf: body.as_of ?? null,
+    stale: Boolean(body.stale),
+    cadence: body.cadence ?? null,
+    chartOfAccountsNote: body.chart_of_accounts_note ?? null,
+  };
+}

@@ -18,7 +18,7 @@ import {
   getWireTransfers,
 } from "./wires.ts";
 import { getControlResults } from "./controls.ts";
-import { getChangelog } from "./platform.ts";
+import { getChangelog, getReport5300 } from "./platform.ts";
 import { postSandboxReset } from "./sandbox.ts";
 import { postSimulate } from "./simulate.ts";
 import {
@@ -415,6 +415,15 @@ const routes: Route[] = [
     paramNames: ["id"],
     handler: async (req, params, requestId, ctx) =>
       await getLoanApplication(req, params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "GET",
+    pattern: /^\/reports\/5300\/?$/,
+    endpoint: "GET /reports/5300",
+    tier: "read",
+    paramNames: [],
+    handler: async (req, _params, requestId, ctx) =>
+      await getReport5300(req, createDb(), requestId, ctx),
   },
   {
     method: "GET",

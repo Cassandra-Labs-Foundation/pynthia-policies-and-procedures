@@ -34,6 +34,10 @@ const ALLOWED = [
   /^governance\/obligations$/,
   /^eps\/pending-approvals$/,
   /^cash\/aggregation$/,
+  // The 5300 operator view. Reads aggregator.* rather than core.*, and is
+  // scoped server-side to the token's own instance — there is no parameter
+  // here that could widen it to another instance.
+  /^reports\/5300$/,
 ];
 
 /**
