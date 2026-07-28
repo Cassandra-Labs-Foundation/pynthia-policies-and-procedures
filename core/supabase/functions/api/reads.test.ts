@@ -1,17 +1,17 @@
-// The rail and lending read endpoints (GET /wire-transfers, /ach-transfers,
-// /cards, /loan-applications).
+// The payment-rail and verification read endpoints.
 //
-// These resources had 20+ write endpoints between them and no way to read any
-// of them back. What is tested here is mostly what a read must REFUSE: the
-// partner predicate going on before any caller-supplied filter, an unknown
-// status being rejected rather than passed to PostgREST, and the one table
-// that cannot be partner-scoped at all refusing the actors it cannot confine.
+// These rails had 20+ write endpoints between them and no way to read any of
+// them back. What is tested here is mostly what a read must REFUSE: the partner
+// predicate going on before any caller-supplied filter, and an unknown status
+// being rejected rather than passed to PostgREST.
+//
+// The loan-application reads that used to live here are gone with the rest of
+// lending — Pynthia is a narrow bank and does not originate credit.
 
 import { assert, assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
 import { getWireTransfer, getWireTransfers } from "./wires.ts";
 import { getAchTransfer, getAchTransfers } from "./ach.ts";
 import { getCards } from "./cards.ts";
-import { getLoanApplications } from "./lending.ts";
 import { getEntityVerifications } from "./kyc.ts";
 import { type Any, filtersOf, listDb, OPS_CTX, stubDb, TEST_CTX } from "./test_helpers.ts";
 
@@ -161,70 +161,6 @@ Deno.test("a well-formed but absent uuid is also 404 — the two are indistingui
     TEST_CTX,
   );
   assertEquals(res.status, 404);
-});
-
-// --------------------------------------------------- the unscopeable table
-
-Deno.test("loan applications REFUSE a partner actor — the table has no partner_id", async () => {
-  // core.loan_application carries no partner_id, so scopeToPartner has nothing
-  // to filter on. Serving a confined caller anyway would hand one fintech the
-  // whole instance's loan book. Refusing is the conservative reading until the
-  // column exists.
-  const { db, calls } = listDb([]);
-  const res = await getLoanApplications(
-    new Request("https://x/loan-applications"),
-    db,
-    "r6",
-    TEST_CTX,
-  );
-  assertEquals(res.status, 403);
-  assertEquals(calls.length, 0, "the query must not run at all for a confined actor");
-});
-
-Deno.test("loan applications serve an ops actor, who is unconfined by D23", async () => {
-  const { db, calls } = listDb([]);
-  const res = await getLoanApplications(
-    new Request("https://x/loan-applications?status=decisioned"),
-    db,
-    "r7",
-    OPS_CTX,
-  );
-  assertEquals(res.status, 200);
-  assertEquals(filtersOf(calls), ["eq:status=decisioned"]);
-});
-
-Deno.test("a loan application read omits applicant PII and the raw decision payload", async () => {
-  // The table has 40+ columns including applicant, employment, income_assets
-  // and the full decision jsonb. An operator queue needs none of it, and a
-  // projection that widens by accident is how PII leaves a system.
-  const { db } = listDb([{
-    id: "app_1",
-    status: "decisioned",
-    amount: 2500000,
-    product_type: "auto",
-    product_code: "AUTO-60",
-    channel: "branch",
-    decision_due_at: "2026-08-01T00:00:00Z",
-    aan_due_at: null,
-    final_action: null,
-    adverse_action: null,
-    counteroffer_status: "none",
-    funding_block_state: "clear",
-    decisioned_at: "2026-07-20T00:00:00Z",
-    decisioned_by: "tok_x",
-    completed_at: null,
-    provenance: "simulated",
-    created_at: "2026-07-19T00:00:00Z",
-  }]);
-  const res = await getLoanApplications(new Request("https://x/loan-applications"), db, "r8", OPS_CTX);
-  const body = await res.json();
-  const row = body.data[0];
-  for (const forbidden of ["applicant", "employment", "income_assets", "decision", "gmi", "data"]) {
-    assertEquals(row[forbidden], undefined, `${forbidden} must not be served`);
-  }
-  assertEquals(row.amount_cents, 2500000);
-  // a null clock is "not anchored yet", and must stay null rather than becoming a date
-  assertEquals(row.aan_due_at, null);
 });
 
 // ------------------------------------------------- GET /entities/{id}/verifications

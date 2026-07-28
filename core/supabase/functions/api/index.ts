@@ -34,14 +34,6 @@ import { getCashAggregation, postCashTransaction, postCtrFile, postCtrSweep } fr
 import { getPendingApprovals, postPaymentApproval, putClientLimit } from "./eps.ts";
 import { getObligations, postCalendarSweep, postObligation, postObligationComplete } from "./governance.ts";
 import {
-  getLoanApplication,
-  getLoanApplications,
-  postAanIssue,
-  postLendingSweep,
-  postLoanDecision,
-  postLoanParty,
-} from "./lending.ts";
-import {
   postAttestation,
   postObservation,
   postWorkItem,
@@ -93,7 +85,6 @@ import {
 import {
   postCashCustody, postCashCustodyAttest, postCashKeyboxOpen,
 } from "./cash_ops.ts";
-import { postInsiderLoanReview, putInsider } from "./lending_underwriting.ts";
 
 type RouteHandler = (
   req: Request,
@@ -139,6 +130,16 @@ function stripFunctionPrefix(pathname: string): string {
   return "/" + parts.join("/");
 }
 
+// LENDING IS NOT ROUTED. Pynthia is a narrow bank: it takes deposits and moves
+// money, and does not originate credit. The eight /lending and /loan-applications
+// routes that used to be here are gone from the API surface.
+//
+// The handlers in lending.ts and lending_underwriting.ts stay, along with
+// core.loan_application and their tests. The compliance drill imports those
+// handlers DIRECTLY (drill/firers.ts) to exercise ECOA / Reg B adverse-action
+// and fair-lending controls, and 15 drill cases depend on them. Deleting them
+// would destroy that evidence to remove a surface that unrouting already
+// removes. What is gone is REACHABILITY, which is the thing that mattered.
 const routes: Route[] = [
   // ---- violation tier (MP-06/07, RS-03, PR-03/04/15, CP-05, DF-05, HR seam)
   {
@@ -279,20 +280,6 @@ const routes: Route[] = [
       await postCashKeyboxOpen(req, params.id, createDb(), requestId, ctx),
   },
   {
-    method: "PUT", pattern: /^\/lending\/insiders\/([^/]+)\/?$/,
-    endpoint: "PUT /lending/insiders/{id}", tier: "write", paramNames: ["id"],
-    actors: ["cu_admin", "pynthia_ops"],
-    handler: async (req, params, requestId, ctx) =>
-      await putInsider(req, params.id, createDb(), requestId, ctx),
-  },
-  {
-    method: "POST", pattern: /^\/lending\/applications\/([^/]+)\/insider-review\/?$/,
-    endpoint: "POST /lending/applications/{id}/insider-review", tier: "write",
-    paramNames: ["id"], actors: ["cu_admin", "pynthia_ops"],
-    handler: async (req, params, requestId, ctx) =>
-      await postInsiderLoanReview(req, params.id, createDb(), requestId, ctx),
-  },
-  {
     method: "POST",
     pattern: /^\/accounts\/?$/,
     endpoint: "POST /accounts",
@@ -397,24 +384,6 @@ const routes: Route[] = [
     paramNames: ["id"],
     handler: async (req, params, requestId, ctx) =>
       await getCard(req, params.id, createDb(), requestId, ctx),
-  },
-  {
-    method: "GET",
-    pattern: /^\/loan-applications\/?$/,
-    endpoint: "GET /loan-applications",
-    tier: "read",
-    paramNames: [],
-    handler: async (req, _params, requestId, ctx) =>
-      await getLoanApplications(req, createDb(), requestId, ctx),
-  },
-  {
-    method: "GET",
-    pattern: /^\/loan-applications\/([^/]+)\/?$/,
-    endpoint: "GET /loan-applications/{id}",
-    tier: "read",
-    paramNames: ["id"],
-    handler: async (req, params, requestId, ctx) =>
-      await getLoanApplication(req, params.id, createDb(), requestId, ctx),
   },
   {
     method: "GET",
@@ -629,43 +598,6 @@ const routes: Route[] = [
   },
   // Lending origination spine (LP-03 / LP-07 / LP-11). Partners MAY originate;
   // the four-eyes check on AAN issuance is what they cannot bypass.
-  {
-    method: "POST",
-    pattern: /^\/lending\/applications\/([^/]+)\/parties\/?$/,
-    paramNames: ["id"],
-    endpoint: "POST /lending/applications/{id}/parties",
-    tier: "write",
-    handler: async (req, params, requestId, ctx) =>
-      await postLoanParty(req, params.id, createDb(), requestId, ctx),
-  },
-  {
-    method: "POST",
-    pattern: /^\/lending\/applications\/([^/]+)\/decision\/?$/,
-    paramNames: ["id"],
-    endpoint: "POST /lending/applications/{id}/decision",
-    tier: "write",
-    handler: async (req, params, requestId, ctx) =>
-      await postLoanDecision(req, params.id, createDb(), requestId, ctx),
-  },
-  {
-    method: "POST",
-    pattern: /^\/lending\/aan\/([^/]+)\/issue\/?$/,
-    paramNames: ["id"],
-    endpoint: "POST /lending/aan/{id}/issue",
-    tier: "write",
-    handler: async (req, params, requestId, ctx) =>
-      await postAanIssue(req, params.id, createDb(), requestId, ctx),
-  },
-  {
-    method: "POST",
-    pattern: /^\/lending\/sweep\/?$/,
-    paramNames: [],
-    endpoint: "POST /lending/sweep",
-    tier: "write",
-    actors: ["cu_admin", "pynthia_ops"],
-    handler: async (req, _params, requestId, ctx) =>
-      await postLendingSweep(req, createDb(), requestId, ctx),
-  },
   // Governance calendar (Tier D). 83 of the catalogue's triggers are
   // time-based and identical in shape, so one register serves all of them.
   {

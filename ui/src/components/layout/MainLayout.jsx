@@ -9,9 +9,8 @@ import {
   User, 
   DollarSign, 
   BarChart2, 
-  Users, 
-  FileText, 
-  Shield, 
+  Users,
+  Shield,
   Grid,
   Book,
   CheckSquare,
@@ -59,13 +58,7 @@ export default function MainLayout({ children, title, subtitle, actions }) {
               label="Member Services" 
               active={currentPath === '/member-services'} 
             />
-            <NavItem 
-              href="/lending"
-              icon={<FileText size={20} />} 
-              label="Lending" 
-              active={currentPath === '/lending'} 
-            />
-            <NavItem 
+            <NavItem
               href="/accounting"
               icon={<BarChart2 size={20} />} 
               label="Accounting" 
