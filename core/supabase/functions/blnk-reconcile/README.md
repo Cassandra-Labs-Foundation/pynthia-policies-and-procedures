@@ -1,9 +1,13 @@
 # blnk-reconcile edge function
 
 Scheduled reconciler invoked by `pg_cron` via `pg_net` every 5 minutes. Blnk is the
-ledger source of truth; the `core` schema holds cached mirrors. With webhooks
-disabled, this function is the authoritative sync path: it advances stale
-transaction-status mirrors and corrects balance drift.
+ledger source of truth; the `core` schema holds cached mirrors. This function is
+the authoritative sync path: it advances stale transaction-status mirrors,
+corrects balance drift, and re-drives the webhook inbox.
+
+It stays authoritative **even with webhooks live**. Blnk global webhooks are
+never retried on a non-2xx, so a delivery we fail to accept is gone permanently —
+the push is an optimization, this pull is the guarantee.
 
 ## Auth
 
@@ -53,7 +57,18 @@ with the same header.
    row is missing from the corresponding core table (allowlist: `ach_transfer`,
    `wire_transfer`, `transfer`, `inbound_payment`, `card_authorization`).
 
-5. **Sync state** — upserts `blnk_sync_state` (`resource = reconcile`) with run
+5. **Webhook inbox re-dispatch** (`blnk_event`, 50 rows) — rows still
+   `received` or `failed` after `INBOX_STALE_MINUTES` are re-run through the
+   *same* `dispatch` the webhook uses (imported from
+   `../blnk-webhook/handlers.ts`, which is why that logic is not inside the HTTP
+   entrypoint). Re-dispatch is idempotent: every handler underneath upserts on a
+   deterministic id. Emits `blnk.inbox_backlog` once the failed count crosses
+   `INBOX_FAILED_ALERT_THRESHOLD`.
+
+   Runs **last**, so the sweeps above may already have written the row a failed
+   event was waiting on.
+
+6. **Sync state** — upserts `blnk_sync_state` (`resource = reconcile`) with run
    summary counts.
 
 Partial progress returns `200` with a non-empty `errors` array.

@@ -126,19 +126,35 @@ row, then `GET /balances/{id}` to refresh `account.balance` after a move.
   applies, inflight commits/voids by another actor, `balance.monitor` trips via
   the balance-monitors API).
 
-**Event path (Blnk → Supabase) — support-gated optimization.** The deployed
+**Event path (Blnk → Supabase) — available, enablement pending.** The deployed
 Edge Function `blnk-webhook` ingests global-webhook events
 (`transaction.applied|inflight|void|rejected|scheduled`, `balance.monitor`,
-`identity.created`, `reconciliation.completed|failed`, `bulk_transaction.*`)
-into the `core.blnk_event` inbox (idempotent by event id), then updates the
-target row. **Status: dormant.** Managed Blnk Cloud exposes **no self-serve UI**
-to set the global webhook URL (`BLNK_WEBHOOK_URL` / `notification.webhook.url`
-is instance env config; dashboard verified 2026-07-10 — Settings has API
-keys/Watch/MCP/Instances but no webhooks page; the Apps library is a different
-mechanism). Enabling requires a Blnk support request. Two caveats when enabled:
-global webhooks are **at-least-once** (inbox dedup already handles it) and
-**never retried on non-2xx** — a missed delivery is gone, which is why the
-pg_cron reconcile path stays authoritative regardless.
+`identity.created`, `reconciliation.completed|failed`, `bulk_transaction.*`,
+`system.error`) into the `core.blnk_event` inbox (idempotent by event id), then
+updates the target row.
+
+**Status: unblocked upstream, not yet switched on.** Blnk Cloud shipped
+self-serve global webhooks in July 2026 (confirmed by Blnk support in Slack).
+The dashboard path — *not* documented on docs.blnkfinance.com, which as of
+2026-07-28 still describes `BLNK_WEBHOOK_URL` as container-level env config:
+
+> Settings → Instances → ••• → Environment variables → `BLNK_WEBHOOK_URL`
+> (and `BLNK_WEBHOOK_HEADERS` for any custom headers). Saving **restarts the
+> instance**.
+
+This supersedes the 2026-07-10 finding that enabling required a support request.
+
+Three things to know before switching it on:
+
+1. **Set `BLNK_WEBHOOK_SECRET` on our side FIRST.** The receiver 500s on every
+   request while that secret is unset, and Blnk never retries a non-2xx — so a
+   URL set before the secret loses every delivery in the gap, permanently.
+2. **The restart hits the command path.** The instance being restarted is the
+   same one serving the REST base, which is the *authoritative* mirror. Do it in
+   a quiet window, not mid-flow.
+3. Global webhooks are **at-least-once** (inbox dedup handles it) and **never
+   retried on non-2xx** — which is why the pg_cron reconcile path stays
+   authoritative regardless, and why `blnk-reconcile` re-drives the inbox.
 
 **Reconciliation path (statements).** Nightly: push processor/Fed statements
 into Blnk ([batch upload](https://docs.blnkfinance.com/reconciliations/overview)
@@ -187,16 +203,28 @@ We use **Blnk Cloud** (managed): Blnk runs Postgres/Redis/Typesense; we consume
 the API only. Fully external to Supabase, so the "don't share a database"
 principle holds by construction.
 
-**Provisioned instance** (as of 2026-07-09):
+**Provisioned instance** (reprovisioned 2026-07-17; the original 2026-07-09
+instance `instance_3d29b1b3-…` is GONE — verified in the dashboard 2026-07-28):
 
 | | |
 |---|---|
-| Instance ID | `instance_3d29b1b3-6c55-4cd8-a6d7-3c08f5eae9cd` |
+| Instance ID | `instance_47f4c6f0-1175-457d-b39b-43e257f289ca` |
 | Cloud API base | `https://api.cloud.blnkfinance.com` |
-| Core REST base (command path) | `https://pynthia-pynthia-test.deploy.blnkfinance.com` |
-| [MCP endpoint](https://docs.blnkfinance.com/cloud/integrations/mcp) | `https://api.cloud.blnkfinance.com/mcp/instance_3d29b1b3-6c55-4cd8-a6d7-3c08f5eae9cd` |
-| Webhook receiver (deployed, dormant — see §6) | `https://jynsipdvrgqdkeqrlzcv.functions.supabase.co/blnk-webhook` |
-| Instance secret key | dashboard → instance details (webhook signing; → `BLNK_WEBHOOK_SECRET` when enabled) |
+| Core REST base (command path) | `https://pynthia-pynthia-test.deploy.blnkfinance.com` (unchanged; digest-matched against `BLNK_API_URL`) |
+| [MCP endpoint](https://docs.blnkfinance.com/cloud/integrations/mcp) | `https://api.cloud.blnkfinance.com/mcp/instance_47f4c6f0-1175-457d-b39b-43e257f289ca` |
+| Webhook receiver (live in `BLNK_WEBHOOK_URL` since 2026-07-28) | `https://jynsipdvrgqdkeqrlzcv.functions.supabase.co/blnk-webhook` |
+| Instance secret key | dashboard → instance details → **Copy instance secret key** |
+
+**The instance secret key is BOTH credentials.** Blnk Core authenticates REST
+calls with `X-blnk-key: <instance secret key>` (see `_shared/blnk.ts`) and signs
+webhooks with the same value. There is no separate API key — Settings → API keys
+is empty, and those Cloud-level keys are a different mechanism. So
+`BLNK_API_KEY` and `BLNK_WEBHOOK_SECRET` must hold the **same** value, and both
+must be reissued together whenever the instance is reprovisioned.
+
+The ledgers survive reprovisioning (`ldg_592fc16b-…` Bank, `ldg_7d83bb57-…`
+customer both predate the Jul 17 instance), which is what makes a stale key easy
+to miss: the data still looks right, only the credential is dead.
 
 The **MCP** endpoint is read/query access for AI assistants (33 tools: ledgers,
 balances, transactions, identities, views, insights, search, queries) — auth via

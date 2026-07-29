@@ -16,18 +16,32 @@ into the Supabase `core` schema using the **inbox pattern**:
 
 | File | Role |
 |---|---|
-| `index.ts` | HTTP entry, signature verify, inbox insert, event dispatch |
+| `index.ts` | HTTP entry: signature verify, inbox insert, hand off to dispatch |
+| `handlers.ts` | event → `core` writes. Shared with `blnk-reconcile`'s inbox re-dispatch |
 | `types.ts` | Blnk webhook payload shapes (`data` treated as a loose contract) |
+| `handlers.test.ts` | hermetic tests for the dispatch table |
 | `deno.json` | import map + lint/fmt |
+
+The handlers are a separate module from the HTTP entry on purpose: the reconciler
+re-drives stalled inbox rows through the *same* `dispatch`, and Blnk never
+retries a delivery, so the re-driver is the only second chance an event gets. It
+must not be a second copy of the logic.
 
 ## Handled events
 
-`transaction.applied\|inflight\|void\|rejected\|scheduled` → update the money
-row's `blnk_status`/`synced_at` (+ `blnk_committed_amount` on card capture);
-`identity.created` → `entity.blnk_identity_id`; `balance.created` →
-`account.blnk_balance_id` (+ mirror `balance`). Unlisted events are stored and
-marked `skipped`. TODOs are flagged inline for `balance.monitor` →
-`bsa_alert`/`control_result`, `reconciliation.*`, and `bulk_transaction.*`.
+| Event | Effect |
+|---|---|
+| `transaction.applied\|inflight\|void\|rejected\|scheduled` | update the money row's `blnk_status`/`synced_at` (+ `blnk_committed_amount` on card capture); `applied` also refreshes the `account.balance` mirror |
+| `identity.created` | → `entity.blnk_identity_id` |
+| `balance.created` | → `account.blnk_balance_id` (+ mirror `balance`) |
+| `balance.monitor` | → `bsa_alert` via `raiseAlert`, with BSA-06's triage clock started |
+| `reconciliation.completed\|failed` | advance `blnk_sync_state`; unmatched items and failures open a `finding` |
+| `bulk_transaction.applied\|inflight\|failed` | iterate inline constituents; `failed` opens a `finding` |
+| `system.error` | → `finding` (nothing else surfaces Blnk-internal failures) |
+
+Unlisted events are stored and marked `skipped`. Remaining gaps — `control_result`
+rows for monitor trips, matched-result pull into `bookkeeping_entry`, and the
+id-only `bulk_transaction` form — are tracked in [TODO.md](TODO.md).
 
 ## Routing contract (Phase-2 writers must honor)
 
@@ -47,15 +61,35 @@ Set at least one, or events land in the inbox as `failed` (no target row).
   its own requests) and exposes the `core` schema to PostgREST.
 - **Secrets** (Supabase Vault / function secrets):
   - `BLNK_WEBHOOK_SECRET` — Blnk `server.secret_key`.
+  - `BLNK_API_URL`, `BLNK_API_KEY` — *optional*; enable the balance-mirror
+    refresh on `transaction.applied` (needs scope `balances:read`). Absent, that
+    refresh logs and skips and the reconciler's drift sweep covers it.
   - `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` — auto-injected by the runtime;
     the service-role key bypasses RLS to write `core`.
 
+## Enabling deliveries — order matters
+
+The function **500s on every request while `BLNK_WEBHOOK_SECRET` is unset**, and
+Blnk **never retries a non-2xx delivery**. Setting the URL in Blnk before the
+secret exists on our side therefore loses every event in that window, for good.
+So: secret first, prove it with a signed POST, *then* point Blnk at us.
+
 ```bash
-supabase secrets set BLNK_WEBHOOK_SECRET=<blnk server.secret_key>
+supabase secrets set BLNK_WEBHOOK_SECRET=<blnk instance secret key>
 supabase functions deploy blnk-webhook
-# then register the function URL in Blnk notification config:
-#   https://<project-ref>.functions.supabase.co/blnk-webhook
 ```
+
+Verify with the signed-request recipe under [Local test](#local-test) against the
+deployed URL — expect `{"ok":true,...}`, and a bad signature to give `401`. A
+`500` mentioning `BLNK_WEBHOOK_SECRET unset` means stop and fix that first.
+
+Only then, in the Blnk Cloud dashboard:
+
+> Settings → Instances → ••• → Environment variables → set `BLNK_WEBHOOK_URL` to
+> `https://<project-ref>.functions.supabase.co/blnk-webhook`
+> (and `BLNK_WEBHOOK_HEADERS` for any custom headers). Saving **restarts the
+> instance** — which also restarts the REST base the command path uses, so pick
+> a quiet window.
 
 ## Local test
 

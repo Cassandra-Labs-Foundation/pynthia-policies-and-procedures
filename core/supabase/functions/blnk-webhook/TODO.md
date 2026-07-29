@@ -1,87 +1,86 @@
 # blnk-webhook — outstanding work
 
-The scaffold ([index.ts](index.ts)) handles `transaction.*`, `identity.created`,
-and `balance.created`. The items below are stubbed as inline `TODO`s and marked
-`skipped` at runtime until built. Ordered by priority; each notes the Blnk
-payload, the target `core` write, and the compliance control it feeds
-(cross-refs the [pgTAP suite](../../tests/README.md) and
-[integration plan](../../blnk-integration-plan.md)).
+Blnk Cloud shipped self-serve global webhooks in July 2026, so the items that
+were dormant waiting on delivery are now built. The handlers live in
+[handlers.ts](handlers.ts) (split out of `index.ts` so `blnk-reconcile` can
+re-drive the identical dispatch), covered by [handlers.test.ts](handlers.test.ts),
+and cross-ref the [pgTAP suite](../../tests/README.md) and
+[integration plan](../../blnk-integration-plan.md).
 
-## 1. Balance-mirror refresh on `transaction.applied` — P1
+**Not yet done — the switch itself.** See plan §6 for the runbook. In short:
+set `BLNK_WEBHOOK_SECRET` and verify a signed test POST returns 200 *before*
+pasting the receiver URL into `BLNK_WEBHOOK_URL`, because Blnk never retries a
+non-2xx and the function 500s while that secret is unset.
 
-**Why:** transaction payloads carry `source`/`destination` (balance ids) but
-**not** the resulting balances, so `account.balance` stays stale after a move.
+## 1. Balance-mirror refresh on `transaction.applied` — BUILT
 
-**Do:** on `transaction.applied`, for each of `data.source` / `data.destination`
-that is a real balance (not an `@`-external), call Blnk `GET /balances/{id}`
-and update `core.account` (`balance`, `balance_synced_at`) where
-`blnk_balance_id` matches.
+`refreshBalanceMirrors` fetches `GET /balances/{id}` for each real (non-`@`)
+`source`/`destination` and updates `core.account` (`balance`,
+`balance_synced_at`) by `blnk_balance_id`.
 
-- New env: `BLNK_API_URL`, `BLNK_API_KEY` (scope `balances:read`), in Vault.
-- Idempotent (overwrite with authoritative value). Skip `@`-balances.
-- Alternative/complement: a periodic snapshot sync (see §5) instead of per-txn
-  fetch, to bound API calls under bulk load.
+- Needs `BLNK_API_URL` / `BLNK_API_KEY` (scope `balances:read`) in Vault. When
+  they are absent the refresh **logs and skips** rather than failing the
+  delivery — a lost delivery is permanent, a stale mirror is not.
+- The `blnk-reconcile` balance-drift sweep remains the authority; this is the
+  fast path, not the guarantee.
 - **Controls:** GL/mirror integrity (MB-05/06), account balance accuracy.
 
-## 2. `balance.monitor` → `bsa_alert` / `control_result` — P1
+## 2. `balance.monitor` → `bsa_alert` — BUILT
 
-**Why:** Blnk balance monitors are our real-time threshold tripwires
-(CTR aggregation, cash limits, liquidity, concentration, structuring).
+Resolves `balance_id` → `account`, then delegates to `raiseAlert` (in
+[`../api/bsa.ts`](../api/bsa.ts)) rather than writing `bsa_alert` directly, so
+BSA-06's 2-business-day triage clock and the `bsa_alert.created` /
+`bsa_alert.triage.timer` events come from one implementation.
 
-**Payload:** `data` has `balance_id`, the monitor `condition` (field/operator/
-value), and the current value.
+- `alert_type` is read from `meta_data.alert_type` on the monitor, defaulting to
+  `balance_monitor`. Only the configuring side knows a monitor's compliance
+  purpose, so it is passed in rather than inferred from the raw condition.
+- **Configure the monitors in Blnk** (one per threshold) — this handler only
+  translates trips into alerts.
+- A trip that cannot be resolved to an account **throws**, so the inbox marks it
+  `failed` and the reconciler re-drives it. A dropped tripwire is worse than a
+  noisy one.
+- **Controls:** BSA-06, cash (CA-*), liquidity/concentration (ERM), CTR.
 
-**Do:**
-1. Resolve `balance_id` → `account` (→ `entity`) via `blnk_balance_id`.
-2. Upsert `core.bsa_alert`: `alert_type` (from monitor purpose), `entity_hash`,
-   `event_id` = inbox id, `requires_lookback`, `status='open'`, start
-   `triage_timer` (BSA-06 requires triage within 2 BD — see the deadline test).
-3. Optionally write a `core.control_result` row tying the trip to the control.
+Remaining: `control_result` rows tying a trip to its control are still not
+written — `control_result.control_id` needs a mapping from monitor → control id
+that does not exist yet.
 
-- Configure the monitors in Blnk (one per threshold); this handler only
-  translates trips → alerts.
-- **Controls:** BSA-06 (transaction monitoring), cash (CA-*), liquidity/
-  concentration (ERM), CTR thresholds.
+## 3. `reconciliation.completed` / `.failed` — PARTIALLY BUILT
 
-## 3. `reconciliation.completed` / `reconciliation.failed` → recon + sync_state — P2
+Both advance `core.blnk_sync_state` (`resource='reconciliation'`,
+`last_cursor`=`reconciliation_id`). `failed` opens a high-severity
+`core.finding`; `completed` with `unmatched_count > 0` opens a medium one.
 
-**Payload:** `reconciliation_id`, `status`, matched/unmatched counts.
+Remaining: pulling **matched** results into `core.bookkeeping_entry`. Blnk stores
+them per-transaction in `meta_data.reconciled`, so it needs a paged transaction
+fetch keyed off the reconciliation id plus a `bookkeeping_entry` mapping that
+neither the plan nor the schema pins down. The cursor already advances, so a
+later backfill can resume from `last_cursor`.
 
-**Do:**
-- Update `core.blnk_sync_state` (`resource='reconciliation'`, `last_cursor` =
-  `reconciliation_id`, `last_synced_at`).
-- On `completed`: pull matched results (Blnk stores them in each transaction's
-  `meta_data.reconciled`) into `core.bookkeeping_entry` / recon rows; open a
-  `core.finding` (or exception) for unmatched items.
-- On `failed`: mark inbox `failed`, raise a `finding`.
-- **Controls:** reconciliation controls, GL integrity, trade/settlement.
+## 4. `bulk_transaction.applied` / `inflight` / `failed` — BUILT
 
-## 4. `bulk_transaction.applied` / `inflight` / `failed` → iterate — P2
+`applied`/`inflight` iterate inline constituents through `applyTransaction`,
+collecting per-constituent failures so one bad item cannot strand its siblings.
+`failed` opens a finding.
 
-**Payload:** a batch id and/or a list of constituent transactions.
+Known gap: when Blnk sends **ids only** rather than inline transactions, the
+event is marked `skipped`. Resolving it would mean N API reads inside a webhook
+that must return fast and is never retried; the reconciler re-polls non-terminal
+rows anyway.
 
-**Do:** for `applied`/`inflight`, iterate constituents through the existing
-`applyTransaction`; for `failed`, mark inbox `failed` and raise a `finding`.
-Guard payload size; page if Blnk sends ids only (fetch details per id).
+## 5. Inbox reconciler / retry worker — BUILT
 
-## 5. Inbox reconciler / retry worker — reconciler BUILT, inbox re-dispatch pending
+[`../blnk-reconcile/`](../blnk-reconcile/index.ts), scheduled by
+`20260702000600_blnk_reconcile_cron.sql` (pg_cron → pg_net every 5 min):
+non-terminal status sweep, balance-drift check emitting `core.event` code
+`blnk.balance_drift`, `blnk_sync_state` bookkeeping.
 
-**Built** ([`../blnk-reconcile/`](../blnk-reconcile/index.ts), scheduled by
-`20260702000600_blnk_reconcile_cron.sql` — pg_cron → pg_net every 5 min):
-non-terminal status sweep (ach/wire/transfer + card_authorization with inflight
-child resolution and committed-amount summing), balance-drift check emitting
-`core.event` code `blnk.balance_drift`, `blnk_sync_state` bookkeeping.
-**Still pending below:** inbox re-dispatch (waits on webhooks being enabled).
-
-## 5b. Inbox re-dispatch — P2 (dormant until webhooks enabled)
-
-**Why:** the webhook function always 200s after storing; failed/transient events
-need a re-driver once webhooks are enabled.
-
-**Do:** extend `blnk-reconcile` to:
-- re-dispatch `core.blnk_event` rows in `status IN ('received','failed')` older
-  than N minutes (re-dispatch is idempotent);
-- alert when failed-inbox volume crosses a threshold.
+**Inbox re-dispatch** (`sweepInbox`) re-drives `core.blnk_event` rows in
+`status IN ('received','failed')` older than `INBOX_STALE_MINUTES`, and emits
+`core.event` code `blnk.inbox_backlog` once the failed count crosses
+`INBOX_FAILED_ALERT_THRESHOLD`. It runs **last** in the reconcile pass, so the
+earlier sweeps may have written the very row a failed event was waiting on.
 
 ## 6. Phase-2 writer contract (enforce upstream) — helper BUILT, adoption pending
 
@@ -96,7 +95,7 @@ mirror objects for the caller to persist. Live-verified 2026-07-13
 Remaining:
 - **Key scopes**: the command-path key needs `transactions:read` (by-id reads,
   reconciler) and `search:write` (dedup-by-reference lookup) in addition to the
-  write scopes.
+  write scopes. The webhook's balance refresh additionally needs `balances:read`.
 - Adopt the helper in every money-movement writer as they're built; add a
   check/test that writers don't call Blnk directly.
 
@@ -104,5 +103,11 @@ Remaining:
 
 - Secret rotation for `BLNK_WEBHOOK_SECRET` (support two active secrets during
   rotation).
-- Metrics/alerting on `blnk_event` failure rate and processing lag.
+- Metrics/alerting on `blnk_event` failure rate and processing lag. Partially
+  addressed by `blnk.inbox_backlog`; there is still no lag metric.
 - Backfill path using `blnk_sync_state.last_cursor` for cold-start / gap recovery.
+- **Per-trip identity for `balance.monitor`.** `eventKey` discriminates trips by
+  `monitor_id` + `triggered_at`. If Blnk turns out to send neither, repeated
+  trips of one monitor collapse into a single inbox key and the later ones are
+  dropped as duplicates. Verify against a real payload once deliveries start,
+  and fall back to the balance-monitors poll if that is the case.

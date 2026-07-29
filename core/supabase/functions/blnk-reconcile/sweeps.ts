@@ -1,11 +1,12 @@
 // blnk-reconcile sweeps — the heartbeat's actual work, importable for tests.
 //
-// Blnk is ledger source of truth; core.* holds cached mirrors. Webhooks on the
-// managed instance are support-gated (card 18: the opacity tier), so every
-// state change Blnk would have pushed is a dropped webhook until proven
-// otherwise — these sweeps pull the truth instead. When a sweep advances a
-// mirror it emits a durable blnk.mirror_recovered event: the recovery itself
-// is evidence, and the card-16 outbox delivers it like any other event.
+// Blnk is ledger source of truth; core.* holds cached mirrors. Blnk Cloud
+// shipped self-serve global webhooks in July 2026, but these sweeps do not
+// become optional: global webhooks are never retried on a non-2xx, so any
+// delivery we fail to accept is gone for good. The push is the fast path; this
+// pull is the guarantee. When a sweep advances a mirror it emits a durable
+// blnk.mirror_recovered event: the recovery itself is evidence, and the card-16
+// outbox delivers it like any other event.
 
 import { type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
@@ -17,6 +18,8 @@ import {
   type BlnkConfig,
   type BlnkTransaction,
 } from "../_shared/blnk.ts";
+import { dispatch } from "../blnk-webhook/handlers.ts";
+import type { BlnkWebhook } from "../blnk-webhook/types.ts";
 
 export const PENDING_STATUSES = ["QUEUED", "INFLIGHT", "SCHEDULED"] as const;
 export const TXN_TABLES = ["ach_transfer", "wire_transfer", "transfer"] as const;
@@ -593,5 +596,113 @@ export async function sweepMissingMirrors(
   });
   if (upsertErr) {
     errors.push({ table: "blnk_sync_state", id: "missing_mirror", error: upsertErr.message });
+  }
+}
+
+// ---- inbox re-dispatch (TODO §5b) -------------------------------------------
+//
+// The webhook always 200s once the delivery is safely STORED, marking the row
+// `received` and then `processed`/`failed` by outcome. Anything still
+// `received` past the grace period never finished dispatching (function
+// timeout, cold dependency), and `failed` rows failed on a condition that may
+// since have cleared — a monitor trip whose account row had not been written
+// yet, for instance.
+//
+// Blnk never retries a delivery, so this sweep is the ONLY second chance those
+// events get. It re-runs the identical dispatch the webhook uses, which is why
+// that logic lives in blnk-webhook/handlers.ts rather than inside the HTTP
+// entrypoint.
+
+/** Grace period before a non-terminal inbox row is considered stalled. */
+export const INBOX_STALE_MINUTES = 10;
+/** Rows re-dispatched per run. Bounded like every other sweep. */
+export const INBOX_LIMIT = 50;
+/** Failed-inbox depth that stops being noise and starts being an incident. */
+export const INBOX_FAILED_ALERT_THRESHOLD = 25;
+
+interface InboxRow {
+  id: string;
+  event: string;
+  payload: { event?: string; data?: Record<string, unknown> } | null;
+  status: string;
+}
+
+export async function sweepInbox(
+  db: SupabaseClient,
+  errors: SweepError[],
+  onSwept: (n: number) => void,
+  onRedispatched: () => void,
+): Promise<void> {
+  const table = "blnk_event";
+  const cutoff = new Date(Date.now() - INBOX_STALE_MINUTES * 60_000).toISOString();
+
+  const { data, error } = await db.schema("core").from(table)
+    .select("id, event, payload, status")
+    .in("status", ["received", "failed"])
+    .lt("received_at", cutoff)
+    .order("received_at", { ascending: true })
+    .limit(INBOX_LIMIT);
+
+  if (error) {
+    errors.push({ table, id: "*", error: error.message });
+    return;
+  }
+
+  const rows = (data ?? []) as InboxRow[];
+  onSwept(rows.length);
+
+  for (const row of rows) {
+    // The stored payload IS the webhook body; re-dispatch is idempotent because
+    // every handler underneath upserts on a deterministic id.
+    const wh = row.payload;
+    if (!wh?.event || typeof wh.data !== "object" || wh.data === null) {
+      errors.push({ table, id: row.id, error: "inbox row has unusable payload" });
+      continue;
+    }
+
+    try {
+      const outcome = await dispatch(db, wh as BlnkWebhook);
+      const { error: updErr } = await db.schema("core").from(table).update({
+        status: outcome,
+        error: null,
+        processed_at: new Date().toISOString(),
+      }).eq("id", row.id);
+      if (updErr) {
+        errors.push({ table, id: row.id, error: updErr.message });
+        continue;
+      }
+      onRedispatched();
+    } catch (e) {
+      const msg = errMsg(e);
+      const { error: updErr } = await db.schema("core").from(table).update({
+        status: "failed",
+        error: msg,
+        processed_at: new Date().toISOString(),
+      }).eq("id", row.id);
+      if (updErr) errors.push({ table, id: row.id, error: updErr.message });
+      errors.push({ table, id: row.id, error: msg });
+    }
+  }
+
+  // Depth check runs regardless of what this batch did: a backlog draining at
+  // INBOX_LIMIT per run while new failures arrive faster is exactly the
+  // condition that stays invisible if you only look at one batch.
+  const { count, error: cntErr } = await db.schema("core").from(table)
+    .select("id", { count: "exact", head: true })
+    .eq("status", "failed");
+  if (cntErr) {
+    errors.push({ table, id: "*", error: cntErr.message });
+    return;
+  }
+  if ((count ?? 0) >= INBOX_FAILED_ALERT_THRESHOLD) {
+    const { error: evtErr } = await db.schema("core").from("event").insert({
+      id: crypto.randomUUID(),
+      code: "blnk.inbox_backlog",
+      type: "reconciliation",
+      resource_id: "blnk_event",
+      payload: { failed_count: count, threshold: INBOX_FAILED_ALERT_THRESHOLD },
+      created_at: new Date().toISOString(),
+    });
+    if (evtErr) errors.push({ table: "event", id: "blnk.inbox_backlog", error: evtErr.message });
   }
 }

@@ -1,8 +1,11 @@
 // blnk-reconcile — scheduled reconciler (pg_cron → pg_net every 5 min).
 //
-// Blnk is ledger source of truth; core.* holds cached mirrors. Webhooks are off,
-// so this function advances stale transaction-status mirrors and corrects balance
-// drift. The sweeps live in sweeps.ts (importable for hermetic tests — card 18).
+// Blnk is ledger source of truth; core.* holds cached mirrors. This function
+// advances stale transaction-status mirrors, corrects balance drift, and
+// re-drives the webhook inbox. It stays authoritative even with webhooks live,
+// because Blnk never retries a failed delivery — a pushed event is an
+// optimization, this pull is the guarantee.
+// The sweeps live in sweeps.ts (importable for hermetic tests — card 18).
 // Config: verify_jwt = false; auth = X-Reconcile-Key header.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -11,6 +14,7 @@ import {
   errMsg,
   sweepBalances,
   sweepCardAuthorization,
+  sweepInbox,
   sweepMissingMirrors,
   sweepStuckRows,
   sweepTxnTable,
@@ -26,6 +30,7 @@ interface SweptCounts {
   balances: number;
   blnk_transactions: number;
   stuck_rows: number;
+  inbox: number;
 }
 
 function json(body: unknown, status = 200): Response {
@@ -62,7 +67,12 @@ Deno.serve(async (req: Request): Promise<Response> => {
     const cfg = blnkConfigFromEnv();
     const db = createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      // CORE_SERVICE_ROLE_KEY first — see api/lib.ts createDb(). A broken
+      // injected key ("JWT issued at future") silently kills every sweep, and
+      // this function is the authority the webhook path falls back to, so it
+      // failing closed is worse here than almost anywhere else.
+      (Deno.env.get("CORE_SERVICE_ROLE_KEY") ||
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"))!,
       { auth: { persistSession: false } },
     );
 
@@ -75,11 +85,13 @@ Deno.serve(async (req: Request): Promise<Response> => {
       balances: 0,
       blnk_transactions: 0,
       stuck_rows: 0,
+      inbox: 0,
     };
     let advanced = 0;
     let drifts = 0;
     let missingMirrors = 0;
     let recovered = 0;
+    let redispatched = 0;
 
     for (const table of TXN_TABLES) {
       await sweepTxnTable(
@@ -124,8 +136,17 @@ Deno.serve(async (req: Request): Promise<Response> => {
       () => { missingMirrors++; },
     );
 
+    // Inbox last: the sweeps above may have written the very row a failed event
+    // was waiting on, so re-dispatch gets the freshest possible state.
+    await sweepInbox(
+      db,
+      errors,
+      (n) => { swept.inbox = n; },
+      () => { redispatched++; },
+    );
+
     const summary = {
-      swept, advanced, drifts, recovered,
+      swept, advanced, drifts, recovered, redispatched,
       missing_mirrors: missingMirrors, error_count: errors.length,
     };
     const now = new Date().toISOString();
@@ -137,7 +158,10 @@ Deno.serve(async (req: Request): Promise<Response> => {
     });
     if (syncErr) errors.push({ table: "blnk_sync_state", id: "reconcile", error: syncErr.message });
 
-    return json({ ok: true, swept, advanced, drifts, recovered, missing_mirrors: missingMirrors, errors });
+    return json({
+      ok: true, swept, advanced, drifts, recovered, redispatched,
+      missing_mirrors: missingMirrors, errors,
+    });
   } catch (e) {
     return json({ ok: false, error: errMsg(e) }, 500);
   }
