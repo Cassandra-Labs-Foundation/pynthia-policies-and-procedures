@@ -56,9 +56,20 @@ jobs:
           curl -sS -X POST "$API/sandbox/reset" -H "X-Api-Key: $KEY" \
             -H "content-type: application/json" -d '{"confirm":"RESET"}' \
             | python3 -c "import json,sys;d=json.load(sys.stdin);assert d['reset'] is True, d"
-          # slate is usable again: open an account and move money on it
+          # slate is usable again: open a MEMBER and their account, then move
+          # money on it. The account carries entity_id deliberately — this
+          # step used to open a holderless account, and holderless accounts
+          # are what left the teller UI's journal with ids where member names
+          # belong (see 20260731000100_backfill_account_holders.sql). A
+          # smoke test should exercise the shape the institution actually
+          # has: no account without a member.
+          ent=$(curl -sS -X POST "$API/entities" -H "X-Api-Key: $KEY" \
+            -H "content-type: application/json" -H "Idempotency-Key: smoke-ent-$GITHUB_RUN_ID" \
+            -d '{"type":"person","name":"Smoke Reseed","date_of_birth":"1990-01-01"}' \
+            | python3 -c "import json,sys;print(json.load(sys.stdin)['id'])")
+          test -n "$ent"
           acct=$(curl -sS -X POST "$API/accounts" -H "X-Api-Key: $KEY" \
             -H "content-type: application/json" -H "Idempotency-Key: smoke-$GITHUB_RUN_ID" \
-            -d '{"account_type":"checking","opening_deposit_cents":100000}' \
+            -d "{\"account_type\":\"checking\",\"opening_deposit_cents\":100000,\"entity_id\":\"$ent\"}" \
             | python3 -c "import json,sys;print(json.load(sys.stdin)['id'])")
           test -n "$acct"
