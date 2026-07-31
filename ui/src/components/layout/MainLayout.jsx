@@ -1,14 +1,14 @@
 // src/components/layout/MainLayout.jsx
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { 
-  Search, 
-  Bell, 
-  Settings, 
-  User, 
-  DollarSign, 
-  BarChart2, 
+import {
+  Search,
+  Bell,
+  Settings,
+  User,
+  DollarSign,
+  BarChart2,
   Users,
   Shield,
   Grid,
@@ -19,11 +19,101 @@ import {
   Link as LinkIcon
 } from 'lucide-react';
 import { useSession } from '../../lib/context/SessionContext';
+import { searchMembers } from '../../lib/api';
+
+/**
+ * The header search, wired to the same finder as the teller's lookup.
+ *
+ * This input shipped as bare chrome — no handler, while its placeholder
+ * promised member search and a command palette. The palette never existed
+ * anywhere, so the placeholder now promises exactly what pressing Enter does:
+ * find a member by name, email, member id, account id or transfer id, and
+ * jump to their profile.
+ *
+ * Search fires on Enter, not per keystroke: behind it is a paged walk of the
+ * whole entity table, not an index lookup.
+ */
+function GlobalSearch() {
+  const router = useRouter();
+  const [term, setTerm] = useState('');
+  const [results, setResults] = useState(null); // null = no search yet
+  const [searching, setSearching] = useState(false);
+  const seq = useRef(0);
+
+  const runSearch = async () => {
+    const query = term.trim();
+    if (!query) return;
+    const mySeq = ++seq.current;
+    setSearching(true);
+    try {
+      const found = await searchMembers(query);
+      // A slow earlier search must not land on top of a newer one.
+      if (seq.current === mySeq) setResults(found.slice(0, 8));
+    } catch (err) {
+      console.error('Global search failed:', err);
+      if (seq.current === mySeq) setResults([]);
+    } finally {
+      if (seq.current === mySeq) setSearching(false);
+    }
+  };
+
+  const close = () => {
+    setResults(null);
+    setTerm('');
+  };
+
+  const open = (memberId) => {
+    close();
+    router.push(`/members/${memberId}`);
+  };
+
+  return (
+    <div className="relative flex-grow">
+      <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+      <input
+        type="text"
+        value={term}
+        onChange={(e) => setTerm(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') runSearch();
+          if (e.key === 'Escape') close();
+        }}
+        placeholder="Find a member: name, email, member / account / transfer ID…"
+        className="pl-10 pr-4 py-2 bg-slate-100 rounded-md w-full max-w-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+      />
+      {searching && (
+        <div className="absolute z-40 mt-1 w-full max-w-md bg-white border border-slate-200 rounded-md shadow-lg p-3 text-sm text-slate-500">
+          Searching…
+        </div>
+      )}
+      {!searching && results !== null && (
+        <div className="absolute z-40 mt-1 w-full max-w-md bg-white border border-slate-200 rounded-md shadow-lg overflow-hidden">
+          {results.length === 0 ? (
+            <div className="p-3 text-sm text-slate-500">
+              No member found. Names, emails and ent_ / acct_ / tr_ ids are searchable.
+            </div>
+          ) : (
+            results.map((m) => (
+              <button
+                key={m.id}
+                onClick={() => open(m.id)}
+                className="w-full text-left px-3 py-2 hover:bg-slate-50 border-b border-slate-100 last:border-b-0"
+              >
+                <div className="text-sm font-medium text-slate-800">{m.name}</div>
+                <div className="text-xs text-slate-500 font-mono">{m.id}</div>
+              </button>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function MainLayout({ children, title, subtitle, actions }) {
   const { user } = useSession();
   const router = useRouter();
-  
+
   // Determine active route from current path
   const currentPath = router.pathname;
 
@@ -115,14 +205,7 @@ export default function MainLayout({ children, title, subtitle, actions }) {
         {/* Top Header */}
         <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6">
           <div className="flex items-center space-x-3 w-1/3">
-            <div className="relative flex-grow">
-              <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
-              <input 
-                type="text" 
-                placeholder="Search members, accounts, or type / for commands..." 
-                className="pl-10 pr-4 py-2 bg-slate-100 rounded-md w-full max-w-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-              />
-            </div>
+            <GlobalSearch />
           </div>
           
           <div className="hidden md:flex items-center space-x-1">

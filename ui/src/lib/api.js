@@ -177,39 +177,67 @@ export async function fetchMemberProfile(memberId) {
 }
 
 /**
- * Client-side contains-match: the core API has no search endpoint.
+ * One box, every road to a member. Client-side, because the core API has no
+ * search endpoint; every entity is read, not the first page.
  *
- * Every entity, not the first page. This used to load limit=200 against 314
- * entities, so a third of the membership could not be found by any term and
- * said "no member found" while doing it — the one answer a teller cannot
- * distinguish from the truth.
+ * What a term can be, tried in this order:
  *
- * Account numbers are matched too, because the search box asks for one:
- * "name, ID, or account number". They are a second hop — an account number is
- * a property of an account, not of its holder — so it runs only when the
- * direct match comes up empty, and it resolves acct_ -> entity_id -> member
- * rather than showing the account itself. The teller pasting an acct_ id out
- * of the transaction journal is the case this exists for.
+ *   - tr_…      a transfer id. GET /transfers/{id}, then the holder of either
+ *               side. A teller holding a transaction id is usually trying to
+ *               find the person behind it — this is the road there.
+ *   - a name    tokens, matched independently: "smith", "jane smith" and
+ *               "smith jane" all work, because every token must appear in the
+ *               name but in no particular order. Also matched against email.
+ *   - ent_…     a member id, whole or fragment.
+ *   - acct_…    an account id, whole or fragment, resolved acct -> entity_id
+ *               -> member. Runs when nothing above matched: an account number
+ *               is a property of an account, not of its holder.
+ *
+ * Returns members only, and only real ones — a transfer or account whose
+ * holder is unlinked in the core resolves to nothing rather than to a fake
+ * result row. In this instance that is common: 1,794 of 1,829 accounts carry
+ * no entity_id at all.
  */
 export async function searchMembers(term) {
-  const needle = term.trim().toLowerCase();
+  const raw = term.trim();
+  const needle = raw.toLowerCase();
   if (!needle) return [];
 
   const members = (await getAll("entities")).map(toMember);
 
-  const direct = members.filter(
-    (m) =>
-      (m.name ?? "").toLowerCase().includes(needle) ||
-      m.id.toLowerCase().includes(needle),
-  );
+  // A transfer id is exact — a fragment of one matches nothing, by design:
+  // hex fragments collide, and a wrong member presented confidently is worse
+  // than no result.
+  if (needle.startsWith("tr_")) {
+    try {
+      const [transfer, table] = await Promise.all([get(`transfers/${raw}`), accountTable()]);
+      const sides = [transfer.originator?.account_id, transfer.beneficiary?.account_id];
+      const holderIds = new Set(
+        sides.map((id) => (id ? table.get(id)?.entityId : null)).filter(Boolean),
+      );
+      return members.filter((m) => holderIds.has(m.id));
+    } catch {
+      return [];
+    }
+  }
+
+  const tokens = needle.split(/\s+/).filter(Boolean);
+  const direct = members.filter((m) => {
+    const name = (m.name ?? "").toLowerCase();
+    const email = (m.email ?? "").toLowerCase();
+    return (
+      tokens.every((t) => name.includes(t)) ||
+      tokens.every((t) => email.includes(t)) ||
+      m.id.toLowerCase().includes(needle)
+    );
+  });
   if (direct.length > 0) return direct;
 
-  const accounts = await getAll("accounts");
-  const holders = new Set(
-    accounts.filter((a) => a.id.toLowerCase().includes(needle)).map((a) => a.entity_id),
-  );
-  if (holders.size === 0) return [];
-
+  const table = await accountTable();
+  const holders = new Set();
+  for (const [acctId, info] of table) {
+    if (info.entityId && acctId.toLowerCase().includes(needle)) holders.add(info.entityId);
+  }
   return members.filter((m) => holders.has(m.id));
 }
 
