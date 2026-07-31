@@ -130,6 +130,50 @@ export async function fetchMember(memberId) {
 }
 
 /**
+ * Everything the core will say about one member, for the profile view.
+ *
+ * Returns the raw entity alongside the mapped member, deliberately. toMember()
+ * keeps the seven fields a list row needs and drops the rest; a profile page is
+ * the one place that wants date_of_birth, tin, jurisdiction, address and
+ * owners, and re-fetching to get them would be the same request twice.
+ *
+ * Accounts and their transfers are best-effort. A member with no accounts is
+ * ordinary — 185 of 200 accounts in this instance carry no entity_id at all,
+ * so an unlinked member is the common case here, not an error state. Failing
+ * the whole profile because the transfer walk failed would hide the identity
+ * fields that did load.
+ */
+export async function fetchMemberProfile(memberId) {
+  const entity = await get(`entities/${memberId}`);
+  const accounts = await getAll("accounts", { entity_id: memberId }).catch(() => []);
+
+  const nameByAccountId = new Map(accounts.map((a) => [a.id, a.id]));
+  const perAccount = await Promise.all(
+    accounts.map((a) =>
+      get("transfers", { account_id: a.id, limit: 50 })
+        .then((b) => (b.data ?? []).map((t) => toTransaction(t, { nameByAccountId, accountId: a.id })))
+        .catch(() => []),
+    ),
+  );
+
+  // One transfer touching two of this member's accounts arrives twice, once
+  // per side. Deduped on id so the profile does not double-count it.
+  const seen = new Set();
+  const transactions = perAccount.flat().filter((t) => {
+    if (seen.has(t.id)) return false;
+    seen.add(t.id);
+    return true;
+  });
+
+  return {
+    member: toMember(entity),
+    entity,
+    accounts: accounts.map((a) => toAccount(a, new Map([[entity.id, entity.name]]))),
+    transactions,
+  };
+}
+
+/**
  * Client-side contains-match: the core API has no search endpoint.
  *
  * Every entity, not the first page. This used to load limit=200 against 314

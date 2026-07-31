@@ -1,5 +1,6 @@
 // src/components/teller/MemberQuickEdit.jsx
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Search, X, CreditCard, DollarSign, User, AlertCircle } from 'lucide-react';
 import { fetchAccounts, searchMembers } from '../../lib/api';
 
@@ -397,12 +398,23 @@ export default function MemberQuickEdit() {
                 Close
               </button>
               <div className="space-x-2">
-                <button className="px-4 py-2 border border-slate-300 text-slate-700 rounded-md text-sm font-medium hover:bg-slate-200">
-                  Edit Member
+                {/* "Edit Member" used to sit here as a live-looking button with
+                    no handler. There is no PATCH to give it — the proxy is
+                    read-only — so it says so instead of inviting a click that
+                    does nothing. */}
+                <button
+                  disabled
+                  title="The core proxy is read-only; there is no write path from this UI."
+                  className="px-4 py-2 border border-slate-200 text-slate-400 rounded-md text-sm font-medium cursor-not-allowed"
+                >
+                  Edit Member — read-only
                 </button>
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700">
+                <Link
+                  href={`/members/${member.id}`}
+                  className="inline-block px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700"
+                >
                   View Full Profile
-                </button>
+                </Link>
               </div>
             </div>
           </div>
