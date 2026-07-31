@@ -1,60 +1,83 @@
 // src/pages/call-report.jsx
 //
-// The NCUA 5300 operator view, from GET /reports/5300.
+// Two tabs, because Katya's correction on 31 July was that the FORM is
+// universal and what each credit union WATCHES is not:
 //
-// The whole design problem here is that this page shows TWO CLOCKS and an
-// operator must never confuse them:
+//   Filing   — the NCUA 5300 Statement of Financial Condition, in NCUA's own
+//              line order with NCUA's own account codes. Nobody reorders this.
+//   My view  — whatever this institution actually wants to look at.
 //
-//   - the FBO position is live, advanced continuously against an event
-//     sequence by the Payment Hub;
-//   - everything else is a daily snapshot written by a scheduled job, whose
-//     newest row can be a day old or missing entirely.
-//
-// So the live figure is the only one presented as "now", it carries its
-// sequence number, and the daily figures are all stamped with the date they
-// describe. A single merged "current position" tile would be a number that
-// silently stops moving at midnight.
-import React, { useCallback, useEffect, useState } from 'react';
-import { AlertTriangle, Activity, RefreshCw } from 'lucide-react';
+// The filing tab is deliberately mostly blank, and that is the honest result.
+// See lib/ncua5300.js for why: this core has no trial balance, so a populated
+// balance sheet here would be fabricated. Each blank line names the thing that
+// has to exist before it can be filled, which turns "we can't file yet" into a
+// list someone can work through.
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { AlertTriangle, Activity, Download, RefreshCw } from 'lucide-react';
 import MainLayout from '../components/layout/MainLayout';
-import { fetchReport5300, formatCents, formatWhen } from '../lib/api';
+import { fetch5300Inputs, fetchReport5300, formatCents, formatWhen } from '../lib/api';
+import {
+  ACCOUNT_TYPE_MAP,
+  FORM_VINTAGE,
+  OUT_OF_SCOPE,
+  SECTIONS,
+  buildFiling,
+  filingPeriod,
+  toFilingPayload,
+} from '../lib/ncua5300';
 
-/** How often the live position re-polls, in ms. */
 const REFRESH_MS = 30000;
+const PREFS_KEY = 'callReport.myView.v1';
 
-/** "2026-07-25" -> "Jul 25". The as_of column is a date, not a moment. */
 function formatDay(iso) {
   if (!iso) return '—';
   const at = new Date(`${iso}T00:00:00Z`);
   if (Number.isNaN(at.getTime())) return '—';
-  return at.toLocaleDateString([], { month: 'short', day: 'numeric', timeZone: 'UTC' });
+  return at.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
 }
 
-/** Day-over-day delta, or null when there is no previous row to compare to. */
-function delta(rows, index, field) {
-  const prev = rows[index + 1];
-  if (!prev) return null;
-  const a = rows[index]?.[field];
-  const b = prev[field];
-  if (typeof a !== 'number' || typeof b !== 'number') return null;
-  return a - b;
-}
+/** The tiles "My view" can show — only things the core genuinely produces. */
+const TILES = [
+  { id: 'fbo', label: 'FBO position (live)' },
+  { id: 'shares', label: 'Total shares by type' },
+  { id: 'settled', label: 'Settled volume (daily)' },
+  { id: 'alerts', label: 'CTR & structuring alerts' },
+  { id: 'accounts', label: 'Account counts' },
+];
+const DEFAULT_PREFS = { fbo: true, shares: true, settled: true, alerts: true, accounts: false };
 
 export default function CallReport() {
+  const [tab, setTab] = useState('filing');
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState('');
-  const [lastPolled, setLastPolled] = useState(null);
+  const [prefs, setPrefs] = useState(DEFAULT_PREFS);
+
+  // Read prefs after mount, not during render: localStorage does not exist on
+  // the server and reading it inline would hydrate-mismatch.
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(PREFS_KEY);
+      if (saved) setPrefs({ ...DEFAULT_PREFS, ...JSON.parse(saved) });
+    } catch { /* a corrupt pref must not take the page down */ }
+  }, []);
+
+  const toggle = (id) => {
+    setPrefs((prev) => {
+      const next = { ...prev, [id]: !prev[id] };
+      try { window.localStorage.setItem(PREFS_KEY, JSON.stringify(next)); } catch { /* private mode */ }
+      return next;
+    });
+  };
 
   const load = useCallback(async (isPoll) => {
     if (isPoll) setIsRefreshing(true);
     try {
-      setData(await fetchReport5300());
+      setData(await fetch5300Inputs());
       setError('');
-      setLastPolled(new Date().toISOString());
     } catch (err) {
-      console.error('Error loading the 5300 report:', err);
+      console.error('Error loading 5300 inputs:', err);
       setError(err.message);
     } finally {
       setIsLoading(false);
@@ -62,33 +85,116 @@ export default function CallReport() {
     }
   }, []);
 
+  /**
+   * The cheap half, on a timer.
+   *
+   * Two clocks, and only one of them is worth re-asking every 30 seconds. The
+   * FBO position moves continuously against an event sequence; share balances
+   * come from walking all 1,829 accounts — ten sequential requests, ~6s — and
+   * they do not move meaningfully between polls. Re-walking them on the live
+   * timer meant the page spent most of its life re-deriving a figure that had
+   * not changed, and starting the next walk before the last one finished.
+   *
+   * So the timer refreshes only the live figure and the daily history, and the
+   * account walk happens on mount and when someone asks for it.
+   */
+  const pollLive = useCallback(async () => {
+    try {
+      const r = await fetchReport5300();
+      setData((prev) =>
+        prev
+          ? {
+            ...prev,
+            fboPositionCents: r.current?.fbo_position_cents ?? null,
+            lastSeq: r.current?.last_seq ?? null,
+            updatedAt: r.current?.updated_at ?? null,
+            history: r.history ?? [],
+            stale: Boolean(r.stale),
+          }
+          : prev,
+      );
+    } catch { /* a failed poll must not clear a good page */ }
+  }, []);
+
   useEffect(() => {
     load(false);
-    // The live half of this page is only live if it re-asks. The daily half
-    // comes along for the ride, which is harmless — it just will not change.
-    const timer = setInterval(() => load(true), REFRESH_MS);
+    const timer = setInterval(pollLive, REFRESH_MS);
     return () => clearInterval(timer);
-  }, [load]);
+  }, [load, pollLive]);
 
-  const rows = data?.history ?? [];
+  const filing = useMemo(
+    () => (data ? buildFiling({ accounts: data.accounts, fboPositionCents: data.fboPositionCents }) : null),
+    [data],
+  );
+  const period = useMemo(() => filingPeriod(new Date()), []);
+
+  // The quarter IN PROGRESS, not the last one filed — this is the live view.
+  // So the figures are as of now, and the period end is the date they will
+  // eventually be frozen at. Labelling the page "as of Sep 30" while showing
+  // today's numbers would misdate every figure on it.
+  const subtitle =
+    `${period.quarter} in progress · figures live · ` +
+    `period closes ${formatDay(period.asOf)}, due ${formatDay(period.dueAt)}`;
+
+  const download = () => {
+    const payload = toFilingPayload(filing, { asOf: period.asOf, instanceId: data?.instanceId });
+    const url = URL.createObjectURL(
+      new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }),
+    );
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ncua-5300-${period.quarter}-partial.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <MainLayout
       title="Call Report (5300)"
-      subtitle="Settled volume, alert counts and the FBO position this instance reports"
+      subtitle={subtitle}
       actions={
-        <button
-          onClick={() => load(true)}
-          disabled={isRefreshing}
-          className="px-3 py-2 text-sm border border-slate-300 rounded-md hover:bg-slate-50 flex items-center disabled:opacity-50"
-        >
-          <RefreshCw size={16} className={`mr-1.5 ${isRefreshing ? 'animate-spin' : ''}`} />
-          Refresh
-        </button>
+        <div className="flex items-center space-x-2">
+          {tab === 'filing' && filing && (
+            <button
+              onClick={download}
+              className="px-3 py-2 text-sm border border-slate-300 rounded-md hover:bg-slate-50 flex items-center"
+            >
+              <Download size={16} className="mr-1.5" />
+              Export payload
+            </button>
+          )}
+          <button
+            onClick={() => load(true)}
+            disabled={isRefreshing}
+            className="px-3 py-2 text-sm border border-slate-300 rounded-md hover:bg-slate-50 flex items-center disabled:opacity-50"
+          >
+            <RefreshCw size={16} className={`mr-1.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
+        </div>
       }
     >
+      <div className="flex space-x-1 border-b border-slate-200 mb-4">
+        {[
+          ['filing', 'Filing (NCUA form)'],
+          ['myview', 'My view'],
+        ].map(([id, label]) => (
+          <button
+            key={id}
+            onClick={() => setTab(id)}
+            className={`px-4 py-2 text-sm font-medium -mb-px border-b-2 ${
+              tab === id
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
           <h3 className="font-medium text-red-800">Could not load the call report</h3>
           <p className="text-sm text-red-600 mt-0.5">{error}</p>
         </div>
@@ -99,133 +205,305 @@ export default function CallReport() {
           <div className="animate-spin inline-block w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mb-2"></div>
           <div>Loading call report...</div>
         </div>
-      ) : !data ? null : (
-        <>
-          {/* ------------------------------------------------ the live figure */}
-          <div className="bg-white rounded-lg border border-slate-200 p-5 mb-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <div className="flex items-center text-sm font-medium text-slate-500 mb-1">
-                  <Activity size={15} className="mr-1.5 text-green-600" />
-                  FBO position — live
-                </div>
-                <div className="text-3xl font-semibold tabular-nums">
-                  {data.current
-                    ? formatCents(data.current.fbo_position_cents)
-                    : <span className="text-slate-400 text-xl">not reported</span>}
-                </div>
-                {data.current && (
-                  <div className="text-xs text-slate-500 mt-1.5">
-                    {/* The sequence number is what makes this checkable: two
-                        operators looking at the same figure can tell whether
-                        they are looking at the same moment. */}
-                    event seq {String(data.current.last_seq)} · advanced{' '}
-                    {formatWhen(data.current.updated_at)}
-                  </div>
-                )}
-              </div>
-              <div className="text-right text-xs text-slate-400">
-                <div>{data.instanceId}</div>
-                {lastPolled && <div className="mt-1">polled {formatWhen(lastPolled)}</div>}
-              </div>
-            </div>
+      ) : !data || !filing ? null : tab === 'filing' ? (
+        <FilingTab data={data} filing={filing} period={period} />
+      ) : (
+        <MyViewTab data={data} filing={filing} prefs={prefs} toggle={toggle} />
+      )}
+    </MainLayout>
+  );
+}
+
+// ───────────────────────────────────────────────────────────── filing tab
+
+function FilingTab({ data, filing, period }) {
+  const { counts, balances, unmappedTypes } = filing;
+
+  return (
+    <>
+      {/* The headline an operator needs before reading a single line: this is
+          not a filing, and here is exactly how far from one it is. */}
+      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4 flex items-start">
+        <AlertTriangle size={18} className="text-amber-600 mr-2.5 mt-0.5 shrink-0" />
+        <div className="text-sm text-amber-900">
+          <div className="font-medium mb-1">
+            Not submittable — {counts.sourced + counts.derived} of {counts.total} lines have a source.
           </div>
+          <p>
+            The core has no trial balance: <code className="text-xs">bookkeeping_entry</code> is
+            single-sided and every row is stamped account code <code className="text-xs">018</code>,
+            which is a total NCUA computes rather than a line a filer can post to. Loans, investments,
+            fixed assets, equity and all income and expense accounts are absent, so the lines below
+            that show &ldquo;—&rdquo; are <span className="font-medium">unknown, not zero</span>.
+          </p>
+          <p className="mt-1.5 text-xs text-amber-800">
+            NCUA accepts 5300s only through the CUOnline portal, quarterly, due 11:59:59pm ET on the
+            30th of January, April, July and October, after certification. There is no filing API —
+            the export button produces the account-code payload a filer would key in, with unsourced
+            codes omitted rather than sent as zero.
+          </p>
+        </div>
+      </div>
 
-          {/* The stale banner is the point of the `stale` field: without it a
-              reader cannot tell "nothing happened today" from "the job that
-              would have told you has not run". */}
-          {data.stale && (
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 flex items-start">
-              <AlertTriangle size={16} className="text-amber-600 mr-2 mt-0.5 shrink-0" />
-              <div className="text-sm text-amber-800">
-                <span className="font-medium">
-                  Today&rsquo;s aggregation has not run.
-                </span>{' '}
-                The daily figures below are as of {formatDay(data.asOf)}. Only the live
-                position above reflects activity since then.
-                {data.cadence && (
-                  <div className="text-xs text-amber-700 mt-1">{data.cadence}</div>
-                )}
-              </div>
-            </div>
-          )}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div className="bg-white rounded-lg border border-slate-200 p-4">
+          <div className="text-sm font-medium text-slate-500 mb-1">Total assets (010)</div>
+          <div className="text-2xl font-semibold tabular-nums">
+            {filing.totalAssetsCents === null
+              ? <span className="text-slate-400 text-lg">not computable</span>
+              : formatCents(filing.totalAssetsCents)}
+          </div>
+          <div className="text-xs text-slate-500 mt-1">every input must be sourced first</div>
+        </div>
+        <div className="bg-white rounded-lg border border-slate-200 p-4">
+          <div className="text-sm font-medium text-slate-500 mb-1">Total liabilities, shares &amp; equity (014)</div>
+          <div className="text-2xl font-semibold tabular-nums">
+            {filing.totalLiabEquityCents === null
+              ? <span className="text-slate-400 text-lg">not computable</span>
+              : formatCents(filing.totalLiabEquityCents)}
+          </div>
+          <div className="text-xs text-slate-500 mt-1">
+            {formatCents(filing.rows.find((r) => r.code === '013')?.valueCents)} of shares is sourced
+          </div>
+        </div>
+        <div className="bg-white rounded-lg border border-slate-200 p-4">
+          <div className="text-sm font-medium text-slate-500 mb-1">Balance check</div>
+          <div className="text-2xl font-semibold">
+            {balances === null
+              ? <span className="text-slate-400 text-lg">cannot tell</span>
+              : balances
+                ? <span className="text-green-700">balances</span>
+                : <span className="text-red-700">out of balance</span>}
+          </div>
+          <div className="text-xs text-slate-500 mt-1">
+            {/* "cannot tell" is a third answer, and collapsing it into either of
+                the other two is how a broken filing gets submitted. */}
+            010 must equal 014 — NCUA rejects a filing that does not
+          </div>
+        </div>
+      </div>
 
-          {/* --------------------------------------------- the daily snapshots */}
-          <div className="bg-white rounded-lg border border-slate-200 overflow-hidden mb-4">
-            <div className="px-4 py-3 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
-              <h2 className="text-sm font-medium text-slate-700">Daily aggregation</h2>
-              <span className="text-xs text-slate-500">{rows.length} day(s)</span>
+      {unmappedTypes.length > 0 && (
+        <div className="bg-white border border-slate-200 rounded-lg p-3 mb-4 text-sm">
+          <span className="font-medium">Unrecognised account types</span> swept into
+          &ldquo;All Other Shares&rdquo; (630):{' '}
+          {unmappedTypes.map((u) => `${u.type} ×${u.count}`).join(', ')}. Each needs a
+          deliberate line assignment before filing.
+        </div>
+      )}
+
+      {SECTIONS.map((section) => (
+        <div key={section.id} className="bg-white rounded-lg border border-slate-200 overflow-hidden mb-4">
+          <div className="px-4 py-3 border-b border-slate-200 bg-slate-50">
+            <h2 className="text-sm font-medium text-slate-700">{section.title}</h2>
+          </div>
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-slate-200">
+                <th className="text-left py-2 px-4 text-xs font-medium text-slate-500 w-20">Code</th>
+                <th className="text-left py-2 px-4 text-xs font-medium text-slate-500">Line</th>
+                <th className="text-right py-2 px-4 text-xs font-medium text-slate-500 w-44">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filing.rows.filter((r) => r.section === section.id).map((row) => (
+                <tr
+                  key={row.code}
+                  className={`border-b border-slate-200 last:border-b-0 ${
+                    row.total ? 'bg-slate-50 font-medium' : ''
+                  }`}
+                >
+                  <td className="py-2 px-4 text-xs font-mono text-slate-500 align-top">{row.code}</td>
+                  <td className="py-2 px-4 text-sm align-top" style={{ paddingLeft: `${16 + row.level * 16}px` }}>
+                    <span className={row.status === 'unsourced' ? 'text-slate-500' : ''}>{row.label}</span>
+                    {row.contra && <span className="text-xs text-slate-400 ml-1.5">(contra)</span>}
+                    {row.needs && (
+                      <div className="text-xs text-slate-500 mt-0.5 max-w-3xl">Needs: {row.needs}</div>
+                    )}
+                    {row.provisional && (
+                      <div className="text-xs text-blue-700 mt-0.5 max-w-3xl">
+                        Provisional mapping: {row.provisional}
+                      </div>
+                    )}
+                    {row.note && (
+                      <div className="text-xs text-amber-700 mt-0.5 max-w-3xl">{row.note}</div>
+                    )}
+                    {row.blockedBy && (
+                      <div className="text-xs text-slate-500 mt-0.5">
+                        Blocked by unsourced {row.blockedBy.join(', ')}
+                      </div>
+                    )}
+                  </td>
+                  <td className="py-2 px-4 text-sm text-right tabular-nums align-top whitespace-nowrap">
+                    {row.status === 'unsourced' ? (
+                      <span className="text-slate-300">—</span>
+                    ) : (
+                      <>
+                        {formatCents(row.contra ? -(row.valueCents ?? 0) : row.valueCents)}
+                        <div className="text-xs text-slate-400 font-normal">{row.status}</div>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ))}
+
+      <div className="bg-slate-100 border border-slate-200 rounded-md p-3 text-sm text-slate-700">
+        <div>
+          <span className="font-medium">Share mapping in use:</span>{' '}
+          {Object.entries(ACCOUNT_TYPE_MAP).map(([k, v]) => `${k}→${v}`).join(', ')}. Anything else
+          falls to 630.
+        </div>
+        <div className="mt-1.5 text-xs text-slate-600">
+          {FORM_VINTAGE}. {OUT_OF_SCOPE}
+          {data.truncated && ' Account walk hit its page cap, so share totals are a lower bound.'}
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ──────────────────────────────────────────────────────────── my view tab
+
+function MyViewTab({ data, filing, prefs, toggle }) {
+  const rows = data.history ?? [];
+  const shareRows = filing.rows.filter((r) => r.fromAccounts && (r.valueCents ?? 0) > 0);
+  const open = data.accounts.filter((a) => a.status === 'open').length;
+
+  return (
+    <>
+      <div className="bg-white rounded-lg border border-slate-200 p-4 mb-4">
+        <div className="text-sm font-medium text-slate-700 mb-2">Show</div>
+        <div className="flex flex-wrap gap-2">
+          {TILES.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => toggle(t.id)}
+              className={`px-3 py-1.5 rounded-full text-sm border ${
+                prefs[t.id]
+                  ? 'bg-blue-50 border-blue-300 text-blue-700'
+                  : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+        {/* Katya's KPI list, and the honest reason none of it is a toggle yet. */}
+        <p className="text-xs text-slate-500 mt-3">
+          Loan growth against budget, delinquency rate, loans approaching charge-off and the
+          deposit/CD split are not offered here because the core holds no loan balances and no
+          budget. They become tiles the day those exist — see the Filing tab for the specifics.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        {prefs.fbo && (
+          <div className="bg-white rounded-lg border border-slate-200 p-5">
+            <div className="flex items-center text-sm font-medium text-slate-500 mb-1">
+              <Activity size={15} className="mr-1.5 text-green-600" />
+              FBO position — live
             </div>
-            {rows.length === 0 ? (
-              <div className="p-6 text-center text-slate-500">
-                No aggregation rows for this instance yet.
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-slate-200 bg-slate-50">
-                      <th className="text-left py-2.5 px-4 text-xs font-medium text-slate-500">Date</th>
-                      <th className="text-left py-2.5 px-4 text-xs font-medium text-slate-500">Period</th>
-                      <th className="text-right py-2.5 px-4 text-xs font-medium text-slate-500">Settled</th>
-                      <th className="text-right py-2.5 px-4 text-xs font-medium text-slate-500">Count</th>
-                      <th className="text-right py-2.5 px-4 text-xs font-medium text-slate-500">CTR alerts</th>
-                      <th className="text-right py-2.5 px-4 text-xs font-medium text-slate-500">Structuring</th>
-                      <th className="text-right py-2.5 px-4 text-xs font-medium text-slate-500">FBO (snapshot)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rows.map((r, i) => {
-                      const d = delta(rows, i, 'settled_cents');
-                      return (
-                        <tr
-                          key={`${r.instance_id}-${r.as_of}`}
-                          className="border-b border-slate-200 last:border-b-0 hover:bg-slate-50"
-                        >
-                          <td className="py-2.5 px-4 text-sm font-medium">{formatDay(r.as_of)}</td>
-                          <td className="py-2.5 px-4 text-sm text-slate-500">{r.period}</td>
-                          <td className="py-2.5 px-4 text-sm text-right tabular-nums">
-                            {formatCents(r.settled_cents)}
-                            {d !== null && d !== 0 && (
-                              <span className="text-xs text-slate-400 ml-1.5">
-                                {formatCents(d, { signed: true })}
-                              </span>
-                            )}
-                          </td>
-                          <td className="py-2.5 px-4 text-sm text-right tabular-nums text-slate-600">
-                            {r.settled_count}
-                          </td>
-                          <td className="py-2.5 px-4 text-sm text-right tabular-nums">
-                            {r.ctr_alerts > 0
-                              ? <span className="text-amber-700">{r.ctr_alerts}</span>
-                              : <span className="text-slate-400">0</span>}
-                          </td>
-                          <td className="py-2.5 px-4 text-sm text-right tabular-nums">
-                            {r.structuring_alerts > 0
-                              ? <span className="text-amber-700">{r.structuring_alerts}</span>
-                              : <span className="text-slate-400">0</span>}
-                          </td>
-                          <td className="py-2.5 px-4 text-sm text-right tabular-nums text-slate-600">
-                            {formatCents(r.fbo_position_cents)}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+            <div className="text-2xl font-semibold tabular-nums">
+              {typeof data.fboPositionCents === 'number'
+                ? formatCents(data.fboPositionCents)
+                : <span className="text-slate-400 text-lg">not reported</span>}
+            </div>
+            {data.lastSeq !== null && (
+              <div className="text-xs text-slate-500 mt-1.5">
+                event seq {String(data.lastSeq)} · advanced {formatWhen(data.updatedAt)}
               </div>
             )}
           </div>
+        )}
+        {prefs.accounts && (
+          <div className="bg-white rounded-lg border border-slate-200 p-5">
+            <div className="text-sm font-medium text-slate-500 mb-1">Accounts</div>
+            <div className="text-2xl font-semibold tabular-nums">{data.accounts.length}</div>
+            <div className="text-xs text-slate-500 mt-1.5">{open} open</div>
+          </div>
+        )}
+        {prefs.shares && (
+          <div className="bg-white rounded-lg border border-slate-200 p-5">
+            <div className="text-sm font-medium text-slate-500 mb-1">Total shares (013)</div>
+            <div className="text-2xl font-semibold tabular-nums">
+              {formatCents(filing.rows.find((r) => r.code === '013')?.valueCents)}
+            </div>
+            <div className="text-xs text-slate-500 mt-1.5">
+              {shareRows.map((r) => `${r.code}`).join(', ') || 'no share balances'}
+            </div>
+          </div>
+        )}
+      </div>
 
-          {/* This page is named after a regulatory filing, so the one reason it
-              is NOT one belongs on the page — not only in BLUEPRINT §521. */}
-          {data.chartOfAccountsNote && (
-            <div className="bg-slate-100 border border-slate-200 rounded-md p-3 text-sm text-slate-700">
-              <span className="font-medium">Not a filing.</span> {data.chartOfAccountsNote}
+      {prefs.shares && shareRows.length > 0 && (
+        <div className="bg-white rounded-lg border border-slate-200 overflow-hidden mb-4">
+          <div className="px-4 py-3 border-b border-slate-200 bg-slate-50">
+            <h2 className="text-sm font-medium text-slate-700">Shares by type</h2>
+          </div>
+          <table className="w-full">
+            <tbody>
+              {shareRows.map((r) => (
+                <tr key={r.code} className="border-b border-slate-200 last:border-b-0">
+                  <td className="py-2.5 px-4 text-xs font-mono text-slate-500 w-20">{r.code}</td>
+                  <td className="py-2.5 px-4 text-sm">{r.label}</td>
+                  <td className="py-2.5 px-4 text-sm text-right tabular-nums">{formatCents(r.valueCents)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {(prefs.settled || prefs.alerts) && (
+        <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+          <div className="px-4 py-3 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+            <h2 className="text-sm font-medium text-slate-700">Daily aggregation</h2>
+            <span className="text-xs text-slate-500">
+              {rows.length} day(s){data.stale ? ` · today's run has not landed` : ''}
+            </span>
+          </div>
+          {rows.length === 0 ? (
+            <div className="p-6 text-center text-slate-500">No aggregation rows for this instance yet.</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-slate-200 bg-slate-50">
+                    <th className="text-left py-2.5 px-4 text-xs font-medium text-slate-500">Date</th>
+                    {prefs.settled && <th className="text-right py-2.5 px-4 text-xs font-medium text-slate-500">Settled</th>}
+                    {prefs.settled && <th className="text-right py-2.5 px-4 text-xs font-medium text-slate-500">Count</th>}
+                    {prefs.alerts && <th className="text-right py-2.5 px-4 text-xs font-medium text-slate-500">CTR alerts</th>}
+                    {prefs.alerts && <th className="text-right py-2.5 px-4 text-xs font-medium text-slate-500">Structuring</th>}
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((r) => (
+                    <tr key={`${r.instance_id}-${r.as_of}`} className="border-b border-slate-200 last:border-b-0 hover:bg-slate-50">
+                      <td className="py-2.5 px-4 text-sm font-medium">{formatDay(r.as_of)}</td>
+                      {prefs.settled && <td className="py-2.5 px-4 text-sm text-right tabular-nums">{formatCents(r.settled_cents)}</td>}
+                      {prefs.settled && <td className="py-2.5 px-4 text-sm text-right tabular-nums text-slate-600">{r.settled_count}</td>}
+                      {prefs.alerts && (
+                        <td className="py-2.5 px-4 text-sm text-right tabular-nums">
+                          {r.ctr_alerts > 0 ? <span className="text-amber-700">{r.ctr_alerts}</span> : <span className="text-slate-400">0</span>}
+                        </td>
+                      )}
+                      {prefs.alerts && (
+                        <td className="py-2.5 px-4 text-sm text-right tabular-nums">
+                          {r.structuring_alerts > 0 ? <span className="text-amber-700">{r.structuring_alerts}</span> : <span className="text-slate-400">0</span>}
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
-        </>
+        </div>
       )}
-    </MainLayout>
+    </>
   );
 }

@@ -706,3 +706,36 @@ export async function fetchReport5300() {
     chartOfAccountsNote: body.chart_of_accounts_note ?? null,
   };
 }
+
+/**
+ * Everything the Statement of Financial Condition can be built from today.
+ *
+ * Deliberately returns RAW account rows rather than the toAccount() shape the
+ * rest of this module uses: the 5300 buckets shares by `account_type` and has
+ * to see `status` to exclude closed accounts, and toAccount() formats the
+ * balance to a display string and drops both fields. A display shape is the
+ * wrong input to a filing.
+ *
+ * Every account, not a page. A balance sheet assembled from the first 200 rows
+ * of 1,829 is not a balance sheet, and unlike a preview table there is no
+ * reading of it that is merely incomplete rather than wrong.
+ */
+export async function fetch5300Inputs() {
+  const [accounts, report] = await Promise.all([
+    getAll("accounts"),
+    fetchReport5300().catch(() => null),
+  ]);
+
+  return {
+    accounts,
+    truncated: Boolean(accounts.hitCap),
+    fboPositionCents: report?.current?.fbo_position_cents ?? null,
+    lastSeq: report?.current?.last_seq ?? null,
+    updatedAt: report?.current?.updated_at ?? null,
+    instanceId: report?.instanceId ?? null,
+    history: report?.history ?? [],
+    stale: Boolean(report?.stale),
+    asOf: report?.asOf ?? null,
+    chartOfAccountsNote: report?.chartOfAccountsNote ?? null,
+  };
+}
