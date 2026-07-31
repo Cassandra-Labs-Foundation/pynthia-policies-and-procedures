@@ -284,6 +284,31 @@ export async function fetchAccount(accountId) {
   return toAccount(await get(`accounts/${accountId}`), null);
 }
 
+/**
+ * Everything the core will say about one account, for its detail page.
+ *
+ * The raw row rides along for the fields toAccount() drops (created_at,
+ * balance_synced_at) — a detail page is the one place that wants them.
+ *
+ * The holder comes from the account TABLE, not the detail row: GET
+ * /accounts/{id} omits entity_id entirely (its select simply lacks the
+ * column — see accounts.ts:291), so trusting it would report every account
+ * as holderless, including the 35 that are not. `undefined` there means
+ * "the endpoint didn't say", which is not the same fact as null's "no
+ * holder", and conflating the two is how a page ends up asserting a data
+ * condition the data does not have.
+ */
+export async function fetchAccountProfile(accountId) {
+  const raw = await get(`accounts/${accountId}`);
+  const [table, transactions] = await Promise.all([
+    accountTable().catch(() => new Map()),
+    fetchAccountTransactions(accountId).catch(() => []),
+  ]);
+  const entityId = raw.entity_id ?? table.get(accountId)?.entityId ?? null;
+  const holder = entityId ? await fetchMember(entityId).catch(() => null) : null;
+  return { raw, account: toAccount(raw, null), holder, transactions };
+}
+
 // -------------------------------------------------------------- transactions
 
 const TRANSFER_STATUS_LABEL = {
@@ -314,9 +339,12 @@ function toTransaction(transfer, { acctTable, accountId } = {}) {
     id: transfer.id,
     member: counterparty?.label ?? counterpartyId ?? "—",
     // Null unless the counterparty account names a real, known holder. The
-    // journal uses this to decide whether the member cell is a link; an id
-    // shown because no holder exists must not pretend to be one.
+    // journal uses this to decide whether the member cell links to a member
+    // profile; an id shown because no holder exists must not pretend to be one.
     memberEntityId: counterparty?.entityId ?? null,
+    // The counterparty's account id, for linking to the account page when no
+    // holder exists — the id itself is still a road somewhere real.
+    counterpartyAccountId: counterpartyId ?? null,
     type: "Transfer",
     category: "Transfer",
     amount: formatCents(isCredit ? transfer.amount_cents : -transfer.amount_cents, { signed: true }),

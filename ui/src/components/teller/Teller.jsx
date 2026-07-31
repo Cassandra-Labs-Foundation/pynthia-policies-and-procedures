@@ -34,6 +34,12 @@ function startOfWeek(now) {
   return d;
 }
 
+/** "acct_146781f5-3850-44de-8558-8d995e9b64d0" -> "acct_146781f5…9b64d0". */
+function shortId(id) {
+  if (!id || id.length <= 22) return id;
+  return `${id.slice(0, 13)}…${id.slice(-6)}`;
+}
+
 /** The loaded journal as CSV. Quotes doubled per RFC 4180. */
 function toCsv(rows) {
   const esc = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
@@ -255,10 +261,12 @@ export default function Teller() {
                   <React.Fragment key={transaction.id}>
                   <tr className="border-b border-slate-200 last:border-b-0 hover:bg-slate-50">
                     <td className="py-3 px-4">
-                      {/* A member name links to the holder's profile. An
-                          account id stays plain text: 1,794 of 1,829 accounts
-                          in this instance have no holder on record, and an id
-                          styled as a link would open nothing. */}
+                      {/* A member name links to the holder's profile. When no
+                          holder exists — 1,794 of 1,829 accounts here carry
+                          entity_id null, and the core offers no write to link
+                          one later — the id links to the account page instead,
+                          shortened, so the row still leads somewhere real
+                          without dressing an account up as a person. */}
                       {transaction.memberEntityId ? (
                         <Link
                           href={`/members/${transaction.memberEntityId}`}
@@ -266,10 +274,16 @@ export default function Teller() {
                         >
                           {transaction.member}
                         </Link>
+                      ) : transaction.counterpartyAccountId ? (
+                        <Link
+                          href={`/accounts/${transaction.counterpartyAccountId}`}
+                          className="font-mono text-xs text-blue-600 hover:text-blue-800"
+                          title={`${transaction.counterpartyAccountId} — no member linked; open the account`}
+                        >
+                          {shortId(transaction.counterpartyAccountId)}
+                        </Link>
                       ) : (
-                        <div className="font-mono text-xs text-slate-600" title="No member is linked to this account in the core">
-                          {transaction.member}
-                        </div>
+                        <div className="text-sm text-slate-400">—</div>
                       )}
                     </td>
                     <td className="py-3 px-4 text-sm">{transaction.type}</td>

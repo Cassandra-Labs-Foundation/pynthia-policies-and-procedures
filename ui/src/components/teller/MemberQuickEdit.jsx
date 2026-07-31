@@ -226,25 +226,33 @@ export default function MemberQuickEdit() {
                           <th className="text-left py-2 px-3 text-xs font-medium text-slate-500">Status</th>
                           <th className="text-left py-2 px-3 text-xs font-medium text-slate-500">Type</th>
                           <th className="text-right py-2 px-3 text-xs font-medium text-slate-500">Balance</th>
+                          <th className="text-right py-2 px-3 text-xs font-medium text-slate-500">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
                         {memberAccounts.length === 0 && (
                           <tr>
-                            <td colSpan={4} className="py-3 px-3 text-sm text-slate-500 text-center">
+                            <td colSpan={5} className="py-3 px-3 text-sm text-slate-500 text-center">
                               No accounts for this member.
                             </td>
                           </tr>
                         )}
-                        {/* No per-account "Details" control: there is no
-                            account page behind it, and the row already shows
-                            everything this panel knows about the account. */}
                         {memberAccounts.map(account => (
                           <tr key={account.id} className="border-b border-slate-200 last:border-b-0">
                             <td className="py-2 px-3 text-sm font-mono text-xs">{account.id}</td>
                             <td className="py-2 px-3 text-sm capitalize">{account.status}</td>
                             <td className="py-2 px-3 text-sm capitalize">{account.type}</td>
                             <td className="py-2 px-3 text-sm text-right">{account.balance}</td>
+                            <td className="py-2 px-3 text-right">
+                              {/* A real route now — /accounts/[id] — where an
+                                  earlier draft had a handlerless button. */}
+                              <Link
+                                href={`/accounts/${account.id}`}
+                                className="text-blue-600 text-xs font-medium hover:text-blue-800"
+                              >
+                                Details
+                              </Link>
+                            </td>
                           </tr>
                         ))}
                       </tbody>

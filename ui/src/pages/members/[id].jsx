@@ -221,7 +221,14 @@ export default function MemberProfile() {
                   <tbody className="divide-y divide-slate-100">
                     {profile.accounts.map((a) => (
                       <tr key={a.id}>
-                        <td className="px-6 py-3 font-mono text-xs">{a.id}</td>
+                        <td className="px-6 py-3 font-mono text-xs">
+                          <Link
+                            href={`/accounts/${a.id}`}
+                            className="text-blue-600 hover:text-blue-800"
+                          >
+                            {a.id}
+                          </Link>
+                        </td>
                         <td className="px-6 py-3">{a.type}</td>
                         <td className="px-6 py-3">{a.status}</td>
                         <td className="px-6 py-3 text-right tabular-nums">{a.balance}</td>
