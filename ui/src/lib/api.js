@@ -330,6 +330,121 @@ export function fetchAccountTransactions(accountId, opts = {}) {
   return fetchTransactions({ ...opts, accountId });
 }
 
+// ---------------------------------------------------------------- accounting
+
+/**
+ * The member ledger, summed. Every account, not a page — a subtotal built from
+ * the first 200 rows would be a figure that looks like a position and isn't.
+ * `truncated` is the cap flag from getAll surfaced so the page can say "at
+ * least" instead of presenting a floor as a total.
+ */
+export async function fetchLedgerSummary() {
+  const accounts = await getAll("accounts");
+
+  const byType = new Map();
+  let totalCents = 0;
+  for (const a of accounts) {
+    const cents = typeof a.balance === "number" ? a.balance : 0;
+    totalCents += cents;
+    const key = a.account_type ?? "unknown";
+    const row = byType.get(key) ?? { type: key, count: 0, open: 0, balanceCents: 0 };
+    row.count += 1;
+    if (a.status === "open") row.open += 1;
+    row.balanceCents += cents;
+    byType.set(key, row);
+  }
+
+  return {
+    totalCents,
+    accountCount: accounts.length,
+    truncated: Boolean(accounts.hitCap),
+    byType: [...byType.values()].sort((x, y) => y.balanceCents - x.balanceCents),
+  };
+}
+
+/**
+ * Transfer volume by the core's own status vocabulary, deliberately not the
+ * display labels the teller journal uses: pending_approval and submitted are
+ * different states of money (one is held by policy, one is in flight) and an
+ * accounting view is exactly the place that difference matters.
+ */
+export async function fetchTransferSummary() {
+  const transfers = await getAll("transfers");
+
+  const byStatus = new Map();
+  for (const t of transfers) {
+    const key = t.status ?? "unknown";
+    const row = byStatus.get(key) ?? { status: key, count: 0, amountCents: 0 };
+    row.count += 1;
+    row.amountCents += typeof t.amount_cents === "number" ? t.amount_cents : 0;
+    byStatus.set(key, row);
+  }
+
+  return {
+    transferCount: transfers.length,
+    truncated: Boolean(transfers.hitCap),
+    byStatus: [...byStatus.values()].sort((x, y) => y.amountCents - x.amountCents),
+  };
+}
+
+// ----------------------------------------------------------------- admin
+
+/**
+ * One cheap read against every path the proxy allows, timed.
+ *
+ * This is the admin page's "is the core actually there" panel. Each probe asks
+ * for as little as the endpoint will serve (limit=1 where a limit exists), and
+ * a failure carries the endpoint's own error text — a 503 with "key unset" and
+ * a 400 with "business_date required" are different problems and the page
+ * should not flatten them into a red dot.
+ */
+export async function probeCoreEndpoints() {
+  const today = new Date().toISOString().slice(0, 10);
+  const probes = [
+    { name: "Entities", path: "entities", params: { limit: 1 } },
+    { name: "Accounts", path: "accounts", params: { limit: 1 } },
+    { name: "Transfers", path: "transfers", params: { limit: 1 } },
+    { name: "Control results", path: "control-results", params: { limit: 1 } },
+    { name: "Governance obligations", path: "governance/obligations" },
+    { name: "Pending approvals (EPS)", path: "eps/pending-approvals" },
+    { name: "Cash aggregation", path: "cash/aggregation", params: { business_date: today } },
+    { name: "Call report (5300)", path: "reports/5300" },
+  ];
+
+  return Promise.all(
+    probes.map(async ({ name, path, params }) => {
+      const started = Date.now();
+      try {
+        await get(path, params ?? {});
+        return { name, path, ok: true, ms: Date.now() - started, error: null };
+      } catch (e) {
+        return { name, path, ok: false, ms: Date.now() - started, error: e.message };
+      }
+    }),
+  );
+}
+
+/**
+ * How much data the core is holding, counted by walking every page.
+ *
+ * Three full walks is not free, but a count taken from one page is not a
+ * count. Each figure carries its own truncation flag for the same reason
+ * fetchLedgerSummary does.
+ */
+export async function fetchCoreInventory() {
+  const [entities, accounts, transfers] = await Promise.all([
+    getAll("entities"),
+    getAll("accounts"),
+    getAll("transfers"),
+  ]);
+  const shape = (rows) => ({ count: rows.length, truncated: Boolean(rows.hitCap) });
+  return {
+    entities: shape(entities),
+    accounts: shape(accounts),
+    transfers: shape(transfers),
+  };
+}
+
 // ------------------------------------------------------------ control results
 
 /**
