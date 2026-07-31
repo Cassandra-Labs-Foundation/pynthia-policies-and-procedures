@@ -147,11 +147,14 @@ export async function fetchMemberProfile(memberId) {
   const entity = await get(`entities/${memberId}`);
   const accounts = await getAll("accounts", { entity_id: memberId }).catch(() => []);
 
-  const nameByAccountId = new Map(accounts.map((a) => [a.id, a.id]));
+  // Counterparties here are labelled by account id without the full table
+  // walk: the profile already knows whose page it is, and the other side of a
+  // member's transfer is almost surely one of the 1,794 holderless accounts.
+  const acctTable = new Map(accounts.map((a) => [a.id, { label: a.id, entityId: null }]));
   const perAccount = await Promise.all(
     accounts.map((a) =>
       get("transfers", { account_id: a.id, limit: 50 })
-        .then((b) => (b.data ?? []).map((t) => toTransaction(t, { nameByAccountId, accountId: a.id })))
+        .then((b) => (b.data ?? []).map((t) => toTransaction(t, { acctTable, accountId: a.id })))
         .catch(() => []),
     ),
   );
@@ -272,20 +275,27 @@ const TRANSFER_STATUS_LABEL = {
  * hand the list is shown from the originator's side, which is the side that
  * initiated it.
  */
-function toTransaction(transfer, { nameByAccountId, accountId } = {}) {
+function toTransaction(transfer, { acctTable, accountId } = {}) {
   const fromId = transfer.originator?.account_id;
   const toId = transfer.beneficiary?.account_id;
   const isCredit = accountId ? toId === accountId : false;
   const counterpartyId = isCredit ? fromId : toId;
+  const counterparty = counterpartyId ? acctTable?.get(counterpartyId) : null;
 
   return {
     id: transfer.id,
-    member: nameByAccountId?.get(counterpartyId) ?? counterpartyId ?? "—",
+    member: counterparty?.label ?? counterpartyId ?? "—",
+    // Null unless the counterparty account names a real, known holder. The
+    // journal uses this to decide whether the member cell is a link; an id
+    // shown because no holder exists must not pretend to be one.
+    memberEntityId: counterparty?.entityId ?? null,
     type: "Transfer",
     category: "Transfer",
     amount: formatCents(isCredit ? transfer.amount_cents : -transfer.amount_cents, { signed: true }),
     amountCents: transfer.amount_cents,
     date: formatWhen(transfer.created_at),
+    // The raw timestamp, because the pretty string cannot be filtered on.
+    createdAt: transfer.created_at ?? null,
     status: TRANSFER_STATUS_LABEL[transfer.status] ?? transfer.status,
     fromAccountId: fromId,
     toAccountId: toId,
@@ -293,19 +303,45 @@ function toTransaction(transfer, { nameByAccountId, accountId } = {}) {
 }
 
 /**
- * Every account, holder name resolved. The lookup table behind the two-hop
- * walk transfer -> account -> entity, kept whole rather than sampled: a
- * partial table does not fail loudly, it silently relabels rows with ids.
+ * Every account, holder resolved to BOTH a display label and an entity id.
+ * The lookup table behind the two-hop walk transfer -> account -> entity,
+ * kept whole rather than sampled: a partial table does not fail loudly, it
+ * silently relabels rows with ids.
+ *
+ * entityId rides along so a caller can render the label as a link to the
+ * holder's profile. It is null for the unlinked case — in this instance the
+ * overwhelming one (1,794 of 1,829 accounts carry no entity_id) — and a null
+ * here must stay null downstream: an unlinked account has no profile to open,
+ * and a link to nowhere is the dead-button problem wearing a new hat.
+ *
+ * Cached for the life of the page. The walk is ~10 requests; a journal that
+ * re-ran it per render would hammer the core to re-learn a table that does
+ * not change under a teller's feet. Navigation (or refresh) naturally evicts.
  */
-async function accountNameTable() {
-  const [accounts, members] = await Promise.all([
-    getAll("accounts"),
-    getAll("entities")
-      .then((rows) => rows.map(toMember))
-      .catch(() => []),
-  ]);
-  const nameByEntityId = new Map(members.map((m) => [m.id, m.name]));
-  return accounts.map((a) => toAccount(a, nameByEntityId));
+let acctTablePromise = null;
+function accountTable() {
+  if (acctTablePromise) return acctTablePromise;
+  acctTablePromise = (async () => {
+    const [accounts, entities] = await Promise.all([
+      getAll("accounts"),
+      getAll("entities").catch(() => []),
+    ]);
+    const nameByEntityId = new Map(entities.map((e) => [e.id, e.name]));
+    return new Map(
+      accounts.map((a) => [
+        a.id,
+        {
+          label: (a.entity_id && nameByEntityId.get(a.entity_id)) || a.id,
+          entityId: a.entity_id && nameByEntityId.has(a.entity_id) ? a.entity_id : null,
+        },
+      ]),
+    );
+  })();
+  // A failed walk must not poison every later call with the same rejection.
+  acctTablePromise.catch(() => {
+    acctTablePromise = null;
+  });
+  return acctTablePromise;
 }
 
 /**
@@ -317,13 +353,14 @@ async function accountNameTable() {
  * of acct_ ids where member names belong. A counterparty genuinely absent from
  * the core still falls back to its account id.
  */
-export async function fetchTransactions({ limit = 50, accountId, status } = {}) {
-  const [transfersBody, accounts] = await Promise.all([
-    get("transfers", { limit, account_id: accountId, status }),
-    accountNameTable().catch(() => []),
+export async function fetchTransactions({ limit = 50, accountId, status, all = false } = {}) {
+  const [rows, acctTable] = await Promise.all([
+    all
+      ? getAll("transfers", { account_id: accountId, status })
+      : get("transfers", { limit, account_id: accountId, status }).then((b) => b.data ?? []),
+    accountTable().catch(() => new Map()),
   ]);
-  const nameByAccountId = new Map(accounts.map((a) => [a.id, a.name]));
-  return transfersBody.data.map((t) => toTransaction(t, { nameByAccountId, accountId }));
+  return rows.map((t) => toTransaction(t, { acctTable, accountId }));
 }
 
 export function fetchAccountTransactions(accountId, opts = {}) {

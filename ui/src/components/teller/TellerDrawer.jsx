@@ -87,7 +87,17 @@ export default function TellerDrawer() {
             <ArrowUpCircle size={16} className="mr-1.5" />
             Sell Cash
           </button>
-          <button 
+          {/* The drawer is a local fixture (CP-05 — the core has no drawer to
+              read; see lib/mock.js), so balancing it is a local act too:
+              attest, stamp the time. It updates the same session state Buy
+              and Sell already mutate. */}
+          <button
+            onClick={() =>
+              setTellerDrawer({
+                ...tellerDrawer,
+                lastBalanced: new Date().toISOString(),
+              })
+            }
             className="flex-1 px-3 py-2 bg-purple-50 text-purple-700 rounded-md text-sm font-medium hover:bg-purple-100 flex items-center justify-center"
           >
             <RotateCcw size={16} className="mr-1.5" />

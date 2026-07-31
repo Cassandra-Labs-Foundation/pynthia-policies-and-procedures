@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Search, X, CreditCard, DollarSign, User, AlertCircle } from 'lucide-react';
-import { fetchAccounts, searchMembers } from '../../lib/api';
+import { fetchAccounts, fetchAccountTransactions, searchMembers } from '../../lib/api';
 
 export default function MemberQuickEdit() {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,6 +10,9 @@ export default function MemberQuickEdit() {
   const [isLoading, setIsLoading] = useState(false);
   const [member, setMember] = useState(null);
   const [memberAccounts, setMemberAccounts] = useState([]);
+  // null = still loading; [] = loaded and genuinely empty. The distinction
+  // keeps "no transfers" from flashing up before the walk has finished.
+  const [history, setHistory] = useState(null);
   const [error, setError] = useState('');
   const [selectedTab, setSelectedTab] = useState('info');
   const [transactionType, setTransactionType] = useState('deposit');
@@ -37,10 +40,24 @@ export default function MemberQuickEdit() {
       // exists for. Its own failure must not clear the member we just found,
       // so the accounts list empties and the rest of the panel stands.
       try {
-        setMemberAccounts(await fetchAccounts({ entityId: found.id }));
+        const accounts = await fetchAccounts({ entityId: found.id });
+        setMemberAccounts(accounts);
+
+        // Real history for the history tab — the transfers against each of
+        // this member's accounts, deduped on id because a transfer between two
+        // of their own accounts arrives once per side.
+        setHistory(null);
+        const perAccount = await Promise.all(
+          accounts.map((a) => fetchAccountTransactions(a.id).catch(() => [])),
+        );
+        const seen = new Set();
+        setHistory(
+          perAccount.flat().filter((t) => !seen.has(t.id) && seen.add(t.id)),
+        );
       } catch (accountsError) {
         console.error('Error loading member accounts:', accountsError);
         setMemberAccounts([]);
+        setHistory([]);
       }
     } catch (searchError) {
       setError(searchError.message || 'Error searching for member');
@@ -209,26 +226,25 @@ export default function MemberQuickEdit() {
                           <th className="text-left py-2 px-3 text-xs font-medium text-slate-500">Status</th>
                           <th className="text-left py-2 px-3 text-xs font-medium text-slate-500">Type</th>
                           <th className="text-right py-2 px-3 text-xs font-medium text-slate-500">Balance</th>
-                          <th className="text-right py-2 px-3 text-xs font-medium text-slate-500">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
                         {memberAccounts.length === 0 && (
                           <tr>
-                            <td colSpan={5} className="py-3 px-3 text-sm text-slate-500 text-center">
+                            <td colSpan={4} className="py-3 px-3 text-sm text-slate-500 text-center">
                               No accounts for this member.
                             </td>
                           </tr>
                         )}
+                        {/* No per-account "Details" control: there is no
+                            account page behind it, and the row already shows
+                            everything this panel knows about the account. */}
                         {memberAccounts.map(account => (
                           <tr key={account.id} className="border-b border-slate-200 last:border-b-0">
                             <td className="py-2 px-3 text-sm font-mono text-xs">{account.id}</td>
                             <td className="py-2 px-3 text-sm capitalize">{account.status}</td>
                             <td className="py-2 px-3 text-sm capitalize">{account.type}</td>
                             <td className="py-2 px-3 text-sm text-right">{account.balance}</td>
-                            <td className="py-2 px-3 text-right">
-                              <button className="text-blue-600 text-xs font-medium">Details</button>
-                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -338,52 +354,64 @@ export default function MemberQuickEdit() {
                 </div>
               )}
               
-              {/* Transaction History Tab */}
+              {/* Transaction History Tab.
+
+                  This tab used to render four hardcoded fixture rows — an ATM
+                  withdrawal, a loan payment — styled identically to the real
+                  data beside them. Invented transactions next to a real
+                  member's name is the worst kind of placeholder; these rows
+                  are the member's actual transfers, and when there are none
+                  it says so. */}
               {selectedTab === 'history' && (
                 <div>
-                  <h4 className="text-sm font-medium text-slate-500 mb-4">Recent Transactions</h4>
-                  
+                  <h4 className="text-sm font-medium text-slate-500 mb-4">Recent Transfers</h4>
+
                   <div className="bg-slate-50 rounded-md border border-slate-200 overflow-hidden">
                     <table className="w-full">
                       <thead>
                         <tr className="bg-slate-100 border-b border-slate-200">
                           <th className="text-left py-2 px-3 text-xs font-medium text-slate-500">Date</th>
-                          <th className="text-left py-2 px-3 text-xs font-medium text-slate-500">Description</th>
-                          <th className="text-left py-2 px-3 text-xs font-medium text-slate-500">Account</th>
+                          <th className="text-left py-2 px-3 text-xs font-medium text-slate-500">Status</th>
+                          <th className="text-left py-2 px-3 text-xs font-medium text-slate-500">Counterparty</th>
                           <th className="text-right py-2 px-3 text-xs font-medium text-slate-500">Amount</th>
                         </tr>
                       </thead>
                       <tbody>
-                        <tr className="border-b border-slate-200">
-                          <td className="py-2 px-3 text-sm">Today, 10:45 AM</td>
-                          <td className="py-2 px-3 text-sm">Deposit</td>
-                          <td className="py-2 px-3 text-sm">Primary Checking</td>
-                          <td className="py-2 px-3 text-sm text-green-600 text-right">+$350.00</td>
-                        </tr>
-                        <tr className="border-b border-slate-200">
-                          <td className="py-2 px-3 text-sm">Yesterday</td>
-                          <td className="py-2 px-3 text-sm">ATM Withdrawal</td>
-                          <td className="py-2 px-3 text-sm">Primary Checking</td>
-                          <td className="py-2 px-3 text-sm text-slate-800 text-right">-$80.00</td>
-                        </tr>
-                        <tr className="border-b border-slate-200">
-                          <td className="py-2 px-3 text-sm">May 12, 2025</td>
-                          <td className="py-2 px-3 text-sm">Loan Payment</td>
-                          <td className="py-2 px-3 text-sm">Auto Loan</td>
-                          <td className="py-2 px-3 text-sm text-slate-800 text-right">-$325.50</td>
-                        </tr>
-                        <tr>
-                          <td className="py-2 px-3 text-sm">May 10, 2025</td>
-                          <td className="py-2 px-3 text-sm">Transfer to Savings</td>
-                          <td className="py-2 px-3 text-sm">Primary Checking</td>
-                          <td className="py-2 px-3 text-sm text-slate-800 text-right">-$500.00</td>
-                        </tr>
+                        {history === null && (
+                          <tr>
+                            <td colSpan={4} className="py-3 px-3 text-sm text-slate-500 text-center">
+                              Loading transfers…
+                            </td>
+                          </tr>
+                        )}
+                        {history !== null && history.length === 0 && (
+                          <tr>
+                            <td colSpan={4} className="py-3 px-3 text-sm text-slate-500 text-center">
+                              No transfers recorded against this member&rsquo;s accounts.
+                            </td>
+                          </tr>
+                        )}
+                        {(history ?? []).map((t) => (
+                          <tr key={t.id} className="border-b border-slate-200 last:border-b-0">
+                            <td className="py-2 px-3 text-sm whitespace-nowrap">{t.date}</td>
+                            <td className="py-2 px-3 text-sm">{t.status}</td>
+                            <td className="py-2 px-3 font-mono text-xs">{t.member}</td>
+                            <td className={`py-2 px-3 text-sm text-right ${
+                              t.amount.startsWith('+') ? 'text-green-600' : 'text-slate-800'
+                            }`}>{t.amount}</td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
-                  
+
                   <div className="mt-4 text-right">
-                    <button className="text-blue-600 text-sm font-medium">View Full History</button>
+                    <Link
+                      href={`/members/${member.id}`}
+                      className="text-blue-600 text-sm font-medium hover:text-blue-800"
+                    >
+                      View Full History
+                    </Link>
                   </div>
                 </div>
               )}
