@@ -33,6 +33,43 @@ async function get(path, params = {}) {
   return body;
 }
 
+/**
+ * Every page of a cursor-paginated list, not just the first.
+ *
+ * `limit` is a page size, not a result count — a caller that passes limit=200
+ * and stops gets the first 200 rows and no indication that more exist. That is
+ * survivable for a preview table and fatal for a search: "no member found" and
+ * "that member is on page 2" render identically, and the operator cannot tell
+ * which one they are looking at.
+ *
+ * `cap` exists so a pagination bug upstream cannot spin here forever. Hitting
+ * it means the result is truncated, so callers that must not lie about
+ * completeness should check `hitCap` rather than assume they saw everything.
+ */
+async function getAll(path, params = {}, { pageSize = 200, cap = 5000 } = {}) {
+  const rows = [];
+  let after;
+  let hitCap = false;
+
+  for (;;) {
+    const body = await get(path, { ...params, limit: pageSize, after });
+    rows.push(...(body.data ?? []));
+
+    if (rows.length >= cap) {
+      hitCap = true;
+      break;
+    }
+    if (!body.pagination?.has_more) break;
+
+    // No cursor despite has_more would loop on the same page forever.
+    if (!body.pagination.next_after) break;
+    after = body.pagination.next_after;
+  }
+
+  rows.hitCap = hitCap;
+  return rows;
+}
+
 // ---------------------------------------------------------------- formatting
 
 const USD = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
@@ -92,14 +129,41 @@ export async function fetchMember(memberId) {
   return toMember(await get(`entities/${memberId}`));
 }
 
-/** Client-side contains-match: the core API has no search endpoint. */
+/**
+ * Client-side contains-match: the core API has no search endpoint.
+ *
+ * Every entity, not the first page. This used to load limit=200 against 314
+ * entities, so a third of the membership could not be found by any term and
+ * said "no member found" while doing it — the one answer a teller cannot
+ * distinguish from the truth.
+ *
+ * Account numbers are matched too, because the search box asks for one:
+ * "name, ID, or account number". They are a second hop — an account number is
+ * a property of an account, not of its holder — so it runs only when the
+ * direct match comes up empty, and it resolves acct_ -> entity_id -> member
+ * rather than showing the account itself. The teller pasting an acct_ id out
+ * of the transaction journal is the case this exists for.
+ */
 export async function searchMembers(term) {
   const needle = term.trim().toLowerCase();
   if (!needle) return [];
-  const members = await fetchMembers({ limit: 200 });
-  return members.filter(
-    (m) => m.name.toLowerCase().includes(needle) || m.id.toLowerCase().includes(needle),
+
+  const members = (await getAll("entities")).map(toMember);
+
+  const direct = members.filter(
+    (m) =>
+      (m.name ?? "").toLowerCase().includes(needle) ||
+      m.id.toLowerCase().includes(needle),
   );
+  if (direct.length > 0) return direct;
+
+  const accounts = await getAll("accounts");
+  const holders = new Set(
+    accounts.filter((a) => a.id.toLowerCase().includes(needle)).map((a) => a.entity_id),
+  );
+  if (holders.size === 0) return [];
+
+  return members.filter((m) => holders.has(m.id));
 }
 
 // ------------------------------------------------------------------ accounts
@@ -123,14 +187,19 @@ function toAccount(account, nameByEntityId) {
  * Accounts, with holder names resolved.
  *
  * Two requests rather than one: the core API exposes no join, so the holder
- * name comes from a page of entities matched on entity_id. An account whose
- * holder is outside that page keeps its id as its label — degraded, but not
- * wrong, which is the trade this fallback exists to make.
+ * name comes from entities matched on entity_id. The fallback to the account's
+ * own id is still here and still correct for a genuinely unlinked account —
+ * but it was firing constantly for a reason that had nothing to do with
+ * linkage. The lookup read one page of 200 entities against 314, so only 15 of
+ * 200 accounts found their holder and the other 185 rendered as acct_ ids.
+ * Reading every entity turns the fallback back into the rare case it describes.
  */
 export async function fetchAccounts({ limit = 50, entityId, status } = {}) {
   const [accountsBody, members] = await Promise.all([
     get("accounts", { limit, entity_id: entityId, status }),
-    fetchMembers({ limit: 200 }).catch(() => []),
+    getAll("entities")
+      .then((rows) => rows.map(toMember))
+      .catch(() => []),
   ]);
   const nameByEntityId = new Map(members.map((m) => [m.id, m.name]));
   return accountsBody.data.map((a) => toAccount(a, nameByEntityId));
@@ -180,16 +249,34 @@ function toTransaction(transfer, { nameByAccountId, accountId } = {}) {
 }
 
 /**
+ * Every account, holder name resolved. The lookup table behind the two-hop
+ * walk transfer -> account -> entity, kept whole rather than sampled: a
+ * partial table does not fail loudly, it silently relabels rows with ids.
+ */
+async function accountNameTable() {
+  const [accounts, members] = await Promise.all([
+    getAll("accounts"),
+    getAll("entities")
+      .then((rows) => rows.map(toMember))
+      .catch(() => []),
+  ]);
+  const nameByEntityId = new Map(members.map((m) => [m.id, m.name]));
+  return accounts.map((a) => toAccount(a, nameByEntityId));
+}
+
+/**
  * Transfers, with the counterparty resolved to a holder name where possible.
  *
  * Three requests, because naming the other side of a transfer is a two-hop walk
- * the API cannot do in one call: transfer -> account -> entity. Both hops are
- * bounded pages, so a counterparty outside them falls back to its account id.
+ * the API cannot do in one call: transfer -> account -> entity. Both hops now
+ * read every page; when they read only the first, the journal showed a column
+ * of acct_ ids where member names belong. A counterparty genuinely absent from
+ * the core still falls back to its account id.
  */
 export async function fetchTransactions({ limit = 50, accountId, status } = {}) {
   const [transfersBody, accounts] = await Promise.all([
     get("transfers", { limit, account_id: accountId, status }),
-    fetchAccounts({ limit: 200 }).catch(() => []),
+    accountNameTable().catch(() => []),
   ]);
   const nameByAccountId = new Map(accounts.map((a) => [a.id, a.name]));
   return transfersBody.data.map((t) => toTransaction(t, { nameByAccountId, accountId }));
@@ -298,8 +385,10 @@ export async function fetchPendingApprovals() {
  * to today, so there is no such thing as "the current day" here.
  *
  * Two requests, for the same reason fetchAccounts makes two: the response
- * identifies people by entity_id only, and the API exposes no join. A person
- * outside the page of entities keeps their id as their label.
+ * identifies people by entity_id only, and the API exposes no join. Every
+ * entity is read, not the first page — this list names the people a CTR would
+ * be filed on, and an unresolved name here is a bare entity_id on a currency
+ * transaction report.
  *
  * Amounts are integer cents, and cash_in/cash_out are deliberately not summed:
  * the CTR threshold is assessed against each direction separately.
@@ -307,7 +396,9 @@ export async function fetchPendingApprovals() {
 export async function fetchCashAggregation(businessDate) {
   const [body, members] = await Promise.all([
     get("cash/aggregation", { business_date: businessDate }),
-    fetchMembers({ limit: 200 }).catch(() => []),
+    getAll("entities")
+      .then((rows) => rows.map(toMember))
+      .catch(() => []),
   ]);
   const nameByEntityId = new Map(members.map((m) => [m.id, m.name]));
 
