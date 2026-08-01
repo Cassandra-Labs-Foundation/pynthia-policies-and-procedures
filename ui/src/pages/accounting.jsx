@@ -14,16 +14,21 @@
 // this page does NOT have is a "New Entry" button: the proxy is read-only by
 // design (see lib/coreApi.js), and a button that pretended to post a journal
 // entry would be a lie with a hover state.
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Activity, RefreshCw } from 'lucide-react';
 import MainLayout from '../components/layout/MainLayout';
+import { DeltaChip, LiveBadge, LiveValue } from '../components/live/Live';
+import GeneralLedger from '../components/accounting/GeneralLedger';
+import { useLiveCore } from '../lib/useLiveCore';
+import { fetchGeneralLedger } from '../lib/gl';
 import {
-  fetchLedgerSummary,
+  fetchRawAccounts,
   fetchReport5300,
   fetchTransactions,
   fetchTransferSummary,
   formatCents,
   formatWhen,
+  summarizeAccounts,
 } from '../lib/api';
 
 const JOURNAL_PAGE = 50;
@@ -60,25 +65,33 @@ export default function Accounting() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState('');
   const [reportError, setReportError] = useState('');
+  const [gl, setGl] = useState(null);
+  const [glError, setGlError] = useState('');
+  // bln_ -> acct_, so a GL account reads as the account a human knows.
+  const [accountByBalanceId, setAccountByBalanceId] = useState(null);
 
   const load = useCallback(async (isRefresh) => {
     if (isRefresh) setIsRefreshing(true);
 
     // The FBO position comes from a different subsystem than the ledger walk;
     // its failure is reported beside its tile rather than blanking the page.
-    const [ledgerRes, transfersRes, journalRes, reportRes] = await Promise.allSettled([
-      fetchLedgerSummary(),
-      fetchTransferSummary(),
-      fetchTransactions({ limit: JOURNAL_PAGE }),
-      fetchReport5300(),
-    ]);
+    const [acctRes, transfersRes, journalRes, reportRes, glRes] =
+      await Promise.allSettled([
+        // ONE walk of all 1,829 accounts. Both the ledger summary and the
+        // GL's bln_ -> acct_ naming map are derived from these same rows.
+        fetchRawAccounts(),
+        fetchTransferSummary(),
+        fetchTransactions({ limit: JOURNAL_PAGE }),
+        fetchReport5300(),
+        fetchGeneralLedger(),
+      ]);
 
-    if (ledgerRes.status === 'fulfilled') {
-      setLedger(ledgerRes.value);
+    if (acctRes.status === 'fulfilled') {
+      setLedger(summarizeAccounts(acctRes.value));
       setError('');
     } else {
-      console.error('Error loading the ledger summary:', ledgerRes.reason);
-      setError(ledgerRes.reason?.message ?? 'request failed');
+      console.error('Error loading accounts:', acctRes.reason);
+      setError(acctRes.reason?.message ?? 'request failed');
     }
     if (transfersRes.status === 'fulfilled') setTransferSummary(transfersRes.value);
     if (journalRes.status === 'fulfilled') setJournal(journalRes.value);
@@ -89,6 +102,25 @@ export default function Accounting() {
       setReportError(reportRes.reason?.message ?? 'request failed');
     }
 
+    if (glRes.status === 'fulfilled') {
+      setGl(glRes.value);
+      setGlError('');
+    } else {
+      // The ledger lives in a different system than everything else on this
+      // page, so it fails on its own and says so where it would have rendered.
+      console.error('Error loading the general ledger:', glRes.reason);
+      setGlError(glRes.reason?.message ?? 'request failed');
+    }
+    if (acctRes.status === 'fulfilled') {
+      setAccountByBalanceId(
+        new Map(
+          acctRes.value
+            .filter((a) => a.blnk_balance_id)
+            .map((a) => [a.blnk_balance_id, a.id]),
+        ),
+      );
+    }
+
     setIsLoading(false);
     setIsRefreshing(false);
   }, []);
@@ -97,22 +129,54 @@ export default function Accounting() {
     load(false);
   }, [load]);
 
-  const fbo = report?.current?.fbo_position_cents;
+  // The heartbeat. Polls the cheap endpoint every few seconds for the live FBO
+  // figure, and re-runs the expensive ledger walk ONLY when the core's event
+  // sequence actually advances — i.e. when money actually moved. That is what
+  // makes this a dashboard rather than a page with a refresh button on it.
+  const { live, polledAt, lastAdvanceAt, error: liveError } = useLiveCore({
+    onAdvance: () => load(true),
+  });
+
+  // The live poll supersedes the FBO figure captured by the last full load;
+  // it is refreshed every tick, where the ledger walk is refreshed per event.
+  const fbo = live?.fboCents ?? report?.current?.fbo_position_cents ?? null;
   const gap = ledger && typeof fbo === 'number' ? ledger.totalCents - fbo : null;
+
+  // Movement since the page was opened, so someone returning to a screen they
+  // left open can see what changed while they were away.
+  const openingFbo = useRef(null);
+  const openingLedger = useRef(null);
+  useEffect(() => {
+    if (openingFbo.current === null && typeof fbo === 'number') openingFbo.current = fbo;
+  }, [fbo]);
+  useEffect(() => {
+    if (openingLedger.current === null && ledger) openingLedger.current = ledger.totalCents;
+  }, [ledger]);
+  const fboDelta = typeof fbo === 'number' && openingFbo.current !== null ? fbo - openingFbo.current : null;
+  const ledgerDelta =
+    ledger && openingLedger.current !== null ? ledger.totalCents - openingLedger.current : null;
 
   return (
     <MainLayout
       title="Accounting"
       subtitle="The member ledger, the live FBO position, and the transfer journal behind them"
       actions={
-        <button
-          onClick={() => load(true)}
-          disabled={isRefreshing}
-          className="px-3 py-2 text-sm border border-slate-300 rounded-md hover:bg-slate-50 flex items-center disabled:opacity-50"
-        >
-          <RefreshCw size={16} className={`mr-1.5 ${isRefreshing ? 'animate-spin' : ''}`} />
-          Refresh
-        </button>
+        <div className="flex items-center space-x-3">
+          <LiveBadge
+            live={live}
+            polledAt={polledAt}
+            lastAdvanceAt={lastAdvanceAt}
+            error={liveError}
+          />
+          <button
+            onClick={() => load(true)}
+            disabled={isRefreshing}
+            className="px-3 py-2 text-sm border border-slate-300 rounded-md hover:bg-slate-50 flex items-center disabled:opacity-50"
+          >
+            <RefreshCw size={16} className={`mr-1.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
+        </div>
       }
     >
       {error && (
@@ -134,13 +198,17 @@ export default function Accounting() {
             <div className="bg-white rounded-lg border border-slate-200 p-5">
               <div className="text-sm font-medium text-slate-500 mb-1">Member ledger</div>
               <div className="text-2xl font-semibold tabular-nums">
-                {ledger ? formatCents(ledger.totalCents) : '—'}
+                <LiveValue value={ledger?.totalCents}>
+                  {ledger ? formatCents(ledger.totalCents) : '—'}
+                </LiveValue>
+                <DeltaChip cents={ledgerDelta} format={formatCents} />
               </div>
               {ledger && (
                 <div className="text-xs text-slate-500 mt-1.5">
                   {ledger.truncated
                     ? `first ${ledger.accountCount} accounts — total is a lower bound`
                     : `across ${ledger.accountCount} accounts`}
+                  {' · re-walked on each event'}
                 </div>
               )}
             </div>
@@ -148,18 +216,21 @@ export default function Accounting() {
             <div className="bg-white rounded-lg border border-slate-200 p-5">
               <div className="flex items-center text-sm font-medium text-slate-500 mb-1">
                 <Activity size={15} className="mr-1.5 text-green-600" />
-                FBO position — live
+                FBO position
               </div>
               <div className="text-2xl font-semibold tabular-nums">
-                {typeof fbo === 'number'
-                  ? formatCents(fbo)
-                  : <span className="text-slate-400 text-lg">not reported</span>}
+                <LiveValue value={fbo}>
+                  {typeof fbo === 'number'
+                    ? formatCents(fbo)
+                    : <span className="text-slate-400 text-lg">not reported</span>}
+                </LiveValue>
+                <DeltaChip cents={fboDelta} format={formatCents} />
               </div>
               <div className="text-xs text-slate-500 mt-1.5">
                 {reportError
                   ? <span className="text-red-600">{reportError}</span>
-                  : report?.current
-                    ? <>event seq {String(report.current.last_seq)} · advanced {formatWhen(report.current.updated_at)}</>
+                  : live?.eventAt
+                    ? <>advanced {formatWhen(live.eventAt)}</>
                     : 'the Payment Hub has not reported a position'}
               </div>
             </div>
@@ -249,6 +320,20 @@ export default function Accounting() {
               )}
             </div>
           </div>
+
+          {/* --------------------------------------------- the general ledger */}
+          {glError ? (
+            <div className="bg-white rounded-lg border border-slate-200 p-4 mb-4">
+              <h2 className="text-sm font-medium text-slate-700 mb-1">General ledger</h2>
+              <p className="text-sm text-red-600">{glError}</p>
+              <p className="text-xs text-slate-500 mt-1">
+                The double-entry ledger lives in Blnk, not in the core database. This view
+                needs BLNK_API_URL and BLNK_API_KEY set server-side.
+              </p>
+            </div>
+          ) : gl ? (
+            <GeneralLedger gl={gl} accountByBalanceId={accountByBalanceId} />
+          ) : null}
 
           {/* ------------------------------------------------------ the journal */}
           <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">

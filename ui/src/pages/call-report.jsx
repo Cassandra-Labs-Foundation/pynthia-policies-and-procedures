@@ -15,7 +15,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { AlertTriangle, Activity, Download, RefreshCw } from 'lucide-react';
 import MainLayout from '../components/layout/MainLayout';
-import { fetch5300Inputs, fetchReport5300, formatCents, formatWhen } from '../lib/api';
+import { fetch5300Inputs, formatCents, formatWhen } from '../lib/api';
+import { DeltaChip, LiveBadge, LiveValue } from '../components/live/Live';
+import { useLiveCore } from '../lib/useLiveCore';
 import {
   ACCOUNT_TYPE_MAP,
   FORM_VINTAGE,
@@ -26,7 +28,6 @@ import {
   toFilingPayload,
 } from '../lib/ncua5300';
 
-const REFRESH_MS = 30000;
 const PREFS_KEY = 'callReport.myView.v1';
 
 function formatDay(iso) {
@@ -85,46 +86,49 @@ export default function CallReport() {
     }
   }, []);
 
-  /**
-   * The cheap half, on a timer.
-   *
-   * Two clocks, and only one of them is worth re-asking every 30 seconds. The
-   * FBO position moves continuously against an event sequence; share balances
-   * come from walking all 1,829 accounts — ten sequential requests, ~6s — and
-   * they do not move meaningfully between polls. Re-walking them on the live
-   * timer meant the page spent most of its life re-deriving a figure that had
-   * not changed, and starting the next walk before the last one finished.
-   *
-   * So the timer refreshes only the live figure and the daily history, and the
-   * account walk happens on mount and when someone asks for it.
-   */
-  const pollLive = useCallback(async () => {
-    try {
-      const r = await fetchReport5300();
-      setData((prev) =>
-        prev
-          ? {
-            ...prev,
-            fboPositionCents: r.current?.fbo_position_cents ?? null,
-            lastSeq: r.current?.last_seq ?? null,
-            updatedAt: r.current?.updated_at ?? null,
-            history: r.history ?? [],
-            stale: Boolean(r.stale),
-          }
-          : prev,
-      );
-    } catch { /* a failed poll must not clear a good page */ }
-  }, []);
-
   useEffect(() => {
     load(false);
-    const timer = setInterval(pollLive, REFRESH_MS);
-    return () => clearInterval(timer);
-  }, [load, pollLive]);
+  }, [load]);
+
+  /**
+   * The heartbeat, shared with the accounting page.
+   *
+   * Two clocks, and only one is worth asking about every few seconds. The FBO
+   * position moves continuously against the core's event sequence; the share
+   * lines come from walking all 1,829 accounts — ten sequential requests, ~6s.
+   *
+   * So the poll is cheap and constant, and the full re-derivation fires only
+   * when the sequence advances. A settled transfer changes 902, 013 and 730B,
+   * and it is the transfer landing that propagates them — not a timer that
+   * re-walks the book every thirty seconds whether or not anything happened.
+   */
+  const { live, polledAt, lastAdvanceAt, error: liveError } = useLiveCore({
+    onAdvance: () => load(true),
+  });
+
+  // The live tick supersedes what the last full load captured, so the FBO
+  // figure and the daily history stay current between events.
+  const merged = useMemo(
+    () =>
+      data && live
+        ? {
+          ...data,
+          fboPositionCents: live.fboCents,
+          lastSeq: live.seq,
+          updatedAt: live.eventAt,
+          history: live.history.length ? live.history : data.history,
+          stale: live.stale,
+        }
+        : data,
+    [data, live],
+  );
 
   const filing = useMemo(
-    () => (data ? buildFiling({ accounts: data.accounts, fboPositionCents: data.fboPositionCents }) : null),
-    [data],
+    () =>
+      merged
+        ? buildFiling({ accounts: merged.accounts, fboPositionCents: merged.fboPositionCents })
+        : null,
+    [merged],
   );
   const period = useMemo(() => filingPeriod(new Date()), []);
 
@@ -137,7 +141,7 @@ export default function CallReport() {
     `period closes ${formatDay(period.asOf)}, due ${formatDay(period.dueAt)}`;
 
   const download = () => {
-    const payload = toFilingPayload(filing, { asOf: period.asOf, instanceId: data?.instanceId });
+    const payload = toFilingPayload(filing, { asOf: period.asOf, instanceId: merged?.instanceId });
     const url = URL.createObjectURL(
       new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }),
     );
@@ -153,7 +157,13 @@ export default function CallReport() {
       title="Call Report (5300)"
       subtitle={subtitle}
       actions={
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-3">
+          <LiveBadge
+            live={live}
+            polledAt={polledAt}
+            lastAdvanceAt={lastAdvanceAt}
+            error={liveError}
+          />
           {tab === 'filing' && filing && (
             <button
               onClick={download}
@@ -205,10 +215,10 @@ export default function CallReport() {
           <div className="animate-spin inline-block w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mb-2"></div>
           <div>Loading call report...</div>
         </div>
-      ) : !data || !filing ? null : tab === 'filing' ? (
-        <FilingTab data={data} filing={filing} period={period} />
+      ) : !merged || !filing ? null : tab === 'filing' ? (
+        <FilingTab data={merged} filing={filing} period={period} />
       ) : (
-        <MyViewTab data={data} filing={filing} prefs={prefs} toggle={toggle} />
+        <MyViewTab data={merged} filing={filing} prefs={prefs} toggle={toggle} />
       )}
     </MainLayout>
   );
@@ -339,7 +349,9 @@ function FilingTab({ data, filing, period }) {
                       <span className="text-slate-300">—</span>
                     ) : (
                       <>
-                        {formatCents(row.contra ? -(row.valueCents ?? 0) : row.valueCents)}
+                        <LiveValue value={row.valueCents}>
+                          {formatCents(row.contra ? -(row.valueCents ?? 0) : row.valueCents)}
+                        </LiveValue>
                         <div className="text-xs text-slate-400 font-normal">{row.status}</div>
                       </>
                     )}
@@ -408,9 +420,11 @@ function MyViewTab({ data, filing, prefs, toggle }) {
               FBO position — live
             </div>
             <div className="text-2xl font-semibold tabular-nums">
-              {typeof data.fboPositionCents === 'number'
-                ? formatCents(data.fboPositionCents)
-                : <span className="text-slate-400 text-lg">not reported</span>}
+              <LiveValue value={data.fboPositionCents}>
+                {typeof data.fboPositionCents === 'number'
+                  ? formatCents(data.fboPositionCents)
+                  : <span className="text-slate-400 text-lg">not reported</span>}
+              </LiveValue>
             </div>
             {data.lastSeq !== null && (
               <div className="text-xs text-slate-500 mt-1.5">

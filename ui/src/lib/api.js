@@ -432,8 +432,19 @@ export function fetchAccountTransactions(accountId, opts = {}) {
  * least" instead of presenting a floor as a total.
  */
 export async function fetchLedgerSummary() {
-  const accounts = await getAll("accounts");
+  return summarizeAccounts(await getAll("accounts"));
+}
 
+/**
+ * The ledger summary, from account rows the caller already has.
+ *
+ * Split out from the fetch because the accounting page needs BOTH this summary
+ * and the raw rows (for the bln_ -> acct_ map the general ledger names its
+ * accounts with). Calling two functions that each walked all 1,829 accounts
+ * meant the page paid for the walk twice — four times under React StrictMode —
+ * for one set of rows that had not changed in between.
+ */
+export function summarizeAccounts(accounts) {
   const byType = new Map();
   let totalCents = 0;
   for (const a of accounts) {
@@ -705,6 +716,18 @@ export async function fetchReport5300() {
     cadence: body.cadence ?? null,
     chartOfAccountsNote: body.chart_of_accounts_note ?? null,
   };
+}
+
+/**
+ * Raw account rows, every page.
+ *
+ * Unmapped on purpose: the general-ledger view needs `blnk_balance_id`, which
+ * is how a Blnk balance (bln_…) is tied back to the account a human recognises
+ * (acct_…). toAccount() drops it, and a GL that can only name its accounts by
+ * opaque ledger ids is a GL nobody will read.
+ */
+export async function fetchRawAccounts() {
+  return getAll("accounts");
 }
 
 /**
