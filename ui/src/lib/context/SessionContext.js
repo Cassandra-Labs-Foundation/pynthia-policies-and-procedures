@@ -20,15 +20,12 @@ export function SessionProvider({ children }) {
   const [tellerDrawer, setTellerDrawer] = useState(initialTellerDrawer);
 
   // App-wide notifications
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      type: 'system',
-      message: 'System maintenance scheduled for May 5, 2025',
-      read: false,
-      date: '2025-05-14T08:30:00Z'
-    }
-  ]);
+  // Starts EMPTY. This used to be seeded with an invented "System maintenance
+  // scheduled for May 5, 2025" notice — a date already fourteen months past,
+  // which put a permanent unread dot on the bell for an event that never
+  // existed. Notifications now only appear when something adds one, so the
+  // dot means what it says.
+  const [notifications, setNotifications] = useState([]);
 
   // Active module tracking
   const [activeModule, setActiveModule] = useState('home');

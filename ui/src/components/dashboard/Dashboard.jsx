@@ -1,66 +1,116 @@
-// Updated Dashboard.jsx - remove useSession and activeModule references
+// The landing page.
+//
+// Every control here used to be decoration: 42 buttons, none of them wired to
+// anything, sitting beside real balances pulled from the core. That mix is the
+// dangerous part — a fake "Sync Accounts" next to a genuine $38,750 teaches
+// people to distrust the real number too.
+//
+// Same rule as the teller pass: a control either works, says plainly why it
+// cannot, or is gone. What went:
+//
+//   "System Maintenance Scheduled … May 5, 2025"  — invented, and fourteen
+//       months stale. Its Dismiss button dismissed nothing.
+//   "Last updated: Today at 3:45 PM"              — a literal string. It read
+//       3:45 PM whenever you loaded it. Now it is the real load time.
+//   "Help Center", "Sync Accounts"                — no such destination, no
+//       such operation.
+//   "Process Loan"                                — Pynthia has no lending.
+//   "+ New Account", "Transfer", "New Transaction" — writes, and the core
+//       proxy is GET-only. Kept only where the honest form is a disabled
+//       control that names the reason.
+//
+// What now works: Export Data writes a real CSV of what is on screen, every
+// quick action and "View all" navigates somewhere real, and every account card
+// opens that account.
 import React, { useState, useEffect } from 'react';
-import { 
-  CreditCard, 
-  ArrowRight, 
-  Bell, 
-  DollarSign, 
-  BarChart2, 
-  Users, 
-  FileText, 
-  HelpCircle,
-  RefreshCw,
-  Download
+import Link from 'next/link';
+import {
+  ArrowRight, BarChart2, CalendarClock, CreditCard, DollarSign,
+  Download, Users,
 } from 'lucide-react';
 import MainLayout from '../layout/MainLayout';
-import { fetchAccounts, fetchTransactions } from '../../lib/api';
+import { fetchAccounts, fetchTransactions, formatWhen } from '../../lib/api';
+
+/** Navigation, not verbs. Each of these lands on a page that exists. */
+const QUICK_ACTIONS = [
+  { name: 'Member Services', href: '/member-services', icon: <Users size={20} /> },
+  { name: 'Teller', href: '/teller', icon: <DollarSign size={20} /> },
+  { name: 'Compliance', href: '/compliance', icon: <CalendarClock size={20} /> },
+  { name: 'Reports', href: '/reports', icon: <BarChart2 size={20} /> },
+];
+
+/** RFC-4180 enough: quote everything, double any embedded quote. */
+function toCsv(rows) {
+  return rows.map((r) => r.map((c) => `"${String(c ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+}
 
 export default function Dashboard() {
   const [accounts, setAccounts] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  // The real one. Replaces a hardcoded "Today at 3:45 PM".
+  const [loadedAt, setLoadedAt] = useState(null);
 
-  // Real records from the banking core, via the server-side proxy
   useEffect(() => {
     async function loadData() {
       try {
         const [accountsData, transactionsData] = await Promise.all([
           fetchAccounts({ limit: 12 }),
-          fetchTransactions({ limit: 25 })
+          fetchTransactions({ limit: 25 }),
         ]);
-
         setAccounts(accountsData);
         setTransactions(transactionsData);
+        setLoadedAt(new Date().toISOString());
       } catch (err) {
         // Shown, not just logged: an empty dashboard and a dashboard that
         // could not reach the core look identical, and only one of them is
         // something to act on.
-        console.error("Error loading dashboard data:", err);
+        console.error('Error loading dashboard data:', err);
         setError(err.message);
       } finally {
         setIsLoading(false);
       }
     }
-
     loadData();
   }, []);
-    
-  const quickActions = [
-    { id: 1, name: 'New Member', icon: <Users size={20} /> },
-    { id: 2, name: 'Process Loan', icon: <FileText size={20} /> },
-    { id: 3, name: 'Cash Drawer', icon: <DollarSign size={20} /> },
-    { id: 4, name: 'Reports', icon: <BarChart2 size={20} /> }
-  ];
 
-  // Header action buttons
+  /**
+   * Exports exactly what is on screen — the twelve accounts and twenty-five
+   * transactions this page loaded — and says so in the filename. Exporting
+   * the whole core from a button labelled "Export Data" would be a different
+   * and much slower promise than the one this button makes.
+   */
+  const exportCsv = () => {
+    const rows = [
+      ['section', 'id', 'name_or_member', 'type', 'status', 'amount_or_balance', 'date'],
+      ...accounts.map((a) => ['account', a.id, a.name, a.type, a.status, a.balance, '']),
+      ...transactions.map((t) => ['transaction', t.id, t.member, t.type, t.status, t.amount, t.date]),
+    ];
+    const url = URL.createObjectURL(new Blob([toCsv(rows)], { type: 'text/csv' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `pynthia-dashboard-${(loadedAt ?? '').slice(0, 10) || 'export'}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const actionButtons = (
     <>
-      <button className="px-3 py-2 text-sm bg-white border border-slate-200 rounded-md hover:border-blue-500 flex items-center">
+      <button
+        onClick={exportCsv}
+        disabled={isLoading || (accounts.length === 0 && transactions.length === 0)}
+        className="px-3 py-2 text-sm bg-white border border-slate-200 rounded-md hover:border-blue-500 flex items-center disabled:opacity-50 disabled:hover:border-slate-200"
+      >
         <Download size={16} className="mr-1.5" />
-        Export Data
+        Export CSV
       </button>
-      <button className="px-3 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center">
+      {/* A write. Disabled rather than hidden so the gap stays visible. */}
+      <button
+        disabled
+        title="Posting a transaction is a write, and the core proxy is read-only"
+        className="px-3 py-2 text-sm bg-slate-100 text-slate-400 rounded-md flex items-center cursor-not-allowed"
+      >
         <DollarSign size={16} className="mr-1.5" />
         New Transaction
       </button>
@@ -68,12 +118,11 @@ export default function Dashboard() {
   );
 
   return (
-    <MainLayout 
-      title="Dashboard" 
+    <MainLayout
+      title="Dashboard"
       subtitle="Welcome back. Here's what's happening today."
       actions={actionButtons}
     >
-      {/* Core API unreachable — say so rather than rendering an empty page */}
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-6">
           <h3 className="font-medium text-red-800">Could not load data from the core</h3>
@@ -81,47 +130,31 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* System Alert */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6 flex items-center">
-        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-          <Bell size={18} className="text-blue-600" />
-        </div>
-        <div className="flex-1">
-          <h3 className="font-medium text-blue-800">System Maintenance Scheduled</h3>
-          <p className="text-sm text-blue-600">A system update is scheduled for May 5, 2025, from 2:00 AM to 4:00 AM ET.</p>
-        </div>
-        <button className="text-blue-600 px-3 py-1 text-sm">Dismiss</button>
-      </div>
-      
-      {/* Quick Action Cards */}
+      {/* Quick actions — navigation to pages that exist. */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        {quickActions.map(action => (
-          <button 
-            key={action.id}
+        {QUICK_ACTIONS.map((action) => (
+          <Link
+            key={action.href}
+            href={action.href}
             className="bg-white rounded-lg p-4 border border-slate-200 hover:border-blue-500 hover:shadow-sm transition-all flex flex-col items-center justify-center h-24"
           >
             <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 mb-2">
               {action.icon}
             </div>
             <span className="text-sm font-medium">{action.name}</span>
-          </button>
+          </Link>
         ))}
       </div>
-      
-      {/* Accounts Section */}
+
+      {/* ------------------------------------------------------- accounts */}
       <div className="mb-8">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold">Accounts</h2>
-          <div className="flex items-center space-x-3">
-            <button className="px-3 py-1.5 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700">
-              + New Account
-            </button>
-            <button className="text-blue-600 text-sm font-medium flex items-center">
-              View all <ArrowRight size={16} className="ml-1" />
-            </button>
-          </div>
+          <Link href="/accounting" className="text-blue-600 text-sm font-medium flex items-center hover:underline">
+            View all in the ledger <ArrowRight size={16} className="ml-1" />
+          </Link>
         </div>
-        
+
         {isLoading ? (
           <div className="p-6 text-center bg-white rounded-lg border border-slate-200">
             <div className="animate-spin inline-block w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mb-2"></div>
@@ -133,17 +166,25 @@ export default function Dashboard() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {accounts.map(account => (
-              <div key={account.id} className="bg-white rounded-lg border border-slate-200 overflow-hidden hover:border-blue-300 hover:shadow-sm transition-all">
+            {accounts.map((account) => (
+              <div
+                key={account.id}
+                className="bg-white rounded-lg border border-slate-200 overflow-hidden hover:border-blue-300 hover:shadow-sm transition-all"
+              >
                 <div className="p-4">
                   <div className="flex justify-between items-start mb-3">
                     <div className="flex items-center">
-                      <span className={`inline-block w-3 h-3 rounded-full mr-2 ${
-                        account.type === 'loan' ? 'bg-purple-500' : 
-                        account.type === 'savings' ? 'bg-green-500' : 
-                        'bg-blue-500'
-                      }`}></span>
-                      <div className="text-sm text-slate-500 capitalize">{account.type === 'loan' ? 'Loan Fund' : account.type === 'savings' ? 'Savings' : 'Checking'}</div>
+                      <span
+                        className={`inline-block w-3 h-3 rounded-full mr-2 ${
+                          account.type === 'loan' ? 'bg-purple-500'
+                            : account.type === 'savings' ? 'bg-green-500'
+                              : 'bg-blue-500'
+                        }`}
+                      ></span>
+                      {/* The account's own type. This used to map anything
+                          that was not loan/savings to the label "Checking",
+                          which invents a product for every other type. */}
+                      <div className="text-sm text-slate-500">{account.type ?? 'unknown'}</div>
                     </div>
                     <CreditCard size={18} className="text-slate-400" />
                   </div>
@@ -151,28 +192,28 @@ export default function Dashboard() {
                   <div className="text-sm truncate text-slate-700">{account.name}</div>
                 </div>
                 <div className="flex border-t border-slate-200">
-                  <button className="flex-1 text-center py-2.5 text-sm font-medium text-blue-600 hover:bg-blue-50 border-r border-slate-200">
-                    Transfer
-                  </button>
-                  <button className="flex-1 text-center py-2.5 text-sm font-medium text-blue-600 hover:bg-blue-50">
-                    View Details
-                  </button>
+                  <Link
+                    href={`/accounts/${encodeURIComponent(account.id)}`}
+                    className="flex-1 text-center py-2.5 text-sm font-medium text-blue-600 hover:bg-blue-50"
+                  >
+                    View details
+                  </Link>
                 </div>
               </div>
             ))}
           </div>
         )}
       </div>
-      
-      {/* Recent Transactions Section */}
+
+      {/* --------------------------------------------------- transactions */}
       <div>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold">Recent Transactions</h2>
-          <button className="text-blue-600 text-sm font-medium flex items-center">
-            View all <ArrowRight size={16} className="ml-1" />
-          </button>
+          <Link href="/accounting" className="text-blue-600 text-sm font-medium flex items-center hover:underline">
+            View the full journal <ArrowRight size={16} className="ml-1" />
+          </Link>
         </div>
-        
+
         <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
           {isLoading ? (
             <div className="p-6 text-center">
@@ -192,7 +233,7 @@ export default function Dashboard() {
                 </tr>
               </thead>
               <tbody>
-                {transactions.slice(0, 5).map(transaction => (
+                {transactions.slice(0, 5).map((transaction) => (
                   <tr key={transaction.id} className="border-b border-slate-200 last:border-b-0 hover:bg-slate-50">
                     <td className="py-3 px-4">
                       <div className="font-medium">{transaction.member}</div>
@@ -211,24 +252,11 @@ export default function Dashboard() {
           )}
         </div>
       </div>
-      
-      {/* Footer Help Section */}
-      <div className="mt-8 pt-6 border-t border-slate-200">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-8">
-            <button className="flex items-center text-slate-600 hover:text-blue-600">
-              <HelpCircle size={18} className="mr-2" />
-              <span className="text-sm">Help Center</span>
-            </button>
-            <button className="flex items-center text-slate-600 hover:text-blue-600">
-              <RefreshCw size={18} className="mr-2" />
-              <span className="text-sm">Sync Accounts</span>
-            </button>
-          </div>
-          <div>
-            <span className="text-xs text-slate-500">Last updated: Today at 3:45 PM</span>
-          </div>
-        </div>
+
+      <div className="mt-8 pt-6 border-t border-slate-200 flex justify-end">
+        <span className="text-xs text-slate-500">
+          {loadedAt ? `Loaded ${formatWhen(loadedAt)}` : 'Loading…'}
+        </span>
       </div>
     </MainLayout>
   );

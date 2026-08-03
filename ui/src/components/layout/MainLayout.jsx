@@ -208,21 +208,24 @@ export default function MainLayout({ children, title, subtitle, actions }) {
             <GlobalSearch />
           </div>
           
-          <div className="hidden md:flex items-center space-x-1">
-            <button className="px-3 py-1.5 text-sm rounded-md hover:bg-slate-100">Accounting</button>
-            <button className="px-3 py-1.5 text-sm rounded-md hover:bg-slate-100">Treasury</button>
-            <button className="px-3 py-1.5 text-sm rounded-md hover:bg-slate-100">Cards</button>
-            <button className="px-3 py-1.5 text-sm rounded-md hover:bg-slate-100">API</button>
-          </div>
-          
+          {/* "Accounting · Treasury · Cards · API" used to sit here, styled as
+              primary navigation and wired to nothing. Two of the four named
+              sections that do not exist at all, and the other two duplicated
+              the sidebar. Removed rather than re-pointed: a nav bar whose job
+              is already done by the rail beside it is clutter even when it
+              works. */}
+
           <div className="flex items-center space-x-4">
-            <button className="text-slate-600 hover:text-slate-900 relative">
-              <Bell size={20} />
-              <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
-            </button>
-            <button className="text-slate-600 hover:text-slate-900">
+            <NotificationBell />
+            {/* Was a dead gear. There is no settings page, but Admin is where
+                system configuration actually lives, so it goes there. */}
+            <Link
+              href="/administrator"
+              className="text-slate-600 hover:text-slate-900"
+              title="Admin"
+            >
               <Settings size={20} />
-            </button>
+            </Link>
           </div>
         </header>
         
@@ -243,6 +246,77 @@ export default function MainLayout({ children, title, subtitle, actions }) {
           {children}
         </main>
       </div>
+    </div>
+  );
+}
+
+/**
+ * The bell, wired to the session's real notification list.
+ *
+ * The red dot is now conditional on there actually being something unread.
+ * Before, it was painted on unconditionally beside a seeded fake notice, so
+ * it signalled nothing — a permanent alert is the same as no alert.
+ */
+function NotificationBell() {
+  const { notifications, markNotificationRead, clearNotifications } = useSession();
+  const [open, setOpen] = useState(false);
+  const unread = notifications.filter((n) => !n.read).length;
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="text-slate-600 hover:text-slate-900 relative"
+        title={unread ? `${unread} unread` : 'Notifications'}
+      >
+        <Bell size={20} />
+        {unread > 0 && (
+          <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+        )}
+      </button>
+
+      {open && (
+        <>
+          {/* Click-away, behind the panel. */}
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-lg shadow-lg z-20 overflow-hidden">
+            <div className="px-4 py-2.5 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+              <span className="text-sm font-medium text-slate-700">Notifications</span>
+              {notifications.length > 0 && (
+                <button
+                  onClick={clearNotifications}
+                  className="text-xs text-blue-600 hover:underline"
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
+            {notifications.length === 0 ? (
+              <div className="p-4 text-sm text-slate-500 text-center">
+                Nothing to report.
+              </div>
+            ) : (
+              <div className="max-h-80 overflow-y-auto">
+                {notifications.map((n) => (
+                  <button
+                    key={n.id}
+                    onClick={() => markNotificationRead(n.id)}
+                    className={`w-full text-left px-4 py-2.5 border-b border-slate-100 last:border-b-0 hover:bg-slate-50 ${
+                      n.read ? 'opacity-60' : ''
+                    }`}
+                  >
+                    <div className="text-sm">{n.message}</div>
+                    <div className="text-xs text-slate-400 mt-0.5">
+                      {n.type}
+                      {!n.read && <span className="ml-2 text-blue-600">unread</span>}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }
