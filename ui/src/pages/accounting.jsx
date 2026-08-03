@@ -14,13 +14,15 @@
 // this page does NOT have is a "New Entry" button: the proxy is read-only by
 // design (see lib/coreApi.js), and a button that pretended to post a journal
 // entry would be a lie with a hover state.
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Activity, RefreshCw } from 'lucide-react';
 import MainLayout from '../components/layout/MainLayout';
 import { DeltaChip, LiveBadge, LiveValue } from '../components/live/Live';
 import GeneralLedger from '../components/accounting/GeneralLedger';
+import LedgerTree from '../components/accounting/LedgerTree';
 import { useLiveCore } from '../lib/useLiveCore';
 import { fetchGeneralLedger } from '../lib/gl';
+import { buildLedgerTree } from '../lib/ledgerTree';
 import {
   fetchRawAccounts,
   fetchReport5300,
@@ -69,60 +71,64 @@ export default function Accounting() {
   const [glError, setGlError] = useState('');
   // bln_ -> acct_, so a GL account reads as the account a human knows.
   const [accountByBalanceId, setAccountByBalanceId] = useState(null);
+  const [rawAccounts, setRawAccounts] = useState([]);
 
-  const load = useCallback(async (isRefresh) => {
+  /**
+   * Progressive load: every panel arrives on its own.
+   *
+   * This used to await Promise.allSettled over four independent full-table
+   * walks — accounts, entities, transfers and the Blnk ledger — and render
+   * NOTHING until the slowest finished. On this instance that is a minute of
+   * blank spinner during which the FBO position, which arrives in 400ms, was
+   * already sitting in memory unrendered.
+   *
+   * A dashboard has no business making its fastest number wait for its
+   * slowest. So each fetch now settles into its own piece of state, each panel
+   * renders as soon as it can, and one slow or failed source degrades that
+   * panel instead of the page.
+   */
+  const load = useCallback((isRefresh) => {
     if (isRefresh) setIsRefreshing(true);
-
-    // The FBO position comes from a different subsystem than the ledger walk;
-    // its failure is reported beside its tile rather than blanking the page.
-    const [acctRes, transfersRes, journalRes, reportRes, glRes] =
-      await Promise.allSettled([
-        // ONE walk of all 1,829 accounts. Both the ledger summary and the
-        // GL's bln_ -> acct_ naming map are derived from these same rows.
-        fetchRawAccounts(),
-        fetchTransferSummary(),
-        fetchTransactions({ limit: JOURNAL_PAGE }),
-        fetchReport5300(),
-        fetchGeneralLedger(),
-      ]);
-
-    if (acctRes.status === 'fulfilled') {
-      setLedger(summarizeAccounts(acctRes.value));
-      setError('');
-    } else {
-      console.error('Error loading accounts:', acctRes.reason);
-      setError(acctRes.reason?.message ?? 'request failed');
-    }
-    if (transfersRes.status === 'fulfilled') setTransferSummary(transfersRes.value);
-    if (journalRes.status === 'fulfilled') setJournal(journalRes.value);
-    if (reportRes.status === 'fulfilled') {
-      setReport(reportRes.value);
-      setReportError('');
-    } else {
-      setReportError(reportRes.reason?.message ?? 'request failed');
-    }
-
-    if (glRes.status === 'fulfilled') {
-      setGl(glRes.value);
-      setGlError('');
-    } else {
-      // The ledger lives in a different system than everything else on this
-      // page, so it fails on its own and says so where it would have rendered.
-      console.error('Error loading the general ledger:', glRes.reason);
-      setGlError(glRes.reason?.message ?? 'request failed');
-    }
-    if (acctRes.status === 'fulfilled') {
-      setAccountByBalanceId(
-        new Map(
-          acctRes.value
-            .filter((a) => a.blnk_balance_id)
-            .map((a) => [a.blnk_balance_id, a.id]),
-        ),
-      );
-    }
-
+    // The shell renders immediately; panels fill in behind it.
     setIsLoading(false);
-    setIsRefreshing(false);
+
+    const accountsP = fetchRawAccounts()
+      .then((rows) => {
+        setRawAccounts(rows);
+        setLedger(summarizeAccounts(rows));
+        setAccountByBalanceId(
+          new Map(rows.filter((a) => a.blnk_balance_id).map((a) => [a.blnk_balance_id, a.id])),
+        );
+        setError('');
+      })
+      .catch((e) => {
+        console.error('Error loading accounts:', e);
+        setError(e.message);
+      });
+
+    const glP = fetchGeneralLedger()
+      .then((g) => {
+        setGl(g);
+        setGlError('');
+      })
+      .catch((e) => {
+        // The ledger lives in a different system than everything else here,
+        // so it fails on its own and says so where it would have rendered.
+        console.error('Error loading the general ledger:', e);
+        setGlError(e.message);
+      });
+
+    fetchTransferSummary().then(setTransferSummary).catch(() => {});
+    fetchTransactions({ limit: JOURNAL_PAGE }).then(setJournal).catch(() => {});
+    fetchReport5300()
+      .then((r) => {
+        setReport(r);
+        setReportError('');
+      })
+      .catch((e) => setReportError(e.message));
+
+    // Only the two the classification tree needs; the rest are decoration.
+    Promise.allSettled([accountsP, glP]).then(() => setIsRefreshing(false));
   }, []);
 
   useEffect(() => {
@@ -141,6 +147,13 @@ export default function Accounting() {
   // it is refreshed every tick, where the ledger walk is refreshed per event.
   const fbo = live?.fboCents ?? report?.current?.fbo_position_cents ?? null;
   const gap = ledger && typeof fbo === 'number' ? ledger.totalCents - fbo : null;
+
+  // The same balances gl.js groups by Blnk ledger, regrouped by accounting
+  // classification. Derived rather than stored, so it always agrees with the GL.
+  const tree = useMemo(
+    () => (gl && rawAccounts.length ? buildLedgerTree({ gl, accounts: rawAccounts }) : null),
+    [gl, rawAccounts],
+  );
 
   // Movement since the page was opened, so someone returning to a screen they
   // left open can see what changed while they were away.
@@ -331,9 +344,23 @@ export default function Accounting() {
                 needs BLNK_API_URL and BLNK_API_KEY set server-side.
               </p>
             </div>
-          ) : gl ? (
-            <GeneralLedger gl={gl} accountByBalanceId={accountByBalanceId} />
-          ) : null}
+          ) : !gl ? (
+            <div className="bg-white rounded-lg border border-slate-200 p-6 mb-4 text-center text-sm text-slate-500">
+              <div className="animate-spin inline-block w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full mb-2"></div>
+              <div>Loading the general ledger…</div>
+            </div>
+          ) : (
+            <>
+              {tree && (
+                <LedgerTree
+                  tree={tree}
+                  postingsByBalance={gl.postingsByBalance}
+                  accountByBalanceId={accountByBalanceId}
+                />
+              )}
+              <GeneralLedger gl={gl} accountByBalanceId={accountByBalanceId} />
+            </>
+          )}
 
           {/* ------------------------------------------------------ the journal */}
           <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
