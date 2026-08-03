@@ -279,7 +279,7 @@ export default function Accounting() {
                           {formatCents(recon.unbackedCents)}
                         </span>{' '}
                         on {recon.unbackedCount} account{recon.unbackedCount === 1 ? '' : 's'} with
-                        no ledger entry behind it
+                        a Blnk balance that does not exist
                       </div>
                     )}
                     {recon.mismatches.length > 0 && (

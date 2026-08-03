@@ -85,28 +85,40 @@ commented "Source of truth for funds", and that is literally the case.
 
 ---
 
-## ⚑ $40,000 OF MEMBER BALANCE HAS NO LEDGER ENTRY BEHIND IT
+## ⚑ EIGHT TEST FIXTURES ARE LIVE IN PRODUCTION, INFLATING THE LEDGER BY $40,000
 
-**Found 2026-07-31 by reconciling `core.account` against Blnk.**
+**Found 2026-07-31 by reconciling `core.account` against Blnk. Corrected the
+same day — the first version of this note called it unbacked member money,
+which overstated it.**
 
-`core.account.balance` is a documented CACHE of Blnk, not an authority. Checking
-the cache against its source across all 1,829 accounts:
+Reconciling all 1,829 accounts against the Blnk balances they mirror:
 
 | | |
 |---|---|
-| linked to a Blnk balance | **1,821** |
+| linked to a Blnk balance that exists | **1,821** |
 | of those, disagreeing with the ledger | **0** — every one matches to the cent |
-| carrying a balance with **no `blnk_balance_id` at all** | **8** |
-| unbacked total | **$40,000.00** |
+| referencing a Blnk balance that **404s** | **8** |
+| their combined balance | **$40,000.00** |
 
-So the mirror is healthy; the problem is different and worse. Eight accounts
-assert money in Postgres that **the double-entry ledger has never heard of**.
-That $40,000 is included in the member ledger total, appears in no posting, and
-is on no side of any trial balance.
+The mirror is healthy. The eight are not a money problem — they are **test
+fixtures that were never cleaned up**:
 
-Drift and unbacked balance are separate failures and the UI reports them
-separately — netting them would let one hide the other. Only the second is
-currently non-zero.
+```
+acct_1  acct_2  acct_3  acct_4  acct_5  acct_6  acct_1b  acct_legacy
+  -> bal_1   bal_2   bal_3   bal_4   bal_5   bal_6   bal_1b   bal_l   (all 404)
+```
+
+Every one is exactly $5,000.00, created 2026-07-24, and carries a hand-written
+id rather than the UUID shape (`acct_146781f5-…`) every real account has.
+
+**What it costs:** they are counted in every figure derived from
+`core.account.balance` — the member ledger total on the accounting page reads
+$55,455,245.00 where the ledger-backed figure is $55,415,245.00. Any 5300 share
+line built from account balances inherits the same $40,000.
+
+**The fix is data, not schema:** delete them from `core.account`, or move them
+to the `sim` schema that exists for exactly this purpose. Worth checking what
+else from that 2026-07-24 fixture run is still present.
 
 ---
 

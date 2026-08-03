@@ -211,9 +211,12 @@ export async function fetchGeneralLedger() {
  *
  *   DRIFT     — a linked account whose cached figure no longer matches the
  *               ledger. The mirror is stale or a sync was missed.
- *   UNBACKED  — an account carrying a balance with no blnk_balance_id at all.
- *               Postgres asserts money the ledger has never heard of, so it
- *               appears in the member total and in no double-entry anywhere.
+ *   UNBACKED  — an account whose blnk_balance_id points at a balance Blnk
+ *               does not have. Note this is a DANGLING REFERENCE, not a null:
+ *               the column is set, the target 404s. In this instance all eight
+ *               are leftover test fixtures (acct_1…acct_6, acct_1b,
+ *               acct_legacy — $5,000 each, hand-written ids), and they inflate
+ *               every total derived from core.account.balance by $40,000.
  *
  * Both are reported separately because netting them would let one hide the
  * other, and only the second is currently non-zero here.
