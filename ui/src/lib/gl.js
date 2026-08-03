@@ -195,6 +195,70 @@ export async function fetchGeneralLedger() {
 }
 
 /**
+ * core.account.balance against the Blnk balance it mirrors.
+ *
+ * This is the comparison that means something, and it replaces one that did
+ * not. The page used to show "Member ledger − FBO position", which subtracted
+ * a VOLUME from a BALANCE: aggregator.fbo_position only ever accumulates
+ * (`position_cents = position_cents + excluded`), so it is a running total of
+ * settled money movement and never a cash position. That difference was a
+ * category error, not a reconciliation, and it would widen every day.
+ *
+ * The honest comparison is against the source of truth. core.account.balance
+ * is documented as a CACHE — "Source of truth for funds" is the comment on
+ * blnk_balance_id, and balance_synced_at records when the cache was last
+ * reconciled. So two things can go wrong and they are different failures:
+ *
+ *   DRIFT     — a linked account whose cached figure no longer matches the
+ *               ledger. The mirror is stale or a sync was missed.
+ *   UNBACKED  — an account carrying a balance with no blnk_balance_id at all.
+ *               Postgres asserts money the ledger has never heard of, so it
+ *               appears in the member total and in no double-entry anywhere.
+ *
+ * Both are reported separately because netting them would let one hide the
+ * other, and only the second is currently non-zero here.
+ */
+export function reconcileWithBlnk(accounts, gl) {
+  const byBalanceId = new Map(
+    gl.ledgers.flatMap((l) => l.balances).map((b) => [b.id, b]),
+  );
+
+  const linked = [];
+  const unbacked = [];
+  for (const a of accounts) {
+    const bal = a.blnk_balance_id ? byBalanceId.get(a.blnk_balance_id) : null;
+    if (bal) linked.push({ account: a, blnk: bal });
+    else unbacked.push(a);
+  }
+
+  const cents = (v) => (typeof v === "number" ? v : 0);
+  const coreLinked = linked.reduce((s, r) => s + cents(r.account.balance), 0);
+  const blnkLinked = linked.reduce((s, r) => s + cents(r.blnk.net), 0);
+  const mismatches = linked
+    .filter((r) => cents(r.account.balance) !== cents(r.blnk.net))
+    .map((r) => ({
+      accountId: r.account.id,
+      coreCents: cents(r.account.balance),
+      blnkCents: cents(r.blnk.net),
+      deltaCents: cents(r.account.balance) - cents(r.blnk.net),
+    }));
+
+  return {
+    linkedCount: linked.length,
+    coreLinkedCents: coreLinked,
+    blnkLinkedCents: blnkLinked,
+    driftCents: coreLinked - blnkLinked,
+    mismatches,
+    unbackedCount: unbacked.length,
+    unbackedCents: unbacked.reduce((s, a) => s + cents(a.balance), 0),
+    unbackedIds: unbacked.map((a) => a.id),
+    // Clean only when the mirror agrees AND nothing is asserted without a
+    // ledger entry behind it.
+    clean: mismatches.length === 0 && unbacked.length === 0,
+  };
+}
+
+/**
  * Total debits against total credits.
  *
  * This is the one check that tells you whether you are looking at a real

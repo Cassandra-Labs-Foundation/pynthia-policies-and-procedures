@@ -21,7 +21,7 @@ import { DeltaChip, LiveBadge, LiveValue } from '../components/live/Live';
 import GeneralLedger from '../components/accounting/GeneralLedger';
 import LedgerTree from '../components/accounting/LedgerTree';
 import { useLiveCore } from '../lib/useLiveCore';
-import { fetchGeneralLedger } from '../lib/gl';
+import { fetchGeneralLedger, reconcileWithBlnk } from '../lib/gl';
 import { buildLedgerTree } from '../lib/ledgerTree';
 import {
   fetchRawAccounts,
@@ -146,7 +146,13 @@ export default function Accounting() {
   // The live poll supersedes the FBO figure captured by the last full load;
   // it is refreshed every tick, where the ledger walk is refreshed per event.
   const fbo = live?.fboCents ?? report?.current?.fbo_position_cents ?? null;
-  const gap = ledger && typeof fbo === 'number' ? ledger.totalCents - fbo : null;
+  // core.account.balance is a documented cache of Blnk. This checks the cache
+  // against its source — the comparison the old "Ledger − FBO" tile pretended
+  // to be while actually subtracting a volume from a balance.
+  const recon = useMemo(
+    () => (gl && rawAccounts.length ? reconcileWithBlnk(rawAccounts, gl) : null),
+    [gl, rawAccounts],
+  );
 
   // The same balances gl.js groups by Blnk ledger, regrouped by accounting
   // classification. Derived rather than stored, so it always agrees with the GL.
@@ -172,7 +178,7 @@ export default function Accounting() {
   return (
     <MainLayout
       title="Accounting"
-      subtitle="The member ledger, the live FBO position, and the transfer journal behind them"
+      subtitle="The member ledger against the Blnk source of truth, and the journal behind it"
       actions={
         <div className="flex items-center space-x-3">
           <LiveBadge
@@ -229,7 +235,7 @@ export default function Accounting() {
             <div className="bg-white rounded-lg border border-slate-200 p-5">
               <div className="flex items-center text-sm font-medium text-slate-500 mb-1">
                 <Activity size={15} className="mr-1.5 text-green-600" />
-                FBO position
+                Settled volume (cumulative)
               </div>
               <div className="text-2xl font-semibold tabular-nums">
                 <LiveValue value={fbo}>
@@ -243,22 +249,56 @@ export default function Accounting() {
                 {reportError
                   ? <span className="text-red-600">{reportError}</span>
                   : live?.eventAt
-                    ? <>advanced {formatWhen(live.eventAt)}</>
-                    : 'the Payment Hub has not reported a position'}
+                    ? <>every settled event since inception · last {formatWhen(live.eventAt)}</>
+                    : 'the Payment Hub has not reported a figure'}
               </div>
             </div>
 
             <div className="bg-white rounded-lg border border-slate-200 p-5">
-              <div className="text-sm font-medium text-slate-500 mb-1">Ledger − FBO</div>
-              <div className="text-2xl font-semibold tabular-nums">
-                {gap === null ? '—' : formatCents(gap, { signed: true })}
-              </div>
-              <div className="text-xs text-slate-500 mt-1.5">
-                {/* Different books on different clocks: the ledger is every
-                    account balance right now, the FBO figure is program cash.
-                    A gap is a reading to explain, not automatically a break. */}
-                different books on different clocks — interpret, don&rsquo;t alarm
-              </div>
+              <div className="text-sm font-medium text-slate-500 mb-1">Core vs Blnk</div>
+              {!recon ? (
+                <div className="text-2xl font-semibold text-slate-400">—</div>
+              ) : recon.clean ? (
+                <>
+                  <div className="text-2xl font-semibold text-green-700">reconciled</div>
+                  <div className="text-xs text-slate-500 mt-1.5">
+                    {recon.linkedCount} accounts match the ledger to the cent
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="text-2xl font-semibold tabular-nums text-amber-700">
+                    {formatCents(recon.unbackedCents + Math.abs(recon.driftCents))}
+                  </div>
+                  <div className="text-xs text-slate-500 mt-1.5 space-y-0.5">
+                    {/* Two different failures, never netted: one hiding the
+                        other is exactly how a reconciliation stops working. */}
+                    {recon.unbackedCount > 0 && (
+                      <div>
+                        <span className="text-amber-700 font-medium">
+                          {formatCents(recon.unbackedCents)}
+                        </span>{' '}
+                        on {recon.unbackedCount} account{recon.unbackedCount === 1 ? '' : 's'} with
+                        no ledger entry behind it
+                      </div>
+                    )}
+                    {recon.mismatches.length > 0 && (
+                      <div>
+                        <span className="text-red-700 font-medium">
+                          {formatCents(recon.driftCents, { signed: true })}
+                        </span>{' '}
+                        drift across {recon.mismatches.length} mirrored account
+                        {recon.mismatches.length === 1 ? '' : 's'}
+                      </div>
+                    )}
+                    {recon.mismatches.length === 0 && (
+                      <div className="text-slate-400">
+                        {recon.linkedCount} mirrored accounts match exactly
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           </div>
 

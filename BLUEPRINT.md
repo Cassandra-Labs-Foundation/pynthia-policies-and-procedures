@@ -41,6 +41,75 @@ migrations written and **none applied**. Seven e2e sections added (32–37) and
 
 ---
 
+## ⚑ `aggregator.fbo_position` IS NOT A POSITION
+
+**Found 2026-07-31, from the UI side. Not fixed — this is a core change and the
+call is Lorenzo's.**
+
+`advance_payment_hub` in
+`core/supabase/migrations/20260720000300_aggregator_consumers.sql:112-118`
+advances the figure like this:
+
+```sql
+position_cents = f.position_cents + excluded.position_cents,
+```
+
+It **only ever adds**. Every money event increments it; nothing decrements it,
+and no event subtracts. So `aggregator.fbo_position.position_cents` is a
+**cumulative running total of settled volume since inception**, not a cash
+position — it can only rise, forever, and it is not a balance.
+
+### Why nobody noticed
+
+The name says position, and it is served from `GET /reports/5300` as `current`,
+which every reader takes to mean *now*. The corroborating evidence was sitting
+in plain sight on the call-report page the whole time: `settled_cents`
+$1,903,991.23 and `fbo_position_cents` $1,903,941.23, side by side, within $50
+of each other. They track because they are the same quantity.
+
+### What it broke downstream
+
+The accounting page carried a tile reading **"Member ledger − FBO position =
++$53,527,903.77"**, which subtracts a VOLUME from a BALANCE. That is a category
+error, not a reconciliation: the figure is meaningless and widens every day the
+system runs. Its caption told the reader to "interpret, don't alarm" about a
+number that cannot be interpreted. Now replaced by core-vs-Blnk (below), and
+the volume figure is labelled as what it is.
+
+### What a real position would need
+
+Either a signed advance (credits add, debits subtract, returns reverse), or —
+better — derive it from Blnk, which already holds the double-entry truth and
+whose balances the UI now reads directly. `core.account.blnk_balance_id` is
+commented "Source of truth for funds", and that is literally the case.
+
+---
+
+## ⚑ $40,000 OF MEMBER BALANCE HAS NO LEDGER ENTRY BEHIND IT
+
+**Found 2026-07-31 by reconciling `core.account` against Blnk.**
+
+`core.account.balance` is a documented CACHE of Blnk, not an authority. Checking
+the cache against its source across all 1,829 accounts:
+
+| | |
+|---|---|
+| linked to a Blnk balance | **1,821** |
+| of those, disagreeing with the ledger | **0** — every one matches to the cent |
+| carrying a balance with **no `blnk_balance_id` at all** | **8** |
+| unbacked total | **$40,000.00** |
+
+So the mirror is healthy; the problem is different and worse. Eight accounts
+assert money in Postgres that **the double-entry ledger has never heard of**.
+That $40,000 is included in the member ledger total, appears in no posting, and
+is on no side of any trial balance.
+
+Drift and unbacked balance are separate failures and the UI reports them
+separately — netting them would let one hide the other. Only the second is
+currently non-zero.
+
+---
+
 ## ⚑ WHAT THIS EXERCISE ACTUALLY CAUGHT
 
 **Two live defects that ordinary development would have shipped.** Both are the
