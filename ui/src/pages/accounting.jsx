@@ -235,7 +235,7 @@ export default function Accounting() {
             <div className="bg-white rounded-lg border border-slate-200 p-5">
               <div className="flex items-center text-sm font-medium text-slate-500 mb-1">
                 <Activity size={15} className="mr-1.5 text-green-600" />
-                Settled volume (cumulative)
+                FBO position
               </div>
               <div className="text-2xl font-semibold tabular-nums">
                 <LiveValue value={fbo}>
@@ -249,8 +249,8 @@ export default function Accounting() {
                 {reportError
                   ? <span className="text-red-600">{reportError}</span>
                   : live?.eventAt
-                    ? <>every settled event since inception · last {formatWhen(live.eventAt)}</>
-                    : 'the Payment Hub has not reported a figure'}
+                    ? <>Payment Hub · advanced {formatWhen(live.eventAt)}</>
+                    : 'the Payment Hub has not reported a position'}
               </div>
             </div>
 

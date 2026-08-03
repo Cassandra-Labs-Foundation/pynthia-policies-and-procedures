@@ -41,47 +41,85 @@ migrations written and **none applied**. Seven e2e sections added (32–37) and
 
 ---
 
-## ⚑ `aggregator.fbo_position` IS NOT A POSITION
+## ⚑ THE PAYMENT HUB AND ORIGINATION CAPTURE SIGN THE SAME COLUMN OPPOSITE WAYS
 
-**Found 2026-07-31, from the UI side. Not fixed — this is a core change and the
-call is Lorenzo's.**
+**Found 2026-07-31. Not fixed — this is a core change and the call is Lorenzo's.**
 
-`advance_payment_hub` in
-`core/supabase/migrations/20260720000300_aggregator_consumers.sql:112-118`
-advances the figure like this:
+> **Correction.** The first version of this note claimed `fbo_position` "only
+> ever adds" and was therefore a volume rather than a position, and concluded
+> the accounting page's ledger-vs-FBO tile was a category error. **Both claims
+> were wrong.** They came from reading `advance_payment_hub` alone and not
+> grepping for other writers. There IS a decrement path, the figure IS a
+> position, and that tile was legitimate. What follows is the corrected finding.
+
+Two functions write `aggregator.fbo_position.position_cents`, and they use
+**opposite sign conventions for the same economic direction**.
+
+**`run_payment_hub`** — `20260720000300_aggregator_consumers.sql:115`
 
 ```sql
 position_cents = f.position_cents + excluded.position_cents,
 ```
 
-It **only ever adds**. Every money event increments it; nothing decrements it,
-and no event subtracts. So `aggregator.fbo_position.position_cents` is a
-**cumulative running total of settled volume since inception**, not a cash
-position — it can only rise, forever, and it is not a balance.
+It **adds** for every code in `is_money_code`:
 
-### Why nobody noticed
+```sql
+'transfer.settled', 'wire_transfer.completed',
+'ach_transfer.settled', 'card_authorization.captured'
+```
 
-The name says position, and it is served from `GET /reports/5300` as `current`,
-which every reader takes to mean *now*. The corroborating evidence was sitting
-in plain sight on the call-report page the whole time: `settled_cents`
-$1,903,991.23 and `fbo_position_cents` $1,903,941.23, side by side, within $50
-of each other. They track because they are the same quantity.
+**`capture_origination`** — `20260720000600_origination_auth.sql:146-149`
 
-### What it broke downstream
+```sql
+set position_cents = position_cents - org.amount_cents
+```
 
-The accounting page carried a tile reading **"Member ledger − FBO position =
-+$53,527,903.77"**, which subtracts a VOLUME from a BALANCE. That is a category
-error, not a reconciliation: the figure is meaningless and widens every day the
-system runs. Its caption told the reader to "interpret, don't alarm" about a
-number that cannot be interpreted. Now replaced by core-vs-Blnk (below), and
-the volume figure is labelled as what it is.
+It **subtracts** when an origination captures.
 
-### What a real position would need
+### Why that is inconsistent
 
-Either a signed advance (credits add, debits subtract, returns reverse), or —
-better — derive it from Blnk, which already holds the double-entry truth and
-whose balances the UI now reads directly. `core.account.blnk_balance_id` is
-commented "Source of truth for funds", and that is literally the case.
+Both are outflows. An origination capture is money leaving the FBO, and it
+subtracts — correct. But so is a wire: `wires.ts:487-497` fires
+`wire_transfer.completed` on **confirm**, against
+`wire.originator.account_id`, and `recordMovementArtifacts`
+(`transfers.ts:374-376`) documents the convention outright —
+
+> `*.settled`/`*.completed`/`*.captured` = **outbound or on-us**,
+> `*.returned` = funds moving back
+
+So outbound wires and captured card authorisations **increase** the position
+while originations **decrease** it. One of the two is inverted, and on the
+evidence it is the payment hub.
+
+### Two related holes in `is_money_code`
+
+- **No return code.** `wire_transfer.returned` is emitted
+  (`wires.ts`), and `*.returned` is documented as funds moving back, but it is
+  not in `is_money_code` — so a returned wire never reverses its own effect.
+- **No inbound code at all.** None of the four is an inbound rail, and no
+  `inbound_payment.*` code is emitted anywhere. Members funding the FBO appear
+  not to move the position.
+
+### Why the demo data hides it
+
+`settled_cents` $1,903,991.23 sits within $50 of `fbo_position_cents`
+$1,903,941.23 on the call-report page. That is not because they are the same
+quantity — it is because almost no originations captured in this dataset, so
+with outflows barely subtracting, an add-only-in-practice position tracks
+cumulative inflow. Real traffic in both directions would separate them.
+
+### What to do
+
+**Do not rename anything.** It is a position; the name is right.
+
+The empirical test is cheap and decisive, and worth running before any fix:
+fund an account, send a wire, and watch which way `position_cents` moves. If
+it rises, the payment hub's sign is inverted for outbound rails, and the fix
+is a signed advance plus adding the `*.returned` codes.
+
+Confidence: the emission sites, the documented convention and the two writers
+are all confirmed by reading. The conclusion that the sign is inverted is an
+inference from them — strong, but the wire test is what settles it.
 
 ---
 

@@ -197,14 +197,11 @@ export async function fetchGeneralLedger() {
 /**
  * core.account.balance against the Blnk balance it mirrors.
  *
- * This is the comparison that means something, and it replaces one that did
- * not. The page used to show "Member ledger − FBO position", which subtracted
- * a VOLUME from a BALANCE: aggregator.fbo_position only ever accumulates
- * (`position_cents = position_cents + excluded`), so it is a running total of
- * settled money movement and never a cash position. That difference was a
- * category error, not a reconciliation, and it would widen every day.
+ * Not a replacement for the ledger-vs-FBO comparison — that one is legitimate
+ * and still on the page. This asks a different and narrower question: does the
+ * CACHE agree with the ledger it mirrors?
  *
- * The honest comparison is against the source of truth. core.account.balance
+ * core.account.balance
  * is documented as a CACHE — "Source of truth for funds" is the comment on
  * blnk_balance_id, and balance_synced_at records when the cache was last
  * reconciled. So two things can go wrong and they are different failures:
