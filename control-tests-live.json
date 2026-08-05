@@ -7,10 +7,10 @@
   },
   "summary": {
     "ran": 333,
-    "green": 178,
-    "red": 155,
-    "in_scope_green": 177,
-    "in_scope_red": 48,
+    "green": 180,
+    "red": 153,
+    "in_scope_green": 179,
+    "in_scope_red": 46,
     "fake_vs_real_defects": [
       {
         "uid": "basel-ii-standardized-approach-framework:BA-04",
@@ -19,10 +19,6 @@
       {
         "uid": "basel-ii-standardized-approach-framework:BA-08",
         "blocked_on": "inputs not supplied: training.annual_due_at, training.capital, training.required_curriculum"
-      },
-      {
-        "uid": "bsa:BSA-04",
-        "blocked_on": "produced 8/9: missing cdd.profile.refreshed"
       },
       {
         "uid": "capitalization:CP-01",
@@ -191,10 +187,6 @@
       {
         "uid": "record-retention:RR-07",
         "blocked_on": "produced 0/2: missing record.disposal_method, record.disposed"
-      },
-      {
-        "uid": "record-retention:RR-08",
-        "blocked_on": "produced 0/1: missing cdd.profile.refreshed"
       },
       {
         "uid": "truth-in-savings:TIS-02",
@@ -1356,7 +1348,7 @@
       "policy": "bsa",
       "control_id": "BSA-04",
       "title": "Customer Due Diligence & Enhanced Due Diligence",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cdd.profile.created",
         "cdd.bo.certified",
@@ -1376,6 +1368,7 @@
         "edd.category.approved",
         "edd.completed",
         "edd.pep.opened",
+        "cdd.profile.refreshed",
         "edd.refresh.completed"
       ],
       "triggers": [
@@ -1402,8 +1395,7 @@
         "edd.category_checklist",
         "edd.source_of_wealth"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 8/9: missing cdd.profile.refreshed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -12858,11 +12850,13 @@
       "policy": "record-retention",
       "control_id": "RR-08",
       "title": "CDD Refresh Cycle and Stale-Record Disposition",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cdd.profile.refreshed"
       ],
-      "observed": [],
+      "observed": [
+        "cdd.profile.refreshed"
+      ],
       "triggers": [
         "cdd.refresh.due",
         "cdd.profile.refreshed"
@@ -12876,8 +12870,7 @@
         "cdd.profile",
         "cdd.risk_tier"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 0/1: missing cdd.profile.refreshed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,

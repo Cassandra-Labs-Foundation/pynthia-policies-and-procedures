@@ -1964,7 +1964,7 @@
       "scoped_out": false,
       "scope_reason": "mixed, technical majority (4v1): application,cdd",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -22658,7 +22658,7 @@
       "scoped_out": false,
       "scope_reason": "technical: cdd",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
