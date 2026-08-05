@@ -1,7 +1,7 @@
 // Card 18 — the heartbeat is the recovery path for dropped webhooks, and a
 // recovery that leaves no evidence is indistinguishable from one that never
 // ran. These tests pin: (a) a mirror advance emits a durable
-// blnk.mirror_recovered event with the exact transition, (b) no advance means
+// blnk.mirror.recovered event with the exact transition, (b) no advance means
 // no event, (c) a failed mirror write emits nothing (evidence only follows a
 // real advance).
 import {
@@ -95,10 +95,10 @@ function stubCfg(opts: {
 }
 
 function recoveryEvents(rec: Recorded) {
-  return rec.upserts.filter((u) => u.table === "event" && u.row.code === "blnk.mirror_recovered");
+  return rec.upserts.filter((u) => u.table === "event" && u.row.code === "blnk.mirror.recovered");
 }
 
-Deno.test("inflight parent resolved APPLIED: mirror advances and emits blnk.mirror_recovered with the exact transition", async () => {
+Deno.test("inflight parent resolved APPLIED: mirror advances and emits blnk.mirror.recovered with the exact transition", async () => {
   const { db, rec } = stubDb({
     rows: {
       ach_transfer: [{ id: "ach_1", blnk_transaction_id: "txn_p", blnk_status: "INFLIGHT" }],

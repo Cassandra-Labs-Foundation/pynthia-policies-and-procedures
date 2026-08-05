@@ -99,7 +99,7 @@ Deno.test("a legal transition updates status and emits an event", async () => {
   assertEquals((await res.json()).status, "active");
   assertEquals(updates.find((u) => u.table === "entity")?.patch.status, "active");
   const evt = inserts.find((i) => i.table === "event");
-  assertEquals(evt?.row.code, "entity.active");
+  assertEquals(evt?.row.code, "entity.activated");
   assertEquals(evt?.row.resource_id, "ent_1");
 });
 
@@ -221,7 +221,8 @@ Deno.test("account machine: open <-> frozen, both -> closed, closed terminal", a
     const { db, inserts } = stubApiDb({ account: { id: "a", status: from, lock_type: "none" } });
     const res = await postAccountTransition(req({ to }), "a", db, "e16", TEST_CTX);
     assertEquals(res.status, 200, `${from} -> ${to} must be legal`);
-    assertEquals(inserts.find((i) => i.table === "event")?.row.code, `account.${to}`);
+    assertEquals(inserts.find((i) => i.table === "event")?.row.code,
+      to === "open" ? "account.opened" : `account.${to}`);
   }
   for (const [from, to] of [["closed", "open"], ["closed", "frozen"]] as [string, string][]) {
     const { db } = stubApiDb({ account: { id: "a", status: from, lock_type: "none" } });

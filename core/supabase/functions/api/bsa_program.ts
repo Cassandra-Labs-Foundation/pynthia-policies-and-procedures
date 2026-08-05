@@ -890,14 +890,14 @@ export async function postCipVerification(
   // the gap 31 CFR 1010.230 exists to close.
   await db.schema(scope).from("cdd_profile").upsert({
     id: `cdd_${body.entity_ref}`, entity_id: body.entity_ref,
-    risk_rating: isNonEmptyString(body.risk_rating) ? body.risk_rating : "low",
+    risk_tier: isNonEmptyString(body.risk_tier) ? body.risk_tier : "low",
     last_refreshed_at: now.toISOString(),
     refresh_due_at: plusDays(now, 365 * 5),
     provenance: provenanceFor(scope, ctx),
   }, { onConflict: "id", ignoreDuplicates: true });
   await emit(db, scope, `ev_${id}_cdd`, "cdd.profile.created", "cdd_profile",
     `cdd_${body.entity_ref}`, {
-      "cdd.entity_ref": body.entity_ref, "cdd.risk_rating": body.risk_rating ?? "low",
+      "cdd.entity_ref": body.entity_ref, "cdd.risk_tier": body.risk_tier ?? "low",
     }, ctx);
   await emit(db, scope, `ev_${id}_bo`, "cdd.bo.certified", "cdd_profile",
     `cdd_${body.entity_ref}`, {

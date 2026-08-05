@@ -1149,7 +1149,7 @@ export async function postCfpLevelChange(
     await emit(db, scope, `ev_${id}_act`, "liquidity.cfp.activated", "cfp_state", id, {
       level, execution_plan_ref: body.execution_plan_ref,
     }, ctx);
-    await emit(db, scope, `ev_${id}_plan`, "cfp.execution_plan_documented", "cfp_state", id, {
+    await emit(db, scope, `ev_${id}_plan`, "cfp.execution_plan.documented", "cfp_state", id, {
       execution_plan_ref: body.execution_plan_ref,
     }, ctx);
     await emit(db, scope, `ev_${id}_stress`, "liquidity.stress.declared", "cfp_state", id, {

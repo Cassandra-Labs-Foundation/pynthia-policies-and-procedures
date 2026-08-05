@@ -1,0 +1,49 @@
+# The staff console builds against the spec-derived contract. Until 2026-08 no
+# workflow touched ui/ at all — the UI was correct by archaeology (it read the
+# core's code). Now the proxy allowlist and the wire types are generated from
+# core/core-api.yaml (scripts/gen_ui_contract.py), so a spec change that breaks
+# a screen fails HERE, in the same PR, instead of in production.
+name: ui-ci
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ui/**"
+      - "core/core-api.yaml"
+      - "scripts/gen_ui_contract.py"
+  pull_request:
+    paths:
+      - "ui/**"
+      - "core/core-api.yaml"
+      - "scripts/gen_ui_contract.py"
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 -m pip install pyyaml
+
+      - name: UI contract is current — allowlist and types match the spec
+        run: python3 scripts/gen_ui_contract.py --check
+
+      - name: Install
+        working-directory: ui
+        run: npm ci
+
+      - name: Lint
+        working-directory: ui
+        run: npx next lint
+
+      - name: Build
+        working-directory: ui
+        run: npx next build

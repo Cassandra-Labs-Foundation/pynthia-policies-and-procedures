@@ -413,7 +413,11 @@ export async function postAccountTransition(
     .update({ status: to }).eq("id", accountId);
   if (updErr) return internalErrorResponse(requestId, updErr);
 
-  await emitAccountEvent(db, `account.${to}`, accountId, { from, to });
+  // State names are adjectives; the event uses the registry's verb form where
+  // they differ (`account.opened`, not `account.open` — the latter collided
+  // with nothing but matched nothing either).
+  const stateEvent: Record<string, string> = { open: "account.opened" };
+  await emitAccountEvent(db, stateEvent[to] ?? `account.${to}`, accountId, { from, to });
 
   // BSA-21: closing an account starts the retention clock on its
   // closure-anchored records (CIP identity, beneficial owners). Best-effort —

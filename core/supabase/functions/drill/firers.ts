@@ -779,7 +779,7 @@ async function runRecordsAdminLifecycle(env: FireEnv): Promise<void> {
 
   // RR-08: risk-based CDD
   await postCddProfile(
-    R({ id: "cdd_high", entity_id: "ent_1", risk_rating: "high",
+    R({ id: "cdd_high", entity_id: "ent_1", risk_tier: "high",
         last_refreshed_at: "2024-01-01T00:00:00.000Z" }),
     env.db, "d", ops,
   );
@@ -1550,7 +1550,7 @@ async function runBsaProgramLifecycle(env: FireEnv): Promise<void> {
   await postCipVerification(
     R({ entity_ref: "ent_cip1", name: "Alice Member", dob: "1980-01-01",
         address: "1 Main St", id_number: "DL-1234", tin: "***-**-1234",
-        entity_type: "person", risk_rating: "low" }),
+        entity_type: "person", risk_tier: "low" }),
     env.db, "d", ops,
   );
   await postCipVerification(
@@ -4194,7 +4194,7 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   "risk_acceptance.requested": (env) => runRiskExceptionsLifecycle(env),
   "risk_acceptance.decision.due_at": (env) => runRiskExceptionsLifecycle(env),
   "risk_acceptance.expiry_alert_at": (env) => runRiskExceptionsLifecycle(env),
-  "risk_acceptance.expiry_warning": (env) => runRiskExceptionsLifecycle(env),
+  "risk_acceptance.expiry.warning": (env) => runRiskExceptionsLifecycle(env),
   "risk_acceptance.expired": (env) => runRiskExceptionsLifecycle(env),
   "control.override.invoked": (env) => runRiskExceptionsLifecycle(env),
   "exception.registered": (env) => runRiskExceptionsLifecycle(env),

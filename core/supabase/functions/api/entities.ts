@@ -220,7 +220,11 @@ export async function postEntityTransition(
     .update({ status: to }).eq("id", entityId).select(ENTITY_COLS).single();
   if (updErr) return internalErrorResponse(requestId, updErr);
 
-  await emitEntityEvent(db, `entity.${to}`, "entity", entityId, { from, to });
+  // The state name is an adjective; the event announces the transition in the
+  // registry's verb form. `entity.activated` is what the vocabulary registers —
+  // emitting `entity.active` left the registered code permanently silent.
+  const stateEvent: Record<string, string> = { active: "entity.activated" };
+  await emitEntityEvent(db, stateEvent[to] ?? `entity.${to}`, "entity", entityId, { from, to });
   return jsonResponse(entityResponse(updated as Record<string, unknown>), 200, requestId);
 }
 
@@ -274,7 +278,7 @@ export async function postEntityOwner(
     .update({ owners }).eq("id", entityId).select(ENTITY_COLS).single();
   if (updErr) return internalErrorResponse(requestId, updErr);
 
-  await emitEntityEvent(db, "entity.owner_added", "entity", entityId, {
+  await emitEntityEvent(db, "entity.owner.added", "entity", entityId, {
     owner_entity_id: body.owner_entity_id,
     percent,
   });

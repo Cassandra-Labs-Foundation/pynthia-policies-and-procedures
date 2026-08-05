@@ -21,7 +21,7 @@ type Any = any;
 const DAY_MS = 24 * 60 * 60 * 1000;
 /** RR-08: risk-based CDD refresh cycles. */
 export const CDD_REFRESH_MONTHS: Readonly<Record<string, number>> = {
-  high: 12, medium: 36, low: 60,
+  high: 12, moderate: 36, low: 60,
 };
 
 function requireInternalActor(ctx: PartnerContext, requestId: string): Response | null {
@@ -530,7 +530,7 @@ export async function postDestructionLogResolve(
 
 // --------------------------------------------------------------- RR-08 CDD
 
-/** POST /records/cdd-profiles {id?, entity_id, risk_rating, last_refreshed_at?} */
+/** POST /records/cdd-profiles {id?, entity_id, risk_tier, last_refreshed_at?} */
 export async function postCddProfile(
   req: Request, db: SupabaseClient, requestId: string,
   ctx: PartnerContext, scope: EvidenceScope = "core",
@@ -539,10 +539,10 @@ export async function postCddProfile(
   if (denied) return denied;
   const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
 
-  const risk = String(body.risk_rating);
-  if (!["low", "medium", "high"].includes(risk)) {
+  const risk = String(body.risk_tier);
+  if (!["low", "moderate", "high"].includes(risk)) {
     return validationError(requestId, [{
-      type: "invalid_value", field: "risk_rating", message: "must be low, medium or high",
+      type: "invalid_value", field: "risk_tier", message: "must be low, moderate or high",
     }]);
   }
   const last = isNonEmptyString(body.last_refreshed_at)
@@ -557,19 +557,19 @@ export async function postCddProfile(
   const id = isNonEmptyString(body.id) ? body.id : `cdd_${crypto.randomUUID()}`;
   const { error } = await db.schema(scope).from("cdd_profile").upsert({
     id, entity_id: isNonEmptyString(body.entity_id) ? body.entity_id : null,
-    risk_rating: risk, last_refreshed_at: last.toISOString(),
+    risk_tier: risk, last_refreshed_at: last.toISOString(),
     refresh_due_at: due.toISOString(), provenance: provenanceFor(scope, ctx),
   }, { onConflict: "id" });
   if (error) return internalErrorResponse(requestId, error.message);
 
   await emit(db, scope, `ev_${id}_due`, "cdd.refresh.due", "cdd_profile", id, {
-    refresh_due_at: due.toISOString(), risk_rating: risk,
+    refresh_due_at: due.toISOString(), risk_tier: risk,
     cycle_months: CDD_REFRESH_MONTHS[risk],
   }, ctx);
   return jsonResponse({ data: { id, refresh_due_at: due.toISOString() } }, 201, requestId);
 }
 
-/** POST /records/cdd-profiles/:id/refresh {refreshed_by, risk_rating?} */
+/** POST /records/cdd-profiles/:id/refresh {refreshed_by, risk_tier?} */
 export async function postCddRefresh(
   req: Request, profileId: string, db: SupabaseClient, requestId: string,
   ctx: PartnerContext, scope: EvidenceScope = "core",
@@ -579,7 +579,7 @@ export async function postCddRefresh(
   const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
 
   const { data: p } = await db.schema(scope).from("cdd_profile")
-    .select("id, risk_rating, refresh_due_at, entity_id").eq("id", profileId).maybeSingle();
+    .select("id, risk_tier, refresh_due_at, entity_id").eq("id", profileId).maybeSingle();
   if (!p) return notFoundResponse(requestId, "cdd_profile", profileId);
   if (!isNonEmptyString(body.refreshed_by)) {
     return validationError(requestId, [{
@@ -588,21 +588,21 @@ export async function postCddRefresh(
   }
 
   const now = new Date();
-  const risk = isNonEmptyString(body.risk_rating) && ["low", "medium", "high"].includes(body.risk_rating)
-    ? body.risk_rating
-    : String(p.risk_rating);
+  const risk = isNonEmptyString(body.risk_tier) && ["low", "moderate", "high"].includes(body.risk_tier)
+    ? body.risk_tier
+    : String(p.risk_tier);
   const due = new Date(now.getTime());
   due.setUTCMonth(due.getUTCMonth() + CDD_REFRESH_MONTHS[risk]);
 
   const { error } = await db.schema(scope).from("cdd_profile").update({
     last_refreshed_at: now.toISOString(), refresh_due_at: due.toISOString(),
-    risk_rating: risk, refreshed_by: body.refreshed_by, updated_at: now.toISOString(),
+    risk_tier: risk, refreshed_by: body.refreshed_by, updated_at: now.toISOString(),
   }).eq("id", profileId);
   if (error) return internalErrorResponse(requestId, error.message);
 
   await emit(db, scope, `ev_${profileId}_ref`, "cdd.profile.refreshed",
     "cdd_profile", profileId, {
-      refreshed_by: body.refreshed_by, risk_rating: risk,
+      refreshed_by: body.refreshed_by, risk_tier: risk,
       refresh_due_at: due.toISOString(),
       // whether it was refreshed LATE is part of the record; a refresh that
       // silently drops its own lateness makes the cycle unfalsifiable

@@ -301,7 +301,7 @@ Deno.test("release marks the hold released and resumes the schedule", async () =
   assertEquals(holdUpdates[0].row.release_approved_by, "general-counsel");
   const codes = writes.filter((w) => w.table === "event").map((w) => w.row.code);
   assert(codes.includes("legal_hold.clear.confirmed"));
-  assert(codes.includes("disposal.clock_resumed"));
+  assert(codes.includes("disposal.clock.resumed"));
 });
 
 Deno.test("the sweep schedules but destroys nothing", async () => {

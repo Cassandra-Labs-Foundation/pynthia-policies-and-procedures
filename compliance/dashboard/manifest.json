@@ -260,8 +260,8 @@
       "audit.plan_cycle.opened",
       "audit.poor_rating.recorded",
       "audit.schedule_finalized",
-      "audit.scope_change.identified",
-      "audit.scope_change_documented"
+      "audit.scope_change.documented",
+      "audit.scope_change.identified"
      ],
      "rules": [
       {
@@ -294,7 +294,7 @@
       {
        "trigger": "audit.scope_change.identified",
        "produced": [
-        "audit.scope_change_documented"
+        "audit.scope_change.documented"
        ],
        "inputs": [
         "audit.scope_change_rationale"
@@ -345,7 +345,7 @@
       "audit.fieldwork.logged",
       "audit.plan_cycle.opened",
       "audit.report.drafted",
-      "audit.scope_change_documented"
+      "audit.scope_change.documented"
      ],
      "rules": [
       {
@@ -390,7 +390,7 @@
       {
        "trigger": null,
        "produced": [
-        "audit.scope_change_documented"
+        "audit.scope_change.documented"
        ],
        "inputs": [
         "regulatory.change.identified"
@@ -821,7 +821,7 @@
       "destruction_log.entry.created",
       "destruction_log.entry_id",
       "destruction_log.mismatch.detected",
-      "disposal.clock_resumed",
+      "disposal.clock.resumed",
       "disposal.executed",
       "disposal.held",
       "disposal.scheduled",
@@ -829,7 +829,7 @@
       "legal.hold.released",
       "legal_hold.clear.confirmed",
       "legal_hold.created",
-      "legal_hold.schedule_resumed",
+      "legal_hold.schedule.resumed",
       "record.destroyed",
       "record.destruction.certified",
       "record.disposal_eligible",
@@ -867,9 +867,9 @@
       {
        "trigger": "legal_hold.clear.confirmed",
        "produced": [
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released"
        ],
        "inputs": [
@@ -922,7 +922,7 @@
       "scoped_out": false,
       "scope_reason": "technical: disposal, legal_hold, record",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     }
    ]
@@ -1330,7 +1330,7 @@
         "cfp.transition.started"
        ],
        "inputs": [
-        "cfp.execution_plan_documented",
+        "cfp.execution_plan.documented",
         "cfp.level",
         "liquidity.stress"
        ],
@@ -1964,7 +1964,7 @@
       "scoped_out": false,
       "scope_reason": "mixed, technical majority (4v1): application,cdd",
       "hermetic": "green",
-      "live": "green"
+      "live": "red"
      }
     },
     {
@@ -3136,7 +3136,7 @@
       "destruction_log.entry.created",
       "destruction_log.entry_id",
       "destruction_log.mismatch.detected",
-      "disposal.clock_resumed",
+      "disposal.clock.resumed",
       "disposal.executed",
       "disposal.held",
       "disposal.scheduled",
@@ -3144,7 +3144,7 @@
       "legal.hold.released",
       "legal_hold.clear.confirmed",
       "legal_hold.created",
-      "legal_hold.schedule_resumed",
+      "legal_hold.schedule.resumed",
       "record.destroyed",
       "record.destruction.certified",
       "record.disposal_eligible",
@@ -3182,9 +3182,9 @@
       {
        "trigger": "legal_hold.clear.confirmed",
        "produced": [
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released"
        ],
        "inputs": [
@@ -3237,7 +3237,7 @@
       "scoped_out": false,
       "scope_reason": "technical: disposal, legal_hold, record",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     }
    ]
@@ -3265,7 +3265,7 @@
       "bcp.annual.review.due",
       "bcp.board.approved",
       "bcp.section.updated",
-      "board.meeting_held",
+      "board.meeting.held",
       "board.minutes.recorded",
       "imt.roster.review.due",
       "imt.roster.verified",
@@ -3285,7 +3285,7 @@
        "deadline_text": "Annually (internal: Q4 each year; enforced by)"
       },
       {
-       "trigger": "board.meeting_held",
+       "trigger": "board.meeting.held",
        "produced": [
         "bcp.board.approved",
         "board.minutes.recorded"
@@ -3655,7 +3655,7 @@
       "scoped_out": false,
       "scope_reason": "technical: incident",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -3755,7 +3755,7 @@
      ],
      "watch": [
       "facility.loss.declared",
-      "ops.critical_resumed",
+      "ops.critical.resumed",
       "ops.resumption_timer",
       "site.capacity.test.due",
       "site.capacity.validated",
@@ -3787,7 +3787,7 @@
       {
        "trigger": null,
        "produced": [
-        "ops.critical_resumed",
+        "ops.critical.resumed",
         "ops.resumption_timer"
        ],
        "inputs": [],
@@ -6886,7 +6886,7 @@
         "cda.communication.published"
        ],
        "inputs": [
-        "cda.communication_archived",
+        "cda.communication.archived",
         "cda.communication_draft"
        ],
        "timer": null,
@@ -7120,7 +7120,7 @@
         "loan.collateral_value",
         "loan.ltv",
         "loan.product_type",
-        "loan.well_secured_documented"
+        "loan.well_secured.documented"
        ],
        "timer": "loan.classification.due_at",
        "deadline_text": "Month-end at 90 DPD; enforced by"
@@ -7133,7 +7133,7 @@
        "inputs": [
         "loan.balance",
         "loan.product_type",
-        "loan.well_secured_documented"
+        "loan.well_secured.documented"
        ],
        "timer": "loan.chargeoff_month_end_at",
        "deadline_text": "Month-end at 120 DPD; enforced by"
@@ -7146,7 +7146,7 @@
        "inputs": [
         "loan.balance",
         "loan.product_type",
-        "loan.well_secured_documented"
+        "loan.well_secured.documented"
        ],
        "timer": "loan.chargeoff_month_end_at",
        "deadline_text": "Month-end at 180 DPD; enforced by"
@@ -9091,7 +9091,7 @@
       "affiliate.list_review.opened",
       "affiliate.lqa_screen.logged",
       "affiliate.transaction.recorded",
-      "affiliate.transaction_file_archived"
+      "affiliate.transaction_file.archived"
      ],
      "rules": [
       {
@@ -9152,7 +9152,7 @@
       {
        "trigger": "affiliate.transaction.recorded",
        "produced": [
-        "affiliate.transaction_file_archived"
+        "affiliate.transaction_file.archived"
        ],
        "inputs": [],
        "timer": null,
@@ -9359,7 +9359,7 @@
        "trigger": null,
        "produced": [],
        "inputs": [
-        "affiliate.transaction_file_archived"
+        "affiliate.transaction_file.archived"
        ],
        "timer": null,
        "deadline_text": "At execution; retained per Record Retention Policy"
@@ -10391,7 +10391,7 @@
       "scoped_out": false,
       "scope_reason": "technical: incident",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -11696,7 +11696,7 @@
       "risk.assessment.published",
       "risk.ownership_gap.detected",
       "risk.reassessment_due_at",
-      "risk.review_overdue"
+      "risk.review.overdue"
      ],
      "rules": [
       {
@@ -11742,7 +11742,7 @@
       {
        "trigger": null,
        "produced": [
-        "risk.review_overdue"
+        "risk.review.overdue"
        ],
        "inputs": [
         "risk.id",
@@ -11958,9 +11958,9 @@
       "risk_acceptance.decided",
       "risk_acceptance.decision.due_at",
       "risk_acceptance.expired",
+      "risk_acceptance.expiry.warning",
       "risk_acceptance.expiry_alert_at",
       "risk_acceptance.expiry_alerted",
-      "risk_acceptance.expiry_warning",
       "risk_acceptance.requested",
       "risk_breach.opened"
      ],
@@ -12006,7 +12006,7 @@
        "deadline_text": "30 days before"
       },
       {
-       "trigger": "risk_acceptance.expiry_warning",
+       "trigger": "risk_acceptance.expiry.warning",
        "produced": [
         "risk_acceptance.expiry_alerted"
        ],
@@ -13117,7 +13117,7 @@
       "destruction_log.entry.created",
       "destruction_log.entry_id",
       "destruction_log.mismatch.detected",
-      "disposal.clock_resumed",
+      "disposal.clock.resumed",
       "disposal.executed",
       "disposal.held",
       "disposal.scheduled",
@@ -13125,7 +13125,7 @@
       "legal.hold.released",
       "legal_hold.clear.confirmed",
       "legal_hold.created",
-      "legal_hold.schedule_resumed",
+      "legal_hold.schedule.resumed",
       "record.destroyed",
       "record.destruction.certified",
       "record.disposal_eligible",
@@ -13163,9 +13163,9 @@
       {
        "trigger": "legal_hold.clear.confirmed",
        "produced": [
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released"
        ],
        "inputs": [
@@ -13218,7 +13218,7 @@
       "scoped_out": false,
       "scope_reason": "technical: disposal, legal_hold, record",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -14098,7 +14098,7 @@
       "scoped_out": false,
       "scope_reason": "technical: incident",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -14775,7 +14775,7 @@
       "destruction_log.entry.created",
       "destruction_log.entry_id",
       "destruction_log.mismatch.detected",
-      "disposal.clock_resumed",
+      "disposal.clock.resumed",
       "disposal.executed",
       "disposal.held",
       "disposal.scheduled",
@@ -14783,7 +14783,7 @@
       "legal.hold.released",
       "legal_hold.clear.confirmed",
       "legal_hold.created",
-      "legal_hold.schedule_resumed",
+      "legal_hold.schedule.resumed",
       "record.destroyed",
       "record.destruction.certified",
       "record.disposal_eligible",
@@ -14821,9 +14821,9 @@
       {
        "trigger": "legal_hold.clear.confirmed",
        "produced": [
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released"
        ],
        "inputs": [
@@ -14876,7 +14876,7 @@
       "scoped_out": false,
       "scope_reason": "technical: disposal, legal_hold, record",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     }
    ]
@@ -15399,7 +15399,7 @@
       "scoped_out": false,
       "scope_reason": "system overrides and exceptions are recorded and enforceable in the core",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -15591,7 +15591,7 @@
       "destruction_log.entry.created",
       "destruction_log.entry_id",
       "destruction_log.mismatch.detected",
-      "disposal.clock_resumed",
+      "disposal.clock.resumed",
       "disposal.executed",
       "disposal.held",
       "disposal.scheduled",
@@ -15599,7 +15599,7 @@
       "legal.hold.released",
       "legal_hold.clear.confirmed",
       "legal_hold.created",
-      "legal_hold.schedule_resumed",
+      "legal_hold.schedule.resumed",
       "record.destroyed",
       "record.destruction.certified",
       "record.disposal_eligible",
@@ -15637,9 +15637,9 @@
       {
        "trigger": "legal_hold.clear.confirmed",
        "produced": [
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released"
        ],
        "inputs": [
@@ -15692,7 +15692,7 @@
       "scoped_out": false,
       "scope_reason": "technical: disposal, legal_hold, record",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     }
    ]
@@ -16963,7 +16963,7 @@
       "destruction_log.entry.created",
       "destruction_log.entry_id",
       "destruction_log.mismatch.detected",
-      "disposal.clock_resumed",
+      "disposal.clock.resumed",
       "disposal.executed",
       "disposal.held",
       "disposal.scheduled",
@@ -16971,7 +16971,7 @@
       "legal.hold.released",
       "legal_hold.clear.confirmed",
       "legal_hold.created",
-      "legal_hold.schedule_resumed",
+      "legal_hold.schedule.resumed",
       "record.destroyed",
       "record.destruction.certified",
       "record.disposal_eligible",
@@ -17009,9 +17009,9 @@
       {
        "trigger": "legal_hold.clear.confirmed",
        "produced": [
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released"
        ],
        "inputs": [
@@ -17064,7 +17064,7 @@
       "scoped_out": false,
       "scope_reason": "technical: disposal, legal_hold, record",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -17194,7 +17194,7 @@
       }
      ],
      "watch": [
-      "cfp.execution_plan_documented",
+      "cfp.execution_plan.documented",
       "cfp.investment_test.completed",
       "cfp.level.changed",
       "cfp.liquidation_hierarchy",
@@ -17219,7 +17219,7 @@
       {
        "trigger": "liquidity.stress.declared",
        "produced": [
-        "cfp.execution_plan_documented",
+        "cfp.execution_plan.documented",
         "cfp.level.changed"
        ],
        "inputs": [
@@ -18129,7 +18129,7 @@
       "destruction_log.entry.created",
       "destruction_log.entry_id",
       "destruction_log.mismatch.detected",
-      "disposal.clock_resumed",
+      "disposal.clock.resumed",
       "disposal.executed",
       "disposal.held",
       "disposal.scheduled",
@@ -18137,7 +18137,7 @@
       "legal.hold.released",
       "legal_hold.clear.confirmed",
       "legal_hold.created",
-      "legal_hold.schedule_resumed",
+      "legal_hold.schedule.resumed",
       "record.destroyed",
       "record.destruction.certified",
       "record.disposal_eligible",
@@ -18175,9 +18175,9 @@
       {
        "trigger": "legal_hold.clear.confirmed",
        "produced": [
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released"
        ],
        "inputs": [
@@ -18230,7 +18230,7 @@
       "scoped_out": false,
       "scope_reason": "technical: disposal, legal_hold, record",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -19660,7 +19660,7 @@
       "destruction_log.entry.created",
       "destruction_log.entry_id",
       "destruction_log.mismatch.detected",
-      "disposal.clock_resumed",
+      "disposal.clock.resumed",
       "disposal.executed",
       "disposal.held",
       "disposal.scheduled",
@@ -19668,7 +19668,7 @@
       "legal.hold.released",
       "legal_hold.clear.confirmed",
       "legal_hold.created",
-      "legal_hold.schedule_resumed",
+      "legal_hold.schedule.resumed",
       "record.destroyed",
       "record.destruction.certified",
       "record.disposal_eligible",
@@ -19706,9 +19706,9 @@
       {
        "trigger": "legal_hold.clear.confirmed",
        "produced": [
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released"
        ],
        "inputs": [
@@ -19761,7 +19761,7 @@
       "scoped_out": false,
       "scope_reason": "technical: disposal, legal_hold, record",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -20142,7 +20142,7 @@
        "inputs": [
         "disclosure.template_id",
         "member.delivery_channel",
-        "member.esign_consent_captured"
+        "member.esign_consent.captured"
        ],
        "timer": null,
        "deadline_text": "Per disclosure-specific deadline (see Truth-in-Savings Policy for content)"
@@ -20504,8 +20504,8 @@
      ],
      "watch": [
       "account.death_flag.applied",
+      "estate.claim.documented",
       "estate.claim.submitted",
-      "estate.claim_documented",
       "estate.payout.sent",
       "member.death.reported",
       "verification.completed",
@@ -20537,7 +20537,7 @@
       {
        "trigger": "estate.claim.submitted",
        "produced": [
-        "estate.claim_documented",
+        "estate.claim.documented",
         "verification.created"
        ],
        "inputs": [
@@ -21369,7 +21369,7 @@
      ],
      "watch": [
       "disposal.certificate.recorded",
-      "disposal.clock_resumed",
+      "disposal.clock.resumed",
       "disposal.executed",
       "disposal.held",
       "disposal.scheduled",
@@ -21397,7 +21397,7 @@
       {
        "trigger": "legal_hold.clear.confirmed",
        "produced": [
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "record.destruction_due_at"
        ],
        "inputs": [
@@ -21427,7 +21427,7 @@
       "scoped_out": false,
       "scope_reason": "technical: disposal, legal_hold, record",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -21650,7 +21650,7 @@
       }
      ],
      "watch": [
-      "member.esign_consent_captured",
+      "member.esign_consent.captured",
       "privacy.esign_consent.recorded",
       "privacy.esign_consent.started",
       "privacy.notice_copy.delivered",
@@ -21674,7 +21674,7 @@
       {
        "trigger": "privacy.esign_consent.started",
        "produced": [
-        "member.esign_consent_captured",
+        "member.esign_consent.captured",
         "privacy.esign_consent.recorded"
        ],
        "inputs": [
@@ -21936,7 +21936,7 @@
       "connection.scope_violation.detected",
       "connection.suspended",
       "connection.token.issued",
-      "connection.token_revoked"
+      "connection.token.revoked"
      ],
      "rules": [
       {
@@ -21969,7 +21969,7 @@
        "trigger": "connection.revoke.requested",
        "produced": [
         "connection.suspended",
-        "connection.token_revoked"
+        "connection.token.revoked"
        ],
        "inputs": [
         "connection.id",
@@ -22335,7 +22335,7 @@
       "scoped_out": false,
       "scope_reason": "technical: disposal, record",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -22424,13 +22424,13 @@
       }
      ],
      "watch": [
-      "disposal.clock_resumed",
+      "disposal.clock.resumed",
       "disposal.held",
       "legal.hold.placed",
       "legal.hold.released",
       "legal_hold.clear.confirmed",
       "legal_hold.created",
-      "legal_hold.schedule_resumed",
+      "legal_hold.schedule.resumed",
       "record.hold.applied",
       "record.hold.placed",
       "record.hold.released"
@@ -22463,9 +22463,9 @@
       {
        "trigger": "legal_hold.clear.confirmed",
        "produced": [
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released"
        ],
        "inputs": [
@@ -22658,7 +22658,7 @@
       "scoped_out": false,
       "scope_reason": "technical: cdd",
       "hermetic": "green",
-      "live": "green"
+      "live": "red"
      }
     },
     {
@@ -23764,7 +23764,7 @@
        ],
        "inputs": [
         "ewi.indicator_id",
-        "ewi.threshold_recovered",
+        "ewi.threshold.recovered",
         "ewi.value"
        ],
        "timer": null,
@@ -24508,7 +24508,7 @@
       "scoped_out": false,
       "scope_reason": "technical: incident",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -24588,7 +24588,7 @@
       "destruction_log.entry.created",
       "destruction_log.entry_id",
       "destruction_log.mismatch.detected",
-      "disposal.clock_resumed",
+      "disposal.clock.resumed",
       "disposal.executed",
       "disposal.held",
       "disposal.scheduled",
@@ -24596,7 +24596,7 @@
       "legal.hold.released",
       "legal_hold.clear.confirmed",
       "legal_hold.created",
-      "legal_hold.schedule_resumed",
+      "legal_hold.schedule.resumed",
       "record.destroyed",
       "record.destruction.certified",
       "record.disposal_eligible",
@@ -24634,9 +24634,9 @@
       {
        "trigger": "legal_hold.clear.confirmed",
        "produced": [
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released"
        ],
        "inputs": [
@@ -24689,7 +24689,7 @@
       "scoped_out": false,
       "scope_reason": "technical: disposal, legal_hold, record",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     }
    ]

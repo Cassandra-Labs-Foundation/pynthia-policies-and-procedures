@@ -288,7 +288,7 @@ Deno.test("the sweep surfaces a CTR that was owed and nobody filed", async () =>
   });
   const b = await (await postCtrSweep(req({}), db, "s1", OPS_CTX)).json();
   assertEquals(b.overdue_count, 1);
-  assertEquals(writes.find((w) => w.table === "event")!.row.code, "ctr.filing_overdue");
+  assertEquals(writes.find((w) => w.table === "event")!.row.code, "ctr.filing.overdue");
 });
 
 Deno.test("the sweep also reports unattributable currency as a standing gap", async () => {

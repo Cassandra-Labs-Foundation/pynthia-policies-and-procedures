@@ -208,7 +208,7 @@ export async function postEsignConsent(
   await emit(db, scope, `ev_${id}_start`, "privacy.esign_consent.started",
     "esign_consent", id, { entity_ref: body.entity_ref }, ctx);
   if (demonstrated) {
-    await emit(db, scope, `ev_${id}_cap`, "member.esign_consent_captured",
+    await emit(db, scope, `ev_${id}_cap`, "member.esign_consent.captured",
       "esign_consent", id, { entity_ref: body.entity_ref, demonstrated_access: true }, ctx);
     await emit(db, scope, `ev_${id}_rec`, "privacy.esign_consent.recorded",
       "esign_consent", id, { entity_ref: body.entity_ref }, ctx);
@@ -1269,7 +1269,7 @@ export async function recordConnectionScopeViolation(
     }, ctx);
   await emit(db, scope, `ev_${connectionId}_susp`, "connection.suspended",
     "connection", connectionId, { cause: "scope_violation" }, ctx);
-  await emit(db, scope, `ev_${connectionId}_revoked`, "connection.token_revoked",
+  await emit(db, scope, `ev_${connectionId}_revoked`, "connection.token.revoked",
     "connection", connectionId, { token_id: conn.token_id }, ctx);
 }
 

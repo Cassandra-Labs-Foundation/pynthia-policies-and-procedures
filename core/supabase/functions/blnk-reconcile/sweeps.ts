@@ -5,7 +5,7 @@
 // become optional: global webhooks are never retried on a non-2xx, so any
 // delivery we fail to accept is gone for good. The push is the fast path; this
 // pull is the guarantee. When a sweep advances a mirror it emits a durable
-// blnk.mirror_recovered event: the recovery itself is evidence, and the card-16
+// blnk.mirror.recovered event: the recovery itself is evidence, and the card-16
 // outbox delivers it like any other event.
 
 import { type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -74,7 +74,7 @@ async function emitMirrorRecovered(
 ): Promise<void> {
   const { error } = await db.schema("core").from("event").upsert({
     id: `evt_recon_${rowId}_${to.toLowerCase()}`,
-    code: "blnk.mirror_recovered",
+    code: "blnk.mirror.recovered",
     type: "reconciliation",
     resource_id: `${table}:${rowId}`,
     payload: {

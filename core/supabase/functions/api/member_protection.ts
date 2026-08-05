@@ -124,7 +124,7 @@ export async function postEstateClaim(
   }, { onConflict: "id" });
   if (error) return internalErrorResponse(requestId, error.message);
 
-  await emit(db, scope, `ev_${id}_doc`, "estate.claim_documented", "estate_claim", id, {
+  await emit(db, scope, `ev_${id}_doc`, "estate.claim.documented", "estate_claim", id, {
     "member.id": entityId, "estate.date_of_death": body.date_of_death,
     "estate.death_certificate_ref": body.death_certificate_ref,
     "estate.authority_document_ref": body.authority_document_ref ?? null,

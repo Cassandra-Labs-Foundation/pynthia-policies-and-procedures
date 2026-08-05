@@ -10,15 +10,17 @@ name: Rebuild controls + vocabulary artifacts
 # already reviewed. Hence: commit to main, no PR.
 #
 # Pipeline (dependency order):
-#   core-api.yaml + vocab-migration.json --parse_core_api.py-->        core-vocabulary.json
+#   core/core-api.yaml (x-events registry; vocab-migration.json only for
+#   provisional fields) --parse_core_api.py-->                          core-vocabulary.json
 #   policies {slug}.md  (+ core-vocabulary.json to classify) --extract_controls.py-->  controls.json
 #   controls.json + core-vocabulary.json --build_control_vocabulary.py--> control-vocabulary.json
 #   policies {slug}.md --extract_vocab.py-->                            extracted-vocab.json
 #
-# Loop-safety (three independent guarantees):
+# Loop-safety (two guarantees; #1 is load-bearing since the commit set began
+# including core/core-api.yaml, which IS a trigger path — the restamped spec
+# rides back on the same commit as the artifacts derived from it):
 #   1. A push made with GITHUB_TOKEN does NOT trigger further workflow runs.
-#   2. The artifacts are root-level JSON — they match none of the trigger paths.
-#   3. The commit step is a no-op when nothing changed.
+#   2. The commit step is a no-op when nothing changed.
 
 on:
   push:
@@ -29,9 +31,25 @@ on:
       # ui/ need no exclusion now that the pattern names the policy tree directly.
       - "compliance/policies/*/*.md"
       - "!**/prompt.md"      # prompt.md is a regen INPUT, not an extraction input
-      - "core-api.yaml"
+      - "core/core-api.yaml" # moved under core/ in 2078a19 — a bare "core-api.yaml"
+                             # here silently stopped triggering on spec changes
+      - "core/supabase/migrations/*.sql"  # schema parity must see migration changes
+      - "core/supabase/functions/api/index.ts"        # route parity inputs
+      - "core/supabase/functions/api/routes.gen.ts"
       - "vocab-migration.json"
       - "scripts/*.py"       # extractor logic (incl. code_format.py)
+  # PRs run the full rebuild + every gate but SKIP the commit step, so
+  # divergence surfaces on the PR instead of post-merge on main.
+  pull_request:
+    paths:
+      - "compliance/policies/*/*.md"
+      - "!**/prompt.md"
+      - "core/core-api.yaml"
+      - "core/supabase/migrations/*.sql"
+      - "core/supabase/functions/api/index.ts"
+      - "core/supabase/functions/api/routes.gen.ts"
+      - "vocab-migration.json"
+      - "scripts/*.py"
   workflow_dispatch: {}      # manual full rebuild
 
 permissions:
@@ -66,22 +84,24 @@ jobs:
         run: python3 -m pip install pyyaml
 
       - name: Rebuild artifacts (dependency order)
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 scripts/parse_core_api.py              # -> core-vocabulary.json
-          python3 scripts/extract_controls.py            # -> controls.json
-          python3 scripts/build_control_vocabulary.py    # -> control-vocabulary.json
-          python3 scripts/extract_vocab.py .             # -> extracted-vocab.json
+        # The ordered list lives in ONE place — scripts/rebuild_artifacts.sh —
+        # shared with the workflow documented in CLAUDE.md.
+        run: ./scripts/rebuild_artifacts.sh
 
       - name: Commit refreshed artifacts to main
+        # push-to-main only — a PR run rebuilds and gates but never commits
+        if: github.event_name != 'pull_request'
         shell: bash
         run: |
           set -euo pipefail
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          arts="controls.json control-vocabulary.json core-vocabulary.json extracted-vocab.json"
+          arts="controls.json control-vocabulary.json core-vocabulary.json extracted-vocab.json
+                crosswalk.json CROSSWALK.md compliance/dashboard
+                core/verifier/targets.json core/verifier/worklist.md
+                core/core-api.yaml core/supabase/functions/api/routes.gen.ts
+                ui/src/lib/coreApi.allowlist.json ui/src/lib/core-api-types.d.ts"
           git add -- $arts
 
           if git diff --cached --quiet; then
@@ -110,3 +130,28 @@ jobs:
       # truth, then fail the build about it.
       - name: Vocabulary drift — no policy may cite a code the core dropped
         run: python3 scripts/check_vocab_drift.py --check
+
+      - name: Emitted coverage — no emitted code may be missing from x-events
+        # The inverse gate: the registry must cover the supply side too, or the
+        # crosswalk measures reachability across a vocabulary gap (this is how
+        # 41 emitted codes went unregistered for six weeks unnoticed).
+        run: python3 scripts/check_emitted_coverage.py
+
+      - name: Route parity — spec paths and the router must agree exactly
+        run: python3 scripts/check_route_parity.py
+
+      - name: Schema parity — spec schemas vs migrations (ratchet)
+        # Fails only on NEW divergence beyond schema-parity-baseline.json.
+        # Needs pyyaml, so it lives here rather than core-ci.yml.
+        run: python3 scripts/check_schema_parity.py --check
+
+      - name: All derived artifacts are committed-current
+        # The rebuild step above regenerated EVERYTHING from this ref's inputs,
+        # so any working-tree diff now means the ref shipped stale artifacts.
+        # On push runs the commit step already folded changes in (diff is
+        # clean); on PR runs this is the gate with actual signal — the
+        # per-generator --check steps that used to sit here compared each
+        # just-rewritten file against a second rebuild of itself and could
+        # never fail. One diff covers all 13 artifacts, including worklist.md
+        # and the restamped spec, at zero recompute.
+        run: git diff --exit-code

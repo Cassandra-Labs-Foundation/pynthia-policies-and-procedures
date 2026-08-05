@@ -532,7 +532,7 @@ export async function postCtrSweep(
     const id = String(r.id);
     try {
       await emitCashEvent(
-        db, scope, `evt_${id}_overdue`, "ctr.filing_overdue", "ctr_filing", id,
+        db, scope, `evt_${id}_overdue`, "ctr.filing.overdue", "ctr_filing", id,
         {
           due_at: r.filing_due_at,
           entity_id: r.entity_id,

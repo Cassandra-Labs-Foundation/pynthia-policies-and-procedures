@@ -353,6 +353,14 @@ function parseAllColumns(): Record<string, string[]> {
   const alterRe =
     /alter table\s+"core"\."([a-z_0-9]+)"([\s\S]*?);/g;
   const addRe = /add column if not exists\s+"([a-z_0-9]+)"/gi;
+  // SIXTH INSTANCE. `rename column` was invisible to this parser, so a renamed
+  // column kept BOTH names here: the old one materialised as null on every row
+  // (see applyDefaults) while the new one — the one the writer actually sets —
+  // was absent from the declared set. That is the fake claiming a column the
+  // database no longer has, which is the same class of silent drift the
+  // parser was written to end. Renames are applied in file order, so a column
+  // renamed twice ends up under its final name.
+  const renameRe = /rename column\s+"([a-z_0-9]+)"\s+to\s+"([a-z_0-9]+)"/gi;
 
   for (const name of files) {
     let sql: string;
@@ -368,6 +376,10 @@ function parseAllColumns(): Record<string, string[]> {
     for (const a of sql.matchAll(alterRe)) {
       const set = (out[a[1]] ??= new Set());
       for (const c of a[2].matchAll(addRe)) set.add(c[1]);
+      for (const r of a[2].matchAll(renameRe)) {
+        set.delete(r[1]);
+        set.add(r[2]);
+      }
     }
   }
   return Object.fromEntries(Object.entries(out).map(([k, v]) => [k, [...v]]));

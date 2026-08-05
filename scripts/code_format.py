@@ -182,3 +182,35 @@ def _main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(_main())
+
+
+# --------------------------------------------------------------------------- #
+# Shared loaders — the pipeline's other invariants, one home each
+# --------------------------------------------------------------------------- #
+
+def norm_path(path: str) -> str:
+    """Endpoint path normalized for identity comparison: placeholders folded to
+    {}, lowercased, trailing slash dropped. Same semantics as
+    core-api-loop/prepare/endpoint_rules.norm_path — kept here too so the
+    stdlib-only gates can import it."""
+    import re as _re
+    p = _re.sub(r"\{[^}]*\}", "{}", path.strip().lower())
+    return p[:-1] if len(p) > 1 and p.endswith("/") else p
+
+
+def emitted_codes(inv: dict) -> set:
+    """Every code the emitted inventory claims (literal + templated expansions).
+    STRICT on shape — a malformed inventory must raise, not return an empty set
+    that lets a coverage gate pass vacuously."""
+    codes = {e["code"] for e in inv["literal"]}
+    for t in inv["templated"]:
+        codes.update(t["expands_to"])
+    return codes
+
+
+def canonicalizer(vocab_path: str):
+    """Callable code -> canonical spelling, closed over the registered action
+    and task-type vocabularies. The one-liner every gate used to hand-roll."""
+    actions = load_actions(vocab_path)
+    task_types = load_task_types(vocab_path)
+    return lambda code: canonical_code(code, actions, task_types)

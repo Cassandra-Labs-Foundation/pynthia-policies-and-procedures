@@ -369,7 +369,7 @@ export async function postHoldRelease(
       release_approved_by: rec.approved_by,
       matter_id: row.matter_id ?? null,
     });
-    await emitRetentionEvent(db, scope, `evt_${holdId}_resumed`, "disposal.clock_resumed", holdId, {
+    await emitRetentionEvent(db, scope, `evt_${holdId}_resumed`, "disposal.clock.resumed", holdId, {
       released_at: nowIso,
     });
     // the release half of the same set — the flag really was cleared above
@@ -377,7 +377,7 @@ export async function postHoldRelease(
       { released_at: nowIso, release_approved_by: rec.approved_by });
     await emitRetentionEvent(db, scope, `evt_${holdId}_rec_released`, "record.hold.released", holdId,
       { released_at: nowIso });
-    await emitRetentionEvent(db, scope, `evt_${holdId}_sched_resumed`, "legal_hold.schedule_resumed", holdId,
+    await emitRetentionEvent(db, scope, `evt_${holdId}_sched_resumed`, "legal_hold.schedule.resumed", holdId,
       { released_at: nowIso });
   } catch (e) {
     console.error(`hold release events failed for ${holdId}: ${e}`);

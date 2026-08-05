@@ -21,6 +21,8 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 import yaml  # noqa: E402
+sys.path.insert(0, os.path.join(REPO_ROOT, "scripts"))
+import spec_io  # noqa: E402
 
 SPEC = os.path.join(REPO_ROOT, "core", "core-api.yaml")
 CONTROLS = os.path.join(REPO_ROOT, "controls.json")
@@ -32,16 +34,25 @@ def _snake(n): return _SNAKE.sub("_", n).lower()
 
 
 def main() -> int:
-    doc = yaml.safe_load(open(SPEC, encoding="utf-8").read())
+    doc = spec_io.load_spec(SPEC)
     if not (isinstance(doc, dict) and doc.get("openapi")):
         sys.exit("core-api.yaml is not an OpenAPI document.")
     controls = json.load(open(CONTROLS))
 
-    # field code -> sorted [control ids]
+    # field code -> sorted [control ids]. Cited EVENTS are included too: a
+    # handful of emitted codes are the same string as a schema field path
+    # (record.legal_hold_flag, destruction_log.entry_id, ...), and the
+    # extractor classifies event-before-field, so those citations land in
+    # api_references.events. The field still exists and the control still
+    # depends on it — dropping the binding because the token doubles as an
+    # event code would break the "renaming a field breaks control X" premise
+    # for exactly the legal-hold/retention fields. A cited event that is NOT
+    # a schema property resolves to nothing below and stamps nothing.
     field_controls: dict[str, set] = {}
     for c in controls.get("controls", []):
         cid = c.get("control_id")
-        for code in (c.get("api_references") or {}).get("fields", []):
+        refs = c.get("api_references") or {}
+        for code in list(refs.get("fields", [])) + list(refs.get("events", [])):
             field_controls.setdefault(code, set()).add(cid)
 
     # prefix -> schema (resources by snake name, vocab schemas by key)
@@ -63,12 +74,17 @@ def main() -> int:
     def resolve_prop(skey, rest, seen=None):
         """Find a property in a schema OR its allOf:[$ref] bases — a field factored into a base
         is cited under the member's path but owned by the base, so the binding belongs on the base.
-        Multiple members citing the same inherited field accumulate onto the one base property."""
+        Multiple members citing the same inherited field accumulate onto the one base property.
+        Citations arrive CANONICALIZED (dotted: esign_consent.captured); the schema property
+        name is the fused literal (esign_consent_captured) — try both spellings."""
         seen = seen or set()
         if skey in seen:
             return None
         sch = schemas.get(skey) or {}
-        prop = (sch.get("properties") or {}).get(rest)
+        props = sch.get("properties") or {}
+        prop = props.get(rest)
+        if prop is None and "." in rest:
+            prop = props.get(rest.replace(".", "_"))
         if isinstance(prop, dict):
             return prop
         for item in (sch.get("allOf") or []):
@@ -93,8 +109,7 @@ def main() -> int:
             prop["x-bound-controls"] = sorted(set(prop.get("x-bound-controls") or []) | set(cids))
             stamped += 1
 
-    with open(SPEC, "w", encoding="utf-8") as fh:
-        yaml.safe_dump(doc, fh, **DUMP_KW)
+    spec_io.dump_spec(doc, SPEC)
     print(f"x-bound-controls stamped on {stamped} fields "
           f"(from {len(field_controls)} control-cited field codes across {len(controls.get('controls', []))} controls)")
     return 0

@@ -15,54 +15,28 @@ const API_KEY = process.env.CORE_API_KEY;
  * An allowlist rather than a blocklist, and READ-only, because the alternative
  * — forwarding whatever path arrives — would hand every caller of this UI the
  * server's credential and the write half of the API with it: POST /transfers
- * moves real money. A new endpoint here is a deliberate line, not a default.
+ * moves real money.
+ *
+ * GENERATED from the spec since 2026-08: the deliberate "what may the browser
+ * reach" line is `x-ui-surface: true` on a GET operation in core/core-api.yaml,
+ * and scripts/gen_ui_contract.py derives this file's allowlist (paths AND
+ * query params) from it — CI fails if they drift apart. Widening the surface
+ * is a spec change, reviewed where the rest of the contract lives.
  *
  * Anchored patterns: an unanchored /accounts would also match
  * /accounts/{id}/numbers, quietly widening the surface past what was reviewed.
  */
-const ALLOWED = [
-  /^entities$/,
-  /^entities\/[A-Za-z0-9_-]+$/,
-  /^accounts$/,
-  /^accounts\/[A-Za-z0-9_-]+$/,
-  /^transfers$/,
-  /^transfers\/[A-Za-z0-9_-]+$/,
-  // Compliance/ops reads. All four are GET-only in the core's route table and
-  // gate on cu_admin/pynthia_ops (control-results is instance-scoped rather
-  // than actor-scoped), so the shared staff key reaches them as-is.
-  /^control-results$/,
-  /^governance\/obligations$/,
-  /^eps\/pending-approvals$/,
-  /^cash\/aggregation$/,
-  // The 5300 operator view. Reads aggregator.* rather than core.*, and is
-  // scoped server-side to the token's own instance — there is no parameter
-  // here that could widen it to another instance.
-  /^reports\/5300$/,
-];
+import contract from "./coreApi.allowlist.json";
+
+const ALLOWED = contract.paths.map((p) => new RegExp(p.pattern));
 
 /**
- * Query params that may be forwarded.
- *
- * Separate from the path allowlist because params carry their own reach:
- * everything here narrows a result set. Anything unlisted is dropped rather
+ * Query params that may be forwarded — from the same spec operations.
+ * Everything here narrows a result set; anything unlisted is dropped rather
  * than passed through, so a param the core API grows later cannot become
- * browser-reachable just by existing.
+ * browser-reachable without a spec edit.
  */
-const ALLOWED_PARAMS = [
-  "limit",
-  "after",
-  "type",
-  "status",
-  "entity_id",
-  "account_id",
-  // GET /cash/aggregation 400s without this one — it is not an optional filter
-  "business_date",
-  // GET /control-results filters
-  "control_id",
-  "decision",
-  "subject_ref",
-  "event",
-];
+const ALLOWED_PARAMS = contract.params;
 
 export function isAllowedPath(path) {
   return ALLOWED.some((p) => p.test(path));

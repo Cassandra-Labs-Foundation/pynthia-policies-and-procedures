@@ -689,7 +689,7 @@ export async function postAffiliateTransaction(
       "affiliate_transaction", id, payload, ctx);
   }
   if (funding) {
-    await emit(db, scope, `ev_${id}_arch`, "affiliate.transaction_file_archived",
+    await emit(db, scope, `ev_${id}_arch`, "affiliate.transaction_file.archived",
       "affiliate_transaction", id, payload, ctx);
   }
   return jsonResponse({

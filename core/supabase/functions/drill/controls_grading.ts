@@ -198,7 +198,8 @@ export async function loadCatalogue(): Promise<{
   knownTables: Set<string>;
 }> {
   const schemaSql = await Deno.readTextFile(
-    `${ROOT}supabase/migrations/20260702000100_core_schema.sql`,
+    // supabase/ moved under core/ in 2078a19; ROOT is the repo root
+    `${ROOT}core/supabase/migrations/20260702000100_core_schema.sql`,
   );
   const knownTables = new Set<string>(
     [...schemaSql.matchAll(/create table if not exists "core"\."([a-z_]+)"/g)].map((m) => m[1]),

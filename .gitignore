@@ -14,3 +14,8 @@ analytics/core.duckdb.wal
 .venv/
 # supabase CLI scratch
 core/supabase/.temp/
+
+# macOS noise; and the Supabase CLI's link-state dir at the repo root
+# (created by `db push --linked` runs — the real project lives at core/supabase/)
+.DS_Store
+/supabase/

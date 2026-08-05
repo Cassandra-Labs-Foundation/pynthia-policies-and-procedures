@@ -160,7 +160,7 @@ Deno.test("CDD: the refresh clock is anchored on the LAST REFRESH, not on the wr
   const dbx = makeDrillDb();
   await postCddProfile(
     req({
-      id: "p1", entity_id: "e1", risk_rating: "high",
+      id: "p1", entity_id: "e1", risk_tier: "high",
       last_refreshed_at: "2020-01-01T00:00:00.000Z",
     }),
     dbx.client, "t", CTX,

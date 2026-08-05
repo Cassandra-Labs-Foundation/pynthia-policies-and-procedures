@@ -555,7 +555,7 @@ check "business/trust/joint all created"     "$ST" "201"
 ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/entities/$ENT_P/transition" "${AUTH[@]}" -d '{"to":"active"}')
 check "pending -> active is legal"           "$(jget status)" "active"
 check "the transition left an event" \
-  "$(sql "select count(*) from pg.core.event where code='entity.active' and resource_id='$ENT_P';")" "1"
+  "$(sql "select count(*) from pg.core.event where code='entity.activated' and resource_id='$ENT_P';")" "1"
 ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/entities/$ENT_P/transition" "${AUTH[@]}" -d '{"to":"pending"}')
 check "illegal transition -> 400/409"        "$([ "$ST" = "400" ] || [ "$ST" = "409" ] && echo yes)" "yes"
 ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/entities/$ENT_B/owners" "${AUTH[@]}" -d "{\"owner_entity_id\":\"$ENT_P\",\"ownership_percent\":25}")
@@ -691,8 +691,8 @@ for i in 1 2 3; do
 done
 check "heartbeat -> HTTP 200" "$RST" "200"
 check "heartbeat recovered the mirror (INFLIGHT -> APPLIED)" "$HB_ST" "APPLIED"
-check "durable evidence: blnk.mirror_recovered persisted for this row" \
-  "$(sql "select count(*) from pg.core.event where code='blnk.mirror_recovered' and resource_id='ach_transfer:$HB_ID';")" "1"
+check "durable evidence: blnk.mirror.recovered persisted for this row" \
+  "$(sql "select count(*) from pg.core.event where code='blnk.mirror.recovered' and resource_id='ach_transfer:$HB_ID';")" "1"
 check "evidence id is deterministic (re-sweeps cannot duplicate it)" \
   "$(sql "select count(*) from pg.core.event where id='evt_recon_${HB_ID}_applied';")" "1"
 check "business status untouched: mirror recovery is not a business settle" \

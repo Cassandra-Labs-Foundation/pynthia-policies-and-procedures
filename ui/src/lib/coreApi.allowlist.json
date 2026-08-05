@@ -1,0 +1,62 @@
+{
+  "_generated": "scripts/gen_ui_contract.py \u2014 from core-api.yaml x-ui-surface operations. Do not edit; edit the spec.",
+  "paths": [
+    {
+      "path": "/accounts",
+      "pattern": "^accounts$"
+    },
+    {
+      "path": "/accounts/{id}",
+      "pattern": "^accounts/[A-Za-z0-9_-]+$"
+    },
+    {
+      "path": "/cash/aggregation",
+      "pattern": "^cash/aggregation$"
+    },
+    {
+      "path": "/control-results",
+      "pattern": "^control\\-results$"
+    },
+    {
+      "path": "/entities",
+      "pattern": "^entities$"
+    },
+    {
+      "path": "/entities/{id}",
+      "pattern": "^entities/[A-Za-z0-9_-]+$"
+    },
+    {
+      "path": "/eps/pending-approvals",
+      "pattern": "^eps/pending\\-approvals$"
+    },
+    {
+      "path": "/governance/obligations",
+      "pattern": "^governance/obligations$"
+    },
+    {
+      "path": "/reports/5300",
+      "pattern": "^reports/5300$"
+    },
+    {
+      "path": "/transfers",
+      "pattern": "^transfers$"
+    },
+    {
+      "path": "/transfers/{id}",
+      "pattern": "^transfers/[A-Za-z0-9_-]+$"
+    }
+  ],
+  "params": [
+    "account_id",
+    "after",
+    "business_date",
+    "control_id",
+    "decision",
+    "entity_id",
+    "event",
+    "limit",
+    "status",
+    "subject_ref",
+    "type"
+  ]
+}

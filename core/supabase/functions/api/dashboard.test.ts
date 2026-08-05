@@ -132,7 +132,7 @@ Deno.test("panels aggregate the evidence tables faithfully", async () => {
       { id: "ap2", resource_type: "wire_transfer", resource_id: "w2", created_by: "tok_a", created_at: RECENT, approved_at: RECENT, rejected_at: null },
     ],
     event: [
-      { id: "e1", code: "blnk.mirror_recovered", created_at: RECENT, delivered_at: RECENT },
+      { id: "e1", code: "blnk.mirror.recovered", created_at: RECENT, delivered_at: RECENT },
       { id: "e2", code: "blnk.balance_drift", created_at: RECENT, delivered_at: null },
       { id: "e3", code: "transfer.settled", created_at: RECENT, delivered_at: null },
     ],
@@ -162,7 +162,7 @@ Deno.test("panels aggregate the evidence tables faithfully", async () => {
   assertEquals(d.pending_approvals.count, 1); // decided approvals excluded
 
   // the two event panels see DIFFERENT filtered sets
-  assertEquals(d.ops.events_7d, { "blnk.mirror_recovered": 1, "blnk.balance_drift": 1 });
+  assertEquals(d.ops.events_7d, { "blnk.mirror.recovered": 1, "blnk.balance_drift": 1 });
   assertEquals(d.ops.outbox_undelivered, 2); // e2 + e3, regardless of code
 
   assertEquals(d.ops.last_reconcile, { advanced: 3 });

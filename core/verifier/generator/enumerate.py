@@ -8,8 +8,9 @@ No LLM, no randomness, byte-stable output (P6, P10). The per-element generator (
 consumes targets.json; the LLM never decides *what* to test, only *how*.
 
 Inputs (version-pinned snapshot at repo root + verifier/):
-  core-api.yaml        enumeration — resources(+states), endpoints       [custom DSL, not OpenAPI]
-  controls.json        enumeration — 317 controls, events[], api_references
+  core-api.yaml        enumeration — resources(+states), endpoints       [OpenAPI 3.0.3]
+  controls.json        enumeration — controls, events[], api_references
+  crosswalk-emitted-events.json  the routed emission inventory — inducibility ground truth
   properties.yaml      curated cross-cutting invariants / attack oracle
   compliance-floor.yaml floor designation (deprioritized — white-label only)
 
@@ -18,8 +19,11 @@ Outputs (under verifier/):
   worklist.md          not-yet-testable targets, grouped by reason (auto-shrinks as upstream converges, P9)
   + a coverage summary to stdout
 
-YAML parsing here is intentionally STRUCTURAL/targeted (the files are regular and we own their
-shape), so the tool has zero third-party deps. Swap in pyyaml if the shapes drift.
+The spec is parsed through scripts/parse_core_api.openapi_to_spec — the same adapter that
+builds core-vocabulary.json — so the verifier and the vocabulary can never disagree about
+what the spec says. Needs pyyaml (like every consumer of the spec). An empty enumeration
+is FATAL: the 2026-07 incident where the old bespoke-format parser matched zero of the
+OpenAPI document and "successfully" wrote an empty targets.json must not recur.
 """
 import json, re, sys, collections
 from pathlib import Path
@@ -28,73 +32,50 @@ CORE = Path(__file__).resolve().parents[2]          # core/
 ROOT = CORE.parent                                   # repo root
 VERIFIER = CORE / "verifier"
 
-# The enumerator's four inputs no longer share a directory. In cassandra-core they all sat at
+sys.path.insert(0, str(ROOT / "scripts"))
+import yaml                                          # noqa: E402
+import spec_io                                       # noqa: E402
+import code_format                                   # noqa: E402
+import parse_core_api as pca                         # noqa: E402  (openapi_to_spec)
+
+# The enumerator's inputs no longer share a directory. In cassandra-core they all sat at
 # that repo's root; here the spec and the floor designation live with the core, while
-# controls.json is a generated artifact at the repo root because both halves of the system
-# read it.
+# controls.json and the emitted inventory are artifacts at the repo root because both
+# halves of the system read them.
 SPEC = CORE / "core-api.yaml"
 FLOOR = CORE / "compliance-floor.yaml"
 CONTROLS = ROOT / "controls.json"
-
-# ⚠ DO NOT RUN THIS AGAINST THE COMMITTED targets.json UNTIL parse_core_api IS REWRITTEN.
-#
-# parse_core_api below reads the ORIGINAL bespoke flat format — top-level `resources:` and
-# `endpoints:` keys at a fixed indentation. This repo's core-api.yaml is OpenAPI 3.0.3
-# (`openapi: 3.0.3` / `paths:`), which that parser matches ZERO of. It does not raise; it
-# returns two empty dicts, and the run completes "successfully" with
-# core_api_resources: 0, endpoints: 0 — dropping all 143 contract targets and all 24
-# state-machine targets, and reclassifying ~276 controls as no_api_inducer.
-#
-# The committed targets.json (529 targets, 75 resources, 143 endpoints) was enumerated in
-# cassandra-core against the old format and is the last VALID output. Regenerating here
-# overwrites it with a quieter, emptier lie.
-#
-# Fix: port parse_core_api to read OpenAPI paths/components — resources from
-# components.schemas (+ x-states), endpoints from paths. Then re-enumerate and expect the
-# target count to CHANGE, because the live catalogue has 333 controls, not the 321 this
-# snapshot was built from.
-
-# Substrate resources whose endpoints can INDUCE an event (have a POST/transition op).
-# Read-only resources (control_result, event) are observers, not inducers.
-INDUCIBLE_SUBJECTS = {"case", "document", "filing", "incident",
-                      "legal_hold", "loan_application", "loan", "task"}
+EMITTED = ROOT / "crosswalk-emitted-events.json"
 
 
 # ────────────────────────────── parsers ──────────────────────────────
 def parse_core_api(path):
-    """Return (resources, endpoints). resources: {name: {kind, states[]}}. endpoints: [(method,path,op)]."""
-    lines = path.read_text().splitlines()
-    resources, endpoints = {}, []
-    section = None          # 'resources' | 'endpoints' | other
-    cur = None              # current resource name
-    collecting_states = False
-    cur_path = None         # current endpoint path
-    for ln in lines:
-        if re.match(r'^[A-Za-z_]+:\s*$', ln):          # top-level key
-            section = ln.split(':', 1)[0]
-            cur = cur_path = None; collecting_states = False
-            continue
-        if section == 'resources':
-            m = re.match(r'^  ([A-Za-z][A-Za-z0-9_]*):\s*$', ln)
-            if m:
-                cur = m.group(1); resources[cur] = {"kind": "?", "states": []}
-                collecting_states = False; continue
-            if cur and re.match(r'^    kind:', ln):
-                resources[cur]["kind"] = ln.split(':', 1)[1].strip()
-            elif cur and re.match(r'^    states:\s*$', ln):
-                collecting_states = True
-            elif collecting_states and re.match(r'^    - ', ln):
-                resources[cur]["states"].append(ln.split('- ', 1)[1].strip())
-            elif re.match(r'^    [a-z]', ln):
-                collecting_states = False
-        elif section == 'endpoints':
-            m = re.match(r'^  (/\S+):\s*$', ln)
-            if m:
-                cur_path = m.group(1); continue
-            m = re.match(r'^    (get|post|patch|put|delete):\s*(\S+)', ln)
-            if m and cur_path:
-                endpoints.append((m.group(1).upper(), cur_path, m.group(2)))
+    """Return (resources, endpoints). resources: {name: {kind, states[]}}. endpoints: [(method,path,op)].
+
+    Ported to OpenAPI: delegates to scripts/parse_core_api.openapi_to_spec (schemas ->
+    resources with x-states, paths -> endpoints) and adapts to the shapes this
+    enumerator has always used."""
+    doc = spec_io.load_spec(path)
+    if not (isinstance(doc, dict) and doc.get("openapi")):
+        sys.exit(f"FATAL: {path} is not an OpenAPI document — refusing to enumerate.")
+    spec = pca.openapi_to_spec(doc)
+    resources = {name: {"kind": r.get("kind") or "?", "states": list(r.get("states") or [])}
+                 for name, r in (spec.get("resources") or {}).items()}
+    endpoints = [(method.upper(), p, op)
+                 for p, methods in sorted((spec.get("endpoints") or {}).items())
+                 for method, op in sorted((methods or {}).items())]
+    if not resources or not endpoints:
+        sys.exit("FATAL: spec parsed to an empty enumeration "
+                 f"(resources={len(resources)}, endpoints={len(endpoints)}) — "
+                 "refusing to overwrite targets.json with an empty target list.")
     return resources, endpoints
+
+
+def emitted_trigger_codes(path):
+    """Canonicalized set of event codes the ROUTED core actually emits — the honest
+    'can the API induce this trigger' ground truth, replacing the old hand-maintained
+    INDUCIBLE_SUBJECTS prefix list (which predated the payments/HR/privacy surface)."""
+    return code_format.emitted_codes(json.loads(path.read_text()))
 
 
 def parse_properties(path):
@@ -124,6 +105,21 @@ def parse_floor(path):
     t = path.read_text()
     seg = t.split('floor_controls:', 1)[1].split('candidates:', 1)[0] if 'floor_controls:' in t else ''
     return set(re.findall(r'-\s*control_id:\s*(\S+)', seg))
+
+
+def parse_floor_triggers(path):
+    """{control_id: [trigger codes]} from the floor_controls section."""
+    if not path.exists():
+        return {}
+    t = path.read_text()
+    seg = t.split('floor_controls:', 1)[1].split('candidates:', 1)[0] if 'floor_controls:' in t else ''
+    out = {}
+    for blk in re.split(r'\n\s*-\s*control_id:\s*', seg)[1:]:
+        cid = blk.split('\n', 1)[0].strip()
+        m = re.search(r'floor_triggers:\s*\[([^\]]*)\]', blk)
+        if m:
+            out[cid] = [x.strip() for x in m.group(1).split(',') if x.strip()]
+    return out
 
 
 # ────────────────────────────── enumeration ──────────────────────────────
@@ -164,10 +160,20 @@ def enum_state_machines(resources, endpoints):
     return targets
 
 
-def classify_control(ctrl):
-    """Return (status, reason, testable_events). status: ready | worklist."""
+def classify_control(ctrl, inducible, canon):
+    """Return (status, reason, testable_events). status: ready | worklist.
+
+    A trigger is inducible iff the ROUTED core can emit it (membership in the
+    canonicalized emitted inventory) — the same denominator the crosswalk uses.
+    A rule is testable only if its OUTPUTS are emittable too: a black-box test
+    fires the trigger and then asserts the produced events, so an output no
+    routed handler emits makes the assertion unwinnable, not merely weak.
+
+    NOTE this is stricter than drill coverage on purpose: the drill imports
+    handlers directly (firers.ts reaches unrouted modules like lending.ts), so
+    a control can be drill-green and still `no_api_inducer` here. The verifier
+    is black-box by charter — reachable means reachable over HTTP."""
     ar = ctrl.get("api_references") or {}
-    registered = set(ar.get("events", [])) | set(ar.get("fields", []))
     unregistered = set(ar.get("unregistered", []))
     testable = []
     reasons = set()
@@ -180,22 +186,25 @@ def classify_control(ctrl):
         real_output = [c for c in out_codes if c != trig]
         if trig in unregistered:
             reasons.add("unregistered_trigger"); continue
-        if subject not in INDUCIBLE_SUBJECTS:
+        if canon(trig) not in inducible:
             reasons.add("no_api_inducer"); continue
         if not real_output:
             reasons.add("degenerate_output"); continue
+        if any(canon(c) not in inducible for c in real_output):
+            reasons.add("unemittable_output"); continue
         testable.append({"trigger": trig, "outputs": real_output,
                          "within": ev.get("within"), "subject": subject})
     if testable:
         return "ready", None, testable
     # priority of reasons for the worklist label
-    for r in ("no_api_inducer", "unregistered_trigger", "degenerate_output"):
+    for r in ("no_api_inducer", "unregistered_trigger", "unemittable_output",
+              "degenerate_output"):
         if r in reasons:
             return "worklist", r, []
     return "worklist", "no_trigger", []
 
 
-def enum_controls(controls, floor_ids):
+def enum_controls(controls, floor_ids, inducible, canon):
     # control_ids are NOT globally unique (10 collide — e.g. BC-* is reused by the Basel framework
     # and the business-continuity plan). Disambiguate colliding ids by policy slug for a unique target_id.
     counts = collections.Counter(c["control_id"] for c in controls)
@@ -203,9 +212,9 @@ def enum_controls(controls, floor_ids):
     targets = []
     for c in controls:
         cid = c["control_id"]
-        slug = Path(c.get("source_file", "")).parent.name or "unknown"
+        slug = c.get("policy") or Path(c.get("source_file", "")).parent.name or "unknown"
         tid = f"control:{cid}" if cid not in collisions else f"control:{cid}@{slug}"
-        status, reason, testable = classify_control(c)
+        status, reason, testable = classify_control(c, inducible, canon)
         targets.append({
             "target_id": tid,
             "kind": "control", "pillars": ["compliance", "detection"],
@@ -239,8 +248,40 @@ def main():
     props = parse_properties(VERIFIER / "properties.yaml")
     floor_ids = parse_floor(FLOOR)
 
+    canon = code_format.canonicalizer(ROOT / "core-vocabulary.json")
+    inducible = {canon(c) for c in emitted_trigger_codes(EMITTED)}
+
+    # floor ids must resolve — a dangling floor designation attaches the
+    # FLOOR-ALWAYS-FIRES assertions to nothing (which is how the BS-*→BSA-*
+    # rename went unnoticed for a month)
+    known_ids = {c["control_id"] for c in controls}
+    dangling = sorted(floor_ids - known_ids)
+    if dangling:
+        sys.exit(f"FATAL: compliance-floor.yaml names control ids absent from "
+                 f"controls.json: {dangling}")
+
+    # ...and floor TRIGGERS must be qualifying events of their control (the
+    # file's own contract: "from controls.json events[]"). The id check alone
+    # let a dead code (sar.decision_file) carry the SAR floor assertion.
+    floor_triggers = parse_floor_triggers(FLOOR)
+    for cid, trigs in sorted(floor_triggers.items()):
+        cited = set()
+        for c in controls:
+            if c["control_id"] != cid:
+                continue
+            for ev in (c.get("events") or []):
+                t = (ev.get("trigger") or {}).get("code")
+                if t:
+                    cited.add(canon(t))
+                for o in (ev.get("outputs") or []):
+                    cited.update(canon(x) for x in (o.get("codes") or []))
+        bad = sorted(t for t in trigs if canon(t) not in cited)
+        if bad:
+            sys.exit(f"FATAL: compliance-floor.yaml floor_triggers for {cid} are "
+                     f"not qualifying events of that control: {bad}")
+
     targets = (enum_contract(endpoints) + enum_state_machines(resources, endpoints)
-               + enum_controls(controls, floor_ids) + enum_properties(props))
+               + enum_controls(controls, floor_ids, inducible, canon) + enum_properties(props))
     targets.sort(key=lambda t: t["target_id"])
 
     # uniqueness guard — target_id is the citation handle (P7); collisions are a fatal data error
@@ -251,15 +292,15 @@ def main():
         sys.exit(1)
 
     # ---- write targets.json (deterministic) ----
-    (VERIFIER / "targets.json").write_text(json.dumps(
+    targets_text = json.dumps(
         {"meta": {"generator": "verifier/generator/enumerate.py",
                   "total": len(targets), "inputs": {
                       "core_api_resources": len(resources), "endpoints": len(endpoints),
                       "controls": len(controls), "properties": len(props),
                       "floor_controls": len(floor_ids)}},
-         "targets": targets}, indent=2, sort_keys=False) + "\n")
+         "targets": targets}, indent=2, sort_keys=False) + "\n"
 
-    # ---- write worklist.md ----
+    # ---- worklist.md (built before the check so the gate covers BOTH outputs) ----
     not_ready = [t for t in targets if t["status"] != "ready"]
     by_reason = {}
     for t in not_ready:
@@ -273,7 +314,18 @@ def main():
         for t in sorted(ts, key=lambda x: x["target_id"]):
             lines.append(f"- `{t['target_id']}` — {t['source']}")
         lines.append("")
-    (VERIFIER / "worklist.md").write_text("\n".join(lines))
+    worklist_text = "\n".join(lines)
+
+    import generated  # scripts/ is on sys.path — the shared staleness gate
+    outputs = {VERIFIER / "targets.json": targets_text,
+               VERIFIER / "worklist.md": worklist_text}
+    if "--check" in sys.argv[1:]:
+        if generated.check_or_write(outputs, check=True,
+                                    rerun_hint="core/verifier/generator/enumerate.py"):
+            sys.exit(1)
+        print(f"enumeration OK — {len(targets)} targets current")
+        return
+    generated.check_or_write(outputs, check=False, rerun_hint="")
 
     # ---- stdout summary ----
     def tally(key):

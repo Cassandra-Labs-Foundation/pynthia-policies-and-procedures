@@ -6,7 +6,7 @@
 
 Catalogue: **316** distinct controls across **27** policies (333 rows — shared controls like SC-02 are replicated into every policy that references them, and are counted once here). 
 Implemented: **10** `CG-*` controls. 
-Event codes the core can emit: **67**. 
+Event codes the core can emit: **805**. 
 Distinct trigger events the catalogue demands: **787**.
 
 ## How to read this
@@ -468,11 +468,11 @@ triggers are half firable is blocked, not half-done.
 
 | Reachability | Controls |
 |---|---:|
-| `reachable` | 3 |
-| `partially_reachable` | 16 |
-| `unreachable` | 297 |
+| `reachable` | 76 |
+| `partially_reachable` | 122 |
+| `unreachable` | 118 |
 
-**Completable: 2.** Reachability only asks whether the
+**Completable: 60.** Reachability only asks whether the
 core can *start* a control. A control can be startable and still have no
 way to signal its own outputs — BSA-21 scores fully reachable because its
 one trigger is `account.closed`, while the retention schedule, legal holds
@@ -480,36 +480,133 @@ and disposal workflow it describes exist nowhere. `completable` means every
 trigger fires **and** every produced event can be emitted. Use that number,
 not the reachable one, when estimating what is buildable.
 
-### Fully reachable (3)
+### Fully reachable (76)
 
 | Control | Policy | Title | Triggers | Completable | Cannot emit |
 |---|---|---|---|---|---|
+| `AU-03` | audit | Internal Auditor Independence and Reporting | `audit.engagement.started` | **no** | `audit.gap.detected`, `auditor.access.denied`, `auditor.independence_attestation` |
+| `AU-05` | audit | Audit Types and Network Assessments | `audit.engagement.started`, `audit.fieldwork.completed`, `audit.plan_cycle.opened` | **no** | `audit.scope_change.documented` |
+| `AU-06` | audit | Audit Reporting and Work Papers | `audit.fieldwork.completed`, `audit.report.issued` | **no** | `audit.management_responses.received` |
+| `AU-07` | audit | Finding Tracking and Escalation | `finding.aging_threshold.breached`, `finding.monthly_review.recorded`, `finding.opened`, `finding.quarterly_report.delivered` | yes | — |
+| `BA-01` | basel-ii-standardized-approach-framework | Minimum Capital Requirements | `capital.contingency.activated`, `capital.pca_threshold.breached`, `capital.ratios.verified`, `capital.target.breached` | yes | — |
+| `BA-03` | basel-ii-standardized-approach-framework | Risk-Weighted Assets Computation | `rwa.mapping_run.started`, `rwa.trading_threshold_crossed` | yes | — |
+| `BA-06` | basel-ii-standardized-approach-framework | Buffer Ratios | `capital.buffer.breached`, `capital.buffer_status.recorded`, `capital.credit_growth_threshold_crossed`, `capital.distribution_restriction.applied` | yes | — |
 | `BSA-06` | bsa | Transaction Monitoring & Case Management | `bsa_alert.created`, `case.investigation_complete` | yes | — |
-| `BSA-10` | bsa | Travel Rule (Wires ≥$3,000) | `wire_transfer.submitted` | **no** | `retention.purge.executed`, `wire_transfer.created`, `wire_transfer.record.retained` |
+| `BSA-07` | bsa | SAR Filing & Confidentiality | `case.investigation_complete`, `sar.continuing_timer`, `sar.disclosure_request.received` | **no** | `retention.purge.executed` |
+| `BSA-10` | bsa | Travel Rule (Wires ≥$3,000) | `wire_transfer.submitted` | **no** | `retention.purge.executed` |
+| `BSA-11` | bsa | Information Sharing (314(a)/314(b)) | `regulator.request.received` | **no** | `filing.fincen_314a` |
+| `BSA-12` | bsa | CMIR (Cross-Border Currency) | `cmir.reportable.identified` | **no** | `retention.purge.executed` |
+| `BSA-18` | bsa | PEP Screening & EDD | `pep.designated`, `pep.hit`, `pep.refresh.completed`, `verification.created` | yes | — |
 | `BSA-21` | bsa | Record Retention | `account.closed` | yes | — |
+| `BC-06` | business-continuity-plan | Incident Declaration and Initial Actions | `incident.contained`, `incident.declared`, `incident.first_hour.completed`, `sitrep.issued` | **no** | `sitrep.v1_timer` |
+| `SC-01` | business-continuity-plan | NCUA Reportable Cyber-Incident & Member Notification | `incident.member_impact.confirmed`, `incident.reportability_determination` | yes | — |
+| `BC-13` | business-continuity-plan | Post-Incident Review (PIR) | `cap.approved`, `cap.retest.verified`, `incident.closed`, `pir.drafted` | yes | — |
+| `CP-01` | capitalization | Capital Adequacy Targets | `capital.ratios.verified`, `capital.targets.approved` | yes | — |
+| `CP-02` | capitalization | Capital Components and Measurement | `capital.ratios.verified` | yes | — |
+| `CP-03` | capitalization | PCA Thresholds and Internal Triggers | `capital.internal_trigger.breached`, `capital.pca_response.recorded`, `capital.pca_threshold.breached` | yes | — |
+| `CP-04` | capitalization | Capital Conservation Buffer | `capital.buffer_status.recorded`, `capital.distribution_restriction.applied`, `capital.restricted_distribution.decided` | yes | — |
+| `CP-05` | capitalization | Capital Planning | `capital.plan.presented`, `capital.plan.reviewed`, `capital.plan.updated` | yes | — |
+| `CP-06` | capitalization | Capital Stress Testing | `capital.stress_report.issued`, `capital.stress_report.presented`, `capital.stress_report.reviewed` | yes | — |
+| `CP-07` | capitalization | Quarterly Monitoring and Reporting | `capital.quarterly_report.issued`, `capital.quarterly_report.reviewed` | yes | — |
+| `CP-08` | capitalization | Contingency Actions and Escalation | `capital.board_escalation.issued`, `capital.contingency_action.executed`, `capital.contingency_memo.issued` | yes | — |
+| `CP-09` | capitalization | Capital Actions Governance | `capital.action.executed`, `capital.action.proposed`, `capital.action_board.decided` | yes | — |
+| `CP-10` | capitalization | Internal Capital Adequacy Assessment (ICAAP) | `capital.icaap.presented`, `capital.icaap.reviewed`, `capital.icaap_cycle.opened`, `capital.icaap_report.issued` | yes | — |
+| `CP-03` | cash | Enterprise Cash Limit | `cash.enterprise_limit.breached`, `cash.enterprise_limit.warning`, `cash.enterprise_position.posted`, `cash.limits_schedule.updated` | yes | — |
+| `CDA-03` | charitable-donation-accounts | Structure & Segregation | `cda.evidence_packet.filed` | yes | — |
+| `CDA-14` | charitable-donation-accounts | Communications & Accessibility | `cda.communication.drafted`, `cda.communication.published` | yes | — |
+| `CO-06` | collections | Consumer Complaint Intake & Resolution | `complaint.direct.received`, `complaint.investigation.completed`, `complaint.regulator.received`, `complaint.trend.reported` | yes | — |
+| `SC-03` | e-commerce | Enterprise Incident Declaration & First-Hour Response | `incident.contained`, `incident.declared`, `incident.first_hour.completed`, `sitrep.issued` | **no** | `sitrep.v1_timer` |
+| `EPS-01` | electronic-payment-systems | Planning and Feasibility Analysis | `eps.erm_review.decided`, `eps.product_risk_analysis.drafted`, `eps.proposal.submitted`, `eps.service.activated` | yes | — |
+| `EPS-03` | electronic-payment-systems | Internal Routines and Controls | `eps.control_review.completed`, `eps.control_review.opened`, `eps.deficiency_remediation.opened` | yes | — |
+| `EPS-05` | electronic-payment-systems | Authentication Controls | `eps.auth.challenged`, `eps.auth.decided`, `eps.auth_lockout.applied`, `eps.card_control.applied` | yes | — |
+| `EPS-06` | electronic-payment-systems | Dual Control for High-Risk Processes | `ach_transfer.created`, `eps.client_limit_change.requested`, `eps.pospay_exception.presented`, `eps.wire_release.requested`, `wire_transfer.submitted` | yes | — |
+| `EPS-07` | electronic-payment-systems | Electronic Fraud Protection Systems | `eps.card_control.applied`, `eps.fraud_trend_review.completed`, `eps.pospay_exception.decided`, `eps.pospay_exception.presented` | yes | — |
+| `EPS-10` | electronic-payment-systems | Pre-Deployment Testing | `eps.deployment.emergency_exception`, `eps.deployment.scheduled`, `eps.test_results.recorded`, `eps.test_retro.completed` | yes | — |
+| `ERM-06` | enterprise-risk-management | Risk Appetite Breach Escalation & Incident Management | `risk_breach.committee_due_at`, `risk_breach.detected`, `risk_breach.review.due_at`, `risk_breach.triage.due_at` | **no** | `risk_breach.closed` |
+| `ERM-07` | enterprise-risk-management | Risk Acceptance & Exceptions | `risk_acceptance.decision.due_at`, `risk_acceptance.expired`, `risk_acceptance.expiry.warning`, `risk_acceptance.expiry_alert_at`, `risk_acceptance.requested` | yes | — |
+| `IS-05` | information-security | Vulnerability and Penetration Testing | `vuln.finding.confirmed`, `vuln.triage.completed` | yes | — |
+| `IS-19` | information-security | Incident Response Plan, Post-Mortem & Law Enforcement Coordination | `incident.closed` | yes | — |
+| `IS-13` | information-security | AI Governance and Usage Disclosure | `ai.member_feature.launched`, `ai.tool.approved`, `ai.tool.proposed`, `ai.violation.disposed` | yes | — |
+| `IS-14` | information-security | Logging, Monitoring, and Alerting | `record.retention.expired`, `siem.alert_critical`, `siem.source_silent` | yes | — |
+| `IC-08` | internal-controls | Audit Trail and Recordkeeping | `record.integrity.test.due` | **no** | `record.audit_entry_written`, `record.retained` |
+| `IP-02` | investment | Governance, Board Oversight, and Delegations | `intermediary.review.completed`, `portfolio.board_report.issued`, `portfolio.management_report.issued`, `trade.exception.logged`, `trade.limit.blocked` | yes | — |
+| `IP-03` | investment | Permissible Investments and Prohibited Activities | `instrument_list.review.completed`, `regulatory.change_analysis.logged`, `trade.limit.blocked`, `trade.limit_warning.issued`, `trade.permissibility.checked` | yes | — |
+| `IP-04` | investment | Interest Rate Risk and ALM Integration | `alm.irr_simulation.completed`, `position.booked`, `stress_test.minimum.breached` | yes | — |
+| `IP-05` | investment | Credit Risk Standards and Downgrade Management | `credit_file.approved`, `credit_file.reanalysis.completed`, `security.downgrade.reviewed`, `security.downgraded` | yes | — |
+| `IP-06` | investment | Liquidity and Marketability Limits | `liquidity.report.published`, `liquidity.stress.declared`, `position.booked`, `position.liquidity.classified` | yes | — |
+| `IP-07` | investment | Concentration and Counterparty Limits | `concentration.limit_exceeded`, `limit_set.review.completed`, `trade.limit.blocked`, `trade.limit_warning.issued` | yes | — |
+| `IP-08` | investment | Approved Brokers, Dealers, and Safekeepers | `intermediary.review.completed`, `safekeeping.reconciliation.completed`, `trade.intermediary.blocked` | **no** | `safekeeping.statement.received` |
+| `IP-09` | investment | Repurchase and Reverse Repurchase Agreements | `repo.booked`, `repo.collateral_marked`, `repo.margin_shortfall.detected` | yes | — |
+| `IP-10` | investment | Valuation, Accounting, and Fair-Value Measurement | `position.booked`, `security.fair_value.updated`, `security.otti_analysis.completed` | **no** | `override.senior_decision.recorded` |
+| `IP-11` | investment | Pre-Purchase Due Diligence and Exceptions | `trade.checklist.completed`, `trade.checklist_exception_raised` | **no** | `trade.booked` |
+| `IP-12` | investment | Ongoing Monitoring, Reporting, and Stress Testing | `portfolio.board_report.issued`, `portfolio.management_report.issued`, `portfolio.stress_test.completed` | yes | — |
+| `IP-14` | investment | Trade Execution, Controls, and Segregation of Duties | `trade.confirmation.received`, `trade.confirmation_discrepancy.flagged`, `trade.reconciliation.completed`, `trade.sod.blocked`, `trade.step.recorded` | yes | — |
+| `IP-17` | investment | Contingency Planning and Liquidity Stress Events | `cfp.investment_test.completed`, `liquidity.stress.declared` | yes | — |
+| `MP-04` | member | Member Disputes and Dispute Resolution | `complaint.acknowledged`, `complaint.investigation.completed`, `complaint.received`, `complaint.regulator.received`, `dispute.investigation.completed`, `dispute.opened`, `dispute.provisional_credit_due_at` | yes | — |
+| `MP-06` | member | Member Expulsion | `expulsion.board_report.filed`, `member.expulsion.decided`, `member.expulsion_hearing.held`, `member.expulsion_hearing.requested`, `member.expulsion_notice.sent`, `member.expulsion_payout.sent` | yes | — |
+| `PR-03` | privacy | Permissible Disclosures and Exceptions | `disclosure.initiated`, `privacy.sharing.blocked`, `vendor.glba_clause.verified` | yes | — |
+| `PR-04` | privacy | Member Access and Authentication | `access.poa.presented`, `access.refused`, `access.request.received`, `legal.process.received` | yes | — |
+| `PR-05` | privacy | Data Accuracy and Corrections | `address.ncoa_mismatch.detected`, `correction.propagated`, `furnishing.correction.applied`, `furnishing.dispute.received` | yes | — |
+| `PR-16` | privacy | Biometric Data for KYC | `verification.biometric.completed`, `verification.biometric.purge.due_at`, `verification.biometric.started` | yes | — |
+| `PR-17` | privacy | Children's Data | `privacy.age_gate.blocked`, `privacy.minor_data.detected`, `privacy.minor_data_deleted` | yes | — |
+| `RR-01` | record-retention | Retention Schedule and Clock Setting | `record.created`, `record_class.unmatched`, `schedule_a.entry.amended` | yes | — |
+| `RR-05` | record-retention | Legal Holds | `legal_hold.clear.confirmed`, `legal_hold.created`, `record.hold.applied` | yes | — |
+| `RR-06` | record-retention | Core Processor and Email Archive Retention | `core_archive.confirmation_due`, `email_archive.test.completed`, `email_archive.test.due` | yes | — |
+| `RR-07` | record-retention | BSA/AML Anonymization and Extended Analytical Retention | `record.retention.expired` | **no** | `record.retained` |
+| `RR-08` | record-retention | CDD Refresh Cycle and Stale-Record Disposition | `cdd.profile.refreshed`, `cdd.refresh.due` | yes | — |
+| `RR-12` | record-retention | Responsibility and Administration | `records.board_report.filed`, `records.contact_vacated`, `records.contacts.assigned` | yes | — |
+| `RS-02` | resolution | Early-Warning Indicators | `ewi.ceo_summary.sent`, `ewi.sweep.completed`, `ewi.threshold.breached` | yes | — |
+| `RS-06` | resolution | Next-Business-Day Member Availability | `institution_freeze.activated`, `member_portal.access.logged` | yes | — |
+| `RS-08` | resolution | Records Preservation for Resolution | `records_package.build.started`, `records_package.completed`, `records_package.snapshot.completed`, `records_package.verification.failed` | yes | — |
+| `TIS-01` | truth-in-savings | Disclosure Standards | `disclosure.template.published`, `privacy.esign_consent.recorded` | **no** | `disclosure.recorded` |
+| `TIS-09` | truth-in-savings | Recordkeeping | `record.hold.placed`, `record.retention.expired` | yes | — |
 
-### Partially reachable (16)
+### Partially reachable (122)
 
 These are the nearest to buildable: some triggers already fire.
 
 | Control | Policy | Firable | Missing |
 |---|---|---|---|
-| `SC-02` | audit | `legal_hold.clear.confirmed`, `legal_hold.created` | `disposal.executed`, `record.disposal_eligible`, `record.hold.applied` |
-| `EPS-06` | electronic-payment-systems | `ach_transfer.created`, `wire_transfer.submitted` | `eps.client_limit_change.requested`, `eps.pospay_exception.presented`, `eps.wire_release.requested` |
-| `LP-11` | lending | `loan_party.added`, `loan_party.ofac.escalated` | `loan_party.ofac.cleared` |
-| `RR-05` | record-retention | `legal_hold.clear.confirmed`, `legal_hold.created` | `record.hold.applied` |
-| `BSA-03` | bsa | `account.closed` | `application.submitted`, `verification.completed` |
-| `BSA-05` | bsa | `wire_transfer.submitted` | `ofac.annual.report.due`, `verification.created` |
-| `BSA-07` | bsa | `case.investigation_complete` | `sar.continuing_timer`, `sar.disclosure_request.received` |
-| `BSA-08` | bsa | `ctr.threshold.reached` | `ctr.exemption.review.due` |
-| `LP-03` | lending | `application.final_action.recorded` | `loan_application.completed`, `loan_application.decisioned`, `loan_application.incomplete.detected` |
-| `LP-04` | lending | `aan.issued` | `credit_report.received`, `credit_score.tolerance.breached`, `loan_application.thin_file.flagged` |
-| `LP-09` | lending | `application.final_action.recorded` | `loan.booking.requested` |
-| `MP-01` | member | `verification.denied` | `member.application.submitted`, `member.eligibility_rule.failed`, `verification.completed`, `verification.created` |
-| `MP-02` | member | `card.request_during_address_hold` | `member.address_notice.sent`, `redflag.detected`, `verification.completed` |
-| `MP-05` | member | `account.closed` | `account.closure.approved`, `account.lock.applied` |
-| `PR-01` | privacy | `entity.created` | `privacy.annual.notice.due_at`, `privacy.notice.revised`, `privacy.notice_copy.requested` |
-| `PR-08` | privacy | `legal_hold.clear.confirmed` | `disposal.executed`, `record.retention.expires_at` |
+| `SC-02` | audit | `legal_hold.clear.confirmed`, `legal_hold.created`, `record.disposal_eligible`, `record.hold.applied` | `disposal.executed` |
+| `BA-05` | basel-ii-standardized-approach-framework | `cfp.investment_test.completed`, `cfp.level.changed`, `liquidity.concentration.breached`, `liquidity.report.published` | `liquidity.cfp_trigger.breached` |
+| `CP-09` | cash | `cash.overshort.resolved`, `cash.surprise_count.completed`, `cash.surprise_count.due`, `supervisory.count_results.delivered` | `exam.export.requested` |
+| `AU-04` | audit | `audit.annual_plan.submitted`, `audit.plan_cycle.opened`, `audit.poor_rating.recorded` | `audit.scope_change.identified` |
+| `AU-08` | audit | `audit.report.issued`, `finding.management_response.recorded`, `risk_acceptance.decided` | `finding.risk_acceptance.proposed` |
+| `BSA-04` | bsa | `cdd.refresh.due`, `risk.trigger_edd`, `verification.completed` | `application.submitted`, `entity.updated` |
+| `BC-05` | business-continuity-plan | `incident.ic.assigned`, `incident.severity.assigned`, `incident.signal.received` | `incident.sev1.detected` |
+| `CP-05` | cash | `cash.custody.rotation_due_at`, `cash.dual_control.completed`, `employee.separated` | `cash.coverage_change.requested`, `cash.keybox.opened` |
+| `CP-06` | cash | `cash.recon.variance_found`, `gl.cash_suspense.aged`, `gl.cash_suspense.cleared` | `cash.recon_day.closed` |
+| `CP-07` | cash | `cash.overshort.recorded`, `cash.overshort.resolved`, `cash.overshort.threshold_crossed` | `cash.kri_month.closed`, `cash.overshort_anomaly.detected` |
+| `CP-08` | cash | `cash.seal.mismatch`, `cash.shipment.received`, `cash.shipment.verified` | `cash.dual_control.initiated`, `cash.nightdrop.retrieved` |
+| `CP-12` | cash | `cash.evidence.created`, `cash.exception.logged`, `record.retention.expired` | `cash.kri_month.closed`, `exam.export.requested` |
+| `FL-13` | fair-lending | `complaint.logged`, `complaint.received`, `complaint.trend.reported` | `compliance.board.report.due_at` |
+| `IS-06` | information-security | `access.breakglass.used`, `employee.hired`, `employee.separated` | `security.quarter.closed` |
+| `IC-06` | internal-controls | `control.override.invoked`, `exception.expiring`, `exception.registered` | `override.analytics_due` |
+| `MP-01` | member | `verification.completed`, `verification.created`, `verification.denied` | `member.application.submitted`, `member.eligibility_rule.failed` |
+| `MP-02` | member | `member.address_notice.sent`, `redflag.detected`, `verification.completed` | `card.request_during_address_hold` |
+| `PR-12` | privacy | `privacy.state_request.received`, `privacy.state_request_fulfilled`, `web.gpc_signal` | `privacy.nv_optout.received` |
+| `PR-14` | privacy | `web.consent.updated`, `web.tag_review`, `web.tag_review.requested` | `web.session.started` |
+| `RR-04` | record-retention | `destruction_log.mismatch.detected`, `destruction_log.mismatch.resolved`, `storage_box.created` | `records.annual.review.due_at` |
+| `AU-09` | audit | `audit.poor_rating.recorded`, `finding.remediation.reported` | `finding.closure.rejected`, `finding.closure.verified` |
+| `BA-07` | basel-ii-standardized-approach-framework | `capital.stress_report.issued`, `stress_test.minimum.breached` | `icaap.completed`, `icaap.cycle.started` |
+| `BA-08` | basel-ii-standardized-approach-framework | `alco.ratio_review.logged`, `ncua.notification.sent` | `capital.target_breach.notified`, `disclosure.pillar3.published`, `training.capital_cycle.started` |
+| `BSA-03` | bsa | `account.closed`, `verification.completed` | `application.submitted` |
+| `BSA-05` | bsa | `verification.created`, `wire_transfer.submitted` | `ofac.annual.report.due` |
+| `BSA-14` | bsa | `escalation.acknowledged`, `escalation.action_plan.published` | `escalation.created` |
+| `BC-07` | business-continuity-plan | `backup.cycle.completed`, `backup.job.failed` | `backup.restore.test.due`, `incident.sev1.detected` |
+| `BC-15` | business-continuity-plan | `incident.containment.started`, `incident.created` | `vendor.incident.logged` |
+| `CP-10` | cash | `cash.deviation.requested`, `cash.exception.logged` | `cash.deviation.approved`, `cash.deviation.expired` |
+| `CDA-04` | charitable-donation-accounts | `cda.vendor_issue.flagged`, `cda.vendor_review.completed` | `cda.vendor_onboarding.started` |
+| `CDA-12` | charitable-donation-accounts | `cda.inkind_transfer.proposed`, `cda.termination.approved` | `cda.account.closed` |
+| `CO-07` | collections | `furnishing.correction.applied`, `furnishing.dispute.received` | `furnishing.cycle_due_at`, `furnishing.idtheft_dispute.received` |
+| `CM-08` | compliance | `complaint.received`, `regulatory.change_required` | `complaint.trend.review.due`, `regulatory.correspondence.received` |
+| `CM-09` | compliance | `policy.board.approved`, `regulatory.change_implemented` | `policy.review.due_at` |
+| `EC-02` | e-commerce | `access.deprovisioned`, `access.granted` | `access.review.due_at` |
+| `EC-13` | e-commerce | `incident.assessment.completed`, `incident.detected` | `incident.external_comms.started` |
+| `EC-12` | e-commerce | `employee.hired`, `training.completed` | `training.annual_due` |
+| `IS-07` | information-security | `dlp.violation.detected`, `record.retention.expired` | `tls.certificate_expires_at` |
+| `IS-08` | information-security | `backup.cycle.completed`, `backup.job.failed` | `incident.sev1.detected` |
+| `IS-10` | information-security | `redflag.case.disposed`, `redflag.detected` | `security.quarter.closed` |
 
 ### Unreachable — blocked on subsystems that do not exist
 
@@ -518,26 +615,26 @@ for the subsystem that would have to be built first.
 
 | Missing-trigger namespace | Controls blocked |
 |---|---:|
-| `capital` | 14 |
 | `vendor` | 14 |
-| `cda` | 14 |
-| `audit` | 10 |
-| `incident` | 10 |
-| `cash` | 10 |
-| `employee` | 8 |
-| `eps` | 8 |
-| `record` | 8 |
-| `policy` | 7 |
-| `access` | 6 |
-| `application` | 5 |
-| `complaint` | 5 |
-| `disclosure` | 5 |
-| `indemnification` | 5 |
-| `loan` | 4 |
-| `cfp` | 4 |
+| `application` | 6 |
+| `cda` | 5 |
+| `policy` | 4 |
 | `compliance` | 4 |
 | `ecommerce` | 4 |
-| `analytics` | 4 |
-| `privacy` | 4 |
-| `board` | 3 |
+| `indemnification` | 4 |
+| `collections` | 3 |
+| `loan` | 3 |
+| `insider` | 3 |
+| `eps` | 3 |
+| `product` | 3 |
+| `loan_application` | 3 |
+| `board` | 2 |
+| `governance` | 2 |
+| `bia` | 2 |
+| `coi` | 2 |
+| `(no trigger declared)` | 2 |
+| `aan` | 2 |
+| `ewi` | 2 |
+| `bcp` | 1 |
+| `facility` | 1 |
 

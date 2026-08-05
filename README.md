@@ -39,6 +39,12 @@ because the dependency runs both ways — compliance produces what the core cons
 core's spec produces what compliance classifies against. They are the contract between the two
 halves, owned by neither.
 
+**API changes start with the spec.** As of 2026-08, `core/core-api.yaml` is the canonical
+reference: the route table (`api/routes.gen.ts`), the event registry, the UI's proxy allowlist
+and types, and the verifier's targets are generated from it, and CI gates (route parity,
+schema parity, emitted coverage, vocab drift) fail when implementation and spec disagree.
+The workflow — endpoint, field, event, or UI surface — is in `CLAUDE.md`.
+
 ## The core idea
 
 A **control** is a single obligation with an id, a regulatory citation, a trigger event, the

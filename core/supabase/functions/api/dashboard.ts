@@ -263,7 +263,7 @@ export async function getDashboardData(
       db.schema("core").from("event")
         .select("code, created_at")
         .in("code", [
-          "blnk.mirror_recovered",
+          "blnk.mirror.recovered",
           "blnk.balance_drift",
           "blnk.missing_mirror",
           "blnk.stuck_row",

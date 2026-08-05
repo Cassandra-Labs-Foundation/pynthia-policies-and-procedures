@@ -214,7 +214,7 @@
         "audit.annual_plan.submitted",
         "audit.annual_plan.approved",
         "audit.schedule_finalized",
-        "audit.scope_change_documented",
+        "audit.scope_change.documented",
         "audit.frequency_increased"
       ],
       "observed": [
@@ -249,7 +249,7 @@
         "audit.scope_change_rationale"
       ],
       "fire_path": "real_writer",
-      "blocked_on": "produced 4/5: missing audit.scope_change_documented"
+      "blocked_on": "produced 4/5: missing audit.scope_change.documented"
     },
     {
       "scoped_out": true,
@@ -540,9 +540,9 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -556,9 +556,9 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -866,7 +866,7 @@
         "liquidity.rsf_total",
         "liquidity.diversification_plan",
         "cfp.level",
-        "cfp.execution_plan_documented",
+        "cfp.execution_plan.documented",
         "liquidity.stress",
         "cfp.investment.test.due_at"
       ],
@@ -882,7 +882,7 @@
         "liquidity.rsf_total",
         "liquidity.diversification_plan",
         "cfp.level",
-        "cfp.execution_plan_documented",
+        "cfp.execution_plan.documented",
         "liquidity.stress",
         "cfp.investment.test.due_at"
       ],
@@ -1947,9 +1947,9 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -1963,9 +1963,9 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -2023,7 +2023,7 @@
       "observed": [],
       "triggers": [
         "bcp.annual.review.due",
-        "board.meeting_held",
+        "board.meeting.held",
         "imt.roster.review.due",
         "org.material_change"
       ],
@@ -2039,7 +2039,7 @@
         "imt.roster.review.due"
       ],
       "fire_path": "obligation_cadence",
-      "blocked_on": "no writer for trigger 'board.meeting_held'"
+      "blocked_on": "no writer for trigger 'board.meeting.held'"
     },
     {
       "scoped_out": true,
@@ -4177,12 +4177,12 @@
       "required_inputs": [
         "cda.communication_draft",
         "cda.wcag_checklist",
-        "cda.communication_archived"
+        "cda.communication.archived"
       ],
       "inputs_supplied": [
         "cda.communication_draft",
         "cda.wcag_checklist",
-        "cda.communication_archived"
+        "cda.communication.archived"
       ],
       "inputs_unverifiable": [],
       "fire_path": "real_writer"
@@ -4345,7 +4345,7 @@
         "loan.collateral_value",
         "loan.ltv",
         "loan.product_type",
-        "loan.well_secured_documented",
+        "loan.well_secured.documented",
         "loan.balance",
         "loan.bankruptcy_case_id",
         "loan.id",
@@ -4359,7 +4359,7 @@
         "loan.collateral_value",
         "loan.ltv",
         "loan.product_type",
-        "loan.well_secured_documented",
+        "loan.well_secured.documented",
         "loan.balance",
         "loan.bankruptcy_case_id",
         "loan.id",
@@ -5367,14 +5367,14 @@
         "affiliate.transaction.recorded",
         "affiliate.lqa_screen.logged",
         "affiliate.list.updated",
-        "affiliate.transaction_file_archived"
+        "affiliate.transaction_file.archived"
       ],
       "observed": [
         "affiliate.limits.checked",
         "affiliate.transaction.recorded",
         "affiliate.lqa_screen.logged",
         "affiliate.list.updated",
-        "affiliate.transaction_file_archived"
+        "affiliate.transaction_file.archived"
       ],
       "triggers": [
         "affiliate.covered_transaction.proposed",
@@ -6993,7 +6993,7 @@
         "risk_acceptance.requested",
         "risk_acceptance.decision.due_at",
         "risk_acceptance.expiry_alert_at",
-        "risk_acceptance.expiry_warning",
+        "risk_acceptance.expiry.warning",
         "risk_acceptance.expired"
       ],
       "required_inputs": [
@@ -7529,9 +7529,9 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -7545,9 +7545,9 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -8439,9 +8439,9 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -8455,9 +8455,9 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -8869,9 +8869,9 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -8885,9 +8885,9 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -9586,9 +9586,9 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -9602,9 +9602,9 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -9706,14 +9706,14 @@
       "status": "green",
       "expected": [
         "cfp.investment_test.completed",
-        "cfp.execution_plan_documented",
+        "cfp.execution_plan.documented",
         "cfp.level.changed",
         "finding.opened",
         "finding.remediation.reported"
       ],
       "observed": [
         "cfp.investment_test.completed",
-        "cfp.execution_plan_documented",
+        "cfp.execution_plan.documented",
         "cfp.level.changed",
         "finding.opened",
         "finding.remediation.reported"
@@ -10233,9 +10233,9 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -10249,9 +10249,9 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -11170,9 +11170,9 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -11186,9 +11186,9 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -11450,7 +11450,7 @@
         "member.id",
         "privacy.optout_scope",
         "disclosure.template_id",
-        "member.esign_consent_captured",
+        "member.esign_consent.captured",
         "member.delivery_failure_reason"
       ],
       "inputs_supplied": [],
@@ -11460,7 +11460,7 @@
         "member.id",
         "privacy.optout_scope",
         "disclosure.template_id",
-        "member.esign_consent_captured",
+        "member.esign_consent.captured",
         "member.delivery_failure_reason"
       ],
       "fire_path": "real_writer"
@@ -11646,13 +11646,13 @@
       "status": "green",
       "expected": [
         "account.death_flag.applied",
-        "estate.claim_documented",
+        "estate.claim.documented",
         "verification.created",
         "estate.payout.sent"
       ],
       "observed": [
         "account.death_flag.applied",
-        "estate.claim_documented",
+        "estate.claim.documented",
         "verification.created",
         "estate.payout.sent"
       ],
@@ -12095,7 +12095,7 @@
       "expected": [
         "disposal.held",
         "disposal.scheduled",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "record.destruction_due_at",
         "disposal.certificate.recorded",
         "record.destroyed"
@@ -12103,7 +12103,7 @@
       "observed": [
         "disposal.held",
         "disposal.scheduled",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "record.destruction_due_at",
         "disposal.certificate.recorded",
         "record.destroyed"
@@ -12282,13 +12282,13 @@
       "status": "green",
       "expected": [
         "privacy.website_notice.updated",
-        "member.esign_consent_captured",
+        "member.esign_consent.captured",
         "privacy.esign_consent.recorded",
         "privacy.notice_copy.delivered"
       ],
       "observed": [
         "privacy.website_notice.updated",
-        "member.esign_consent_captured",
+        "member.esign_consent.captured",
         "privacy.esign_consent.recorded",
         "privacy.notice_copy.delivered"
       ],
@@ -12463,14 +12463,14 @@
         "connection.token.issued",
         "connection.scope_violation.detected",
         "connection.suspended",
-        "connection.token_revoked"
+        "connection.token.revoked"
       ],
       "observed": [
         "connection.consent.granted",
         "connection.token.issued",
         "connection.scope_violation.detected",
         "connection.suspended",
-        "connection.token_revoked"
+        "connection.token.revoked"
       ],
       "triggers": [
         "connection.consent.granted",
@@ -12758,9 +12758,9 @@
         "legal.hold.placed",
         "record.hold.placed",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released"
       ],
       "observed": [
@@ -12768,9 +12768,9 @@
         "legal.hold.placed",
         "record.hold.placed",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released"
       ],
       "triggers": [
@@ -13883,9 +13883,9 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -13899,9 +13899,9 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",

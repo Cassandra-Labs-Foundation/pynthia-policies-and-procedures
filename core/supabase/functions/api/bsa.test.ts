@@ -305,7 +305,7 @@ Deno.test("the sweep surfaces an alert nobody triaged in time", async () => {
   const b = await res.json();
   assertEquals(b.breach_count, 1);
   assertEquals(b.breaches[0].kind, "triage_overdue");
-  assertEquals(writes.find((w) => w.table === "event")!.row.code, "bsa_alert.triage_overdue");
+  assertEquals(writes.find((w) => w.table === "event")!.row.code, "bsa_alert.triage.overdue");
 });
 
 Deno.test("the sweep surfaces a case nobody decided in time", async () => {
@@ -316,7 +316,7 @@ Deno.test("the sweep surfaces a case nobody decided in time", async () => {
   const b = await (await postTimerSweep(req({}), db, "b11", OPS_CTX)).json();
   assertEquals(b.breach_count, 1);
   assertEquals(b.breaches[0].kind, "sar_decision_overdue");
-  assertEquals(writes.find((w) => w.table === "event")!.row.code, "case.sar_decision_overdue");
+  assertEquals(writes.find((w) => w.table === "event")!.row.code, "case.sar_decision.overdue");
 });
 
 Deno.test("breach event ids are deterministic — repeated sweeps do not pile up", async () => {

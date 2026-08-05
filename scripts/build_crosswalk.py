@@ -67,16 +67,122 @@ def load(path):
 
 
 def emitted_codes(inv):
-    codes = {e["code"] for e in inv["literal"]}
-    for t in inv["templated"]:
-        codes.update(t["expands_to"])
-    return codes
+    # shared shape-strict reader — see scripts/code_format.emitted_codes
+    import code_format
+    return code_format.emitted_codes(inv)
+
+
+OBJ_CODE = re.compile(r'\bcode: "([a-z_]+\.[a-z_.]+)"')
+EMIT_OPEN = re.compile(r"\bemit\w*\(")
+DOTTED_STR = re.compile(r'"([a-z_]+\.[a-z_.]+)"')
+COMMENT = re.compile(r"//[^\n]*|/\*.*?\*/", re.S)
+
+# Top-level function boundaries: classic declarations AND arrow consts. An
+# arrow handler that is not its own segment would have its emissions credited
+# to whatever function precedes it — a routed one makes that a false positive.
+FN_DECL = re.compile(
+    r"^(?:export\s+)?(?:default\s+)?(?:async\s+)?function\s+([A-Za-z0-9_]+)\s*\("
+    r"|^(?:export\s+)?const\s+([A-Za-z0-9_]+)\s*=\s*(?:async\s*)?\(",
+    re.M)
+
+
+def emit_call_codes(text):
+    """Dotted string-literal codes passed to emit-style helpers.
+
+    For each `emit*(...)` call, scan the balanced argument list and collect
+    every dotted double-quoted string that appears BEFORE the first top-level
+    `{` (the payload object, whose keys are dotted field paths, not codes).
+    This survives nested calls in earlier arguments (`now.getTime()`), plain
+    string ids, and catches BOTH branches of a ternary code argument —
+    the naive first-string regex was blind to a quarter of real sites."""
+    found = set()
+    for m in EMIT_OPEN.finditer(text):
+        depth, i = 1, m.end()
+        arg_end, payload_at = None, None
+        in_str = None
+        while i < len(text) and i < m.end() + 2000:
+            ch = text[i]
+            if in_str:
+                if ch == "\\":
+                    i += 2
+                    continue
+                if ch == in_str:
+                    in_str = None
+            elif ch in "\"'`":
+                in_str = ch
+            elif ch == "(":
+                depth += 1
+            elif ch == ")":
+                depth -= 1
+                if depth == 0:
+                    arg_end = i
+                    break
+            elif ch == "{" and depth == 1 and payload_at is None:
+                payload_at = i
+            i += 1
+        stop = payload_at if payload_at is not None else arg_end
+        if stop is not None:
+            found.update(mm.group(1)
+                         for mm in DOTTED_STR.finditer(text[m.end():stop]))
+    return found
+
+
+def literal_codes_in_text(text):
+    return {m.group(1) for m in OBJ_CODE.finditer(text)} | emit_call_codes(text)
+
+
+def routed_handlers_by_module():
+    """{module stem: set of handler names} the router actually imports.
+    api/index.ts is explicit that unrouting IS the removal of reachability —
+    and routing is per-HANDLER, not per-file: cash_ops.ts exports 3 routed
+    handlers next to dozens the router never imports. An unreachable
+    handler's emissions are capability, not supply; they belong in the
+    inventory's _deliberately_excluded_unrouted block, not in `literal`."""
+    import route_table
+    return route_table.imports_by_module(ROOT / "core" / "supabase" / "functions" / "api")
+
+
+def reachable_codes_in_module(text, routed_names):
+    """Literal codes emitted inside routed handlers of one api module,
+    including local functions transitively called from them. Comments are
+    stripped first so a function name in prose cannot pull a segment into the
+    closure. Attribution is by top-level function segment (declarations and
+    arrow consts); the closure starts from the router's imports and adds any
+    locally declared function referenced from a reachable segment.
+    Conservative in the safe direction: a missed reference weakens the guard,
+    it cannot demand an unreachable code."""
+    text = COMMENT.sub("", text)
+    decls = [(m.start(), m.group(1) or m.group(2)) for m in FN_DECL.finditer(text)]
+    bounds = [pos for pos, _ in decls] + [len(text)]
+    segments = {name: text[bounds[i]:bounds[i + 1]]
+                for i, (_, name) in enumerate(decls)}
+
+    reachable = set(routed_names) & set(segments)
+    grew = True
+    while grew:
+        grew = False
+        for name in list(reachable):
+            for other in segments:
+                if other not in reachable and re.search(rf"\b{other}\s*\(",
+                                                        segments[name]):
+                    reachable.add(other)
+                    grew = True
+
+    found = set()
+    for name in reachable:
+        found.update(literal_codes_in_text(segments[name]))
+    return found
 
 
 def literal_codes_in_source():
-    """Re-grep the source for literal `code: "..."` so the easy half of the
-    inventory cannot drift unnoticed. Templated codes are invisible here by
-    construction -- that is why the inventory is hand-maintained."""
+    """Re-grep the source for literal codes so the easy half of the inventory
+    cannot drift unnoticed. api/ modules are scoped to their ROUTED handlers
+    (see routed_handlers_by_module); the non-api functions (blnk-reconcile,
+    blnk-webhook) run whole on their schedule/webhook entrypoints and are
+    scanned in full. The original code:-only, whole-tree grep matched 1 of
+    the ~60 routed positional emissions while demanding nothing false; this
+    one sees both shapes and stays inside the reachable surface."""
+    routed = routed_handlers_by_module()
     found = set()
     for p in (ROOT / "core" / "supabase" / "functions").rglob("*.ts"):
         if p.name.endswith(".test.ts"):
@@ -87,10 +193,18 @@ def literal_codes_in_source():
         # core emits — which is precisely the substitution 5c forbids, arriving
         # by accident rather than by edit. Caught by this check on the drill's
         # first run; excluded here so it cannot recur.
-        if "/drill/" in p.as_posix():
+        posix = p.as_posix()
+        if "/drill/" in posix:
             continue
-        for m in re.finditer(r'code: "([a-z_]+\.[a-z_.]+)"', p.read_text()):
-            found.add(m.group(1))
+        # The aggregator ingests caller-supplied codes into its OWN schema —
+        # not a core emission surface (see inventory notes).
+        if "/aggregator/" in posix:
+            continue
+        if "/api/" in posix:
+            found.update(reachable_codes_in_module(p.read_text(),
+                                                   routed.get(p.stem, set())))
+        else:
+            found.update(literal_codes_in_text(COMMENT.sub("", p.read_text())))
     return found
 
 
@@ -548,6 +662,13 @@ def main():
     mappings = load(MAPPINGS)
     inv = load(EMITTED)
     emitted = emitted_codes(inv)
+    # Inventory codes are the RAW strings the source emits (the grep depends on
+    # that); control triggers are canonicalized by the extractor. Compare in
+    # both spellings so a fused emission (bsa_alert.triage_overdue) matches its
+    # canonical citation (bsa_alert.triage.overdue).
+    import code_format
+    canon = code_format.canonicalizer(ROOT / "core-vocabulary.json")
+    emitted |= {canon(c) for c in emitted}
 
     by_uid = {c['uid']: c for c in controls}
     validate(mappings, controls_by_id, ambiguous, by_uid, errors)
@@ -639,6 +760,16 @@ def main():
     }
 
     if check_only:
+        # Staleness gate: the committed crosswalk must match what a rebuild
+        # would produce. Without this, --check validated the INPUTS while the
+        # committed reachability numbers could describe a controls.json two
+        # revisions old (which is exactly what happened in July 2026).
+        import generated
+        if generated.check_or_write(
+                {OUT_JSON: json.dumps(data, indent=2) + "\n",
+                 OUT_MD: render_md(data)},
+                check=True, rerun_hint="scripts/build_crosswalk.py"):
+            return 1
         print(f"crosswalk OK — {total_claims} claims, {needs_review} awaiting review")
         return 0
 

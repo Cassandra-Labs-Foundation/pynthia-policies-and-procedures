@@ -186,16 +186,19 @@ export async function postNumberTransition(
     .update({ status: to }).eq("id", numberId).select(NUMBER_COLS).single();
   if (updErr) return internalErrorResponse(requestId, updErr);
 
+  // `active` is an adjective state; the event uses the registry's verb form.
+  const numberStateEvent: Record<string, string> = { active: "account_number.activated" };
+  const eventCode = numberStateEvent[to] ?? `account_number.${to}`;
   const { error: evtErr } = await db.schema("core").from("event").insert({
     id: `evt_${crypto.randomUUID()}`,
-    code: `account_number.${to}`,
+    code: eventCode,
     type: "account_number",
     resource_id: numberId,
     entity_hash: await sha256Hex(String((num as Record<string, unknown>).account_id)),
     payload: { from, to },
     created_at: new Date().toISOString(),
   });
-  if (evtErr) console.error(`event emit failed (account_number.${to}): ${evtErr.message}`);
+  if (evtErr) console.error(`event emit failed (${eventCode}): ${evtErr.message}`);
 
   return jsonResponse(numberResponse(updated as Record<string, unknown>), 200, requestId);
 }

@@ -267,7 +267,7 @@ export async function postCfpProfile(
     "liquidity.diversification_plan": body.diversification_plan ?? null,
     "liquidity.stress": body.stress ?? {},
     "cfp.level": level, "cfp.liquidation_hierarchy": body.liquidation_hierarchy ?? null,
-    "cfp.execution_plan_documented": body.execution_plan_documented === true,
+    "cfp.execution_plan.documented": body.execution_plan_documented === true,
     "cfp.investment.test.due_at": new Date(now.getTime() + 365 * DAY_MS).toISOString(),
   };
   await emit(db, scope, `ev_${id}_rep`, "liquidity.report", "cfp_liquidity_profile", id, payload, ctx);

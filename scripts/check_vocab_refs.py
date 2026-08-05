@@ -50,14 +50,24 @@ def is_filename(code: str) -> bool:
 
 
 def classify(codes, vocab):
-    fields = {f["path"] for f in vocab.get("fields", [])}
-    events = {e.get("name") or e.get("code") for e in vocab.get("events", [])}
-    tasks = {t["name"] for t in vocab.get("tasks", [])}
-    provisional = set(vocab.get("provisional_fields", []))
+    """Membership is decided in CANONICAL spelling (code_format.canonical_code —
+    the single normalization the whole pipeline applies), so a policy citing a
+    fused token (board.meeting_held) still resolves against the registry's
+    dotted registration (board.meeting.held) and vice versa."""
+    import code_format
+    acts = set(vocab.get("event_types", []))
+    tts = set(vocab.get("task_types", []))
+    def canon(c):
+        return code_format.canonical_code(c, acts, tts)
+
+    fields = {canon(f["path"]) for f in vocab.get("fields", [])}
+    events = {canon(e.get("name") or e.get("code")) for e in vocab.get("events", [])}
+    tasks = {canon(t["name"]) for t in vocab.get("tasks", [])}
+    provisional = {canon(p) for p in vocab.get("provisional_fields", [])}
 
     out = {"field": [], "event": [], "task": [], "provisional": [], "missing": []}
     for code in sorted(codes):
-        base = norm(code)
+        base = canon(norm(code))
         if base in fields:
             out["field"].append(code)
         elif base in events:
@@ -207,7 +217,7 @@ def main():
             for c, alts in near_misses.items():
                 print(f"      - {c}  →  {', '.join(alts)}")
         if conforming:
-            print(f"    CONFORMING (grammar-valid; paste into vocab-migration.json): {len(conforming)}")
+            print(f"    CONFORMING (grammar-valid; register in core-api.yaml x-events): {len(conforming)}")
             for c, info in conforming.items():
                 print(f"      - {c}  →  {json.dumps(info['migration_entry'])}")
         if nonconforming:

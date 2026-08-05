@@ -154,8 +154,9 @@ def main() -> int:
             for c in codes:
                 print(f"    - {c}")
         print("\nThe policy states an obligation the spec stopped supporting. Either\n"
-              "restore the term in core-api.yaml, map it in vocab-migration.json, or\n"
-              "regenerate the policy so its prose matches what the core implements.")
+              "restore the term in core-api.yaml (fields via components/schemas,\n"
+              "event codes via x-events), or regenerate the policy so its prose\n"
+              "matches what the core implements.")
         return 1 if args.check else 0
 
     print("no drift")

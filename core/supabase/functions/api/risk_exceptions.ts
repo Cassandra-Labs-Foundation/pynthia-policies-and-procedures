@@ -468,7 +468,7 @@ export async function postRiskAcceptanceSweep(
             (new Date(String(a.expiry_date)).getTime() - now.getTime()) / DAY_MS,
           ),
         }, ctx);
-      await emit(db, scope, `ev_${id}_warn`, "risk_acceptance.expiry_warning",
+      await emit(db, scope, `ev_${id}_warn`, "risk_acceptance.expiry.warning",
         "risk_acceptance", id, { "risk_acceptance.expiry_date": a.expiry_date }, ctx);
     }
     // touched either way, so a bounded sweep cannot starve its tail

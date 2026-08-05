@@ -57,6 +57,17 @@ jobs:
         # nullable column fails here instead of in production.
         run: python3 scripts/check_cursor_columns.py --strict
 
+      - name: Route parity — spec paths and the router must agree exactly
+        # The 2026-08 postmortem gate: paths drifted to 119 phantom operations
+        # and 345 undocumented routes because nothing failed when it lied.
+        run: python3 scripts/check_route_parity.py
+
+      - name: Emitted coverage — no emitted code may be missing from x-events
+        # Inverse of the drift gate above: every code the core can emit must be
+        # registered in the spec's x-events, or reachability is measured across
+        # a vocabulary gap. Stdlib-only, reads the built core-vocabulary.json.
+        run: python3 scripts/check_emitted_coverage.py
+
       - name: Crosswalk integrity — no over-claims, no stale catalogue ids
         run: python3 scripts/build_crosswalk.py --check
 

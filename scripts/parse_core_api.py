@@ -12,10 +12,17 @@ Sources
 -------
 core-api.yaml          meta, resources (states + properties), fields
                        (flat dotted tokens), event_types (verbs),
-                       task_types, state_machines, endpoints.
-vocab-migration.json   migration: policy token -> {as: field|event|task,
-                       ...}. Event tokens carry (subject, type); these
-                       become the canonical entity.event codes.
+                       task_types, state_machines, endpoints — and the
+                       registries: x-events (code -> {subject, type}),
+                       x-tasks, x-task-map. The spec is the single
+                       source of registered event codes.
+vocab-migration.json   the historical migration record. Read ONLY for
+                       provisional_fields (policy field tokens not yet
+                       registered). Its event/task tokens were stamped
+                       into the spec by core-api-loop/migrate/
+                       author_events.py and are ignored when the spec
+                       carries x-events (a legacy spec without x-events
+                       still falls back to it, with a warning).
 
 Mapping
 -------
@@ -23,16 +30,16 @@ entities        one per resource (schema fields) + one per flat-field
                 prefix (vocabulary fields).
 fields          resource properties (entity = schema name) + flat
                 fields (entity = prefix).
-events          every migration token with as=event; name is the token
-                policies cite, entity is the subject, description names
-                the canonical event_type verb.
+events          every x-events entry; name is the code policies cite,
+                entity is the subject, description names the canonical
+                event_type verb.
 endpoints       one row per path+method, summary = operation id.
 state_machines  from the spec's state_machines section.
 plugins         none in the minimal spec.
 
 Extra keys (ignored by the renderer, kept for tooling):
-task_types, tasks (from task_map), provisional_fields (migration field
-refs not registered in the spec).
+task_types, tasks (from x-tasks + x-task-map), provisional_fields
+(migration field refs not registered in the spec).
 
 Usage:
     python3 scripts/parse_core_api.py [-s core-api.yaml]
@@ -47,6 +54,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import yaml
+import spec_io
 
 PARSER_VERSION = "0.2.0"
 
@@ -89,9 +97,20 @@ def build(spec, migration_doc):
     state_machines = spec.get("state_machines") or {}
     endpoints_in = spec.get("endpoints") or {}
     migration = (migration_doc or {}).get("migration") or {}
-    task_map = (migration_doc or {}).get("task_map") or {}
 
     warnings = []
+
+    # The spec's x-events / x-tasks / x-task-map registries are authoritative
+    # (stamped once by core-api-loop/migrate/author_events.py, hand-owned
+    # since). A spec without them is an error, not a fallback — the silent
+    # fallback would be the frozen demand-side snapshot this parser was once
+    # limited to, which is exactly the drift this pipeline exists to prevent.
+    events_in = spec.get("events")
+    tasks_in = spec.get("tasks")
+    task_map = spec.get("task_map")
+    if events_in is None or tasks_in is None or task_map is None:
+        sys.exit("spec carries no x-events/x-tasks/x-task-map registries — "
+                 "run core/core-api-loop/migrate/author_events.py to stamp them.")
 
     # --- fields ---------------------------------------------------------
     fields = []
@@ -150,15 +169,13 @@ def build(spec, migration_doc):
 
     # --- events ---------------------------------------------------------
     events = []
-    for token, entry in sorted(migration.items()):
-        if entry.get("as") != "event":
-            continue
+    for code, entry in sorted(events_in.items()):
         etype = entry.get("type", "")
         if etype not in event_types:
-            warnings.append(f"event token {token!r} uses unregistered event_type {etype!r}")
+            warnings.append(f"event code {code!r} uses unregistered event_type {etype!r}")
         events.append({
-            "name": token,
-            "code": token,
+            "name": code,
+            "code": code,
             "entity": entry.get("subject", ""),
             "description": f"canonical event_type: `{etype}`",
         })
@@ -189,9 +206,7 @@ def build(spec, migration_doc):
 
     # --- tasks (extra, not rendered) --------------------------------------
     tasks = []
-    for token, entry in sorted(migration.items()):
-        if entry.get("as") != "task":
-            continue
+    for token, entry in sorted(tasks_in.items()):
         ttype = entry.get("type", "")
         if ttype not in set(task_types):
             warnings.append(f"task token {token!r} uses unregistered task_type {ttype!r}")
@@ -207,7 +222,8 @@ def build(spec, migration_doc):
 
     # --- subject registry --------------------------------------------------
     subjects = sorted(
-        {e.get("subject") for e in migration.values() if e.get("subject")}
+        {e.get("subject") for e in events_in.values() if e.get("subject")}
+        | {e.get("subject") for e in tasks_in.values() if e.get("subject")}
         | {e.get("subject") for e in task_map.values() if e.get("subject")}
     )
 
@@ -246,7 +262,9 @@ def build(spec, migration_doc):
             "parser_version": PARSER_VERSION,
             "parsed_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             "note": meta_in.get("note"),
-            "sources": ["core-api.yaml", "vocab-migration.json"],
+            "sources": (["core-api.yaml"]
+                        + (["vocab-migration.json (provisional-field record)"]
+                           if migration_doc else [])),
         },
         "stats": {
             "entities": len(entities),
@@ -349,7 +367,7 @@ def openapi_to_spec(doc):
     if info.get("x-elements") is not None:
         meta["elements"] = info["x-elements"]
 
-    return {
+    out = {
         "meta": meta,
         "resources": resources,
         "fields": fields,
@@ -358,6 +376,14 @@ def openapi_to_spec(doc):
         "state_machines": doc.get("x-state-machines") or {},
         "endpoints": endpoints,
     }
+    # The registries live in the spec (stamped by core-api-loop/migrate/
+    # author_events.py). Absent keys stay absent so build() can distinguish
+    # "no registry" (legacy spec -> migration fallback) from "empty registry".
+    for spec_key, x_key in (("events", "x-events"), ("tasks", "x-tasks"),
+                            ("task_map", "x-task-map")):
+        if x_key in doc:
+            out[spec_key] = doc[x_key] or {}
+    return out
 
 
 def main():
@@ -371,7 +397,7 @@ def main():
     args = ap.parse_args()
 
     try:
-        spec = yaml.safe_load(Path(args.spec).read_text())
+        spec = spec_io.load_spec(args.spec)
     except Exception as e:
         sys.exit(f"error: cannot read spec {args.spec}: {e}")
     migration_doc = None
@@ -382,7 +408,7 @@ def main():
         except Exception as e:
             sys.exit(f"error: cannot parse migration file {mpath}: {e}")
     else:
-        print(f"warning: {mpath} not found — events/tasks will be empty",
+        print(f"warning: {mpath} not found — provisional_fields will be empty",
               file=sys.stderr)
 
     out, warnings = build(spec, migration_doc)

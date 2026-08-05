@@ -680,7 +680,7 @@ export async function postAchNoc(
     await recordMovementArtifacts(db, {
       bkeId: `bke_${achId}_noc_${nocCode}`,
       evtId: `evt_${achId}_noc_${nocCode}`,
-      code: "ach_transfer.noc_received",
+      code: "ach_transfer.noc.received",
       resourceType: "ach_transfer",
       resourceId: achId,
       // zero: a NOC moves no money. The bookkeeping row exists so the event has

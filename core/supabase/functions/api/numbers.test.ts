@@ -97,7 +97,8 @@ Deno.test("number machine: active <-> disabled, both -> canceled, canceled termi
     });
     const res = await postNumberTransition(req({ to }), "can_1", db, "n4", TEST_CTX);
     assertEquals(res.status, 200, `${from} -> ${to} must be legal`);
-    assertEquals(inserts.find((i) => i.table === "event")?.row.code, `account_number.${to}`);
+    assertEquals(inserts.find((i) => i.table === "event")?.row.code,
+      to === "active" ? "account_number.activated" : `account_number.${to}`);
   }
   for (const [from, to] of [["canceled", "active"], ["canceled", "disabled"]] as [string, string][]) {
     const { db } = stubApiDb({

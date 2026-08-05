@@ -579,7 +579,7 @@ export async function postTimerSweep(
     const id = String(a.id);
     try {
       await emitBsaEvent(
-        db, scope, `evt_${id}_triage_overdue`, "bsa_alert.triage_overdue",
+        db, scope, `evt_${id}_triage_overdue`, "bsa_alert.triage.overdue",
         "bsa_alert", id,
         { due_at: a.triage_due_at, alert_type: a.alert_type, detected_at: nowIso },
       );
@@ -601,7 +601,7 @@ export async function postTimerSweep(
     const id = String(c.id);
     try {
       await emitBsaEvent(
-        db, scope, `evt_${id}_decision_overdue`, "case.sar_decision_overdue",
+        db, scope, `evt_${id}_decision_overdue`, "case.sar_decision.overdue",
         "case", id,
         { due_at: c.sar_decision_due_at, alert_id: c.alert_id ?? null, detected_at: nowIso },
       );

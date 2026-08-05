@@ -454,7 +454,7 @@ export async function postIncidentSweep(
   const overdue = (overdueRows ?? []) as unknown as Record<string, unknown>[];
   for (const r of overdue) {
     try {
-      await emit(db, scope, `evt_${r.id}_ncua_overdue`, "incident.ncua.notification_overdue",
+      await emit(db, scope, `evt_${r.id}_ncua_overdue`, "incident.ncua_notification.overdue",
         String(r.id), { due_at: r.ncua_notice_due_at, detected_at: nowIso }, ctx);
     } catch (e) { console.error(`ncua overdue event failed: ${e}`); }
   }

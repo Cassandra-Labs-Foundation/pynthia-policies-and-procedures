@@ -1,324 +1,3265 @@
 {
-  "_comment": [
-    "Inventory of every event code the core can actually emit, with provenance.",
-    "",
-    "Hand-maintained, because a grep cannot resolve the templated codes",
-    "(`ach_transfer.${verb}`) without knowing each template's value set. Every",
-    "entry cites the source line it comes from so a reviewer can check it, and",
-    "scripts/build_crosswalk.py --check re-greps the source for LITERAL codes and",
-    "reports any that are missing here, so drift in the easy half is caught",
-    "automatically.",
-    "",
-    "This file is the denominator of the reachability view. Adding a code here",
-    "that the core does not really emit inflates reachability and is exactly the",
-    "kind of over-claim this artifact exists to prevent."
-  ],
-  "literal": [
-    {
-      "code": "transfer.settled",
-      "source": "supabase/functions/api/transfers.ts"
-    },
-    {
-      "code": "wire_transfer.completed",
-      "source": "supabase/functions/api/wires.ts"
-    },
-    {
-      "code": "wire_transfer.rejected",
-      "source": "supabase/functions/api/wires.ts"
-    },
-    {
-      "code": "wire_transfer.returned",
-      "source": "supabase/functions/api/wires.ts"
-    },
-    {
-      "code": "ach_transfer.noc_received",
-      "source": "supabase/functions/api/ach.ts"
-    },
-    {
-      "code": "card_authorization.captured",
-      "source": "supabase/functions/api/cards.ts"
-    },
-    {
-      "code": "card_authorization.expired",
-      "source": "supabase/functions/api/cards.ts"
-    },
-    {
-      "code": "card.issued",
-      "source": "supabase/functions/api/cards.ts"
-    },
-    {
-      "code": "card.request_during_address_hold",
-      "source": "supabase/functions/api/cards.ts"
-    },
-    {
-      "code": "entity.created",
-      "source": "supabase/functions/api/entities.ts"
-    },
-    {
-      "code": "entity.owner_added",
-      "source": "supabase/functions/api/entities.ts"
-    },
-    {
-      "code": "account.locked",
-      "source": "supabase/functions/api/accounts.ts"
-    },
-    {
-      "code": "account.unlocked",
-      "source": "supabase/functions/api/accounts.ts"
-    },
-    {
-      "code": "blnk.mirror_recovered",
-      "source": "supabase/functions/blnk-reconcile/sweeps.ts"
-    },
-    {
-      "code": "blnk.balance_drift",
-      "source": "supabase/functions/blnk-reconcile/sweeps.ts"
-    },
-    {
-      "code": "blnk.missing_mirror",
-      "source": "supabase/functions/blnk-reconcile/sweeps.ts"
-    },
-    {
-      "code": "blnk.stuck_row",
-      "source": "supabase/functions/blnk-reconcile/sweeps.ts"
-    },
-    {
-      "code": "bsa_alert.created",
-      "source": "supabase/functions/api/bsa.ts",
-      "note": "raiseAlert \u2014 BSA-06's declared trigger; emitted by every alert site (OQ-05)"
-    },
-    {
-      "code": "bsa_alert.triaged",
-      "source": "supabase/functions/api/bsa.ts"
-    },
-    {
-      "code": "bsa_alert.triage_overdue",
-      "source": "supabase/functions/api/bsa.ts",
-      "note": "negative case: emitted by the timer sweep for an alert nobody triaged"
-    },
-    {
-      "code": "case.opened",
-      "source": "supabase/functions/api/bsa.ts"
-    },
-    {
-      "code": "case.investigation_complete",
-      "source": "supabase/functions/api/bsa.ts",
-      "note": "BSA-06's second declared trigger"
-    },
-    {
-      "code": "case.sar_decision_overdue",
-      "source": "supabase/functions/api/bsa.ts",
-      "note": "negative case: emitted by the timer sweep"
-    },
-    {
-      "code": "sar.filed",
-      "source": "supabase/functions/api/bsa.ts"
-    },
-    {
-      "code": "sar.decision_no_file",
-      "source": "supabase/functions/api/bsa.ts"
-    },
-    {
-      "code": "bsa_alert.triage.timer",
-      "source": "supabase/functions/api/bsa.ts",
-      "note": "the 2-business-day clock starting"
-    },
-    {
-      "code": "case.sar.decision.timer",
-      "source": "supabase/functions/api/bsa.ts",
-      "note": "the 30/60-day SAR clock starting"
-    },
-    {
-      "code": "record.retention_clock_set",
-      "source": "supabase/functions/api/retention.ts",
-      "note": "BSA-21's produced event; fired on account.closed"
-    },
-    {
-      "code": "record.retention_anchor",
-      "source": "supabase/functions/api/retention.ts"
-    },
-    {
-      "code": "legal_hold.created",
-      "source": "supabase/functions/api/retention.ts",
-      "note": "SC-02 trigger"
-    },
-    {
-      "code": "disposal.held",
-      "source": "supabase/functions/api/retention.ts",
-      "note": "SC-02: hold suspends queued disposal"
-    },
-    {
-      "code": "legal_hold.clear.confirmed",
-      "source": "supabase/functions/api/retention.ts",
-      "note": "SC-02 trigger"
-    },
-    {
-      "code": "disposal.clock_resumed",
-      "source": "supabase/functions/api/retention.ts"
-    },
-    {
-      "code": "disposal.scheduled",
-      "source": "supabase/functions/api/retention.ts"
-    },
-    {
-      "code": "destruction_log.entry.created",
-      "source": "supabase/functions/api/retention.ts"
-    },
-    {
-      "code": "record.destroyed",
-      "source": "supabase/functions/api/retention.ts"
-    },
-    {
-      "code": "record.destruction.certified",
-      "source": "supabase/functions/api/retention.ts"
-    },
-    {
-      "code": "ctr.threshold.reached",
-      "source": "supabase/functions/api/cash.ts",
-      "note": "BSA-08's declared trigger \u2014 per-person daily currency aggregate over $10k"
-    },
-    {
-      "code": "ctr.filing.timer",
-      "source": "supabase/functions/api/cash.ts",
-      "note": "the 15-calendar-day FinCEN clock starting"
-    },
-    {
-      "code": "ctr.filed",
-      "source": "supabase/functions/api/cash.ts"
-    },
-    {
-      "code": "ctr.filing_overdue",
-      "source": "supabase/functions/api/cash.ts",
-      "note": "negative case: a CTR owed and never filed"
-    },
-    {
-      "code": "eps.wire.second_approval",
-      "source": "supabase/functions/api/eps.ts",
-      "note": "EPS-06's produced event for the wire approval"
-    },
-    {
-      "code": "eps.dual_control.decided",
-      "source": "supabase/functions/api/eps.ts"
-    },
-    {
-      "code": "eps.client_limit.changed",
-      "source": "supabase/functions/api/eps.ts",
-      "note": "EPS-06: client exposure limits assigned by the Credit Union"
-    },
-    {
-      "code": "ach_transfer.created",
-      "source": "supabase/functions/api/ach.ts",
-      "note": "EPS-06 trigger \u2014 the entry was always created, just never announced"
-    },
-    {
-      "code": "wire_transfer.submitted",
-      "source": "supabase/functions/api/wires.ts",
-      "note": "EPS-06 + BSA-05 + BSA-10 trigger"
-    },
-    {
-      "code": "governance.obligation.completed",
-      "source": "supabase/functions/api/governance.ts"
-    },
-    {
-      "code": "governance.obligation.overdue",
-      "source": "supabase/functions/api/governance.ts",
-      "note": "negative case: an obligation that came due and nobody completed"
-    },
-    {
-      "code": "loan_party.added",
-      "source": "supabase/functions/api/lending.ts",
-      "note": "LP-11 trigger"
-    },
-    {
-      "code": "loan_party.ofac.escalated",
-      "source": "supabase/functions/api/lending.ts"
-    },
-    {
-      "code": "application.final_action.recorded",
-      "source": "supabase/functions/api/lending.ts",
-      "note": "LP-03/LP-09 trigger"
-    },
-    {
-      "code": "aan.queued",
-      "source": "supabase/functions/api/lending.ts",
-      "note": "LP-07 produced"
-    },
-    {
-      "code": "aan.issued",
-      "source": "supabase/functions/api/lending.ts"
-    },
-    {
-      "code": "aan.notice_overdue",
-      "source": "supabase/functions/api/lending.ts",
-      "note": "negative case: an ECOA notice nobody sent"
-    }
-  ],
-  "templated": [
-    {
-      "template": "ach_transfer.${verb}",
-      "source": "supabase/functions/api/ach.ts:488",
-      "expands_to": [
-        "ach_transfer.settled",
-        "ach_transfer.returned"
-      ],
-      "note": "verb is 'settled' | 'returned'; only emitted where money MOVED, so a pre-settlement return emits nothing"
-    },
-    {
-      "template": "entity.${to}",
-      "source": "supabase/functions/api/entities.ts",
-      "expands_to": [
-        "entity.active",
-        "entity.disabled",
-        "entity.archived"
-      ],
-      "note": "targets of the entity state machine (pending is the initial state, never a transition TARGET, so entity.pending is never emitted)"
-    },
-    {
-      "template": "account.${to}",
-      "source": "supabase/functions/api/accounts.ts",
-      "expands_to": [
-        "account.frozen",
-        "account.closed",
-        "account.open"
-      ],
-      "note": "ACCOUNT_TRANSITIONS targets: open<->frozen, both -> closed"
-    },
-    {
-      "template": "account_number.${to}",
-      "source": "supabase/functions/api/numbers.ts:191",
-      "expands_to": [
-        "account_number.active",
-        "account_number.disabled",
-        "account_number.canceled"
-      ]
-    },
-    {
-      "template": "verification.${status}",
-      "source": "supabase/functions/api/kyc.ts:158",
-      "expands_to": [
-        "verification.approved",
-        "verification.denied"
-      ]
-    }
-  ],
-  "_deliberately_excluded": {
-    "what": "The 83 time-based trigger codes the governance calendar can fire.",
-    "why": [
-      "postCalendarSweep emits String(row.trigger_code) \u2014 whatever code a REGISTERED",
-      "obligation carries. So the core can technically emit audit.cycle_timer,",
-      "training.annual_cycle.opened, vendor.annual.review.due_at and 80 others.",
-      "",
-      "Listing them here would move dozens of controls to 'reachable' on the",
-      "strength of a CAPABILITY nobody has exercised. Reachability is meant to",
-      "answer 'can the core fire this control's trigger', and the honest answer",
-      "for an unregistered obligation is no \u2014 the machinery exists, the",
-      "obligation does not.",
-      "",
-      "This is the single largest opportunity in the repo to inflate the coverage",
-      "numbers with one JSON edit, which is exactly why it is refused. If these",
-      "are ever added it must be driven by what is actually REGISTERED on a real",
-      "instance, not by what the code is capable of. See BLUEPRINT 5a."
-    ],
-    "codes_available_if_registered": 83
+ "_comment": [
+  "Inventory of every event code the core can actually emit from its ROUTED",
+  "surface, with provenance. Routing is per-handler: api/index.ts's imports",
+  "define reachability, and a handler the router never imports is capability,",
+  "not supply (see _deliberately_excluded_unrouted).",
+  "",
+  "Hand-maintained, because ternary and template codes (`ach_transfer.${verb}`)",
+  "cannot be resolved by a grep without knowing each value set. Every entry",
+  "cites the source line it comes from so a reviewer can check it, and",
+  "scripts/build_crosswalk.py --check re-greps the routed surface for literal",
+  "codes \u2014 both the `code: \"...\"` object shape and the positional",
+  "emit-helper shape, attributed to routed handlers via an intra-module call",
+  "closure \u2014 and reports any that are missing here.",
+  "",
+  "This file is the denominator of the reachability view. Adding a code here",
+  "that the core does not really emit (or emits only from an unrouted",
+  "handler) inflates reachability and is exactly the kind of over-claim this",
+  "artifact exists to prevent."
+ ],
+ "literal": [
+  {
+   "code": "access.breakglass.reviewed",
+   "source": "core/supabase/functions/api/ops_security.ts:146"
+  },
+  {
+   "code": "access.breakglass.used",
+   "source": "core/supabase/functions/api/ops_security.ts:82"
+  },
+  {
+   "code": "access.deprovisioned",
+   "source": "core/supabase/functions/api/hr.ts:118"
+  },
+  {
+   "code": "access.granted",
+   "source": "core/supabase/functions/api/privacy.ts:1110",
+   "note": "ternary with access.refused on status"
+  },
+  {
+   "code": "access.poa.presented",
+   "source": "core/supabase/functions/api/privacy.ts:1124",
+   "note": "conditional"
+  },
+  {
+   "code": "access.poa.rejected",
+   "source": "core/supabase/functions/api/privacy.ts:1130",
+   "note": "conditional"
+  },
+  {
+   "code": "access.provisioned",
+   "source": "core/supabase/functions/api/ops_security.ts:75"
+  },
+  {
+   "code": "access.refused",
+   "source": "core/supabase/functions/api/privacy.ts:1110",
+   "note": "ternary with access.granted on status"
+  },
+  {
+   "code": "access.request.received",
+   "source": "core/supabase/functions/api/privacy.ts:1105"
+  },
+  {
+   "code": "access.review_attestation",
+   "source": "core/supabase/functions/api/ops_security.ts:152"
+  },
+  {
+   "code": "access.role.granted",
+   "source": "core/supabase/functions/api/ops_security.ts:72"
+  },
+  {
+   "code": "access_review.completed",
+   "source": "core/supabase/functions/api/ops_security.ts:155"
+  },
+  {
+   "code": "account.created",
+   "source": "core/supabase/functions/api/deposits_member.ts:426"
+  },
+  {
+   "code": "account.death_flag.applied",
+   "source": "core/supabase/functions/api/member_protection.ts:67"
+  },
+  {
+   "code": "account.locked",
+   "source": "core/supabase/functions/api/accounts.ts"
+  },
+  {
+   "code": "account.maturity.notice.due_at",
+   "source": "core/supabase/functions/api/deposits_member.ts:217"
+  },
+  {
+   "code": "account.unlocked",
+   "source": "core/supabase/functions/api/accounts.ts"
+  },
+  {
+   "code": "account_freeze.applied",
+   "source": "core/supabase/functions/api/resolution.ts:134"
+  },
+  {
+   "code": "account_freeze.credit.posted",
+   "source": "core/supabase/functions/api/resolution.ts:217"
+  },
+  {
+   "code": "account_freeze.precedence.resolved",
+   "source": "core/supabase/functions/api/resolution.ts:143"
+  },
+  {
+   "code": "account_freeze.released",
+   "source": "core/supabase/functions/api/resolution.ts:182"
+  },
+  {
+   "code": "ach_transfer.control_results",
+   "source": "core/supabase/functions/api/tail.ts:1091"
+  },
+  {
+   "code": "ach_transfer.created",
+   "source": "core/supabase/functions/api/ach.ts",
+   "note": "EPS-06 trigger \u2014 the entry was always created, just never announced"
+  },
+  {
+   "code": "ach_transfer.noc.received",
+   "source": "core/supabase/functions/api/ach.ts"
+  },
+  {
+   "code": "address.ncoa_mismatch.detected",
+   "source": "core/supabase/functions/api/privacy.ts:841"
+  },
+  {
+   "code": "affiliate.limits.checked",
+   "source": "core/supabase/functions/api/tail.ts:683"
+  },
+  {
+   "code": "affiliate.list.updated",
+   "source": "core/supabase/functions/api/tail.ts:585"
+  },
+  {
+   "code": "affiliate.lqa_screen.logged",
+   "source": "core/supabase/functions/api/tail.ts:688"
+  },
+  {
+   "code": "affiliate.transaction.recorded",
+   "source": "core/supabase/functions/api/tail.ts:685"
+  },
+  {
+   "code": "affiliate.transaction_file.archived",
+   "source": "core/supabase/functions/api/tail.ts:692"
+  },
+  {
+   "code": "ai.disclosure.published",
+   "source": "core/supabase/functions/api/ops_security.ts:705"
+  },
+  {
+   "code": "ai.member_feature.launched",
+   "source": "core/supabase/functions/api/ops_security.ts:702"
+  },
+  {
+   "code": "ai.register.updated",
+   "source": "core/supabase/functions/api/ops_security.ts:674"
+  },
+  {
+   "code": "ai.tool.approved",
+   "source": "core/supabase/functions/api/ops_security.ts:671"
+  },
+  {
+   "code": "ai.tool.proposed",
+   "source": "core/supabase/functions/api/ops_security.ts:645"
+  },
+  {
+   "code": "ai.tool.rejected",
+   "source": "core/supabase/functions/api/ops_security.ts:671"
+  },
+  {
+   "code": "ai.violation.disposed",
+   "source": "core/supabase/functions/api/ops_security.ts:747"
+  },
+  {
+   "code": "alco.ratio_review.logged",
+   "source": "core/supabase/functions/api/liquidity.ts:598"
+  },
+  {
+   "code": "alert.headroom_low",
+   "source": "core/supabase/functions/api/liquidity.ts:515"
+  },
+  {
+   "code": "alert.lar_band_change",
+   "source": "core/supabase/functions/api/liquidity.ts:173"
+  },
+  {
+   "code": "alert.mismatch_breach",
+   "source": "core/supabase/functions/api/liquidity.ts:265"
+  },
+  {
+   "code": "alert.wholesale_pricing_violation",
+   "source": "core/supabase/functions/api/liquidity.ts:853"
+  },
+  {
+   "code": "analytics.cap.opened",
+   "source": "core/supabase/functions/api/complaints.ts:508"
+  },
+  {
+   "code": "analytics.dataset.approved",
+   "source": "core/supabase/functions/api/privacy.ts:616"
+  },
+  {
+   "code": "analytics.dataset.requested",
+   "source": "core/supabase/functions/api/privacy.ts:599"
+  },
+  {
+   "code": "analytics.method_review.completed",
+   "source": "core/supabase/functions/api/privacy.ts:603"
+  },
+  {
+   "code": "analytics.threshold.breached",
+   "source": "core/supabase/functions/api/lending_underwriting.ts:961"
+  },
+  {
+   "code": "antivirus.remediated",
+   "source": "core/supabase/functions/api/ops_security.ts:554"
+  },
+  {
+   "code": "asset.attestation.completed",
+   "source": "core/supabase/functions/api/tail.ts:311"
+  },
+  {
+   "code": "asset.cmdb.updated",
+   "source": "core/supabase/functions/api/tail.ts:309"
+  },
+  {
+   "code": "attestation.recorded",
+   "source": "core/supabase/functions/api/primitives.ts:589"
+  },
+  {
+   "code": "audit.annual_plan.approved",
+   "source": "core/supabase/functions/api/audit.ts:144"
+  },
+  {
+   "code": "audit.annual_plan.submitted",
+   "source": "core/supabase/functions/api/audit.ts:96"
+  },
+  {
+   "code": "audit.assessment.completed",
+   "source": "core/supabase/functions/api/audit.ts:254"
+  },
+  {
+   "code": "audit.assessment.scheduled",
+   "source": "core/supabase/functions/api/audit.ts:99"
+  },
+  {
+   "code": "audit.engagement.started",
+   "source": "core/supabase/functions/api/audit.ts:199"
+  },
+  {
+   "code": "audit.fieldwork.completed",
+   "source": "core/supabase/functions/api/audit.ts:253"
+  },
+  {
+   "code": "audit.fieldwork.logged",
+   "source": "core/supabase/functions/api/audit.ts:205"
+  },
+  {
+   "code": "audit.frequency_increased",
+   "source": "core/supabase/functions/api/audit.ts:262"
+  },
+  {
+   "code": "audit.plan_cycle.opened",
+   "source": "core/supabase/functions/api/audit.ts:94"
+  },
+  {
+   "code": "audit.poor_rating.recorded",
+   "source": "core/supabase/functions/api/audit.ts:261"
+  },
+  {
+   "code": "audit.record_written",
+   "source": "core/supabase/functions/api/audit.ts:256"
+  },
+  {
+   "code": "audit.remediation.timer",
+   "source": "core/supabase/functions/api/audit.ts:397"
+  },
+  {
+   "code": "audit.report.approved",
+   "source": "core/supabase/functions/api/audit.ts:332"
+  },
+  {
+   "code": "audit.report.drafted",
+   "source": "core/supabase/functions/api/audit.ts:255"
+  },
+  {
+   "code": "audit.report.issued",
+   "source": "core/supabase/functions/api/audit.ts:334"
+  },
+  {
+   "code": "audit.report.submitted",
+   "source": "core/supabase/functions/api/audit.ts:331"
+  },
+  {
+   "code": "audit.report_distributed",
+   "source": "core/supabase/functions/api/audit.ts:336"
+  },
+  {
+   "code": "audit.results_delivered_to_board",
+   "source": "core/supabase/functions/api/audit.ts:337"
+  },
+  {
+   "code": "audit.retention.applied",
+   "source": "core/supabase/functions/api/audit.ts:339"
+  },
+  {
+   "code": "audit.retention.expires_at",
+   "source": "core/supabase/functions/api/audit.ts:341"
+  },
+  {
+   "code": "audit.schedule_finalized",
+   "source": "core/supabase/functions/api/audit.ts:146"
+  },
+  {
+   "code": "auditor.access_grant",
+   "source": "core/supabase/functions/api/audit.ts:202"
+  },
+  {
+   "code": "authority.matrix.updated",
+   "source": "core/supabase/functions/api/tail.ts:78"
+  },
+  {
+   "code": "backup.cycle.completed",
+   "source": "core/supabase/functions/api/ops_security.ts:184"
+  },
+  {
+   "code": "backup.job.failed",
+   "source": "core/supabase/functions/api/ops_security.ts:184"
+  },
+  {
+   "code": "backup.job.remediated",
+   "source": "core/supabase/functions/api/ops_security.ts:217"
+  },
+  {
+   "code": "backup.restore.verified",
+   "source": "core/supabase/functions/api/ops_security.ts:274"
+  },
+  {
+   "code": "balance.disclosed",
+   "source": "core/supabase/functions/api/deposits_member.ts:368"
+  },
+  {
+   "code": "balance.inquiry.received",
+   "source": "core/supabase/functions/api/deposits_member.ts:821"
+  },
+  {
+   "code": "blnk.balance_drift",
+   "source": "core/supabase/functions/blnk-reconcile/sweeps.ts"
+  },
+  {
+   "code": "blnk.inbox_backlog",
+   "source": "core/supabase/functions/blnk-reconcile/sweeps.ts:700"
+  },
+  {
+   "code": "blnk.mirror.recovered",
+   "source": "core/supabase/functions/blnk-reconcile/sweeps.ts"
+  },
+  {
+   "code": "blnk.missing_mirror",
+   "source": "core/supabase/functions/blnk-reconcile/sweeps.ts"
+  },
+  {
+   "code": "blnk.stuck_row",
+   "source": "core/supabase/functions/blnk-reconcile/sweeps.ts"
+  },
+  {
+   "code": "board.cash_summary.delivered",
+   "source": "core/supabase/functions/api/cash_ops.ts:1428"
+  },
+  {
+   "code": "board.minutes.recorded",
+   "source": "core/supabase/functions/api/basel.ts:518"
+  },
+  {
+   "code": "board.notification.sent",
+   "source": "core/supabase/functions/api/investment.ts:380"
+  },
+  {
+   "code": "board.shortfall.notified",
+   "source": "core/supabase/functions/api/basel.ts:521"
+  },
+  {
+   "code": "bsa_alert.created",
+   "source": "core/supabase/functions/api/bsa.ts",
+   "note": "raiseAlert \u2014 BSA-06's declared trigger; emitted by every alert site (OQ-05)"
+  },
+  {
+   "code": "bsa_alert.triage.overdue",
+   "source": "core/supabase/functions/api/bsa.ts",
+   "note": "negative case: emitted by the timer sweep for an alert nobody triaged"
+  },
+  {
+   "code": "bsa_alert.triage.timer",
+   "source": "core/supabase/functions/api/bsa.ts",
+   "note": "the 2-business-day clock starting"
+  },
+  {
+   "code": "bsa_alert.triaged",
+   "source": "core/supabase/functions/api/bsa.ts"
+  },
+  {
+   "code": "cap.approval.timer",
+   "source": "core/supabase/functions/api/basel.ts:461"
+  },
+  {
+   "code": "cap.approved",
+   "source": "core/supabase/functions/api/basel.ts:465"
+  },
+  {
+   "code": "cap.item.completed",
+   "source": "core/supabase/functions/api/basel.ts:470"
+  },
+  {
+   "code": "cap.item.created",
+   "source": "core/supabase/functions/api/basel.ts:458"
+  },
+  {
+   "code": "cap.retest.verified",
+   "source": "core/supabase/functions/api/basel.ts:475"
+  },
+  {
+   "code": "capital.action.executed",
+   "source": "core/supabase/functions/api/capital.ts:256"
+  },
+  {
+   "code": "capital.action.proposed",
+   "source": "core/supabase/functions/api/capital.ts:255"
+  },
+  {
+   "code": "capital.action_board.decided",
+   "source": "core/supabase/functions/api/capital.ts:422"
+  },
+  {
+   "code": "capital.board_escalation.issued",
+   "source": "core/supabase/functions/api/basel.ts:523"
+  },
+  {
+   "code": "capital.buffer.breached",
+   "source": "core/supabase/functions/api/basel.ts:195"
+  },
+  {
+   "code": "capital.buffer_status.recorded",
+   "source": "core/supabase/functions/api/basel.ts:182"
+  },
+  {
+   "code": "capital.ccyb.activated",
+   "source": "core/supabase/functions/api/basel.ts:188"
+  },
+  {
+   "code": "capital.ccyb_level",
+   "source": "core/supabase/functions/api/basel.ts:175"
+  },
+  {
+   "code": "capital.classification.approved",
+   "source": "core/supabase/functions/api/capital.ts:203"
+  },
+  {
+   "code": "capital.components.classified",
+   "source": "core/supabase/functions/api/capital.ts:181"
+  },
+  {
+   "code": "capital.contingency.activated",
+   "source": "core/supabase/functions/api/capital.ts:252"
+  },
+  {
+   "code": "capital.contingency_action.executed",
+   "source": "core/supabase/functions/api/capital.ts:253"
+  },
+  {
+   "code": "capital.contingency_action_id",
+   "source": "core/supabase/functions/api/tail.ts:520"
+  },
+  {
+   "code": "capital.contingency_memo.issued",
+   "source": "core/supabase/functions/api/capital.ts:254"
+  },
+  {
+   "code": "capital.credit_growth_threshold_crossed",
+   "source": "core/supabase/functions/api/basel.ts:203"
+  },
+  {
+   "code": "capital.distribution_restriction.applied",
+   "source": "core/supabase/functions/api/basel.ts:198"
+  },
+  {
+   "code": "capital.icaap_cycle.opened",
+   "source": "core/supabase/functions/api/capital.ts:645"
+  },
+  {
+   "code": "capital.icaap_report.issued",
+   "source": "core/supabase/functions/api/capital.ts:646"
+  },
+  {
+   "code": "capital.internal_trigger.breached",
+   "source": "core/supabase/functions/api/capital.ts:219"
+  },
+  {
+   "code": "capital.max_payout_ratio",
+   "source": "core/supabase/functions/api/basel.ts:174"
+  },
+  {
+   "code": "capital.payout_restricted",
+   "source": "core/supabase/functions/api/capital.ts:239"
+  },
+  {
+   "code": "capital.payout_restriction_schedule",
+   "source": "core/supabase/functions/api/capital.ts:240"
+  },
+  {
+   "code": "capital.pca_classification.recorded",
+   "source": "core/supabase/functions/api/capital.ts:178"
+  },
+  {
+   "code": "capital.pca_mandatory_actions",
+   "source": "core/supabase/functions/api/capital.ts:235"
+  },
+  {
+   "code": "capital.pca_response.recorded",
+   "source": "core/supabase/functions/api/capital.ts:246"
+  },
+  {
+   "code": "capital.pca_threshold.breached",
+   "source": "core/supabase/functions/api/capital.ts:232"
+  },
+  {
+   "code": "capital.plan.updated",
+   "source": "core/supabase/functions/api/capital.ts:635"
+  },
+  {
+   "code": "capital.plan_id",
+   "source": "core/supabase/functions/api/capital.ts:634"
+  },
+  {
+   "code": "capital.quarterly_report.issued",
+   "source": "core/supabase/functions/api/capital.ts:458"
+  },
+  {
+   "code": "capital.quarterly_report.reviewed",
+   "source": "core/supabase/functions/api/capital.ts:464"
+  },
+  {
+   "code": "capital.quarterly_report_id",
+   "source": "core/supabase/functions/api/capital.ts:461"
+  },
+  {
+   "code": "capital.ratio_record_id",
+   "source": "core/supabase/functions/api/capital.ts:187"
+  },
+  {
+   "code": "capital.ratios.verified",
+   "source": "core/supabase/functions/api/capital.ts:175"
+  },
+  {
+   "code": "capital.regulatory_preapproval_id",
+   "source": "core/supabase/functions/api/basel.ts:116"
+  },
+  {
+   "code": "capital.restoration_plan.filed",
+   "source": "core/supabase/functions/api/capital.ts:419"
+  },
+  {
+   "code": "capital.restricted_distribution.decided",
+   "source": "core/supabase/functions/api/capital.ts:249"
+  },
+  {
+   "code": "capital.rwa_total",
+   "source": "core/supabase/functions/api/capital.ts:364"
+  },
+  {
+   "code": "capital.stress_report.issued",
+   "source": "core/supabase/functions/api/capital.ts:641"
+  },
+  {
+   "code": "capital.stress_report_id",
+   "source": "core/supabase/functions/api/capital.ts:638"
+  },
+  {
+   "code": "capital.target.breached",
+   "source": "core/supabase/functions/api/capital.ts:565"
+  },
+  {
+   "code": "capital.targets.approved",
+   "source": "core/supabase/functions/api/capital.ts:553"
+  },
+  {
+   "code": "card_authorization.captured",
+   "source": "core/supabase/functions/api/cards.ts"
+  },
+  {
+   "code": "card_authorization.expired",
+   "source": "core/supabase/functions/api/cards.ts"
+  },
+  {
+   "code": "case.investigation_complete",
+   "source": "core/supabase/functions/api/bsa.ts",
+   "note": "BSA-06's second declared trigger"
+  },
+  {
+   "code": "case.opened",
+   "source": "core/supabase/functions/api/bsa.ts"
+  },
+  {
+   "code": "case.sar.decision.timer",
+   "source": "core/supabase/functions/api/bsa.ts",
+   "note": "the 30/60-day SAR clock starting"
+  },
+  {
+   "code": "case.sar_decision.overdue",
+   "source": "core/supabase/functions/api/bsa.ts",
+   "note": "negative case: emitted by the timer sweep"
+  },
+  {
+   "code": "cash.coverage.attestation.due_at",
+   "source": "core/supabase/functions/api/cash_ops.ts:629"
+  },
+  {
+   "code": "cash.coverage.attested",
+   "source": "core/supabase/functions/api/cash_ops.ts:661"
+  },
+  {
+   "code": "cash.coverage.updated",
+   "source": "core/supabase/functions/api/cash_ops.ts:623",
+   "note": "also hr.ts:101"
+  },
+  {
+   "code": "cash.custody.revoked",
+   "source": "core/supabase/functions/api/hr.ts:95",
+   "note": "conditional"
+  },
+  {
+   "code": "cash.custody.rotation_due_at",
+   "source": "core/supabase/functions/api/cash_ops.ts:626"
+  },
+  {
+   "code": "cash.deviation.requested",
+   "source": "core/supabase/functions/api/cash_ops.ts:1147"
+  },
+  {
+   "code": "cash.deviation_board.decided",
+   "source": "core/supabase/functions/api/cash_ops.ts:1198"
+  },
+  {
+   "code": "cash.device_service.logged",
+   "source": "core/supabase/functions/api/cash_ops.ts:956"
+  },
+  {
+   "code": "cash.dual_control.completed",
+   "source": "core/supabase/functions/api/cash_ops.ts:711",
+   "note": "also :275, :952, :1022"
+  },
+  {
+   "code": "cash.enterprise_limit.breached",
+   "source": "core/supabase/functions/api/cash_ops.ts:362"
+  },
+  {
+   "code": "cash.enterprise_limit.remediated",
+   "source": "core/supabase/functions/api/cash_ops.ts:418"
+  },
+  {
+   "code": "cash.enterprise_limit.remediation.due_at",
+   "source": "core/supabase/functions/api/cash_ops.ts:364"
+  },
+  {
+   "code": "cash.enterprise_limit.warning",
+   "source": "core/supabase/functions/api/cash_ops.ts:358"
+  },
+  {
+   "code": "cash.enterprise_position.posted",
+   "source": "core/supabase/functions/api/cash_ops.ts:354"
+  },
+  {
+   "code": "cash.evidence.created",
+   "source": "core/supabase/functions/api/cash_ops.ts:632"
+  },
+  {
+   "code": "cash.exception.logged",
+   "source": "core/supabase/functions/api/cash_ops.ts:1305"
+  },
+  {
+   "code": "cash.exception_register",
+   "source": "core/supabase/functions/api/cash_ops.ts:1386"
+  },
+  {
+   "code": "cash.exception_register.summary",
+   "source": "core/supabase/functions/api/cash_ops.ts:1392"
+  },
+  {
+   "code": "cash.keybox_access.logged",
+   "source": "core/supabase/functions/api/cash_ops.ts:707"
+  },
+  {
+   "code": "cash.kri.publish.due_at",
+   "source": "core/supabase/functions/api/cash_ops.ts:1360"
+  },
+  {
+   "code": "cash.kri.published",
+   "source": "core/supabase/functions/api/cash_ops.ts:1368"
+  },
+  {
+   "code": "cash.limit_block.alerted",
+   "source": "core/supabase/functions/api/cash_ops.ts:258"
+  },
+  {
+   "code": "cash.limits_schedule.updated",
+   "source": "core/supabase/functions/api/cash_ops.ts:173"
+  },
+  {
+   "code": "cash.limits_whitelist.activated",
+   "source": "core/supabase/functions/api/cash_ops.ts:180"
+  },
+  {
+   "code": "cash.load.decided",
+   "source": "core/supabase/functions/api/cash_ops.ts:249"
+  },
+  {
+   "code": "cash.nightdrop.verified",
+   "source": "core/supabase/functions/api/cash_ops.ts:1026"
+  },
+  {
+   "code": "cash.overshort.investigation.due_at",
+   "source": "core/supabase/functions/api/cash_ops.ts:779"
+  },
+  {
+   "code": "cash.overshort.posted",
+   "source": "core/supabase/functions/api/cash_ops.ts:777"
+  },
+  {
+   "code": "cash.overshort.recorded",
+   "source": "core/supabase/functions/api/cash_ops.ts:778"
+  },
+  {
+   "code": "cash.overshort.resolved",
+   "source": "core/supabase/functions/api/cash_ops.ts:838"
+  },
+  {
+   "code": "cash.overshort.threshold_crossed",
+   "source": "core/supabase/functions/api/cash_ops.ts:795"
+  },
+  {
+   "code": "cash.overshort.thresholds",
+   "source": "core/supabase/functions/api/cash_ops.ts:790"
+  },
+  {
+   "code": "cash.overshort_investigation.opened",
+   "source": "core/supabase/functions/api/cash_ops.ts:783"
+  },
+  {
+   "code": "cash.overshort_report.issued",
+   "source": "core/supabase/functions/api/cash_ops.ts:1381"
+  },
+  {
+   "code": "cash.recon.completed",
+   "source": "core/supabase/functions/api/cash_ops.ts:466"
+  },
+  {
+   "code": "cash.recon.due_at",
+   "source": "core/supabase/functions/api/cash_ops.ts:471"
+  },
+  {
+   "code": "cash.recon.variance_found",
+   "source": "core/supabase/functions/api/cash_ops.ts:491"
+  },
+  {
+   "code": "cash.seal.mismatch",
+   "source": "core/supabase/functions/api/cash_ops.ts:976"
+  },
+  {
+   "code": "cash.shipment.received",
+   "source": "core/supabase/functions/api/cash_ops.ts:887"
+  },
+  {
+   "code": "cash.shipment.verification.due_at",
+   "source": "core/supabase/functions/api/cash_ops.ts:892"
+  },
+  {
+   "code": "cash.shipment.verified",
+   "source": "core/supabase/functions/api/cash_ops.ts:994"
+  },
+  {
+   "code": "cash.surprise_count.completed",
+   "source": "core/supabase/functions/api/cash_ops.ts:1099"
+  },
+  {
+   "code": "cash.surprise_count.due",
+   "source": "core/supabase/functions/api/cash_ops.ts:1057"
+  },
+  {
+   "code": "cda.actions.blocked",
+   "source": "core/supabase/functions/api/cda.ts:206"
+  },
+  {
+   "code": "cda.agreement.clause_missing",
+   "source": "core/supabase/functions/api/cda.ts:477"
+  },
+  {
+   "code": "cda.agreement.validated",
+   "source": "core/supabase/functions/api/cda.ts:473"
+  },
+  {
+   "code": "cda.audit_finding.logged",
+   "source": "core/supabase/functions/api/cda.ts:1835"
+  },
+  {
+   "code": "cda.audit_report.issued",
+   "source": "core/supabase/functions/api/cda.ts:1812"
+  },
+  {
+   "code": "cda.board_decision.recorded",
+   "source": "core/supabase/functions/api/cda.ts:172"
+  },
+  {
+   "code": "cda.board_escalation.issued",
+   "source": "core/supabase/functions/api/cda.ts:207"
+  },
+  {
+   "code": "cda.board_packet.issued",
+   "source": "core/supabase/functions/api/cda.ts:1328"
+  },
+  {
+   "code": "cda.call_report.mapped",
+   "source": "core/supabase/functions/api/cda.ts:1269"
+  },
+  {
+   "code": "cda.cap.breached",
+   "source": "core/supabase/functions/api/cda.ts:750"
+  },
+  {
+   "code": "cda.cap.certified",
+   "source": "core/supabase/functions/api/cda.ts:741"
+  },
+  {
+   "code": "cda.cap_breach_cured",
+   "source": "core/supabase/functions/api/cda.ts:802"
+  },
+  {
+   "code": "cda.cap_buffer.breached",
+   "source": "core/supabase/functions/api/cda.ts:745"
+  },
+  {
+   "code": "cda.cap_cure.insufficient",
+   "source": "core/supabase/functions/api/cda.ts:787"
+  },
+  {
+   "code": "cda.cap_test.completed",
+   "source": "core/supabase/functions/api/cda.ts:737"
+  },
+  {
+   "code": "cda.closing_distribution.executed",
+   "source": "core/supabase/functions/api/cda.ts:1156"
+  },
+  {
+   "code": "cda.communication.approval_incomplete",
+   "source": "core/supabase/functions/api/cda.ts:1742"
+  },
+  {
+   "code": "cda.communication.approved",
+   "source": "core/supabase/functions/api/cda.ts:1748"
+  },
+  {
+   "code": "cda.communication.drafted",
+   "source": "core/supabase/functions/api/cda.ts:1697"
+  },
+  {
+   "code": "cda.communication.published",
+   "source": "core/supabase/functions/api/cda.ts:1786"
+  },
+  {
+   "code": "cda.conflict.escalated",
+   "source": "core/supabase/functions/api/cda.ts:1440"
+  },
+  {
+   "code": "cda.distribution.blocked",
+   "source": "core/supabase/functions/api/cda.ts:1141"
+  },
+  {
+   "code": "cda.distribution.executed",
+   "source": "core/supabase/functions/api/cda.ts:1156"
+  },
+  {
+   "code": "cda.distribution_window.alert",
+   "source": "core/supabase/functions/api/cda.ts:1035"
+  },
+  {
+   "code": "cda.donee.validated",
+   "source": "core/supabase/functions/api/cda.ts:1136"
+  },
+  {
+   "code": "cda.dual_approval.recorded",
+   "source": "core/supabase/functions/api/cda.ts:1151"
+  },
+  {
+   "code": "cda.evidence_packet.filed",
+   "source": "core/supabase/functions/api/cda.ts:402"
+  },
+  {
+   "code": "cda.evidence_packet.incomplete",
+   "source": "core/supabase/functions/api/cda.ts:407"
+  },
+  {
+   "code": "cda.fee_conflict.flagged",
+   "source": "core/supabase/functions/api/cda.ts:1437"
+  },
+  {
+   "code": "cda.fee_review.completed",
+   "source": "core/supabase/functions/api/cda.ts:1342"
+  },
+  {
+   "code": "cda.fee_screen.completed",
+   "source": "core/supabase/functions/api/cda.ts:1429"
+  },
+  {
+   "code": "cda.funding.executed",
+   "source": "core/supabase/functions/api/cda.ts:674"
+  },
+  {
+   "code": "cda.funding_gate_evaluated",
+   "source": "core/supabase/functions/api/cda.ts:613"
+  },
+  {
+   "code": "cda.glossary.attested",
+   "source": "core/supabase/functions/api/cda.ts:1668"
+  },
+  {
+   "code": "cda.glossary.updated",
+   "source": "core/supabase/functions/api/cda.ts:1664"
+  },
+  {
+   "code": "cda.inkind_transfer.evaluated",
+   "source": "core/supabase/functions/api/cda.ts:1549"
+  },
+  {
+   "code": "cda.inkind_transfer.proposed",
+   "source": "core/supabase/functions/api/cda.ts:1543"
+  },
+  {
+   "code": "cda.policy.expired",
+   "source": "core/supabase/functions/api/cda.ts:203"
+  },
+  {
+   "code": "cda.posttrade_check.completed",
+   "source": "core/supabase/functions/api/cda.ts:949"
+  },
+  {
+   "code": "cda.pretrade_check.completed",
+   "source": "core/supabase/functions/api/cda.ts:908"
+  },
+  {
+   "code": "cda.reconciliation.completed",
+   "source": "core/supabase/functions/api/cda.ts:1228"
+  },
+  {
+   "code": "cda.reconciliation.exception",
+   "source": "core/supabase/functions/api/cda.ts:1233"
+  },
+  {
+   "code": "cda.remediation.closed",
+   "source": "core/supabase/functions/api/cda.ts:1869"
+  },
+  {
+   "code": "cda.single_approval.recorded",
+   "source": "core/supabase/functions/api/cda.ts:1164"
+  },
+  {
+   "code": "cda.termination.approved",
+   "source": "core/supabase/functions/api/cda.ts:1486"
+  },
+  {
+   "code": "cda.termination_report.issued",
+   "source": "core/supabase/functions/api/cda.ts:1605"
+  },
+  {
+   "code": "cda.valuation_review.completed",
+   "source": "core/supabase/functions/api/cda.ts:1380"
+  },
+  {
+   "code": "cda.vendor_issue.flagged",
+   "source": "core/supabase/functions/api/cda.ts:287"
+  },
+  {
+   "code": "cda.vendor_qualified",
+   "source": "core/supabase/functions/api/cda.ts:280"
+  },
+  {
+   "code": "cda.vendor_registration_lapsed",
+   "source": "core/supabase/functions/api/cda.ts:341"
+  },
+  {
+   "code": "cda.vendor_review.completed",
+   "source": "core/supabase/functions/api/cda.ts:334"
+  },
+  {
+   "code": "cdd.bo.certified",
+   "source": "core/supabase/functions/api/bsa_program.ts:902"
+  },
+  {
+   "code": "cdd.profile.created",
+   "source": "core/supabase/functions/api/bsa_program.ts:898"
+  },
+  {
+   "code": "cdd.profile.refreshed",
+   "source": "core/supabase/functions/api/records_admin.ts:603"
+  },
+  {
+   "code": "cdd.refresh.due",
+   "source": "core/supabase/functions/api/records_admin.ts:565"
+  },
+  {
+   "code": "cfp.execution_plan.documented",
+   "source": "core/supabase/functions/api/basel.ts:270"
+  },
+  {
+   "code": "cfp.investment_test.completed",
+   "source": "core/supabase/functions/api/basel.ts:284"
+  },
+  {
+   "code": "cfp.level",
+   "source": "core/supabase/functions/api/basel.ts:269"
+  },
+  {
+   "code": "cfp.level.changed",
+   "source": "core/supabase/functions/api/investment.ts:1145"
+  },
+  {
+   "code": "cfp.liquidation_hierarchy",
+   "source": "core/supabase/functions/api/basel.ts:269"
+  },
+  {
+   "code": "cfp.transition.started",
+   "source": "core/supabase/functions/api/basel.ts:280"
+  },
+  {
+   "code": "cmir.filed",
+   "source": "core/supabase/functions/api/bsa_program.ts:1016"
+  },
+  {
+   "code": "cmir.filing.timer",
+   "source": "core/supabase/functions/api/bsa_program.ts:1013"
+  },
+  {
+   "code": "cmir.reportable.identified",
+   "source": "core/supabase/functions/api/cash_ops.ts:909"
+  },
+  {
+   "code": "collateral.headroom_computed",
+   "source": "core/supabase/functions/api/liquidity.ts:508"
+  },
+  {
+   "code": "collateral.headroom_rechecked",
+   "source": "core/supabase/functions/api/liquidity.ts:511"
+  },
+  {
+   "code": "comms.backup.activated",
+   "source": "core/supabase/functions/api/basel.ts:357"
+  },
+  {
+   "code": "comms.initial.issued",
+   "source": "core/supabase/functions/api/basel.ts:351"
+  },
+  {
+   "code": "comms.initial_timer",
+   "source": "core/supabase/functions/api/incidents.ts:144"
+  },
+  {
+   "code": "comms.internal_alert.issued",
+   "source": "core/supabase/functions/api/basel.ts:349"
+  },
+  {
+   "code": "comms.media_response.logged",
+   "source": "core/supabase/functions/api/basel.ts:367"
+  },
+  {
+   "code": "comms.member_status.issued",
+   "source": "core/supabase/functions/api/incidents.ts:707"
+  },
+  {
+   "code": "complaint.ack_due_at",
+   "source": "core/supabase/functions/api/complaints.ts:151"
+  },
+  {
+   "code": "complaint.acknowledged",
+   "source": "core/supabase/functions/api/complaints.ts:196"
+  },
+  {
+   "code": "complaint.direct.received",
+   "source": "core/supabase/functions/api/complaints.ts:167"
+  },
+  {
+   "code": "complaint.final_response.sent",
+   "source": "core/supabase/functions/api/complaints.ts:243"
+  },
+  {
+   "code": "complaint.initial.response.due_at",
+   "source": "core/supabase/functions/api/complaints.ts:154"
+  },
+  {
+   "code": "complaint.initial_response.sent",
+   "source": "core/supabase/functions/api/complaints.ts:243"
+  },
+  {
+   "code": "complaint.investigation.completed",
+   "source": "core/supabase/functions/api/complaints.ts:288"
+  },
+  {
+   "code": "complaint.logged",
+   "source": "core/supabase/functions/api/complaints.ts:149"
+  },
+  {
+   "code": "complaint.privacy.received",
+   "source": "core/supabase/functions/api/complaints.ts:171"
+  },
+  {
+   "code": "complaint.received",
+   "source": "core/supabase/functions/api/complaints.ts:150"
+  },
+  {
+   "code": "complaint.regulator.received",
+   "source": "core/supabase/functions/api/complaints.ts:161"
+  },
+  {
+   "code": "complaint.resolved",
+   "source": "core/supabase/functions/api/complaints.ts:293"
+  },
+  {
+   "code": "complaint.trend.reported",
+   "source": "core/supabase/functions/api/complaints.ts:499"
+  },
+  {
+   "code": "compliance.board_report.delivered",
+   "source": "core/supabase/functions/api/complaints.ts:547"
+  },
+  {
+   "code": "concentration.limit_exceeded",
+   "source": "core/supabase/functions/api/investment.ts:663"
+  },
+  {
+   "code": "concentration.waiver.decided",
+   "source": "core/supabase/functions/api/liquidity.ts:647"
+  },
+  {
+   "code": "concentration.waiver.opened",
+   "source": "core/supabase/functions/api/investment.ts:668"
+  },
+  {
+   "code": "connection.consent.granted",
+   "source": "core/supabase/functions/api/privacy.ts:1234"
+  },
+  {
+   "code": "connection.scope_violation.detected",
+   "source": "core/supabase/functions/api/privacy.ts:1266",
+   "note": "via recordConnectionScopeViolation, called from routed postConnectionScopeViolation"
+  },
+  {
+   "code": "connection.suspended",
+   "source": "core/supabase/functions/api/privacy.ts:1270",
+   "note": "via recordConnectionScopeViolation, called from routed postConnectionScopeViolation"
+  },
+  {
+   "code": "connection.token.issued",
+   "source": "core/supabase/functions/api/privacy.ts:1238"
+  },
+  {
+   "code": "connection.token.revoked",
+   "source": "core/supabase/functions/api/privacy.ts:1272",
+   "note": "via recordConnectionScopeViolation, called from routed postConnectionScopeViolation"
+  },
+  {
+   "code": "control.override.invoked",
+   "source": "core/supabase/functions/api/risk_exceptions.ts:529"
+  },
+  {
+   "code": "core_archive.retention.confirmed",
+   "source": "core/supabase/functions/api/records_admin.ts:366"
+  },
+  {
+   "code": "correction.propagated",
+   "source": "core/supabase/functions/api/privacy.ts:900"
+  },
+  {
+   "code": "correction.propagation.due_at",
+   "source": "core/supabase/functions/api/privacy.ts:893"
+  },
+  {
+   "code": "credit_file.approved",
+   "source": "core/supabase/functions/api/investment.ts:282"
+  },
+  {
+   "code": "credit_file.internal_rating",
+   "source": "core/supabase/functions/api/investment.ts:286"
+  },
+  {
+   "code": "credit_file.reanalysis.completed",
+   "source": "core/supabase/functions/api/investment.ts:325"
+  },
+  {
+   "code": "credit_file.reanalysis_due_at",
+   "source": "core/supabase/functions/api/investment.ts:289"
+  },
+  {
+   "code": "ctr.exemption.reviewed",
+   "source": "core/supabase/functions/api/bsa_program.ts:1106"
+  },
+  {
+   "code": "ctr.filed",
+   "source": "core/supabase/functions/api/cash.ts"
+  },
+  {
+   "code": "ctr.filing.overdue",
+   "source": "core/supabase/functions/api/cash.ts",
+   "note": "negative case: a CTR owed and never filed"
+  },
+  {
+   "code": "ctr.filing.timer",
+   "source": "core/supabase/functions/api/cash.ts",
+   "note": "the 15-calendar-day FinCEN clock starting"
+  },
+  {
+   "code": "ctr.threshold.reached",
+   "source": "core/supabase/functions/api/cash.ts",
+   "note": "BSA-08's declared trigger \u2014 per-person daily currency aggregate over $10k"
+  },
+  {
+   "code": "deficiency.retest_result",
+   "source": "core/supabase/functions/api/audit.ts:464"
+  },
+  {
+   "code": "destruction_log.entry.created",
+   "source": "core/supabase/functions/api/retention.ts"
+  },
+  {
+   "code": "destruction_log.entry_id",
+   "source": "core/supabase/functions/api/retention.ts:547"
+  },
+  {
+   "code": "destruction_log.mismatch.detected",
+   "source": "core/supabase/functions/api/records_admin.ts:494"
+  },
+  {
+   "code": "destruction_log.mismatch.resolved",
+   "source": "core/supabase/functions/api/records_admin.ts:526"
+  },
+  {
+   "code": "disclosure.account_opening.delivered",
+   "source": "core/supabase/functions/api/deposits_member.ts:197"
+  },
+  {
+   "code": "disclosure.account_opening_due_at",
+   "source": "core/supabase/functions/api/deposits_member.ts:194"
+  },
+  {
+   "code": "disclosure.change_in_terms.sent",
+   "source": "core/supabase/functions/api/deposits_member.ts:212"
+  },
+  {
+   "code": "disclosure.change_in_terms_due_at",
+   "source": "core/supabase/functions/api/deposits_member.ts:202"
+  },
+  {
+   "code": "disclosure.classification.logged",
+   "source": "core/supabase/functions/api/deposits_member.ts:206"
+  },
+  {
+   "code": "disclosure.error.detected",
+   "source": "core/supabase/functions/api/deposits_member.ts:237"
+  },
+  {
+   "code": "disclosure.initiated",
+   "source": "core/supabase/functions/api/privacy.ts:1054"
+  },
+  {
+   "code": "disclosure.legal_basis.recorded",
+   "source": "core/supabase/functions/api/privacy.ts:1049"
+  },
+  {
+   "code": "disclosure.maturity_notice.sent",
+   "source": "core/supabase/functions/api/deposits_member.ts:220"
+  },
+  {
+   "code": "disclosure.template.published",
+   "source": "core/supabase/functions/api/deposits_member.ts:98"
+  },
+  {
+   "code": "disposal.certificate.recorded",
+   "source": "core/supabase/functions/api/privacy.ts:924"
+  },
+  {
+   "code": "disposal.clock.resumed",
+   "source": "core/supabase/functions/api/retention.ts"
+  },
+  {
+   "code": "disposal.held",
+   "source": "core/supabase/functions/api/retention.ts",
+   "note": "SC-02: hold suspends queued disposal"
+  },
+  {
+   "code": "disposal.scheduled",
+   "source": "core/supabase/functions/api/retention.ts"
+  },
+  {
+   "code": "dispute.investigation.completed",
+   "source": "core/supabase/functions/api/complaints.ts:427"
+  },
+  {
+   "code": "dispute.opened",
+   "source": "core/supabase/functions/api/complaints.ts:345"
+  },
+  {
+   "code": "dispute.provisional_credit.posted",
+   "source": "core/supabase/functions/api/complaints.ts:385"
+  },
+  {
+   "code": "dispute.provisional_credit_due_at",
+   "source": "core/supabase/functions/api/complaints.ts:353"
+  },
+  {
+   "code": "dispute.rege_clock.started",
+   "source": "core/supabase/functions/api/complaints.ts:349"
+  },
+  {
+   "code": "dispute.resolved",
+   "source": "core/supabase/functions/api/complaints.ts:435"
+  },
+  {
+   "code": "dispute.response.sent",
+   "source": "core/supabase/functions/api/complaints.ts:433"
+  },
+  {
+   "code": "dlp.violation.detected",
+   "source": "core/supabase/functions/api/ops_security.ts:767"
+  },
+  {
+   "code": "dlp.violation.resolved",
+   "source": "core/supabase/functions/api/ops_security.ts:784"
+  },
+  {
+   "code": "document.required_set",
+   "source": "core/supabase/functions/api/investment.ts:707"
+  },
+  {
+   "code": "dq.tieout.completed",
+   "source": "core/supabase/functions/api/liquidity.ts:683"
+  },
+  {
+   "code": "dq.variance.detected",
+   "source": "core/supabase/functions/api/liquidity.ts:679"
+  },
+  {
+   "code": "ecommerce.audit_trail.recorded",
+   "source": "core/supabase/functions/api/ecommerce.ts:200"
+  },
+  {
+   "code": "ecommerce.credential.locked",
+   "source": "core/supabase/functions/api/ecommerce.ts:334"
+  },
+  {
+   "code": "ecommerce.enrollment.approved",
+   "source": "core/supabase/functions/api/ecommerce.ts:193"
+  },
+  {
+   "code": "ecommerce.enrollment.submitted",
+   "source": "core/supabase/functions/api/ecommerce.ts:185"
+  },
+  {
+   "code": "ecommerce.enrollment_confirmation.sent",
+   "source": "core/supabase/functions/api/ecommerce.ts:197"
+  },
+  {
+   "code": "ecommerce.lockout.recorded",
+   "source": "core/supabase/functions/api/ecommerce.ts:339"
+  },
+  {
+   "code": "ecommerce.repudiation.reviewed",
+   "source": "core/supabase/functions/api/ecommerce.ts:423"
+  },
+  {
+   "code": "ecommerce.risk_assessment.completed",
+   "source": "core/supabase/functions/api/ecommerce.ts:114"
+  },
+  {
+   "code": "edd.approver_id",
+   "source": "core/supabase/functions/api/bsa_program.ts:263"
+  },
+  {
+   "code": "edd.category.approved",
+   "source": "core/supabase/functions/api/bsa_program.ts:255"
+  },
+  {
+   "code": "edd.completed",
+   "source": "core/supabase/functions/api/bsa_program.ts:251"
+  },
+  {
+   "code": "edd.opened",
+   "source": "core/supabase/functions/api/bsa_program.ts:208"
+  },
+  {
+   "code": "edd.pep.completed",
+   "source": "core/supabase/functions/api/bsa_program.ts:274"
+  },
+  {
+   "code": "edd.pep.opened",
+   "source": "core/supabase/functions/api/bsa_program.ts:331"
+  },
+  {
+   "code": "edd.refresh.completed",
+   "source": "core/supabase/functions/api/bsa_program.ts:261"
+  },
+  {
+   "code": "employee.hired",
+   "source": "core/supabase/functions/api/hr.ts:57"
+  },
+  {
+   "code": "employee.separated",
+   "source": "core/supabase/functions/api/hr.ts:84"
+  },
+  {
+   "code": "entity.address.changed",
+   "source": "core/supabase/functions/api/deposits_member.ts:474"
+  },
+  {
+   "code": "entity.created",
+   "source": "core/supabase/functions/api/entities.ts"
+  },
+  {
+   "code": "entity.owner.added",
+   "source": "core/supabase/functions/api/entities.ts"
+  },
+  {
+   "code": "eps.auth.challenged",
+   "source": "core/supabase/functions/api/eps_controls.ts:95"
+  },
+  {
+   "code": "eps.auth.decided",
+   "source": "core/supabase/functions/api/eps_controls.ts:90"
+  },
+  {
+   "code": "eps.auth.failure_count",
+   "source": "core/supabase/functions/api/eps_controls.ts:91"
+  },
+  {
+   "code": "eps.auth_lockout.applied",
+   "source": "core/supabase/functions/api/eps_controls.ts:100"
+  },
+  {
+   "code": "eps.card_control.applied",
+   "source": "core/supabase/functions/api/eps_controls.ts:140"
+  },
+  {
+   "code": "eps.card_control.changed",
+   "source": "core/supabase/functions/api/eps_controls.ts:147"
+  },
+  {
+   "code": "eps.client_limit.changed",
+   "source": "core/supabase/functions/api/eps.ts",
+   "note": "EPS-06: client exposure limits assigned by the Credit Union"
+  },
+  {
+   "code": "eps.client_limit_change.requested",
+   "source": "core/supabase/functions/api/tail.ts:1142"
+  },
+  {
+   "code": "eps.control.review.due_at",
+   "source": "core/supabase/functions/api/tail.ts:892"
+  },
+  {
+   "code": "eps.control_review.completed",
+   "source": "core/supabase/functions/api/tail.ts:897"
+  },
+  {
+   "code": "eps.control_review.opened",
+   "source": "core/supabase/functions/api/tail.ts:890"
+  },
+  {
+   "code": "eps.deficiency.description",
+   "source": "core/supabase/functions/api/tail.ts:887"
+  },
+  {
+   "code": "eps.deficiency.open_list",
+   "source": "core/supabase/functions/api/tail.ts:907"
+  },
+  {
+   "code": "eps.deficiency.rating",
+   "source": "core/supabase/functions/api/tail.ts:888"
+  },
+  {
+   "code": "eps.deficiency.remediation.due_at",
+   "source": "core/supabase/functions/api/tail.ts:909"
+  },
+  {
+   "code": "eps.deficiency_remediation.opened",
+   "source": "core/supabase/functions/api/tail.ts:911"
+  },
+  {
+   "code": "eps.deployment.emergency_exception",
+   "source": "core/supabase/functions/api/tail.ts:997"
+  },
+  {
+   "code": "eps.deployment.scheduled",
+   "source": "core/supabase/functions/api/tail.ts:985"
+  },
+  {
+   "code": "eps.dual_control.decided",
+   "source": "core/supabase/functions/api/eps.ts"
+  },
+  {
+   "code": "eps.erm_review.decided",
+   "source": "core/supabase/functions/api/tail.ts:825"
+  },
+  {
+   "code": "eps.fraud_trend_review.completed",
+   "source": "core/supabase/functions/api/eps_controls.ts:236"
+  },
+  {
+   "code": "eps.pospay_exception.decided",
+   "source": "core/supabase/functions/api/eps_controls.ts:207"
+  },
+  {
+   "code": "eps.pospay_exception.presented",
+   "source": "core/supabase/functions/api/eps_controls.ts:180"
+  },
+  {
+   "code": "eps.product_risk_analysis.drafted",
+   "source": "core/supabase/functions/api/tail.ts:819"
+  },
+  {
+   "code": "eps.proposal.submitted",
+   "source": "core/supabase/functions/api/tail.ts:817"
+  },
+  {
+   "code": "eps.risk_assessment_service.added",
+   "source": "core/supabase/functions/api/tail.ts:821"
+  },
+  {
+   "code": "eps.service.activated",
+   "source": "core/supabase/functions/api/tail.ts:830"
+  },
+  {
+   "code": "eps.test.plan",
+   "source": "core/supabase/functions/api/tail.ts:976"
+  },
+  {
+   "code": "eps.test.retro_due_at",
+   "source": "core/supabase/functions/api/tail.ts:990"
+  },
+  {
+   "code": "eps.test_results.recorded",
+   "source": "core/supabase/functions/api/tail.ts:988"
+  },
+  {
+   "code": "eps.test_retro.completed",
+   "source": "core/supabase/functions/api/tail.ts:993"
+  },
+  {
+   "code": "eps.wire.second_approval",
+   "source": "core/supabase/functions/api/eps.ts",
+   "note": "EPS-06's produced event for the wire approval"
+  },
+  {
+   "code": "eps.wire_ip.verified",
+   "source": "core/supabase/functions/api/tail.ts:1053"
+  },
+  {
+   "code": "eps.wire_release.requested",
+   "source": "core/supabase/functions/api/tail.ts:1050"
+  },
+  {
+   "code": "escalation.acknowledged",
+   "source": "core/supabase/functions/api/bsa_program.ts:762"
+  },
+  {
+   "code": "escalation.action_plan.published",
+   "source": "core/supabase/functions/api/bsa_program.ts:772"
+  },
+  {
+   "code": "escalation.closed",
+   "source": "core/supabase/functions/api/bsa_program.ts:767"
+  },
+  {
+   "code": "escalation.routed",
+   "source": "core/supabase/functions/api/bsa_program.ts:729"
+  },
+  {
+   "code": "estate.claim.documented",
+   "source": "core/supabase/functions/api/member_protection.ts:127"
+  },
+  {
+   "code": "estate.payout.sent",
+   "source": "core/supabase/functions/api/member_protection.ts:179"
+  },
+  {
+   "code": "ewi.ceo_summary.sent",
+   "source": "core/supabase/functions/api/resolution.ts:503"
+  },
+  {
+   "code": "ewi.sweep.completed",
+   "source": "core/supabase/functions/api/resolution.ts:478"
+  },
+  {
+   "code": "ewi.threshold.breached",
+   "source": "core/supabase/functions/api/resolution.ts:467"
+  },
+  {
+   "code": "exam.export.delivered",
+   "source": "core/supabase/functions/api/cash_ops.ts:1510"
+  },
+  {
+   "code": "exception.expiring",
+   "source": "core/supabase/functions/api/risk_exceptions.ts:636"
+  },
+  {
+   "code": "exception.registered",
+   "source": "core/supabase/functions/api/risk_exceptions.ts:587"
+  },
+  {
+   "code": "exception.reverted",
+   "source": "core/supabase/functions/api/risk_exceptions.ts:628"
+  },
+  {
+   "code": "expulsion.board_report.filed",
+   "source": "core/supabase/functions/api/member_protection.ts:319"
+  },
+  {
+   "code": "expulsion.meeting_date",
+   "source": "core/supabase/functions/api/member_protection.ts:247"
+  },
+  {
+   "code": "facility.test.completed",
+   "source": "core/supabase/functions/api/liquidity.ts:445"
+  },
+  {
+   "code": "fair_lending.record_appended",
+   "source": "core/supabase/functions/api/deposits_member.ts:231"
+  },
+  {
+   "code": "fair_lending.remediation.opened",
+   "source": "core/supabase/functions/api/complaints.ts:511"
+  },
+  {
+   "code": "fbar.account.added",
+   "source": "core/supabase/functions/api/bsa_program.ts:475"
+  },
+  {
+   "code": "fbar.filed",
+   "source": "core/supabase/functions/api/bsa_program.ts:540"
+  },
+  {
+   "code": "fbar.filing.timer",
+   "source": "core/supabase/functions/api/bsa_program.ts:527"
+  },
+  {
+   "code": "fbar.nil.determined",
+   "source": "core/supabase/functions/api/bsa_program.ts:534"
+  },
+  {
+   "code": "fee.ytd_total",
+   "source": "core/supabase/functions/api/deposits_member.ts:373"
+  },
+  {
+   "code": "finding.aging_threshold.breached",
+   "source": "core/supabase/functions/api/audit.ts:518"
+  },
+  {
+   "code": "finding.closed",
+   "source": "core/supabase/functions/api/audit.ts:476"
+  },
+  {
+   "code": "finding.closure.logged",
+   "source": "core/supabase/functions/api/audit.ts:478"
+  },
+  {
+   "code": "finding.communicated",
+   "source": "core/supabase/functions/api/audit.ts:347"
+  },
+  {
+   "code": "finding.critical.escalated",
+   "source": "core/supabase/functions/api/audit.ts:523"
+  },
+  {
+   "code": "finding.escalated",
+   "source": "core/supabase/functions/api/audit.ts:520"
+  },
+  {
+   "code": "finding.implementation_date",
+   "source": "core/supabase/functions/api/audit.ts:484"
+  },
+  {
+   "code": "finding.management_response.recorded",
+   "source": "core/supabase/functions/api/audit.ts:395"
+  },
+  {
+   "code": "finding.monthly_review.recorded",
+   "source": "core/supabase/functions/api/audit.ts:534"
+  },
+  {
+   "code": "finding.opened",
+   "source": "core/supabase/functions/api/audit.ts:345"
+  },
+  {
+   "code": "finding.quarterly_report.delivered",
+   "source": "core/supabase/functions/api/audit.ts:536"
+  },
+  {
+   "code": "finding.remediation.reported",
+   "source": "core/supabase/functions/api/investment.ts:1169"
+  },
+  {
+   "code": "finding.risk_acceptance.decided",
+   "source": "core/supabase/functions/api/audit.ts:468"
+  },
+  {
+   "code": "finding.risk_acceptance_package",
+   "source": "core/supabase/functions/api/audit.ts:470"
+  },
+  {
+   "code": "furnishing.correction.applied",
+   "source": "core/supabase/functions/api/collections.ts:617"
+  },
+  {
+   "code": "furnishing.dispute.received",
+   "source": "core/supabase/functions/api/privacy.ts:833"
+  },
+  {
+   "code": "furnishing.dispute_due_at",
+   "source": "core/supabase/functions/api/privacy.ts:846"
+  },
+  {
+   "code": "gl.cash_suspense.aged",
+   "source": "core/supabase/functions/api/cash_ops.ts:532"
+  },
+  {
+   "code": "gl.cash_suspense.cleared",
+   "source": "core/supabase/functions/api/cash_ops.ts:568"
+  },
+  {
+   "code": "gl.cash_suspense.escalated",
+   "source": "core/supabase/functions/api/cash_ops.ts:527"
+  },
+  {
+   "code": "gl.cash_suspense.posted",
+   "source": "core/supabase/functions/api/cash_ops.ts:486"
+  },
+  {
+   "code": "governance.obligation.completed",
+   "source": "core/supabase/functions/api/governance.ts"
+  },
+  {
+   "code": "governance.obligation.overdue",
+   "source": "core/supabase/functions/api/governance.ts",
+   "note": "negative case: an obligation that came due and nobody completed"
+  },
+  {
+   "code": "hr.coaching.recorded",
+   "source": "core/supabase/functions/api/hr.ts:152"
+  },
+  {
+   "code": "incident.assessment.completed",
+   "source": "core/supabase/functions/api/incidents.ts:527"
+  },
+  {
+   "code": "incident.classified",
+   "source": "core/supabase/functions/api/incidents.ts:129"
+  },
+  {
+   "code": "incident.closed",
+   "source": "core/supabase/functions/api/incidents.ts:414"
+  },
+  {
+   "code": "incident.contained",
+   "source": "core/supabase/functions/api/incidents.ts:395"
+  },
+  {
+   "code": "incident.containment.started",
+   "source": "core/supabase/functions/api/incidents.ts:605"
+  },
+  {
+   "code": "incident.containment_timer",
+   "source": "core/supabase/functions/api/incidents.ts:612"
+  },
+  {
+   "code": "incident.created",
+   "source": "core/supabase/functions/api/cash_ops.ts:981"
+  },
+  {
+   "code": "incident.declared",
+   "source": "core/supabase/functions/api/incidents.ts:127"
+  },
+  {
+   "code": "incident.detected",
+   "source": "core/supabase/functions/api/incidents.ts:125"
+  },
+  {
+   "code": "incident.external_comms.recorded",
+   "source": "core/supabase/functions/api/incidents.ts:579"
+  },
+  {
+   "code": "incident.first_hour.completed",
+   "source": "core/supabase/functions/api/incidents.ts:205"
+  },
+  {
+   "code": "incident.ic.assigned",
+   "source": "core/supabase/functions/api/incidents.ts:131"
+  },
+  {
+   "code": "incident.ic_assignment_timer",
+   "source": "core/supabase/functions/api/incidents.ts:135"
+  },
+  {
+   "code": "incident.member_impact.confirmed",
+   "source": "core/supabase/functions/api/incidents.ts:363"
+  },
+  {
+   "code": "incident.member_notices.sent",
+   "source": "core/supabase/functions/api/incidents.ts:364"
+  },
+  {
+   "code": "incident.ncua.notice.due_at",
+   "source": "core/supabase/functions/api/incidents.ts:285"
+  },
+  {
+   "code": "incident.ncua.notified",
+   "source": "core/supabase/functions/api/incidents.ts:334"
+  },
+  {
+   "code": "incident.ncua_notification.overdue",
+   "source": "core/supabase/functions/api/incidents.ts:457"
+  },
+  {
+   "code": "incident.postmortem.completed",
+   "source": "core/supabase/functions/api/incidents.ts:423"
+  },
+  {
+   "code": "incident.reportability_assessment",
+   "source": "core/supabase/functions/api/incidents.ts:534"
+  },
+  {
+   "code": "incident.reportability_determination",
+   "source": "core/supabase/functions/api/incidents.ts:282"
+  },
+  {
+   "code": "incident.reportability_undetermined",
+   "source": "core/supabase/functions/api/incidents.ts:469"
+  },
+  {
+   "code": "incident.sar_referred",
+   "source": "core/supabase/functions/api/privacy.ts:969"
+  },
+  {
+   "code": "incident.severity.assigned",
+   "source": "core/supabase/functions/api/incidents.ts:130"
+  },
+  {
+   "code": "incident.signal.received",
+   "source": "core/supabase/functions/api/incidents.ts:126"
+  },
+  {
+   "code": "insider.public_disclosure.issued",
+   "source": "core/supabase/functions/api/tail.ts:728"
+  },
+  {
+   "code": "insider.public_request.retention.expires_at",
+   "source": "core/supabase/functions/api/tail.ts:731"
+  },
+  {
+   "code": "institution_freeze.activated",
+   "source": "core/supabase/functions/api/resolution.ts:279"
+  },
+  {
+   "code": "institution_freeze.activation_evidence",
+   "source": "core/supabase/functions/api/resolution.ts:281"
+  },
+  {
+   "code": "institution_freeze.notice.published",
+   "source": "core/supabase/functions/api/resolution.ts:287"
+  },
+  {
+   "code": "institution_freeze.notice_record",
+   "source": "core/supabase/functions/api/resolution.ts:289"
+  },
+  {
+   "code": "institution_freeze.regulator.confirmed",
+   "source": "core/supabase/functions/api/resolution.ts:295"
+  },
+  {
+   "code": "instrument_list.review.completed",
+   "source": "core/supabase/functions/api/investment.ts:156"
+  },
+  {
+   "code": "interest.accrual_run.completed",
+   "source": "core/supabase/functions/api/deposits_member.ts:319"
+  },
+  {
+   "code": "interest.accrued_balance",
+   "source": "core/supabase/functions/api/deposits_member.ts:324"
+  },
+  {
+   "code": "intermediary.review.completed",
+   "source": "core/supabase/functions/api/investment.ts:208"
+  },
+  {
+   "code": "intrusion.response.recorded",
+   "source": "core/supabase/functions/api/ops_security.ts:617"
+  },
+  {
+   "code": "it.failover.executed",
+   "source": "core/supabase/functions/api/incidents.ts:685"
+  },
+  {
+   "code": "lar.band_alert.issued",
+   "source": "core/supabase/functions/api/liquidity.ts:175"
+  },
+  {
+   "code": "lar.computed",
+   "source": "core/supabase/functions/api/liquidity.ts:171"
+  },
+  {
+   "code": "lar.critical.breached",
+   "source": "core/supabase/functions/api/liquidity.ts:182"
+  },
+  {
+   "code": "legal.consult_timer",
+   "source": "core/supabase/functions/api/incidents.ts:615"
+  },
+  {
+   "code": "legal.consulted",
+   "source": "core/supabase/functions/api/incidents.ts:639"
+  },
+  {
+   "code": "legal.hold.placed",
+   "source": "core/supabase/functions/api/retention.ts:263"
+  },
+  {
+   "code": "legal.hold.released",
+   "source": "core/supabase/functions/api/retention.ts:376"
+  },
+  {
+   "code": "legal.process.received",
+   "source": "core/supabase/functions/api/privacy.ts:1144",
+   "note": "conditional"
+  },
+  {
+   "code": "legal_hold.clear.confirmed",
+   "source": "core/supabase/functions/api/retention.ts",
+   "note": "SC-02 trigger"
+  },
+  {
+   "code": "legal_hold.created",
+   "source": "core/supabase/functions/api/retention.ts",
+   "note": "SC-02 trigger"
+  },
+  {
+   "code": "legal_hold.schedule.resumed",
+   "source": "core/supabase/functions/api/retention.ts:380"
+  },
+  {
+   "code": "limit_set.review.completed",
+   "source": "core/supabase/functions/api/investment.ts:446"
+  },
+  {
+   "code": "liquidity.cfp.activated",
+   "source": "core/supabase/functions/api/investment.ts:1149"
+  },
+  {
+   "code": "liquidity.concentration.breached",
+   "source": "core/supabase/functions/api/liquidity.ts:639"
+  },
+  {
+   "code": "liquidity.concentration.computed",
+   "source": "core/supabase/functions/api/liquidity.ts:636"
+  },
+  {
+   "code": "liquidity.diversification_plan.logged",
+   "source": "core/supabase/functions/api/basel.ts:277"
+  },
+  {
+   "code": "liquidity.report",
+   "source": "core/supabase/functions/api/basel.ts:273"
+  },
+  {
+   "code": "liquidity.report.published",
+   "source": "core/supabase/functions/api/investment.ts:1099"
+  },
+  {
+   "code": "liquidity.stress.declared",
+   "source": "core/supabase/functions/api/investment.ts:1155"
+  },
+  {
+   "code": "member.activated",
+   "source": "core/supabase/functions/api/deposits_member.ts:432"
+  },
+  {
+   "code": "member.address.hold.expires_at",
+   "source": "core/supabase/functions/api/deposits_member.ts:480"
+  },
+  {
+   "code": "member.address_notice",
+   "source": "core/supabase/functions/api/deposits_member.ts:484"
+  },
+  {
+   "code": "member.address_notice.sent",
+   "source": "core/supabase/functions/api/deposits_member.ts:496"
+  },
+  {
+   "code": "member.channel_reverted",
+   "source": "core/supabase/functions/api/deposits_member.ts:523"
+  },
+  {
+   "code": "member.closure_payout.sent",
+   "source": "core/supabase/functions/api/deposits_member.ts:585"
+  },
+  {
+   "code": "member.death.reported",
+   "source": "core/supabase/functions/api/member_protection.ts:73"
+  },
+  {
+   "code": "member.eligibility.denied",
+   "source": "core/supabase/functions/api/deposits_member.ts:436"
+  },
+  {
+   "code": "member.eligibility.determined",
+   "source": "core/supabase/functions/api/deposits_member.ts:422"
+  },
+  {
+   "code": "member.esign_consent.captured",
+   "source": "core/supabase/functions/api/privacy.ts:211"
+  },
+  {
+   "code": "member.expulsion.decided",
+   "source": "core/supabase/functions/api/member_protection.ts:236"
+  },
+  {
+   "code": "member.expulsion_hearing.held",
+   "source": "core/supabase/functions/api/member_protection.ts:275",
+   "note": "ternary with .requested on kind"
+  },
+  {
+   "code": "member.expulsion_hearing.requested",
+   "source": "core/supabase/functions/api/member_protection.ts:275",
+   "note": "ternary with .held on kind"
+  },
+  {
+   "code": "member.expulsion_notice",
+   "source": "core/supabase/functions/api/member_protection.ts:240"
+  },
+  {
+   "code": "member.expulsion_notice.sent",
+   "source": "core/supabase/functions/api/member_protection.ts:244"
+  },
+  {
+   "code": "member.expulsion_payout.sent",
+   "source": "core/supabase/functions/api/member_protection.ts:324"
+  },
+  {
+   "code": "member.ineligibility_notice.sent",
+   "source": "core/supabase/functions/api/deposits_member.ts:441"
+  },
+  {
+   "code": "member.preferences.updated",
+   "source": "core/supabase/functions/api/deposits_member.ts:511"
+  },
+  {
+   "code": "member.restriction_notice.sent",
+   "source": "core/supabase/functions/api/deposits_member.ts:578"
+  },
+  {
+   "code": "member_credential.is_temporary",
+   "source": "core/supabase/functions/api/ecommerce.ts:243"
+  },
+  {
+   "code": "member_credential.issued",
+   "source": "core/supabase/functions/api/ecommerce.ts:248"
+  },
+  {
+   "code": "member_credential.password.changed",
+   "source": "core/supabase/functions/api/ecommerce.ts:293"
+  },
+  {
+   "code": "member_credential.password_set_at",
+   "source": "core/supabase/functions/api/ecommerce.ts:258"
+  },
+  {
+   "code": "member_portal.access.logged",
+   "source": "core/supabase/functions/api/resolution.ts:374"
+  },
+  {
+   "code": "member_portal.readonly.activated",
+   "source": "core/supabase/functions/api/resolution.ts:336"
+  },
+  {
+   "code": "member_portal.snapshot_served",
+   "source": "core/supabase/functions/api/resolution.ts:368"
+  },
+  {
+   "code": "mi.central_log.updated",
+   "source": "core/supabase/functions/api/bsa_program.ts:420"
+  },
+  {
+   "code": "mi.log_entry.created",
+   "source": "core/supabase/functions/api/bsa_program.ts:416"
+  },
+  {
+   "code": "mismatch.breach.dispositioned",
+   "source": "core/supabase/functions/api/liquidity.ts:269"
+  },
+  {
+   "code": "mismatch.gap_computed",
+   "source": "core/supabase/functions/api/liquidity.ts:258"
+  },
+  {
+   "code": "mismatch.intraday_recomputed",
+   "source": "core/supabase/functions/api/liquidity.ts:261"
+  },
+  {
+   "code": "model.review.completed",
+   "source": "core/supabase/functions/api/liquidity.ts:706"
+  },
+  {
+   "code": "monetary_instrument.ctr_band",
+   "source": "core/supabase/functions/api/bsa_program.ts:430"
+  },
+  {
+   "code": "monetary_instrument.logged",
+   "source": "core/supabase/functions/api/bsa_program.ts:422"
+  },
+  {
+   "code": "monetary_instrument.purchased",
+   "source": "core/supabase/functions/api/bsa_program.ts:406"
+  },
+  {
+   "code": "ncua.ack.logged",
+   "source": "core/supabase/functions/api/liquidity.ts:753"
+  },
+  {
+   "code": "ncua.notification.sent",
+   "source": "core/supabase/functions/api/liquidity.ts:730"
+  },
+  {
+   "code": "notification.decision.recorded",
+   "source": "core/supabase/functions/api/privacy.ts:956"
+  },
+  {
+   "code": "ofac.annual_report.filed",
+   "source": "core/supabase/functions/api/bsa_program.ts:1145"
+  },
+  {
+   "code": "ofac.blocked",
+   "source": "core/supabase/functions/api/bsa_program.ts:1139"
+  },
+  {
+   "code": "ofac.cleared",
+   "source": "core/supabase/functions/api/bsa_program.ts:118"
+  },
+  {
+   "code": "ofac.escalated",
+   "source": "core/supabase/functions/api/bsa_program.ts:123"
+  },
+  {
+   "code": "ofac.hold.placed",
+   "source": "core/supabase/functions/api/bsa_program.ts:122"
+  },
+  {
+   "code": "ofac.hold.released",
+   "source": "core/supabase/functions/api/bsa_program.ts:165"
+  },
+  {
+   "code": "ofac.rejected",
+   "source": "core/supabase/functions/api/bsa_program.ts:1142"
+  },
+  {
+   "code": "ofac.screened",
+   "source": "core/supabase/functions/api/bsa_program.ts:115"
+  },
+  {
+   "code": "overdraft.fee.logged",
+   "source": "core/supabase/functions/api/collections.ts:683"
+  },
+  {
+   "code": "override.analytics.published",
+   "source": "core/supabase/functions/api/risk_exceptions.ts:678"
+  },
+  {
+   "code": "override.recorded",
+   "source": "core/supabase/functions/api/risk_exceptions.ts:534"
+  },
+  {
+   "code": "pentest.report.issued",
+   "source": "core/supabase/functions/api/ops_security.ts:596"
+  },
+  {
+   "code": "pentest.report.received",
+   "source": "core/supabase/functions/api/ops_security.ts:598"
+  },
+  {
+   "code": "pep.designated",
+   "source": "core/supabase/functions/api/bsa_program.ts:328"
+  },
+  {
+   "code": "pep.hit",
+   "source": "core/supabase/functions/api/bsa_program.ts:334"
+  },
+  {
+   "code": "pep.refresh.completed",
+   "source": "core/supabase/functions/api/bsa_program.ts:269"
+  },
+  {
+   "code": "pep.refresh.scheduled",
+   "source": "core/supabase/functions/api/bsa_program.ts:339"
+  },
+  {
+   "code": "pep.screened",
+   "source": "core/supabase/functions/api/bsa_program.ts:324"
+  },
+  {
+   "code": "performance.attribution.completed",
+   "source": "core/supabase/functions/api/investment.ts:1284"
+  },
+  {
+   "code": "performance.target_risk.reviewed",
+   "source": "core/supabase/functions/api/investment.ts:1289"
+  },
+  {
+   "code": "pir.draft_timer",
+   "source": "core/supabase/functions/api/basel.ts:413"
+  },
+  {
+   "code": "pir.drafted",
+   "source": "core/supabase/functions/api/basel.ts:417"
+  },
+  {
+   "code": "policy.board.approved",
+   "source": "core/supabase/functions/api/cash_ops.ts:1266"
+  },
+  {
+   "code": "policy.board_approved_at",
+   "source": "core/supabase/functions/api/ecommerce.ts:122"
+  },
+  {
+   "code": "policy.document_version",
+   "source": "core/supabase/functions/api/cash_ops.ts:1267"
+  },
+  {
+   "code": "policy.revision.published",
+   "source": "core/supabase/functions/api/cash_ops.ts:1270"
+  },
+  {
+   "code": "portfolio.board_report.issued",
+   "source": "core/supabase/functions/api/capital.ts:465"
+  },
+  {
+   "code": "portfolio.management_report.issued",
+   "source": "core/supabase/functions/api/capital.ts:466"
+  },
+  {
+   "code": "position.analytics.updated",
+   "source": "core/supabase/functions/api/investment.ts:1028"
+  },
+  {
+   "code": "position.booked",
+   "source": "core/supabase/functions/api/investment.ts:689"
+  },
+  {
+   "code": "position.liquidity.classified",
+   "source": "core/supabase/functions/api/investment.ts:1054"
+  },
+  {
+   "code": "privacy.age_gate.blocked",
+   "source": "core/supabase/functions/api/privacy.ts:752"
+  },
+  {
+   "code": "privacy.board_adhoc.delivered",
+   "source": "core/supabase/functions/api/complaints.ts:553"
+  },
+  {
+   "code": "privacy.board_report.delivered",
+   "source": "core/supabase/functions/api/complaints.ts:547"
+  },
+  {
+   "code": "privacy.esign_consent.incomplete",
+   "source": "core/supabase/functions/api/privacy.ts:218"
+  },
+  {
+   "code": "privacy.esign_consent.recorded",
+   "source": "core/supabase/functions/api/privacy.ts:213"
+  },
+  {
+   "code": "privacy.esign_consent.started",
+   "source": "core/supabase/functions/api/privacy.ts:208"
+  },
+  {
+   "code": "privacy.minor_data.detected",
+   "source": "core/supabase/functions/api/privacy.ts:758"
+  },
+  {
+   "code": "privacy.minor_data_deleted",
+   "source": "core/supabase/functions/api/privacy.ts:762"
+  },
+  {
+   "code": "privacy.notice.delivered",
+   "source": "core/supabase/functions/api/privacy.ts:169"
+  },
+  {
+   "code": "privacy.notice.revised",
+   "source": "core/supabase/functions/api/privacy.ts:107"
+  },
+  {
+   "code": "privacy.notice_copy.delivered",
+   "source": "core/supabase/functions/api/privacy.ts:175"
+  },
+  {
+   "code": "privacy.notice_template.published",
+   "source": "core/supabase/functions/api/privacy.ts:97"
+  },
+  {
+   "code": "privacy.nv_optout_enforced",
+   "source": "core/supabase/functions/api/privacy.ts:278"
+  },
+  {
+   "code": "privacy.optout.cleared",
+   "source": "core/supabase/functions/api/privacy.ts:284"
+  },
+  {
+   "code": "privacy.optout.received",
+   "source": "core/supabase/functions/api/privacy.ts:273"
+  },
+  {
+   "code": "privacy.optout_propagated",
+   "source": "core/supabase/functions/api/deposits_member.ts:514"
+  },
+  {
+   "code": "privacy.sharing.blocked",
+   "source": "core/supabase/functions/api/privacy.ts:1017",
+   "note": "conditional"
+  },
+  {
+   "code": "privacy.state_request.received",
+   "source": "core/supabase/functions/api/privacy.ts:371"
+  },
+  {
+   "code": "privacy.state_request_due_at",
+   "source": "core/supabase/functions/api/privacy.ts:376"
+  },
+  {
+   "code": "privacy.state_request_fulfilled",
+   "source": "core/supabase/functions/api/privacy.ts:435"
+  },
+  {
+   "code": "privacy.website_notice.updated",
+   "source": "core/supabase/functions/api/privacy.ts:99"
+  },
+  {
+   "code": "product.interest_config.updated",
+   "source": "core/supabase/functions/api/deposits_member.ts:276"
+  },
+  {
+   "code": "recon.daily.completed",
+   "source": "core/supabase/functions/api/tail.ts:247"
+  },
+  {
+   "code": "recon.item",
+   "source": "core/supabase/functions/api/tail.ts:238"
+  },
+  {
+   "code": "recon.item.escalated",
+   "source": "core/supabase/functions/api/tail.ts:250"
+  },
+  {
+   "code": "recon.item.resolved",
+   "source": "core/supabase/functions/api/tail.ts:255"
+  },
+  {
+   "code": "recon.monthly.completed",
+   "source": "core/supabase/functions/api/tail.ts:247"
+  },
+  {
+   "code": "record.bulk_export.completed",
+   "source": "core/supabase/functions/api/deposits_member.ts:611"
+  },
+  {
+   "code": "record.conversion.certified",
+   "source": "core/supabase/functions/api/records_admin.ts:360"
+  },
+  {
+   "code": "record.created",
+   "source": "core/supabase/functions/api/bsa_program.ts:668"
+  },
+  {
+   "code": "record.destroyed",
+   "source": "core/supabase/functions/api/retention.ts"
+  },
+  {
+   "code": "record.destruction.certified",
+   "source": "core/supabase/functions/api/retention.ts"
+  },
+  {
+   "code": "record.destruction_due_at",
+   "source": "core/supabase/functions/api/privacy.ts:929"
+  },
+  {
+   "code": "record.disposal_eligible",
+   "source": "core/supabase/functions/api/records_admin.ts:257"
+  },
+  {
+   "code": "record.disposal_method",
+   "source": "core/supabase/functions/api/records_admin.ts:678"
+  },
+  {
+   "code": "record.disposed",
+   "source": "core/supabase/functions/api/records_admin.ts:682"
+  },
+  {
+   "code": "record.hold.applied",
+   "source": "core/supabase/functions/api/retention.ts:267"
+  },
+  {
+   "code": "record.hold.placed",
+   "source": "core/supabase/functions/api/retention.ts:265"
+  },
+  {
+   "code": "record.hold.released",
+   "source": "core/supabase/functions/api/retention.ts:378"
+  },
+  {
+   "code": "record.legal_hold_flag",
+   "source": "core/supabase/functions/api/retention.ts:269"
+  },
+  {
+   "code": "record.retention.expired",
+   "source": "core/supabase/functions/api/retention.ts:555"
+  },
+  {
+   "code": "record.retention.expires_at",
+   "source": "core/supabase/functions/api/deposits_member.ts:737"
+  },
+  {
+   "code": "record.retention_anchor",
+   "source": "core/supabase/functions/api/retention.ts"
+  },
+  {
+   "code": "record.retention_clock_set",
+   "source": "core/supabase/functions/api/retention.ts",
+   "note": "BSA-21's produced event; fired on account.closed"
+  },
+  {
+   "code": "record_class.unmatched",
+   "source": "core/supabase/functions/api/records_admin.ts:211"
+  },
+  {
+   "code": "records.board_report.filed",
+   "source": "core/supabase/functions/api/records_admin.ts:743"
+  },
+  {
+   "code": "records.contact.assigned",
+   "source": "core/supabase/functions/api/records_admin.ts:792"
+  },
+  {
+   "code": "records.contact_vacated",
+   "source": "core/supabase/functions/api/records_admin.ts:789"
+  },
+  {
+   "code": "records.contacts.assigned",
+   "source": "core/supabase/functions/api/records_admin.ts:794"
+  },
+  {
+   "code": "records.policy_review.completed",
+   "source": "core/supabase/functions/api/records_admin.ts:733"
+  },
+  {
+   "code": "records_package.build.started",
+   "source": "core/supabase/functions/api/resolution.ts:553"
+  },
+  {
+   "code": "records_package.completed",
+   "source": "core/supabase/functions/api/cash_ops.ts:1505"
+  },
+  {
+   "code": "records_package.snapshot.completed",
+   "source": "core/supabase/functions/api/resolution.ts:583"
+  },
+  {
+   "code": "records_package.verification.failed",
+   "source": "core/supabase/functions/api/resolution.ts:575"
+  },
+  {
+   "code": "redflag.case.disposed",
+   "source": "core/supabase/functions/api/tail.ts:372"
+  },
+  {
+   "code": "redflag.detected",
+   "source": "core/supabase/functions/api/privacy.ts:853"
+  },
+  {
+   "code": "redflag.ruleset.updated",
+   "source": "core/supabase/functions/api/tail.ts:417"
+  },
+  {
+   "code": "redflag.stepup.completed",
+   "source": "core/supabase/functions/api/tail.ts:368"
+  },
+  {
+   "code": "redflags.case.opened",
+   "source": "core/supabase/functions/api/deposits_member.ts:491"
+  },
+  {
+   "code": "regulator.contacts.verified",
+   "source": "core/supabase/functions/api/liquidity.ts:813"
+  },
+  {
+   "code": "regulator.request.received",
+   "source": "core/supabase/functions/api/bsa_program.ts:575"
+  },
+  {
+   "code": "regulator.response.sent",
+   "source": "core/supabase/functions/api/liquidity.ts:796"
+  },
+  {
+   "code": "regulatory.change.assessed",
+   "source": "core/supabase/functions/api/bsa_program.ts:675"
+  },
+  {
+   "code": "regulatory.change.identified",
+   "source": "core/supabase/functions/api/bsa_program.ts:651"
+  },
+  {
+   "code": "regulatory.change_analysis.logged",
+   "source": "core/supabase/functions/api/investment.ts:161"
+  },
+  {
+   "code": "regulatory.change_implemented",
+   "source": "core/supabase/functions/api/bsa_program.ts:683"
+  },
+  {
+   "code": "regulatory.change_required",
+   "source": "core/supabase/functions/api/bsa_program.ts:655"
+  },
+  {
+   "code": "repo.blocked_rule_violation",
+   "source": "core/supabase/functions/api/investment.ts:941"
+  },
+  {
+   "code": "repo.booked",
+   "source": "core/supabase/functions/api/investment.ts:948"
+  },
+  {
+   "code": "repo.collateral_marked",
+   "source": "core/supabase/functions/api/investment.ts:951"
+  },
+  {
+   "code": "repo.collateral_revaluation_due_at",
+   "source": "core/supabase/functions/api/investment.ts:954"
+  },
+  {
+   "code": "repo.margin_call.issued",
+   "source": "core/supabase/functions/api/investment.ts:963"
+  },
+  {
+   "code": "repo.margin_shortfall.detected",
+   "source": "core/supabase/functions/api/investment.ts:959"
+  },
+  {
+   "code": "resolution_posture.changed",
+   "source": "core/supabase/functions/api/resolution.ts:499"
+  },
+  {
+   "code": "restore.completed",
+   "source": "core/supabase/functions/api/incidents.ts:396"
+  },
+  {
+   "code": "restore.initiated",
+   "source": "core/supabase/functions/api/ops_security.ts:259"
+  },
+  {
+   "code": "restore.point.validated",
+   "source": "core/supabase/functions/api/ops_security.ts:265"
+  },
+  {
+   "code": "restore.rto_timer",
+   "source": "core/supabase/functions/api/ops_security.ts:262"
+  },
+  {
+   "code": "restore.test.completed",
+   "source": "core/supabase/functions/api/ops_security.ts:271"
+  },
+  {
+   "code": "risk.registered",
+   "source": "core/supabase/functions/api/risk_exceptions.ts:104"
+  },
+  {
+   "code": "risk.trigger_edd",
+   "source": "core/supabase/functions/api/bsa_program.ts:204"
+  },
+  {
+   "code": "risk.within_appetite",
+   "source": "core/supabase/functions/api/risk_exceptions.ts:186"
+  },
+  {
+   "code": "risk_acceptance.decided",
+   "source": "core/supabase/functions/api/audit.ts:472"
+  },
+  {
+   "code": "risk_acceptance.decision.due_at",
+   "source": "core/supabase/functions/api/risk_exceptions.ts:353"
+  },
+  {
+   "code": "risk_acceptance.expired",
+   "source": "core/supabase/functions/api/risk_exceptions.ts:450"
+  },
+  {
+   "code": "risk_acceptance.expiry.warning",
+   "source": "core/supabase/functions/api/risk_exceptions.ts:471"
+  },
+  {
+   "code": "risk_acceptance.expiry_alert_at",
+   "source": "core/supabase/functions/api/risk_exceptions.ts:357"
+  },
+  {
+   "code": "risk_acceptance.expiry_alerted",
+   "source": "core/supabase/functions/api/risk_exceptions.ts:463"
+  },
+  {
+   "code": "risk_acceptance.requested",
+   "source": "core/supabase/functions/api/risk_exceptions.ts:359"
+  },
+  {
+   "code": "risk_breach.committee.presented",
+   "source": "core/supabase/functions/api/risk_exceptions.ts:277"
+  },
+  {
+   "code": "risk_breach.committee_due_at",
+   "source": "core/supabase/functions/api/risk_exceptions.ts:229"
+  },
+  {
+   "code": "risk_breach.cro.notified",
+   "source": "core/supabase/functions/api/risk_exceptions.ts:238"
+  },
+  {
+   "code": "risk_breach.detected",
+   "source": "core/supabase/functions/api/risk_exceptions.ts:224"
+  },
+  {
+   "code": "risk_breach.opened",
+   "source": "core/supabase/functions/api/risk_exceptions.ts:233"
+  },
+  {
+   "code": "risk_breach.review.due_at",
+   "source": "core/supabase/functions/api/risk_exceptions.ts:231"
+  },
+  {
+   "code": "risk_breach.status.reviewed",
+   "source": "core/supabase/functions/api/risk_exceptions.ts:284"
+  },
+  {
+   "code": "risk_breach.triage.due_at",
+   "source": "core/supabase/functions/api/risk_exceptions.ts:227"
+  },
+  {
+   "code": "rwa.credit_calculated",
+   "source": "core/supabase/functions/api/capital.ts:349"
+  },
+  {
+   "code": "rwa.mapping_run.started",
+   "source": "core/supabase/functions/api/capital.ts:291"
+  },
+  {
+   "code": "rwa.market_calculated",
+   "source": "core/supabase/functions/api/capital.ts:357"
+  },
+  {
+   "code": "rwa.operational_calculated",
+   "source": "core/supabase/functions/api/capital.ts:361"
+  },
+  {
+   "code": "rwa.schedule_version",
+   "source": "core/supabase/functions/api/basel.ts:111"
+  },
+  {
+   "code": "rwa.trading_threshold_crossed",
+   "source": "core/supabase/functions/api/capital.ts:368"
+  },
+  {
+   "code": "rwa.weights.applied",
+   "source": "core/supabase/functions/api/capital.ts:346"
+  },
+  {
+   "code": "safe_mode.activated",
+   "source": "core/supabase/functions/api/member_protection.ts:371"
+  },
+  {
+   "code": "safe_mode.deactivated",
+   "source": "core/supabase/functions/api/member_protection.ts:435"
+  },
+  {
+   "code": "safe_mode.processor.confirmed",
+   "source": "core/supabase/functions/api/member_protection.ts:394"
+  },
+  {
+   "code": "safekeeping.reconciliation.completed",
+   "source": "core/supabase/functions/api/investment.ts:241"
+  },
+  {
+   "code": "sar.continuing.filed",
+   "source": "core/supabase/functions/api/bsa_program.ts:1059"
+  },
+  {
+   "code": "sar.continuing_timer",
+   "source": "core/supabase/functions/api/bsa_program.ts:1047"
+  },
+  {
+   "code": "sar.decision_no_file",
+   "source": "core/supabase/functions/api/bsa.ts"
+  },
+  {
+   "code": "sar.disclosure.declined",
+   "source": "core/supabase/functions/api/bsa_program.ts:1076"
+  },
+  {
+   "code": "sar.disclosure_request.received",
+   "source": "core/supabase/functions/api/bsa_program.ts:1074"
+  },
+  {
+   "code": "sar.filed",
+   "source": "core/supabase/functions/api/bsa.ts"
+  },
+  {
+   "code": "sar.filing.timer",
+   "source": "core/supabase/functions/api/bsa_program.ts:1044"
+  },
+  {
+   "code": "schedule_a.entry.added",
+   "source": "core/supabase/functions/api/records_admin.ts:162"
+  },
+  {
+   "code": "schedule_a.entry.amended",
+   "source": "core/supabase/functions/api/records_admin.ts:104"
+  },
+  {
+   "code": "schedule_a.entry_inherited",
+   "source": "core/supabase/functions/api/records_admin.ts:171"
+  },
+  {
+   "code": "security.downgrade.reviewed",
+   "source": "core/supabase/functions/api/investment.ts:372"
+  },
+  {
+   "code": "security.downgraded",
+   "source": "core/supabase/functions/api/investment.ts:368"
+  },
+  {
+   "code": "security.fair_value.updated",
+   "source": "core/supabase/functions/api/investment.ts:1001"
+  },
+  {
+   "code": "security.otti_analysis.completed",
+   "source": "core/supabase/functions/api/investment.ts:1013"
+  },
+  {
+   "code": "service.first.response.due_at",
+   "source": "core/supabase/functions/api/deposits_member.ts:641"
+  },
+  {
+   "code": "service.first_response.sent",
+   "source": "core/supabase/functions/api/deposits_member.ts:644"
+  },
+  {
+   "code": "service.resolved",
+   "source": "core/supabase/functions/api/deposits_member.ts:650"
+  },
+  {
+   "code": "siem.alert.disposed",
+   "source": "core/supabase/functions/api/ops_security.ts:486"
+  },
+  {
+   "code": "siem.alert_critical",
+   "source": "core/supabase/functions/api/ops_security.ts:461"
+  },
+  {
+   "code": "siem.source.restored",
+   "source": "core/supabase/functions/api/ops_security.ts:518"
+  },
+  {
+   "code": "siem.source_silent",
+   "source": "core/supabase/functions/api/ops_security.ts:504"
+  },
+  {
+   "code": "sitrep.cadence_timer",
+   "source": "core/supabase/functions/api/incidents.ts:152"
+  },
+  {
+   "code": "sitrep.issued",
+   "source": "core/supabase/functions/api/incidents.ts:206"
+  },
+  {
+   "code": "sod.check_result",
+   "source": "core/supabase/functions/api/tail.ts:145"
+  },
+  {
+   "code": "sod.compensating_control.approved",
+   "source": "core/supabase/functions/api/tail.ts:160"
+  },
+  {
+   "code": "sod.conflict.detected",
+   "source": "core/supabase/functions/api/tail.ts:155"
+  },
+  {
+   "code": "sod.grant.blocked",
+   "source": "core/supabase/functions/api/tail.ts:166"
+  },
+  {
+   "code": "sod.violation.logged",
+   "source": "core/supabase/functions/api/investment.ts:752"
+  },
+  {
+   "code": "statement.issued",
+   "source": "core/supabase/functions/api/deposits_member.ts:365"
+  },
+  {
+   "code": "storage_box.created",
+   "source": "core/supabase/functions/api/records_admin.ts:444"
+  },
+  {
+   "code": "stress.adhoc_rerun.issued",
+   "source": "core/supabase/functions/api/liquidity.ts:391"
+  },
+  {
+   "code": "stress.assumption_versioned",
+   "source": "core/supabase/functions/api/liquidity.ts:319"
+  },
+  {
+   "code": "stress.pack.issued",
+   "source": "core/supabase/functions/api/liquidity.ts:398"
+  },
+  {
+   "code": "stress_test.completed",
+   "source": "core/supabase/functions/api/capital.ts:642"
+  },
+  {
+   "code": "stress_test.minimum.breached",
+   "source": "core/supabase/functions/api/investment.ts:1216"
+  },
+  {
+   "code": "stress_test.remediation.escalated",
+   "source": "core/supabase/functions/api/investment.ts:1218"
+  },
+  {
+   "code": "supervisory.count_results.delivered",
+   "source": "core/supabase/functions/api/cash_ops.ts:1515"
+  },
+  {
+   "code": "survival.adhoc_computed",
+   "source": "core/supabase/functions/api/liquidity.ts:389"
+  },
+  {
+   "code": "survival.below_threshold",
+   "source": "core/supabase/functions/api/liquidity.ts:395"
+  },
+  {
+   "code": "survival.computed",
+   "source": "core/supabase/functions/api/liquidity.ts:386"
+  },
+  {
+   "code": "threshold.breached",
+   "source": "core/supabase/functions/api/primitives.ts:502",
+   "note": "ternary with threshold.warning on verdict"
+  },
+  {
+   "code": "threshold.warning",
+   "source": "core/supabase/functions/api/primitives.ts:502",
+   "note": "ternary with threshold.breached on verdict"
+  },
+  {
+   "code": "tls.assessment.completed",
+   "source": "core/supabase/functions/api/ops_security.ts:303"
+  },
+  {
+   "code": "tls.certificate.renewed",
+   "source": "core/supabase/functions/api/ops_security.ts:327"
+  },
+  {
+   "code": "tls.test_rating",
+   "source": "core/supabase/functions/api/ops_security.ts:305"
+  },
+  {
+   "code": "trade.approval.requested",
+   "source": "core/supabase/functions/api/investment.ts:695"
+  },
+  {
+   "code": "trade.blocked_prohibited",
+   "source": "core/supabase/functions/api/investment.ts:652"
+  },
+  {
+   "code": "trade.checklist.completed",
+   "source": "core/supabase/functions/api/investment.ts:633"
+  },
+  {
+   "code": "trade.checklist_exception_raised",
+   "source": "core/supabase/functions/api/investment.ts:637"
+  },
+  {
+   "code": "trade.confirmation.received",
+   "source": "core/supabase/functions/api/investment.ts:777"
+  },
+  {
+   "code": "trade.confirmation_discrepancy.flagged",
+   "source": "core/supabase/functions/api/investment.ts:783"
+  },
+  {
+   "code": "trade.confirmation_matched",
+   "source": "core/supabase/functions/api/investment.ts:780"
+  },
+  {
+   "code": "trade.exception.approved",
+   "source": "core/supabase/functions/api/investment.ts:881"
+  },
+  {
+   "code": "trade.exception.logged",
+   "source": "core/supabase/functions/api/investment.ts:877"
+  },
+  {
+   "code": "trade.intermediary.blocked",
+   "source": "core/supabase/functions/api/investment.ts:658"
+  },
+  {
+   "code": "trade.limit.blocked",
+   "source": "core/supabase/functions/api/investment.ts:648"
+  },
+  {
+   "code": "trade.limit_warning.issued",
+   "source": "core/supabase/functions/api/investment.ts:642"
+  },
+  {
+   "code": "trade.permissibility.checked",
+   "source": "core/supabase/functions/api/investment.ts:629"
+  },
+  {
+   "code": "trade.reconciliation.completed",
+   "source": "core/supabase/functions/api/investment.ts:836"
+  },
+  {
+   "code": "trade.sod.blocked",
+   "source": "core/supabase/functions/api/investment.ts:758"
+  },
+  {
+   "code": "trade.step.recorded",
+   "source": "core/supabase/functions/api/investment.ts:692"
+  },
+  {
+   "code": "training.assignment.created",
+   "source": "core/supabase/functions/api/hr.ts:247"
+  },
+  {
+   "code": "training.capital",
+   "source": "core/supabase/functions/api/hr.ts:254"
+  },
+  {
+   "code": "training.completed",
+   "source": "core/supabase/functions/api/hr.ts:184"
+  },
+  {
+   "code": "transfer.settled",
+   "source": "core/supabase/functions/api/transfers.ts"
+  },
+  {
+   "code": "treasury.invest_excess.notified",
+   "source": "core/supabase/functions/api/cash_ops.ts:370"
+  },
+  {
+   "code": "valuation.copy.sent",
+   "source": "core/supabase/functions/api/deposits_member.ts:229"
+  },
+  {
+   "code": "valuation.rights_disclosure.sent",
+   "source": "core/supabase/functions/api/deposits_member.ts:225"
+  },
+  {
+   "code": "vendor.glba_clause.verified",
+   "source": "core/supabase/functions/api/privacy.ts:1057"
+  },
+  {
+   "code": "vendor.incident_tracks_dispatched",
+   "source": "core/supabase/functions/api/incidents.ts:661"
+  },
+  {
+   "code": "verification.biometric.completed",
+   "source": "core/supabase/functions/api/privacy.ts:679"
+  },
+  {
+   "code": "verification.biometric.declined",
+   "source": "core/supabase/functions/api/privacy.ts:679"
+  },
+  {
+   "code": "verification.biometric.purge.due_at",
+   "source": "core/supabase/functions/api/privacy.ts:681"
+  },
+  {
+   "code": "verification.biometric.started",
+   "source": "core/supabase/functions/api/privacy.ts:670"
+  },
+  {
+   "code": "verification.biometric_consent_id",
+   "source": "core/supabase/functions/api/privacy.ts:672"
+  },
+  {
+   "code": "verification.biometric_purged",
+   "source": "core/supabase/functions/api/privacy.ts:708"
+  },
+  {
+   "code": "verification.completed",
+   "source": "core/supabase/functions/api/bsa_program.ts:879"
+  },
+  {
+   "code": "verification.created",
+   "source": "core/supabase/functions/api/member_protection.ts:110"
+  },
+  {
+   "code": "vuln.finding.confirmed",
+   "source": "core/supabase/functions/api/ops_security.ts:396"
+  },
+  {
+   "code": "vuln.remediated",
+   "source": "core/supabase/functions/api/ops_security.ts:440"
+  },
+  {
+   "code": "vuln.triage.completed",
+   "source": "core/supabase/functions/api/ops_security.ts:418"
+  },
+  {
+   "code": "web.consent.recorded",
+   "source": "core/supabase/functions/api/privacy.ts:491"
+  },
+  {
+   "code": "web.consent.updated",
+   "source": "core/supabase/functions/api/privacy.ts:494"
+  },
+  {
+   "code": "web.gpc_signal",
+   "source": "core/supabase/functions/api/privacy.ts:501"
+  },
+  {
+   "code": "web.tag.approved",
+   "source": "core/supabase/functions/api/privacy.ts:547"
+  },
+  {
+   "code": "web.tag.rejected",
+   "source": "core/supabase/functions/api/privacy.ts:547"
+  },
+  {
+   "code": "web.tag_review",
+   "source": "core/supabase/functions/api/privacy.ts:543"
+  },
+  {
+   "code": "web.tag_review.requested",
+   "source": "core/supabase/functions/api/privacy.ts:547"
+  },
+  {
+   "code": "web.tags_gated",
+   "source": "core/supabase/functions/api/privacy.ts:497"
+  },
+  {
+   "code": "wholesale.exposure_computed",
+   "source": "core/supabase/functions/api/liquidity.ts:849"
+  },
+  {
+   "code": "wholesale.listing_decisioned",
+   "source": "core/supabase/functions/api/liquidity.ts:857"
+  },
+  {
+   "code": "wire_transfer.completed",
+   "source": "core/supabase/functions/api/wires.ts"
+  },
+  {
+   "code": "wire_transfer.created",
+   "source": "core/supabase/functions/api/bsa_program.ts:944"
+  },
+  {
+   "code": "wire_transfer.record.missing",
+   "source": "core/supabase/functions/api/bsa_program.ts:952"
+  },
+  {
+   "code": "wire_transfer.record.retained",
+   "source": "core/supabase/functions/api/bsa_program.ts:978"
+  },
+  {
+   "code": "wire_transfer.rejected",
+   "source": "core/supabase/functions/api/wires.ts"
+  },
+  {
+   "code": "wire_transfer.returned",
+   "source": "core/supabase/functions/api/wires.ts"
+  },
+  {
+   "code": "wire_transfer.submitted",
+   "source": "core/supabase/functions/api/wires.ts",
+   "note": "EPS-06 + BSA-05 + BSA-10 trigger"
   }
+ ],
+ "templated": [
+  {
+   "template": "ach_transfer.${verb}",
+   "source": "core/supabase/functions/api/ach.ts:488",
+   "expands_to": [
+    "ach_transfer.settled",
+    "ach_transfer.returned"
+   ],
+   "note": "verb is 'settled' | 'returned'; only emitted where money MOVED, so a pre-settlement return emits nothing"
+  },
+  {
+   "template": "entity.${to}",
+   "source": "core/supabase/functions/api/entities.ts",
+   "expands_to": [
+    "entity.activated",
+    "entity.disabled",
+    "entity.archived"
+   ],
+   "note": "targets of the entity state machine (pending is the initial state, never a transition TARGET, so entity.pending is never emitted) | `active` maps to entity.activated via stateEvent (registry verb form; floor trigger for BSA-03)"
+  },
+  {
+   "template": "account.${to}",
+   "source": "core/supabase/functions/api/accounts.ts",
+   "expands_to": [
+    "account.frozen",
+    "account.closed",
+    "account.opened"
+   ],
+   "note": "ACCOUNT_TRANSITIONS targets: open<->frozen, both -> closed; `open` maps to account.opened via stateEvent"
+  },
+  {
+   "template": "account_number.${to}",
+   "source": "core/supabase/functions/api/numbers.ts:191",
+   "expands_to": [
+    "account_number.activated",
+    "account_number.disabled",
+    "account_number.canceled"
+   ],
+   "note": "`active` maps to account_number.activated via numberStateEvent"
+  },
+  {
+   "template": "verification.${status}",
+   "source": "core/supabase/functions/api/kyc.ts:158",
+   "expands_to": [
+    "verification.approved",
+    "verification.denied"
+   ]
+  },
+  {
+   "template": "${rec.kind}.opened",
+   "source": "core/supabase/functions/api/primitives.ts:169",
+   "expands_to": [
+    "task.opened",
+    "request.opened",
+    "notice.opened",
+    "inbound.opened"
+   ],
+   "note": "kind bounded by WORK_KINDS (primitives.ts:37), enforced at :119"
+  },
+  {
+   "template": "${row.kind}.completed",
+   "source": "core/supabase/functions/api/primitives.ts:260",
+   "expands_to": [
+    "task.completed",
+    "request.completed",
+    "notice.completed",
+    "inbound.completed"
+   ],
+   "note": "same WORK_KINDS bound"
+  },
+  {
+   "template": "${r.kind}.overdue",
+   "source": "core/supabase/functions/api/primitives.ts:320",
+   "expands_to": [
+    "task.overdue",
+    "request.overdue",
+    "notice.overdue",
+    "inbound.overdue"
+   ],
+   "note": "same WORK_KINDS bound"
+  },
+  {
+   "template": "${prefix}.presented / ${prefix}.reviewed",
+   "source": "core/supabase/functions/api/capital.ts:649",
+   "expands_to": [
+    "capital.plan.presented",
+    "capital.plan.reviewed",
+    "capital.stress_report.presented",
+    "capital.stress_report.reviewed",
+    "capital.icaap.presented",
+    "capital.icaap.reviewed"
+   ],
+   "note": "prefix ternary on kind in {capital_plan, stress_report, icaap_report} (capital.ts:627)"
+  },
+  {
+   "template": "ESCALATION_ALIASES fan-out",
+   "source": "core/supabase/functions/api/capital.ts:76",
+   "expands_to": [
+    "capital.board_escalation"
+   ],
+   "note": "emitEscalation writes both aliases per call \u2014 same event, two policy spellings"
+  },
+  {
+   "template": "simulation kind ternary",
+   "source": "core/supabase/functions/api/investment.ts:1207",
+   "expands_to": [
+    "alm.irr_simulation.completed",
+    "portfolio.stress_test.completed"
+   ]
+  },
+  {
+   "template": "report kind template",
+   "source": "core/supabase/functions/api/liquidity.ts:575",
+   "expands_to": [
+    "report.daily_pack.published",
+    "report.weekly_digest.published",
+    "report.board_deck.published"
+   ]
+  },
+  {
+   "template": "REVIEW_EVENTS[kind]",
+   "source": "core/supabase/functions/api/ops_security.ts:334",
+   "expands_to": [
+    "firewall.review.completed",
+    "firewall.independent_review.completed",
+    "antivirus.log_review.completed",
+    "incident_trend.report.issued"
+   ]
+  },
+  {
+   "template": "integrity-test kind template (due)",
+   "source": "core/supabase/functions/api/records_admin.ts:299",
+   "expands_to": [
+    "email_archive.test.due",
+    "core_archive.confirmation_due",
+    "record.integrity.test.due"
+   ]
+  },
+  {
+   "template": "integrity-test kind template (completed)",
+   "source": "core/supabase/functions/api/records_admin.ts:353",
+   "expands_to": [
+    "email_archive.test.completed",
+    "record.integrity_test.completed"
+   ]
+  }
+ ],
+ "_deliberately_excluded": {
+  "what": "The 83 time-based trigger codes the governance calendar can fire.",
+  "why": [
+   "postCalendarSweep emits String(row.trigger_code) \u2014 whatever code a REGISTERED",
+   "obligation carries. So the core can technically emit audit.cycle_timer,",
+   "training.annual_cycle.opened, vendor.annual.review.due_at and 80 others.",
+   "",
+   "Listing them here would move dozens of controls to 'reachable' on the",
+   "strength of a CAPABILITY nobody has exercised. Reachability is meant to",
+   "answer 'can the core fire this control's trigger', and the honest answer",
+   "for an unregistered obligation is no \u2014 the machinery exists, the",
+   "obligation does not.",
+   "",
+   "This is the single largest opportunity in the repo to inflate the coverage",
+   "numbers with one JSON edit, which is exactly why it is refused. If these",
+   "are ever added it must be driven by what is actually REGISTERED on a real",
+   "instance, not by what the code is capable of. See BLUEPRINT 5a."
+  ],
+  "codes_available_if_registered": 83
+ },
+ "_deliberately_excluded_unrouted": {
+  "what": "Event codes emitted only by the credit-origination surface, which stays unrouted by the narrow-bank decision (api/index.ts: 'Pynthia is a narrow bank... does not originate credit'): lending.ts, lending_underwriting.ts, collections.ts, the five /fair-lending handlers in deposits_member.ts (postLoCompPlan, postApplicationIntake, postApplicationOptions, postGmiCollection, postNoticeQueue), and the two card-issuance handlers in cards.ts (postIssueCard, postCardReissue). Everything else was routed 2026-08-03 (273 routes) and its emissions moved into literal/templated.",
+  "why": "Unrouting IS the removal of reachability. These handlers stay for the compliance drill (drill/firers.ts imports them directly to exercise ECOA/Reg B and card controls), but no HTTP request can execute them, so their codes would inflate reachability. If lending is ever routed, its codes belong here from that commit on.",
+  "other_unbounded_paths": "postCalendarSweep (below) re-emits registered obligation trigger codes; recordMovementArtifacts (api/transfers.ts) re-emits caller-supplied codes \u2014 current callers all pass inventoried codes."
+ }
 }

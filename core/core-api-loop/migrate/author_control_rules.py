@@ -29,6 +29,8 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 import yaml  # noqa: E402
+sys.path.insert(0, os.path.join(REPO_ROOT, "scripts"))
+import spec_io  # noqa: E402
 
 SPEC = os.path.join(REPO_ROOT, "core", "core-api.yaml")
 CONTROLS = os.path.join(REPO_ROOT, "controls.json")
@@ -50,7 +52,7 @@ def collect_rules(controls: dict) -> list[dict]:
 
 
 def main() -> int:
-    doc = yaml.safe_load(open(SPEC, encoding="utf-8").read())
+    doc = spec_io.load_spec(SPEC)
     if not (isinstance(doc, dict) and doc.get("openapi")):
         sys.exit("core-api.yaml is not an OpenAPI document.")
     controls = json.load(open(CONTROLS))
@@ -58,8 +60,7 @@ def main() -> int:
     rules = collect_rules(controls)
     doc["x-control-rules"] = rules
 
-    with open(SPEC, "w", encoding="utf-8") as fh:
-        yaml.safe_dump(doc, fh, **DUMP_KW)
+    spec_io.dump_spec(doc, SPEC)
 
     complete = sum(1 for r in rules if r.get("trigger_event") and r.get("produced_events"))
     print(f"x-control-rules stamped: {len(rules)} rules "

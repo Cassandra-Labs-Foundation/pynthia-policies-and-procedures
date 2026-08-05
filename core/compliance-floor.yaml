@@ -4,8 +4,8 @@
 # credit union or fintech (architecture-decisions.md D22; Invariant 3; the "hostile examiner
 # assumption" in compliance-system-architecture.md).
 #
-# WHY THIS FILE EXISTS: controls.json (317 controls, spec v2.2.0) carries NO compliance_floor
-# field (0/317). The architecture expects one. This is a stopgap.
+# WHY THIS FILE EXISTS: controls.json (333 controls, spec v3.1.0) carries NO compliance_floor
+# field (0/333). The architecture expects one. This is a stopgap.
 #
 # AUTHORITATIVE SOURCE (long-term): a `compliance_floor: true` field per control in controls.json,
 #   authored upstream by the compliance/legal team. When that lands, the generator prefers it and
@@ -16,13 +16,22 @@
 #   (OFAC, CIP, CDD/beneficial-ownership, CTR, SAR, transaction monitoring). NEEDS LEGAL SIGN-OFF.
 #   Mis-including a control here would make tests demand enforcement that may be wrong; we therefore
 #   include only controls no CU/fintech may lawfully disable, and list everything else as a candidate.
+#
+# 2026-08-03 REPAIR: the catalogue renamed BS-* → BSA-* and LN-* → LP-* AND renumbered at the same
+#   time, so every id here was dangling and a prefix substitution would have SWAPPED CTR and SAR
+#   (old BS-07 "CTR" is now BSA-08; old BS-08 "SAR" is now BSA-07) and pointed PEP (old BS-20) at
+#   BSA-20 "Prepaid Access". Ids below were remapped by TITLE against controls.json, titles synced
+#   to the catalogue's current wording, and floor_triggers respelled to codes registered in
+#   core-vocabulary.json (the old spellings ofac.hold_placed, ctr.threshold_reached,
+#   cdd.profile_created, cdd.bo_certified, member.application_submitted resolved nowhere, and
+#   loan_party.ofac_potential_match is expressed by the registered loan_party.ofac.escalated).
 
 meta:
   provenance: seed
   needs_legal_review: true
   authoritative_source: "controls.json compliance_floor field (upstream — pending)"
   basis: "non-waivable federal BSA/AML/OFAC mandates"
-  spec_version: "2.2.0"
+  spec_version: "3.1.0"
   scope: "DEPRIORITIZED — the floor/customizable split matters at WHITE-LABEL (other credit unions
     customizing controls). Pynthia's own core runs ALL controls as mandatory, so this file is kept as
     documentation for the eventual white-label phase, not a gating input for the current single-CU core."
@@ -31,43 +40,47 @@ meta:
 # floor_triggers = the qualifying event(s) (from controls.json events[]) whose occurrence must
 # produce a control-result; the control must also be non-disableable.
 floor_controls:
-  - control_id: BS-05
+  - control_id: BSA-05
     title: "OFAC Screening & Holds"
     basis: "31 CFR Part 501 / §501.601 / §501.603 — OFAC sanctions; non-waivable"
-    floor_triggers: [ofac.hold_placed, ofac.blocked, ofac.rejected, ofac.cleared]
+    floor_triggers: [ofac.hold.placed, ofac.blocked, ofac.rejected, ofac.cleared]
     confidence: high          # canonical floor control (D22 names OFAC explicitly)
 
-  - control_id: LN-11
-    title: "OFAC & Sanctions Gate (lending)"
+  - control_id: LP-11
+    title: "OFAC & Sanctions Gate"
     basis: "31 CFR Chapter V; NCUA Part 748 — OFAC at loan-party add; non-waivable"
-    floor_triggers: [loan_party.ofac_potential_match, loan_party.added]
+    floor_triggers: [loan_party.ofac.escalated, loan_party.added]
     confidence: high
 
-  - control_id: BS-03
+  - control_id: BSA-03
     title: "Customer Identification Program (CIP)"
     basis: "31 CFR §1020.220 — CIP; non-waivable"
-    floor_triggers: [member.application_submitted, entity.activated]
+    floor_triggers: [application.submitted, verification.completed]
     confidence: high
 
-  - control_id: BS-04
-    title: "CDD / EDD & Beneficial Ownership"
+  - control_id: BSA-04
+    title: "Customer Due Diligence & Enhanced Due Diligence"
     basis: "31 CFR §1010.230 — beneficial ownership / CDD; non-waivable"
-    floor_triggers: [cdd.profile_created, cdd.bo_certified]
+    floor_triggers: [cdd.profile.created, cdd.bo.certified]
     confidence: high
 
-  - control_id: BS-07
-    title: "CTR Filing & Exemptions"
+  - control_id: BSA-08
+    title: "Currency Transaction Reporting (CTR)"
     basis: "31 CFR §1010.311 / §1010.306 — currency transaction reports; non-waivable"
-    floor_triggers: [ctr.threshold_reached, ctr.filed]
+    floor_triggers: [ctr.threshold.reached, ctr.filed]
     confidence: high
 
-  - control_id: BS-08
+  - control_id: BSA-07
     title: "SAR Filing & Confidentiality"
     basis: "31 CFR §1020.320; 12 CFR §748.1(c) — suspicious activity reports; non-waivable"
-    floor_triggers: [sar.decision_file]
+    # sar.filed, not sar.decision_file: the latter is registered but emitted by
+    # nothing (bsa.ts emits sar.filed | sar.decision_no_file), and it is not a
+    # qualifying event of BSA-07. sar.filed is both emitted and produced by
+    # BSA-07's own rule.
+    floor_triggers: [sar.filed]
     confidence: high
 
-  - control_id: BS-06
+  - control_id: BSA-06
     title: "Transaction Monitoring & Case Management"
     basis: "31 CFR §1020.210 / §1020.320 — mandated monitoring that feeds SAR; non-waivable program element"
     floor_triggers: [bsa_alert.created]
@@ -76,11 +89,11 @@ floor_controls:
 # ── Candidates — likely floor but risk-based or program-level; NOT asserted by tests until legal
 # confirms. Listed so the gap is explicit, not silent.
 candidates:
-  - control_id: BS-02
+  - control_id: BSA-02
     title: "Enterprise BSA/AML Risk Assessment"
     basis: "31 CFR §1020.210 — AML program pillar; arguably non-waivable program requirement"
     reason_held: "program-level, not a discrete enforceable gate"
-  - control_id: BS-20
+  - control_id: BSA-18
     title: "PEP Screening & EDD"
     basis: "31 CFR §1010.230 / §1020.210 — risk-based EDD"
     reason_held: "PEP screening is risk-based, not a hard US statutory mandate like OFAC/CTR"

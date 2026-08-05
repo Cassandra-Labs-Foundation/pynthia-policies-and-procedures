@@ -7,15 +7,11 @@
   },
   "summary": {
     "ran": 333,
-    "green": 164,
-    "red": 169,
-    "in_scope_green": 163,
-    "in_scope_red": 62,
+    "green": 178,
+    "red": 155,
+    "in_scope_green": 177,
+    "in_scope_red": 48,
     "fake_vs_real_defects": [
-      {
-        "uid": "audit:SC-02",
-        "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
-      },
       {
         "uid": "basel-ii-standardized-approach-framework:BA-04",
         "blocked_on": "produced 2/3: missing rwa.schedule_version"
@@ -25,12 +21,8 @@
         "blocked_on": "inputs not supplied: training.annual_due_at, training.capital, training.required_curriculum"
       },
       {
-        "uid": "bsa:SC-02",
-        "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
-      },
-      {
-        "uid": "business-continuity-plan:BC-06",
-        "blocked_on": "produced 5/6: missing incident.contained"
+        "uid": "bsa:BSA-04",
+        "blocked_on": "produced 8/9: missing cdd.profile.refreshed"
       },
       {
         "uid": "capitalization:CP-01",
@@ -38,7 +30,7 @@
       },
       {
         "uid": "cash:CP-12",
-        "blocked_on": "produced 7/8: missing record.destroyed"
+        "blocked_on": "inputs not supplied: training.coverage_pct"
       },
       {
         "uid": "charitable-donation-accounts:CDA-01",
@@ -85,10 +77,6 @@
         "blocked_on": "produced 1/4: missing policy.board_approved_at, policy.document_version, ecommerce.risk_assessment.completed"
       },
       {
-        "uid": "e-commerce:SC-03",
-        "blocked_on": "produced 5/6: missing incident.contained"
-      },
-      {
         "uid": "electronic-payment-systems:EPS-05",
         "blocked_on": "produced 5/6: missing eps.auth.challenged"
       },
@@ -117,14 +105,6 @@
         "blocked_on": "produced 0/2: missing record.retention.expires_at, record.retention_clock_set"
       },
       {
-        "uid": "fair-lending:SC-02",
-        "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
-      },
-      {
-        "uid": "information-security:SC-03",
-        "blocked_on": "produced 5/6: missing incident.contained"
-      },
-      {
         "uid": "information-security:IS-13",
         "blocked_on": "produced 4/5: missing ai.tool.rejected"
       },
@@ -133,20 +113,8 @@
         "blocked_on": "produced 2/3: missing record.disposed"
       },
       {
-        "uid": "information-security:SC-02",
-        "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
-      },
-      {
         "uid": "internal-controls:IC-02",
         "blocked_on": "produced 5/6: missing sod.compensating_control.approved"
-      },
-      {
-        "uid": "internal-controls:IC-06",
-        "blocked_on": "produced 3/4: missing exception.reverted"
-      },
-      {
-        "uid": "internal-controls:SC-02",
-        "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
       },
       {
         "uid": "investment:IP-02",
@@ -185,10 +153,6 @@
         "blocked_on": "produced 0/1: missing document.required_set"
       },
       {
-        "uid": "investment:SC-02",
-        "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
-      },
-      {
         "uid": "lending:LP-03",
         "blocked_on": "produced 0/6: missing car.sealed, loan_application.aan_due_at, loan_application.decisioned, loan_application.incompleteness_notice.sent"
       },
@@ -209,20 +173,8 @@
         "blocked_on": "produced 0/3: missing credit_package.retention.expires_at, credit_package.retention.started, credit_package.validated"
       },
       {
-        "uid": "lending:SC-02",
-        "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
-      },
-      {
-        "uid": "liquidity:SC-02",
-        "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
-      },
-      {
         "uid": "privacy:PR-05",
         "blocked_on": "inputs not supplied: address.ncoa_candidate, address.ncoa_mismatch"
-      },
-      {
-        "uid": "privacy:PR-08",
-        "blocked_on": "produced 4/6: missing disposal.scheduled, record.destroyed"
       },
       {
         "uid": "privacy:PR-16",
@@ -233,10 +185,6 @@
         "blocked_on": "produced 4/5: missing schedule_a.entry.added"
       },
       {
-        "uid": "record-retention:RR-03",
-        "blocked_on": "produced 0/5: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
-      },
-      {
         "uid": "record-retention:RR-04",
         "blocked_on": "produced 2/4: missing destruction_log.entry_id, destruction_log.mismatch.detected"
       },
@@ -245,12 +193,8 @@
         "blocked_on": "produced 0/2: missing record.disposal_method, record.disposed"
       },
       {
-        "uid": "shared-controls:SC-03",
-        "blocked_on": "produced 5/6: missing incident.contained"
-      },
-      {
-        "uid": "shared-controls:SC-02",
-        "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
+        "uid": "record-retention:RR-08",
+        "blocked_on": "produced 0/1: missing cdd.profile.refreshed"
       },
       {
         "uid": "truth-in-savings:TIS-02",
@@ -393,7 +337,7 @@
         "audit.annual_plan.submitted",
         "audit.annual_plan.approved",
         "audit.schedule_finalized",
-        "audit.scope_change_documented",
+        "audit.scope_change.documented",
         "audit.frequency_increased"
       ],
       "observed": [
@@ -428,7 +372,7 @@
         "audit.scope_change_rationale"
       ],
       "fire_path": "real_writer",
-      "blocked_on": "produced 4/5: missing audit.scope_change_documented"
+      "blocked_on": "produced 4/5: missing audit.scope_change.documented"
     },
     {
       "scoped_out": true,
@@ -710,16 +654,16 @@
       "policy": "audit",
       "control_id": "SC-02",
       "title": "Record-Retention Lifecycle Mechanics",
-      "status": "red",
+      "status": "green",
       "expected": [
         "disposal.held",
         "legal.hold.placed",
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -733,10 +677,15 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
-        "record.hold.released"
+        "legal_hold.schedule.resumed",
+        "record.hold.released",
+        "destruction_log.entry.created",
+        "disposal.scheduled",
+        "destruction_log.entry_id",
+        "record.destroyed",
+        "record.destruction.certified"
       ],
       "triggers": [
         "legal_hold.created",
@@ -769,8 +718,7 @@
         "disposal.batch_manifest_id",
         "disposal.certificate"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -1039,7 +987,7 @@
         "liquidity.rsf_total",
         "liquidity.diversification_plan",
         "cfp.level",
-        "cfp.execution_plan_documented",
+        "cfp.execution_plan.documented",
         "liquidity.stress",
         "cfp.investment.test.due_at"
       ],
@@ -1055,7 +1003,7 @@
         "liquidity.rsf_total",
         "liquidity.diversification_plan",
         "cfp.level",
-        "cfp.execution_plan_documented",
+        "cfp.execution_plan.documented",
         "liquidity.stress",
         "cfp.investment.test.due_at"
       ],
@@ -1408,7 +1356,7 @@
       "policy": "bsa",
       "control_id": "BSA-04",
       "title": "Customer Due Diligence & Enhanced Due Diligence",
-      "status": "green",
+      "status": "red",
       "expected": [
         "cdd.profile.created",
         "cdd.bo.certified",
@@ -1428,7 +1376,6 @@
         "edd.category.approved",
         "edd.completed",
         "edd.pep.opened",
-        "cdd.profile.refreshed",
         "edd.refresh.completed"
       ],
       "triggers": [
@@ -1455,7 +1402,8 @@
         "edd.category_checklist",
         "edd.source_of_wealth"
       ],
-      "fire_path": "real_writer"
+      "fire_path": "real_writer",
+      "blocked_on": "produced 8/9: missing cdd.profile.refreshed"
     },
     {
       "scoped_out": false,
@@ -2110,16 +2058,16 @@
       "policy": "bsa",
       "control_id": "SC-02",
       "title": "Record-Retention Lifecycle Mechanics",
-      "status": "red",
+      "status": "green",
       "expected": [
         "disposal.held",
         "legal.hold.placed",
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -2133,10 +2081,15 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
-        "record.hold.released"
+        "legal_hold.schedule.resumed",
+        "record.hold.released",
+        "destruction_log.entry.created",
+        "disposal.scheduled",
+        "destruction_log.entry_id",
+        "record.destroyed",
+        "record.destruction.certified"
       ],
       "triggers": [
         "legal_hold.created",
@@ -2169,8 +2122,7 @@
         "disposal.batch_manifest_id",
         "disposal.certificate"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -2189,7 +2141,7 @@
       "observed": [],
       "triggers": [
         "bcp.annual.review.due",
-        "board.meeting_held",
+        "board.meeting.held",
         "imt.roster.review.due",
         "org.material_change"
       ],
@@ -2205,7 +2157,7 @@
         "imt.roster.review.due"
       ],
       "fire_path": "obligation_cadence",
-      "blocked_on": "no writer for trigger 'board.meeting_held'"
+      "blocked_on": "no writer for trigger 'board.meeting.held'"
     },
     {
       "scoped_out": true,
@@ -2356,7 +2308,7 @@
       "policy": "business-continuity-plan",
       "control_id": "BC-06",
       "title": "Incident Declaration and Initial Actions",
-      "status": "red",
+      "status": "green",
       "expected": [
         "incident.first_hour.completed",
         "incident.ic.assigned",
@@ -2370,7 +2322,8 @@
         "incident.ic.assigned",
         "sitrep.issued",
         "sitrep.v1_timer",
-        "sitrep.cadence_timer"
+        "sitrep.cadence_timer",
+        "incident.contained"
       ],
       "triggers": [
         "incident.declared",
@@ -2387,8 +2340,7 @@
         "incident.severity"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 5/6: missing incident.contained"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -3764,7 +3716,8 @@
         "record.retention.expires_at",
         "record.retention_clock_set",
         "exam.export.delivered",
-        "records_package.completed"
+        "records_package.completed",
+        "record.destroyed"
       ],
       "triggers": [
         "cash.kri_month.closed",
@@ -3792,7 +3745,7 @@
         "record.legal_hold_flag"
       ],
       "fire_path": "real_writer",
-      "blocked_on": "produced 7/8: missing record.destroyed"
+      "blocked_on": "inputs not supplied: training.coverage_pct"
     },
     {
       "scoped_out": false,
@@ -4336,12 +4289,12 @@
       "required_inputs": [
         "cda.communication_draft",
         "cda.wcag_checklist",
-        "cda.communication_archived"
+        "cda.communication.archived"
       ],
       "inputs_supplied": [
         "cda.communication_draft",
         "cda.wcag_checklist",
-        "cda.communication_archived"
+        "cda.communication.archived"
       ],
       "inputs_unverifiable": [],
       "fire_path": "real_writer"
@@ -4485,7 +4438,7 @@
         "loan.collateral_value",
         "loan.ltv",
         "loan.product_type",
-        "loan.well_secured_documented",
+        "loan.well_secured.documented",
         "loan.balance",
         "loan.bankruptcy_case_id",
         "loan.id",
@@ -5497,14 +5450,14 @@
         "affiliate.transaction.recorded",
         "affiliate.lqa_screen.logged",
         "affiliate.list.updated",
-        "affiliate.transaction_file_archived"
+        "affiliate.transaction_file.archived"
       ],
       "observed": [
         "affiliate.limits.checked",
         "affiliate.transaction.recorded",
         "affiliate.lqa_screen.logged",
         "affiliate.list.updated",
-        "affiliate.transaction_file_archived"
+        "affiliate.transaction_file.archived"
       ],
       "triggers": [
         "affiliate.covered_transaction.proposed",
@@ -6179,7 +6132,7 @@
       "policy": "e-commerce",
       "control_id": "SC-03",
       "title": "Enterprise Incident Declaration & First-Hour Response",
-      "status": "red",
+      "status": "green",
       "expected": [
         "incident.first_hour.completed",
         "incident.ic.assigned",
@@ -6193,7 +6146,8 @@
         "incident.ic.assigned",
         "sitrep.issued",
         "sitrep.v1_timer",
-        "sitrep.cadence_timer"
+        "sitrep.cadence_timer",
+        "incident.contained"
       ],
       "triggers": [
         "incident.declared",
@@ -6210,8 +6164,7 @@
         "incident.severity"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 5/6: missing incident.contained"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -7109,7 +7062,7 @@
         "risk_acceptance.requested",
         "risk_acceptance.decision.due_at",
         "risk_acceptance.expiry_alert_at",
-        "risk_acceptance.expiry_warning",
+        "risk_acceptance.expiry.warning",
         "risk_acceptance.expired"
       ],
       "required_inputs": [
@@ -7631,16 +7584,16 @@
       "policy": "fair-lending",
       "control_id": "SC-02",
       "title": "Record-Retention Lifecycle Mechanics",
-      "status": "red",
+      "status": "green",
       "expected": [
         "disposal.held",
         "legal.hold.placed",
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -7654,10 +7607,15 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
-        "record.hold.released"
+        "legal_hold.schedule.resumed",
+        "record.hold.released",
+        "destruction_log.entry.created",
+        "disposal.scheduled",
+        "destruction_log.entry_id",
+        "record.destroyed",
+        "record.destruction.certified"
       ],
       "triggers": [
         "legal_hold.created",
@@ -7690,8 +7648,7 @@
         "disposal.batch_manifest_id",
         "disposal.certificate"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -8135,7 +8092,7 @@
       "policy": "information-security",
       "control_id": "SC-03",
       "title": "Enterprise Incident Declaration & First-Hour Response",
-      "status": "red",
+      "status": "green",
       "expected": [
         "incident.first_hour.completed",
         "incident.ic.assigned",
@@ -8149,7 +8106,8 @@
         "incident.ic.assigned",
         "sitrep.issued",
         "sitrep.v1_timer",
-        "sitrep.cadence_timer"
+        "sitrep.cadence_timer",
+        "incident.contained"
       ],
       "triggers": [
         "incident.declared",
@@ -8166,8 +8124,7 @@
         "incident.severity"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 5/6: missing incident.contained"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -8535,16 +8492,16 @@
       "policy": "information-security",
       "control_id": "SC-02",
       "title": "Record-Retention Lifecycle Mechanics",
-      "status": "red",
+      "status": "green",
       "expected": [
         "disposal.held",
         "legal.hold.placed",
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -8558,10 +8515,15 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
-        "record.hold.released"
+        "legal_hold.schedule.resumed",
+        "record.hold.released",
+        "destruction_log.entry.created",
+        "disposal.scheduled",
+        "destruction_log.entry_id",
+        "record.destroyed",
+        "record.destruction.certified"
       ],
       "triggers": [
         "legal_hold.created",
@@ -8594,8 +8556,7 @@
         "disposal.batch_manifest_id",
         "disposal.certificate"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -8839,7 +8800,7 @@
       "policy": "internal-controls",
       "control_id": "IC-06",
       "title": "Exception and Override Management",
-      "status": "red",
+      "status": "green",
       "expected": [
         "override.recorded",
         "exception.registered",
@@ -8849,6 +8810,7 @@
       "observed": [
         "override.recorded",
         "exception.registered",
+        "exception.reverted",
         "override.analytics.published"
       ],
       "triggers": [
@@ -8879,8 +8841,7 @@
         "exception.risk_acceptance",
         "exception.scope"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 3/4: missing exception.reverted"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -8961,16 +8922,16 @@
       "policy": "internal-controls",
       "control_id": "SC-02",
       "title": "Record-Retention Lifecycle Mechanics",
-      "status": "red",
+      "status": "green",
       "expected": [
         "disposal.held",
         "legal.hold.placed",
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -8984,10 +8945,15 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
-        "record.hold.released"
+        "legal_hold.schedule.resumed",
+        "record.hold.released",
+        "destruction_log.entry.created",
+        "disposal.scheduled",
+        "destruction_log.entry_id",
+        "record.destroyed",
+        "record.destruction.certified"
       ],
       "triggers": [
         "legal_hold.created",
@@ -9020,8 +8986,7 @@
         "disposal.batch_manifest_id",
         "disposal.certificate"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -9638,16 +9603,16 @@
       "policy": "investment",
       "control_id": "SC-02",
       "title": "Record-Retention Lifecycle Mechanics",
-      "status": "red",
+      "status": "green",
       "expected": [
         "disposal.held",
         "legal.hold.placed",
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -9661,10 +9626,15 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
-        "record.hold.released"
+        "legal_hold.schedule.resumed",
+        "record.hold.released",
+        "destruction_log.entry.created",
+        "disposal.scheduled",
+        "destruction_log.entry_id",
+        "record.destroyed",
+        "record.destruction.certified"
       ],
       "triggers": [
         "legal_hold.created",
@@ -9697,8 +9667,7 @@
         "disposal.batch_manifest_id",
         "disposal.certificate"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -9757,14 +9726,14 @@
       "status": "green",
       "expected": [
         "cfp.investment_test.completed",
-        "cfp.execution_plan_documented",
+        "cfp.execution_plan.documented",
         "cfp.level.changed",
         "finding.opened",
         "finding.remediation.reported"
       ],
       "observed": [
         "cfp.investment_test.completed",
-        "cfp.execution_plan_documented",
+        "cfp.execution_plan.documented",
         "cfp.level.changed",
         "finding.opened",
         "finding.remediation.reported"
@@ -10258,16 +10227,16 @@
       "policy": "lending",
       "control_id": "SC-02",
       "title": "Record-Retention Lifecycle Mechanics",
-      "status": "red",
+      "status": "green",
       "expected": [
         "disposal.held",
         "legal.hold.placed",
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -10281,10 +10250,15 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
-        "record.hold.released"
+        "legal_hold.schedule.resumed",
+        "record.hold.released",
+        "destruction_log.entry.created",
+        "disposal.scheduled",
+        "destruction_log.entry_id",
+        "record.destroyed",
+        "record.destruction.certified"
       ],
       "triggers": [
         "legal_hold.created",
@@ -10317,8 +10291,7 @@
         "disposal.batch_manifest_id",
         "disposal.certificate"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -11191,16 +11164,16 @@
       "policy": "liquidity",
       "control_id": "SC-02",
       "title": "Record-Retention Lifecycle Mechanics",
-      "status": "red",
+      "status": "green",
       "expected": [
         "disposal.held",
         "legal.hold.placed",
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -11214,10 +11187,15 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
-        "record.hold.released"
+        "legal_hold.schedule.resumed",
+        "record.hold.released",
+        "destruction_log.entry.created",
+        "disposal.scheduled",
+        "destruction_log.entry_id",
+        "record.destroyed",
+        "record.destruction.certified"
       ],
       "triggers": [
         "legal_hold.created",
@@ -11250,8 +11228,7 @@
         "disposal.batch_manifest_id",
         "disposal.certificate"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -11474,7 +11451,7 @@
         "member.id",
         "privacy.optout_scope",
         "disclosure.template_id",
-        "member.esign_consent_captured",
+        "member.esign_consent.captured",
         "member.delivery_failure_reason"
       ],
       "inputs_supplied": [],
@@ -11484,7 +11461,7 @@
         "member.id",
         "privacy.optout_scope",
         "disclosure.template_id",
-        "member.esign_consent_captured",
+        "member.esign_consent.captured",
         "member.delivery_failure_reason"
       ],
       "fire_path": "real_writer"
@@ -11670,13 +11647,13 @@
       "status": "green",
       "expected": [
         "account.death_flag.applied",
-        "estate.claim_documented",
+        "estate.claim.documented",
         "verification.created",
         "estate.payout.sent"
       ],
       "observed": [
         "account.death_flag.applied",
-        "estate.claim_documented",
+        "estate.claim.documented",
         "verification.created",
         "estate.payout.sent"
       ],
@@ -12113,20 +12090,22 @@
       "policy": "privacy",
       "control_id": "PR-08",
       "title": "Secure Disposal of NPPI",
-      "status": "red",
+      "status": "green",
       "expected": [
         "disposal.held",
         "disposal.scheduled",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "record.destruction_due_at",
         "disposal.certificate.recorded",
         "record.destroyed"
       ],
       "observed": [
         "disposal.held",
-        "disposal.clock_resumed",
+        "disposal.scheduled",
+        "disposal.clock.resumed",
         "record.destruction_due_at",
-        "disposal.certificate.recorded"
+        "disposal.certificate.recorded",
+        "record.destroyed"
       ],
       "triggers": [
         "record.retention.expires_at",
@@ -12155,8 +12134,7 @@
         "disposal.batch_manifest_id",
         "disposal.method"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 4/6: missing disposal.scheduled, record.destroyed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -12303,13 +12281,13 @@
       "status": "green",
       "expected": [
         "privacy.website_notice.updated",
-        "member.esign_consent_captured",
+        "member.esign_consent.captured",
         "privacy.esign_consent.recorded",
         "privacy.notice_copy.delivered"
       ],
       "observed": [
         "privacy.website_notice.updated",
-        "member.esign_consent_captured",
+        "member.esign_consent.captured",
         "privacy.esign_consent.recorded",
         "privacy.notice_copy.delivered"
       ],
@@ -12484,14 +12462,14 @@
         "connection.token.issued",
         "connection.scope_violation.detected",
         "connection.suspended",
-        "connection.token_revoked"
+        "connection.token.revoked"
       ],
       "observed": [
         "connection.consent.granted",
         "connection.token.issued",
         "connection.scope_violation.detected",
         "connection.suspended",
-        "connection.token_revoked"
+        "connection.token.revoked"
       ],
       "triggers": [
         "connection.consent.granted",
@@ -12551,7 +12529,12 @@
         "verification.id"
       ],
       "inputs_supplied": [
-        "entity.id"
+        "entity.id",
+        "verification.alt_path_available",
+        "verification.biometric.purge.due_at",
+        "verification.biometric_consent_id",
+        "verification.match_status",
+        "verification.id"
       ],
       "inputs_unverifiable": [],
       "fire_path": "real_writer",
@@ -12680,7 +12663,7 @@
       "policy": "record-retention",
       "control_id": "RR-03",
       "title": "Document Destruction",
-      "status": "red",
+      "status": "green",
       "expected": [
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -12688,7 +12671,13 @@
         "record.destroyed",
         "record.destruction.certified"
       ],
-      "observed": [],
+      "observed": [
+        "destruction_log.entry.created",
+        "disposal.scheduled",
+        "destruction_log.entry_id",
+        "record.destroyed",
+        "record.destruction.certified"
+      ],
       "triggers": [
         "record.retention.expired",
         "disposal.executed"
@@ -12708,8 +12697,7 @@
         "disposal.batch_manifest_id",
         "disposal.certificate"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 0/5: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -12768,9 +12756,9 @@
         "legal.hold.placed",
         "record.hold.placed",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released"
       ],
       "observed": [
@@ -12778,9 +12766,9 @@
         "legal.hold.placed",
         "record.hold.placed",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released"
       ],
       "triggers": [
@@ -12870,13 +12858,11 @@
       "policy": "record-retention",
       "control_id": "RR-08",
       "title": "CDD Refresh Cycle and Stale-Record Disposition",
-      "status": "green",
+      "status": "red",
       "expected": [
         "cdd.profile.refreshed"
       ],
-      "observed": [
-        "cdd.profile.refreshed"
-      ],
+      "observed": [],
       "triggers": [
         "cdd.refresh.due",
         "cdd.profile.refreshed"
@@ -12890,7 +12876,8 @@
         "cdd.profile",
         "cdd.risk_tier"
       ],
-      "fire_path": "real_writer"
+      "fire_path": "real_writer",
+      "blocked_on": "produced 0/1: missing cdd.profile.refreshed"
     },
     {
       "scoped_out": false,
@@ -13808,7 +13795,7 @@
       "policy": "shared-controls",
       "control_id": "SC-03",
       "title": "Enterprise Incident Declaration & First-Hour Response",
-      "status": "red",
+      "status": "green",
       "expected": [
         "incident.first_hour.completed",
         "incident.ic.assigned",
@@ -13822,7 +13809,8 @@
         "incident.ic.assigned",
         "sitrep.issued",
         "sitrep.v1_timer",
-        "sitrep.cadence_timer"
+        "sitrep.cadence_timer",
+        "incident.contained"
       ],
       "triggers": [
         "incident.declared",
@@ -13839,8 +13827,7 @@
         "incident.severity"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 5/6: missing incident.contained"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -13884,16 +13871,16 @@
       "policy": "shared-controls",
       "control_id": "SC-02",
       "title": "Record-Retention Lifecycle Mechanics",
-      "status": "red",
+      "status": "green",
       "expected": [
         "disposal.held",
         "legal.hold.placed",
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
+        "legal_hold.schedule.resumed",
         "record.hold.released",
         "destruction_log.entry.created",
         "disposal.scheduled",
@@ -13907,10 +13894,15 @@
         "record.hold.placed",
         "record.legal_hold_flag",
         "record.hold.applied",
-        "disposal.clock_resumed",
+        "disposal.clock.resumed",
         "legal.hold.released",
-        "legal_hold.schedule_resumed",
-        "record.hold.released"
+        "legal_hold.schedule.resumed",
+        "record.hold.released",
+        "destruction_log.entry.created",
+        "disposal.scheduled",
+        "destruction_log.entry_id",
+        "record.destroyed",
+        "record.destruction.certified"
       ],
       "triggers": [
         "legal_hold.created",
@@ -13943,8 +13935,7 @@
         "disposal.batch_manifest_id",
         "disposal.certificate"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 9/14: missing destruction_log.entry.created, disposal.scheduled, destruction_log.entry_id, record.destroyed"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,

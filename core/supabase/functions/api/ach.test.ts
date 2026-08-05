@@ -388,7 +388,7 @@ Deno.test("a NOC leaves a durable event — 'told and did nothing' is the audit 
   const { db, upserts } = stubDb({ ...HELD, status: "settled", originator: { account_id: "acct_1" } });
   await postAchNoc(req({ code: "C02", corrections: { routing_number: "021000021" } }), "ach_1", db, "n2", TEST_CTX);
   const evt = upserts.find((u) => u.table === "event");
-  assertEquals(evt?.row.code, "ach_transfer.noc_received");
+  assertEquals(evt?.row.code, "ach_transfer.noc.received");
   // deterministic id keyed on the code: a redelivered C02 converges on one row
   assertEquals(evt?.row.id, "evt_ach_1_noc_C02");
 });

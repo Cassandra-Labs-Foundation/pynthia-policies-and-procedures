@@ -410,3 +410,31 @@ export async function mintToken(params: {
     },
   };
 }
+
+/** Signature every routed handler adapter conforms to. */
+export type RouteHandler = (
+  req: Request,
+  params: Record<string, string>,
+  requestId: string,
+  ctx: PartnerContext,
+) => Promise<Response>;
+
+/**
+ * One route-table entry (moved here from index.ts when the table split into
+ * hand-written chrome/bespoke entries and the spec-generated routes.gen.ts —
+ * both need the type, and auth.ts already owns EndpointScope).
+ */
+export interface Route extends EndpointScope {
+  method: string;
+  pattern: RegExp;
+  paramNames: string[];
+  handler: RouteHandler;
+  /** Skip authentication entirely — pure-chrome surfaces only. */
+  public?: true;
+  /**
+   * The spec's x-audience, carried through by gen_routes so the annotation
+   * has a runtime consumer (route_gating.test.ts reconciles it against
+   * PARTNER_SURFACE — an audience the tests don't vouch for is a lie).
+   */
+  audience?: "partner" | "internal" | "public";
+}

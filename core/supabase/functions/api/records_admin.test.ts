@@ -280,9 +280,9 @@ Deno.test("RR-04: a mismatch cannot be closed without an explanation", async () 
 
 Deno.test("RR-08: the refresh cycle is RISK-BASED, not one interval for everyone", async () => {
   const dbx = makeDrillDb();
-  for (const [i, risk] of ["high", "medium", "low"].entries()) {
+  for (const [i, risk] of ["high", "moderate", "low"].entries()) {
     await postCddProfile(
-      req({ id: `p${i}`, entity_id: `e${i}`, risk_rating: risk, last_refreshed_at: "2026-01-01T00:00:00.000Z" }),
+      req({ id: `p${i}`, entity_id: `e${i}`, risk_tier: risk, last_refreshed_at: "2026-01-01T00:00:00.000Z" }),
       dbx.client, "t", CTX,
     );
   }
@@ -294,7 +294,7 @@ Deno.test("RR-08: the refresh cycle is RISK-BASED, not one interval for everyone
 Deno.test("RR-08: a refresh records whether it was LATE", async () => {
   const dbx = makeDrillDb();
   await postCddProfile(
-    req({ id: "p1", entity_id: "e1", risk_rating: "high", last_refreshed_at: "2020-01-01T00:00:00.000Z" }),
+    req({ id: "p1", entity_id: "e1", risk_tier: "high", last_refreshed_at: "2020-01-01T00:00:00.000Z" }),
     dbx.client, "t", CTX,
   );
   await postCddRefresh(req({ refreshed_by: "analyst" }), "p1", dbx.client, "t", CTX);
