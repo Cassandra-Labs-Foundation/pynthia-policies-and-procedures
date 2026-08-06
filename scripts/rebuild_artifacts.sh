@@ -20,6 +20,7 @@ python3 scripts/extract_vocab.py .             # -> extracted-vocab.json
 # half-rebuilt state.
 python3 scripts/build_crosswalk.py             # -> crosswalk.json + CROSSWALK.md
 python3 scripts/build_dashboard.py             # -> compliance/dashboard
+python3 scripts/build_choreography.py          # -> compliance/dashboard/choreography
 python3 core/verifier/generator/enumerate.py   # -> core/verifier/targets.json + worklist.md
 python3 scripts/gen_routes.py                  # -> api/routes.gen.ts
 python3 scripts/gen_ui_contract.py             # -> ui allowlist + types
