@@ -142,8 +142,13 @@ export async function fetchGeneralLedger() {
     postingsByBalance.get(balanceId).push({ ...posting, side });
   };
   for (const p of postings) {
-    push(p.source, p, "credit"); // funds leave the source
-    push(p.destination, p, "debit"); // funds arrive at the destination
+    // Blnk debits the source and credits the destination: @OpeningFunding ->
+    // member leaves the member's balance POSITIVE (credit-heavy), and an
+    // outbound wire holds the ORIGINATOR's money in inflight_debit_balance.
+    // These labels were inverted once; the debit_balance column rendered two
+    // cells away on the same row is the tell if they ever flip again.
+    push(p.source, p, "debit");
+    push(p.destination, p, "credit");
   }
 
   const balancesByLedger = new Map();

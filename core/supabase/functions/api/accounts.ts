@@ -288,7 +288,7 @@ export async function getAccount(
 ): Promise<Response> {
   const { data, error } = await scopeToPartner(
     db.schema("core").from("account")
-      .select("id, account_type, status, balance, balance_synced_at, blnk_balance_id, created_at")
+      .select(ACCOUNT_COLS)
       .eq("id", accountId),
     ctx,
   ).maybeSingle();

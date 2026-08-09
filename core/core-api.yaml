@@ -353,6 +353,7 @@ paths:
       x-handler: ach.getAchTransfer
       x-audience: partner
       x-tier: read
+      x-ui-surface: true
   /audit/engagements:
     post:
       summary: 'AU-04: opening the plan cycle submits the annual plan. The submission is an'
@@ -2419,6 +2420,7 @@ paths:
       x-audience: partner
       x-handler: kyc.getEntityVerifications
       x-tier: read
+      x-ui-surface: true
     post:
       summary: run KYC through the adapter
       operationId: post_verification
@@ -5663,6 +5665,7 @@ paths:
       x-handler: wires.getWireTransfer
       x-audience: partner
       x-tier: read
+      x-ui-surface: true
 components:
   schemas:
     Account:

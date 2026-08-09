@@ -83,8 +83,11 @@ const USD = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" 
  */
 export function formatCents(cents, { signed = false } = {}) {
   if (typeof cents !== "number") return "—";
+  // The abs exists ONLY so the signed branch can hand-prefix +/-. It must not
+  // touch the unsigned path: Intl renders a negative on its own, and eating it
+  // here once showed a $50M debit-heavy Blnk net as a positive figure.
+  if (!signed) return USD.format(cents / 100);
   const text = USD.format(Math.abs(cents) / 100);
-  if (!signed) return text;
   return cents < 0 ? `-${text}` : `+${text}`;
 }
 
@@ -143,9 +146,37 @@ export async function fetchMember(memberId) {
  * the whole profile because the transfer walk failed would hide the identity
  * fields that did load.
  */
+/**
+ * KYC posture from the verification history. The newest row decides (the
+ * handler orders newest-first); OFAC rides separately because the always-on
+ * floor can deny before any provider runs, and a teller reading "denied"
+ * needs to know which kind of denied.
+ *
+ * `rows === null` means the fetch itself failed and renders as "unavailable" —
+ * distinct from an empty history, because "we could not check" and "nothing
+ * was ever run" call for different conversations at the window.
+ */
+function toKycSummary(rows) {
+  if (rows === null) return { status: "unavailable", count: 0 };
+  if (rows.length === 0) return { status: "none", count: 0 };
+  const latest = rows[0];
+  return {
+    status: latest.status, // "approved" | "denied"
+    ofac: latest.ofac_result, // "clear" | "hit"
+    provider: latest.provider ?? null,
+    when: latest.created_at ?? null,
+    count: rows.length,
+  };
+}
+
 export async function fetchMemberProfile(memberId) {
   const entity = await get(`entities/${memberId}`);
   const accounts = await getAll("accounts", { entity_id: memberId }).catch(() => []);
+  // Not getAll: the endpoint returns the full history in one body (no
+  // pagination envelope), newest first.
+  const verifications = await get(`entities/${memberId}/verifications`)
+    .then((b) => b.verifications ?? [])
+    .catch(() => null);
 
   // Counterparties here are labelled by account id without the full table
   // walk: the profile already knows whose page it is, and the other side of a
@@ -157,6 +188,15 @@ export async function fetchMemberProfile(memberId) {
         .then((b) => (b.data ?? []).map((t) => toTransaction(t, { acctTable, accountId: a.id })))
         .catch(() => []),
     ),
+  );
+
+  // Kept PER ACCOUNT as well as flat: an on-us transfer between two of this
+  // member's accounts is one row with two points of view — a debit under the
+  // sending account and a credit under the receiving one. A deduped flat list
+  // carries only whichever side arrived first, so any per-account rendering
+  // must read its own side from here, not filter the flat list.
+  const transactionsByAccount = Object.fromEntries(
+    accounts.map((a, i) => [a.id, perAccount[i]]),
   );
 
   // One transfer touching two of this member's accounts arrives twice, once
@@ -173,6 +213,8 @@ export async function fetchMemberProfile(memberId) {
     entity,
     accounts: accounts.map((a) => toAccount(a, new Map([[entity.id, entity.name]]))),
     transactions,
+    transactionsByAccount,
+    kyc: toKycSummary(verifications),
   };
 }
 
@@ -325,8 +367,10 @@ const TRANSFER_STATUS_LABEL = {
  *
  * Sign is a point of view, not a property of the row: the same transfer is a
  * debit to its originator and a credit to its beneficiary. With no account in
- * hand the list is shown from the originator's side, which is the side that
- * initiated it.
+ * hand there is NO point of view to sign from, so the amount renders unsigned
+ * — the alternative (defaulting every row to the originator's side) painted
+ * the teller journal and the dashboard as a wall of negatives, deposits
+ * included.
  */
 function toTransaction(transfer, { acctTable, accountId } = {}) {
   const fromId = transfer.originator?.account_id;
@@ -347,7 +391,9 @@ function toTransaction(transfer, { acctTable, accountId } = {}) {
     counterpartyAccountId: counterpartyId ?? null,
     type: "Transfer",
     category: "Transfer",
-    amount: formatCents(isCredit ? transfer.amount_cents : -transfer.amount_cents, { signed: true }),
+    amount: accountId
+      ? formatCents(isCredit ? transfer.amount_cents : -transfer.amount_cents, { signed: true })
+      : formatCents(transfer.amount_cents),
     amountCents: transfer.amount_cents,
     date: formatWhen(transfer.created_at),
     // The raw timestamp, because the pretty string cannot be filtered on.

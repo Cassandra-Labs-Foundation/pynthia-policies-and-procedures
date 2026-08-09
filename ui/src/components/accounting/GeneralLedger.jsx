@@ -11,8 +11,7 @@
 // any given account it is either a debit or a credit, and the counterparty is
 // named — that is the difference between a ledger and a transaction list.
 import React, { useMemo, useState } from 'react';
-import Link from 'next/link';
-import { ChevronDown, ChevronRight, ExternalLink } from 'lucide-react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import { formatCents, formatWhen } from '../../lib/api';
 
 const STATUS_STYLE = {
@@ -238,16 +237,19 @@ export default function GeneralLedger({ gl, accountByBalanceId }) {
                                         <td className="py-2 px-4 text-xs text-slate-500 whitespace-nowrap">
                                           {formatWhen(p.createdAt)}
                                           {/* The thread back to the member-facing
-                                              record that caused this entry. */}
+                                              record that caused this entry. No
+                                              transfer detail page exists yet, and
+                                              the old link sent a tr_ id to the
+                                              ACCOUNT page — a guaranteed 404 — so
+                                              until one exists this is a plain
+                                              reference, not a road to nowhere. */}
                                           {p.coreTransferId && (
-                                            <Link
-                                              href={`/accounts/${encodeURIComponent(p.coreTransferId)}`}
-                                              className="ml-2 text-blue-600 hover:underline inline-flex items-center"
+                                            <span
+                                              className="ml-2 text-slate-400 font-mono"
                                               title={p.reference}
                                             >
-                                              transfer
-                                              <ExternalLink size={11} className="ml-0.5" />
-                                            </Link>
+                                              {p.coreTransferId.slice(0, 14)}…
+                                            </span>
                                           )}
                                         </td>
                                       </tr>

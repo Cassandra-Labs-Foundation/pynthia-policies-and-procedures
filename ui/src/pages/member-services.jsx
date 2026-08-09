@@ -94,9 +94,12 @@ const SERVICING = [
 
 function AccountRow({ account, transactions }) {
   const [open, setOpen] = useState(false);
-  const rows = transactions.filter(
-    (t) => t.fromAccountId === account.id || t.toAccountId === account.id,
-  );
+  // Already this account's own rows, signed from this account's side. Do not
+  // re-derive them by filtering the profile's flat list: that list is deduped
+  // across accounts, so an on-us transfer between two of the member's accounts
+  // would show under BOTH with the sender's sign — the receiving account
+  // listing itself as its own counterparty on money it received.
+  const rows = transactions;
 
   return (
     <div className="border-t border-slate-200 first:border-t-0">
@@ -381,7 +384,11 @@ export default function MemberServices() {
                   </div>
                 ) : (
                   profile.accounts.map((a) => (
-                    <AccountRow key={a.id} account={a} transactions={profile.transactions} />
+                    <AccountRow
+                      key={a.id}
+                      account={a}
+                      transactions={profile.transactionsByAccount[a.id] ?? []}
+                    />
                   ))
                 )}
               </div>

@@ -24,6 +24,53 @@ const STATUS_STYLE = {
 };
 
 /**
+ * The member's KYC posture, one chip. Four states, deliberately distinct:
+ * "unavailable" (the check itself failed) must not render like "none"
+ * (no verification was ever run) — a teller acts differently on each. An
+ * OFAC hit gets its own red chip on top of whatever the provider said,
+ * because the floor outranks the provider.
+ */
+const KYC_STYLE = {
+  approved: 'bg-green-100 text-green-800',
+  denied: 'bg-red-100 text-red-800',
+  none: 'bg-amber-100 text-amber-800',
+  unavailable: 'bg-slate-100 text-slate-500',
+};
+const KYC_LABEL = {
+  approved: 'KYC verified',
+  denied: 'KYC denied',
+  none: 'No KYC on file',
+  unavailable: 'KYC unavailable',
+};
+
+function KycChips({ kyc }) {
+  if (!kyc) return null;
+  return (
+    <>
+      <span
+        className={`px-2 py-1 rounded-full text-xs font-medium ${
+          KYC_STYLE[kyc.status] ?? 'bg-slate-100 text-slate-700'
+        }`}
+        title={
+          kyc.when
+            ? `Latest of ${kyc.count} verification${kyc.count === 1 ? '' : 's'}${
+                kyc.provider ? ` · ${kyc.provider}` : ''
+              }`
+            : undefined
+        }
+      >
+        {KYC_LABEL[kyc.status] ?? kyc.status}
+      </span>
+      {kyc.ofac === 'hit' && (
+        <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+          OFAC match
+        </span>
+      )}
+    </>
+  );
+}
+
+/**
  * A taxpayer id, masked to its last four.
  *
  * The core returns it whole. A teller console verifying identity needs to
@@ -132,13 +179,16 @@ export default function MemberProfile() {
                 <User size={18} className="mr-2 text-slate-400" />
                 Identity
               </h2>
-              <span
-                className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  STATUS_STYLE[entity.status] ?? 'bg-slate-100 text-slate-700'
-                }`}
-              >
-                {entity.status}
-              </span>
+              <div className="flex items-center gap-2">
+                <KycChips kyc={profile.kyc} />
+                <span
+                  className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    STATUS_STYLE[entity.status] ?? 'bg-slate-100 text-slate-700'
+                  }`}
+                >
+                  {entity.status}
+                </span>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">

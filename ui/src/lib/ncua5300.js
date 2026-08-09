@@ -113,7 +113,11 @@ export const LINES = [
     // decision, so it is flagged as one rather than applied silently.
     provisional:
       "mapped from the live FBO position (aggregator.fbo_position). Correct for an " +
-      "FBO/program-bank structure; confirm before filing.",
+      "FBO/program-bank structure; confirm before filing. SIGN HAZARD: the two " +
+      "writers disagree — run_payment_hub ADDS on outflow codes while " +
+      "capture_origination subtracts, wire returns never reverse, and no inbound " +
+      "code moves it at all — so until that is reconciled this figure can move the " +
+      "wrong way and must not be filed unreviewed.",
   },
   {
     code: "730C", section: "assets", level: 1, label: "Cash Equivalents (original maturity ≤ 3 months)",
