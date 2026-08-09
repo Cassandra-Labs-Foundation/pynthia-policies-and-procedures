@@ -12,7 +12,7 @@
 > by raising the smaller number would be fabrication rather than reconciliation.
 >
 > Regulatory coverage is measured in `reachable` / `completable` and lives in
-> [CROSSWALK.md](CROSSWALK.md). Nothing here may be read as a control being
+> [CROSSWALK.md](../CROSSWALK.md). Nothing here may be read as a control being
 > satisfied.
 
 ## What this drill does NOT prove

@@ -8,7 +8,7 @@
 # The staging step is what keeps the public URL unchanged. Uploading
 # compliance/dashboard/ directly would serve it at the site ROOT, moving the
 # dashboard from /cassandra-platform/dashboard/ to /cassandra-platform/ and
-# breaking every link in DEMO.md, the API's /compliance/dashboard redirect and
+# breaking every link in docs/demo-runbook.md, the API's /compliance/dashboard redirect and
 # the e2e smoke test. Staging it one level down preserves the old path exactly.
 #
 # It also publishes ONLY the dashboard. Pointing Pages at compliance/ wholesale

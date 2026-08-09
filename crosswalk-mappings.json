@@ -28,7 +28,7 @@
     {
       "cg_control": "CG-CTR-01",
       "implementation": {
-        "source": "supabase/functions/api/transfers.ts",
+        "source": "core/supabase/functions/api/transfers.ts",
         "behaviour": "On any single money movement above $10,000 (1_000_000 cents) on any of the four rails, writes a control_result (decision 'pass') and opens a bsa_alert of type 'ctr_threshold' with requires_lookback=true. Does not block.",
         "threshold_cents": 1000000
       },
@@ -68,7 +68,7 @@
     {
       "cg_control": "CG-STR-01",
       "implementation": {
-        "source": "supabase/functions/api/transfers.ts",
+        "source": "core/supabase/functions/api/transfers.ts",
         "behaviour": "Sums same-day INBOUND book transfers to a destination account; when the aggregate crosses $10,000 with no single transfer above it, writes a control_result and opens a bsa_alert of type 'structuring'. Book transfers only \u2014 wires/ACH/card have no destination account row.",
         "threshold_cents": 1000000
       },
@@ -109,7 +109,7 @@
     {
       "cg_control": "CG-STR-02",
       "implementation": {
-        "source": "supabase/functions/api/transfers.ts",
+        "source": "core/supabase/functions/api/transfers.ts",
         "behaviour": "Same as CG-STR-01 but on OUTBOUND daily volume, reusing the cross-rail velocity sum. Covers all four rails, since it keys on the source account.",
         "threshold_cents": 1000000
       },
@@ -134,7 +134,7 @@
     {
       "cg_control": "CG-OFAC-01",
       "implementation": {
-        "source": "supabase/functions/api/kyc.ts",
+        "source": "core/supabase/functions/api/kyc.ts",
         "behaviour": "Runs first on every verification path and is decisive \u2014 no attestation, forced simulation outcome or provider choice can override it. Writes a control_result on EVERY run including clean passes. On a hit: denies the verification and opens a bsa_alert of type 'ofac'.",
         "screening_function": "/\\bSDN\\b/i tested against entity.name"
       },
@@ -174,7 +174,7 @@
     {
       "cg_control": "CG-VEL-01",
       "implementation": {
-        "source": "supabase/functions/api/transfers.ts",
+        "source": "core/supabase/functions/api/transfers.ts",
         "behaviour": "Blocks any money movement that would push the source account's same-day outbound volume above $25,000, aggregated across all four rails. The only CG-* control that BLOCKS rather than observes.",
         "threshold_cents": 2500000
       },
@@ -196,7 +196,7 @@
     {
       "cg_control": "CG-NSF-01",
       "implementation": {
-        "source": "supabase/functions/api/transfers.ts",
+        "source": "core/supabase/functions/api/transfers.ts",
         "behaviour": "Reads the live Blnk balance and rejects the movement when available funds are below the amount. Writes a control_result with decision 'reject'.",
         "threshold_cents": null
       },
@@ -219,7 +219,7 @@
     {
       "cg_control": "CG-CASH-01",
       "implementation": {
-        "source": "supabase/functions/api/cash.ts",
+        "source": "core/supabase/functions/api/cash.ts",
         "behaviour": "Records currency movement (cash_in/cash_out) against a person, aggregates per person per business day with cash-in and cash-out assessed SEPARATELY, opens a CTR obligation with a 15-calendar-day clock when either direction exceeds $10,000, and surfaces currency that cannot be attributed to a person as an explicit finding rather than dropping or mis-bucketing it.",
         "threshold_cents": 1000000
       },
@@ -246,7 +246,7 @@
     {
       "cg_control": "CG-DUAL-01",
       "implementation": {
-        "source": "supabase/functions/api/eps.ts",
+        "source": "core/supabase/functions/api/eps.ts",
         "behaviour": "Maker-checker on payment origination. Wire dual control is unconditional (EPS-06 states it as required): a wire cannot reach 'completed' without an approver distinct from its preparer, enforced by ck_wire_dual_control_before_complete. ACH is threshold-based per client; with no configured limit the batch is recorded UNASSESSED rather than exempt or required, and appears in GET /eps/pending-approvals as such.",
         "threshold_cents": null
       },
@@ -272,7 +272,7 @@
     {
       "cg_control": "CG-GOV-01",
       "implementation": {
-        "source": "supabase/functions/api/governance.ts",
+        "source": "core/supabase/functions/api/governance.ts",
         "behaviour": "One obligation register for the catalogue's 83 time-based triggers. Each obligation carries a cadence and an optional anchor; the sweep fires the CONTROL'S OWN declared trigger code when it comes due, emits an overdue event when nobody completed it, and reports unanchored obligations as UNSCHEDULED \u2014 a distinct state from both 'not due' and 'overdue'. Completion advances from the DUE date, never from the completion date.",
         "threshold_cents": null
       },
@@ -297,7 +297,7 @@
     {
       "cg_control": "CG-LEND-01",
       "implementation": {
-        "source": "supabase/functions/api/lending.ts",
+        "source": "core/supabase/functions/api/lending.ts",
         "behaviour": "Loan origination spine. Records the final action on an application; queues an adverse action notice on any adverse outcome with the ECOA clock anchored on APPLICATION COMPLETION rather than the decision date; requires second-level review by a different actor before the notice may be issued; screens every loan party on add and blocks funding on a potential match. A sweep surfaces notices nobody sent and parties nobody screened.",
         "threshold_cents": null
       },

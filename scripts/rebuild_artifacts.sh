@@ -24,3 +24,7 @@ python3 scripts/build_choreography.py          # -> compliance/dashboard/choreog
 python3 core/verifier/generator/enumerate.py   # -> core/verifier/targets.json + worklist.md
 python3 scripts/gen_routes.py                  # -> api/routes.gen.ts
 python3 scripts/gen_ui_contract.py             # -> ui allowlist + types
+# Documentation runs last: STATE.md is derived from everything above, and the
+# claims gate holds hand-written prose to the same standard as the artifacts.
+python3 scripts/gen_state.py                   # -> STATE.md (the live numbers)
+python3 scripts/check_doc_claims.py            # GATE: docs may not lie about paths/numbers

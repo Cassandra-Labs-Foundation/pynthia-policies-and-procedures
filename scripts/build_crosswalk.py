@@ -174,6 +174,14 @@ def reachable_codes_in_module(text, routed_names):
     return found
 
 
+def e2e_assertion_count():
+    """Count the harness's `check` calls at build time — this number was once
+    hardcoded prose and drifted (159 vs an actual 411)."""
+    harness = ROOT / "core" / "supabase" / "tests" / "e2e" / "compliance_e2e.sh"
+    return sum(1 for line in harness.read_text().splitlines()
+               if re.match(r"\s*check ", line))
+
+
 def literal_codes_in_source():
     """Re-grep the source for literal codes so the easy half of the inventory
     cannot drift unnoticed. api/ modules are scoped to their ROUTED handlers
@@ -477,7 +485,7 @@ def render_md(data):
     A("`control_result` rows are this repo's evidence artifact, and until")
     A("migration `20260719000900` nothing on the row recorded where it came")
     A("from. `analytics/seed.sh` drives the deployed API specifically to trip")
-    A("every control, and the e2e harness fires 159 live assertions at the same")
+    A(f"every control, and the e2e harness fires {e2e_assertion_count()} live assertions at the same")
     A("tables — so rows written before that migration are a mixture of real gate")
     A("decisions, demo seeding and test assertions with no way to tell them")
     A("apart. They are labelled `unknown`, which is the only claim the data")

@@ -56,6 +56,13 @@ The dependency order lives in that one script;
 `.github/workflows/extract-artifacts.yml` runs the same file in CI
 (auto-commits on main; PRs rebuild + gate without committing).
 
+The cascade ends with the documentation pair: `gen_state.py` regenerates
+`STATE.md` (the one page of live numbers — link to it instead of embedding
+counts in prose), and `check_doc_claims.py` **fails the build** when a
+hand-written doc references a path that doesn't exist or a number that
+disagrees with the artifacts. If it goes red after your change, fix the doc
+it names — never by loosening the checker.
+
 ### Why this rule exists
 
 In July 2026 the spec's paths described 119 endpoints that didn't exist while

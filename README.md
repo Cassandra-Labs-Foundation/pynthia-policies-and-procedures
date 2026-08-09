@@ -19,7 +19,7 @@ compliance/
   dashboard/            the evidence dashboard (GitHub Pages)
 
 core/           the banking core
-  supabase/             39 tables, 66 migrations, 48 API modules, the drill harness
+  supabase/             71 migrations, 49 API modules, the drill harness
                         (Supabase CLI needs --workdir core)
   core-api.yaml         the spec (OpenAPI 3.0.3)
   core-api-loop/        the spec's self-minimising loop
@@ -27,14 +27,17 @@ core/           the banking core
   research/             provider-API analysis that informs the decisions
   verifier/             black-box test-target enumeration
 
-ui/             the staff console (Next.js) — early, mock-data
+ui/             the staff console (Next.js) — live core data via a
+                read-only server-side proxy
 
 analytics/      DuckDB views, the 5300 and BSA reporters
 scripts/        repo-wide tooling: extractors, checkers, generators
+docs/           the demo runbook, the drill record, and docs/history/
+                (dated snapshots kept for the narrative, not the numbers)
 ```
 
 Generated artifacts (`controls.json`, `core-vocabulary.json`, `control-vocabulary.json`,
-`extracted-vocab.json`, `crosswalk.json`, `control-tests*.json`) live at the **repo root**
+`extracted-vocab.json`, `crosswalk.json`, `control-tests*.json`, `STATE.md`) live at the **repo root**
 because the dependency runs both ways — compliance produces what the core consumes, and the
 core's spec produces what compliance classifies against. They are the contract between the two
 halves, owned by neither.
@@ -89,7 +92,7 @@ policies actually need instead of on what someone guessed up front.
 applies across every rail rather than being re-implemented per payment type. The gate reads the
 control catalogue; it is not hand-coded per rule.
 
-All 48 API modules ship as a single Deno function with one `index.ts`. Compliance is not a
+All 49 API modules ship as a single Deno function with one `index.ts`. Compliance is not a
 separate service — `bsa.ts` and `wires.ts` are in the same deployment and share the gate.
 
 ## Evidence, in three tiers
@@ -127,9 +130,14 @@ This repo was consolidated from three (`pynthia-policies-and-procedures`, `cassa
 - `scripts/` stays at the repo root on purpose. It is repo-wide tooling, not compliance
   tooling: `check_decision_refs.py` reads `core/`, `exists_check.py` and `estimate_domain.py`
   read `core/supabase/`. Filing it under `compliance/` would misplace half of it.
-- `core/verifier/` enumerates 529 test targets, but its control tier is already built — better
-  — as `drill/`. Its remaining value is the other 208 targets (contract, property,
-  state-machine). See `core/README.md`.
+- `core/verifier/` enumerates 767 test targets from the spec (`targets.json`), but its
+  control tier is already built — better — as `drill/`. Its remaining value is the other
+  434 targets (contract, property, state-machine). See `core/README.md`.
 
-`SUMMARY.md` is the policy index. `BLUEPRINT.md` and `HANDOFF.md` are the working record of
-what is verified and what is not — start with `HANDOFF.md`.
+`STATE.md` is the generated page of live numbers — prose links there rather than embedding
+counts, and `scripts/check_doc_claims.py` goes red when a hand-written doc disagrees with
+the artifacts. `SUMMARY.md` is the policy index. `docs/demo-runbook.md` runs the live demo;
+`docs/drill.md` is the synthetic-institution record. `docs/history/` holds the July-2026
+working record (`blueprint.md`, the hand-off letter) — kept for the narrative and the
+method, not the numbers; current state is always `STATE.md`, `control-tests*.json` and
+`CROSSWALK.md`.

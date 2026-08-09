@@ -7,7 +7,7 @@ if any of them stops being true.
 ## The 60-second version
 
 ```bash
-./supabase/tests/e2e/demo.sh
+./core/supabase/tests/e2e/demo.sh    # from the repo root
 ```
 
 Then open the dashboard it prints at the end.
@@ -19,9 +19,9 @@ Then open the dashboard it prints at the end.
 1. **Confirm the stack is green.** ~12 minutes, and it is the only thing that
    actually tells you the demo will work:
    ```bash
-   ./supabase/tests/e2e/compliance_e2e.sh    # ~300 live assertions
+   ./core/supabase/tests/e2e/compliance_e2e.sh    # ~410 live assertions, run from the repo root
    ```
-   Section 39 runs `demo.sh` itself, so a green harness means a green demo.
+   Section 48 runs `demo.sh` itself, so a green harness means a green demo.
 
 2. **Decide about the debris.** Months of test runs leave real state behind —
    stranded dual-control wires, alerts past their triage clock. That state is
@@ -41,7 +41,7 @@ Then open the dashboard it prints at the end.
 
 ### In the room
 
-Run `./supabase/tests/e2e/demo.sh` with the default pacing — it narrates
+Run `./core/supabase/tests/e2e/demo.sh` with the default pacing — it narrates
 itself, one beat at a time:
 
 | Beat | What it proves |
@@ -56,7 +56,7 @@ itself, one beat at a time:
 
 Then switch to the dashboard and drill: overview → **BSA / AML** → the alert
 that beat 4 just raised, with its triage clock. Or → **Money-Movement Gate**
-to show the six runtime controls and their live fire counts.
+to show the runtime controls and their live fire counts.
 
 ### If something breaks live
 
@@ -80,10 +80,14 @@ Be precise about two things, because both are visible and someone will ask:
 - **KYC providers are simulations behind a real adapter.** The seam is
   production-shaped; Alloy/Socure/Middesk are deterministic sims.
 
-The **30 red controls** are a feature of the story, not a hole in it: they
-need organizational facts (an HR feed, ALCO limits, a member vote) or feeds
-from systems this one does not run (SIEM, backups, pentests). They are
-visibly red rather than quietly fabricated, which is the whole posture.
+The **red controls** are a feature of the story, not a hole in it. The
+hermetic tier is fully green for everything in scope; what stays red is
+either on the live tier (fake-vs-real divergence still being worked) or out
+of scope because it needs organizational facts (an HR feed, ALCO limits, a
+member vote) or feeds from systems this one does not run (SIEM, backups,
+pentests). `red_by_reason` in `control-tests.json` says why, per control.
+They are visibly red rather than quietly fabricated, which is the whole
+posture.
 
 ## URLs
 

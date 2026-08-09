@@ -13,7 +13,7 @@
 // drawer 3 right now."
 //
 // So this is a placeholder standing in for an organisational input, not for
-// unwritten code. See HANDOFF.md, Group A.
+// unwritten code. See docs/history/2026-07-19-handoff.md, Group A.
 
 export const initialTellerDrawer = {
   isOpen: true,

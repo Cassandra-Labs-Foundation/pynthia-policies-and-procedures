@@ -1,11 +1,15 @@
 # BLUEPRINT — loose ends, open questions, and what is actually true
 
-> **Finished. 195 of 225 in-scope controls green, 860 tests, 30 red on purpose.**
-> **→ Read [HANDOFF.md](HANDOFF.md) first** — the plain-language version for
-> Lorenzo: the number and what it means, the prediction record including the two
-> misses, the 30 remaining with who unblocks each, and the caveats (nothing has
-> run against a real database; OFAC screening is scaffolding, not detection).
-> This file is the working record behind it.
+> **⚠ Historical working record — final entries July 2026; numbers frozen at
+> that date.** The banner that used to sit here ("195 of 225 green, 30 red,
+> nothing run against a real database") is no longer true: the hermetic tier is
+> fully green in scope, the live tier runs weekly against real Postgres, and
+> the crosswalk has grown past the counts in §1/§2/§6 (those sections were
+> always a hand-written reading aid for `crosswalk.json` — trust the JSON and
+> [CROSSWALK.md](../../CROSSWALK.md), which are regenerated on every artifact
+> rebuild). Read [2026-07-19-handoff.md](2026-07-19-handoff.md) for the
+> plain-language version. What stays valuable here: the method rules, the
+> defect log, the prediction record, and the §5 findings.
 
 ## ⚠ READ FIRST: two mistakes anyone re-deriving this analysis will make
 
@@ -31,7 +35,7 @@ it records what is **unfinished, unverified, or waiting on a decision**, and
 where something is a judgment call it says whose call it is and what the
 tradeoff was.
 
-Read [CROSSWALK.md](CROSSWALK.md) alongside this. That file is the regulatory
+Read [CROSSWALK.md](../../CROSSWALK.md) alongside this. That file is the regulatory
 coverage artifact; this one is the engineering and decision backlog.
 
 **Status at time of writing:** 404 hermetic tests passing, four function

@@ -62,7 +62,6 @@ EXCLUDE_PATH_PARTS = {".git", ".claude", ".skills", ".cache", "references"}
 # Top-level markdown files that are repo scaffolding, not policies.
 EXCLUDE_FILENAMES = {
     "README.md", "SUMMARY.md", "STATUS.md", "NOTES.md",
-    "gh-markdown-test.md",
 }
 EXCLUDE_FILENAME_PREFIXES = ("README",)
 

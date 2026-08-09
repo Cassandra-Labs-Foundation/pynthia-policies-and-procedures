@@ -32,7 +32,7 @@
 //
 // This mirrors how the rest of this codebase treats a red control: it stays
 // red and names what it wants, rather than going green on invented input.
-// BLUEPRINT.md §521 already records the chart-of-accounts mapping as a
+// docs/history/blueprint.md §521 already records the chart-of-accounts mapping as a
 // decision waiting on a person, not an engineering task.
 //
 // ─────────────────────────────────────────────────────────────────────────────

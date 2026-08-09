@@ -54,7 +54,7 @@ REGULATION LINKING (examples the model may reuse)
 MANDATORY SECTIONS & SHAPE (fill with the given POLICY_NAME)
 1) YAML FRONT-MATTER
 ---
-title: {{POLICY_NAME}} (Table-First, Design-Overlay v2)
+title: {{POLICY_NAME}} (Table-First, Design-Overlay v3)
 owner: {{Owner, Title}}
 version: {{v}}
 effective: {{YYYY-MM-DD}}
@@ -115,7 +115,7 @@ When a TRIGGER, INPUT, OUTPUT, or AUDIT LOG references an event or field code th
 
 **The bullet lists ONLY codes that are missing from DESIGN_NOTES.** Do not enumerate codes that DESIGN_NOTES already registers. Do not add a sentence naming the codes you checked and confirmed, or listing what is "drawn from the registered vocabulary" — a registered code is the unremarkable default and belongs nowhere in ASSUMPTIONS & GAPS. Naming it there asserts a registration status inside a document that cannot be updated when the spec changes, so the claim is stale the moment engineering registers anything else.
 
-This is the single most-violated rule in the file: 21 of 25 policies currently over-list, one of them by 81 codes. If every code you used is registered, write the bullet as `**Engineering vocabulary is provisional.** None — every code used in this policy is registered in \`core-vocabulary.json\`.` and stop. A short bullet is the correct output, not a sign you skipped the check.
+This is the single most-violated rule in the file: at last audit most policies over-listed, one of them by 81 codes. If every code you used is registered, write the bullet as `**Engineering vocabulary is provisional.** None — every code used in this policy is registered in \`core-vocabulary.json\`.` and stop. A short bullet is the correct output, not a sign you skipped the check.
 
 QUALITY BAR / ACCEPTANCE CRITERIA
 - All internal Control links are **fragment-only** and resolve to headings present in the document.

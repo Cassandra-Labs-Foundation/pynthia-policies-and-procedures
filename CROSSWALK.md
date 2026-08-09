@@ -32,7 +32,7 @@ reviewer, not findings. A row is only load-bearing once `reviewed_by` is set.
 `control_result` rows are this repo's evidence artifact, and until
 migration `20260719000900` nothing on the row recorded where it came
 from. `analytics/seed.sh` drives the deployed API specifically to trip
-every control, and the e2e harness fires 159 live assertions at the same
+every control, and the e2e harness fires 411 live assertions at the same
 tables — so rows written before that migration are a mixture of real gate
 decisions, demo seeding and test assertions with no way to tell them
 apart. They are labelled `unknown`, which is the only claim the data
@@ -64,7 +64,7 @@ Reviewed: **0**.
 
 *On any single money movement above $10,000 (1_000_000 cents) on any of the four rails, writes a control_result (decision 'pass') and opens a bsa_alert of type 'ctr_threshold' with requires_lookback=true. Does not block.*
 
-Source: `supabase/functions/api/transfers.ts`
+Source: `core/supabase/functions/api/transfers.ts`
 
 **BSA-08 — Currency Transaction Reporting (CTR)** → `related` ⚠️ **needs review**
 
@@ -95,7 +95,7 @@ Missing:
 
 *Sums same-day INBOUND book transfers to a destination account; when the aggregate crosses $10,000 with no single transfer above it, writes a control_result and opens a bsa_alert of type 'structuring'. Book transfers only — wires/ACH/card have no destination account row.*
 
-Source: `supabase/functions/api/transfers.ts`
+Source: `core/supabase/functions/api/transfers.ts`
 
 **BSA-06 — Transaction Monitoring & Case Management** → `partially_discharges` ⚠️ **needs review**
 
@@ -126,7 +126,7 @@ Missing:
 
 *Same as CG-STR-01 but on OUTBOUND daily volume, reusing the cross-rail velocity sum. Covers all four rails, since it keys on the source account.*
 
-Source: `supabase/functions/api/transfers.ts`
+Source: `core/supabase/functions/api/transfers.ts`
 
 **BSA-06 — Transaction Monitoring & Case Management** → `partially_discharges` ⚠️ **needs review**
 
@@ -144,7 +144,7 @@ Missing:
 
 *Runs first on every verification path and is decisive — no attestation, forced simulation outcome or provider choice can override it. Writes a control_result on EVERY run including clean passes. On a hit: denies the verification and opens a bsa_alert of type 'ofac'.*
 
-Source: `supabase/functions/api/kyc.ts`
+Source: `core/supabase/functions/api/kyc.ts`
   · screening function: `/\bSDN\b/i tested against entity.name`
 
 **BSA-05 — OFAC Screening & Holds** → `related`
@@ -176,7 +176,7 @@ Missing:
 
 *Blocks any money movement that would push the source account's same-day outbound volume above $25,000, aggregated across all four rails. The only CG-* control that BLOCKS rather than observes.*
 
-Source: `supabase/functions/api/transfers.ts`
+Source: `core/supabase/functions/api/transfers.ts`
 
 **no catalogue counterpart** → `no_catalogue_counterpart` ⚠️ **needs review**
 
@@ -190,7 +190,7 @@ Candidates examined and rejected: `MP-05`, `TIS-02`
 
 *Reads the live Blnk balance and rejects the movement when available funds are below the amount. Writes a control_result with decision 'reject'.*
 
-Source: `supabase/functions/api/transfers.ts`
+Source: `core/supabase/functions/api/transfers.ts`
 
 **no catalogue counterpart** → `no_catalogue_counterpart` ⚠️ **needs review**
 
@@ -204,7 +204,7 @@ Candidates examined and rejected: `TIS-08`, `TIS-05`, `CO-10`
 
 *Records currency movement (cash_in/cash_out) against a person, aggregates per person per business day with cash-in and cash-out assessed SEPARATELY, opens a CTR obligation with a 15-calendar-day clock when either direction exceeds $10,000, and surfaces currency that cannot be attributed to a person as an explicit finding rather than dropping or mis-bucketing it.*
 
-Source: `supabase/functions/api/cash.ts`
+Source: `core/supabase/functions/api/cash.ts`
 
 **BSA-08 — Currency Transaction Reporting (CTR)** → `partially_discharges` ⚠️ **needs review**
 
@@ -225,7 +225,7 @@ Missing:
 
 *Maker-checker on payment origination. Wire dual control is unconditional (EPS-06 states it as required): a wire cannot reach 'completed' without an approver distinct from its preparer, enforced by ck_wire_dual_control_before_complete. ACH is threshold-based per client; with no configured limit the batch is recorded UNASSESSED rather than exempt or required, and appears in GET /eps/pending-approvals as such.*
 
-Source: `supabase/functions/api/eps.ts`
+Source: `core/supabase/functions/api/eps.ts`
 
 **EPS-06 — Dual Control for High-Risk Processes** → `partially_discharges` ⚠️ **needs review**
 
@@ -244,7 +244,7 @@ Missing:
 
 *One obligation register for the catalogue's 83 time-based triggers. Each obligation carries a cadence and an optional anchor; the sweep fires the CONTROL'S OWN declared trigger code when it comes due, emits an overdue event when nobody completed it, and reports unanchored obligations as UNSCHEDULED — a distinct state from both 'not due' and 'overdue'. Completion advances from the DUE date, never from the completion date.*
 
-Source: `supabase/functions/api/governance.ts`
+Source: `core/supabase/functions/api/governance.ts`
 
 **bsa:BSA-16 — Independent Testing** → `partially_discharges` ⚠️ **needs review**
 
@@ -263,7 +263,7 @@ Missing:
 
 *Loan origination spine. Records the final action on an application; queues an adverse action notice on any adverse outcome with the ECOA clock anchored on APPLICATION COMPLETION rather than the decision date; requires second-level review by a different actor before the notice may be issued; screens every loan party on add and blocks funding on a potential match. A sweep surfaces notices nobody sent and parties nobody screened.*
 
-Source: `supabase/functions/api/lending.ts`
+Source: `core/supabase/functions/api/lending.ts`
 
 **lending:LP-07 — Adverse Action & Notifications** → `partially_discharges` ⚠️ **needs review**
 
