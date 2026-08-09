@@ -33,6 +33,10 @@ CHECKED_DOCS = [
     "README.md",
     "CLAUDE.md",
     "docs/README.md",
+    "docs/architecture/README.md",
+    "docs/architecture/containers.md",
+    "docs/architecture/components.md",
+    "docs/architecture/walkthroughs.md",
     "docs/demo-runbook.md",
     "docs/drill.md",
     "core/README.md",
@@ -60,6 +64,8 @@ def is_path_candidate(token):
     if not token or " " in token:
         return None
     if token.startswith(("http://", "https://")):
+        return None
+    if token.startswith("/"):  # absolute = an API route (`/sandbox/reset`), not a repo path
         return None
     if BANNED_CHARS & set(token):
         return None

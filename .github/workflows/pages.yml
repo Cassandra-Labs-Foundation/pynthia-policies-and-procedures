@@ -11,9 +11,14 @@
 # breaking every link in docs/demo-runbook.md, the API's /compliance/dashboard redirect and
 # the e2e smoke test. Staging it one level down preserves the old path exactly.
 #
-# It also publishes ONLY the dashboard. Pointing Pages at compliance/ wholesale
-# would publish the 27 policy folders as a website too — they are already public
-# on GitHub, but that is a different thing from hosting them.
+# It also publishes ONLY the dashboard and the architecture tour. Pointing
+# Pages at compliance/ wholesale would publish the 27 policy folders as a
+# website too — they are already public on GitHub, but that is a different
+# thing from hosting them.
+#
+# /architecture/ is docs/architecture/ verbatim: index.html is a client-side
+# VIEW that fetches and renders the sibling markdown, so the published site
+# can never drift from the files in the repo.
 name: pages
 
 on:
@@ -21,6 +26,7 @@ on:
     branches: [main]
     paths:
       - "compliance/dashboard/**"
+      - "docs/architecture/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -44,14 +50,17 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Stage the dashboard one level down
+      - name: Stage the dashboard and the architecture tour one level down
         run: |
           set -euo pipefail
-          mkdir -p _site/dashboard
+          mkdir -p _site/dashboard _site/architecture
           cp -R compliance/dashboard/. _site/dashboard/
+          cp docs/architecture/index.html docs/architecture/*.md _site/architecture/
           # Fail loudly rather than deploying an empty site.
           test -f _site/dashboard/index.html
           test -f _site/dashboard/assets/app.js
+          test -f _site/architecture/index.html
+          test -f _site/architecture/README.md
           echo "staged $(find _site -type f | wc -l) files"
 
       - uses: actions/configure-pages@v5
