@@ -90,7 +90,17 @@ def path_exists(rel, doc_dir):
     roots = [doc_dir] + RESOLUTION_ROOTS
     if not any((base / first).exists() for base in roots):
         return True
-    return any((base / rel).exists() for base in roots)
+    if any((base / rel).exists() for base in roots):
+        return True
+    # A gitignored path is a build output (analytics/core.duckdb, research
+    # build/ dirs): docs may name it even though a fresh checkout lacks it.
+    # Without this, the gate is weaker locally (where outputs exist) than in
+    # CI — the asymmetry that let analytics/README.md pass here and fail there.
+    import subprocess
+    return subprocess.run(
+        ["git", "check-ignore", "-q", rel],
+        cwd=ROOT, capture_output=True, check=False,
+    ).returncode == 0
 
 
 def check_paths(doc, text, errors):
