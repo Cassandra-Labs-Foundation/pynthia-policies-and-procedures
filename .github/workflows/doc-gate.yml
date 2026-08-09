@@ -1,0 +1,35 @@
+# The documentation gate, on EVERY push and PR — deliberately no path filter.
+#
+# extract-artifacts.yml triggers only on the cascade's INPUTS, which leaves
+# two ways for documentation to go stale without any gate running: a
+# docs-only push (docs are not an input), and a change the trigger list
+# doesn't name (a new API module, new e2e assertions) that shifts the numbers
+# STATE.md prints. This workflow closes both: it re-derives the live numbers
+# from the pushed tree and fails if STATE.md or any hand-written doc
+# disagrees.
+#
+# The same two checks run locally in ~1s via the pre-push hook
+# (.githooks/pre-push; enable with `git config core.hooksPath .githooks`),
+# so this going red means someone bypassed the hook or never enabled it.
+name: doc-gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch: {}
+
+jobs:
+  doc-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: STATE.md is current
+        run: python3 scripts/gen_state.py --check
+
+      - name: Hand-written docs agree with the artifacts
+        run: python3 scripts/check_doc_claims.py

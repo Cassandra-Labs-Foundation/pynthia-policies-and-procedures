@@ -63,6 +63,13 @@ hand-written doc references a path that doesn't exist or a number that
 disagrees with the artifacts. If it goes red after your change, fix the doc
 it names — never by loosening the checker.
 
+The same pair is enforced **before every push**: enable the hook once per
+clone with `git config core.hooksPath .githooks` (the pre-push hook runs
+`gen_state.py --check` + `check_doc_claims.py` in ~1s), and
+`.github/workflows/doc-gate.yml` runs the identical checks on every push
+and PR with no path filter — so documentation cannot land stale even when
+the artifact cascade's triggers don't fire.
+
 ### Why this rule exists
 
 In July 2026 the spec's paths described 119 endpoints that didn't exist while

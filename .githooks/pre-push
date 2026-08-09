@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Documentation gate, enforced BEFORE every push (~1s, no network).
+#
+#   1. STATE.md must be current  — gen_state.py --check re-derives the live
+#      numbers from the working tree + artifacts and diffs against the file.
+#   2. Hand-written docs must not lie — check_doc_claims.py verifies every
+#      path they reference exists and every gated number matches the
+#      artifacts.
+#
+# If this fails: run ./scripts/rebuild_artifacts.sh, commit what changed,
+# push again. Never bypass with --no-verify and then not run the cascade —
+# CI (doc-gate.yml) runs the same two checks on every push and will go red.
+#
+# Enable once per clone:  git config core.hooksPath .githooks
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+
+python3 scripts/gen_state.py --check
+python3 scripts/check_doc_claims.py

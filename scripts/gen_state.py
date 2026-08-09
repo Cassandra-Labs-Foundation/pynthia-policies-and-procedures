@@ -159,7 +159,17 @@ def render(s):
 
 
 def main():
-    OUT.write_text(render(state()))
+    import sys
+    fresh = render(state())
+    if "--check" in sys.argv:
+        on_disk = OUT.read_text() if OUT.exists() else ""
+        if on_disk != fresh:
+            print("STATE.md is STALE — the repo changed after the last rebuild.")
+            print("Run ./scripts/rebuild_artifacts.sh and commit the result.")
+            sys.exit(1)
+        print("STATE.md is current")
+        return
+    OUT.write_text(fresh)
     print(f"wrote {OUT.relative_to(ROOT)}")
 
 
