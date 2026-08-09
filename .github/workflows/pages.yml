@@ -27,6 +27,7 @@ on:
     paths:
       - "compliance/dashboard/**"
       - "docs/architecture/**"
+      - "docs/pages-root.html"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -56,7 +57,9 @@ jobs:
           mkdir -p _site/dashboard _site/architecture
           cp -R compliance/dashboard/. _site/dashboard/
           cp docs/architecture/index.html docs/architecture/*.md _site/architecture/
+          cp docs/pages-root.html _site/index.html   # the bare URL routes, not 404s
           # Fail loudly rather than deploying an empty site.
+          test -f _site/index.html
           test -f _site/dashboard/index.html
           test -f _site/dashboard/assets/app.js
           test -f _site/architecture/index.html
