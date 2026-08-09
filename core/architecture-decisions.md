@@ -21,7 +21,7 @@ Key architectural patterns include: instance-per-fintech isolation, centralized 
 | # | Decision | Choice |
 |---|----------|--------|
 | 1 | Entity Hierarchy | Hybrid (unified `/entities` namespace, separate creation endpoints per type) |
-| 2 | Account â†” Account Number | 1:Many (one ledger account, multiple account numbers) |
+| 2 | Account ↔ Account Number | 1:Many (one ledger account, multiple account numbers) |
 | 3 | Ledger Architecture | Multi-Balance (Blnk) + Shadow Bookkeeping Layer for 5300/FBO |
 | 4 | Event Architecture | PostgreSQL append-only event log + consumer cursors (Kafka eliminated) |
 | 5 | Auth Model | Server-to-Server now, Delegated tokens Phase 2 |
@@ -184,22 +184,22 @@ Fintech calls POST /transfers
 
 ---
 
-### Decision 2: Account â†” Account Number
+### Decision 2: Account ↔ Account Number
 
 **Choice:** 1:Many (one ledger account, multiple account numbers)
 
 **Details:**
 ```
 Account (regulatory reporting)
-â”œâ”€â”€ Account Number 1 (Fintech Partner A)
-â”œâ”€â”€ Account Number 2 (Fintech Partner B)
-â””â”€â”€ Account Number 3 (Direct member access)
+├── Account Number 1 (Fintech Partner A)
+├── Account Number 2 (Fintech Partner B)
+└── Account Number 3 (Direct member access)
 ```
 - Each Account Number has distinct routing/account number pair
 - `informational_entity_id` for FBO attribution
 - Events: `account.*` (ledger) vs `account_number.*` (routing/external)
 
-**Rationale:** BaaS/FBO use caseâ€”one master account for 5300 reporting, dedicated account numbers per partner for reconciliation; transaction monitoring aggregates at Account level, attributes at Account Number level.
+**Rationale:** BaaS/FBO use case—one master account for 5300 reporting, dedicated account numbers per partner for reconciliation; transaction monitoring aggregates at Account level, attributes at Account Number level.
 
 **Affected Controls:** BSA/AML (BA-05 to BA-10), 5300 reporting, CDD (CD-06 to CD-09)
 
@@ -224,7 +224,7 @@ Account (regulatory reporting)
 
 **Implementation:** On every Blnk transaction webhook, write to `bookkeeping_entries` table with 5300 attribution.
 
-**Rationale:** Blnk gapâ€”no native FBO segregation or 5300 tagging; bookkeeping layer enables real-time 5300 dashboard and cross-schedule validations.
+**Rationale:** Blnk gap—no native FBO segregation or 5300 tagging; bookkeeping layer enables real-time 5300 dashboard and cross-schedule validations.
 
 ---
 
@@ -328,8 +328,8 @@ COMMIT;
 **Details:**
 - `Idempotency-Key` header required, maps to Blnk `reference` field
 - Keys never expire, never reusable
-- Same key + same args â†’ return cached response + `Idempotent-Replayed: true` header
-- Same key + different args â†’ 409 Conflict with `idempotency_key_reused` error
+- Same key + same args → return cached response + `Idempotent-Replayed: true` header
+- Same key + different args → 409 Conflict with `idempotency_key_reused` error
 
 **Implementation:**
 ```sql
@@ -353,11 +353,11 @@ CREATE TABLE idempotency_keys (
 
 **Details:**
 ```
-Entity:        PENDING â†’ ACTIVE â†” DISABLED â†’ ARCHIVED
-Account:       OPEN â†” FROZEN â†’ CLOSED
-Account Number: ACTIVE â†” DISABLED â†’ CANCELED
-ACH Transfer:  PENDING_APPROVAL â†’ SUBMITTED â†’ SETTLED â†’ RETURNED
-                     â†“               â†“
+Entity:        PENDING → ACTIVE ↔ DISABLED → ARCHIVED
+Account:       OPEN ↔ FROZEN → CLOSED
+Account Number: ACTIVE ↔ DISABLED → CANCELED
+ACH Transfer:  PENDING_APPROVAL → SUBMITTED → SETTLED → RETURNED
+                     ↓               ↓
                  REJECTED        CANCELED
 ```
 - Orthogonal flags: `lock_type` (NONE, COMPLIANCE, FRAUD, LEGAL, ADMIN), `dormancy_status`
@@ -378,8 +378,8 @@ ACH Transfer:  PENDING_APPROVAL â†’ SUBMITTED â†’ SETTLED â†’ RET
 
 **Flow:**
 ```
-Partner Request â†’ PENDING_APPROVAL â†’ Control Engine â†’ SUBMITTED â†’ SETTLED
-                        â†“                                    â†“
+Partner Request → PENDING_APPROVAL → Control Engine → SUBMITTED → SETTLED
+                        ↓                                    ↓
                     REJECTED                             RETURNED
 ```
 
@@ -396,9 +396,9 @@ Partner Request â†’ PENDING_APPROVAL â†’ Control Engine â†’ SUBMI
 
 **State machine:**
 ```
-PENDING_APPROVAL â†’ SUBMITTED â†’ COMPLETED
-      â†“               â†“              â†“
-  REJECTED       CANCELED    RETURN_REQUESTED â†’ RETURNED | COMPLETED
+PENDING_APPROVAL → SUBMITTED → COMPLETED
+      ↓               ↓              ↓
+  REJECTED       CANCELED    RETURN_REQUESTED → RETURNED | COMPLETED
 ```
 
 **Return request reasons:** `FRAUD`, `DUPLICATE`, `INCORRECT_AMOUNT`, `INCORRECT_BENEFICIARY`
@@ -412,12 +412,12 @@ PENDING_APPROVAL â†’ SUBMITTED â†’ COMPLETED
 **Architecture:**
 ```
 Card Processor (Marqeta/Lithic)
-  â†“ Real-time auth webhook (2 sec timeout)
+  ↓ Real-time auth webhook (2 sec timeout)
 Card Adapter (translate to canonical format)
-  â†“
+  ↓
 Control Engine (balance check, velocity, OFAC, fraud, BSA)
-  â†“ APPROVE/DECLINE
-Blnk Ledger (inflight â†’ commit/void)
+  ↓ APPROVE/DECLINE
+Blnk Ledger (inflight → commit/void)
 ```
 
 **Adapter interface:**
@@ -446,7 +446,7 @@ partner:
     trust_level: "full" | "verify_watchlist_only"
 ```
 
-**Flow:** Partner verifies with their KYC â†’ sends attestation to Cassandra â†’ control engine evaluates trust level â†’ always run OFAC regardless.
+**Flow:** Partner verifies with their KYC → sends attestation to Cassandra → control engine evaluates trust level → always run OFAC regardless.
 
 ---
 
@@ -554,11 +554,11 @@ X-RateLimit-Warning: approaching_limit  # at 80%
 **Choice:** Separate URL, no magic values, realistic Fed timing, simulation APIs, strict validation
 
 **Details:**
-1. **Separate URL** â€” `sandbox.api.cassandra.bank` vs `api.cassandra.bank`
-2. **No magic values** â€” Outcomes controlled entirely via simulation APIs
-3. **Realistic Fed timing by default** â€” Simulation endpoints to accelerate settlement
-4. **Forced outcomes via simulation APIs** â€” KYC, ACH, wire, card (Unit-style)
-5. **Production-matching validation** â€” No relaxed validation
+1. **Separate URL** — `sandbox.api.cassandra.bank` vs `api.cassandra.bank`
+2. **No magic values** — Outcomes controlled entirely via simulation APIs
+3. **Realistic Fed timing by default** — Simulation endpoints to accelerate settlement
+4. **Forced outcomes via simulation APIs** — KYC, ACH, wire, card (Unit-style)
+5. **Production-matching validation** — No relaxed validation
 
 **Simulation endpoints:**
 ```yaml
@@ -643,9 +643,9 @@ POST   /auth/token
 
 **Format:**
 ```
-Position:    1  2  3  â”‚  4  5  6  7  8  9 10 11  â”‚ 12
-             â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€
-             Fintech  â”‚       Sequence           â”‚Check
+Position:    1  2  3  │  4  5  6  7  8  9 10 11  │ 12
+             ─────────┼──────────────────────────┼────
+             Fintech  │       Sequence           │Check
 ```
 
 **Capacity:**
@@ -728,10 +728,10 @@ control:
 
 | Actor | Fintech X Instance | Fintech Y Instance | Aggregator |
 |-------|-------------------|-------------------|------------|
-| Fintech X API key | âœ… Full access | âŒ No access | âŒ No access |
-| Fintech Y API key | âŒ No access | âœ… Full access | âŒ No access |
-| Credit Union admin | âœ… Read access | âœ… Read access | âœ… Full access |
-| Pynthia operations | âœ… Full access | âœ… Full access | âœ… Full access |
+| Fintech X API key | ✅ Full access | ❌ No access | ❌ No access |
+| Fintech Y API key | ❌ No access | ✅ Full access | ❌ No access |
+| Credit Union admin | ✅ Read access | ✅ Read access | ✅ Full access |
+| Pynthia operations | ✅ Full access | ✅ Full access | ✅ Full access |
 
 **Cross-fintech search:** Via aggregator only (which has full PII from event stream).
 
@@ -976,12 +976,15 @@ WHERE instance_id = ?;
 
 ## Appendix B: Related Documents
 
-- BaaS Provider API Comparison (Unit, Moov, Increase, Q2 Helix, Galileo, Column)
-- 223 Compliance Controls Specification
-- 5300 Reporting Requirements
-- BSA/AML Control Mapping
-- Architecture Amendments Analysis (v1.1) — Elon's 5-step framework applied to Kafka, BSA Engine, and infrastructure decisions
-- BSA Placement Analysis — Why BSA operates at aggregator level (cross-fintech obligations)
+> These were working documents from the pre-repo design phase (early 2026) and
+> are **not in this repository**. Where a successor exists, it is named.
+
+- BaaS Provider API Comparison (Unit, Moov, Increase, Q2 Helix, Galileo, Column) — successor: `core/research/api_analysis_summaries/complete-comparison.md`
+- 223 Compliance Controls Specification — superseded by the extracted catalogue, `controls.json` (the count has since grown; STATE.md has the live number)
+- 5300 Reporting Requirements — successor: `analytics/reference/5300-call-report.md`
+- BSA/AML Control Mapping — superseded by the crosswalk (`CROSSWALK.md`)
+- Architecture Amendments Analysis (v1.1) — Elon's 5-step framework applied to Kafka, BSA Engine, and infrastructure decisions — summarized in the v1.1 Revision History row below
+- BSA Placement Analysis — Why BSA operates at aggregator level (cross-fintech obligations) — the conclusion is Decision 26
 
 ---
 

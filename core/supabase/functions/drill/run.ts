@@ -109,8 +109,8 @@ async function main() {
   }
 
   await Deno.writeTextFile(`${ROOT}drill.json`, JSON.stringify(doc, null, 2) + "\n");
-  await Deno.writeTextFile(`${ROOT}DRILL.md`, render(doc));
-  console.log(`wrote drill.json and DRILL.md`);
+  await Deno.writeTextFile(`${ROOT}docs/drill.md`, render(doc));
+  console.log(`wrote drill.json and docs/drill.md`);
   console.log(`  ${passed} passed · ${failed} failed · ${notRun} not runnable`);
   console.log(`  ${doc.summary.distinct_controls_touched} controls across ${doc.summary.policies_touched} policies`);
 }
@@ -134,7 +134,7 @@ function render(d: any): string {
   A("> by raising the smaller number would be fabrication rather than reconciliation.");
   A(">");
   A("> Regulatory coverage is measured in `reachable` / `completable` and lives in");
-  A("> [CROSSWALK.md](CROSSWALK.md). Nothing here may be read as a control being");
+  A("> [CROSSWALK.md](../CROSSWALK.md). Nothing here may be read as a control being");
   A("> satisfied.");
   A("");
   A("## What this drill does NOT prove");

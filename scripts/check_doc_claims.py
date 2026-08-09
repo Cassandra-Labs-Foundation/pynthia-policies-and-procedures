@@ -32,6 +32,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 CHECKED_DOCS = [
     "README.md",
     "CLAUDE.md",
+    "TODO.md",
     "docs/README.md",
     "docs/architecture/README.md",
     "docs/architecture/containers.md",

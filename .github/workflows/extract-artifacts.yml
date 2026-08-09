@@ -37,6 +37,8 @@ on:
       - "core/supabase/functions/api/index.ts"        # route parity inputs
       - "core/supabase/functions/api/routes.gen.ts"
       - "vocab-migration.json"
+      - "core/supabase/functions/drill/**"     # drill sources -> drill.json + docs/drill.md
+      - "crosswalk-emitted-events.json"        # inventory the drill cross-references
       - "scripts/*.py"       # extractor logic (incl. code_format.py)
   # PRs run the full rebuild + every gate but SKIP the commit step, so
   # divergence surfaces on the PR instead of post-merge on main.
@@ -49,6 +51,8 @@ on:
       - "core/supabase/functions/api/index.ts"
       - "core/supabase/functions/api/routes.gen.ts"
       - "vocab-migration.json"
+      - "core/supabase/functions/drill/**"     # drill sources -> drill.json + docs/drill.md
+      - "crosswalk-emitted-events.json"        # inventory the drill cross-references
       - "scripts/*.py"
   workflow_dispatch: {}      # manual full rebuild
 
@@ -83,6 +87,13 @@ jobs:
         # Only parse_core_api.py needs it; the other three extractors are stdlib-only.
         run: python3 -m pip install pyyaml
 
+      - name: Set up Deno
+        # The drill step in rebuild_artifacts.sh regenerates drill.json +
+        # docs/drill.md (it ran only by hand before, so both went stale).
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
       - name: Rebuild artifacts (dependency order)
         # The ordered list lives in ONE place — scripts/rebuild_artifacts.sh —
         # shared with the workflow documented in CLAUDE.md.
@@ -101,7 +112,8 @@ jobs:
                 crosswalk.json CROSSWALK.md STATE.md compliance/dashboard
                 core/verifier/targets.json core/verifier/worklist.md
                 core/core-api.yaml core/supabase/functions/api/routes.gen.ts
-                ui/src/lib/coreApi.allowlist.json ui/src/lib/core-api-types.d.ts"
+                ui/src/lib/coreApi.allowlist.json ui/src/lib/core-api-types.d.ts
+                drill.json docs/drill.md"
           git add -- $arts
 
           if git diff --cached --quiet; then

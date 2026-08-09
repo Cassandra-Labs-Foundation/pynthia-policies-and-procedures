@@ -87,6 +87,7 @@ flowchart TB
 | workflow | when | what it protects |
 |---|---|---|
 | `extract-artifacts.yml` | any input to the cascade changes | regenerates everything derived; auto-commits on main; PRs gate without committing |
+| `doc-gate.yml` | every push and PR, no path filter | `STATE.md` current + hand-written docs' paths/numbers agree with the artifacts |
 | `core-ci.yml` | core changes | the hermetic test suite |
 | `ui-ci.yml` | ui/, spec, or generator changes | UI contract current + lint + build |
 | `live-control-tier.yml` | weekly | re-runs every control against the **real** database; hermetic-green/live-red = fake-vs-real defect |

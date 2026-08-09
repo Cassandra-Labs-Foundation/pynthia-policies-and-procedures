@@ -366,7 +366,7 @@ what the crosswalk should say.
 
 ### OQ-10 · medium — Retention clocks are only set for two record classes, so most of BSA-21's schedule has no writer.
 
-**Finding.** setRetentionClocks fires on account.closed and creates cip_identity and beneficial_owner records — the two classes anchored on closure. The other seven classes (CIP verification, CTR, SAR, monetary instrument, wire transfer, CMIR, OFAC blocked) anchor on their own creation dates and would need a clock set at the point each record is made. Those hook points mostly do not exist yet: there is no CTR filing, no monetary instrument log, no CMIR.
+**Finding.** setRetentionClocks fires on account.closed and creates cip_identity and beneficial_owner records — the two classes anchored on closure. The other seven classes (CIP verification, CTR, SAR, monetary instrument, wire transfer, CMIR, OFAC blocked) anchor on their own creation dates and would need a clock set at the point each record is made. Some of those hook points exist now (core.ctr_filing, and the filing table carries a cmir type) but set no clock at creation; others (monetary instrument log) still do not exist.
 
 **Why it matters.** The retention MECHANISM is complete and enforced — schedule, holds, three-condition disposal, irreversibility. What is partial is coverage: a wire transfer today starts no retention clock, so SC-02's lifecycle applies to nothing on that rail. Reading 'retention is implemented' off the mechanism would over-claim.
 
@@ -420,13 +420,13 @@ what the crosswalk should say.
 
 **Asks of reviewer.** None immediately — flagged so the numbers are not over-read. Fixing it means editing the policy corpus, not this artifact.
 
-### OQ-07 · low — Is BSA-21 'reachable' a coincidence worth acting on?
+### OQ-07 · low — RESOLVED — BSA-21's reachability is no longer a singleton headline.
 
-**Finding.** BSA-21 (Record Retention) is the only fully reachable control, solely because its one declared trigger is account.closed. It is not completable: it cannot emit record.retention_anchor or record.retention_clock_set, and no retention schedule, legal hold or disposal workflow exists.
+**Finding.** When recorded, BSA-21 (Record Retention) was the only fully reachable control and could not emit record.retention_anchor or record.retention_clock_set. Both have writers now, BSA-21 is completable, and reachability is no longer a count of one — see crosswalk.json's reachability view for the current numbers.
 
-**Why it matters.** It is the single row most likely to be mistaken for 'nearly done' by anyone reading the reachable count without the completable column.
+**Why it matters.** Kept for the narrative: it documents why the reachable count was once treated with suspicion. The caution it encoded — read reachable together with completable — still applies.
 
-**Asks of reviewer.** None. Recorded so the reachable=1 headline is not misread.
+**Asks of reviewer.** None. Historical.
 
 ### OQ-05 · low — RESOLVED — bsa_alert.event_id is populated.
 

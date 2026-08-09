@@ -15,8 +15,8 @@
     "and the shape of the whole obligation stays legible. The out-of-scope count",
     "is reported next to the in-scope one for the same reason.",
     "",
-    "`judgment_call: true` marks the 19 that genuinely straddled the line. Those",
-    "are the ones to overrule first."
+    "`judgment_call: true` marks the controls that genuinely straddled the line",
+    "(25 as of the 2026-07-19 rescope). Those are the ones to overrule first."
   ],
   "scope": {
     "audit:AU-01": {
