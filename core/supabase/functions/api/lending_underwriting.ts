@@ -175,6 +175,12 @@ export async function postCreditApplicationRecord(
     id, loan_application_id: appId,
     documents: Array.isArray(body.documents) ? body.documents : [],
     alternative_data_used: body.alternative_data_used === true,
+    // Re-INTAKE restarts the credit file: a converged row still sealed from a
+    // prior cycle made the seal step 409 and took car.sealed, decisioned,
+    // aan_due_at, both retention families and the counteroffer/oral columns
+    // down with it (LP-03/06/07/09 + FL-12 on the live tier).
+    sealed_at: null, sealed_by: null, validated_at: null,
+    retention_started_at: null, retention_expires_at: null,
     provenance: provenanceFor(scope, ctx),
   }, { onConflict: "id" });
   if (error) return internalErrorResponse(requestId, error.message);
@@ -192,8 +198,12 @@ export async function postCreditApplicationRecord(
     // application is what makes the separation checkable rather than asserted.
     gmi: body.gmi ?? null,
     channel: isNonEmptyString(body.channel) ? body.channel : null,
+    // 'cleared' is the schema's word (loan_application_doc_block_state_check:
+    // open/cleared/blocked) — 'satisfied' was an invented value the live
+    // schema refused, taking the whole intake update (gmi, income_assets,
+    // counteroffer fields) down with it
     doc_block_state: (Array.isArray(body.documents) ? body.documents.length : 0) > 0
-      ? "satisfied"
+      ? "cleared"
       : "blocked",
     updated_at: new Date().toISOString(),
   }).eq("id", appId);
@@ -238,6 +248,17 @@ export async function postCreditDecisionRecord(
   if (!isNonEmptyString(body.sealed_by)) {
     return validationError(requestId, [{
       type: "missing_field", field: "sealed_by", message: "is required",
+    }]);
+  }
+  // loan_application_counteroffer_status_check, enforced at the boundary: an
+  // off-vocabulary status refused only by the DB CHECK silently killed the
+  // whole seal-time application update on the live tier
+  const COUNTEROFFER_STATUSES = ["none", "issued", "accepted", "expired"];
+  if (isNonEmptyString(body.counteroffer_status) &&
+      !COUNTEROFFER_STATUSES.includes(String(body.counteroffer_status))) {
+    return validationError(requestId, [{
+      type: "invalid_value", field: "counteroffer_status",
+      message: `must be one of ${COUNTEROFFER_STATUSES.join("/")}`,
     }]);
   }
 

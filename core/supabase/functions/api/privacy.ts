@@ -654,6 +654,10 @@ export async function postBiometricVerification(
     alt_path_used: body.alt_path_used === true,
     started_at: now.toISOString(), completed_at: now.toISOString(), outcome,
     purge_due_at: plusDays(now, BIOMETRIC_PURGE_DAYS),
+    // a re-capture RESTARTS the retention clock: leaving last cycle's
+    // purged_at on the converged row made the purge sweep skip the new
+    // capture entirely (PR-16, live tier)
+    purged_at: null,
     provenance: provenanceFor(scope, ctx),
   }, { onConflict: "id" });
   if (error) return internalErrorResponse(requestId, error.message);

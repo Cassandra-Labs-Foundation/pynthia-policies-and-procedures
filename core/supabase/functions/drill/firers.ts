@@ -218,6 +218,11 @@ async function runCdaLifecycle(env: FireEnv): Promise<void> {
   );
 
   // --- CDA-06: funding through the gate. 5% of $7.5m is $375k; this is $250k.
+  // book value accumulates run over run on the converged cda_main row
+  // (funding is read-modify-write), so the arc's cap arithmetic only holds
+  // if it starts from zero every run
+  await env.db.schema("core").from("cda")
+    .update({ book_value_cents: 0 }).eq("id", "cda_main");
   await postCdaFunding(R({ amount_cents: 25_000_000 }), "cda_main", env.db, "d", ops);
   // NEGATIVE: the unlabelled CDA fails four conditions at once, and the
   // refusal must name all of them rather than the first.
@@ -240,9 +245,14 @@ async function runCdaLifecycle(env: FireEnv): Promise<void> {
   );
 
   // --- CDA-08: the five-year window, opened with a real Total Return.
+  // run-unique opened_at (the window id embeds its epoch): distributions
+  // accumulate against a converged window until coverage passes and the
+  // shortfall alert becomes unreachable (CDA-08/CDA-12's defect)
+  const winOpenedMs = Date.UTC(2026, 0, 1) + (env.n() % 86_400_000);
+  const winId = `cdawin_cda_main_${winOpenedMs}`;
   await postCdaDistributionWindow(
     R({
-      opened_at: "2026-01-01T00:00:00.000Z", closes_at: "2031-01-01T00:00:00.000Z",
+      opened_at: new Date(winOpenedMs).toISOString(), closes_at: "2031-01-01T00:00:00.000Z",
       total_return_cents: 20_000_000,
     }),
     "cda_main", env.db, "d", compliance,
@@ -252,7 +262,7 @@ async function runCdaLifecycle(env: FireEnv): Promise<void> {
   await postCdaDistribution(
     R({
       donee_name: "Unknown Foundation", amount_cents: 1_000_00,
-      proposed_by: "ops_1", approved_by: "ops_2", window_id: "cdawin_cda_main_1767225600000",
+      proposed_by: "ops_1", approved_by: "ops_2", window_id: winId,
     }),
     "cda_main", env.db, "d", ops,
   );
@@ -269,7 +279,7 @@ async function runCdaLifecycle(env: FireEnv): Promise<void> {
     R({
       donee_name: "Riverside Food Bank", donee_ein: "12-3456789", donee_irs_status: "501c3",
       amount_cents: 6_000_000, proposed_by: "ops_1", approved_by: "ops_2",
-      window_id: "cdawin_cda_main_1767225600000",
+      window_id: winId,
     }),
     "cda_main", env.db, "d", ops,
   );
@@ -279,7 +289,7 @@ async function runCdaLifecycle(env: FireEnv): Promise<void> {
     R({
       donee_name: "Riverside Food Bank", donee_ein: "12-3456789", donee_irs_status: "501c3",
       amount_cents: 250_00, proposed_by: "ops_1",
-      window_id: "cdawin_cda_main_1767225600000",
+      window_id: winId,
     }),
     "cda_main", env.db, "d", ops,
   );
@@ -395,7 +405,7 @@ async function runCdaLifecycle(env: FireEnv): Promise<void> {
     R({
       donee_name: "Riverside Food Bank", donee_ein: "12-3456789", donee_irs_status: "501c3",
       amount_cents: 4_500_000, kind: "closing", proposed_by: "ops_1", approved_by: "ops_2",
-      window_id: "cdawin_cda_main_1767225600000",
+      window_id: winId,
     }),
     "cda_main", env.db, "d", ops,
   );
@@ -416,8 +426,10 @@ async function runCdaLifecycle(env: FireEnv): Promise<void> {
   // blocks the programme. Done LAST because it blocks everything above it.
   // through the client: mutating the recorded copy leaves the live row
   // unexpired and the sweep finds nothing to block (CDA-01's defect)
+  // expired = in the past but AFTER the fixed 2026-06-16 adoption, or
+  // ck_cda_policy_expiry_after_adoption refuses the backdate outright
   await env.db.schema("core").from("cda_policy")
-    .update({ policy_expiry_at: "2026-01-01T00:00:00.000Z" }).eq("id", "cdapol_v10");
+    .update({ policy_expiry_at: "2026-07-01T00:00:00.000Z" }).eq("id", "cdapol_v10");
   await postCdaPolicySweep(R({}), env.db, "d", compliance);
   // and a funding attempt against an expired policy, which must be refused
   await postCdaFunding(R({ amount_cents: 1_000_00 }), "cda_main", env.db, "d", ops);
@@ -710,6 +722,15 @@ async function runRecordsAdminLifecycle(env: FireEnv): Promise<void> {
         citation: "31 CFR 1020.220", effective_at: "2026-01-01T00:00:00.000Z" }),
     env.db, "d", ops,
   );
+  // schedule_a.entry.added only fires for a class with NO in-force entry —
+  // on the live tier every fixed class already has one from prior runs, so a
+  // run-unique probe class is what keeps the ADD path reachable there
+  await postRetentionScheduleEntry(
+    R({ record_class: `drill_probe_${env.n()}`, retention_years: 1, anchor_kind: "created",
+        citation: "drill probe — exercises the Schedule A add path",
+        effective_at: "2026-01-01T00:00:00.000Z" }),
+    env.db, "d", ops,
+  );
   // and an AMENDMENT, which supersedes and inherits
   await postRetentionScheduleEntry(
     R({ record_class: "cip_identity", retention_years: 7, anchor_kind: "account_closed",
@@ -983,7 +1004,10 @@ async function runLendingUwLifecycle(env: FireEnv): Promise<void> {
   await postCreditDecisionRecord(
     R({
       decision: "denied", sealed_by: "uw_1", incomplete: true,
-      counteroffer_status: "extended",
+      // 'issued' is the schema's word (counteroffer_status_check:
+      // none/issued/accepted/expired) — 'extended' was refused live, taking
+      // the whole seal-time application update down with it
+      counteroffer_status: "issued",
       counteroffer_terms: { rate_bp: 700, term_months: 240 },
       oral_adverse_decision: true,
       oral_statement: "declined by phone on 2026-07-18, written notice to follow",
@@ -1102,6 +1126,15 @@ async function runInvestmentLifecycle(env: FireEnv): Promise<void> {
     R({ as_of_date: "2026-03-31", net_worth_cents: 750_000_000, total_assets_cents: 5_000_000_000 }),
     env.db, "d", ops,
   );
+  // PIN the latest-dated position too: the trade gate reads the newest
+  // capital position by date, and on the live tier other lifecycles leave a
+  // $4.2m row at 2026-09-30 — against which the "clean" 30m trade blocks,
+  // its id is never returned, and every downstream confirmation/exception
+  // references a trade that does not exist (the IP-02/10/11/14/15 defects).
+  await postCapitalPosition(
+    R({ as_of_date: "2026-09-30", net_worth_cents: 750_000_000, total_assets_cents: 5_000_000_000 }),
+    env.db, "d", ops,
+  );
 
   await postInstrumentListEntry(
     R({ instrument_class: "us_treasury", permissible: true, citation: "12 CFR 703.14(a)",
@@ -1168,16 +1201,28 @@ async function runInvestmentLifecycle(env: FireEnv): Promise<void> {
       id, issuer_ref: iss, instrument_class: cls, external_rating: "AAA",
       provenance: "production",
     }, { onConflict: "id" });
+    // positions converge on pos_<security> and ACCUMULATE par across runs
+    // (read-modify-write in postTrade) — reset so the warning/breach bands
+    // the arc is built on hold on every run, not only the first
+    await env.db.schema("core").from("position").upsert({
+      id: `pos_${id}`, security_id: id, par_cents: 0, book_value_cents: 0,
+      provenance: "production",
+    }, { onConflict: "id" });
   }
 
-  // clean trade
-  await postTrade(
+  // clean trade — id captured from the RESPONSE: scanning env.rows for
+  // executed trades breaks on the live tier, where the recorder also appends
+  // id-less update payloads (the trade_exception FK refusals' cause)
+  const cleanTradeRes = await postTrade(
     R({ security_id: "sec_ust1", instrument_class: "us_treasury", issuer_ref: "us_gov",
         intermediary_id: "interm_northgatesecurities", side: "buy", par_cents: 30_000_000,
         price_bp: 9950, executed_by: "trader_1", maturity_months: 60,
         checklist_completed: true, instrument_type: "bill",
         settlement_amount_cents: 29_850_000, valuation_support: "bloomberg_quote" }),
     env.db, "d", ops,
+  );
+  const cleanTradeId = String(
+    ((await cleanTradeRes.clone().json().catch(() => ({}))) as Any)?.data?.id ?? "x",
   );
   // NEGATIVE: a prohibited instrument class
   await postTrade(
@@ -1204,13 +1249,16 @@ async function runInvestmentLifecycle(env: FireEnv): Promise<void> {
   // worth is 4400bp, over the 4000bp warning and under the 5000bp limit. The
   // warning has to fire on a trade that still EXECUTES, or it is just a
   // second name for the block.
-  await postTrade(
+  const warnTradeRes = await postTrade(
     R({ security_id: "sec_ust1", instrument_class: "us_treasury", issuer_ref: "us_gov",
         intermediary_id: "interm_northgatesecurities", side: "buy", par_cents: 300_000_000,
         price_bp: 9950, executed_by: "trader_2", maturity_months: 60,
         checklist_completed: true, instrument_type: "note",
         settlement_amount_cents: 298_500_000, valuation_support: "bloomberg_quote" }),
     env.db, "d", ops,
+  );
+  const warnTradeId = String(
+    ((await warnTradeRes.clone().json().catch(() => ({}))) as Any)?.data?.id ?? "x",
   );
   // NEGATIVE: this one BREACHES on the projected position — 330m held plus
   // 100m more is 5733bp against a 5000bp limit
@@ -1229,8 +1277,7 @@ async function runInvestmentLifecycle(env: FireEnv): Promise<void> {
     await putUserRole(R({ role }), u, env.db, "d", ops);
   }
 
-  const tr = (env.rows["core.trade"] ?? []).find((t: Any) => t.decision === "executed");
-  const tid = String(tr?.id ?? "x");
+  const tid = cleanTradeId;
   // NEGATIVE: the executing trader cannot confirm their own trade
   await postTradeConfirmation(
     R({ confirmed_by: "trader_1", confirmation_ref: "c1", counterparty_par_cents: 30_000_000 }),
@@ -1242,15 +1289,13 @@ async function runInvestmentLifecycle(env: FireEnv): Promise<void> {
     tid, env.db, "d", ops,
   );
   // and one that MATCHES, so "matched" is not simply an event nobody can reach
-  const tr2 = (env.rows["core.trade"] ?? [])
-    .filter((t: Any) => t.decision === "executed").slice(-1)[0];
-  if (tr2 && tr2.id !== tid) {
+  if (warnTradeId !== "x" && warnTradeId !== tid) {
     await postTradeConfirmation(
       R({
         confirmed_by: "ops_confirm", confirmation_ref: "c2",
-        counterparty_par_cents: Number(tr2.par_cents),
+        counterparty_par_cents: 300_000_000,
       }),
-      String(tr2.id), env.db, "d", ops,
+      warnTradeId, env.db, "d", ops,
     );
   }
   // NEGATIVE: the executing trader cannot settle either
@@ -2150,15 +2195,22 @@ async function runCollectionsLifecycle(env: FireEnv): Promise<void> {
         collections: true }),
     env.db, "d", ops,
   );
-  const cinc = (env.rows["core.incident"] ?? []).slice(-1)[0];
-  if (cinc) {
-    await postDetermineReportability(
-      R({ is_reportable: false, rationale: "no member NPPI beyond name and balance",
-          assessment: "reviewed against 12 CFR 748 App B; no sensitive identifiers exposed" }),
-      String(cinc.id), env.db, "d",
-      { ...ops, tokenId: "tok_comp", roles: ["bsa_compliance"] },
-    );
-  }
+  // the assessment must PRECEDE the determination
+  // (ck_incident_assessment_before_determination) — determining an unassessed
+  // incident is the row the schema refuses, and it read as CO-11's defect
+  await postIncidentAssessment(
+    R({ data_scope: { members: 0, fields: ["name", "balance"] },
+        member_impact: "none confirmed",
+        facts: { vector: "vendor email", contained: true },
+        scope_initial: "single unencrypted file", detection_source: "vendor_report" }),
+    "inc_drill_collections", env.db, "d", ops,
+  );
+  await postDetermineReportability(
+    R({ is_reportable: false, rationale: "no member NPPI beyond name and balance",
+        assessment: "reviewed against 12 CFR 748 App B; no sensitive identifiers exposed" }),
+    "inc_drill_collections", env.db, "d",
+    { ...ops, tokenId: "tok_comp", roles: ["bsa_compliance"] },
+  );
 
   await postOverdraftReferral(
     R({ account_ref: "acct_od1", balance_cents: -25_000, days_negative: 20,

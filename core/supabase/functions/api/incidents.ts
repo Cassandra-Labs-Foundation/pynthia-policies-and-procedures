@@ -112,6 +112,21 @@ export async function postIncident(
     ic_assigned_to: ctx.tokenId,
     ic_assigned_at: now.toISOString(),
     determination_due_at: detDue.toISOString(),
+    // Re-DECLARING an id resets the whole lifecycle arc: a declaration is the
+    // start of an incident, and a converged row still carrying last run's
+    // determination made postDetermineReportability replay idempotently and
+    // record nothing (SC-01 read unsupplied across 8 policies, live tier).
+    // All nulled together so the determination-chain CHECKs stay satisfied.
+    assessment_completed_at: null,
+    reportability_determined_at: null,
+    reportability_determined_by: null,
+    is_reportable: null,
+    reportability_rationale: null,
+    ncua_notice_due_at: null,
+    ncua_notified_at: null,
+    legal_review_at: null,
+    external_comms_at: null,
+    closed_at: null,
     provenance: provenanceFor(scope, ctx),
   }, { onConflict: "id" });
   if (error) return internalErrorResponse(requestId, error);
