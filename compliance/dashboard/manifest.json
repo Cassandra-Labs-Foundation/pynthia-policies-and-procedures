@@ -3935,7 +3935,7 @@
       "scoped_out": false,
       "scope_reason": "technical: incident",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -6130,7 +6130,7 @@
       "scoped_out": false,
       "scope_reason": "technical: cda",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -6396,7 +6396,7 @@
       "scoped_out": false,
       "scope_reason": "technical: cda",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -6509,7 +6509,7 @@
       "scoped_out": false,
       "scope_reason": "technical: cda",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -6785,7 +6785,7 @@
       "scoped_out": false,
       "scope_reason": "technical: cda",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -7082,7 +7082,7 @@
       "scoped_out": false,
       "scope_reason": "technical: collections, loan",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -7207,7 +7207,7 @@
       "scoped_out": false,
       "scope_reason": "technical: loan",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -7622,7 +7622,7 @@
       "scoped_out": false,
       "scope_reason": "technical: incident",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -7681,7 +7681,7 @@
       "scoped_out": false,
       "scope_reason": "technical: incident",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -7757,7 +7757,7 @@
       "scoped_out": false,
       "scope_reason": "technical: loan",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -10239,7 +10239,7 @@
       "scoped_out": false,
       "scope_reason": "technical: incident",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -10678,7 +10678,7 @@
       "scoped_out": false,
       "scope_reason": "technical: incident",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -12327,7 +12327,7 @@
       "scoped_out": false,
       "scope_reason": "technical: loan_application",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -13091,7 +13091,7 @@
       "scoped_out": false,
       "scope_reason": "technical: loan_application",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -13979,7 +13979,7 @@
       "scoped_out": false,
       "scope_reason": "technical: incident",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -15905,7 +15905,7 @@
       "scoped_out": false,
       "scope_reason": "technical: portfolio, trade",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -16599,7 +16599,7 @@
       "scoped_out": false,
       "scope_reason": "technical: position, security",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -16670,7 +16670,7 @@
       "scoped_out": false,
       "scope_reason": "technical: trade",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -16885,7 +16885,7 @@
       "scoped_out": false,
       "scope_reason": "technical: trade",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -16937,7 +16937,7 @@
       "scoped_out": false,
       "scope_reason": "investment recordkeeping is data retention \u2014 the core holds the records",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -17598,7 +17598,7 @@
       "scoped_out": false,
       "scope_reason": "technical: application, loan_application",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -17868,7 +17868,7 @@
       "scoped_out": false,
       "scope_reason": "technical: appraisal, collateral",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -17965,7 +17965,7 @@
       "scoped_out": false,
       "scope_reason": "technical: aan, loan_account, loan_application",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -18103,7 +18103,7 @@
       "scoped_out": false,
       "scope_reason": "technical: application, loan",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -21481,7 +21481,7 @@
       "scoped_out": false,
       "scope_reason": "technical: incident",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -22045,7 +22045,7 @@
       "scoped_out": false,
       "scope_reason": "technical: verification",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -22208,7 +22208,7 @@
       "scoped_out": false,
       "scope_reason": "technical: record, record_class",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -24562,7 +24562,7 @@
       "scoped_out": false,
       "scope_reason": "technical: incident",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {
@@ -25246,7 +25246,7 @@
       "scoped_out": false,
       "scope_reason": "technical: incident",
       "hermetic": "green",
-      "live": "red"
+      "live": "green"
      }
     },
     {

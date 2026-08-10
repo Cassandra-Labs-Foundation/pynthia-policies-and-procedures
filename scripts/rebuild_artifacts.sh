@@ -22,6 +22,7 @@ python3 scripts/build_crosswalk.py             # -> crosswalk.json + CROSSWALK.m
 python3 scripts/build_dashboard.py             # -> compliance/dashboard
 python3 scripts/build_choreography.py          # -> compliance/dashboard/choreography
 python3 core/verifier/generator/enumerate.py   # -> core/verifier/targets.json + worklist.md
+python3 scripts/gen_proposed_surface.py        # -> docs/proposed-surface.md (reads targets.json)
 deno run --allow-all core/supabase/functions/drill/run.ts  # -> drill.json + docs/drill.md
 python3 scripts/gen_routes.py                  # -> api/routes.gen.ts
 python3 scripts/gen_ui_contract.py             # -> ui allowlist + types

@@ -113,7 +113,7 @@ jobs:
                 core/verifier/targets.json core/verifier/worklist.md
                 core/core-api.yaml core/supabase/functions/api/routes.gen.ts
                 ui/src/lib/coreApi.allowlist.json ui/src/lib/core-api-types.d.ts
-                drill.json docs/drill.md"
+                drill.json docs/drill.md docs/proposed-surface.md"
           git add -- $arts
 
           if git diff --cached --quiet; then

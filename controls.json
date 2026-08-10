@@ -1,12 +1,12 @@
 {
   "meta": {
     "generator": "scripts/extract_controls.py",
-    "generated_at": "2026-08-10T19:58:49+00:00",
+    "generated_at": "2026-08-10T22:10:55+00:00",
     "repo_root": "cassandra-platform",
     "api_model": {
       "spec_title": "Cassandra Banking Core API",
       "spec_version": "3.2.0",
-      "events": 1468,
+      "events": 1470,
       "fields": 2591,
       "entities": 275
     }
@@ -121,8 +121,8 @@
     "event_rows": 1232,
     "control_rules": 1232,
     "unique_api_codes": 2933,
-    "registered_event_codes": 1219,
-    "registered_field_codes": 1686,
+    "registered_event_codes": 1220,
+    "registered_field_codes": 1685,
     "unregistered_codes": 28
   },
   "controls": [
@@ -84796,6 +84796,7 @@
       ],
       "api_references": {
         "events": [
+          "card.request_during_address_hold",
           "entity.address.changed",
           "member.address_notice",
           "member.address_notice.sent",
@@ -84807,7 +84808,6 @@
         ],
         "fields": [
           "card.reissue_request",
-          "card.request_during_address_hold",
           "entity.address_new",
           "entity.address_previous",
           "entity.contact",

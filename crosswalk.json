@@ -2,7 +2,7 @@
   "meta": {
     "generator": "scripts/build_crosswalk.py",
     "controls_source": "controls.json",
-    "controls_generated_at": "2026-08-10T19:58:49+00:00",
+    "controls_generated_at": "2026-08-10T22:10:55+00:00",
     "mappings_source": "crosswalk-mappings.json",
     "emitted_source": "crosswalk-emitted-events.json",
     "under_claim_policy": "'discharges' asserts no further work is needed and is enforced to carry zero gaps. Claims are proposals until reviewed_by is set."
@@ -54,7 +54,7 @@
     },
     "policies": 27,
     "cg_controls": 10,
-    "emitted_events": 805,
+    "emitted_events": 807,
     "demanded_triggers": 787,
     "verdicts": {
       "related": 4,
@@ -65,8 +65,8 @@
     "needs_review": 13,
     "reviewed": 0,
     "reach": {
-      "reachable": 76,
-      "partially_reachable": 122,
+      "reachable": 77,
+      "partially_reachable": 121,
       "unreachable": 118
     },
     "completable": 60,
@@ -6761,16 +6761,15 @@
       "control_id": "MP-02",
       "policy": "member",
       "title": "Account Maintenance and Change of Address",
-      "reachability": "partially_reachable",
+      "reachability": "reachable",
       "triggers_total": 4,
       "triggers_firable": [
+        "card.request_during_address_hold",
         "member.address_notice.sent",
         "redflag.detected",
         "verification.completed"
       ],
-      "triggers_missing": [
-        "card.request_during_address_hold"
-      ],
+      "triggers_missing": [],
       "produced_total": 8,
       "produced_firable": [
         "entity.address.changed",

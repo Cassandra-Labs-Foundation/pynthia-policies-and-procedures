@@ -59,7 +59,7 @@ import {
   postNwrp,
   postRwaRun,
 } from "./capital.ts";
-import { getCard, getCards } from "./cards.ts";
+import { getCard, getCards, postCardReissue, postIssueCard } from "./cards.ts";
 import { getCashAggregation, postCashTransaction, postCtrFile, postCtrSweep } from "./cash.ts";
 import {
   postCashBoardSummary,
@@ -748,6 +748,13 @@ export const generatedRoutes: Route[] = [
     audience: "partner",
     handler: async (req, _params, requestId, ctx) =>
       await getCards(req, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST", pattern: /^\/cards\/?$/,
+    endpoint: "POST /cards", tier: "write", paramNames: [],
+    audience: "internal",
+    handler: async (req, _params, requestId, ctx) =>
+      await postIssueCard(req, createDb(), requestId, ctx),
   },
   {
     method: "GET", pattern: /^\/cards\/([^\/]+)\/?$/,
@@ -2067,6 +2074,13 @@ export const generatedRoutes: Route[] = [
     audience: "internal",
     handler: async (req, params, requestId, ctx) =>
       await postAddressChange(req, params.id, createDb(), requestId, ctx),
+  },
+  {
+    method: "POST", pattern: /^\/members\/([^\/]+)\/card-reissue\/?$/,
+    endpoint: "POST /members/{id}/card-reissue", tier: "write", paramNames: ["id"],
+    audience: "internal",
+    handler: async (req, params, requestId, ctx) =>
+      await postCardReissue(req, params.id, createDb(), requestId, ctx),
   },
   {
     method: "POST", pattern: /^\/members\/([^\/]+)\/death-report\/?$/,

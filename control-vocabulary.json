@@ -1,22 +1,22 @@
 {
   "meta": {
     "generator": "scripts/build_control_vocabulary.py",
-    "generated_at": "2026-08-10T19:58:54+00:00",
+    "generated_at": "2026-08-10T22:10:58+00:00",
     "source": "controls.json",
     "api_model": {
       "spec_title": "Cassandra Banking Core API",
       "spec_version": "3.2.0",
-      "events": 1468,
+      "events": 1470,
       "fields": 2591,
       "entities": 275
     },
-    "controls_generated_at": "2026-08-10T19:58:49+00:00"
+    "controls_generated_at": "2026-08-10T22:10:55+00:00"
   },
   "stats": {
     "entities": 264,
     "unique_codes": 2933,
-    "registered_events": 1219,
-    "registered_fields": 1686,
+    "registered_events": 1220,
+    "registered_fields": 1685,
     "unregistered_codes": 28,
     "statuses": 32
   },
@@ -8559,10 +8559,25 @@
     "card": {
       "entity": "card",
       "code_count": 4,
-      "registered_events": 0,
-      "registered_fields": 4,
+      "registered_events": 1,
+      "registered_fields": 3,
       "unregistered": 0,
       "codes": [
+        {
+          "code": "card.request_during_address_hold",
+          "status": "event",
+          "spec": {
+            "entity": "card",
+            "description": "canonical event_type: `flagged`"
+          },
+          "ref_count": 1,
+          "controls": [
+            "MP-02"
+          ],
+          "policies": [
+            "member"
+          ]
+        },
         {
           "code": "card.id",
           "status": "field",
@@ -8588,24 +8603,6 @@
           "spec": {
             "entity": "Card",
             "type": "boolean",
-            "pii": false,
-            "required": false,
-            "description": null
-          },
-          "ref_count": 1,
-          "controls": [
-            "MP-02"
-          ],
-          "policies": [
-            "member"
-          ]
-        },
-        {
-          "code": "card.request_during_address_hold",
-          "status": "field",
-          "spec": {
-            "entity": "Card",
-            "type": "string",
             "pii": false,
             "required": false,
             "description": null

@@ -78,6 +78,24 @@ def emitted_trigger_codes(path):
     return code_format.emitted_codes(json.loads(path.read_text()))
 
 
+def emitted_code_sources(path):
+    """code -> emitting source file, from the inventory's provenance column.
+    emitted_codes() flattens this away, but the inducer question needs it: for
+    a request-driven control the HTTP call IS the trigger and only the OUTPUTS
+    are emitted, so 'which routed handler produces this rule's whole reaction'
+    is the honest inducibility test when the trigger itself is not an event
+    the core writes."""
+    inv = json.loads(path.read_text())
+    out = {}
+    for e in inv["literal"]:
+        out[e["code"]] = str(e.get("source", "")).split(":")[0]
+    for t in inv["templated"]:
+        src = str(t.get("source", "")).split(":")[0]
+        for c in t["expands_to"]:
+            out[c] = src
+    return out
+
+
 def parse_properties(path):
     """Return [{id,kind,pillars[],tier,status,severity}] — only the metadata fields we enumerate on."""
     body = path.read_text().split('\nproperties:', 1)[1]
@@ -160,8 +178,8 @@ def enum_state_machines(resources, endpoints):
     return targets
 
 
-def classify_control(ctrl, inducible, canon):
-    """Return (status, reason, testable_events). status: ready | worklist.
+def classify_control(ctrl, inducible, canon, emitters, scoped_out):
+    """Return (status, reason, testable_events). status: ready | worklist | out_of_scope.
 
     A trigger is inducible iff the ROUTED core can emit it (membership in the
     canonicalized emitted inventory) — the same denominator the crosswalk uses.
@@ -173,6 +191,13 @@ def classify_control(ctrl, inducible, canon):
     handlers directly (firers.ts reaches unrouted modules like lending.ts), so
     a control can be drill-green and still `no_api_inducer` here. The verifier
     is black-box by charter — reachable means reachable over HTTP."""
+    # An obligation discharged by people and paperwork has no API inducer BY
+    # DESIGN — counting it as verifier backlog misstates the backlog. The
+    # scoping file is the same one the drill grader reads; the verifier was
+    # its only consumer that didn't.
+    if scoped_out:
+        return "out_of_scope", "scoped_out (control-scope.json)", []
+
     ar = ctrl.get("api_references") or {}
     unregistered = set(ar.get("unregistered", []))
     testable = []
@@ -186,14 +211,25 @@ def classify_control(ctrl, inducible, canon):
         real_output = [c for c in out_codes if c != trig]
         if trig in unregistered:
             reasons.add("unregistered_trigger"); continue
+        inducer = {"via": "emitted_trigger"}
         if canon(trig) not in inducible:
-            reasons.add("no_api_inducer"); continue
+            # Request-driven rule: the trigger names the CALL, not an emitted
+            # code. If one routed handler emits the rule's entire reaction,
+            # that handler's route is the inducer — fire it, assert the
+            # outputs. Requiring a single common source keeps this honest
+            # (it refuses the unrouted credit surface, whose outputs no
+            # routed code emits at all).
+            srcs = {emitters.get(canon(c)) for c in real_output}
+            if not real_output or None in srcs or len(srcs) != 1:
+                reasons.add("no_api_inducer"); continue
+            inducer = {"via": "routed_outputs", "source": srcs.pop()}
         if not real_output:
             reasons.add("degenerate_output"); continue
         if any(canon(c) not in inducible for c in real_output):
             reasons.add("unemittable_output"); continue
         testable.append({"trigger": trig, "outputs": real_output,
-                         "within": ev.get("within"), "subject": subject})
+                         "within": ev.get("within"), "subject": subject,
+                         "inducer": inducer})
     if testable:
         return "ready", None, testable
     # priority of reasons for the worklist label
@@ -204,7 +240,7 @@ def classify_control(ctrl, inducible, canon):
     return "worklist", "no_trigger", []
 
 
-def enum_controls(controls, floor_ids, inducible, canon):
+def enum_controls(controls, floor_ids, inducible, canon, emitters, scope):
     # control_ids are NOT globally unique (10 collide — e.g. BC-* is reused by the Basel framework
     # and the business-continuity plan). Disambiguate colliding ids by policy slug for a unique target_id.
     counts = collections.Counter(c["control_id"] for c in controls)
@@ -214,7 +250,8 @@ def enum_controls(controls, floor_ids, inducible, canon):
         cid = c["control_id"]
         slug = c.get("policy") or Path(c.get("source_file", "")).parent.name or "unknown"
         tid = f"control:{cid}" if cid not in collisions else f"control:{cid}@{slug}"
-        status, reason, testable = classify_control(c, inducible, canon)
+        scoped_out = (scope.get(f"{slug}:{cid}") or {}).get("verdict") == "out"
+        status, reason, testable = classify_control(c, inducible, canon, emitters, scoped_out)
         targets.append({
             "target_id": tid,
             "kind": "control", "pillars": ["compliance", "detection"],
@@ -250,6 +287,8 @@ def main():
 
     canon = code_format.canonicalizer(ROOT / "core-vocabulary.json")
     inducible = {canon(c) for c in emitted_trigger_codes(EMITTED)}
+    emitters = {canon(k): v for k, v in emitted_code_sources(EMITTED).items()}
+    scope = json.loads((ROOT / "control-scope.json").read_text())["scope"]
 
     # floor ids must resolve — a dangling floor designation attaches the
     # FLOOR-ALWAYS-FIRES assertions to nothing (which is how the BS-*→BSA-*
@@ -281,7 +320,8 @@ def main():
                      f"not qualifying events of that control: {bad}")
 
     targets = (enum_contract(endpoints) + enum_state_machines(resources, endpoints)
-               + enum_controls(controls, floor_ids, inducible, canon) + enum_properties(props))
+               + enum_controls(controls, floor_ids, inducible, canon, emitters, scope)
+               + enum_properties(props))
     targets.sort(key=lambda t: t["target_id"])
 
     # uniqueness guard — target_id is the citation handle (P7); collisions are a fatal data error

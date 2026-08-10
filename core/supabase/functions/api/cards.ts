@@ -546,10 +546,19 @@ export async function postCardReverse(
  * The general shape is worth naming: a subsystem can look complete because all
  * its VERBS are present, while the noun they operate on has no origin.
  */
+/** Issuance and reissue are staff operations — 404 semantics for partners,
+ * matching the route-gating convention for internal-audience routes. */
+function requireInternalActor(ctx: PartnerContext, requestId: string): Response | null {
+  if (ctx.actorType === "partner") return notFoundResponse(requestId, "route", "/cards");
+  return null;
+}
+
 export async function postIssueCard(
   req: Request, db: SupabaseClient, requestId: string,
   ctx: PartnerContext, scope: EvidenceScope = "core",
 ): Promise<Response> {
+  const denied = requireInternalActor(ctx, requestId);
+  if (denied) return denied;
   const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
   const memberRef = typeof body.member_ref === "string" ? body.member_ref : "";
   if (!memberRef) {
@@ -599,6 +608,8 @@ export async function postCardReissue(
   req: Request, memberRef: string, db: SupabaseClient, requestId: string,
   ctx: PartnerContext, scope: EvidenceScope = "core",
 ): Promise<Response> {
+  const denied = requireInternalActor(ctx, requestId);
+  if (denied) return denied;
   const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
   const { data: holds } = await db.schema(scope).from("member_address_change")
     .select("id, hold_expires_at, member_ref").eq("member_ref", memberRef);

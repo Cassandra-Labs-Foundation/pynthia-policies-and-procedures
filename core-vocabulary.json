@@ -3,7 +3,7 @@
     "spec_title": "Cassandra Banking Core API",
     "spec_version": "3.2.0",
     "parser_version": "0.2.0",
-    "parsed_at": "2026-08-10T19:58:48.534698Z",
+    "parsed_at": "2026-08-10T22:10:54.611222Z",
     "note": "Specific domain codes (e.g. sar.filed, vendor_review) live as `subject` values in vocab-migration.json, not as distinct vocabulary elements.",
     "sources": [
       "core-api.yaml",
@@ -14,8 +14,8 @@
     "entities": 275,
     "fields": 2591,
     "computed_fields": 0,
-    "events": 1468,
-    "endpoints": 369,
+    "events": 1470,
+    "endpoints": 371,
     "state_machines": 25,
     "plugins": 0,
     "task_types": 54,
@@ -48588,6 +48588,18 @@
       "description": "canonical event_type: `sealed`"
     },
     {
+      "name": "card.issued",
+      "code": "card.issued",
+      "entity": "card",
+      "description": "canonical event_type: `issued`"
+    },
+    {
+      "name": "card.request_during_address_hold",
+      "code": "card.request_during_address_hold",
+      "entity": "card",
+      "description": "canonical event_type: `flagged`"
+    },
+    {
       "name": "card_authorization.captured",
       "code": "card_authorization.captured",
       "entity": "card_authorization",
@@ -56423,6 +56435,15 @@
       "response_schema": null
     },
     {
+      "method": "POST",
+      "path": "/cards",
+      "summary": "create_card",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
       "method": "GET",
       "path": "/cards/{id}",
       "summary": "get_card",
@@ -58125,6 +58146,15 @@
     },
     {
       "method": "POST",
+      "path": "/members/{id}/card-reissue",
+      "summary": "post_card_reissue",
+      "control_refs": [],
+      "audit_events": [],
+      "request_schema": null,
+      "response_schema": null
+    },
+    {
+      "method": "POST",
       "path": "/members/{id}/death-report",
       "summary": "post_death_report",
       "control_refs": [],
@@ -59724,6 +59754,7 @@
     "capital_remediation",
     "capital_stress",
     "car",
+    "card",
     "card_authorization",
     "case",
     "cash",

@@ -306,7 +306,7 @@ paths:
                 properties:
                   data:
                     type: array
-                    items: &id022
+                    items: &id023
                       $ref: '#/components/schemas/AchTransfer'
                   pagination:
                     $ref: '#/components/schemas/Pagination'
@@ -949,7 +949,7 @@ paths:
                 properties:
                   data:
                     type: array
-                    items: &id023
+                    items: &id002
                       $ref: '#/components/schemas/Card'
                   pagination:
                     $ref: '#/components/schemas/Pagination'
@@ -967,6 +967,48 @@ paths:
       x-handler: cards.getCards
       x-audience: partner
       x-tier: read
+    post:
+      operationId: create_card
+      x-operation-id: create_card
+      summary: Issue a card to a member
+      responses:
+        '201':
+          description: The created Card.
+          content:
+            application/json:
+              schema: *id002
+        '409':
+          description: Idempotency-Key reused with different args (D6).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      tags:
+      - Cards
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - member_ref
+              properties:
+                member_ref:
+                  type: string
+                spend_controls:
+                  type: string
+      x-audience: internal
+      x-handler: cards.postIssueCard
+      x-tier: write
   /cards/{id}:
     get:
       operationId: get_card
@@ -2207,7 +2249,7 @@ paths:
                 properties:
                   data:
                     type: array
-                    items: &id002
+                    items: &id003
                       $ref: '#/components/schemas/Entity'
                   pagination:
                     $ref: '#/components/schemas/Pagination'
@@ -2239,7 +2281,7 @@ paths:
           description: The created Entity.
           content:
             application/json:
-              schema: *id002
+              schema: *id003
         '409':
           description: Idempotency-Key reused with different args (D6).
           content:
@@ -3850,6 +3892,18 @@ paths:
           description: Validation, authorization, or not-found per the standard error envelope.
       x-audience: internal
       x-handler: deposits_member.postAddressChange
+      x-tier: write
+  /members/{id}/card-reissue:
+    post:
+      summary: POST /members/{id}/card-reissue
+      operationId: post_card_reissue
+      responses:
+        2XX:
+          description: Success. Response contract not yet authored — the handler is the contract; see x-handler.
+        4XX:
+          description: Validation, authorization, or not-found per the standard error envelope.
+      x-audience: internal
+      x-handler: cards.postCardReissue
       x-tier: write
   /members/{id}/death-report:
     post:
@@ -5494,7 +5548,7 @@ paths:
           description: The created Transfer.
           content:
             application/json:
-              schema: &id003
+              schema: &id004
                 $ref: '#/components/schemas/Transfer'
         '409':
           description: Idempotency-Key reused with different args (D6).
@@ -5545,7 +5599,7 @@ paths:
                 properties:
                   data:
                     type: array
-                    items: *id003
+                    items: *id004
                   pagination:
                     $ref: '#/components/schemas/Pagination'
         '400':
@@ -5957,7 +6011,7 @@ components:
           description: Evidences control BSA-10.
       description: The receiving party of a wire or transfer.
       allOf:
-      - &id004
+      - &id005
         $ref: '#/components/schemas/PartyBase'
     BookkeepingEntry:
       type: object
@@ -6105,7 +6159,7 @@ components:
       properties: {}
       description: The other party to a transfer.
       allOf:
-      - *id004
+      - *id005
     Entity:
       type: object
       x-kind: banking-core
@@ -6314,7 +6368,7 @@ components:
           description: Evidences control BSA-10.
       description: The sending party of a transfer.
       allOf:
-      - *id004
+      - *id005
     Party:
       type: object
       x-kind: banking-core
@@ -6327,7 +6381,7 @@ components:
           type: string
       description: A party to a transfer — originator, beneficiary, or counterparty.
       allOf:
-      - *id004
+      - *id005
     PepStatus:
       type: object
       x-kind: banking-core
@@ -6674,7 +6728,7 @@ components:
           - BSA-06
       description: An investigation or work case.
       allOf:
-      - &id010
+      - &id011
         $ref: '#/components/schemas/OwnedEntity'
     ControlResult:
       type: object
@@ -6932,7 +6986,7 @@ components:
           $ref: '#/components/schemas/TrainingDetail'
         type:
           type: string
-          enum: &id020
+          enum: &id021
           - acknowledgement
           - activation
           - analysis
@@ -6996,7 +7050,7 @@ components:
     Incident:
       type: object
       x-kind: domain
-      x-states: &id005
+      x-states: &id006
       - detected
       - declared
       - contained
@@ -7172,7 +7226,7 @@ components:
           description: Evidences controls BC-05, BC-06, BC-15, CO-11, EC-13, SC-03.
         status:
           type: string
-          enum: *id005
+          enum: *id006
         summary_id:
           type: string
         timeline:
@@ -8640,7 +8694,7 @@ components:
       - task_type: deprovision
       - task_type: review
       allOf:
-      - &id006
+      - &id007
         $ref: '#/components/schemas/ReviewDueBase'
     access_right:
       type: object
@@ -9811,7 +9865,7 @@ components:
           - BC-03
           description: Evidences control BC-03.
       allOf:
-      - *id006
+      - *id007
     board:
       type: object
       x-kind: vocabulary
@@ -12005,7 +12059,7 @@ components:
         status:
           type: string
           description: Lifecycle state.
-          enum: &id007
+          enum: &id008
           - requested
           - in_review
           - deployed
@@ -12029,7 +12083,7 @@ components:
       - task_type: review
         qualifier: post
       description: A change request tracked through review, deployment, and post-implementation review.
-      x-states: *id007
+      x-states: *id008
     claim:
       type: object
       x-kind: vocabulary
@@ -12162,7 +12216,7 @@ components:
         status:
           type: string
           description: Lifecycle state.
-          enum: &id008
+          enum: &id009
           - disclosed
           - under_review
           - determined
@@ -12195,7 +12249,7 @@ components:
       x-timers:
       - task_type: certification
       description: A conflict-of-interest disclosure tracked from disclosure through review to determination.
-      x-states: *id008
+      x-states: *id009
     collateral:
       type: object
       x-kind: vocabulary
@@ -12698,7 +12752,7 @@ components:
         status:
           type: string
           description: Lifecycle state.
-          enum: &id009
+          enum: &id010
           - received
           - investigating
           - resolved
@@ -12731,7 +12785,7 @@ components:
       - task_type: review
         qualifier: trend
       description: A consumer or member complaint tracked from intake through investigation and resolution.
-      x-states: *id009
+      x-states: *id010
     compliance:
       type: object
       x-kind: vocabulary
@@ -13134,7 +13188,7 @@ components:
         properties:
         - review
       allOf:
-      - *id006
+      - *id007
     credit_config:
       type: object
       x-kind: vocabulary
@@ -13393,7 +13447,7 @@ components:
           - IC-07
           description: Evidences controls BSA-16, IC-07.
       allOf:
-      - *id010
+      - *id011
     destruction_log:
       type: object
       x-kind: vocabulary
@@ -13671,7 +13725,7 @@ components:
         status:
           type: string
           description: Lifecycle state.
-          enum: &id011
+          enum: &id012
           - filed
           - investigating
           - resolved
@@ -13697,7 +13751,7 @@ components:
       - task_type: investigation
       - task_type: response
       description: A Regulation E error/dispute tracked from filing through investigation to resolution.
-      x-states: *id011
+      x-states: *id012
     dlp:
       type: object
       x-kind: vocabulary
@@ -15279,7 +15333,7 @@ components:
         status:
           type: string
           description: Lifecycle state.
-          enum: &id012
+          enum: &id013
           - open
           - in_remediation
           - risk_accepted
@@ -15326,7 +15380,7 @@ components:
       - task_type: response
       - task_type: review
         qualifier: monthly
-      x-states: *id012
+      x-states: *id013
     form:
       type: object
       x-kind: vocabulary
@@ -15640,12 +15694,12 @@ components:
         status:
           type: string
           description: Lifecycle state.
-          enum: &id013
+          enum: &id014
           - initiated
           - provisioned
           - completed
       description: A trustee/fiduciary handover tracked from initiation through provisioning to completion.
-      x-states: *id013
+      x-states: *id014
     hmda:
       type: object
       x-kind: vocabulary
@@ -15908,13 +15962,13 @@ components:
         status:
           type: string
           description: Lifecycle state.
-          enum: &id014
+          enum: &id015
           - requested
           - under_review
           - determined
           - paid
       description: An indemnification request tracked from filing through determination to payment.
-      x-states: *id014
+      x-states: *id015
     insider:
       type: object
       x-kind: domain
@@ -16047,7 +16101,7 @@ components:
         status:
           type: string
           description: Lifecycle state.
-          enum: &id015
+          enum: &id016
           - requested
           - board_review
           - approved
@@ -16075,7 +16129,7 @@ components:
       x-timers:
       - task_type: report
       description: A Regulation O insider-credit request tracked through board review to approval or denial.
-      x-states: *id015
+      x-states: *id016
     institution_freeze:
       type: object
       x-kind: vocabulary
@@ -16139,7 +16193,7 @@ components:
       x-timers:
       - task_type: review
       allOf:
-      - *id006
+      - *id007
     insurance:
       type: object
       x-kind: vocabulary
@@ -16254,7 +16308,7 @@ components:
       x-timers:
       - task_type: review
       allOf:
-      - *id006
+      - *id007
     it:
       type: object
       x-kind: vocabulary
@@ -16491,7 +16545,7 @@ components:
       x-timers:
       - task_type: review
       allOf:
-      - *id006
+      - *id007
     liquidity:
       type: object
       x-kind: vocabulary
@@ -17885,7 +17939,7 @@ components:
         qualifier: board
       - task_type: review
       allOf:
-      - *id006
+      - *id007
     portfolio:
       type: object
       x-kind: vocabulary
@@ -18952,13 +19006,13 @@ components:
         status:
           type: string
           description: Lifecycle state.
-          enum: &id016
+          enum: &id017
           - requested
           - building
           - complete
           - failed
       description: A records-production package tracked from request through assembly to completion.
-      x-states: *id016
+      x-states: *id017
     redflag:
       type: object
       x-kind: vocabulary
@@ -19587,7 +19641,7 @@ components:
         status:
           type: string
           description: Lifecycle state.
-          enum: &id017
+          enum: &id018
           - registered
           - assessed
           - monitored
@@ -19607,9 +19661,9 @@ components:
       - task_type: assessment
         qualifier: product
       allOf:
-      - *id010
+      - *id011
       description: A risk-register entry tracked through assessment into ongoing monitoring (remediation is a sub-process).
-      x-states: *id017
+      x-states: *id018
     risk_acceptance:
       type: object
       x-kind: vocabulary
@@ -19662,7 +19716,7 @@ components:
       x-timers:
       - task_type: decision
       allOf:
-      - *id010
+      - *id011
     risk_appetite:
       type: object
       x-kind: vocabulary
@@ -20883,7 +20937,7 @@ components:
         status:
           type: string
           description: Lifecycle state.
-          enum: &id018
+          enum: &id019
           - entered
           - confirmed
           - settled
@@ -20929,7 +20983,7 @@ components:
       x-timers:
       - task_type: reconciliation
       description: An investment trade tracked from entry through confirmation to settlement.
-      x-states: *id018
+      x-states: *id019
     training:
       type: object
       x-kind: domain
@@ -21185,7 +21239,7 @@ components:
         status:
           type: string
           description: Lifecycle state.
-          enum: &id019
+          enum: &id020
           - assigned
           - in_progress
           - completed
@@ -21225,7 +21279,7 @@ components:
       - task_type: completion
       - task_type: onboarding
       description: A training assignment tracked from assignment through completion, with lapse on overdue cycles.
-      x-states: *id019
+      x-states: *id020
     transaction:
       type: object
       x-kind: vocabulary
@@ -22918,7 +22972,7 @@ components:
           - EC-05
           description: Evidences control EC-05.
       allOf:
-      - *id006
+      - *id007
     imt:
       type: object
       x-kind: vocabulary
@@ -23150,7 +23204,7 @@ x-event-types:
 - valued
 - verified
 - warning
-x-task-types: *id020
+x-task-types: *id021
 x-state-machines:
   Entity:
   - pending
@@ -23215,19 +23269,19 @@ x-state-machines:
   - booking_requested
   - booked
   - funded
-  finding: *id012
-  complaint: *id009
-  dispute: *id011
-  change: *id007
-  trade: *id018
-  coi: *id008
-  handover: *id013
-  indemnification: *id014
-  risk: *id017
-  training: *id019
-  records_package: *id016
-  insider: *id015
-  incident: *id005
+  finding: *id013
+  complaint: *id010
+  dispute: *id012
+  change: *id008
+  trade: *id019
+  coi: *id009
+  handover: *id014
+  indemnification: *id015
+  risk: *id018
+  training: *id020
+  records_package: *id017
+  insider: *id016
+  incident: *id006
 tags:
 - name: Account Numbers
   description: Account Numbers operations.
@@ -57503,6 +57557,12 @@ x-events:
   car.sealed:
     subject: car
     type: sealed
+  card.issued:
+    subject: card
+    type: issued
+  card.request_during_address_hold:
+    subject: card
+    type: flagged
   card_authorization.captured:
     subject: card_authorization
     type: captured
@@ -63863,7 +63923,7 @@ x-proposed-paths:
                 properties:
                   data:
                     type: array
-                    items: &id021
+                    items: &id022
                       $ref: '#/components/schemas/AccountNumber'
                   pagination:
                     $ref: '#/components/schemas/Pagination'
@@ -63887,7 +63947,7 @@ x-proposed-paths:
           description: The created AccountNumber.
           content:
             application/json:
-              schema: *id021
+              schema: *id022
         '409':
           description: Idempotency-Key reused with different args (D6).
           content:
@@ -63957,7 +64017,7 @@ x-proposed-paths:
           description: The created AchTransfer.
           content:
             application/json:
-              schema: *id022
+              schema: *id023
         '409':
           description: Idempotency-Key reused with different args (D6).
           content:
@@ -64082,46 +64142,6 @@ x-proposed-paths:
               - client_id
       tags:
       - Auth
-  /cards:
-    post:
-      operationId: create_card
-      x-operation-id: create_card
-      summary: Create Card
-      responses:
-        '201':
-          description: The created Card.
-          content:
-            application/json:
-              schema: *id023
-        '409':
-          description: Idempotency-Key reused with different args (D6).
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '422':
-          description: Validation failed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
-      parameters:
-      - $ref: '#/components/parameters/IdempotencyKey'
-      tags:
-      - Cards
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                reissue_request:
-                  type: string
-                request_during_address_hold:
-                  type: string
-                spend_controls:
-                  type: string
   /cases:
     get:
       operationId: get_cases
@@ -68003,7 +68023,7 @@ x-proposed-paths:
                   $ref: '#/components/schemas/TrainingDetail'
                 type:
                   type: string
-                  enum: *id020
+                  enum: *id021
                   description: Generic task verb. The task's noun/domain is carried in `subject`.
                 subject:
                   type: string

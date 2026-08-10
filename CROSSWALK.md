@@ -6,7 +6,7 @@
 
 Catalogue: **316** distinct controls across **27** policies (333 rows — shared controls like SC-02 are replicated into every policy that references them, and are counted once here). 
 Implemented: **10** `CG-*` controls. 
-Event codes the core can emit: **805**. 
+Event codes the core can emit: **807**. 
 Distinct trigger events the catalogue demands: **787**.
 
 ## How to read this
@@ -468,8 +468,8 @@ triggers are half firable is blocked, not half-done.
 
 | Reachability | Controls |
 |---|---:|
-| `reachable` | 76 |
-| `partially_reachable` | 122 |
+| `reachable` | 77 |
+| `partially_reachable` | 121 |
 | `unreachable` | 118 |
 
 **Completable: 60.** Reachability only asks whether the
@@ -480,7 +480,7 @@ and disposal workflow it describes exist nowhere. `completable` means every
 trigger fires **and** every produced event can be emitted. Use that number,
 not the reachable one, when estimating what is buildable.
 
-### Fully reachable (76)
+### Fully reachable (77)
 
 | Control | Policy | Title | Triggers | Completable | Cannot emit |
 |---|---|---|---|---|---|
@@ -542,6 +542,7 @@ not the reachable one, when estimating what is buildable.
 | `IP-12` | investment | Ongoing Monitoring, Reporting, and Stress Testing | `portfolio.board_report.issued`, `portfolio.management_report.issued`, `portfolio.stress_test.completed` | yes | — |
 | `IP-14` | investment | Trade Execution, Controls, and Segregation of Duties | `trade.confirmation.received`, `trade.confirmation_discrepancy.flagged`, `trade.reconciliation.completed`, `trade.sod.blocked`, `trade.step.recorded` | yes | — |
 | `IP-17` | investment | Contingency Planning and Liquidity Stress Events | `cfp.investment_test.completed`, `liquidity.stress.declared` | yes | — |
+| `MP-02` | member | Account Maintenance and Change of Address | `card.request_during_address_hold`, `member.address_notice.sent`, `redflag.detected`, `verification.completed` | **no** | `member.address_change_disputed` |
 | `MP-04` | member | Member Disputes and Dispute Resolution | `complaint.acknowledged`, `complaint.investigation.completed`, `complaint.received`, `complaint.regulator.received`, `dispute.investigation.completed`, `dispute.opened`, `dispute.provisional_credit_due_at` | yes | — |
 | `MP-06` | member | Member Expulsion | `expulsion.board_report.filed`, `member.expulsion.decided`, `member.expulsion_hearing.held`, `member.expulsion_hearing.requested`, `member.expulsion_notice.sent`, `member.expulsion_payout.sent` | yes | — |
 | `PR-03` | privacy | Permissible Disclosures and Exceptions | `disclosure.initiated`, `privacy.sharing.blocked`, `vendor.glba_clause.verified` | yes | — |
@@ -561,7 +562,7 @@ not the reachable one, when estimating what is buildable.
 | `TIS-01` | truth-in-savings | Disclosure Standards | `disclosure.template.published`, `privacy.esign_consent.recorded` | **no** | `disclosure.recorded` |
 | `TIS-09` | truth-in-savings | Recordkeeping | `record.hold.placed`, `record.retention.expired` | yes | — |
 
-### Partially reachable (122)
+### Partially reachable (121)
 
 These are the nearest to buildable: some triggers already fire.
 
@@ -583,7 +584,6 @@ These are the nearest to buildable: some triggers already fire.
 | `IS-06` | information-security | `access.breakglass.used`, `employee.hired`, `employee.separated` | `security.quarter.closed` |
 | `IC-06` | internal-controls | `control.override.invoked`, `exception.expiring`, `exception.registered` | `override.analytics_due` |
 | `MP-01` | member | `verification.completed`, `verification.created`, `verification.denied` | `member.application.submitted`, `member.eligibility_rule.failed` |
-| `MP-02` | member | `member.address_notice.sent`, `redflag.detected`, `verification.completed` | `card.request_during_address_hold` |
 | `PR-12` | privacy | `privacy.state_request.received`, `privacy.state_request_fulfilled`, `web.gpc_signal` | `privacy.nv_optout.received` |
 | `PR-14` | privacy | `web.consent.updated`, `web.tag_review`, `web.tag_review.requested` | `web.session.started` |
 | `RR-04` | record-retention | `destruction_log.mismatch.detected`, `destruction_log.mismatch.resolved`, `storage_box.created` | `records.annual.review.due_at` |
@@ -607,6 +607,7 @@ These are the nearest to buildable: some triggers already fire.
 | `IS-07` | information-security | `dlp.violation.detected`, `record.retention.expired` | `tls.certificate_expires_at` |
 | `IS-08` | information-security | `backup.cycle.completed`, `backup.job.failed` | `incident.sev1.detected` |
 | `IS-10` | information-security | `redflag.case.disposed`, `redflag.detected` | `security.quarter.closed` |
+| `IC-04` | internal-controls | `recon.item.escalated`, `recon.item.resolved` | `gl.eod.closed`, `gl.period.closed` |
 
 ### Unreachable — blocked on subsystems that do not exist
 

@@ -11,26 +11,57 @@ loop exposes more of the API). Do not edit by hand.
 - `control:PR-17` — controls.json PR-17 (privacy) — Children's Data
 - `control:RS-08` — controls.json RS-08 (resolution) — Records Preservation for Resolution
 
-## control — no_api_inducer  (153)
+## control — no_api_inducer  (25)
+- `control:CO-01` — controls.json CO-01 (collections) — Collections Governance & Scope
+- `control:CO-02` — controls.json CO-02 (collections) — Delinquency Monitoring & Early-Stage Collections
+- `control:CO-03` — controls.json CO-03 (collections) — Retail Credit Classification & Charge-Offs
+- `control:CO-04` — controls.json CO-04 (collections) — Forbearance, Extensions, Workouts & TDRs
+- `control:CO-05` — controls.json CO-05 (collections) — Consumer Protection in Collections Communications
+- `control:CO-07` — controls.json CO-07 (collections) — Credit Reporting & Dispute Handling
+- `control:CO-09` — controls.json CO-09 (collections) — Problem Loans, Nonaccrual & Foreclosure Governance
+- `control:CO-10` — controls.json CO-10 (collections) — Overdraft Collections and Fee Waiver Practices
+- `control:DF-05` — controls.json DF-05 (director-fiduciary-duties) — Insider Transactions (Reg O / 12 CFR §701.21(d))
+- `control:FL-02` — controls.json FL-02 (fair-lending) — Permissible Inquiries
+- `control:FL-03` — controls.json FL-03 (fair-lending) — Evaluation & Pricing Rules
+- `control:FL-05` — controls.json FL-05 (fair-lending) — Action-Taken Notices
+- `control:FL-06` — controls.json FL-06 (fair-lending) — Government Monitoring (GMI/HMDA)
+- `control:IP-15` — controls.json IP-15 (investment) — Recordkeeping and Documentation Retention
+- `control:LP-02` — controls.json LP-02 (lending) — Product Eligibility & Prohibited Practices
+- `control:LP-03` — controls.json LP-03 (lending) — Applications, Acceptance & Denial Standards
+- `control:LP-04` — controls.json LP-04 (lending) — Credit Scoring & Adverse Credit History
+- `control:LP-05` — controls.json LP-05 (lending) — ATR/QM & Mortgage Underwriting
+- `control:LP-06` — controls.json LP-06 (lending) — Appraisals, Valuations & Collateral
+- `control:LP-07` — controls.json LP-07 (lending) — Adverse Action & Notifications
+- `control:LP-08` — controls.json LP-08 (lending) — Exceptions, Mitigating Factors & Overrides
+- `control:LP-09` — controls.json LP-09 (lending) — Documentation, Recordkeeping & Retention
+- `control:LP-10` — controls.json LP-10 (lending) — Pricing, Rate Sheets & HPML Controls
+- `control:LP-11` — controls.json LP-11 (lending) — OFAC & Sanctions Gate
+- `control:LP-14` — controls.json LP-14 (lending) — Insider Lending & Employee Conflicts
+
+## control — scoped_out (control-scope.json)  (108)
 - `control:AU-01` — controls.json AU-01 (audit) — Board of Directors Oversight
-- `control:BA-02` — controls.json BA-02 (basel-ii-standardized-approach-framework) — Components of Capital
+- `control:AU-02` — controls.json AU-02 (audit) — Audit Committee Governance and Independence
+- `control:AU-03` — controls.json AU-03 (audit) — Internal Auditor Independence and Reporting
+- `control:AU-04` — controls.json AU-04 (audit) — Risk-Based Audit Scope and Frequency
+- `control:AU-05` — controls.json AU-05 (audit) — Audit Types and Network Assessments
+- `control:AU-06` — controls.json AU-06 (audit) — Audit Reporting and Work Papers
+- `control:AU-07` — controls.json AU-07 (audit) — Finding Tracking and Escalation
+- `control:AU-08` — controls.json AU-08 (audit) — Management Response and Risk Acceptance
+- `control:AU-09` — controls.json AU-09 (audit) — Follow-Up Audits
+- `control:AU-10` — controls.json AU-10 (audit) — Work Paper Retention and Physical Control
 - `control:BC-01` — controls.json BC-01 (business-continuity-plan) — Governance and Roles
+- `control:BC-02` — controls.json BC-02 (business-continuity-plan) — Risk Assessment (Hazards by Region)
 - `control:BC-03` — controls.json BC-03 (business-continuity-plan) — Business Impact Analysis (BIA)
+- `control:BC-04` — controls.json BC-04 (business-continuity-plan) — Training, Testing, and Exercises
 - `control:BC-08` — controls.json BC-08 (business-continuity-plan) — Alternate Site and Remote Operations
 - `control:BC-12` — controls.json BC-12 (business-continuity-plan) — People Continuity and Pandemic
 - `control:BC-14` — controls.json BC-14 (business-continuity-plan) — Vendor Contingency Management
 - `control:BSA-01` — controls.json BSA-01 (bsa) — Governance & Delegation
 - `control:BSA-02` — controls.json BSA-02 (bsa) — Enterprise BSA/AML Risk Assessment
-- `control:BSA-14` — controls.json BSA-14 (bsa) — Escalation Pathway
 - `control:BSA-15` — controls.json BSA-15 (bsa) — Training
 - `control:BSA-16` — controls.json BSA-16 (bsa) — Independent Testing
-- `control:BSA-17` — controls.json BSA-17 (bsa) — High-Risk Categories (MSB, Correspondent, Private Banking)
 - `control:BSA-20` — controls.json BSA-20 (bsa) — Prepaid Access & Third-Party Vendors
-- `control:CDA-02` — controls.json CDA-02 (charitable-donation-accounts) — Definitions & Central Glossary
-- `control:CDA-05` — controls.json CDA-05 (charitable-donation-accounts) — Written Agreement (Required Clauses A–D)
-- `control:CDA-07` — controls.json CDA-07 (charitable-donation-accounts) — Investment Strategy & Risk Limits
-- `control:CDA-08` — controls.json CDA-08 (charitable-donation-accounts) — Charity Eligibility & Giving Rules
-- `control:CDA-09` — controls.json CDA-09 (charitable-donation-accounts) — Accounting, Reporting & Records
+- `control:CDA-10` — controls.json CDA-10 (charitable-donation-accounts) — Third-Party Risk Management
 - `control:CM-01` — controls.json CM-01 (compliance) — Governance and Board Reporting Line
 - `control:CM-02` — controls.json CM-02 (compliance) — Scope of Applicable Laws
 - `control:CM-03` — controls.json CM-03 (compliance) — Roles and Responsibilities
@@ -40,34 +71,17 @@ loop exposes more of the API). Do not edit by hand.
 - `control:CM-07` — controls.json CM-07 (compliance) — Independent Audit
 - `control:CM-08` — controls.json CM-08 (compliance) — Regulatory Change and Complaint Management
 - `control:CM-09` — controls.json CM-09 (compliance) — Policy and CMS Review Cadence
-- `control:CO-01` — controls.json CO-01 (collections) — Collections Governance & Scope
-- `control:CO-02` — controls.json CO-02 (collections) — Delinquency Monitoring & Early-Stage Collections
-- `control:CO-03` — controls.json CO-03 (collections) — Retail Credit Classification & Charge-Offs
-- `control:CO-04` — controls.json CO-04 (collections) — Forbearance, Extensions, Workouts & TDRs
-- `control:CO-05` — controls.json CO-05 (collections) — Consumer Protection in Collections Communications
-- `control:CO-07` — controls.json CO-07 (collections) — Credit Reporting & Dispute Handling
-- `control:CO-09` — controls.json CO-09 (collections) — Problem Loans, Nonaccrual & Foreclosure Governance
-- `control:CO-10` — controls.json CO-10 (collections) — Overdraft Collections and Fee Waiver Practices
 - `control:CP-02@cash` — controls.json CP-02 (cash) — Scope and Applicability
 - `control:CP-11` — controls.json CP-11 (cash) — Training and Competency
 - `control:DF-01` — controls.json DF-01 (director-fiduciary-duties) — Fiduciary Duties Defined
 - `control:DF-02` — controls.json DF-02 (director-fiduciary-duties) — Conflict Identification and General Duties
 - `control:DF-03` — controls.json DF-03 (director-fiduciary-duties) — Annual and Continuing Disclosure
 - `control:DF-04` — controls.json DF-04 (director-fiduciary-duties) — Conflict Management, Recusal, and Board Determination
-- `control:DF-05` — controls.json DF-05 (director-fiduciary-duties) — Insider Transactions (Reg O / 12 CFR §701.21(d))
 - `control:DF-07` — controls.json DF-07 (director-fiduciary-duties) — Bank Bribery, Gifts, and Kickbacks
 - `control:DF-08` — controls.json DF-08 (director-fiduciary-duties) — Corporate Opportunity and Tie-Ins
-- `control:DF-09` — controls.json DF-09 (director-fiduciary-duties) — Recordkeeping and Reporting
 - `control:DF-10` — controls.json DF-10 (director-fiduciary-duties) — Training, Acknowledgment, and Enforcement
-- `control:EC-01` — controls.json EC-01 (e-commerce) — Safeguarding Member Information
-- `control:EC-03` — controls.json EC-03 (e-commerce) — User Authentication and Enrollment
-- `control:EC-04` — controls.json EC-04 (e-commerce) — Member Password Standards
-- `control:EC-05` — controls.json EC-05 (e-commerce) — Firewalls
-- `control:EC-06` — controls.json EC-06 (e-commerce) — Encryption
-- `control:EC-07` — controls.json EC-07 (e-commerce) — Transaction Verification
-- `control:EC-08` — controls.json EC-08 (e-commerce) — Virus Protection
-- `control:EC-09` — controls.json EC-09 (e-commerce) — Security Monitoring, Penetration Testing, and Intrusion Detection
 - `control:EC-11` — controls.json EC-11 (e-commerce) — Contingency Planning and Business Continuity
+- `control:EC-12` — controls.json EC-12 (e-commerce) — Expertise and Training
 - `control:EPS-04` — controls.json EPS-04 (electronic-payment-systems) — Management Supervision and Oversight
 - `control:EPS-08` — controls.json EPS-08 (electronic-payment-systems) — Vendor Due Diligence
 - `control:EPS-09` — controls.json EPS-09 (electronic-payment-systems) — Expertise and Training
@@ -79,62 +93,33 @@ loop exposes more of the API). Do not edit by hand.
 - `control:ERM-05` — controls.json ERM-05 (enterprise-risk-management) — Key Risk Indicators & Thresholds
 - `control:ERM-08` — controls.json ERM-08 (enterprise-risk-management) — Risk Reporting & Governance Oversight
 - `control:FL-01` — controls.json FL-01 (fair-lending) — Prohibition & Protected Bases
-- `control:FL-02` — controls.json FL-02 (fair-lending) — Permissible Inquiries
-- `control:FL-03` — controls.json FL-03 (fair-lending) — Evaluation & Pricing Rules
-- `control:FL-04` — controls.json FL-04 (fair-lending) — Appraisal Independence & ROV
-- `control:FL-05` — controls.json FL-05 (fair-lending) — Action-Taken Notices
-- `control:FL-06` — controls.json FL-06 (fair-lending) — Government Monitoring (GMI/HMDA)
 - `control:FL-07` — controls.json FL-07 (fair-lending) — Advertising & Fair Housing
-- `control:FL-08` — controls.json FL-08 (fair-lending) — LO Compensation & Anti-Steering
 - `control:FL-09` — controls.json FL-09 (fair-lending) — Third-Party Fair-Lending Oversight
 - `control:FL-11` — controls.json FL-11 (fair-lending) — Training
-- `control:FL-12` — controls.json FL-12 (fair-lending) — Record Retention
 - `control:IC-01` — controls.json IC-01 (internal-controls) — Control Environment and Governance
-- `control:IC-02` — controls.json IC-02 (internal-controls) — Segregation of Duties
 - `control:IC-03` — controls.json IC-03 (internal-controls) — Authorization and Approval Limits
-- `control:IC-04` — controls.json IC-04 (internal-controls) — Reconciliations
+- `control:IC-05` — controls.json IC-05 (internal-controls) — Access and Change Controls
 - `control:IC-07` — controls.json IC-07 (internal-controls) — Monitoring and Self-Assessment
 - `control:IP-01` — controls.json IP-01 (investment) — Policy Record and Review Cycle
-- `control:IP-13` — controls.json IP-13 (investment) — Performance Measurement and Benchmarks
-- `control:IP-15` — controls.json IP-15 (investment) — Recordkeeping and Documentation Retention
+- `control:IP-16` — controls.json IP-16 (investment) — Training, Competency, and Conflicts of Interest
 - `control:IP-18` — controls.json IP-18 (investment) — Policy Review, Amendments, and Version Control
 - `control:IS-01` — controls.json IS-01 (information-security) — Governance and Oversight
 - `control:IS-02` — controls.json IS-02 (information-security) — Enterprise Risk Assessment
-- `control:IS-03` — controls.json IS-03 (information-security) — Asset Inventory and Classification
 - `control:IS-04` — controls.json IS-04 (information-security) — Change Management and Configuration Control
 - `control:IS-11` — controls.json IS-11 (information-security) — Vendor Information Security Diligence
 - `control:IS-12` — controls.json IS-12 (information-security) — Physical Security and Facilities
 - `control:IS-15` — controls.json IS-15 (information-security) — Acceptable Use and Communications Systems
 - `control:IS-16` — controls.json IS-16 (information-security) — Social Media
 - `control:IS-17` — controls.json IS-17 (information-security) — Training, Awareness, and Testing
+- `control:IS-18` — controls.json IS-18 (information-security) — Records Management and Retention
 - `control:LP-01` — controls.json LP-01 (lending) — Governance, Roles & Program Scope
-- `control:LP-02` — controls.json LP-02 (lending) — Product Eligibility & Prohibited Practices
-- `control:LP-03` — controls.json LP-03 (lending) — Applications, Acceptance & Denial Standards
-- `control:LP-04` — controls.json LP-04 (lending) — Credit Scoring & Adverse Credit History
-- `control:LP-05` — controls.json LP-05 (lending) — ATR/QM & Mortgage Underwriting
-- `control:LP-06` — controls.json LP-06 (lending) — Appraisals, Valuations & Collateral
-- `control:LP-07` — controls.json LP-07 (lending) — Adverse Action & Notifications
-- `control:LP-08` — controls.json LP-08 (lending) — Exceptions, Mitigating Factors & Overrides
-- `control:LP-09` — controls.json LP-09 (lending) — Documentation, Recordkeeping & Retention
-- `control:LP-10` — controls.json LP-10 (lending) — Pricing, Rate Sheets & HPML Controls
-- `control:LP-11` — controls.json LP-11 (lending) — OFAC & Sanctions Gate
-- `control:LP-12` — controls.json LP-12 (lending) — Prequalification, Marketing & Steering Controls
-- `control:LP-13` — controls.json LP-13 (lending) — Fair Lending Risk Assessment & Monitoring
-- `control:LP-14` — controls.json LP-14 (lending) — Insider Lending & Employee Conflicts
 - `control:LQ-01` — controls.json LQ-01 (liquidity) — Policy Scope & Risk Appetite
-- `control:LQ-02` — controls.json LQ-02 (liquidity) — Maturity Mismatch Limits
-- `control:LQ-03` — controls.json LQ-03 (liquidity) — Liquid Assets Ratio Bands
-- `control:LQ-04` — controls.json LQ-04 (liquidity) — Survival Horizon & Coverage Days
-- `control:LQ-05` — controls.json LQ-05 (liquidity) — Stress Testing
-- `control:LQ-07` — controls.json LQ-07 (liquidity) — Reporting Cadence
-- `control:LQ-09` — controls.json LQ-09 (liquidity) — Contingent Federal Liquidity Access
-- `control:LQ-11` — controls.json LQ-11 (liquidity) — Regulatory Notification
+- `control:LQ-10` — controls.json LQ-10 (liquidity) — CFP Activation & Escalation Ladder
 - `control:LQ-12` — controls.json LQ-12 (liquidity) — External Communications & Stakeholder Matrix
 - `control:LQ-14` — controls.json LQ-14 (liquidity) — Liquidity Drills & After-Action Reviews
+- `control:LQ-15` — controls.json LQ-15 (liquidity) — Documentation & Retention
 - `control:LQ-16` — controls.json LQ-16 (liquidity) — Definitions & Ratios Catalogue
-- `control:LQ-17` — controls.json LQ-17 (liquidity) — Wholesale / Listing-Service Deposits Guardrails
-- `control:MP-09` — controls.json MP-09 (member) — Member Service Standards
-- `control:PR-02` — controls.json PR-02 (privacy) — Opt-Out Capture and Honoring
+- `control:PR-06` — controls.json PR-06 (privacy) — Employee Access Minimization and Training
 - `control:PR-07` — controls.json PR-07 (privacy) — Third-Party Oversight and Contracts
 - `control:RII-01` — controls.json RII-01 (reimbursement-insurance-indemnification) — Business Expense Reimbursement
 - `control:RII-02` — controls.json RII-02 (reimbursement-insurance-indemnification) — Insurance Program Maintenance
@@ -144,15 +129,12 @@ loop exposes more of the API). Do not edit by hand.
 - `control:RII-06` — controls.json RII-06 (reimbursement-insurance-indemnification) — Indemnification Exclusions
 - `control:RII-07` — controls.json RII-07 (reimbursement-insurance-indemnification) — Decision Process and Conflicts
 - `control:RII-08` — controls.json RII-08 (reimbursement-insurance-indemnification) — Claims Procedures
+- `control:RII-09` — controls.json RII-09 (reimbursement-insurance-indemnification) — Recordkeeping
 - `control:RR-10` — controls.json RR-10 (record-retention) — Training
 - `control:RS-01` — controls.json RS-01 (resolution) — Policy Scope Registry
-- `control:RS-04` — controls.json RS-04 (resolution) — Targeted Account Freeze
 - `control:RS-07` — controls.json RS-07 (resolution) — Trustee/Conservator Handover
 - `control:RS-09` — controls.json RS-09 (resolution) — Testing and Validation
 - `control:RS-10` — controls.json RS-10 (resolution) — Governance and Review Cadence
-- `control:TIS-03` — controls.json TIS-03 (truth-in-savings) — Change-in-Terms Notices
-- `control:TIS-04` — controls.json TIS-04 (truth-in-savings) — Maturity Notices
-- `control:TIS-05` — controls.json TIS-05 (truth-in-savings) — Periodic Statement Disclosures
 - `control:TIS-07` — controls.json TIS-07 (truth-in-savings) — Advertising Review
 - `control:TIS-10` — controls.json TIS-10 (truth-in-savings) — Training and Monitoring
 - `control:TR-01` — controls.json TR-01 (third-party-risk) — Governance & Accountability
@@ -165,10 +147,6 @@ loop exposes more of the API). Do not edit by hand.
 - `control:TR-09` — controls.json TR-09 (third-party-risk) — Termination & Exit Strategy
 - `control:TR-10` — controls.json TR-10 (third-party-risk) — Key Third-Party Owners & RACI
 - `control:TR-11` — controls.json TR-11 (third-party-risk) — Vendor Incident Notification, Internal Triage & SAR Referral
-
-## control — no_trigger  (2)
-- `control:IS-18` — controls.json IS-18 (information-security) — Records Management and Retention
-- `control:LQ-15` — controls.json LQ-15 (liquidity) — Documentation & Retention
 
 ## control — unemittable_output  (1)
 - `control:BSA-11` — controls.json BSA-11 (bsa) — Information Sharing (314(a)/314(b))

@@ -60,28 +60,51 @@ full tier from a laptop.
       `api/lending_underwriting.ts`, `api/collections.ts`, plus five
       fair-lending handlers in `api/deposits_member.ts`, stay dead code until
       the product decision lands (documented exception in `api/index.ts`).
+- [ ] Decide whether D5 Phase-2 delegated auth (`/auth/token`) and the D24
+      credit-union admin console stay deferred — both are design-level
+      deferrals in `core/architecture-decisions.md`, restated here so the
+      engineering backlog stops carrying them.
 - [ ] Fix the colliding CP-01…CP-10 ids between capitalization and cash
       (OQ-11) — colliding claims are refused by the crosswalk build. The CA- vs
       CP- prefix drift recorded in [STATUS.md](STATUS.md) is the root cause.
 
-## 4. API surface not yet built
+## 4. API surface not yet built — engineering half DONE 2026-08-10
 
-- [ ] The `x-proposed-paths` block in `core/core-api.yaml` is the designed-but-
-      unimplemented surface (98 paths at snapshot: `/loans`, `/cases`,
-      `/disputes`, `/complaints`, `/documents`, `/entities/person`,
-      `/auth/token`, `/filings`, …). No doc summarizes it anywhere.
-- [ ] Card issuance is implemented but unrouted: `postIssueCard` and
-      `postCardReissue` exist in `api/cards.ts` while `POST /cards` sits in
-      `x-proposed-paths`.
-- [ ] The verifier worklist (`core/verifier/worklist.md`) names 153
-      `no_api_inducer` controls and 17 state machines with no endpoint — the
-      biggest reachability lever. The crosswalk shows most of the catalogue
-      unreachable or only partially reachable; top missing trigger namespaces:
-      vendor, indemnification, board/governance, loan_application.
-- [ ] Roughly 200 operations still carry the "response contract not yet
-      authored" stub, and 327 are marked `x-provisional`.
-- [ ] D5 Phase 2 delegated auth (`/auth/token`) and the D24 credit-union admin
-      console remain deferred (see `core/architecture-decisions.md`).
+What could move without a product decision, moved:
+
+- [x] Card issuance routed: `POST /cards` and `POST /members/{id}/card-reissue`
+      graduated from `x-proposed-paths` to routed, self-gated internal
+      operations (the handlers already existed).
+- [x] The proposed surface is documented:
+      [docs/proposed-surface.md](docs/proposed-surface.md) is generated in the
+      cascade from `x-proposed-paths` — operations by resource, with schema
+      existence and the verifier's demand signals joined in.
+- [x] The verifier's inducer mapping was measured, not guessed: of the old
+      153 `no_api_inducer` entries, 108 were scoped-out obligations the
+      enumerator never checked against `control-scope.json`, and 22 more were
+      request-driven rules whose routed handler emits the whole reaction
+      (the enumerator now derives the inducer from output provenance and
+      cites it). `core/verifier/worklist.md` now carries 25 `no_api_inducer`
+      targets — the credit-origination surface parked by the narrow-bank
+      decision, plus IP-15 — instead of contradicting the drill.
+- [x] Response-contract stubs are counted in [STATE.md](STATE.md)
+      ("operations with stub response contracts") so the number can't drift
+      in prose again. Verdict after assessment: do NOT machine-author them —
+      nothing consumes response schemas today (the verifier's contract
+      targets, the UI types and the SQL generator all read other things), and
+      a generated contract nobody validates would be a second, subtly-wrong
+      truth next to the honest "the handler is the contract" pointer. The
+      channel, when the black-box tests in `core/verifier/TEST-CATALOG.md`
+      start consuming contracts, is `core-api-loop/migrate/contracts-overlay.yaml`
+      (request + response together, per reviewed slice). Note: `x-provisional`
+      is unrelated — it is provenance metadata on event-derived schema fields
+      and gates nothing.
+
+What stays, and why — all product-gated, all decisions in section 3's court:
+the remaining proposed paths (dominated by resources the verifier's
+state-machine targets wait on: loans, cases, filings, findings, risks,
+trades), the lending/collections/fair-lending routing itself, D5 Phase-2
+delegated auth (`/auth/token`), and the D24 credit-union admin console.
 
 ## 5. Test debt
 

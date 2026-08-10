@@ -8,11 +8,12 @@
 
 | | |
 |---|---|
-| endpoints | 369 |
-| routed operations (`routes.gen.ts`) | 334 |
-| registered event codes | 1468 |
+| endpoints | 371 |
+| routed operations (`routes.gen.ts`) | 336 |
+| registered event codes | 1470 |
 | canonical event types (`x-event-types`) | 118 |
 | UI-surface paths (proxy allowlist) | 14 |
+| operations with stub response contracts | 346 |
 
 ## Core
 
@@ -38,12 +39,12 @@
 |---|---|
 | regulatory claims | 14 (13 awaiting review) |
 | open questions | 20 |
-| reachability | 76 reachable / 122 partial / 118 unreachable |
+| reachability | 77 reachable / 121 partial / 118 unreachable |
 
 ## Verifier
 
 | | |
 |---|---|
-| targets | 767 (560 ready) |
-| by kind | 369 contract, 333 control, 41 property, 24 state-machine |
-| non-control (drill does not cover) | 434 |
+| targets | 769 (584 ready) |
+| by kind | 371 contract, 333 control, 41 property, 24 state-machine |
+| non-control (drill does not cover) | 436 |

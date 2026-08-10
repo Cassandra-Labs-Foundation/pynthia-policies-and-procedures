@@ -57,6 +57,13 @@ def state():
 
     migrations = sum(1 for _ in (ROOT / "core" / "supabase" / "migrations").glob("*.sql"))
 
+    # Response-contract debt: routed operations whose 2XX is still the
+    # "Response contract not yet authored" stub. Counted here so the number
+    # lives in an artifact instead of drifting in prose (TODO.md once said
+    # "roughly 200" while the spec held 346).
+    spec_text = (ROOT / "core" / "core-api.yaml").read_text()
+    stub_ops = spec_text.count("not yet authored")
+
     decisions_md = (ROOT / "core" / "architecture-decisions.md").read_text(errors="replace")
     decisions = len(set(re.findall(r"^###\s+Decision\s+(\d+):", decisions_md, re.MULTILINE)))
 
@@ -77,6 +84,7 @@ def state():
         "migrations": migrations,
         "api_modules": modules,
         "routes": routes,
+        "response_stub_ops": stub_ops,
         "e2e_assertions": e2e_checks,
         "decisions": decisions,
         "policies": len(policies),
@@ -121,6 +129,7 @@ def render(s):
 | registered event codes | {s['events']} |
 | canonical event types (`x-event-types`) | {s['event_types']} |
 | UI-surface paths (proxy allowlist) | {s['ui_surface_paths']} |
+| operations with stub response contracts | {s['response_stub_ops']} |
 
 ## Core
 

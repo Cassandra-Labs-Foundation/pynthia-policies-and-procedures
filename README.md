@@ -131,9 +131,9 @@ This repo was consolidated from three (`pynthia-policies-and-procedures`, `cassa
 - `scripts/` stays at the repo root on purpose. It is repo-wide tooling, not compliance
   tooling: `check_decision_refs.py` reads `core/`, `exists_check.py` and `estimate_domain.py`
   read `core/supabase/`. Filing it under `compliance/` would misplace half of it.
-- `core/verifier/` enumerates 767 test targets from the spec (`targets.json`), but its
+- `core/verifier/` enumerates 769 test targets from the spec (`targets.json`), but its
   control tier is already built — better — as `drill/`. Its remaining value is the other
-  434 targets (contract, property, state-machine). See `core/README.md`.
+  436 targets (contract, property, state-machine). See `core/README.md`.
 
 `STATE.md` is the generated page of live numbers — prose links there rather than embedding
 counts, and `scripts/check_doc_claims.py` goes red when a hand-written doc disagrees with
