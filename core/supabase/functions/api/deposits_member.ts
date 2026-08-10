@@ -139,6 +139,15 @@ export async function postDisclosureDelivery(
       detail: "electronic delivery requires a captured E-SIGN consent",
     });
   }
+  // ck_delivery_error_detailed, enforced at the boundary: an error flagged
+  // with no detail is a flag nobody can act on. Refusing here (not just in
+  // the CHECK) keeps the fake and the real database in agreement.
+  if (body.error_detected === true && !isNonEmptyString(body.error_detail)) {
+    return validationError(requestId, [{
+      type: "missing_field", field: "error_detail",
+      message: "a detected disclosure error needs its detail recorded",
+    }]);
+  }
   const id = `ddel_${body.kind}_${body.member_ref}_${body.account_ref ?? "na"}`;
   const { error } = await db.schema(scope).from("disclosure_delivery").upsert({
     id, template_id: isNonEmptyString(body.template_id) ? body.template_id : null,
@@ -545,9 +554,13 @@ export async function postMemberRestriction(
   }
   const now = new Date();
   const closing = body.close === true;
-  const lockType = body.restriction === "frozen" ? "full"
-    : body.restriction === "deposit_only" ? "debit_block"
-    : body.restriction === "no_new_services" ? "service_block"
+  // lock_type carries the REASON, from the schema's closed vocabulary
+  // (account_lock_type_check) — "full"/"debit_block"/"service_block" were
+  // invented names the live schema refused. The exact restriction kind lives
+  // in `restriction`; the transfer gate blocks on any lock_type != 'none',
+  // and no_new_services gates services, not money.
+  const lockType = body.restriction === "frozen" || body.restriction === "deposit_only"
+    ? "admin"
     : "none";
   const accountRef = isNonEmptyString(body.account_ref) ? body.account_ref : null;
   if (accountRef) {

@@ -9,6 +9,10 @@ from "core"."account" where "closure_payout_due_at" < now() and "status" = any(a
 select 'account' as table, 'maturity_notice_due_at' as deadline, id, "status" as status, "maturity_notice_due_at" as due_at
 from "core"."account" where "maturity_notice_due_at" < now() and "status" = any(array['open', 'frozen']);
 
+-- bsa_alert.triage_due_at  (unbound)
+select 'bsa_alert' as table, 'triage_due_at' as deadline, id, null as status, "triage_due_at" as due_at
+from "core"."bsa_alert" where "triage_due_at" < now();
+
 -- change.cab_review_due_at  (EC-05, IC-05, IS-04)
 select 'change' as table, 'cab_review_due_at' as deadline, id, "status" as status, "cab_review_due_at" as due_at
 from "core"."change" where "cab_review_due_at" < now() and "status" = any(array['requested', 'in_review', 'deployed']);
@@ -49,10 +53,6 @@ from "core"."dispute" where "provisional_credit_due_at" < now() and "status" = a
 select 'dispute' as table, 'response_due_at' as deadline, id, "status" as status, "response_due_at" as due_at
 from "core"."dispute" where "response_due_at" < now() and "status" = any(array['investigating']);
 
--- document.attachment_due_at  (IP-15)
-select 'document' as table, 'attachment_due_at' as deadline, id, null as status, "attachment_due_at" as due_at
-from "core"."document" where "attachment_due_at" < now();
-
 -- finding.escalation_due_at  (AU-07)
 select 'finding' as table, 'escalation_due_at' as deadline, id, "status" as status, "escalation_due_at" as due_at
 from "core"."finding" where "escalation_due_at" < now() and "status" = any(array['open', 'in_remediation', 'risk_accepted']);
@@ -71,15 +71,27 @@ from "core"."handover" where "initial_due_at" < now() and "status" = any(array['
 
 -- incident.ncua_notice_due_at  (SC-01)
 select 'incident' as table, 'ncua_notice_due_at' as deadline, id, "status" as status, "ncua_notice_due_at" as due_at
-from "core"."incident" where "ncua_notice_due_at" < now() and "status" = any(array['declared', 'responding', 'contained', 'postmortem']);
+from "core"."incident" where "ncua_notice_due_at" < now() and "status" = any(array['detected', 'declared', 'contained', 'restored']);
 
 -- incident.notification_due_at  (SC-01)
 select 'incident' as table, 'notification_due_at' as deadline, id, "status" as status, "notification_due_at" as due_at
-from "core"."incident" where "notification_due_at" < now() and "status" = any(array['declared', 'responding', 'contained', 'postmortem']);
+from "core"."incident" where "notification_due_at" < now() and "status" = any(array['detected', 'declared', 'contained', 'restored']);
 
 -- incident.triage_due_at  (CO-11, PR-18)
 select 'incident' as table, 'triage_due_at' as deadline, id, "status" as status, "triage_due_at" as due_at
-from "core"."incident" where "triage_due_at" < now() and "status" = any(array['declared', 'responding', 'contained', 'postmortem']);
+from "core"."incident" where "triage_due_at" < now() and "status" = any(array['detected', 'declared', 'contained', 'restored']);
+
+-- incident.comms_initial_due_at  (unbound)
+select 'incident' as table, 'comms_initial_due_at' as deadline, id, "status" as status, "comms_initial_due_at" as due_at
+from "core"."incident" where "comms_initial_due_at" < now() and "status" = any(array['detected', 'declared', 'contained', 'restored']);
+
+-- incident.determination_due_at  (unbound)
+select 'incident' as table, 'determination_due_at' as deadline, id, "status" as status, "determination_due_at" as due_at
+from "core"."incident" where "determination_due_at" < now() and "status" = any(array['detected', 'declared', 'contained', 'restored']);
+
+-- incident.ic_assignment_due_at  (unbound)
+select 'incident' as table, 'ic_assignment_due_at' as deadline, id, "status" as status, "ic_assignment_due_at" as due_at
+from "core"."incident" where "ic_assignment_due_at" < now() and "status" = any(array['detected', 'declared', 'contained', 'restored']);
 
 -- indemnification.advance_due_at  (RII-05)
 select 'indemnification' as table, 'advance_due_at' as deadline, id, "status" as status, "advance_due_at" as due_at

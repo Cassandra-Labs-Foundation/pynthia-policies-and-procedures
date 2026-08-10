@@ -54,13 +54,18 @@ async function runEpsAuthFraud(env: FireEnv): Promise<void> {
       env.db, "d", env.actors.ops,
     );
   }
-  // A challenged (not denied) attempt, which must carry its method.
+  // A challenged (not denied) attempt, which must carry its method. The
+  // subject is run-unique: failure_count carries across runs on the live
+  // tier (prior = max failure_count for the subject), so a fixed subject
+  // walks itself over the lockout threshold and the challenge becomes a
+  // lockout (EPS-05's fake-vs-real defect).
+  const mbrCh = `mbr_eps_ch_${env.n()}`;
   await postAuthEvent(
-    R({ subject_ref: "mbr_eps_2", channel: "mobile", outcome: "failure", challenge_method: "otp_sms" }),
+    R({ subject_ref: mbrCh, channel: "mobile", outcome: "failure", challenge_method: "otp_sms" }),
     env.db, "d", env.actors.ops,
   );
   await postAuthEvent(
-    R({ subject_ref: "mbr_eps_2", channel: "mobile", outcome: "success" }),
+    R({ subject_ref: mbrCh, channel: "mobile", outcome: "success" }),
     env.db, "d", env.actors.ops,
   );
 
@@ -133,6 +138,15 @@ async function runCdaLifecycle(env: FireEnv): Promise<void> {
   // net worth, from the capital subsystem rather than supplied: $7.5m of $50m
   await postCapitalPosition(
     R({ as_of_date: "2026-03-31", net_worth_cents: 750_000_000, total_assets_cents: 5_000_000_000 }),
+    env.db, "d", ops,
+  );
+  // RESTORE the 2026-09-30 position before the arc begins. The breach step
+  // below rewrites this same date-keyed row to $4m; on the live tier that end
+  // state survives into the next run (and other lifecycles write the same
+  // date), so without this restore the funding gate reads last run's shrunken
+  // net worth and refuses the funding the whole CDA-06 arc depends on.
+  await postCapitalPosition(
+    R({ as_of_date: "2026-09-30", net_worth_cents: 750_000_000, total_assets_cents: 5_000_000_000 }),
     env.db, "d", ops,
   );
 
@@ -400,8 +414,10 @@ async function runCdaLifecycle(env: FireEnv): Promise<void> {
 
   // --- CDA-01's negative half: let the adoption lapse and confirm the sweep
   // blocks the programme. Done LAST because it blocks everything above it.
-  const pol = (env.rows["core.cda_policy"] ?? []).find((p: Any) => p.id === "cdapol_v10");
-  if (pol) pol.policy_expiry_at = "2026-01-01T00:00:00.000Z";
+  // through the client: mutating the recorded copy leaves the live row
+  // unexpired and the sweep finds nothing to block (CDA-01's defect)
+  await env.db.schema("core").from("cda_policy")
+    .update({ policy_expiry_at: "2026-01-01T00:00:00.000Z" }).eq("id", "cdapol_v10");
   await postCdaPolicySweep(R({}), env.db, "d", compliance);
   // and a funding attempt against an expired policy, which must be refused
   await postCdaFunding(R({ amount_cents: 1_000_00 }), "cda_main", env.db, "d", ops);
@@ -666,7 +682,7 @@ async function runCashOpsLifecycle(env: FireEnv): Promise<void> {
   // fixture THROUGH the client — a pushed row only ages the fake's copy
   await env.db.schema("core").from("record").upsert({
     id: `rec_cash_${env.n()}`, record_class: "cash_operations", subject_ref: "casset_vault1",
-    retention_anchor: "2014-01-01T00:00:00.000Z",
+    retention_anchor: "2014-01-01T00:00:00.000Z", retention_anchor_kind: "creation",
     retention_expires_at: "2019-01-01T00:00:00.000Z",
     legal_hold_flag: false, disposed_at: null, provenance: "production",
   }, { onConflict: "id" });
@@ -769,8 +785,8 @@ async function runRecordsAdminLifecycle(env: FireEnv): Promise<void> {
         record_ids: ["rec_ra_1", "rec_ra_perm"] }),
     env.db, "d", ops,
   );
-  const box = (env.rows["core.storage_box"] ?? []).find((b: Any) => b.id === "sbox_1");
-  if (box) box.destroyed_at = "2026-07-01T00:00:00.000Z";
+  await env.db.schema("core").from("storage_box")
+    .update({ destroyed_at: "2026-07-01T00:00:00.000Z" }).eq("id", "sbox_1");
   await postDestructionLogReconcile(R({}), env.db, "d", ops);
   await postDestructionLogResolve(
     R({ resolution: "records recalled from offsite; box re-opened" }),
@@ -788,16 +804,19 @@ async function runRecordsAdminLifecycle(env: FireEnv): Promise<void> {
   // RR-07: a BSA record ANONYMIZED rather than destroyed
   // fixture THROUGH the client — a pushed row ages the fake's copy and
   // leaves a real database untouched (the live tier read these controls red)
+  // run-unique id: disposal is IRREVERSIBLE (freeze_disposal), so a converged
+  // id would hit last run's destroyed row and the re-upsert would be refused
+  const recRaBsa = `rec_ra_bsa_${env.n()}`;
   await env.db.schema("core").from("record").upsert({
-    id: "rec_ra_bsa", record_class: "bsa_sar", subject_ref: "case_1",
-    retention_anchor: "2014-01-01T00:00:00.000Z",
+    id: recRaBsa, record_class: "bsa_sar", subject_ref: "case_1",
+    retention_anchor: "2014-01-01T00:00:00.000Z", retention_anchor_kind: "creation",
     retention_expires_at: "2019-01-01T00:00:00.000Z",
     legal_hold_flag: false, disposed_at: null, provenance: "production",
   }, { onConflict: "id" });
   await postRecordDisposition(
     R({ method: "anonymized", approved_by: "bsa_officer",
         retained_fields: ["amount_band", "typology"] }),
-    "rec_ra_bsa", env.db, "d", ops,
+    recRaBsa, env.db, "d", ops,
   );
   // NEGATIVE: a permanent record can never be disposed, whatever the method
   await postRecordDisposition(
@@ -842,13 +861,14 @@ async function runLendingUwLifecycle(env: FireEnv): Promise<void> {
   // The applications these controls act on have to EXIST — every writer below
   // updates the application row, and an update against a missing row is a
   // silent no-op that reads as "the datum was never supplied".
-  env.rows["core.loan_application"] ??= [];
+  // through the client, NOT env.rows: pushed rows never reach the live
+  // database, and every writer below would silently no-op against them there
   for (const id of [APP, "app_uw_2", "app_uw_3", "app_uw_blocked"]) {
-    env.rows["core.loan_application"].push({
+    await env.db.schema("core").from("loan_application").upsert({
       id, status: "completed", completed_at: "2026-06-01T00:00:00.000Z",
       decisioned_at: null, final_action: null, funding_block_state: "open",
       provenance: "production",
-    });
+    }, { onConflict: "id" });
   }
 
   await postCreditConfig(
@@ -1135,15 +1155,19 @@ async function runInvestmentLifecycle(env: FireEnv): Promise<void> {
     env.db, "d", ops,
   );
 
-  env.rows["core.security"] ??= [];
+  // fixture securities go through the client, not into env.rows directly:
+  // rows[] is only the fake's store — on the live tier it is a recorder, and
+  // a row pushed there never reaches core.security, so every trade below
+  // would violate trade_security_id_fkey (the investment cluster's original
+  // fake-vs-real defect).
   for (const [id, iss, cls] of [
     ["sec_ust1", "us_gov", "us_treasury"],
     ["sec_cmo1", "acme", "collateralized_mortgage_obligation"],
   ]) {
-    env.rows["core.security"].push({
+    await env.db.schema("core").from("security").upsert({
       id, issuer_ref: iss, instrument_class: cls, external_rating: "AAA",
       provenance: "production",
-    });
+    }, { onConflict: "id" });
   }
 
   // clean trade
@@ -1492,10 +1516,17 @@ async function runRiskExceptionsLifecycle(env: FireEnv): Promise<void> {
     env.db, "d", ops,
   );
 
-  // the sweep: first a warning, then expiry re-opening the breach
-  if (acc) acc.expiry_alert_at = "2020-01-01T00:00:00.000Z";
+  // the sweep: first a warning, then expiry re-opening the breach — both
+  // backdates through the client so the live rows actually change
+  if (acc) {
+    await env.db.schema("core").from("risk_acceptance")
+      .update({ expiry_alert_at: "2020-01-01T00:00:00.000Z" }).eq("id", String(acc.id));
+  }
   await postRiskAcceptanceSweep(R({}), env.db, "d", ops);
-  if (acc) acc.expiry_date = "2020-01-02T00:00:00.000Z";
+  if (acc) {
+    await env.db.schema("core").from("risk_acceptance")
+      .update({ expiry_date: "2020-01-02T00:00:00.000Z" }).eq("id", String(acc.id));
+  }
   await postRiskAcceptanceSweep(R({}), env.db, "d", ops);
 
   // IC-06
@@ -1526,7 +1557,10 @@ async function runRiskExceptionsLifecycle(env: FireEnv): Promise<void> {
   );
   const exc = (env.rows["core.control_exception"] ?? [])[0];
   await postControlExceptionSweep(R({}), env.db, "d", ops);
-  if (exc) exc.expires_at = "2020-01-01T00:00:00.000Z";
+  if (exc) {
+    await env.db.schema("core").from("control_exception")
+      .update({ expires_at: "2020-01-01T00:00:00.000Z" }).eq("id", String(exc.id));
+  }
   await postControlExceptionSweep(R({}), env.db, "d", ops);
   await postOverrideAnalytics(R({ period: "2026Q3" }), env.db, "d", ops);
 }
@@ -1931,8 +1965,14 @@ async function runPrivacyLifecycle(env: FireEnv): Promise<void> {
     R({ entity_ref: "ent_p6", consent_id: "bioconsent_2", outcome: "declined" }),
     env.db, "d", ops,
   );
+  // backdate the purge clock THROUGH the client — mutating the recorded copy
+  // leaves the live row undue, and the purge sweep finds nothing (PR-16's
+  // original fake-vs-real defect)
   const bio = (env.rows["core.biometric_verification"] ?? [])[0];
-  if (bio) bio.purge_due_at = "2020-01-01T00:00:00.000Z";
+  if (bio) {
+    await env.db.schema("core").from("biometric_verification")
+      .update({ purge_due_at: "2020-01-01T00:00:00.000Z" }).eq("id", String(bio.id));
+  }
   await postBiometricPurge(R({}), env.db, "d", ops);
 
   // children's data
@@ -1988,31 +2028,38 @@ async function runCollectionsLifecycle(env: FireEnv): Promise<void> {
     env.db, "d", ops,
   );
 
-  env.rows["core.account"] ??= [];
-  env.rows["core.account"].push({
+  // through the client, NOT env.rows: the delinquency engine READS these
+  // loans back from the database — a loan pushed only into the recorder does
+  // not exist on the live tier, and the whole collections lifecycle 404s
+  // (CO-01/02/03/05/09's original fake-vs-real defect). No provenance on
+  // core.account: the table predates the provenance convention.
+  await env.db.schema("core").from("entity").upsert(
+    { id: "ent_dec", type: "person", name: "Deceased Member", status: "active", partner_id: "ptnr_drill" },
+    { onConflict: "id" },
+  );
+  await env.db.schema("core").from("account").upsert({
     id: "acct_estate", entity_id: "ent_dec", status: "open", account_type: "checking",
-    balance: 0, partner_id: "ptnr_drill", death_flag: true, provenance: "production",
-  });
-  env.rows["core.loan"] ??= [];
+    balance: 0, partner_id: "ptnr_drill", death_flag: true,
+  }, { onConflict: "id" });
   for (const [id, due] of [
     ["loan_c1", "2026-07-05"],   // ~14 days past due
     ["loan_c2", "2026-04-01"],   // ~109 days
     ["loan_c3", "2026-01-01"],   // ~199 days
     ["loan_current", "2026-08-01"],
   ]) {
-    env.rows["core.loan"].push({
+    await env.db.schema("core").from("loan").upsert({
       id, member_ref: `mbr_${id}`, product: "consumer", principal_cents: 500_000,
       next_due_date: due, attorney_represented: false, bankruptcy_flag: false,
       scra_flag: false, product_type: "closed_end_consumer", grace_period_days: 10,
       last_payment_date: "2026-06-01", collateral_value: 800_000, ltv: 6250,
       accrued_interest: 12_000, provenance: "production",
-    });
+    }, { onConflict: "id" });
   }
   // NEGATIVE: a loan with no due date cannot be evaluated
-  env.rows["core.loan"].push({
+  await env.db.schema("core").from("loan").upsert({
     id: "loan_nodue", member_ref: "mbr_x", product: "consumer",
     principal_cents: 1000, provenance: "production",
-  });
+  }, { onConflict: "id" });
 
   for (const id of ["loan_c1", "loan_c2", "loan_c3", "loan_current", "loan_nodue"]) {
     await postDelinquencyEvaluation(
@@ -2026,9 +2073,10 @@ async function runCollectionsLifecycle(env: FireEnv): Promise<void> {
       id, env.db, "d", ops,
     );
   }
-  // a nonaccrual loan brought CURRENT comes back on accrual
-  const cured = (env.rows["core.loan"] ?? []).find((l: Any) => l.id === "loan_c2");
-  if (cured) cured.next_due_date = "2026-09-01";
+  // a nonaccrual loan brought CURRENT comes back on accrual — updated through
+  // the client so the LIVE database sees the cure, not just the recorder
+  await env.db.schema("core").from("loan")
+    .update({ next_due_date: "2026-09-01" }).eq("id", "loan_c2");
   await postDelinquencyEvaluation(R({}), "loan_c2", env.db, "d", ops);
   await postChargeOff(
     R({ approved_by: "cco_1", amount_cents: 500_000,
@@ -2096,7 +2144,7 @@ async function runCollectionsLifecycle(env: FireEnv): Promise<void> {
   // CO-11: a collections-data incident goes through the SAME incident
   // machinery, with its own scope fields.
   await postIncident(
-    R({ title: "collections vendor file exposure", severity: "sev2",
+    R({ id: "inc_drill_collections", title: "collections vendor file exposure", severity: "sev2",
         source: "vendor_report", description: "agency emailed an unencrypted file",
         detection_source: "vendor_report", data_scope: ["name", "balance"],
         collections: true }),
@@ -2156,11 +2204,17 @@ async function runDepositsMemberLifecycle(env: FireEnv): Promise<void> {
     id: "esign_d1", entity_ref: "ent_m1", started_at: "2026-07-19T12:00:00.000Z",
     captured_at: "2026-07-19T12:00:00.000Z", demonstrated_access: true, provenance: "production",
   }, { onConflict: "id" });
+  // the entity must exist first (fk_account_entity is real on the live tier),
+  // the partner is the seeded one, and core.account has no provenance column
+  await env.db.schema("core").from("entity").upsert(
+    { id: "ent_m1", type: "person", name: "Member M1", status: "active", partner_id: "ptnr_drill" },
+    { onConflict: "id" },
+  );
   await env.db.schema("core").from("account").upsert({
     id: "acct_d1", entity_id: "ent_m1", status: "open", account_type: "share_certificate",
-    balance: 0, partner_id: "p1", opening_channel: "branch",
+    balance: 0, partner_id: "ptnr_drill", opening_channel: "branch",
     maturity_date: "2027-07-19", maturity_window: "10_day_grace",
-    maturity_disposition: "auto_renew", provenance: "production",
+    maturity_disposition: "auto_renew",
   }, { onConflict: "id" });
   const terms = {
     account_type: "share_certificate", opening_channel: "branch",
@@ -2512,9 +2566,14 @@ async function runResolutionLifecycle(env: FireEnv): Promise<void> {
   if ((env.rows["core.ewi_indicator"] ?? []).length > 0) return;
   const ops = env.actors.ops;
 
+  // entity first (fk_account_entity), seeded partner, no provenance column
+  await env.db.schema("core").from("entity").upsert(
+    { id: "ent_r1", type: "person", name: "Member R1", status: "active", partner_id: "ptnr_drill" },
+    { onConflict: "id" },
+  );
   await env.db.schema("core").from("account").upsert({
     id: "acct_rs1", entity_id: "ent_r1", status: "open", account_type: "checking",
-    balance: 0, partner_id: "p1", provenance: "production",
+    balance: 0, partner_id: "ptnr_drill",
   }, { onConflict: "id" });
 
   // RS-02
@@ -2603,11 +2662,17 @@ async function runBaselLifecycle(env: FireEnv): Promise<void> {
   if ((env.rows["core.rwa_schedule"] ?? []).length > 0) return;
   const ops = env.actors.ops;
 
+  // change_authority is supplied even though the FIRST schedule of a fresh
+  // institution would not need it: on the live tier prior runs' schedules
+  // accumulate, so this call is version 2+ there and the writer (correctly)
+  // refuses a statutory-schedule change with no stated authority — which is
+  // exactly how BA-04 read as a fake-vs-real defect.
   await postRwaSchedule(
     R({ risk_weight_map: { cash: 0, sovereign: 0, gse: 20, municipal: 50,
                            residential_mortgage: 50, consumer: 100, commercial: 100,
                            past_due: 150, equity: 300 },
         ccf_map: { undrawn_commitment: 50 }, approved_by: "cfo_1",
+        change_authority: "12 CFR 702.104(b) — schedule re-adoption",
         regulatory_preapproval_id: "NCUA-PRE-4" }),
     env.db, "d", ops,
   );
@@ -2723,12 +2788,16 @@ async function runTailLifecycle(env: FireEnv): Promise<void> {
     R({ subject_ref: "usr_1", role_id: "payment_approver", entitlements: ["wire.approve"] }),
     env.db, "d", ops,
   );
+  // run-unique subject: on the live tier last run's approver grant survives,
+  // which BLOCKS this run's initiator grant and then the approver grant no
+  // longer conflicts — the compensating branch never runs (IC-02's defect)
+  const usrSod = `usr_sod_${env.n()}`;
   await postRoleGrant(
-    R({ subject_ref: "usr_2", role_id: "payment_initiator", entitlements: ["ach.create"] }),
+    R({ subject_ref: usrSod, role_id: "payment_initiator", entitlements: ["ach.create"] }),
     env.db, "d", ops,
   );
   await postRoleGrant(
-    R({ subject_ref: "usr_2", role_id: "payment_approver", entitlements: ["wire.approve"],
+    R({ subject_ref: usrSod, role_id: "payment_approver", entitlements: ["wire.approve"],
         compensating_control: "all payments over $10k reviewed by internal audit weekly",
         compensating_approved_by: "cro_1",
         risk_rationale: "two-person team; conflict unavoidable" }),
@@ -2843,8 +2912,11 @@ async function runTailLifecycle(env: FireEnv): Promise<void> {
     "aff_PynthiaCUSO", env.db, "d", ops,
   );
   if ((env.rows["core.insider"] ?? []).length === 0) {
+    // subject_ref / role / effective_from are NOT NULL on the live schema —
+    // the bare {id, provenance} row only ever existed on the fake
     await env.db.schema("core").from("insider").upsert({
-      id: "ins_df9", provenance: "production",
+      id: "ins_df9", subject_ref: "dir_9", role: "director",
+      effective_from: "2026-01-01T00:00:00.000Z", provenance: "production",
     }, { onConflict: "id" });
   }
   const ins = (env.rows["core.insider"] ?? [])[0];
@@ -2861,23 +2933,30 @@ async function runTailLifecycle(env: FireEnv): Promise<void> {
     R({ ach_dual_control_over_cents: 25_000_00,
         ach_client_exposure_limit_cents: 500_000_00,
         wire_daily_limit_cents: 250_000_00 }),
-    "p1", env.db, "d", ops,
+    // ptnr_drill is the seeded partner — client_limit has a REAL fk to
+    // core.partner, and "p1" only ever existed on the fake
+    "ptnr_drill", env.db, "d", ops,
   );
+  // The fixture wire must match the REAL wire_transfer shape: uuid id,
+  // `amount` (not amount_cents), jsonb beneficiary, a status the CHECK
+  // accepts, no provenance column, and the seeded partner (EPS-06's original
+  // fake-vs-real defect — the fake accepted all five mismatches).
+  const wtEps1 = crypto.randomUUID();
   await env.db.schema("core").from("wire_transfer").upsert({
-    id: "wt_eps1", partner_id: "p1", amount_cents: 300_000_00,
-    beneficiary_name: "Beneficiary Co", status: "pending", provenance: "production",
+    id: wtEps1, partner_id: "ptnr_drill", amount: 300_000_00,
+    beneficiary: { name: "Beneficiary Co" }, status: "pending_approval",
   }, { onConflict: "id" });
   await openApproval(env.db, {
-    resourceType: "wire_transfer", resourceId: "wt_eps1", createdBy: "tok_ops_1",
+    resourceType: "wire_transfer", resourceId: wtEps1, createdBy: "tok_ops_1",
     decision: wireDualControl(), scope: "core", ctx: ops,
   });
   await postPaymentApproval(
-    R({ outcome: "approve" }), "wire_transfer", "wt_eps1", env.db, "d",
+    R({ outcome: "approve" }), "wire_transfer", wtEps1, env.db, "d",
     { ...ops, tokenId: "tok_ops_2" } as Any,
   );
   // NEGATIVE: no IP allowlist configured -> unknown, and unknown is not permission
   await postWireRelease(
-    R({ wire_ref: "wt_eps1", originator_id: "orig_1", pin_verified: true,
+    R({ wire_ref: wtEps1, originator_id: "orig_1", pin_verified: true,
         ip: "203.0.113.9", second_approval: "tok_ops_2" }),
     env.db, "d", ops,
   );
@@ -3094,7 +3173,7 @@ async function runCapitalLifecycle(env: FireEnv): Promise<void> {
 async function runIncidentLifecycle(env: FireEnv): Promise<void> {
   const compliance = { ...env.actors.ops, tokenId: "tok_compliance", roles: ["bsa_compliance"] };
   const res = await postIncident(
-    R({ title: `drill incident ${env.n()}`, severity: "sev1", source: "siem" }),
+    R({ id: "inc_drill_main", title: "drill incident", severity: "sev1", source: "siem" }),
     env.db, "d", env.actors.ops,
   );
   const id = String((await res.clone().json().catch(() => ({}))).id ?? "");
@@ -3133,12 +3212,18 @@ async function runIncidentLifecycle(env: FireEnv): Promise<void> {
   await postCloseIncident(R({}), id, env.db, "d", env.actors.ops);
   // a SECOND incident left undetermined, so the sweep has both negatives
   const r2 = await postIncident(
-    R({ title: `undetermined ${env.n()}`, severity: "sev2" }), env.db, "d", env.actors.ops,
+    R({ id: "inc_drill_undet", title: "undetermined", severity: "sev2" }), env.db, "d", env.actors.ops,
   );
   const id2 = String((await r2.clone().json().catch(() => ({}))).id ?? "");
   if (id2) {
-    const rec = (env.rows["core.incident"] ?? []).find((x: Any) => x.id === id2);
-    if (rec) rec.ncua_notice_due_at = "2020-01-01T00:00:00.000Z";
+    // the NCUA clock only exists once reportability is DETERMINED
+    // (ck_incident_ncua_due_after_determination), so the overdue fixture must
+    // backdate both — a due date on an undetermined incident is a row the
+    // schema correctly refuses
+    await env.db.schema("core").from("incident").update({
+      reportability_determined_at: "2020-01-01T00:00:00.000Z",
+      ncua_notice_due_at: "2020-01-04T00:00:00.000Z",
+    }).eq("id", id2);
   }
   await postCommsTree(
     R({ contact_tree: { ic: ["ceo", "cfo"], tier2: ["ops"] },
@@ -3325,9 +3410,9 @@ async function runAuditLifecycle(env: FireEnv, rating = "poor"): Promise<void> {
   );
   const fid = `afind_${id}_0`;
   await postFindingResponse(R({ response: "will remediate" }), fid, env.db, "d", env.actors.ops);
-  // age it so the sweep has something to escalate
-  const f = (env.rows["core.audit_finding"] ?? []).find((x: Any) => x.id === fid);
-  if (f) f.remediation_due_at = "2020-01-01T00:00:00.000Z";
+  // age it so the sweep has something to escalate — through the client
+  await env.db.schema("core").from("audit_finding")
+    .update({ remediation_due_at: "2020-01-01T00:00:00.000Z" }).eq("id", fid);
   await postAuditSweep(R({}), env.db, "d", env.actors.ops);
   // a failed retest re-communicates; then risk acceptance closes it
   await postCloseFinding(R({ retest_result: "failed" }), fid, env.db, "d", env.actors.officer);
@@ -3590,7 +3675,9 @@ async function runOpsSecurityLifecycle(env: FireEnv): Promise<void> {
   await postAiToolDecision(R({ decision: "approved" }), String(tool?.id ?? "none"), env.db, "d", ops);
   await postAiToolLaunch(R({ data_scope: ["conversation_text"] }), String(tool?.id ?? "none"), env.db, "d", ops);
   await postAiTool(R({ name: "shadow-scoring" }), env.db, "d", ops);
-  const tool2 = (env.rows["core.ai_tool"] ?? [])[1];
+  // find by name, not position: on the live tier the recorder also appends
+  // UPDATE payloads (id-less), so rows[1] is not the second tool there
+  const tool2 = (env.rows["core.ai_tool"] ?? []).find((t: Any) => t.name === "shadow-scoring");
   await postAiToolDecision(R({ decision: "rejected" }), String(tool2?.id ?? "none"), env.db, "d", ops);
   await postAiViolation(R({ description: "unapproved prompt logging" }), env.db, "d", ops);
   const aiv = (env.rows["core.ai_violation"] ?? [])[0];
@@ -3606,7 +3693,7 @@ async function runOpsSecurityLifecycle(env: FireEnv): Promise<void> {
 
   // incidents: intrusion (EC-09), containment discipline (BC-15), failover (BC-09)
   const compliance = { ...ops, tokenId: "tok_sec_compliance", roles: ["bsa_compliance"] };
-  await postIncident(R({ title: "intrusion detected on edge", severity: "sev1", source: "siem" }), env.db, "d", compliance);
+  await postIncident(R({ id: "inc_drill_intrusion", title: "intrusion detected on edge", severity: "sev1", source: "siem" }), env.db, "d", compliance);
   const inc = (env.rows["core.incident"] ?? [])[0];
   const incId = String(inc?.id ?? "none");
   await postIntrusionResponse(R({ actions: "isolated host, rotated keys", detection_source: "siem", timeline: "t0+14m" }), incId, env.db, "d", ops);
@@ -3735,11 +3822,12 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   "insider.limits_recomputed": (env) => runLendingUwLifecycle(env),
   "account.closed": async (env) => {
     const id = `acct_f${env.n()}`;
-    env.rows["core.account"].push({
+    // client write, not env.rows: the transition below reads the account back
+    // from the database (no provenance — core.account predates the column)
+    await env.db.schema("core").from("account").upsert({
       id, entity_id: "ent_1", status: "open", lock_type: "none",
       account_type: "checking", balance: 100000, blnk_balance_id: "b", partner_id: "ptnr_drill",
-      provenance: "production",
-    });
+    }, { onConflict: "id" });
     await postAccountTransition(R({ to: "closed" }), id, env.db, "d", env.actors.ops);
     await setRetentionClocks(env.db, id, new Date());
   },
@@ -3751,13 +3839,19 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   },
   "entity.updated": async (env) => {
     const id = `ent_u${env.n()}`;
-    env.rows["core.entity"].push({ id, type: "person", name: "U", status: "pending", partner_id: "ptnr_drill" });
+    await env.db.schema("core").from("entity").upsert(
+      { id, type: "person", name: "U", status: "pending", partner_id: "ptnr_drill" },
+      { onConflict: "id" },
+    );
     await postEntityTransition(R({ to: "active" }), id, env.db, "d", env.actors.ops);
   },
   "verification.created": async (env) => {
     await runBsaProgramLifecycle(env);
     const id = `ent_v${env.n()}`;
-    env.rows["core.entity"].push({ id, type: "person", name: "Clean Person", status: "pending", partner_id: "ptnr_drill" });
+    await env.db.schema("core").from("entity").upsert(
+      { id, type: "person", name: "Clean Person", status: "pending", partner_id: "ptnr_drill" },
+      { onConflict: "id" },
+    );
     await postVerification(R({}), id, env.db, "d", env.actors.ops);
   },
   "bsa_alert.created": async (env, uid) => {
@@ -3797,7 +3891,7 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
     // fixture THROUGH the client — a pushed row only ages the fake's copy
     await env.db.schema("core").from("record").upsert({
       id: `rec_${subj}_cip_identity`, record_class: "cip_identity", subject_ref: subj,
-      retention_anchor: "2014-01-01T00:00:00.000Z",
+      retention_anchor: "2014-01-01T00:00:00.000Z", retention_anchor_kind: "account_closed",
       retention_expires_at: "2019-01-01T00:00:00.000Z",
       legal_hold_flag: false, disposed_at: null, provenance: "production",
     }, { onConflict: "id" });
@@ -3899,17 +3993,17 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   "loan_party.ofac.escalated": (env, uid) => FIRERS["loan_party.added"](env, uid),
   "loan_application.completed": async (env) => {
     const id = `app_f${env.n()}`;
-    env.rows["core.loan_application"].push({
+    await env.db.schema("core").from("loan_application").upsert({
       id, status: "completed", completed_at: "2026-06-01T00:00:00.000Z",
       decisioned_at: null, final_action: null, funding_block_state: "open", provenance: "production",
-    });
+    }, { onConflict: "id" });
   },
   "application.final_action.recorded": async (env) => {
     const id = `app_fa${env.n()}`;
-    env.rows["core.loan_application"].push({
+    await env.db.schema("core").from("loan_application").upsert({
       id, status: "completed", completed_at: "2026-06-01T00:00:00.000Z",
       decisioned_at: null, final_action: null, funding_block_state: "open", provenance: "production",
-    });
+    }, { onConflict: "id" });
     await postLoanDecision(
       R({ final_action: "denied", reasons: ["drill"] }), id, env.db, "d", env.actors.ops,
     );
@@ -4502,12 +4596,18 @@ export async function fireViaWorkItem(
 
 /** Generic threshold firer: anything shaped like a breach. */
 export async function fireViaThreshold(code: string, uid: string, env: FireEnv): Promise<void> {
-  const id = `th_${env.n()}`;
-  await putThreshold(
+  // deterministic id: the table is UNIQUE on (control_uid, metric, scope), so
+  // a run-random id collides with the last run's row on the live tier —
+  // converging on the same id makes the upsert idempotent instead
+  const id = `th_${uid}_${code}`.replace(/[^a-zA-Z0-9_]/g, "_").slice(0, 60);
+  const res = await putThreshold(
     R({ control_uid: uid, metric: code, subject_scope: "institution", limit_value: 10 }),
     id, env.db, "d", env.actors.ops,
   );
-  await postObservation(R({ value: 999 }), id, env.db, "d", env.actors.ops);
+  // the writer may ADOPT an existing row for the same (control, metric,
+  // scope) — observe against the id it actually settled on
+  const settled = (await res.clone().json().catch(() => ({}))) as { id?: string };
+  await postObservation(R({ value: 999 }), String(settled.id ?? id), env.db, "d", env.actors.ops);
 }
 
 /** Generic attestation firer: anything shaped like a record/log/attest. */

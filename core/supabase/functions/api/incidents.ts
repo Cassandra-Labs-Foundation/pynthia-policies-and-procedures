@@ -87,11 +87,15 @@ export async function postIncident(
   }
   if (errors.length) return validationError(requestId, errors);
 
-  const id = `inc_${crypto.randomUUID()}`;
+  // A caller-supplied id makes re-declaration CONVERGE on the same row — the
+  // drill re-runs against the live database left one fresh uuid-id incident
+  // per run per control, and the sweep's per-row work grew without bound
+  // (1,710 rows deep before this was found).
+  const id = isNonEmptyString(rec.id) ? String(rec.id) : `inc_${crypto.randomUUID()}`;
   const now = new Date();
   const detDue = new Date(now.getTime() + INTERNAL_DETERMINATION_HOURS * 3_600_000);
 
-  const { error } = await db.schema(scope).from("incident").insert({
+  const { error } = await db.schema(scope).from("incident").upsert({
     id, title: rec.title, severity: rec.severity,
     source: isNonEmptyString(rec.source) ? rec.source : null,
     // CO-11 declares these on a collections-data incident: what happened, how
@@ -109,7 +113,7 @@ export async function postIncident(
     ic_assigned_at: now.toISOString(),
     determination_due_at: detDue.toISOString(),
     provenance: provenanceFor(scope, ctx),
-  });
+  }, { onConflict: "id" });
   if (error) return internalErrorResponse(requestId, error);
   await db.schema(scope).from("incident").update({
     ic_assignment_due_at: new Date(now.getTime() + IC_ASSIGNMENT_MINUTES * 60_000).toISOString(),

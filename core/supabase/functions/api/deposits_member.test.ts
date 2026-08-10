@@ -171,7 +171,9 @@ Deno.test("MP-05: a restriction lands on the ACCOUNT, not only the membership", 
   // If the restriction lives only on the membership row, the notice is true and
   // the money still moves.
   assertEquals(dbx.rows["core.account"][0].restriction, "frozen");
-  assertEquals(dbx.rows["core.account"][0].lock_type, "full");
+  // "admin" is the schema's lock vocabulary (account_lock_type_check) — the
+  // old "full" was an invented value the live schema refused
+  assertEquals(dbx.rows["core.account"][0].lock_type, "admin");
 });
 
 Deno.test("MP-08: a bulk member-record export with no stated purpose is refused", async () => {

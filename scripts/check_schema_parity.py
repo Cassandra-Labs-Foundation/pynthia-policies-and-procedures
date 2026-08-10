@@ -43,11 +43,14 @@ SPEC = ROOT / "core" / "core-api.yaml"
 BASELINE = ROOT / "schema-parity-baseline.json"
 
 TABLE_RE = re.compile(r'create table if not exists\s+"core"\."([a-z_0-9]+)"\s*\(([\s\S]*?)\n\);', re.I)
-COL_RE = re.compile(r'^\s{2}"([a-z_0-9]+)"\s+([a-zA-Z]+)(.*)$', re.M)
+# the column class allows dots: the first schema cut stored corpus tokens
+# verbatim ("payment.disbursed"), and a column the model cannot see is a
+# rename the model cannot apply (20260809000100 normalises them away)
+COL_RE = re.compile(r'^\s{2}"([a-z_0-9.]+)"\s+([a-zA-Z]+)(.*)$', re.M)
 CHECK_RE = re.compile(r'check \("([a-z_0-9]+)" in \(([^)]*)\)\)', re.I)
 ALTER_RE = re.compile(r'alter table\s+"core"\."([a-z_0-9]+)"([\s\S]*?);', re.I)
 ADD_RE = re.compile(r'add column if not exists\s+"([a-z_0-9]+)"\s+([a-zA-Z]+)(.*)', re.I)
-RENAME_RE = re.compile(r'rename column\s+"([a-z_0-9]+)"\s+to\s+"([a-z_0-9]+)"', re.I)
+RENAME_RE = re.compile(r'rename column\s+"([a-z_0-9.]+)"\s+to\s+"([a-z_0-9]+)"', re.I)
 # constraint names follow ck_<table>_<column>; a DROP whose name embeds a
 # column clears that column's modeled enum (a later ADD CONSTRAINT re-sets it)
 DROP_CK_RE = re.compile(r'drop constraint if exists\s+"ck_([a-z_0-9]+)"', re.I)

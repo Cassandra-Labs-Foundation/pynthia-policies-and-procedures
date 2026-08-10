@@ -12,8 +12,8 @@
       ],
       "inherited": [],
       "endpoints": [
-        "GET /accounts",
         "POST /accounts",
+        "GET /accounts",
         "GET /accounts/{id}",
         "POST /accounts/{id}/transition"
       ],
@@ -25,6 +25,7 @@
           "enum": null,
           "note": null,
           "controls": [
+            "TIS-02",
             "TIS-04"
           ],
           "provisional": false
@@ -35,9 +36,13 @@
           "enum": null,
           "note": null,
           "controls": [
-            "MB-05",
-            "MB-06",
-            "TIS-06"
+            "MP-04",
+            "MP-05",
+            "MP-06",
+            "MP-07",
+            "TIS-05",
+            "TIS-06",
+            "TIS-08"
           ],
           "provisional": false
         },
@@ -63,7 +68,14 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RP-04"
+            "IS-10",
+            "MP-05",
+            "TIS-02",
+            "TIS-04",
+            "TIS-05",
+            "TIS-06",
+            "TIS-08",
+            "TIS-09"
           ],
           "provisional": false
         },
@@ -75,11 +87,13 @@
             "compliance",
             "fraud",
             "legal",
-            "admin"
+            "admin",
+            "deceased",
+            "expelled"
           ],
           "note": null,
           "controls": [
-            "MEM-05"
+            "MP-05"
           ],
           "provisional": false
         },
@@ -122,7 +136,9 @@
             "closed"
           ],
           "note": null,
-          "controls": null,
+          "controls": [
+            "MP-05"
+          ],
           "provisional": false
         },
         {
@@ -131,7 +147,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "MB-05"
+            "MP-05"
           ],
           "provisional": false
         },
@@ -150,15 +166,20 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "FL-05"
+          ],
           "provisional": true
         },
         {
           "name": "death_flag",
-          "type": "text",
+          "type": "boolean",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "CO-03",
+            "MP-07"
+          ],
           "provisional": true
         },
         {
@@ -166,7 +187,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "TIS-04"
+          ],
           "provisional": true
         },
         {
@@ -174,11 +197,84 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "MP-05",
+            "TIS-02"
+          ],
           "provisional": true
+        },
+        {
+          "name": "active_freeze_count",
+          "type": "bigint",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "balance_synced_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "blnk_balance_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "credits_blocked",
+          "type": "boolean",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "debits_blocked",
+          "type": "boolean",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "entity_id",
+          "type": "text",
+          "enum": null,
+          "note": "FK -> entity",
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "partner_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
         }
       ],
-      "fks": [],
+      "fks": [
+        {
+          "column": "entity_id",
+          "ref_table": "Entity",
+          "soft_scalar": true
+        }
+      ],
       "jsonb_detail": [],
       "softrefs": []
     },
@@ -194,9 +290,6 @@
       ],
       "inherited": [],
       "endpoints": [
-        "GET /account-numbers",
-        "POST /account-numbers",
-        "GET /account-numbers/{id}",
         "POST /account-numbers/{id}/transition"
       ],
       "has_own_id": true,
@@ -280,18 +373,18 @@
       "inherited": [],
       "endpoints": [
         "GET /ach-transfers",
-        "POST /ach-transfers",
-        "GET /ach-transfers/{id}",
-        "POST /ach-transfers/{id}/transition"
+        "GET /ach-transfers/{id}"
       ],
-      "has_own_id": false,
+      "has_own_id": true,
       "columns": [
         {
           "name": "amount",
           "type": "bigint",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "EPS-06"
+          ],
           "provisional": false
         },
         {
@@ -299,7 +392,9 @@
           "type": "jsonb",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "EPS-06"
+          ],
           "provisional": false
         },
         {
@@ -331,6 +426,94 @@
           "note": null,
           "controls": null,
           "provisional": false
+        },
+        {
+          "name": "blnk_reference",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "blnk_status",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "blnk_transaction_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "noc",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "originator",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "partner_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "return_reason",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "synced_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
         }
       ],
       "fks": [],
@@ -358,7 +541,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "TIS-02"
+          ],
           "provisional": false
         },
         {
@@ -375,7 +560,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "PR-05"
+            "TIS-02"
           ],
           "provisional": false
         },
@@ -403,7 +588,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "PR-05"
+            "TIS-02"
           ],
           "provisional": false
         },
@@ -412,15 +597,19 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "TIS-02"
+          ],
           "provisional": false
         },
         {
           "name": "ncoa_mismatch",
-          "type": "text",
+          "type": "boolean",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "PR-05"
+          ],
           "provisional": true
         }
       ],
@@ -483,9 +672,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "RR-02"
-          ],
+          "controls": null,
           "provisional": false
         }
       ],
@@ -538,7 +725,9 @@
           "type": "text",
           "enum": null,
           "note": "FK -> event",
-          "controls": null,
+          "controls": [
+            "BSA-06"
+          ],
           "provisional": false
         },
         {
@@ -546,9 +735,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "RP-08"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -566,7 +753,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "BSA-06"
+          ],
           "provisional": false
         },
         {
@@ -578,12 +767,65 @@
             "BSA-06"
           ],
           "provisional": false
+        },
+        {
+          "name": "case_id",
+          "type": "text",
+          "enum": null,
+          "note": "FK -> case",
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "triage_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "triage_outcome",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "triaged_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
         }
       ],
       "fks": [
         {
           "column": "event_id",
           "ref_table": "Event",
+          "soft_scalar": true
+        },
+        {
+          "column": "case_id",
+          "ref_table": "Case",
           "soft_scalar": true
         }
       ],
@@ -599,7 +841,6 @@
       "inherited": [],
       "endpoints": [
         "GET /cards",
-        "POST /cards",
         "GET /cards/{id}"
       ],
       "has_own_id": true,
@@ -609,15 +850,20 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "EPS-05",
+            "EPS-07"
+          ],
           "provisional": false
         },
         {
           "name": "reissue_request",
-          "type": "text",
+          "type": "boolean",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "MP-02"
+          ],
           "provisional": false
         },
         {
@@ -626,7 +872,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "MB-02"
+            "MP-02"
           ],
           "provisional": false
         },
@@ -635,7 +881,10 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "EPS-05",
+            "EPS-07"
+          ],
           "provisional": false
         },
         {
@@ -727,12 +976,7 @@
       "inherited": [
         "OwnedEntity"
       ],
-      "endpoints": [
-        "GET /cases",
-        "POST /cases",
-        "GET /cases/{id}",
-        "POST /cases/{id}/transition"
-      ],
+      "endpoints": [],
       "has_own_id": true,
       "columns": [
         {
@@ -741,11 +985,14 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BSA-02",
-            "BSA-06",
+            "AU-08",
+            "BSA-16",
             "ERM-04",
+            "ERM-05",
+            "ERM-06",
             "ERM-07",
-            "IC-07"
+            "IC-07",
+            "IS-02"
           ],
           "provisional": false
         },
@@ -775,18 +1022,17 @@
           "type": "jsonb",
           "enum": null,
           "controls": [
-            "BSA-06"
+            "BSA-06",
+            "BSA-07"
           ],
-          "note": "array of Document (soft ref by id -> document)"
+          "note": "embedded Document (array)"
         },
         {
           "name": "id",
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "BSA-06"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -798,7 +1044,9 @@
             "closed"
           ],
           "note": null,
-          "controls": null,
+          "controls": [
+            "BSA-06"
+          ],
           "provisional": false
         },
         {
@@ -830,7 +1078,9 @@
             "sar_disclosure_request"
           ],
           "note": null,
-          "controls": null,
+          "controls": [
+            "BSA-06"
+          ],
           "provisional": false
         },
         {
@@ -839,8 +1089,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BSA-06",
-            "TPR-08"
+            "BSA-06"
           ],
           "provisional": false
         }
@@ -861,14 +1110,14 @@
           "column": "escalation",
           "detail_schema": "EscalationDetail",
           "array": false
-        }
-      ],
-      "softrefs": [
+        },
         {
           "column": "evidence",
-          "ref_table": "Document"
+          "detail_schema": "Document",
+          "array": true
         }
-      ]
+      ],
+      "softrefs": []
     },
     "ControlResult": {
       "schema": "ControlResult",
@@ -878,8 +1127,7 @@
       "states": null,
       "inherited": [],
       "endpoints": [
-        "GET /control-results",
-        "GET /control-results/{id}"
+        "GET /control-results"
       ],
       "has_own_id": true,
       "columns": [
@@ -949,9 +1197,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "BSA-05"
-          ],
+          "controls": null,
           "provisional": false
         }
       ],
@@ -960,222 +1206,6 @@
         {
           "column": "ofac",
           "detail_schema": "OfacControlContext",
-          "array": false
-        }
-      ],
-      "softrefs": []
-    },
-    "Document": {
-      "schema": "Document",
-      "table": "document",
-      "kind": "primitive",
-      "description": "A stored document or artifact.",
-      "states": null,
-      "inherited": [],
-      "endpoints": [
-        "GET /documents",
-        "POST /documents",
-        "GET /documents/{id}"
-      ],
-      "has_own_id": true,
-      "columns": [
-        {
-          "name": "attached",
-          "type": "text",
-          "enum": null,
-          "note": null,
-          "controls": [
-            "IP-15"
-          ],
-          "provisional": false
-        },
-        {
-          "name": "curriculum",
-          "type": "jsonb",
-          "enum": null,
-          "controls": null,
-          "note": "embedded Curriculum"
-        },
-        {
-          "name": "edd",
-          "type": "jsonb",
-          "enum": null,
-          "controls": null,
-          "note": "embedded EddFile"
-        },
-        {
-          "name": "id",
-          "type": "text",
-          "enum": null,
-          "note": null,
-          "controls": null,
-          "provisional": false
-        },
-        {
-          "name": "legal_hold_flag",
-          "type": "boolean",
-          "enum": null,
-          "note": null,
-          "controls": null,
-          "provisional": false
-        },
-        {
-          "name": "mi",
-          "type": "jsonb",
-          "enum": null,
-          "controls": null,
-          "note": "embedded MiCentralLog"
-        },
-        {
-          "name": "policy",
-          "type": "jsonb",
-          "enum": null,
-          "controls": null,
-          "note": "embedded PolicyDoc"
-        },
-        {
-          "name": "report",
-          "type": "jsonb",
-          "enum": null,
-          "controls": null,
-          "note": "embedded BoardPack"
-        },
-        {
-          "name": "retention_anchor",
-          "type": "date",
-          "enum": null,
-          "note": null,
-          "controls": [
-            "IP-15"
-          ],
-          "provisional": false
-        },
-        {
-          "name": "retention_schedule",
-          "type": "text",
-          "enum": null,
-          "note": null,
-          "controls": [
-            "IP-15"
-          ],
-          "provisional": false
-        },
-        {
-          "name": "risk",
-          "type": "jsonb",
-          "enum": null,
-          "controls": null,
-          "note": "embedded RiskCatalogEntry"
-        },
-        {
-          "name": "subject_ref",
-          "type": "text",
-          "enum": null,
-          "note": null,
-          "controls": [
-            "IP-15",
-            "LN-09",
-            "RII-09"
-          ],
-          "provisional": false
-        },
-        {
-          "name": "type",
-          "type": "text",
-          "enum": [
-            "bo_certification",
-            "risk_profile",
-            "edd_file",
-            "risk_catalog",
-            "policy_version",
-            "mi_central_log",
-            "curriculum",
-            "audit_workpapers",
-            "board_pack",
-            "vendor_review",
-            "vendor_alert"
-          ],
-          "note": null,
-          "controls": [
-            "IP-15",
-            "LN-09"
-          ],
-          "provisional": false
-        },
-        {
-          "name": "vendor",
-          "type": "jsonb",
-          "enum": null,
-          "controls": null,
-          "note": "embedded VendorReview"
-        },
-        {
-          "name": "vendor_alert",
-          "type": "jsonb",
-          "enum": null,
-          "controls": null,
-          "note": "embedded VendorAlert"
-        },
-        {
-          "name": "attachment_due_at",
-          "type": "timestamptz",
-          "enum": null,
-          "note": null,
-          "controls": [
-            "IP-15",
-            "LN-09"
-          ],
-          "provisional": false
-        },
-        {
-          "name": "required_set",
-          "type": "text",
-          "enum": null,
-          "note": null,
-          "controls": null,
-          "provisional": true
-        }
-      ],
-      "fks": [],
-      "jsonb_detail": [
-        {
-          "column": "curriculum",
-          "detail_schema": "Curriculum",
-          "array": false
-        },
-        {
-          "column": "edd",
-          "detail_schema": "EddFile",
-          "array": false
-        },
-        {
-          "column": "mi",
-          "detail_schema": "MiCentralLog",
-          "array": false
-        },
-        {
-          "column": "policy",
-          "detail_schema": "PolicyDoc",
-          "array": false
-        },
-        {
-          "column": "report",
-          "detail_schema": "BoardPack",
-          "array": false
-        },
-        {
-          "column": "risk",
-          "detail_schema": "RiskCatalogEntry",
-          "array": false
-        },
-        {
-          "column": "vendor",
-          "detail_schema": "VendorReview",
-          "array": false
-        },
-        {
-          "column": "vendor_alert",
-          "detail_schema": "VendorAlert",
           "array": false
         }
       ],
@@ -1197,11 +1227,7 @@
         "GET /entities",
         "POST /entities",
         "GET /entities/{id}",
-        "POST /entities/{id}/transition",
-        "POST /entities/person",
-        "POST /entities/business",
-        "POST /entities/trust",
-        "POST /entities/joint"
+        "POST /entities/{id}/transition"
       ],
       "has_own_id": true,
       "columns": [
@@ -1211,7 +1237,9 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BSA-03"
+            "BSA-03",
+            "BSA-05",
+            "BSA-18"
           ],
           "provisional": false
         },
@@ -1229,7 +1257,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "MB-02"
+            "MP-02"
           ],
           "provisional": false
         },
@@ -1239,7 +1267,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "MB-02"
+            "MP-02"
           ],
           "provisional": false
         },
@@ -1248,7 +1276,14 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "CO-02",
+            "MP-01",
+            "MP-02",
+            "MP-04",
+            "MP-05",
+            "MP-06"
+          ],
           "provisional": false
         },
         {
@@ -1265,7 +1300,10 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BSA-03"
+            "BSA-03",
+            "BSA-05",
+            "BSA-18",
+            "MP-01"
           ],
           "provisional": false
         },
@@ -1293,6 +1331,7 @@
           "enum": null,
           "note": null,
           "controls": [
+            "TIS-01",
             "TIS-02"
           ],
           "provisional": false
@@ -1309,7 +1348,8 @@
             "PR-05",
             "PR-11",
             "PR-12",
-            "PR-17"
+            "PR-15",
+            "PR-16"
           ],
           "provisional": false
         },
@@ -1318,7 +1358,10 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "PR-02",
+            "PR-12"
+          ],
           "provisional": false
         },
         {
@@ -1327,7 +1370,12 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BSA-03"
+            "BSA-03",
+            "BSA-05",
+            "BSA-08",
+            "BSA-09",
+            "BSA-18",
+            "MP-01"
           ],
           "provisional": false
         },
@@ -1360,7 +1408,10 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BSA-03"
+            "BSA-03",
+            "BSA-05",
+            "BSA-08",
+            "MP-01"
           ],
           "provisional": false
         },
@@ -1379,6 +1430,46 @@
           "note": null,
           "controls": null,
           "provisional": true
+        },
+        {
+          "name": "blnk_identity_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "owners",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "partner_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
         }
       ],
       "fks": [],
@@ -1392,9 +1483,7 @@
       "description": "An immutable, append-only domain event (Decision 4).",
       "states": null,
       "inherited": [],
-      "endpoints": [
-        "GET /events"
-      ],
+      "endpoints": [],
       "has_own_id": true,
       "columns": [
         {
@@ -1402,9 +1491,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "IC-08"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -1460,9 +1547,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "IC-08"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -1515,14 +1600,7 @@
         "nil_determined"
       ],
       "inherited": [],
-      "endpoints": [
-        "GET /filings",
-        "POST /filings",
-        "GET /filings/{id}",
-        "POST /filings/{id}/acknowledge",
-        "POST /filings/{id}/submit",
-        "POST /filings/{id}/transition"
-      ],
+      "endpoints": [],
       "has_own_id": true,
       "columns": [
         {
@@ -1567,16 +1645,16 @@
           "type": "text",
           "enum": null,
           "note": "FK -> filing",
-          "controls": [
-            "BSA-07"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
           "name": "fincen_314a",
           "type": "jsonb",
           "enum": null,
-          "controls": null,
+          "controls": [
+            "BSA-11"
+          ],
           "note": "embedded Fincen314aData"
         },
         {
@@ -1613,7 +1691,9 @@
             "nil_determined"
           ],
           "note": null,
-          "controls": null,
+          "controls": [
+            "BSA-11"
+          ],
           "provisional": false
         },
         {
@@ -1691,9 +1771,7 @@
           "type": "bigint",
           "enum": null,
           "note": null,
-          "controls": [
-            "RP-04"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -1723,19 +1801,15 @@
       "kind": "domain",
       "description": "An operational or security incident and its response.",
       "states": [
+        "detected",
         "declared",
-        "responding",
         "contained",
-        "postmortem",
+        "restored",
         "closed"
       ],
       "inherited": [],
       "endpoints": [
-        "GET /incidents",
-        "POST /incidents",
-        "GET /incidents/{id}",
-        "PATCH /incidents/{id}",
-        "POST /incidents/{id}/transition"
+        "POST /incidents"
       ],
       "has_own_id": true,
       "columns": [
@@ -1744,10 +1818,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "PR-09",
-            "TPR-08"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -1763,9 +1834,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "BCP-06"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -1774,9 +1843,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BCP-05",
-            "BCP-06",
-            "EC-10"
+            "BC-05",
+            "EC-13"
           ],
           "provisional": false
         },
@@ -1786,7 +1854,9 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BCP-13"
+            "BC-06",
+            "PR-18",
+            "SC-03"
           ],
           "provisional": false
         },
@@ -1796,7 +1866,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BCP-10"
+            "BC-15"
           ],
           "provisional": false
         },
@@ -1806,21 +1876,21 @@
           "enum": null,
           "note": null,
           "controls": [
-            "PR-09"
+            "PR-18"
           ],
           "provisional": false
         },
         {
           "name": "data_scope",
-          "type": "text",
+          "type": "jsonb",
           "enum": null,
           "note": null,
           "controls": [
-            "BCP-10",
-            "COL-08",
-            "EC-10",
-            "IS-09",
-            "PR-09"
+            "BC-15",
+            "CO-11",
+            "EC-13",
+            "IS-13",
+            "PR-18"
           ],
           "provisional": false
         },
@@ -1830,7 +1900,10 @@
           "enum": null,
           "note": null,
           "controls": [
-            "MEM-04"
+            "BC-15",
+            "CO-11",
+            "EPS-11",
+            "PR-18"
           ],
           "provisional": false
         },
@@ -1848,13 +1921,11 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BCP-05",
-            "BCP-10",
-            "COL-08",
-            "EC-10",
-            "IS-09",
-            "PR-09",
-            "TPR-08"
+            "BC-15",
+            "CO-11",
+            "EC-09",
+            "EC-13",
+            "PR-18"
           ],
           "provisional": false
         },
@@ -1868,11 +1939,11 @@
         },
         {
           "name": "facts",
-          "type": "text",
+          "type": "jsonb",
           "enum": null,
           "note": null,
           "controls": [
-            "BCP-10"
+            "EC-13"
           ],
           "provisional": false
         },
@@ -1882,9 +1953,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BCP-05",
-            "BCP-09",
-            "IS-09"
+            "BC-05",
+            "BC-09"
           ],
           "provisional": false
         },
@@ -1893,7 +1963,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "PR-18"
+          ],
           "provisional": false
         },
         {
@@ -1902,10 +1974,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BCP-06",
-            "COL-08",
-            "FL-13",
-            "PR-10"
+            "BC-13"
           ],
           "provisional": false
         },
@@ -1915,7 +1984,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "EC-10"
+            "EC-13"
           ],
           "provisional": false
         },
@@ -1933,12 +2002,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BCP-10",
-            "COL-08",
-            "EC-10",
-            "IS-09",
-            "PR-09",
-            "TPR-08"
+            "SC-01"
           ],
           "provisional": false
         },
@@ -1947,9 +2011,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "PR-09"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -1957,11 +2019,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "COL-08",
-            "EC-10",
-            "IS-09"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -1969,10 +2027,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "EC-10",
-            "IS-09"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -1980,7 +2035,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "SC-01"
+          ],
           "provisional": false
         },
         {
@@ -1988,9 +2045,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "BCP-10"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -2006,7 +2061,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "IS-19"
+          ],
           "provisional": false
         },
         {
@@ -2015,7 +2072,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BCP-10"
+            "CO-11",
+            "EC-13"
           ],
           "provisional": false
         },
@@ -2025,10 +2083,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BCP-10",
-            "COL-08",
-            "PR-09",
-            "TPR-08"
+            "CO-11",
+            "SC-01"
           ],
           "provisional": false
         },
@@ -2038,7 +2094,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "IS-09"
+            "SC-01"
           ],
           "provisional": false
         },
@@ -2047,9 +2103,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "IS-09"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -2058,7 +2112,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BCP-13"
+            "BC-13",
+            "IS-19"
           ],
           "provisional": false
         },
@@ -2068,7 +2123,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "PR-09"
+            "PR-18"
           ],
           "provisional": false
         },
@@ -2078,7 +2133,9 @@
           "enum": null,
           "note": null,
           "controls": [
-            "PR-09"
+            "BC-06",
+            "IS-08",
+            "SC-03"
           ],
           "provisional": false
         },
@@ -2088,10 +2145,10 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BCP-06",
-            "EC-10",
-            "IS-09",
-            "TPR-08"
+            "BC-05",
+            "CO-11",
+            "EC-13",
+            "PR-18"
           ],
           "provisional": false
         },
@@ -2101,13 +2158,12 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BCP-05",
-            "COL-08",
-            "EC-10",
-            "FL-13",
-            "IS-09",
-            "PR-09",
-            "TPR-08"
+            "BC-05",
+            "BC-06",
+            "BC-15",
+            "CO-11",
+            "EC-13",
+            "SC-03"
           ],
           "provisional": false
         },
@@ -2115,10 +2171,10 @@
           "name": "status",
           "type": "text",
           "enum": [
+            "detected",
             "declared",
-            "responding",
             "contained",
-            "postmortem",
+            "restored",
             "closed"
           ],
           "note": null,
@@ -2130,9 +2186,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "PR-10"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -2141,8 +2195,9 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BCP-06",
-            "BCP-13"
+            "BC-13",
+            "EC-09",
+            "IS-19"
           ],
           "provisional": false
         },
@@ -2160,12 +2215,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BCP-10",
-            "COL-08",
-            "EC-10",
-            "IS-09",
-            "PR-09",
-            "TPR-08"
+            "SC-01"
           ],
           "provisional": false
         },
@@ -2175,10 +2225,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BCP-10",
-            "COL-08",
-            "IS-09",
-            "PR-09"
+            "SC-01"
           ],
           "provisional": false
         },
@@ -2188,11 +2235,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BCP-05",
-            "COL-08",
-            "EC-10",
-            "IS-09",
-            "PR-09"
+            "CO-11",
+            "PR-18"
           ],
           "provisional": false
         },
@@ -2201,17 +2245,17 @@
           "type": "date",
           "enum": null,
           "note": null,
-          "controls": [
-            "BCP-11"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
           "name": "collections",
-          "type": "text",
+          "type": "boolean",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "CO-11"
+          ],
           "provisional": true
         },
         {
@@ -2219,7 +2263,10 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "PR-10",
+            "PR-18"
+          ],
           "provisional": true
         },
         {
@@ -2227,7 +2274,14 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "BC-09",
+            "BC-15",
+            "CO-11",
+            "EC-13",
+            "PR-18",
+            "SC-01"
+          ],
           "provisional": true
         },
         {
@@ -2245,6 +2299,246 @@
           "note": null,
           "controls": null,
           "provisional": true
+        },
+        {
+          "name": "assessment_completed_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "closed_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "comms_holding_statement",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "comms_initial_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "comms_initial_issued_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "contained_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "declared_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "detected_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "determination_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "external_comms_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "first_hour_completed_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "ic_assigned_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "ic_assigned_to",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "ic_assignment_due_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "is_reportable",
+          "type": "boolean",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "legal_review_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "legal_review_by",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "member_impact_confirmed_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "member_notices_sent_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "ncua_notified_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "oncall_ic_rotation",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "provenance",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "reportability_determined_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "reportability_determined_by",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "restored_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "sitrep_cadence_minutes",
+          "type": "bigint",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "source",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
         }
       ],
       "fks": [],
@@ -2258,11 +2552,7 @@
       "description": "A legal hold on records, with release handling.",
       "states": null,
       "inherited": [],
-      "endpoints": [
-        "GET /legal-holds",
-        "POST /legal-holds",
-        "POST /legal-holds/{id}/release"
-      ],
+      "endpoints": [],
       "has_own_id": true,
       "columns": [
         {
@@ -2271,9 +2561,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "IS-18",
-            "PR-08",
-            "RR-07"
+            "RR-05",
+            "SC-02"
           ],
           "provisional": false
         },
@@ -2291,7 +2580,9 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RR-07"
+            "PR-08",
+            "RR-05",
+            "SC-02"
           ],
           "provisional": false
         },
@@ -2301,7 +2592,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "IS-18"
+            "RR-05",
+            "SC-02"
           ],
           "provisional": false
         },
@@ -2310,7 +2602,10 @@
           "type": "timestamptz",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "RR-05",
+            "SC-02"
+          ],
           "provisional": false
         },
         {
@@ -2319,8 +2614,9 @@
           "enum": null,
           "note": null,
           "controls": [
-            "IS-18",
-            "RR-07"
+            "PR-08",
+            "RR-05",
+            "SC-02"
           ],
           "provisional": false
         },
@@ -2337,7 +2633,10 @@
           "type": "timestamptz",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "RR-05",
+            "SC-02"
+          ],
           "provisional": false
         },
         {
@@ -2346,7 +2645,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "IS-18"
+            "RR-05",
+            "SC-02"
           ],
           "provisional": false
         },
@@ -2382,13 +2682,7 @@
         "funded"
       ],
       "inherited": [],
-      "endpoints": [
-        "GET /loans",
-        "POST /loans",
-        "GET /loans/{id}",
-        "POST /loans/{id}/book",
-        "POST /loans/{id}/transition"
-      ],
+      "endpoints": [],
       "has_own_id": true,
       "columns": [
         {
@@ -2397,7 +2691,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-09"
+            "CO-09"
           ],
           "provisional": false
         },
@@ -2406,9 +2700,7 @@
           "type": "jsonb",
           "enum": null,
           "note": null,
-          "controls": [
-            "LD-07"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -2417,7 +2709,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-03"
+            "CO-02",
+            "CO-03"
           ],
           "provisional": false
         },
@@ -2427,7 +2720,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-03"
+            "CO-03"
           ],
           "provisional": false
         },
@@ -2448,7 +2741,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "CO-03"
+          ],
           "provisional": false
         },
         {
@@ -2457,7 +2752,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "CL-03"
+            "CO-03"
           ],
           "provisional": false
         },
@@ -2467,7 +2762,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "CL-03"
+            "CO-03"
           ],
           "provisional": false
         },
@@ -2477,7 +2772,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-03"
+            "CO-03"
           ],
           "provisional": false
         },
@@ -2487,7 +2782,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-09"
+            "CO-03"
           ],
           "provisional": false
         },
@@ -2497,7 +2792,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-03"
+            "CO-03"
           ],
           "provisional": false
         },
@@ -2507,8 +2802,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-02",
-            "COL-09"
+            "CO-02",
+            "CO-09"
           ],
           "provisional": false
         },
@@ -2518,7 +2813,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "CL-03"
+            "CO-03"
           ],
           "provisional": false
         },
@@ -2527,7 +2822,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "CO-02"
+          ],
           "provisional": false
         },
         {
@@ -2535,7 +2832,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "CO-02"
+          ],
           "provisional": false
         },
         {
@@ -2543,7 +2842,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "CO-02"
+          ],
           "provisional": false
         },
         {
@@ -2551,7 +2852,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "CO-02"
+          ],
           "provisional": false
         },
         {
@@ -2559,7 +2862,10 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "BA-04",
+            "CO-03"
+          ],
           "provisional": false
         },
         {
@@ -2567,7 +2873,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "CO-02"
+          ],
           "provisional": false
         },
         {
@@ -2584,10 +2892,10 @@
           "enum": null,
           "note": null,
           "controls": [
-            "CL-01",
-            "CL-02",
-            "CL-03",
-            "CL-09"
+            "BA-04",
+            "CO-01",
+            "CO-04",
+            "CO-09"
           ],
           "provisional": false
         },
@@ -2597,7 +2905,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-04"
+            "CO-04"
           ],
           "provisional": false
         },
@@ -2607,7 +2915,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-04"
+            "CO-04"
           ],
           "provisional": false
         },
@@ -2617,7 +2925,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "CL-03"
+            "CO-03"
           ],
           "provisional": false
         },
@@ -2627,7 +2935,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-09"
+            "CO-03"
           ],
           "provisional": false
         },
@@ -2637,7 +2945,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-09"
+            "CO-09"
           ],
           "provisional": false
         },
@@ -2651,7 +2959,7 @@
           ],
           "note": null,
           "controls": [
-            "LN-11"
+            "LP-11"
           ],
           "provisional": false
         },
@@ -2661,7 +2969,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-02"
+            "CO-02"
           ],
           "provisional": false
         },
@@ -2671,7 +2979,10 @@
           "enum": null,
           "note": null,
           "controls": [
-            "LC-06"
+            "CO-02",
+            "CO-03",
+            "CO-04",
+            "CO-09"
           ],
           "provisional": false
         },
@@ -2681,7 +2992,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-04"
+            "CO-04"
           ],
           "provisional": false
         },
@@ -2691,18 +3002,19 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-02"
+            "CO-02"
           ],
           "provisional": false
         },
         {
           "name": "ltv",
-          "type": "numeric",
+          "type": "bigint",
           "enum": null,
           "note": null,
           "controls": [
-            "COL-03",
-            "LN-06"
+            "CO-03",
+            "LP-03",
+            "LP-06"
           ],
           "provisional": false
         },
@@ -2712,7 +3024,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-04"
+            "CO-04",
+            "CO-09"
           ],
           "provisional": false
         },
@@ -2722,7 +3035,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-01"
+            "CO-01",
+            "CO-09"
           ],
           "provisional": false
         },
@@ -2732,7 +3046,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-02"
+            "CO-02"
           ],
           "provisional": false
         },
@@ -2742,8 +3056,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-02",
-            "COL-03"
+            "CO-02",
+            "CO-03"
           ],
           "provisional": false
         },
@@ -2753,7 +3067,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-04"
+            "CO-04"
           ],
           "provisional": false
         },
@@ -2763,9 +3077,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-03",
-            "COL-04",
-            "COL-09"
+            "CO-03",
+            "CO-09"
           ],
           "provisional": false
         },
@@ -2775,9 +3088,9 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-01",
-            "COL-04",
-            "COL-09"
+            "CO-01",
+            "CO-03",
+            "CO-09"
           ],
           "provisional": false
         },
@@ -2787,7 +3100,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-03"
+            "CO-02",
+            "CO-03"
           ],
           "provisional": false
         },
@@ -2797,7 +3111,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-02"
+            "CO-02"
           ],
           "provisional": false
         },
@@ -2807,7 +3121,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-03"
+            "CO-03"
           ],
           "provisional": false
         },
@@ -2817,7 +3131,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-03"
+            "CO-03"
           ],
           "provisional": false
         },
@@ -2827,7 +3141,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-02"
+            "CO-02"
           ],
           "provisional": false
         },
@@ -2837,10 +3151,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-01",
-            "COL-02",
-            "COL-03",
-            "COL-09"
+            "BA-04",
+            "CO-02"
           ],
           "provisional": false
         },
@@ -2850,7 +3162,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-03"
+            "CO-03"
           ],
           "provisional": false
         },
@@ -2860,7 +3172,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-09"
+            "CO-09"
           ],
           "provisional": false
         },
@@ -2870,7 +3182,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-09"
+            "CO-09"
           ],
           "provisional": false
         },
@@ -2880,7 +3192,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-03"
+            "CO-03"
           ],
           "provisional": false
         },
@@ -2890,7 +3202,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-02"
+            "CO-02"
           ],
           "provisional": false
         },
@@ -2900,7 +3212,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-02"
+            "CO-02"
           ],
           "provisional": false
         },
@@ -2910,7 +3222,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-02"
+            "CO-02"
           ],
           "provisional": false
         },
@@ -2935,7 +3247,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "CO-04"
+          ],
           "provisional": true
         },
         {
@@ -2951,7 +3265,10 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "CO-01",
+            "CO-03"
+          ],
           "provisional": true
         },
         {
@@ -2979,15 +3296,7 @@
         "final_action"
       ],
       "inherited": [],
-      "endpoints": [
-        "GET /loan-applications",
-        "POST /loan-applications",
-        "GET /loan-applications/{id}",
-        "PATCH /loan-applications/{id}",
-        "POST /loan-applications/{id}/counteroffer",
-        "POST /loan-applications/{id}/decision",
-        "POST /loan-applications/{id}/transition"
-      ],
+      "endpoints": [],
       "has_own_id": true,
       "columns": [
         {
@@ -2996,9 +3305,11 @@
           "enum": null,
           "note": null,
           "controls": [
+            "FL-03",
             "FL-05",
-            "LN-03",
-            "LN-07"
+            "LP-03",
+            "LP-04",
+            "LP-07"
           ],
           "provisional": false
         },
@@ -3015,7 +3326,10 @@
           "type": "jsonb",
           "enum": null,
           "controls": [
-            "FL-05"
+            "DF-05",
+            "LP-06",
+            "LP-07",
+            "LP-14"
           ],
           "note": "embedded Applicant"
         },
@@ -3025,7 +3339,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "LN-05"
+            "LP-03",
+            "LP-05"
           ],
           "provisional": false
         },
@@ -3035,7 +3350,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "LD-13"
+            "FL-02",
+            "LP-03"
           ],
           "provisional": false
         },
@@ -3050,8 +3366,7 @@
           ],
           "note": null,
           "controls": [
-            "FL-05",
-            "LN-07"
+            "LP-07"
           ],
           "provisional": false
         },
@@ -3062,7 +3377,7 @@
           "note": null,
           "controls": [
             "FL-05",
-            "LN-07"
+            "LP-07"
           ],
           "provisional": false
         },
@@ -3071,9 +3386,7 @@
           "type": "jsonb",
           "enum": null,
           "note": null,
-          "controls": [
-            "LN-03"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -3082,8 +3395,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "LN-03",
-            "LN-04"
+            "LP-03"
           ],
           "provisional": false
         },
@@ -3091,10 +3403,7 @@
           "name": "decision",
           "type": "jsonb",
           "enum": null,
-          "controls": [
-            "LN-03",
-            "LN-07"
-          ],
+          "controls": null,
           "note": "embedded Decision"
         },
         {
@@ -3106,9 +3415,7 @@
             "blocked"
           ],
           "note": null,
-          "controls": [
-            "LN-14"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -3121,7 +3428,8 @@
           ],
           "note": null,
           "controls": [
-            "LN-05"
+            "LP-05",
+            "LP-09"
           ],
           "provisional": false
         },
@@ -3131,8 +3439,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "LN-03",
-            "LN-05"
+            "LP-03",
+            "LP-05"
           ],
           "provisional": false
         },
@@ -3141,9 +3449,7 @@
           "type": "jsonb",
           "enum": null,
           "note": null,
-          "controls": [
-            "LD-05"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -3151,9 +3457,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "LN-03"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -3172,8 +3476,10 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FL-02",
-            "LN-13"
+            "FL-06",
+            "LP-03",
+            "LP-07",
+            "LP-09"
           ],
           "provisional": false
         },
@@ -3182,7 +3488,11 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "LP-03",
+            "LP-06",
+            "LP-08"
+          ],
           "provisional": false
         },
         {
@@ -3191,7 +3501,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "LN-03"
+            "FL-03",
+            "LP-03"
           ],
           "provisional": false
         },
@@ -3201,8 +3512,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FL-05",
-            "LN-03"
+            "LP-03"
           ],
           "provisional": false
         },
@@ -3211,7 +3521,9 @@
           "type": "timestamptz",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "LP-09"
+          ],
           "provisional": false
         },
         {
@@ -3229,7 +3541,10 @@
           "type": "boolean",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "FL-05",
+            "LP-07"
+          ],
           "provisional": false
         },
         {
@@ -3239,7 +3554,7 @@
           "note": null,
           "controls": [
             "FL-05",
-            "LN-07"
+            "LP-07"
           ],
           "provisional": false
         },
@@ -3247,9 +3562,7 @@
           "name": "parties",
           "type": "jsonb",
           "enum": null,
-          "controls": [
-            "LN-14"
-          ],
+          "controls": null,
           "note": "embedded LoanParty (array)"
         },
         {
@@ -3265,7 +3578,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "LN-02"
+            "LP-02",
+            "LP-06"
           ],
           "provisional": false
         },
@@ -3276,7 +3590,9 @@
           "note": null,
           "controls": [
             "FL-02",
-            "LN-02"
+            "FL-04",
+            "LP-02",
+            "LP-05"
           ],
           "provisional": false
         },
@@ -3285,9 +3601,7 @@
           "type": "jsonb",
           "enum": null,
           "note": null,
-          "controls": [
-            "FL-08"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -3297,7 +3611,8 @@
           "note": null,
           "controls": [
             "FL-05",
-            "LN-07"
+            "LP-03",
+            "LP-07"
           ],
           "provisional": false
         },
@@ -3308,7 +3623,7 @@
           "note": null,
           "controls": [
             "FL-05",
-            "LN-07"
+            "LP-07"
           ],
           "provisional": false
         },
@@ -3318,7 +3633,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "LN-03"
+            "LP-03"
           ],
           "provisional": false
         },
@@ -3327,7 +3642,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "FL-05"
+          ],
           "provisional": true
         },
         {
@@ -3335,7 +3652,13 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "FL-03",
+            "FL-08",
+            "FL-12",
+            "LP-03",
+            "LP-05"
+          ],
           "provisional": true
         },
         {
@@ -3351,7 +3674,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "FL-05"
+          ],
           "provisional": true
         },
         {
@@ -3359,15 +3684,20 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "DF-05",
+            "LP-14"
+          ],
           "provisional": true
         },
         {
           "name": "thin_file",
-          "type": "text",
+          "type": "boolean",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "LP-04"
+          ],
           "provisional": true
         },
         {
@@ -3404,6 +3734,49 @@
       ],
       "softrefs": []
     },
+    "OfacResult": {
+      "schema": "OfacResult",
+      "table": "ofac_result",
+      "kind": "banking-core",
+      "description": "The result of an OFAC sanctions screening.",
+      "states": null,
+      "inherited": [],
+      "endpoints": [],
+      "has_own_id": false,
+      "columns": [
+        {
+          "name": "match_score",
+          "type": "numeric",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "LP-11"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "match_status",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "matched_lists",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "LP-11"
+          ],
+          "provisional": false
+        }
+      ],
+      "fks": [],
+      "jsonb_detail": [],
+      "softrefs": []
+    },
     "Originator": {
       "schema": "Originator",
       "table": "originator",
@@ -3422,6 +3795,7 @@
           "enum": null,
           "note": null,
           "controls": [
+            "BSA-05",
             "BSA-10"
           ],
           "provisional": false
@@ -3432,6 +3806,7 @@
           "enum": null,
           "note": null,
           "controls": [
+            "BSA-05",
             "BSA-10"
           ],
           "provisional": false
@@ -3441,7 +3816,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "BSA-10"
+          ],
           "provisional": false
         }
       ],
@@ -3492,13 +3869,7 @@
         "overdue"
       ],
       "inherited": [],
-      "endpoints": [
-        "GET /tasks",
-        "POST /tasks",
-        "GET /tasks/{id}",
-        "POST /tasks/{id}/complete",
-        "POST /tasks/{id}/transition"
-      ],
+      "endpoints": [],
       "has_own_id": true,
       "columns": [
         {
@@ -3612,9 +3983,7 @@
             "verification"
           ],
           "note": null,
-          "controls": [
-            "LP-14"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -3649,29 +4018,14 @@
       "states": null,
       "inherited": [],
       "endpoints": [
-        "GET /transfers",
         "POST /transfers",
+        "GET /transfers",
         "GET /transfers/{id}"
       ],
       "has_own_id": true,
       "columns": [
         {
-          "name": "amount",
-          "type": "bigint",
-          "enum": null,
-          "note": null,
-          "controls": null,
-          "provisional": false
-        },
-        {
           "name": "beneficiary",
-          "type": "jsonb",
-          "enum": null,
-          "controls": null,
-          "note": "embedded Party"
-        },
-        {
-          "name": "counterparty",
           "type": "jsonb",
           "enum": null,
           "controls": null,
@@ -3706,17 +4060,84 @@
           "note": null,
           "controls": null,
           "provisional": false
+        },
+        {
+          "name": "amount",
+          "type": "bigint",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "blnk_reference",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "blnk_status",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "blnk_transaction_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "counterparty",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "partner_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "synced_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
         }
       ],
       "fks": [],
       "jsonb_detail": [
         {
           "column": "beneficiary",
-          "detail_schema": "Party",
-          "array": false
-        },
-        {
-          "column": "counterparty",
           "detail_schema": "Party",
           "array": false
         },
@@ -3744,9 +4165,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "IC-05",
-            "IS-06",
-            "PR-06"
+            "IS-06"
           ],
           "provisional": false
         },
@@ -3756,9 +4175,16 @@
           "enum": null,
           "note": null,
           "controls": [
-            "IC-05",
+            "EC-02",
+            "ERM-01",
+            "ERM-03",
+            "ERM-06",
+            "ERM-07",
+            "IC-03",
+            "IC-06",
+            "IP-14",
             "IS-06",
-            "PR-06"
+            "IS-15"
           ],
           "provisional": false
         },
@@ -3768,9 +4194,15 @@
           "enum": null,
           "note": null,
           "controls": [
-            "CP-03",
-            "IS-06",
-            "IS-15"
+            "CP-11",
+            "EC-02",
+            "EC-12",
+            "EPS-09",
+            "IC-03",
+            "IC-05",
+            "IP-14",
+            "IS-15",
+            "PR-06"
           ],
           "provisional": false
         }
@@ -3790,17 +4222,12 @@
         "denied"
       ],
       "inherited": [],
-      "endpoints": [
-        "GET /verifications",
-        "POST /verifications",
-        "GET /verifications/{id}",
-        "POST /verifications/{id}/transition"
-      ],
+      "endpoints": [],
       "has_own_id": true,
       "columns": [
         {
           "name": "alt_path_available",
-          "type": "text",
+          "type": "boolean",
           "enum": null,
           "note": null,
           "controls": [
@@ -3858,7 +4285,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "PR-16"
+          ],
           "provisional": false
         },
         {
@@ -3868,7 +4297,7 @@
           "note": null,
           "controls": [
             "BSA-03",
-            "EC-03"
+            "PR-16"
           ],
           "provisional": false
         },
@@ -3884,7 +4313,9 @@
           "name": "pep",
           "type": "jsonb",
           "enum": null,
-          "controls": null,
+          "controls": [
+            "BSA-18"
+          ],
           "note": "embedded PepStatus"
         },
         {
@@ -3893,7 +4324,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "PR-16"
+            "MP-01"
           ],
           "provisional": false
         },
@@ -3903,7 +4334,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BSA-03"
+            "BSA-03",
+            "MP-01"
           ],
           "provisional": false
         },
@@ -3918,7 +4350,9 @@
           "note": null,
           "controls": [
             "BSA-03",
-            "MB-01"
+            "MP-01",
+            "MP-02",
+            "MP-07"
           ],
           "provisional": false
         },
@@ -3937,7 +4371,10 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "BSA-03",
+            "MP-01"
+          ],
           "provisional": false
         },
         {
@@ -3983,11 +4420,9 @@
       "inherited": [],
       "endpoints": [
         "GET /wire-transfers",
-        "POST /wire-transfers",
-        "GET /wire-transfers/{id}",
-        "POST /wire-transfers/{id}/transition"
+        "GET /wire-transfers/{id}"
       ],
-      "has_own_id": false,
+      "has_own_id": true,
       "columns": [
         {
           "name": "amount",
@@ -3995,7 +4430,9 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BSA-10"
+            "BSA-05",
+            "BSA-10",
+            "EPS-06"
           ],
           "provisional": false
         },
@@ -4004,7 +4441,8 @@
           "type": "jsonb",
           "enum": null,
           "controls": [
-            "BSA-10"
+            "BSA-10",
+            "EPS-06"
           ],
           "note": "embedded Beneficiary"
         },
@@ -4013,9 +4451,7 @@
           "type": "jsonb",
           "enum": null,
           "note": null,
-          "controls": [
-            "BSA-10"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -4023,9 +4459,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "BSA-10"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -4033,9 +4467,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "BSA-10"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -4043,7 +4475,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "BSA-10"
+          ],
           "provisional": false
         },
         {
@@ -4058,6 +4492,90 @@
             "rejected",
             "canceled"
           ],
+          "note": null,
+          "controls": [
+            "BSA-10"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "blnk_reference",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "blnk_status",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "blnk_transaction_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "originator",
+          "type": "jsonb",
+          "enum": null,
+          "note": null,
+          "controls": [
+            "BSA-10"
+          ],
+          "provisional": false
+        },
+        {
+          "name": "partner_id",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "return_reason",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "synced_at",
+          "type": "timestamptz",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "enum": null,
           "note": null,
           "controls": null,
           "provisional": false
@@ -4085,12 +4603,7 @@
         "closed"
       ],
       "inherited": [],
-      "endpoints": [
-        "GET /changes",
-        "POST /changes",
-        "GET /changes/{id}",
-        "POST /changes/{id}/transition"
-      ],
+      "endpoints": [],
       "has_own_id": false,
       "columns": [
         {
@@ -4129,6 +4642,8 @@
           "enum": null,
           "note": null,
           "controls": [
+            "EC-06",
+            "IC-05",
             "IS-04"
           ],
           "provisional": false
@@ -4138,9 +4653,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "IC-05"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -4149,7 +4662,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "IC-05",
+            "EC-05",
             "IS-04"
           ],
           "provisional": false
@@ -4171,7 +4684,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "IC-05",
+            "EC-05",
+            "EC-06",
             "IS-04"
           ],
           "provisional": false
@@ -4182,6 +4696,7 @@
           "enum": null,
           "note": null,
           "controls": [
+            "EC-05",
             "IC-05",
             "IS-04"
           ],
@@ -4193,6 +4708,7 @@
           "enum": null,
           "note": null,
           "controls": [
+            "EC-05",
             "IC-05",
             "IS-04"
           ],
@@ -4222,7 +4738,12 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "EC-05",
+            "EC-06",
+            "IC-05",
+            "IS-04"
+          ],
           "provisional": true
         },
         {
@@ -4254,12 +4775,7 @@
         "determined"
       ],
       "inherited": [],
-      "endpoints": [
-        "GET /cois",
-        "POST /cois",
-        "GET /cois/{id}",
-        "POST /cois/{id}/transition"
-      ],
+      "endpoints": [],
       "has_own_id": false,
       "columns": [
         {
@@ -4267,9 +4783,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "FD-03"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -4278,7 +4792,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-03"
+            "DF-03"
           ],
           "provisional": false
         },
@@ -4288,7 +4802,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-03"
+            "DF-03",
+            "IP-16"
           ],
           "provisional": false
         },
@@ -4298,8 +4813,9 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-02",
-            "RII-07"
+            "DF-02",
+            "DF-03",
+            "IP-16"
           ],
           "provisional": false
         },
@@ -4309,7 +4825,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-02"
+            "DF-02"
           ],
           "provisional": false
         },
@@ -4319,7 +4835,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-04"
+            "DF-04"
           ],
           "provisional": false
         },
@@ -4329,7 +4845,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-04"
+            "DF-04"
           ],
           "provisional": false
         },
@@ -4339,8 +4855,9 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-02",
-            "FD-03"
+            "DF-02",
+            "DF-03",
+            "IP-16"
           ],
           "provisional": false
         },
@@ -4350,8 +4867,10 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-02",
-            "FD-04",
+            "DF-02",
+            "DF-03",
+            "DF-04",
+            "IP-16",
             "RII-07"
           ],
           "provisional": false
@@ -4362,7 +4881,9 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-03"
+            "DF-03",
+            "IP-16",
+            "RII-07"
           ],
           "provisional": false
         },
@@ -4372,7 +4893,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-03",
+            "DF-03",
             "IP-16"
           ],
           "provisional": false
@@ -4382,9 +4903,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "FD-02"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -4393,7 +4912,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-04"
+            "DF-04"
           ],
           "provisional": false
         },
@@ -4402,7 +4921,11 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "DF-02",
+            "DF-04",
+            "DF-09"
+          ],
           "provisional": false
         },
         {
@@ -4411,9 +4934,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-02",
-            "FD-03",
-            "RII-07"
+            "DF-02"
           ],
           "provisional": false
         },
@@ -4422,9 +4943,7 @@
           "type": "date",
           "enum": null,
           "note": null,
-          "controls": [
-            "FD-03"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -4433,7 +4952,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-03",
+            "DF-03",
             "IP-16"
           ],
           "provisional": false
@@ -4484,10 +5003,7 @@
       ],
       "inherited": [],
       "endpoints": [
-        "GET /complaints",
-        "POST /complaints",
-        "GET /complaints/{id}",
-        "POST /complaints/{id}/transition"
+        "POST /complaints"
       ],
       "has_own_id": false,
       "columns": [
@@ -4497,9 +5013,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-06",
-            "CP-08",
-            "FL-13",
+            "CM-08",
+            "MP-04",
             "PR-10"
           ],
           "provisional": false
@@ -4509,9 +5024,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "CL-06"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -4520,8 +5033,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-06",
-            "FL-13"
+            "CO-06",
+            "MP-04"
           ],
           "provisional": false
         },
@@ -4531,9 +5044,10 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-06",
-            "CP-08",
+            "CM-08",
+            "CO-06",
             "FL-13",
+            "MP-04",
             "PR-10"
           ],
           "provisional": false
@@ -4544,7 +5058,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "MB-04"
+            "CO-06"
           ],
           "provisional": false
         },
@@ -4554,9 +5068,10 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-06",
-            "CP-08",
-            "FL-13"
+            "CM-08",
+            "CO-06",
+            "MP-04",
+            "PR-10"
           ],
           "provisional": false
         },
@@ -4566,9 +5081,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-06",
-            "CP-08",
-            "FL-13",
+            "CM-04",
+            "CO-06",
             "PR-10"
           ],
           "provisional": false
@@ -4579,8 +5093,9 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-06",
-            "CP-08"
+            "CM-08",
+            "CO-06",
+            "MP-04"
           ],
           "provisional": false
         },
@@ -4590,8 +5105,11 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-06",
-            "FL-13"
+            "CM-08",
+            "CO-06",
+            "FL-13",
+            "MP-04",
+            "PR-10"
           ],
           "provisional": false
         },
@@ -4601,10 +5119,10 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-06",
-            "CP-08",
+            "CM-08",
+            "CO-06",
             "FL-13",
-            "MB-04",
+            "MP-04",
             "PR-10"
           ],
           "provisional": false
@@ -4615,10 +5133,9 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-06",
-            "CP-08",
+            "CO-06",
             "FL-13",
-            "MB-04"
+            "MP-04"
           ],
           "provisional": false
         },
@@ -4628,8 +5145,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-06",
-            "MB-04"
+            "CO-06",
+            "MP-04"
           ],
           "provisional": false
         },
@@ -4639,8 +5156,10 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-06",
-            "FL-13"
+            "CO-06",
+            "FL-13",
+            "MP-04",
+            "PR-10"
           ],
           "provisional": false
         },
@@ -4650,7 +5169,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-06"
+            "CM-08",
+            "CO-06"
           ],
           "provisional": false
         },
@@ -4660,9 +5180,9 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-06",
-            "CP-08",
-            "FL-13"
+            "CM-08",
+            "CO-06",
+            "PR-10"
           ],
           "provisional": false
         },
@@ -4671,7 +5191,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "CO-06"
+          ],
           "provisional": true
         },
         {
@@ -4679,7 +5201,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "PR-10"
+          ],
           "provisional": true
         },
         {
@@ -4687,7 +5211,10 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "CO-06",
+            "MP-04"
+          ],
           "provisional": true
         },
         {
@@ -4721,10 +5248,7 @@
       ],
       "inherited": [],
       "endpoints": [
-        "GET /disputes",
-        "POST /disputes",
-        "GET /disputes/{id}",
-        "POST /disputes/{id}/transition"
+        "POST /disputes"
       ],
       "has_own_id": false,
       "columns": [
@@ -4734,8 +5258,9 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-07",
-            "MB-04"
+            "CO-07",
+            "MP-04",
+            "PR-05"
           ],
           "provisional": false
         },
@@ -4745,8 +5270,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-07",
-            "MB-04"
+            "CO-07"
           ],
           "provisional": false
         },
@@ -4756,7 +5280,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "MB-04"
+            "MP-04"
           ],
           "provisional": false
         },
@@ -4766,8 +5290,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-07",
-            "MB-04"
+            "CO-07",
+            "MP-04"
           ],
           "provisional": false
         },
@@ -4777,7 +5301,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "COL-07"
+            "CO-07"
           ],
           "provisional": false
         },
@@ -4786,9 +5310,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "MB-04"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -4796,9 +5318,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "MB-04"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -4806,9 +5326,7 @@
           "type": "timestamptz",
           "enum": null,
           "note": null,
-          "controls": [
-            "MB-04"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -4817,7 +5335,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "MB-04"
+            "MP-04"
           ],
           "provisional": false
         },
@@ -4827,7 +5345,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "MB-04"
+            "MP-04"
           ],
           "provisional": false
         },
@@ -4836,7 +5354,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "MP-04"
+          ],
           "provisional": true
         },
         {
@@ -4877,12 +5397,7 @@
         "closed"
       ],
       "inherited": [],
-      "endpoints": [
-        "GET /findings",
-        "POST /findings",
-        "GET /findings/{id}",
-        "POST /findings/{id}/transition"
-      ],
+      "endpoints": [],
       "has_own_id": false,
       "columns": [
         {
@@ -4891,10 +5406,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "AU-09",
-            "BCP-13",
-            "CP-07",
-            "IC-07"
+            "AU-09"
           ],
           "provisional": false
         },
@@ -4903,7 +5415,11 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "AU-07",
+            "AU-08",
+            "AU-09"
+          ],
           "provisional": false
         },
         {
@@ -4912,7 +5428,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "AU-07"
+            "CM-06"
           ],
           "provisional": false
         },
@@ -4921,11 +5437,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "AU-03",
-            "AU-06",
-            "AU-07"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -4935,7 +5447,8 @@
           "note": null,
           "controls": [
             "AU-06",
-            "AU-08"
+            "AU-08",
+            "AU-09"
           ],
           "provisional": false
         },
@@ -4946,7 +5459,7 @@
           "note": null,
           "controls": [
             "AU-06",
-            "CP-07"
+            "CM-07"
           ],
           "provisional": false
         },
@@ -4956,9 +5469,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "AU-07",
-            "CP-01",
-            "TPR-01"
+            "AU-02",
+            "AU-07"
           ],
           "provisional": false
         },
@@ -4967,13 +5479,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "BCP-13",
-            "BSA-15",
-            "CP-06",
-            "EC-05",
-            "EC-06"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -4982,9 +5488,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "AU-08",
             "AU-09",
-            "BSA-15"
+            "CM-07"
           ],
           "provisional": false
         },
@@ -4995,7 +5500,9 @@
           "note": null,
           "controls": [
             "AU-07",
-            "CP-07"
+            "CM-01",
+            "CM-09",
+            "IC-01"
           ],
           "provisional": false
         },
@@ -5007,7 +5514,8 @@
           "controls": [
             "AU-06",
             "AU-07",
-            "AU-08"
+            "AU-08",
+            "AU-09"
           ],
           "provisional": false
         },
@@ -5036,9 +5544,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "AU-07"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -5048,12 +5554,16 @@
           "note": null,
           "controls": [
             "AU-03",
+            "AU-04",
             "AU-05",
             "AU-06",
             "AU-07",
-            "BSA-15",
-            "CP-06",
-            "CP-07"
+            "AU-08",
+            "AU-09",
+            "CM-05",
+            "CM-06",
+            "EC-01",
+            "IC-01"
           ],
           "provisional": false
         },
@@ -5064,8 +5574,10 @@
           "note": null,
           "controls": [
             "AU-03",
+            "AU-05",
             "AU-06",
-            "AU-07"
+            "AU-07",
+            "AU-08"
           ],
           "provisional": false
         },
@@ -5075,8 +5587,10 @@
           "enum": null,
           "note": null,
           "controls": [
+            "AU-03",
             "AU-06",
-            "EC-05"
+            "AU-07",
+            "CM-06"
           ],
           "provisional": false
         },
@@ -5087,9 +5601,7 @@
           "note": null,
           "controls": [
             "AU-07",
-            "CP-06",
-            "EC-05",
-            "EC-06"
+            "CM-06"
           ],
           "provisional": false
         },
@@ -5099,9 +5611,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "AU-07",
-            "FL-13",
-            "IC-07"
+            "AU-07"
           ],
           "provisional": false
         },
@@ -5121,8 +5631,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "AU-07",
-            "IC-07"
+            "AU-07"
           ],
           "provisional": false
         },
@@ -5132,17 +5641,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "AU-03",
-            "AU-06",
-            "AU-07",
-            "AU-08",
-            "AU-09",
-            "BCP-13",
-            "CP-06",
-            "CP-07",
-            "EC-05",
-            "EC-06",
-            "FL-13"
+            "AU-08"
           ],
           "provisional": false
         },
@@ -5159,7 +5658,11 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "CM-01",
+            "CM-06",
+            "CM-07"
+          ],
           "provisional": true
         },
         {
@@ -5199,12 +5702,7 @@
         "completed"
       ],
       "inherited": [],
-      "endpoints": [
-        "GET /handovers",
-        "POST /handovers",
-        "GET /handovers/{id}",
-        "POST /handovers/{id}/transition"
-      ],
+      "endpoints": [],
       "has_own_id": false,
       "columns": [
         {
@@ -5213,7 +5711,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RP-07"
+            "RS-07"
           ],
           "provisional": false
         },
@@ -5223,7 +5721,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RP-07"
+            "RS-07"
           ],
           "provisional": false
         },
@@ -5232,7 +5730,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "RS-07"
+          ],
           "provisional": false
         },
         {
@@ -5241,7 +5741,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RP-07"
+            "RS-07"
           ],
           "provisional": false
         },
@@ -5251,7 +5751,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RP-07"
+            "RS-07"
           ],
           "provisional": false
         },
@@ -5260,9 +5760,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "RP-07"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -5270,9 +5768,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "RP-07"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -5280,7 +5776,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "RS-07"
+          ],
           "provisional": false
         },
         {
@@ -5289,7 +5787,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RP-07"
+            "RS-07"
           ],
           "provisional": false
         },
@@ -5299,7 +5797,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RP-07"
+            "RS-07"
           ],
           "provisional": false
         },
@@ -5309,7 +5807,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RP-07"
+            "RS-07"
           ],
           "provisional": false
         },
@@ -5319,7 +5817,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RP-07"
+            "RS-07"
           ],
           "provisional": false
         },
@@ -5329,7 +5827,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RP-07"
+            "RS-07"
           ],
           "provisional": false
         },
@@ -5362,16 +5860,11 @@
         "paid"
       ],
       "inherited": [],
-      "endpoints": [
-        "GET /indemnifications",
-        "POST /indemnifications",
-        "GET /indemnifications/{id}",
-        "POST /indemnifications/{id}/transition"
-      ],
+      "endpoints": [],
       "has_own_id": false,
       "columns": [
         {
-          "name": "advance.disbursed",
+          "name": "advance_disbursed",
           "type": "text",
           "enum": null,
           "note": null,
@@ -5381,13 +5874,11 @@
           "provisional": false
         },
         {
-          "name": "advance.requested",
+          "name": "advance_requested",
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "RII-05"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -5401,7 +5892,7 @@
           "provisional": false
         },
         {
-          "name": "claim.notified",
+          "name": "claim_notified",
           "type": "text",
           "enum": null,
           "note": null,
@@ -5416,9 +5907,10 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RII-03",
             "RII-04",
-            "RII-06"
+            "RII-06",
+            "RII-07",
+            "RII-09"
           ],
           "provisional": false
         },
@@ -5429,7 +5921,8 @@
           "note": null,
           "controls": [
             "RII-04",
-            "RII-07"
+            "RII-07",
+            "RII-09"
           ],
           "provisional": false
         },
@@ -5444,7 +5937,7 @@
           "provisional": false
         },
         {
-          "name": "decision_body.selected",
+          "name": "decision_body_selected",
           "type": "text",
           "enum": null,
           "note": null,
@@ -5459,7 +5952,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RII-05"
+            "RII-04"
           ],
           "provisional": false
         },
@@ -5479,9 +5972,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RII-03",
-            "RII-04",
-            "RII-05"
+            "RII-03"
           ],
           "provisional": false
         },
@@ -5491,6 +5982,9 @@
           "enum": null,
           "note": null,
           "controls": [
+            "RII-03",
+            "RII-04",
+            "RII-05",
             "RII-06"
           ],
           "provisional": false
@@ -5501,7 +5995,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RII-03"
+            "RII-03",
+            "RII-04"
           ],
           "provisional": false
         },
@@ -5524,25 +6019,20 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RII-03",
-            "RII-04",
-            "RII-06",
-            "RII-08"
-          ],
-          "provisional": false
-        },
-        {
-          "name": "matter.resolved_favorably",
-          "type": "text",
-          "enum": null,
-          "note": null,
-          "controls": [
             "RII-03"
           ],
           "provisional": false
         },
         {
-          "name": "payment.blocked",
+          "name": "matter_resolved_favorably",
+          "type": "text",
+          "enum": null,
+          "note": null,
+          "controls": null,
+          "provisional": false
+        },
+        {
+          "name": "payment_blocked",
           "type": "text",
           "enum": null,
           "note": null,
@@ -5553,7 +6043,7 @@
           "provisional": false
         },
         {
-          "name": "payment.disbursed",
+          "name": "payment_disbursed",
           "type": "text",
           "enum": null,
           "note": null,
@@ -5569,12 +6059,13 @@
           "enum": null,
           "note": null,
           "controls": [
+            "RII-04",
             "RII-07"
           ],
           "provisional": false
         },
         {
-          "name": "repayment.demanded",
+          "name": "repayment_demanded",
           "type": "text",
           "enum": null,
           "note": null,
@@ -5589,29 +6080,32 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RII-03"
+            "RII-03",
+            "RII-04",
+            "RII-05",
+            "RII-07"
           ],
           "provisional": false
         },
         {
-          "name": "request.routed",
+          "name": "request_routed",
           "type": "text",
           "enum": null,
           "note": null,
           "controls": [
+            "RII-03",
             "RII-04",
             "RII-07"
           ],
           "provisional": false
         },
         {
-          "name": "standard_determination.made",
+          "name": "standard_determination_made",
           "type": "text",
           "enum": null,
           "note": null,
           "controls": [
-            "RII-04",
-            "RII-05"
+            "RII-04"
           ],
           "provisional": false
         },
@@ -5621,7 +6115,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RII-05"
+            "RII-05",
+            "RII-09"
           ],
           "provisional": false
         },
@@ -5631,6 +6126,7 @@
           "enum": null,
           "note": null,
           "controls": [
+            "RII-03",
             "RII-06"
           ],
           "provisional": false
@@ -5651,7 +6147,6 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RII-03",
             "RII-04",
             "RII-07"
           ],
@@ -5664,9 +6159,7 @@
           "note": null,
           "controls": [
             "RII-03",
-            "RII-04",
-            "RII-05",
-            "RII-06"
+            "RII-04"
           ],
           "provisional": false
         },
@@ -5700,12 +6193,7 @@
         "denied"
       ],
       "inherited": [],
-      "endpoints": [
-        "GET /insiders",
-        "POST /insiders",
-        "GET /insiders/{id}",
-        "POST /insiders/{id}/transition"
-      ],
+      "endpoints": [],
       "has_own_id": false,
       "columns": [
         {
@@ -5714,8 +6202,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-05",
-            "LN-14"
+            "DF-05",
+            "LP-14"
           ],
           "provisional": false
         },
@@ -5724,9 +6212,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "FD-05"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -5735,8 +6221,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-05",
-            "LN-14"
+            "DF-05",
+            "LP-14"
           ],
           "provisional": false
         },
@@ -5746,7 +6232,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-09"
+            "DF-09"
           ],
           "provisional": false
         },
@@ -5756,7 +6242,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-05"
+            "DF-05"
           ],
           "provisional": false
         },
@@ -5766,7 +6252,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-05"
+            "DF-05",
+            "LP-14"
           ],
           "provisional": false
         },
@@ -5776,8 +6263,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-05",
-            "LN-14"
+            "DF-05"
           ],
           "provisional": false
         },
@@ -5787,7 +6273,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-05"
+            "DF-05"
           ],
           "provisional": false
         },
@@ -5796,9 +6282,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "FD-05"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -5807,8 +6291,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-05",
-            "LN-14"
+            "DF-05",
+            "LP-14"
           ],
           "provisional": false
         },
@@ -5818,7 +6302,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-09"
+            "DF-09"
           ],
           "provisional": false
         },
@@ -5828,7 +6312,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-03"
+            "DF-03"
           ],
           "provisional": false
         },
@@ -5838,7 +6322,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-05"
+            "DF-03"
           ],
           "provisional": false
         },
@@ -5848,8 +6332,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-03",
-            "LN-14"
+            "DF-03",
+            "DF-05"
           ],
           "provisional": false
         },
@@ -5859,7 +6343,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-03"
+            "DF-03"
           ],
           "provisional": false
         },
@@ -5869,7 +6353,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-05"
+            "DF-05"
           ],
           "provisional": false
         },
@@ -5879,7 +6363,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "FD-09"
+            "DF-09"
           ],
           "provisional": false
         },
@@ -5888,9 +6372,7 @@
           "type": "date",
           "enum": null,
           "note": null,
-          "controls": [
-            "FD-05"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -5898,7 +6380,10 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "DF-05",
+            "LP-14"
+          ],
           "provisional": true
         },
         {
@@ -5930,7 +6415,10 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "DF-05",
+            "LP-14"
+          ],
           "provisional": true
         },
         {
@@ -5963,12 +6451,7 @@
         "failed"
       ],
       "inherited": [],
-      "endpoints": [
-        "GET /records-packages",
-        "POST /records-packages",
-        "GET /records-packages/{id}",
-        "POST /records-packages/{id}/transition"
-      ],
+      "endpoints": [],
       "has_own_id": false,
       "columns": [
         {
@@ -5977,7 +6460,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RP-08"
+            "RS-07",
+            "RS-08"
           ],
           "provisional": false
         },
@@ -5987,8 +6471,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "IC-08",
-            "RP-08"
+            "RS-07",
+            "RS-08"
           ],
           "provisional": false
         },
@@ -5998,7 +6482,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RP-08"
+            "RS-08"
           ],
           "provisional": false
         },
@@ -6008,7 +6492,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RP-08"
+            "RS-08"
           ],
           "provisional": false
         },
@@ -6017,9 +6501,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "RP-08"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -6036,7 +6518,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RP-08"
+            "RS-08"
           ],
           "provisional": false
         },
@@ -6046,7 +6528,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RP-08"
+            "RS-08"
           ],
           "provisional": false
         },
@@ -6056,7 +6538,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RP-08"
+            "RS-08"
           ],
           "provisional": false
         },
@@ -6066,7 +6548,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RP-08"
+            "RS-08"
           ],
           "provisional": false
         },
@@ -6076,7 +6558,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RP-08"
+            "RS-08"
           ],
           "provisional": false
         },
@@ -6086,7 +6568,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RP-08"
+            "RS-08"
           ],
           "provisional": false
         },
@@ -6122,12 +6604,7 @@
       "inherited": [
         "OwnedEntity"
       ],
-      "endpoints": [
-        "GET /risks",
-        "POST /risks",
-        "GET /risks/{id}",
-        "POST /risks/{id}/transition"
-      ],
+      "endpoints": [],
       "has_own_id": true,
       "columns": [
         {
@@ -6136,11 +6613,14 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BSA-02",
-            "BSA-06",
+            "AU-08",
+            "BSA-16",
             "ERM-04",
+            "ERM-05",
+            "ERM-06",
             "ERM-07",
-            "IC-07"
+            "IC-07",
+            "IS-02"
           ],
           "provisional": false
         },
@@ -6151,8 +6631,11 @@
           "note": null,
           "controls": [
             "AU-04",
-            "CP-04",
-            "TPR-03"
+            "CM-04",
+            "CM-07",
+            "CM-09",
+            "ERM-04",
+            "IS-02"
           ],
           "provisional": false
         },
@@ -6170,9 +6653,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BSA-02",
-            "ERM-03",
-            "IS-02"
+            "ERM-04"
           ],
           "provisional": false
         },
@@ -6181,10 +6662,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "ERM-03",
-            "ERM-04"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -6203,9 +6681,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BSA-02",
-            "ERM-03",
-            "IS-02"
+            "ERM-04"
           ],
           "provisional": false
         },
@@ -6232,7 +6708,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "ERM-04"
+          ],
           "provisional": false
         },
         {
@@ -6250,15 +6728,19 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "ERM-04"
+          ],
           "provisional": false
         },
         {
           "name": "remediation_evidence",
-          "type": "jsonb",
+          "type": "text",
           "enum": null,
           "note": null,
           "controls": [
+            "ERM-04",
+            "ERM-07",
             "IS-02"
           ],
           "provisional": false
@@ -6270,9 +6752,9 @@
           "note": null,
           "controls": [
             "BSA-02",
-            "EC-01",
-            "ERM-03",
+            "CM-06",
             "ERM-04",
+            "ERM-06",
             "IS-02"
           ],
           "provisional": false
@@ -6283,8 +6765,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "ERM-04",
-            "IS-02"
+            "ERM-04"
           ],
           "provisional": false
         },
@@ -6294,7 +6775,6 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BCP-02",
             "IS-02"
           ],
           "provisional": false
@@ -6304,12 +6784,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "CP-04",
-            "EC-01",
-            "IS-02",
-            "TPR-03"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -6318,7 +6793,6 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BSA-02",
             "ERM-04"
           ],
           "provisional": false
@@ -6329,8 +6803,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BCP-02",
-            "TPR-03"
+            "BSA-02"
           ],
           "provisional": false
         },
@@ -6340,22 +6813,21 @@
           "enum": null,
           "note": null,
           "controls": [
-            "ERM-02",
             "ERM-04",
-            "IS-02"
+            "ERM-05",
+            "ERM-07"
           ],
           "provisional": false
         },
         {
           "name": "inherent_score",
-          "type": "numeric",
+          "type": "bigint",
           "enum": null,
           "note": null,
           "controls": [
             "BSA-02",
-            "CP-04",
-            "EC-01",
-            "TPR-03"
+            "EPS-01",
+            "ERM-04"
           ],
           "provisional": false
         },
@@ -6364,9 +6836,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "TPR-03"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -6384,9 +6854,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "IS-02"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -6405,7 +6873,6 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BSA-02",
             "ERM-04",
             "IS-02"
           ],
@@ -6441,12 +6908,7 @@
         "blocked"
       ],
       "inherited": [],
-      "endpoints": [
-        "GET /trades",
-        "POST /trades",
-        "GET /trades/{id}",
-        "POST /trades/{id}/transition"
-      ],
+      "endpoints": [],
       "has_own_id": false,
       "columns": [
         {
@@ -6471,10 +6933,12 @@
         },
         {
           "name": "confirmation_matched",
-          "type": "text",
+          "type": "boolean",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "IP-14"
+          ],
           "provisional": false
         },
         {
@@ -6482,10 +6946,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "IP-05",
-            "IP-08"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -6493,7 +6954,10 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "IP-02",
+            "IP-11"
+          ],
           "provisional": false
         },
         {
@@ -6530,6 +6994,9 @@
           "enum": null,
           "note": null,
           "controls": [
+            "IP-02",
+            "IP-03",
+            "IP-05",
             "IP-07"
           ],
           "provisional": false
@@ -6550,7 +7017,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "IP-14"
+            "IP-02"
           ],
           "provisional": false
         },
@@ -6559,9 +7026,7 @@
           "type": "date",
           "enum": null,
           "note": null,
-          "controls": [
-            "IP-14"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -6590,7 +7055,6 @@
           "enum": null,
           "note": null,
           "controls": [
-            "IP-02",
             "IP-14"
           ],
           "provisional": false
@@ -6621,7 +7085,9 @@
           "enum": null,
           "note": null,
           "controls": [
-            "IP-03"
+            "IP-02",
+            "IP-03",
+            "IP-05"
           ],
           "provisional": false
         },
@@ -6630,7 +7096,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "IP-02"
+          ],
           "provisional": true
         },
         {
@@ -6654,7 +7122,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "IP-03"
+          ],
           "provisional": true
         },
         {
@@ -6687,12 +7157,7 @@
         "lapsed"
       ],
       "inherited": [],
-      "endpoints": [
-        "GET /trainings",
-        "POST /trainings",
-        "GET /trainings/{id}",
-        "POST /trainings/{id}/transition"
-      ],
+      "endpoints": [],
       "has_own_id": false,
       "columns": [
         {
@@ -6701,8 +7166,14 @@
           "enum": null,
           "note": null,
           "controls": [
-            "CC-11",
-            "CP-05"
+            "BSA-15",
+            "CP-11",
+            "DF-01",
+            "DF-10",
+            "EC-12",
+            "EPS-09",
+            "RR-10",
+            "TIS-10"
           ],
           "provisional": false
         },
@@ -6712,14 +7183,10 @@
           "enum": null,
           "note": null,
           "controls": [
-            "CAP-08",
-            "CC-11",
-            "CP-05",
-            "EC-08",
+            "BSA-15",
+            "CM-05",
             "EC-12",
-            "IP-16",
-            "PR-06",
-            "RR-09",
+            "RR-10",
             "TIS-10"
           ],
           "provisional": false
@@ -6730,10 +7197,14 @@
           "enum": null,
           "note": null,
           "controls": [
-            "CP-05",
+            "BSA-15",
+            "CM-01",
+            "CP-11",
+            "DF-01",
             "EC-12",
+            "FL-11",
             "IP-16",
-            "RR-09"
+            "RR-10"
           ],
           "provisional": false
         },
@@ -6743,13 +7214,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BSA-14",
-            "CAP-08",
-            "CC-11",
-            "CP-05",
-            "FL-11",
-            "IS-17",
-            "TIS-10"
+            "CP-11",
+            "FL-11"
           ],
           "provisional": false
         },
@@ -6759,8 +7225,10 @@
           "enum": null,
           "note": null,
           "controls": [
-            "CP-01",
-            "CP-05"
+            "CM-01",
+            "CM-05",
+            "CP-12",
+            "FL-11"
           ],
           "provisional": false
         },
@@ -6770,9 +7238,9 @@
           "enum": null,
           "note": null,
           "controls": [
-            "CAP-08",
-            "FD-10",
-            "PR-06"
+            "BSA-15",
+            "RR-10",
+            "TIS-10"
           ],
           "provisional": false
         },
@@ -6781,9 +7249,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "EC-12"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -6800,10 +7266,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "CC-11",
-            "CP-05",
-            "EC-12",
-            "RR-09"
+            "DF-01"
           ],
           "provisional": false
         },
@@ -6813,18 +7276,24 @@
           "enum": null,
           "note": null,
           "controls": [
-            "RR-09"
+            "CM-05",
+            "CP-11",
+            "DF-01",
+            "DF-10",
+            "EC-12",
+            "IP-16",
+            "RR-10",
+            "TIS-10"
           ],
           "provisional": false
         },
         {
-          "name": "proficiency.failed",
+          "name": "proficiency_failed",
           "type": "text",
           "enum": null,
           "note": null,
           "controls": [
-            "CC-11",
-            "CP-05"
+            "CP-11"
           ],
           "provisional": false
         },
@@ -6834,8 +7303,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "CP-05",
-            "EC-12"
+            "CM-05"
           ],
           "provisional": false
         },
@@ -6845,12 +7313,11 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BSA-14",
-            "CC-11",
-            "CP-05",
-            "EC-08",
-            "IS-17",
-            "RR-09"
+            "BA-08",
+            "CP-11",
+            "EC-12",
+            "IP-16",
+            "IS-17"
           ],
           "provisional": false
         },
@@ -6860,7 +7327,6 @@
           "enum": null,
           "note": null,
           "controls": [
-            "EC-12",
             "FL-11"
           ],
           "provisional": false
@@ -6870,9 +7336,7 @@
           "type": "jsonb",
           "enum": null,
           "note": null,
-          "controls": [
-            "EC-12"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -6880,9 +7344,7 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": [
-            "FL-11"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -6891,11 +7353,13 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BSA-14",
-            "CC-11",
-            "CP-05",
+            "BSA-15",
+            "CM-05",
+            "CP-11",
+            "DF-01",
             "FL-11",
-            "IS-17"
+            "IS-17",
+            "RR-10"
           ],
           "provisional": false
         },
@@ -6905,14 +7369,13 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BSA-14",
-            "CC-11",
-            "CP-05",
-            "CP-08",
+            "BSA-15",
+            "CM-05",
+            "CP-11",
             "FL-11",
             "IP-16",
             "IS-17",
-            "TIS-10"
+            "PR-06"
           ],
           "provisional": false
         },
@@ -6922,7 +7385,6 @@
           "enum": null,
           "note": null,
           "controls": [
-            "EC-08",
             "EC-12"
           ],
           "provisional": false
@@ -6933,15 +7395,18 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BSA-14",
-            "CAP-08",
-            "CC-11",
-            "CP-05",
-            "FD-10",
+            "BA-08",
+            "BSA-15",
+            "CM-05",
+            "CP-11",
+            "DF-01",
+            "DF-10",
+            "EC-12",
+            "EPS-09",
             "FL-11",
-            "IP-16",
             "IS-17",
-            "TIS-10"
+            "PR-06",
+            "RR-10"
           ],
           "provisional": false
         },
@@ -6951,7 +7416,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BSA-19"
+            "BSA-15"
           ],
           "provisional": false
         },
@@ -6961,10 +7426,11 @@
           "enum": null,
           "note": null,
           "controls": [
-            "CP-05",
+            "BSA-15",
+            "CM-05",
+            "DF-01",
             "EC-12",
-            "IP-16",
-            "RR-09"
+            "TIS-10"
           ],
           "provisional": false
         },
@@ -6974,7 +7440,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BSA-19"
+            "BSA-15"
           ],
           "provisional": false
         },
@@ -6984,9 +7450,13 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BSA-14",
-            "CC-11",
-            "IS-17"
+            "BSA-15",
+            "CP-11",
+            "DF-01",
+            "EC-12",
+            "EPS-09",
+            "FL-11",
+            "RR-10"
           ],
           "provisional": false
         },
@@ -6996,9 +7466,8 @@
           "enum": null,
           "note": null,
           "controls": [
-            "CP-05",
-            "FL-11",
-            "IP-16",
+            "CM-05",
+            "IS-17",
             "PR-06"
           ],
           "provisional": false
@@ -7008,9 +7477,7 @@
           "type": "date",
           "enum": null,
           "note": null,
-          "controls": [
-            "PR-06"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -7018,9 +7485,7 @@
           "type": "timestamptz",
           "enum": null,
           "note": null,
-          "controls": [
-            "RR-09"
-          ],
+          "controls": null,
           "provisional": false
         },
         {
@@ -7029,7 +7494,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "BSA-14"
+            "BSA-15"
           ],
           "provisional": false
         },
@@ -7038,7 +7503,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "IS-17"
+          ],
           "provisional": true
         },
         {
@@ -7054,7 +7521,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "BA-08"
+          ],
           "provisional": true
         },
         {
@@ -7086,7 +7555,9 @@
           "type": "text",
           "enum": null,
           "note": null,
-          "controls": null,
+          "controls": [
+            "CM-05"
+          ],
           "provisional": true
         },
         {
@@ -7120,6 +7591,7 @@
     "Curriculum",
     "Decision",
     "DisclosureDetail",
+    "Document",
     "EddFile",
     "EscalationDetail",
     "FbarData",
@@ -7128,7 +7600,6 @@
     "MiCentralLog",
     "OfacControlContext",
     "OfacReportData",
-    "OfacResult",
     "Party",
     "PepStatus",
     "PolicyDoc",

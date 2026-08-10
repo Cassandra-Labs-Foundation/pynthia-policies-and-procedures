@@ -15735,11 +15735,13 @@ components:
       x-kind: domain
       properties:
         advance.disbursed:
+          x-column: advance_disbursed
           type: string
           x-bound-controls:
           - RII-05
           description: Evidences control RII-05.
         advance.requested:
+          x-column: advance_requested
           type: string
         advance_balance:
           type: string
@@ -15747,6 +15749,7 @@ components:
           - RII-05
           description: Evidences control RII-05.
         claim.notified:
+          x-column: claim_notified
           type: string
           x-bound-controls:
           - RII-08
@@ -15772,6 +15775,7 @@ components:
           - RII-04
           description: Evidences control RII-04.
         decision_body.selected:
+          x-column: decision_body_selected
           type: string
           x-bound-controls:
           - RII-07
@@ -15819,14 +15823,17 @@ components:
           - RII-03
           description: Evidences control RII-03.
         matter.resolved_favorably:
+          x-column: matter_resolved_favorably
           type: string
         payment.blocked:
+          x-column: payment_blocked
           type: string
           x-bound-controls:
           - RII-04
           - RII-06
           description: Evidences controls RII-04, RII-06.
         payment.disbursed:
+          x-column: payment_disbursed
           type: string
           x-bound-controls:
           - RII-03
@@ -15839,6 +15846,7 @@ components:
           - RII-07
           description: Evidences controls RII-04, RII-07.
         repayment.demanded:
+          x-column: repayment_demanded
           type: string
           x-bound-controls:
           - RII-05
@@ -15852,6 +15860,7 @@ components:
           - RII-07
           description: Evidences controls RII-03, RII-04, RII-05, RII-07.
         request.routed:
+          x-column: request_routed
           type: string
           x-bound-controls:
           - RII-03
@@ -15859,6 +15868,7 @@ components:
           - RII-07
           description: Evidences controls RII-03, RII-04, RII-07.
         standard_determination.made:
+          x-column: standard_determination_made
           type: string
           x-bound-controls:
           - RII-04
@@ -21000,6 +21010,7 @@ components:
           - TIS-10
           description: Evidences controls CM-05, CP-11, DF-01, DF-10, EC-12, IP-16, RR-10, TIS-10.
         proficiency.failed:
+          x-column: proficiency_failed
           type: string
           x-bound-controls:
           - CP-11

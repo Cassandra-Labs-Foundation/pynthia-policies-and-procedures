@@ -420,8 +420,7 @@ export async function putThreshold(
   if (errors.length) return validationError(requestId, errors);
 
   const nowIso = new Date().toISOString();
-  const { error } = await db.schema(scope).from("threshold").upsert({
-    id: thresholdId,
+  const row = {
     control_uid: rec.control_uid,
     metric: rec.metric,
     subject_scope: rec.subject_scope,
@@ -432,8 +431,29 @@ export async function putThreshold(
     set_by: ctx.tokenId,
     set_at: nowIso,
     provenance: provenanceFor(scope, ctx),
-  }, { onConflict: "id" });
-  if (error) return internalErrorResponse(requestId, error);
+  };
+  const { error } = await db.schema(scope).from("threshold")
+    .upsert({ id: thresholdId, ...row }, { onConflict: "id" });
+  if (error) {
+    // (control_uid, metric, subject_scope) is UNIQUE. When a row for that key
+    // already exists under a DIFFERENT id, adopt it — updating in place keeps
+    // the id that threshold_observation rows already reference. Refusing here
+    // made every re-registration under a fresh id a 500.
+    if (String((error as { code?: string }).code ?? "") === "23505" ||
+        /uq_threshold_control_metric_scope/.test(String(error.message ?? ""))) {
+      const { data: existing } = await db.schema(scope).from("threshold")
+        .select("id")
+        .eq("control_uid", rec.control_uid).eq("metric", rec.metric)
+        .eq("subject_scope", rec.subject_scope).maybeSingle();
+      if (!existing) return internalErrorResponse(requestId, error);
+      thresholdId = String((existing as Record<string, unknown>).id);
+      const { error: updErr } = await db.schema(scope).from("threshold")
+        .update(row).eq("id", thresholdId);
+      if (updErr) return internalErrorResponse(requestId, updErr);
+    } else {
+      return internalErrorResponse(requestId, error);
+    }
+  }
 
   return jsonResponse({
     id: thresholdId,

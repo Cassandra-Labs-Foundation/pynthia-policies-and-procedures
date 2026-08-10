@@ -661,6 +661,8 @@ export async function postRegulatoryChange(
   await db.schema(scope).from("record").upsert({
     id: `rec_regchg_${body.reference}`, record_class: "regulatory_assessment",
     subject_ref: String(body.reference), retention_anchor: now.toISOString(),
+    // NOT NULL on the live schema — the assessment anchors on its own creation
+    retention_anchor_kind: "creation",
     retention_expires_at: plusDays(now, 365 * 5),
     legal_hold_flag: false, disposed_at: null,
     provenance: provenanceFor(scope, ctx),
@@ -813,7 +815,11 @@ export async function postCipVerification(
     date_of_birth: isNonEmptyString(body.dob) ? body.dob : null,
     address: body.address ?? null,
     tin: isNonEmptyString(body.tin) ? body.tin : null,
-    status: "pending", provenance: provenanceFor(scope, ctx),
+    // no provenance: core.entity predates the column (evidence tables carry
+    // it; the member record does not) — stamping it made the live schema
+    // refuse the whole CIP upsert. partner_id IS on the member record and is
+    // NOT NULL — its absence was the next refusal in line.
+    status: "pending", partner_id: ctx.ownerPartnerId,
   }, { onConflict: "id" });
   const elements = {
     name: isNonEmptyString(body.name),

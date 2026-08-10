@@ -77,7 +77,11 @@ async function main() {
   let counter = Math.floor(Math.random() * 1_000_000) * 1000;
   let done = 0;
 
+  const debug = Deno.env.get("DRILL_DEBUG");
   for (const c of controls) {
+    // names the control BEFORE it fires, so a hang identifies itself — a
+    // stalled run otherwise leaves no trace of where it stopped
+    if (debug) console.error(`  [ctl] ${c.policy}:${c.control_id}`);
     // One recording scope per control — the live db is shared, the OBSERVATION
     // is not. Convergent ids make cross-control and cross-run writes collide
     // into the same rows instead of accumulating garbage.
@@ -109,6 +113,7 @@ async function main() {
       blocked = "catalogue entry declares no trigger event";
     } else {
       for (const t of triggers) {
+        if (debug) console.error(`  [fire] ${t}`);
         try {
           const out = await fire(t, `${c.policy}:${c.control_id}`, env);
           firePath = out.firePath !== "none" ? out.firePath : firePath;

@@ -1730,6 +1730,17 @@ export async function postCdaCommunicationApproval(
   if (!cmp) missing.push("compliance_approval");
 
   const now = new Date();
+  // A PUBLISHED communication cannot have its approval incompletely rewritten
+  // — that is the row state ck_cda_comm_publish_requires_approval forbids.
+  // Refuse before writing rather than letting the constraint refuse after
+  // (which read as a silent no-op and a missing event on the live tier).
+  if (missing.length > 0 && c.published_at) {
+    await emit(db, scope, `ev_${commId}_apprgap`, "cda.communication.approval_incomplete",
+      commId, { missing, wcag_checklist: wcag, published: true }, ctx);
+    return apiError(409, "cda_communication_published", requestId, {
+      title: "approval incomplete", detail: "published communication keeps its approval record",
+    });
+  }
   const { error } = await db.schema(scope).from("cda_communication").update({
     wcag_checklist_passed: wcag,
     marketing_approved_by: mkt, compliance_approved_by: cmp,

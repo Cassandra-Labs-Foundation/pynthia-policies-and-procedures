@@ -1,7 +1,7 @@
--- Deadline data-invariants — 47 due-date checks
+-- Deadline data-invariants — 50 due-date checks
 -- generated from controls.json + model.json — DO NOT EDIT BY HAND
 begin;
-select plan(47);
+select plan(50);
 
 
 -- account.closure_payout_due_at  (evidences MP-05); open states: ['open', 'frozen']
@@ -15,6 +15,11 @@ insert into "core"."account" ("id", "maturity_notice_due_at", "status") values (
 insert into "core"."account" ("id", "maturity_notice_due_at", "status") values ('t_dl_account_maturity_notice_due_at_ok_future', now() + interval '30 days', 'open');
 insert into "core"."account" ("id", "maturity_notice_due_at", "status") values ('t_dl_account_maturity_notice_due_at_ok_term', now() - interval '1 day', 'closed');
 select is( (select count(*) from "core"."account" where "maturity_notice_due_at" < now() and "status" = any(array['open', 'frozen']))::int, 1, 'account.maturity_notice_due_at past-due detection flags exactly the violator (evidences TIS-04)');
+
+-- bsa_alert.triage_due_at  (no direct control binding); open states: n/a (no status enum)
+insert into "core"."bsa_alert" ("id", "triage_due_at") values ('t_dl_bsa_alert_triage_due_at_viol', now() - interval '1 day');
+insert into "core"."bsa_alert" ("id", "triage_due_at") values ('t_dl_bsa_alert_triage_due_at_ok_future', now() + interval '30 days');
+select is( (select count(*) from "core"."bsa_alert" where "triage_due_at" < now())::int, 1, 'bsa_alert.triage_due_at past-due detection flags exactly the violator (no direct control binding)');
 
 -- change.cab_review_due_at  (evidences EC-05, IC-05, IS-04); open states: ['requested', 'in_review', 'deployed']
 insert into "core"."change" ("cab_review_due_at", "status") values (now() - interval '1 day', 'requested');
@@ -76,11 +81,6 @@ insert into "core"."dispute" ("response_due_at", "status") values (now() + inter
 insert into "core"."dispute" ("response_due_at", "status") values (now() - interval '1 day', 'filed');
 select is( (select count(*) from "core"."dispute" where "response_due_at" < now() and "status" = any(array['investigating']))::int, 1, 'dispute.response_due_at past-due detection flags exactly the violator (evidences MP-04)');
 
--- document.attachment_due_at  (evidences IP-15); open states: n/a (no status enum)
-insert into "core"."document" ("id", "attachment_due_at") values ('t_dl_document_attachment_due_at_viol', now() - interval '1 day');
-insert into "core"."document" ("id", "attachment_due_at") values ('t_dl_document_attachment_due_at_ok_future', now() + interval '30 days');
-select is( (select count(*) from "core"."document" where "attachment_due_at" < now())::int, 1, 'document.attachment_due_at past-due detection flags exactly the violator (evidences IP-15)');
-
 -- finding.escalation_due_at  (evidences AU-07); open states: ['open', 'in_remediation', 'risk_accepted']
 insert into "core"."finding" ("escalation_due_at", "status") values (now() - interval '1 day', 'open');
 insert into "core"."finding" ("escalation_due_at", "status") values (now() + interval '30 days', 'open');
@@ -105,23 +105,41 @@ insert into "core"."handover" ("initial_due_at", "status") values (now() + inter
 insert into "core"."handover" ("initial_due_at", "status") values (now() - interval '1 day', 'completed');
 select is( (select count(*) from "core"."handover" where "initial_due_at" < now() and "status" = any(array['initiated', 'provisioned']))::int, 1, 'handover.initial_due_at past-due detection flags exactly the violator (evidences RS-07)');
 
--- incident.ncua_notice_due_at  (evidences SC-01); open states: ['declared', 'responding', 'contained', 'postmortem']
-insert into "core"."incident" ("id", "ncua_notice_due_at", "status") values ('t_dl_incident_ncua_notice_due_at_viol', now() - interval '1 day', 'declared');
-insert into "core"."incident" ("id", "ncua_notice_due_at", "status") values ('t_dl_incident_ncua_notice_due_at_ok_future', now() + interval '30 days', 'declared');
+-- incident.ncua_notice_due_at  (evidences SC-01); open states: ['detected', 'declared', 'contained', 'restored']
+insert into "core"."incident" ("id", "ncua_notice_due_at", "status") values ('t_dl_incident_ncua_notice_due_at_viol', now() - interval '1 day', 'detected');
+insert into "core"."incident" ("id", "ncua_notice_due_at", "status") values ('t_dl_incident_ncua_notice_due_at_ok_future', now() + interval '30 days', 'detected');
 insert into "core"."incident" ("id", "ncua_notice_due_at", "status") values ('t_dl_incident_ncua_notice_due_at_ok_term', now() - interval '1 day', 'closed');
-select is( (select count(*) from "core"."incident" where "ncua_notice_due_at" < now() and "status" = any(array['declared', 'responding', 'contained', 'postmortem']))::int, 1, 'incident.ncua_notice_due_at past-due detection flags exactly the violator (evidences SC-01)');
+select is( (select count(*) from "core"."incident" where "ncua_notice_due_at" < now() and "status" = any(array['detected', 'declared', 'contained', 'restored']))::int, 1, 'incident.ncua_notice_due_at past-due detection flags exactly the violator (evidences SC-01)');
 
--- incident.notification_due_at  (evidences SC-01); open states: ['declared', 'responding', 'contained', 'postmortem']
-insert into "core"."incident" ("id", "notification_due_at", "status") values ('t_dl_incident_notification_due_at_viol', now() - interval '1 day', 'declared');
-insert into "core"."incident" ("id", "notification_due_at", "status") values ('t_dl_incident_notification_due_at_ok_future', now() + interval '30 days', 'declared');
+-- incident.notification_due_at  (evidences SC-01); open states: ['detected', 'declared', 'contained', 'restored']
+insert into "core"."incident" ("id", "notification_due_at", "status") values ('t_dl_incident_notification_due_at_viol', now() - interval '1 day', 'detected');
+insert into "core"."incident" ("id", "notification_due_at", "status") values ('t_dl_incident_notification_due_at_ok_future', now() + interval '30 days', 'detected');
 insert into "core"."incident" ("id", "notification_due_at", "status") values ('t_dl_incident_notification_due_at_ok_term', now() - interval '1 day', 'closed');
-select is( (select count(*) from "core"."incident" where "notification_due_at" < now() and "status" = any(array['declared', 'responding', 'contained', 'postmortem']))::int, 1, 'incident.notification_due_at past-due detection flags exactly the violator (evidences SC-01)');
+select is( (select count(*) from "core"."incident" where "notification_due_at" < now() and "status" = any(array['detected', 'declared', 'contained', 'restored']))::int, 1, 'incident.notification_due_at past-due detection flags exactly the violator (evidences SC-01)');
 
--- incident.triage_due_at  (evidences CO-11, PR-18); open states: ['declared', 'responding', 'contained', 'postmortem']
-insert into "core"."incident" ("id", "triage_due_at", "status") values ('t_dl_incident_triage_due_at_viol', now() - interval '1 day', 'declared');
-insert into "core"."incident" ("id", "triage_due_at", "status") values ('t_dl_incident_triage_due_at_ok_future', now() + interval '30 days', 'declared');
+-- incident.triage_due_at  (evidences CO-11, PR-18); open states: ['detected', 'declared', 'contained', 'restored']
+insert into "core"."incident" ("id", "triage_due_at", "status") values ('t_dl_incident_triage_due_at_viol', now() - interval '1 day', 'detected');
+insert into "core"."incident" ("id", "triage_due_at", "status") values ('t_dl_incident_triage_due_at_ok_future', now() + interval '30 days', 'detected');
 insert into "core"."incident" ("id", "triage_due_at", "status") values ('t_dl_incident_triage_due_at_ok_term', now() - interval '1 day', 'closed');
-select is( (select count(*) from "core"."incident" where "triage_due_at" < now() and "status" = any(array['declared', 'responding', 'contained', 'postmortem']))::int, 1, 'incident.triage_due_at past-due detection flags exactly the violator (evidences CO-11, PR-18)');
+select is( (select count(*) from "core"."incident" where "triage_due_at" < now() and "status" = any(array['detected', 'declared', 'contained', 'restored']))::int, 1, 'incident.triage_due_at past-due detection flags exactly the violator (evidences CO-11, PR-18)');
+
+-- incident.comms_initial_due_at  (no direct control binding); open states: ['detected', 'declared', 'contained', 'restored']
+insert into "core"."incident" ("id", "comms_initial_due_at", "status") values ('t_dl_incident_comms_initial_due_at_viol', now() - interval '1 day', 'detected');
+insert into "core"."incident" ("id", "comms_initial_due_at", "status") values ('t_dl_incident_comms_initial_due_at_ok_future', now() + interval '30 days', 'detected');
+insert into "core"."incident" ("id", "comms_initial_due_at", "status") values ('t_dl_incident_comms_initial_due_at_ok_term', now() - interval '1 day', 'closed');
+select is( (select count(*) from "core"."incident" where "comms_initial_due_at" < now() and "status" = any(array['detected', 'declared', 'contained', 'restored']))::int, 1, 'incident.comms_initial_due_at past-due detection flags exactly the violator (no direct control binding)');
+
+-- incident.determination_due_at  (no direct control binding); open states: ['detected', 'declared', 'contained', 'restored']
+insert into "core"."incident" ("id", "determination_due_at", "status") values ('t_dl_incident_determination_due_at_viol', now() - interval '1 day', 'detected');
+insert into "core"."incident" ("id", "determination_due_at", "status") values ('t_dl_incident_determination_due_at_ok_future', now() + interval '30 days', 'detected');
+insert into "core"."incident" ("id", "determination_due_at", "status") values ('t_dl_incident_determination_due_at_ok_term', now() - interval '1 day', 'closed');
+select is( (select count(*) from "core"."incident" where "determination_due_at" < now() and "status" = any(array['detected', 'declared', 'contained', 'restored']))::int, 1, 'incident.determination_due_at past-due detection flags exactly the violator (no direct control binding)');
+
+-- incident.ic_assignment_due_at  (no direct control binding); open states: ['detected', 'declared', 'contained', 'restored']
+insert into "core"."incident" ("id", "ic_assignment_due_at", "status") values ('t_dl_incident_ic_assignment_due_at_viol', now() - interval '1 day', 'detected');
+insert into "core"."incident" ("id", "ic_assignment_due_at", "status") values ('t_dl_incident_ic_assignment_due_at_ok_future', now() + interval '30 days', 'detected');
+insert into "core"."incident" ("id", "ic_assignment_due_at", "status") values ('t_dl_incident_ic_assignment_due_at_ok_term', now() - interval '1 day', 'closed');
+select is( (select count(*) from "core"."incident" where "ic_assignment_due_at" < now() and "status" = any(array['detected', 'declared', 'contained', 'restored']))::int, 1, 'incident.ic_assignment_due_at past-due detection flags exactly the violator (no direct control binding)');
 
 -- indemnification.advance_due_at  (evidences RII-05); open states: ['requested', 'under_review', 'determined']
 insert into "core"."indemnification" ("advance_due_at", "status") values (now() - interval '1 day', 'requested');

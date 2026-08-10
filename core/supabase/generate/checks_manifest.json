@@ -14,7 +14,6 @@
     "complaint",
     "control_result",
     "dispute",
-    "document",
     "entity",
     "event",
     "fbo_position",
@@ -28,6 +27,7 @@
     "legal_hold",
     "loan",
     "loan_application",
+    "ofac_result",
     "originator",
     "provider_result",
     "records_package",
@@ -107,6 +107,34 @@
     ],
     [
       "account",
+      "active_freeze_count"
+    ],
+    [
+      "account",
+      "balance_synced_at"
+    ],
+    [
+      "account",
+      "blnk_balance_id"
+    ],
+    [
+      "account",
+      "credits_blocked"
+    ],
+    [
+      "account",
+      "debits_blocked"
+    ],
+    [
+      "account",
+      "entity_id"
+    ],
+    [
+      "account",
+      "partner_id"
+    ],
+    [
+      "account",
       "updated_at"
     ],
     [
@@ -163,11 +191,43 @@
     ],
     [
       "ach_transfer",
-      "id"
+      "blnk_reference"
+    ],
+    [
+      "ach_transfer",
+      "blnk_status"
+    ],
+    [
+      "ach_transfer",
+      "blnk_transaction_id"
     ],
     [
       "ach_transfer",
       "created_at"
+    ],
+    [
+      "ach_transfer",
+      "id"
+    ],
+    [
+      "ach_transfer",
+      "noc"
+    ],
+    [
+      "ach_transfer",
+      "originator"
+    ],
+    [
+      "ach_transfer",
+      "partner_id"
+    ],
+    [
+      "ach_transfer",
+      "return_reason"
+    ],
+    [
+      "ach_transfer",
+      "synced_at"
     ],
     [
       "ach_transfer",
@@ -283,7 +343,23 @@
     ],
     [
       "bsa_alert",
+      "case_id"
+    ],
+    [
+      "bsa_alert",
       "created_at"
+    ],
+    [
+      "bsa_alert",
+      "triage_due_at"
+    ],
+    [
+      "bsa_alert",
+      "triage_outcome"
+    ],
+    [
+      "bsa_alert",
+      "triaged_at"
     ],
     [
       "bsa_alert",
@@ -754,82 +830,6 @@
       "updated_at"
     ],
     [
-      "document",
-      "attached"
-    ],
-    [
-      "document",
-      "curriculum"
-    ],
-    [
-      "document",
-      "edd"
-    ],
-    [
-      "document",
-      "id"
-    ],
-    [
-      "document",
-      "legal_hold_flag"
-    ],
-    [
-      "document",
-      "mi"
-    ],
-    [
-      "document",
-      "policy"
-    ],
-    [
-      "document",
-      "report"
-    ],
-    [
-      "document",
-      "retention_anchor"
-    ],
-    [
-      "document",
-      "retention_schedule"
-    ],
-    [
-      "document",
-      "risk"
-    ],
-    [
-      "document",
-      "subject_ref"
-    ],
-    [
-      "document",
-      "type"
-    ],
-    [
-      "document",
-      "vendor"
-    ],
-    [
-      "document",
-      "vendor_alert"
-    ],
-    [
-      "document",
-      "attachment_due_at"
-    ],
-    [
-      "document",
-      "required_set"
-    ],
-    [
-      "document",
-      "created_at"
-    ],
-    [
-      "document",
-      "updated_at"
-    ],
-    [
       "entity",
       "address"
     ],
@@ -903,7 +903,19 @@
     ],
     [
       "entity",
+      "blnk_identity_id"
+    ],
+    [
+      "entity",
       "created_at"
+    ],
+    [
+      "entity",
+      "owners"
+    ],
+    [
+      "entity",
+      "partner_id"
     ],
     [
       "entity",
@@ -1419,7 +1431,119 @@
     ],
     [
       "incident",
+      "assessment_completed_at"
+    ],
+    [
+      "incident",
+      "closed_at"
+    ],
+    [
+      "incident",
+      "comms_holding_statement"
+    ],
+    [
+      "incident",
+      "comms_initial_due_at"
+    ],
+    [
+      "incident",
+      "comms_initial_issued_at"
+    ],
+    [
+      "incident",
+      "contained_at"
+    ],
+    [
+      "incident",
       "created_at"
+    ],
+    [
+      "incident",
+      "declared_at"
+    ],
+    [
+      "incident",
+      "detected_at"
+    ],
+    [
+      "incident",
+      "determination_due_at"
+    ],
+    [
+      "incident",
+      "external_comms_at"
+    ],
+    [
+      "incident",
+      "first_hour_completed_at"
+    ],
+    [
+      "incident",
+      "ic_assigned_at"
+    ],
+    [
+      "incident",
+      "ic_assigned_to"
+    ],
+    [
+      "incident",
+      "ic_assignment_due_at"
+    ],
+    [
+      "incident",
+      "is_reportable"
+    ],
+    [
+      "incident",
+      "legal_review_at"
+    ],
+    [
+      "incident",
+      "legal_review_by"
+    ],
+    [
+      "incident",
+      "member_impact_confirmed_at"
+    ],
+    [
+      "incident",
+      "member_notices_sent_at"
+    ],
+    [
+      "incident",
+      "ncua_notified_at"
+    ],
+    [
+      "incident",
+      "oncall_ic_rotation"
+    ],
+    [
+      "incident",
+      "provenance"
+    ],
+    [
+      "incident",
+      "reportability_determined_at"
+    ],
+    [
+      "incident",
+      "reportability_determined_by"
+    ],
+    [
+      "incident",
+      "restored_at"
+    ],
+    [
+      "incident",
+      "sitrep_cadence_minutes"
+    ],
+    [
+      "incident",
+      "source"
+    ],
+    [
+      "incident",
+      "title"
     ],
     [
       "incident",
@@ -1427,11 +1551,11 @@
     ],
     [
       "indemnification",
-      "advance.disbursed"
+      "advance_disbursed"
     ],
     [
       "indemnification",
-      "advance.requested"
+      "advance_requested"
     ],
     [
       "indemnification",
@@ -1439,7 +1563,7 @@
     ],
     [
       "indemnification",
-      "claim.notified"
+      "claim_notified"
     ],
     [
       "indemnification",
@@ -1455,7 +1579,7 @@
     ],
     [
       "indemnification",
-      "decision_body.selected"
+      "decision_body_selected"
     ],
     [
       "indemnification",
@@ -1487,15 +1611,15 @@
     ],
     [
       "indemnification",
-      "matter.resolved_favorably"
+      "matter_resolved_favorably"
     ],
     [
       "indemnification",
-      "payment.blocked"
+      "payment_blocked"
     ],
     [
       "indemnification",
-      "payment.disbursed"
+      "payment_disbursed"
     ],
     [
       "indemnification",
@@ -1503,7 +1627,7 @@
     ],
     [
       "indemnification",
-      "repayment.demanded"
+      "repayment_demanded"
     ],
     [
       "indemnification",
@@ -1511,11 +1635,11 @@
     ],
     [
       "indemnification",
-      "request.routed"
+      "request_routed"
     ],
     [
       "indemnification",
-      "standard_determination.made"
+      "standard_determination_made"
     ],
     [
       "indemnification",
@@ -2118,6 +2242,30 @@
       "updated_at"
     ],
     [
+      "ofac_result",
+      "match_score"
+    ],
+    [
+      "ofac_result",
+      "match_status"
+    ],
+    [
+      "ofac_result",
+      "matched_lists"
+    ],
+    [
+      "ofac_result",
+      "id"
+    ],
+    [
+      "ofac_result",
+      "created_at"
+    ],
+    [
+      "ofac_result",
+      "updated_at"
+    ],
+    [
       "originator",
       "name"
     ],
@@ -2527,7 +2675,7 @@
     ],
     [
       "training",
-      "proficiency.failed"
+      "proficiency_failed"
     ],
     [
       "training",
@@ -2643,15 +2791,7 @@
     ],
     [
       "transfer",
-      "amount"
-    ],
-    [
-      "transfer",
       "beneficiary"
-    ],
-    [
-      "transfer",
-      "counterparty"
     ],
     [
       "transfer",
@@ -2667,7 +2807,35 @@
     ],
     [
       "transfer",
+      "amount"
+    ],
+    [
+      "transfer",
+      "blnk_reference"
+    ],
+    [
+      "transfer",
+      "blnk_status"
+    ],
+    [
+      "transfer",
+      "blnk_transaction_id"
+    ],
+    [
+      "transfer",
+      "counterparty"
+    ],
+    [
+      "transfer",
       "created_at"
+    ],
+    [
+      "transfer",
+      "partner_id"
+    ],
+    [
+      "transfer",
+      "synced_at"
     ],
     [
       "transfer",
@@ -2795,11 +2963,39 @@
     ],
     [
       "wire_transfer",
-      "id"
+      "blnk_reference"
+    ],
+    [
+      "wire_transfer",
+      "blnk_status"
+    ],
+    [
+      "wire_transfer",
+      "blnk_transaction_id"
     ],
     [
       "wire_transfer",
       "created_at"
+    ],
+    [
+      "wire_transfer",
+      "id"
+    ],
+    [
+      "wire_transfer",
+      "originator"
+    ],
+    [
+      "wire_transfer",
+      "partner_id"
+    ],
+    [
+      "wire_transfer",
+      "return_reason"
+    ],
+    [
+      "wire_transfer",
+      "synced_at"
     ],
     [
       "wire_transfer",
@@ -2875,7 +3071,7 @@
     [
       "account",
       "death_flag",
-      "text"
+      "boolean"
     ],
     [
       "account",
@@ -2885,6 +3081,41 @@
     [
       "account",
       "restriction",
+      "text"
+    ],
+    [
+      "account",
+      "active_freeze_count",
+      "bigint"
+    ],
+    [
+      "account",
+      "balance_synced_at",
+      "timestamp with time zone"
+    ],
+    [
+      "account",
+      "blnk_balance_id",
+      "text"
+    ],
+    [
+      "account",
+      "credits_blocked",
+      "boolean"
+    ],
+    [
+      "account",
+      "debits_blocked",
+      "boolean"
+    ],
+    [
+      "account",
+      "entity_id",
+      "text"
+    ],
+    [
+      "account",
+      "partner_id",
       "text"
     ],
     [
@@ -2959,12 +3190,52 @@
     ],
     [
       "ach_transfer",
-      "id",
-      "uuid"
+      "blnk_reference",
+      "text"
+    ],
+    [
+      "ach_transfer",
+      "blnk_status",
+      "text"
+    ],
+    [
+      "ach_transfer",
+      "blnk_transaction_id",
+      "text"
     ],
     [
       "ach_transfer",
       "created_at",
+      "timestamp with time zone"
+    ],
+    [
+      "ach_transfer",
+      "id",
+      "text"
+    ],
+    [
+      "ach_transfer",
+      "noc",
+      "jsonb"
+    ],
+    [
+      "ach_transfer",
+      "originator",
+      "jsonb"
+    ],
+    [
+      "ach_transfer",
+      "partner_id",
+      "text"
+    ],
+    [
+      "ach_transfer",
+      "return_reason",
+      "text"
+    ],
+    [
+      "ach_transfer",
+      "synced_at",
       "timestamp with time zone"
     ],
     [
@@ -3010,7 +3281,7 @@
     [
       "address",
       "ncoa_mismatch",
-      "text"
+      "boolean"
     ],
     [
       "address",
@@ -3109,7 +3380,27 @@
     ],
     [
       "bsa_alert",
+      "case_id",
+      "text"
+    ],
+    [
+      "bsa_alert",
       "created_at",
+      "timestamp with time zone"
+    ],
+    [
+      "bsa_alert",
+      "triage_due_at",
+      "timestamp with time zone"
+    ],
+    [
+      "bsa_alert",
+      "triage_outcome",
+      "text"
+    ],
+    [
+      "bsa_alert",
+      "triaged_at",
       "timestamp with time zone"
     ],
     [
@@ -3125,7 +3416,7 @@
     [
       "card",
       "reissue_request",
-      "text"
+      "boolean"
     ],
     [
       "card",
@@ -3698,101 +3989,6 @@
       "timestamp with time zone"
     ],
     [
-      "document",
-      "attached",
-      "text"
-    ],
-    [
-      "document",
-      "curriculum",
-      "jsonb"
-    ],
-    [
-      "document",
-      "edd",
-      "jsonb"
-    ],
-    [
-      "document",
-      "id",
-      "text"
-    ],
-    [
-      "document",
-      "legal_hold_flag",
-      "boolean"
-    ],
-    [
-      "document",
-      "mi",
-      "jsonb"
-    ],
-    [
-      "document",
-      "policy",
-      "jsonb"
-    ],
-    [
-      "document",
-      "report",
-      "jsonb"
-    ],
-    [
-      "document",
-      "retention_anchor",
-      "date"
-    ],
-    [
-      "document",
-      "retention_schedule",
-      "text"
-    ],
-    [
-      "document",
-      "risk",
-      "jsonb"
-    ],
-    [
-      "document",
-      "subject_ref",
-      "text"
-    ],
-    [
-      "document",
-      "type",
-      "text"
-    ],
-    [
-      "document",
-      "vendor",
-      "jsonb"
-    ],
-    [
-      "document",
-      "vendor_alert",
-      "jsonb"
-    ],
-    [
-      "document",
-      "attachment_due_at",
-      "timestamp with time zone"
-    ],
-    [
-      "document",
-      "required_set",
-      "text"
-    ],
-    [
-      "document",
-      "created_at",
-      "timestamp with time zone"
-    ],
-    [
-      "document",
-      "updated_at",
-      "timestamp with time zone"
-    ],
-    [
       "entity",
       "address",
       "text"
@@ -3884,8 +4080,23 @@
     ],
     [
       "entity",
+      "blnk_identity_id",
+      "text"
+    ],
+    [
+      "entity",
       "created_at",
       "timestamp with time zone"
+    ],
+    [
+      "entity",
+      "owners",
+      "jsonb"
+    ],
+    [
+      "entity",
+      "partner_id",
+      "text"
     ],
     [
       "entity",
@@ -4325,7 +4536,7 @@
     [
       "incident",
       "data_scope",
-      "text"
+      "jsonb"
     ],
     [
       "incident",
@@ -4350,7 +4561,7 @@
     [
       "incident",
       "facts",
-      "text"
+      "jsonb"
     ],
     [
       "incident",
@@ -4505,7 +4716,7 @@
     [
       "incident",
       "collections",
-      "text"
+      "boolean"
     ],
     [
       "incident",
@@ -4529,8 +4740,148 @@
     ],
     [
       "incident",
+      "assessment_completed_at",
+      "timestamp with time zone"
+    ],
+    [
+      "incident",
+      "closed_at",
+      "timestamp with time zone"
+    ],
+    [
+      "incident",
+      "comms_holding_statement",
+      "text"
+    ],
+    [
+      "incident",
+      "comms_initial_due_at",
+      "timestamp with time zone"
+    ],
+    [
+      "incident",
+      "comms_initial_issued_at",
+      "timestamp with time zone"
+    ],
+    [
+      "incident",
+      "contained_at",
+      "timestamp with time zone"
+    ],
+    [
+      "incident",
       "created_at",
       "timestamp with time zone"
+    ],
+    [
+      "incident",
+      "declared_at",
+      "timestamp with time zone"
+    ],
+    [
+      "incident",
+      "detected_at",
+      "timestamp with time zone"
+    ],
+    [
+      "incident",
+      "determination_due_at",
+      "timestamp with time zone"
+    ],
+    [
+      "incident",
+      "external_comms_at",
+      "timestamp with time zone"
+    ],
+    [
+      "incident",
+      "first_hour_completed_at",
+      "timestamp with time zone"
+    ],
+    [
+      "incident",
+      "ic_assigned_at",
+      "timestamp with time zone"
+    ],
+    [
+      "incident",
+      "ic_assigned_to",
+      "text"
+    ],
+    [
+      "incident",
+      "ic_assignment_due_at",
+      "timestamp with time zone"
+    ],
+    [
+      "incident",
+      "is_reportable",
+      "boolean"
+    ],
+    [
+      "incident",
+      "legal_review_at",
+      "timestamp with time zone"
+    ],
+    [
+      "incident",
+      "legal_review_by",
+      "text"
+    ],
+    [
+      "incident",
+      "member_impact_confirmed_at",
+      "timestamp with time zone"
+    ],
+    [
+      "incident",
+      "member_notices_sent_at",
+      "timestamp with time zone"
+    ],
+    [
+      "incident",
+      "ncua_notified_at",
+      "timestamp with time zone"
+    ],
+    [
+      "incident",
+      "oncall_ic_rotation",
+      "text"
+    ],
+    [
+      "incident",
+      "provenance",
+      "text"
+    ],
+    [
+      "incident",
+      "reportability_determined_at",
+      "timestamp with time zone"
+    ],
+    [
+      "incident",
+      "reportability_determined_by",
+      "text"
+    ],
+    [
+      "incident",
+      "restored_at",
+      "timestamp with time zone"
+    ],
+    [
+      "incident",
+      "sitrep_cadence_minutes",
+      "bigint"
+    ],
+    [
+      "incident",
+      "source",
+      "text"
+    ],
+    [
+      "incident",
+      "title",
+      "text"
     ],
     [
       "incident",
@@ -4539,12 +4890,12 @@
     ],
     [
       "indemnification",
-      "advance.disbursed",
+      "advance_disbursed",
       "text"
     ],
     [
       "indemnification",
-      "advance.requested",
+      "advance_requested",
       "text"
     ],
     [
@@ -4554,7 +4905,7 @@
     ],
     [
       "indemnification",
-      "claim.notified",
+      "claim_notified",
       "text"
     ],
     [
@@ -4574,7 +4925,7 @@
     ],
     [
       "indemnification",
-      "decision_body.selected",
+      "decision_body_selected",
       "text"
     ],
     [
@@ -4614,17 +4965,17 @@
     ],
     [
       "indemnification",
-      "matter.resolved_favorably",
+      "matter_resolved_favorably",
       "text"
     ],
     [
       "indemnification",
-      "payment.blocked",
+      "payment_blocked",
       "text"
     ],
     [
       "indemnification",
-      "payment.disbursed",
+      "payment_disbursed",
       "text"
     ],
     [
@@ -4634,7 +4985,7 @@
     ],
     [
       "indemnification",
-      "repayment.demanded",
+      "repayment_demanded",
       "text"
     ],
     [
@@ -4644,12 +4995,12 @@
     ],
     [
       "indemnification",
-      "request.routed",
+      "request_routed",
       "text"
     ],
     [
       "indemnification",
-      "standard_determination.made",
+      "standard_determination_made",
       "text"
     ],
     [
@@ -5055,7 +5406,7 @@
     [
       "loan",
       "ltv",
-      "numeric"
+      "bigint"
     ],
     [
       "loan",
@@ -5385,7 +5736,7 @@
     [
       "loan_application",
       "thin_file",
-      "text"
+      "boolean"
     ],
     [
       "loan_application",
@@ -5399,6 +5750,36 @@
     ],
     [
       "loan_application",
+      "updated_at",
+      "timestamp with time zone"
+    ],
+    [
+      "ofac_result",
+      "match_score",
+      "numeric"
+    ],
+    [
+      "ofac_result",
+      "match_status",
+      "text"
+    ],
+    [
+      "ofac_result",
+      "matched_lists",
+      "text"
+    ],
+    [
+      "ofac_result",
+      "id",
+      "uuid"
+    ],
+    [
+      "ofac_result",
+      "created_at",
+      "timestamp with time zone"
+    ],
+    [
+      "ofac_result",
       "updated_at",
       "timestamp with time zone"
     ],
@@ -5600,7 +5981,7 @@
     [
       "risk",
       "remediation_evidence",
-      "jsonb"
+      "text"
     ],
     [
       "risk",
@@ -5640,7 +6021,7 @@
     [
       "risk",
       "inherent_score",
-      "numeric"
+      "bigint"
     ],
     [
       "risk",
@@ -5745,7 +6126,7 @@
     [
       "trade",
       "confirmation_matched",
-      "text"
+      "boolean"
     ],
     [
       "trade",
@@ -5914,7 +6295,7 @@
     ],
     [
       "training",
-      "proficiency.failed",
+      "proficiency_failed",
       "text"
     ],
     [
@@ -6059,17 +6440,7 @@
     ],
     [
       "transfer",
-      "amount",
-      "bigint"
-    ],
-    [
-      "transfer",
       "beneficiary",
-      "jsonb"
-    ],
-    [
-      "transfer",
-      "counterparty",
       "jsonb"
     ],
     [
@@ -6089,7 +6460,42 @@
     ],
     [
       "transfer",
+      "amount",
+      "bigint"
+    ],
+    [
+      "transfer",
+      "blnk_reference",
+      "text"
+    ],
+    [
+      "transfer",
+      "blnk_status",
+      "text"
+    ],
+    [
+      "transfer",
+      "blnk_transaction_id",
+      "text"
+    ],
+    [
+      "transfer",
+      "counterparty",
+      "jsonb"
+    ],
+    [
+      "transfer",
       "created_at",
+      "timestamp with time zone"
+    ],
+    [
+      "transfer",
+      "partner_id",
+      "text"
+    ],
+    [
+      "transfer",
+      "synced_at",
       "timestamp with time zone"
     ],
     [
@@ -6125,7 +6531,7 @@
     [
       "verification",
       "alt_path_available",
-      "text"
+      "boolean"
     ],
     [
       "verification",
@@ -6249,12 +6655,47 @@
     ],
     [
       "wire_transfer",
-      "id",
-      "uuid"
+      "blnk_reference",
+      "text"
+    ],
+    [
+      "wire_transfer",
+      "blnk_status",
+      "text"
+    ],
+    [
+      "wire_transfer",
+      "blnk_transaction_id",
+      "text"
     ],
     [
       "wire_transfer",
       "created_at",
+      "timestamp with time zone"
+    ],
+    [
+      "wire_transfer",
+      "id",
+      "text"
+    ],
+    [
+      "wire_transfer",
+      "originator",
+      "jsonb"
+    ],
+    [
+      "wire_transfer",
+      "partner_id",
+      "text"
+    ],
+    [
+      "wire_transfer",
+      "return_reason",
+      "text"
+    ],
+    [
+      "wire_transfer",
+      "synced_at",
       "timestamp with time zone"
     ],
     [
@@ -6278,7 +6719,6 @@
     "complaint",
     "control_result",
     "dispute",
-    "document",
     "entity",
     "event",
     "fbo_position",
@@ -6292,6 +6732,7 @@
     "legal_hold",
     "loan",
     "loan_application",
+    "ofac_result",
     "originator",
     "provider_result",
     "records_package",
@@ -6319,7 +6760,6 @@
     "complaint",
     "control_result",
     "dispute",
-    "document",
     "entity",
     "event",
     "fbo_position",
@@ -6333,6 +6773,7 @@
     "legal_hold",
     "loan",
     "loan_application",
+    "ofac_result",
     "originator",
     "provider_result",
     "records_package",
@@ -6360,7 +6801,6 @@
     "complaint",
     "control_result",
     "dispute",
-    "document",
     "entity",
     "event",
     "fbo_position",
@@ -6374,6 +6814,7 @@
     "legal_hold",
     "loan",
     "loan_application",
+    "ofac_result",
     "originator",
     "provider_result",
     "records_package",
@@ -6386,62 +6827,7 @@
     "verification",
     "wire_transfer"
   ],
-  "coverage_gaps": [
-    [
-      "CP-11",
-      "training.proficiency.failed",
-      "training",
-      "proficiency_failed"
-    ],
-    [
-      "RII-03",
-      "indemnification.payment.disbursed",
-      "indemnification",
-      "payment_disbursed"
-    ],
-    [
-      "RII-04",
-      "indemnification.payment.blocked",
-      "indemnification",
-      "payment_blocked"
-    ],
-    [
-      "RII-04",
-      "indemnification.payment.disbursed",
-      "indemnification",
-      "payment_disbursed"
-    ],
-    [
-      "RII-04",
-      "indemnification.standard_determination.made",
-      "indemnification",
-      "standard_determination_made"
-    ],
-    [
-      "RII-05",
-      "indemnification.advance.disbursed",
-      "indemnification",
-      "advance_disbursed"
-    ],
-    [
-      "RII-05",
-      "indemnification.repayment.demanded",
-      "indemnification",
-      "repayment_demanded"
-    ],
-    [
-      "RII-06",
-      "indemnification.payment.blocked",
-      "indemnification",
-      "payment_blocked"
-    ],
-    [
-      "RII-08",
-      "indemnification.claim.notified",
-      "indemnification",
-      "claim_notified"
-    ]
-  ],
+  "coverage_gaps": [],
   "deadlines": [
     {
       "table": "account",
@@ -6468,6 +6854,14 @@
       "controls": [
         "TIS-04"
       ]
+    },
+    {
+      "table": "bsa_alert",
+      "col": "triage_due_at",
+      "open_states": [],
+      "has_status": false,
+      "terminal_seeded": false,
+      "controls": []
     },
     {
       "table": "change",
@@ -6608,16 +7002,6 @@
       ]
     },
     {
-      "table": "document",
-      "col": "attachment_due_at",
-      "open_states": [],
-      "has_status": false,
-      "terminal_seeded": false,
-      "controls": [
-        "IP-15"
-      ]
-    },
-    {
       "table": "finding",
       "col": "escalation_due_at",
       "open_states": [
@@ -6675,10 +7059,10 @@
       "table": "incident",
       "col": "ncua_notice_due_at",
       "open_states": [
+        "detected",
         "declared",
-        "responding",
         "contained",
-        "postmortem"
+        "restored"
       ],
       "has_status": true,
       "terminal_seeded": true,
@@ -6690,10 +7074,10 @@
       "table": "incident",
       "col": "notification_due_at",
       "open_states": [
+        "detected",
         "declared",
-        "responding",
         "contained",
-        "postmortem"
+        "restored"
       ],
       "has_status": true,
       "terminal_seeded": true,
@@ -6705,10 +7089,10 @@
       "table": "incident",
       "col": "triage_due_at",
       "open_states": [
+        "detected",
         "declared",
-        "responding",
         "contained",
-        "postmortem"
+        "restored"
       ],
       "has_status": true,
       "terminal_seeded": true,
@@ -6716,6 +7100,45 @@
         "CO-11",
         "PR-18"
       ]
+    },
+    {
+      "table": "incident",
+      "col": "comms_initial_due_at",
+      "open_states": [
+        "detected",
+        "declared",
+        "contained",
+        "restored"
+      ],
+      "has_status": true,
+      "terminal_seeded": true,
+      "controls": []
+    },
+    {
+      "table": "incident",
+      "col": "determination_due_at",
+      "open_states": [
+        "detected",
+        "declared",
+        "contained",
+        "restored"
+      ],
+      "has_status": true,
+      "terminal_seeded": true,
+      "controls": []
+    },
+    {
+      "table": "incident",
+      "col": "ic_assignment_due_at",
+      "open_states": [
+        "detected",
+        "declared",
+        "contained",
+        "restored"
+      ],
+      "has_status": true,
+      "terminal_seeded": true,
+      "controls": []
     },
     {
       "table": "indemnification",

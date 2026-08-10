@@ -13,8 +13,8 @@ select lives_ok($$insert into "core"."account_number" ("id", "status") values ('
 select throws_ok($$insert into "core"."account_number" ("id", "status") values ('t_smoke_bad_account_number', '__invalid__')$$, '23514', null, 'account_number: invalid status rejected by CHECK');
 
 -- ach_transfer: status in ['pending_approval', 'submitted', 'settled', 'returned', 'rejected', 'canceled']
-select lives_ok($$insert into "core"."ach_transfer" ("status") values ('pending_approval')$$, 'ach_transfer: valid status pending_approval accepted');
-select throws_ok($$insert into "core"."ach_transfer" ("status") values ('__invalid__')$$, '23514', null, 'ach_transfer: invalid status rejected by CHECK');
+select lives_ok($$insert into "core"."ach_transfer" ("id", "status") values ('t_smoke_ach_transfer', 'pending_approval')$$, 'ach_transfer: valid status pending_approval accepted');
+select throws_ok($$insert into "core"."ach_transfer" ("id", "status") values ('t_smoke_bad_ach_transfer', '__invalid__')$$, '23514', null, 'ach_transfer: invalid status rejected by CHECK');
 
 -- case: status in ['opened', 'in_review', 'closed']
 select lives_ok($$insert into "core"."case" ("id", "status") values ('t_smoke_case', 'opened')$$, 'case: valid status opened accepted');
@@ -52,8 +52,8 @@ select throws_ok($$insert into "core"."finding" ("status") values ('__invalid__'
 select lives_ok($$insert into "core"."handover" ("status") values ('initiated')$$, 'handover: valid status initiated accepted');
 select throws_ok($$insert into "core"."handover" ("status") values ('__invalid__')$$, '23514', null, 'handover: invalid status rejected by CHECK');
 
--- incident: status in ['declared', 'responding', 'contained', 'postmortem', 'closed']
-select lives_ok($$insert into "core"."incident" ("id", "status") values ('t_smoke_incident', 'declared')$$, 'incident: valid status declared accepted');
+-- incident: status in ['detected', 'declared', 'contained', 'restored', 'closed']
+select lives_ok($$insert into "core"."incident" ("id", "status") values ('t_smoke_incident', 'detected')$$, 'incident: valid status detected accepted');
 select throws_ok($$insert into "core"."incident" ("id", "status") values ('t_smoke_bad_incident', '__invalid__')$$, '23514', null, 'incident: invalid status rejected by CHECK');
 
 -- indemnification: status in ['requested', 'under_review', 'determined', 'paid']
@@ -97,7 +97,7 @@ select lives_ok($$insert into "core"."verification" ("id", "status") values ('t_
 select throws_ok($$insert into "core"."verification" ("id", "status") values ('t_smoke_bad_verification', '__invalid__')$$, '23514', null, 'verification: invalid status rejected by CHECK');
 
 -- wire_transfer: status in ['pending_approval', 'submitted', 'completed', 'return_requested', 'returned', 'rejected', 'canceled']
-select lives_ok($$insert into "core"."wire_transfer" ("status") values ('pending_approval')$$, 'wire_transfer: valid status pending_approval accepted');
-select throws_ok($$insert into "core"."wire_transfer" ("status") values ('__invalid__')$$, '23514', null, 'wire_transfer: invalid status rejected by CHECK');
+select lives_ok($$insert into "core"."wire_transfer" ("id", "status") values ('t_smoke_wire_transfer', 'pending_approval')$$, 'wire_transfer: valid status pending_approval accepted');
+select throws_ok($$insert into "core"."wire_transfer" ("id", "status") values ('t_smoke_bad_wire_transfer', '__invalid__')$$, '23514', null, 'wire_transfer: invalid status rejected by CHECK');
 select * from finish();
 rollback;

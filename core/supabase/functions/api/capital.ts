@@ -55,6 +55,12 @@ const COLS =
   "net_worth_ratio_bp, pca_category, internal_trigger_bp, internal_trigger_breached, " +
   "nwrp_due_at, nwrp_filed_at, nwrp_filed_by, distribution_restricted, provenance, created_at";
 
+// capital_target has its own shape — selecting the position COLS from it is
+// exactly the select-list defect the live tier exists to catch (PostgREST
+// rejects the unknown columns and the write's emits never run).
+const TARGET_COLS =
+  "id, effective_date, target_bp, proposed_by, approved_by, approved_at, provenance, created_at";
+
 /** The ratio, in basis points, floored — never rounded up into a better band. */
 export function netWorthRatioBp(netWorthCents: number, totalAssetsCents: number): number {
   return Math.floor((netWorthCents * 10000) / totalAssetsCents);
@@ -546,7 +552,7 @@ export async function postCapitalTarget(
     approved_by: approvedBy,
     approved_at: approvedBy ? new Date().toISOString() : null,
     provenance: provenanceFor(scope, ctx),
-  }, { onConflict: "id" }).select(COLS).maybeSingle();
+  }, { onConflict: "id" }).select(TARGET_COLS).maybeSingle();
   if (error) return internalErrorResponse(requestId, error.message);
 
   if (approvedBy) {

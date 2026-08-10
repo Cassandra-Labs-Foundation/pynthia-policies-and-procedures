@@ -13,6 +13,7 @@ import {
   apiError, internalErrorResponse, isNonEmptyString, jsonResponse, notFoundResponse,
   parseJsonBody, validationError, type ValidationErrorItem,
 } from "./lib.ts";
+import { ecoaNoticeDueAt } from "./lending.ts";
 
 // deno-lint-ignore no-explicit-any
 type Any = any;
@@ -1340,9 +1341,19 @@ export async function postLendingAdverseAction(
   await db.schema(scope).from("loan_application").update({
     action_basis: reasons, updated_at: now.toISOString(),
   }).eq("id", appId);
+  // The ECOA clock anchors on COMPLETION (NOT NULL on the table — the fake
+  // accepted a notice without it, the live schema refuses it, which is how
+  // LP-04/LP-07/FL-03/FL-05 read as fake-vs-real defects).
+  const { data: app } = await db.schema(scope).from("loan_application")
+    .select("completed_at").eq("id", appId).maybeSingle();
+  const completedAt = typeof (app as Any)?.completed_at === "string"
+    ? String((app as Any).completed_at)
+    : now.toISOString();
   const id = `aan_${appId}`;
   const { error } = await db.schema(scope).from("adverse_action_notice").upsert({
     id, loan_application_id: appId, reasons,
+    application_completed_at: completedAt,
+    notice_due_at: ecoaNoticeDueAt(completedAt),
     reviewed_by: reviewedBy, reviewed_at: now.toISOString(),
     issued_at: now.toISOString(),
     // FL-05 content. A notice that says only "denied — see reasons" leaves the

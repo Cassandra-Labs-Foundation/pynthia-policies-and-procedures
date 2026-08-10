@@ -93,7 +93,7 @@ export async function materializeSeeds(
  * through; intermediate results (still-chainable builders) are wrapped again
  * so the interception survives `.update(x).eq(...)`-style chains.
  */
-function recordingChain(target: Any, record: () => void): Any {
+function recordingChain(target: Any, record: () => void, onError?: (e: Any) => void): Any {
   return new Proxy(target, {
     get(t, prop, receiver) {
       if (prop === "then") {
@@ -103,6 +103,7 @@ function recordingChain(target: Any, record: () => void): Any {
         return (onFulfilled: Any, onRejected: Any) =>
           realThen((res: Any) => {
             if (res && res.error == null) record();
+            else if (res && res.error != null && onError) onError(res.error);
             return onFulfilled ? onFulfilled(res) : res;
           }, onRejected);
       }
@@ -111,7 +112,7 @@ function recordingChain(target: Any, record: () => void): Any {
       return (...args: Any[]) => {
         const out = v.apply(t, args);
         // still a builder (has .then or more methods) -> keep recording
-        if (out && typeof out === "object") return recordingChain(out, record);
+        if (out && typeof out === "object") return recordingChain(out, record, onError);
         return out;
       };
     },
@@ -129,7 +130,22 @@ function normalizeRows(payload: Any): Any[] {
  */
 export function makeLiveDb(url: string, serviceKey: string): LiveDb {
   const rows: Record<string, Any[]> = {};
-  const real = createClient(url, serviceKey, { auth: { persistSession: false } });
+  const real = createClient(url, serviceKey, {
+    auth: { persistSession: false },
+    global: {
+      // A dead socket must FAIL, not hang. Two full runs stalled forever
+      // (0% CPU, zero open sockets) on a fetch that never resolved; with a
+      // deadline the call errors, the runner's try/catch records the control
+      // as blocked, and the run keeps moving.
+      fetch: (input: Any, init?: Any) =>
+        fetch(input, {
+          ...init,
+          signal: init?.signal
+            ? AbortSignal.any([init.signal, AbortSignal.timeout(30_000)])
+            : AbortSignal.timeout(30_000),
+        }),
+    },
+  });
 
   const client: Any = {
     schema(schemaName: string) {
@@ -138,10 +154,16 @@ export function makeLiveDb(url: string, serviceKey: string): LiveDb {
         from(table: string) {
           const b: Any = s.from(table);
           const key = `${schemaName}.${table}`;
+          // DRILL_DEBUG=1 surfaces writes the live schema refused — the
+          // writers ignore PostgREST errors, so without this a refusal is
+          // only visible as a missing produced event, never as a cause.
+          const debug = (globalThis as Any).Deno?.env.get("DRILL_DEBUG");
           const wrap = (payload: Any, out: Any) =>
             recordingChain(out, () => {
               (rows[key] ??= []).push(...normalizeRows(payload));
-            });
+            }, debug
+              ? (e: Any) => console.error(`  [refused] ${key}: ${String(e.message).slice(0, 140)}`)
+              : undefined);
           return new Proxy(b, {
             get(t, prop, receiver) {
               const v = Reflect.get(t, prop, receiver);

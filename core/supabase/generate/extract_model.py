@@ -175,7 +175,10 @@ for n in sorted(table_set):
     has_own_id = 'id' in props
     for pn, pv in props.items():
         ref, is_array = prop_direct_ref(pv)
-        col = snake(pn)
+        # x-column: the wire name differs from the storage column (dotted
+        # corpus tokens normalised to snake_case by 20260809000100)
+        xcol = pv.get('x-column') if isinstance(pv, dict) else None
+        col = xcol or snake(pn)
         ctrls = pv.get('x-bound-controls') if isinstance(pv, dict) else None
         if ref in embedded_set:
             # embedded detail schema -> jsonb blob (hybrid rule)

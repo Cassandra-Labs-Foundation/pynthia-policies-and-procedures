@@ -17,6 +17,18 @@ on:
   schedule:
     - cron: "23 5 * * 0" # weekly, Sunday 05:23 UTC
   workflow_dispatch:
+    inputs:
+      mode:
+        description: >-
+          check = fail if a baseline-green control went red;
+          refresh = re-run the tier and COMMIT the new control-tests-live.json
+          (+ regenerated STATE.md) as the baseline
+        type: choice
+        options: [check, refresh]
+        default: check
+
+permissions:
+  contents: write
 
 jobs:
   live-check:
@@ -47,8 +59,41 @@ jobs:
           deno-version: v2.x
 
       - name: Live control tier — a control proven live must stay proven
-        if: steps.guard.outputs.run == 'true'
+        if: steps.guard.outputs.run == 'true' && inputs.mode != 'refresh'
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: deno run --allow-all core/supabase/functions/drill/controls_live_run.ts --check
+
+      # Refresh mode exists because the full tier is ~10k sequential
+      # round-trips: from CI (low latency to the database) it is ~45 minutes,
+      # from a residential connection it measured 12+ hours. The baseline
+      # artifact should be refreshed from here, not from a laptop.
+      - name: Live control tier — refresh the committed baseline
+        if: steps.guard.outputs.run == 'true' && inputs.mode == 'refresh'
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: deno run --allow-all core/supabase/functions/drill/controls_live_run.ts
+
+      - name: Regenerate STATE.md (live numbers changed with the baseline)
+        if: steps.guard.outputs.run == 'true' && inputs.mode == 'refresh'
+        run: |
+          python3 -m pip install pyyaml
+          python3 scripts/gen_state.py
+
+      - name: Commit refreshed baseline
+        if: steps.guard.outputs.run == 'true' && inputs.mode == 'refresh'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add control-tests-live.json STATE.md
+          if git diff --cached --quiet; then
+            echo "Baseline already current — nothing to commit."
+            exit 0
+          fi
+          git commit -m "chore(compliance): refresh live control-tier baseline"
+          git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
