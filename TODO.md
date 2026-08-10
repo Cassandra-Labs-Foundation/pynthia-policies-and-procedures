@@ -28,20 +28,19 @@
 - [x] Delete the root `supabase/` CLI scratch (untracked `.temp/` leftovers) so
       nobody runs the Supabase CLI at the wrong level.
 
-## 2. Fake-vs-real defects — the live-tier backlog
+## 2. Fake-vs-real defects — the live-tier backlog — DONE 2026-08-10
 
-The hermetic tier is fully green; the live tier is not (see
-[STATE.md](STATE.md)). Every live-red control is a named missing event writer
-or unsupplied input — `blocked_on` in `control-tests-live.json` names the exact
-gap per control. Concentration at snapshot time: investment 9 (the
-`trade.limit.blocked` / `trade.approval.requested` family), collections 5
-(`loan.dpd.updated`, `loan.charged_off`, nonaccrual events), lending 5,
-charitable-donation-accounts 4, fair-lending 4 (`aan.issued`,
-`loan_application.adverse_action.decided`), then a long tail.
-
-Related schema debt: ten `todo()` columns in
-`tests/02_control_coverage.test.sql` — eight `indemnification.*` columns plus
-`training.proficiency_failed`.
+Cleared in full: the live tier stands at 225 green / 0 red in scope, zero
+fake-vs-real defects (down from 46). The causes decomposed into six
+mechanical classes — fixtures that never reached the real database,
+recorder-copy mutations, wrong select lists, invented enum vocabulary,
+uuid-vs-text id mismatches, and live-state accumulation on converged rows —
+fixed across two commits (see git log 2026-08-09..10). The related schema
+debt (the ten `todo()` columns) went with it: migration 20260809000100
+renamed the dotted first-cut columns, and the coverage suite regenerates
+with zero gaps. Refresh the baseline any time with
+`gh workflow run live-control-tier.yml -f mode=refresh` — never run the
+full tier from a laptop.
 
 ## 3. Decisions only a human can make (each blocks a swath)
 
