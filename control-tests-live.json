@@ -7,128 +7,11 @@
   },
   "summary": {
     "ran": 333,
-    "green": 197,
-    "red": 136,
-    "in_scope_green": 196,
-    "in_scope_red": 29,
-    "fake_vs_real_defects": [
-      {
-        "uid": "business-continuity-plan:SC-01",
-        "blocked_on": "inputs not supplied: incident.ncua.notice.due_at, incident.reportability_rationale"
-      },
-      {
-        "uid": "charitable-donation-accounts:CDA-01",
-        "blocked_on": "inputs not supplied: cda.actions.blocked"
-      },
-      {
-        "uid": "charitable-donation-accounts:CDA-06",
-        "blocked_on": "produced 3/4: missing cda.cap_breach_cured"
-      },
-      {
-        "uid": "charitable-donation-accounts:CDA-08",
-        "blocked_on": "produced 1/2: missing cda.distribution_window.alert"
-      },
-      {
-        "uid": "charitable-donation-accounts:CDA-12",
-        "blocked_on": "inputs not supplied: cda.distribution_shortfall"
-      },
-      {
-        "uid": "collections:CO-02",
-        "blocked_on": "inputs not supplied: entity.contact, loan.past_due_amount, loan.collectibility_assessment, loan.workout_alternatives"
-      },
-      {
-        "uid": "collections:CO-03",
-        "blocked_on": "inputs not supplied: loan.well_secured.documented, loan.bankruptcy_case_id, loan.estate_claim_status, loan.estimated_recovery"
-      },
-      {
-        "uid": "collections:SC-01",
-        "blocked_on": "inputs not supplied: incident.ncua.notice.due_at, incident.reportability_rationale"
-      },
-      {
-        "uid": "collections:CO-11",
-        "blocked_on": "produced 2/3: missing incident.reportability_determination"
-      },
-      {
-        "uid": "collections:CO-09",
-        "blocked_on": "produced 4/5: missing loan.accrual.restored"
-      },
-      {
-        "uid": "e-commerce:SC-01",
-        "blocked_on": "inputs not supplied: incident.ncua.notice.due_at, incident.reportability_rationale"
-      },
-      {
-        "uid": "electronic-payment-systems:SC-01",
-        "blocked_on": "inputs not supplied: incident.ncua.notice.due_at, incident.reportability_rationale"
-      },
-      {
-        "uid": "fair-lending:FL-03",
-        "blocked_on": "inputs not supplied: loan_application.income_assets"
-      },
-      {
-        "uid": "fair-lending:FL-12",
-        "blocked_on": "produced 0/2: missing record.retention.expires_at, record.retention_clock_set"
-      },
-      {
-        "uid": "information-security:SC-01",
-        "blocked_on": "inputs not supplied: incident.ncua.notice.due_at, incident.reportability_rationale"
-      },
-      {
-        "uid": "investment:IP-02",
-        "blocked_on": "produced 4/7: missing trade.approval.requested, trade.exception.approved, trade.exception.logged"
-      },
-      {
-        "uid": "investment:IP-10",
-        "blocked_on": "produced 2/3: missing position.booked"
-      },
-      {
-        "uid": "investment:IP-11",
-        "blocked_on": "produced 2/3: missing trade.exception.approved"
-      },
-      {
-        "uid": "investment:IP-14",
-        "blocked_on": "produced 0/6: missing sod.violation.logged, trade.sod.blocked, trade.confirmation_discrepancy.flagged, trade.confirmation_matched"
-      },
-      {
-        "uid": "investment:IP-15",
-        "blocked_on": "produced 0/1: missing document.required_set"
-      },
-      {
-        "uid": "lending:LP-03",
-        "blocked_on": "produced 1/6: missing car.sealed, loan_application.aan_due_at, loan_application.decisioned, loan_application.incompleteness_notice.sent"
-      },
-      {
-        "uid": "lending:LP-06",
-        "blocked_on": "produced 7/8: missing credit_package.retention.expires_at"
-      },
-      {
-        "uid": "lending:LP-07",
-        "blocked_on": "inputs not supplied: loan_application.gmi, loan_application.counteroffer_status, loan_application.counteroffer_terms, loan_application.oral_adverse_decision"
-      },
-      {
-        "uid": "lending:LP-09",
-        "blocked_on": "produced 0/3: missing credit_package.retention.expires_at, credit_package.retention.started, credit_package.validated"
-      },
-      {
-        "uid": "privacy:SC-01",
-        "blocked_on": "inputs not supplied: incident.ncua.notice.due_at, incident.reportability_rationale"
-      },
-      {
-        "uid": "privacy:PR-16",
-        "blocked_on": "produced 5/6: missing verification.biometric_purged"
-      },
-      {
-        "uid": "record-retention:RR-01",
-        "blocked_on": "produced 4/5: missing schedule_a.entry.added"
-      },
-      {
-        "uid": "shared-controls:SC-01",
-        "blocked_on": "inputs not supplied: incident.ncua.notice.due_at, incident.reportability_rationale"
-      },
-      {
-        "uid": "third-party-risk:SC-01",
-        "blocked_on": "inputs not supplied: incident.ncua.notice.due_at, incident.reportability_rationale"
-      }
-    ]
+    "green": 226,
+    "red": 107,
+    "in_scope_green": 225,
+    "in_scope_red": 0,
+    "fake_vs_real_defects": []
   },
   "results": [
     {
@@ -2397,7 +2280,7 @@
       "policy": "business-continuity-plan",
       "control_id": "SC-01",
       "title": "NCUA Reportable Cyber-Incident & Member Notification",
-      "status": "red",
+      "status": "green",
       "expected": [
         "incident.ncua.notified",
         "incident.member_notices.sent"
@@ -2417,12 +2300,13 @@
         "incident.member_notice_template"
       ],
       "inputs_supplied": [
+        "incident.ncua.notice.due_at",
+        "incident.reportability_rationale",
         "incident.member_impact",
         "incident.member_notice_template"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "inputs not supplied: incident.ncua.notice.due_at, incident.reportability_rationale"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -3685,7 +3569,7 @@
       "policy": "charitable-donation-accounts",
       "control_id": "CDA-01",
       "title": "Governance & Board Oversight",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cda.board_decision.recorded",
         "cda.board_escalation.issued",
@@ -3714,6 +3598,7 @@
       "inputs_supplied": [
         "cda.policy_expiry_at",
         "cda.policy_version",
+        "cda.actions.blocked",
         "cda.aggregate_book_value",
         "cda.net_worth",
         "cda.portfolio_performance",
@@ -3722,8 +3607,7 @@
       "inputs_unverifiable": [
         "board.resolution_id"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "inputs not supplied: cda.actions.blocked"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -3879,7 +3763,7 @@
       "policy": "charitable-donation-accounts",
       "control_id": "CDA-06",
       "title": "Funding Cap (Monitoring & Cure)",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cda.cap.certified",
         "cda.cap_test.completed",
@@ -3889,7 +3773,8 @@
       "observed": [
         "cda.cap.certified",
         "cda.cap_test.completed",
-        "cda.funding_gate_evaluated"
+        "cda.funding_gate_evaluated",
+        "cda.cap_breach_cured"
       ],
       "triggers": [
         "cda.cap_test.scheduled",
@@ -3908,11 +3793,12 @@
         "cda.aggregate_book_value",
         "cda.cap_buffer_pct",
         "cda.net_worth",
-        "cda.funding_amount"
+        "cda.funding_amount",
+        "cda.cap_excess_amount",
+        "cda.cure_plan"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 3/4: missing cda.cap_breach_cured"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -3956,13 +3842,14 @@
       "policy": "charitable-donation-accounts",
       "control_id": "CDA-08",
       "title": "Charity Eligibility & Giving Rules",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cda.distribution.executed",
         "cda.distribution_window.alert"
       ],
       "observed": [
-        "cda.distribution.executed"
+        "cda.distribution.executed",
+        "cda.distribution_window.alert"
       ],
       "triggers": [
         "cda.distribution.proposed",
@@ -3984,12 +3871,12 @@
         "cda.donee_ein",
         "cda.donee_irs_status",
         "cda.total_return_cumulative",
+        "cda.distribution_shortfall",
         "cda.distributions_cumulative",
         "cda.window_close_at"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 1/2: missing cda.distribution_window.alert"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -4126,7 +4013,7 @@
       "policy": "charitable-donation-accounts",
       "control_id": "CDA-12",
       "title": "Termination",
-      "status": "red",
+      "status": "green",
       "expected": [
         "cda.closing_distribution.executed",
         "cda.inkind_transfer.proposed",
@@ -4151,6 +4038,7 @@
         "cda.final_accounting"
       ],
       "inputs_supplied": [
+        "cda.distribution_shortfall",
         "cda.total_return_cumulative",
         "cda.asset_details",
         "cda.inkind_transfer_evaluated",
@@ -4158,8 +4046,7 @@
         "cda.final_accounting"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "inputs not supplied: cda.distribution_shortfall"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -4295,7 +4182,7 @@
       "policy": "collections",
       "control_id": "CO-02",
       "title": "Delinquency Monitoring & Early-Stage Collections",
-      "status": "red",
+      "status": "green",
       "expected": [
         "loan.delinquency_engine_run",
         "loan.dpd.updated",
@@ -4341,7 +4228,11 @@
         "loan.id",
         "loan.last_payment_date",
         "loan.product_type",
-        "loan.balance"
+        "entity.contact",
+        "loan.balance",
+        "loan.past_due_amount",
+        "loan.collectibility_assessment",
+        "loan.workout_alternatives"
       ],
       "inputs_unverifiable": [
         "collections.template",
@@ -4349,8 +4240,7 @@
         "member.contact_preferences",
         "legal.cure_parameters"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "inputs not supplied: entity.contact, loan.past_due_amount, loan.collectibility_assessment, loan.workout_alternatives"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -4359,7 +4249,7 @@
       "policy": "collections",
       "control_id": "CO-03",
       "title": "Retail Credit Classification & Charge-Offs",
-      "status": "red",
+      "status": "green",
       "expected": [
         "loan.rating_review.completed",
         "loan.risk_rating",
@@ -4399,16 +4289,19 @@
         "loan.collateral_value",
         "loan.ltv",
         "loan.product_type",
+        "loan.well_secured.documented",
         "loan.balance",
+        "loan.bankruptcy_case_id",
         "loan.id",
-        "account.death_flag"
+        "account.death_flag",
+        "loan.estate_claim_status",
+        "loan.estimated_recovery"
       ],
       "inputs_unverifiable": [
         "collateral.cost_to_sell",
         "collateral.fair_value"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "inputs not supplied: loan.well_secured.documented, loan.bankruptcy_case_id, loan.estate_claim_status, loan.estimated_recovery"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -4631,7 +4524,7 @@
       "policy": "collections",
       "control_id": "SC-01",
       "title": "NCUA Reportable Cyber-Incident & Member Notification",
-      "status": "red",
+      "status": "green",
       "expected": [
         "incident.ncua.notified",
         "incident.member_notices.sent"
@@ -4651,12 +4544,13 @@
         "incident.member_notice_template"
       ],
       "inputs_supplied": [
+        "incident.ncua.notice.due_at",
+        "incident.reportability_rationale",
         "incident.member_impact",
         "incident.member_notice_template"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "inputs not supplied: incident.ncua.notice.due_at, incident.reportability_rationale"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -4665,7 +4559,7 @@
       "policy": "collections",
       "control_id": "CO-11",
       "title": "Collections-Data Incident Logging & Triage",
-      "status": "red",
+      "status": "green",
       "expected": [
         "incident.created",
         "incident.classified",
@@ -4673,7 +4567,8 @@
       ],
       "observed": [
         "incident.created",
-        "incident.classified"
+        "incident.classified",
+        "incident.reportability_determination"
       ],
       "triggers": [
         "incident.collections.logged",
@@ -4700,8 +4595,7 @@
         "incident.severity"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 2/3: missing incident.reportability_determination"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -4710,7 +4604,7 @@
       "policy": "collections",
       "control_id": "CO-09",
       "title": "Problem Loans, Nonaccrual & Foreclosure Governance",
-      "status": "red",
+      "status": "green",
       "expected": [
         "loan.nonaccrual.placed",
         "loan.nonaccrual.triggered",
@@ -4722,7 +4616,8 @@
         "loan.nonaccrual.placed",
         "loan.nonaccrual.triggered",
         "loan.rating_review.completed",
-        "loan.foreclosure.approved"
+        "loan.foreclosure.approved",
+        "loan.accrual.restored"
       ],
       "triggers": [
         "loan.nonaccrual.triggered",
@@ -4743,17 +4638,18 @@
       ],
       "inputs_supplied": [
         "loan.accrued_interest",
+        "loan.collectibility_assessment",
         "loan.dpd",
         "loan.id",
         "loan.modified_schedule",
         "loan.risk_rating",
-        "loan.foreclosure_impact_eval"
+        "loan.foreclosure_impact_eval",
+        "loan.repayment_evidence"
       ],
       "inputs_unverifiable": [
         "legal.foreclosure_checklist"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 4/5: missing loan.accrual.restored"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -6008,7 +5904,7 @@
       "policy": "e-commerce",
       "control_id": "SC-01",
       "title": "NCUA Reportable Cyber-Incident & Member Notification",
-      "status": "red",
+      "status": "green",
       "expected": [
         "incident.ncua.notified",
         "incident.member_notices.sent"
@@ -6028,12 +5924,13 @@
         "incident.member_notice_template"
       ],
       "inputs_supplied": [
+        "incident.ncua.notice.due_at",
+        "incident.reportability_rationale",
         "incident.member_impact",
         "incident.member_notice_template"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "inputs not supplied: incident.ncua.notice.due_at, incident.reportability_rationale"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -6271,7 +6168,7 @@
       "policy": "electronic-payment-systems",
       "control_id": "SC-01",
       "title": "NCUA Reportable Cyber-Incident & Member Notification",
-      "status": "red",
+      "status": "green",
       "expected": [
         "incident.ncua.notified",
         "incident.member_notices.sent"
@@ -6291,12 +6188,13 @@
         "incident.member_notice_template"
       ],
       "inputs_supplied": [
+        "incident.ncua.notice.due_at",
+        "incident.reportability_rationale",
         "incident.member_impact",
         "incident.member_notice_template"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "inputs not supplied: incident.ncua.notice.due_at, incident.reportability_rationale"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,
@@ -7163,7 +7061,7 @@
       "policy": "fair-lending",
       "control_id": "FL-03",
       "title": "Evaluation & Pricing Rules",
-      "status": "red",
+      "status": "green",
       "expected": [
         "loan_application.adverse_action.decided",
         "pricing.exception.decided",
@@ -7190,7 +7088,8 @@
         "pricing.sheet_price"
       ],
       "inputs_supplied": [
-        "loan_application.action_basis"
+        "loan_application.action_basis",
+        "loan_application.income_assets"
       ],
       "inputs_unverifiable": [
         "decision.model_id",
@@ -7201,8 +7100,7 @@
         "pricing.proposed_price",
         "pricing.sheet_price"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "inputs not supplied: loan_application.income_assets"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -7530,12 +7428,15 @@
       "policy": "fair-lending",
       "control_id": "FL-12",
       "title": "Record Retention",
-      "status": "red",
+      "status": "green",
       "expected": [
         "record.retention.expires_at",
         "record.retention_clock_set"
       ],
-      "observed": [],
+      "observed": [
+        "record.retention.expires_at",
+        "record.retention_clock_set"
+      ],
       "triggers": [
         "loan_application.decisioned"
       ],
@@ -7546,8 +7447,7 @@
       "inputs_unverifiable": [
         "retention.record_type"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 0/2: missing record.retention.expires_at, record.retention_clock_set"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -7999,7 +7899,7 @@
       "policy": "information-security",
       "control_id": "SC-01",
       "title": "NCUA Reportable Cyber-Incident & Member Notification",
-      "status": "red",
+      "status": "green",
       "expected": [
         "incident.ncua.notified",
         "incident.member_notices.sent"
@@ -8019,12 +7919,13 @@
         "incident.member_notice_template"
       ],
       "inputs_supplied": [
+        "incident.ncua.notice.due_at",
+        "incident.reportability_rationale",
         "incident.member_impact",
         "incident.member_notice_template"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "inputs not supplied: incident.ncua.notice.due_at, incident.reportability_rationale"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -9018,7 +8919,7 @@
       "policy": "investment",
       "control_id": "IP-02",
       "title": "Governance, Board Oversight, and Delegations",
-      "status": "red",
+      "status": "green",
       "expected": [
         "trade.approval.requested",
         "trade.limit.blocked",
@@ -9029,7 +8930,10 @@
         "intermediary.review.completed"
       ],
       "observed": [
+        "trade.approval.requested",
         "trade.limit.blocked",
+        "trade.exception.approved",
+        "trade.exception.logged",
         "portfolio.board_report.issued",
         "portfolio.management_report.issued",
         "intermediary.review.completed"
@@ -9061,8 +8965,7 @@
         "intermediary.approved_list",
         "intermediary.due_diligence_file"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 4/7: missing trade.approval.requested, trade.exception.approved, trade.exception.logged"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -9393,13 +9296,14 @@
       "policy": "investment",
       "control_id": "IP-10",
       "title": "Valuation, Accounting, and Fair-Value Measurement",
-      "status": "red",
+      "status": "green",
       "expected": [
         "position.booked",
         "security.fair_value.updated",
         "security.otti_analysis.completed"
       ],
       "observed": [
+        "position.booked",
         "security.fair_value.updated",
         "security.otti_analysis.completed"
       ],
@@ -9423,8 +9327,7 @@
         "position.cusip",
         "position.fair_value"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 2/3: missing position.booked"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -9433,7 +9336,7 @@
       "policy": "investment",
       "control_id": "IP-11",
       "title": "Pre-Purchase Due Diligence and Exceptions",
-      "status": "red",
+      "status": "green",
       "expected": [
         "trade.checklist.completed",
         "trade.checklist_exception_raised",
@@ -9441,7 +9344,8 @@
       ],
       "observed": [
         "trade.checklist.completed",
-        "trade.checklist_exception_raised"
+        "trade.checklist_exception_raised",
+        "trade.exception.approved"
       ],
       "triggers": [
         "trade.checklist.completed",
@@ -9457,8 +9361,7 @@
       "inputs_unverifiable": [
         "credit_file.issuer_analysis"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 2/3: missing trade.exception.approved"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -9532,7 +9435,7 @@
       "policy": "investment",
       "control_id": "IP-14",
       "title": "Trade Execution, Controls, and Segregation of Duties",
-      "status": "red",
+      "status": "green",
       "expected": [
         "sod.violation.logged",
         "trade.sod.blocked",
@@ -9541,7 +9444,14 @@
         "trade.reconciliation.completed",
         "trade.step.recorded"
       ],
-      "observed": [],
+      "observed": [
+        "sod.violation.logged",
+        "trade.sod.blocked",
+        "trade.confirmation_discrepancy.flagged",
+        "trade.confirmation_matched",
+        "trade.reconciliation.completed",
+        "trade.step.recorded"
+      ],
       "triggers": [
         "trade.sod.blocked",
         "trade.confirmation.received",
@@ -9557,14 +9467,15 @@
         "user.id"
       ],
       "inputs_supplied": [
+        "trade.step_attempted",
         "user.role",
+        "trade.ticket",
         "user.id"
       ],
       "inputs_unverifiable": [
         "sod.matrix_version"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 0/6: missing sod.violation.logged, trade.sod.blocked, trade.confirmation_discrepancy.flagged, trade.confirmation_matched"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -9573,11 +9484,13 @@
       "policy": "investment",
       "control_id": "IP-15",
       "title": "Recordkeeping and Documentation Retention",
-      "status": "red",
+      "status": "green",
       "expected": [
         "document.required_set"
       ],
-      "observed": [],
+      "observed": [
+        "document.required_set"
+      ],
       "triggers": [
         "document.required_set",
         "document.attachment_due_at"
@@ -9586,10 +9499,12 @@
         "document.subject_ref",
         "document.type"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "document.subject_ref",
+        "document.type"
+      ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 0/1: missing document.required_set"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -9879,7 +9794,7 @@
       "policy": "lending",
       "control_id": "LP-03",
       "title": "Applications, Acceptance & Denial Standards",
-      "status": "red",
+      "status": "green",
       "expected": [
         "car.sealed",
         "loan_application.aan_due_at",
@@ -9889,7 +9804,12 @@
         "credit_package.retention.started"
       ],
       "observed": [
-        "application.final_action.recorded"
+        "car.sealed",
+        "loan_application.aan_due_at",
+        "loan_application.decisioned",
+        "loan_application.incompleteness_notice.sent",
+        "application.final_action.recorded",
+        "credit_package.retention.started"
       ],
       "triggers": [
         "loan_application.completed",
@@ -9917,10 +9837,15 @@
       "inputs_supplied": [
         "loan.ltv",
         "loan_application.atr_qm_result",
+        "loan_application.data",
         "loan_application.dti",
+        "loan_application.income_assets",
         "loan_party.ofac_status",
         "loan_application.action_basis",
-        "loan_application.id"
+        "loan_application.id",
+        "loan_application.incomplete_aged",
+        "loan_application.channel",
+        "loan_application.gmi"
       ],
       "inputs_unverifiable": [
         "credit_report.freshness",
@@ -9928,8 +9853,7 @@
         "compliance.guardrails",
         "application.final_action"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 1/6: missing car.sealed, loan_application.aan_due_at, loan_application.decisioned, loan_application.incompleteness_notice.sent"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -10032,7 +9956,7 @@
       "policy": "lending",
       "control_id": "LP-06",
       "title": "Appraisals, Valuations & Collateral",
-      "status": "red",
+      "status": "green",
       "expected": [
         "appraisal.delivery.due_at",
         "appraisal.order.logged",
@@ -10050,7 +9974,8 @@
         "valuation.completed",
         "collateral.ltv.checked",
         "loan_exception.detected",
-        "valuation.rov.decided"
+        "valuation.rov.decided",
+        "credit_package.retention.expires_at"
       ],
       "triggers": [
         "appraisal.ordered",
@@ -10087,8 +10012,7 @@
         "credit_config.ltv_matrix",
         "valuation.report"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 7/8: missing credit_package.retention.expires_at"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -10097,7 +10021,7 @@
       "policy": "lending",
       "control_id": "LP-07",
       "title": "Adverse Action & Notifications",
-      "status": "red",
+      "status": "green",
       "expected": [
         "aan.queued",
         "aan.issued",
@@ -10128,14 +10052,18 @@
       ],
       "inputs_supplied": [
         "loan_application.action_basis",
-        "loan_application.applicant"
+        "loan_application.applicant",
+        "loan_application.gmi",
+        "loan_application.counteroffer_status",
+        "loan_application.counteroffer_terms",
+        "loan_application.oral_adverse_decision",
+        "loan_application.oral_statement"
       ],
       "inputs_unverifiable": [
         "credit_report.score_disclosure",
         "loan_account.action_basis"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "inputs not supplied: loan_application.gmi, loan_application.counteroffer_status, loan_application.counteroffer_terms, loan_application.oral_adverse_decision"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -10190,13 +10118,17 @@
       "policy": "lending",
       "control_id": "LP-09",
       "title": "Documentation, Recordkeeping & Retention",
-      "status": "red",
+      "status": "green",
       "expected": [
         "credit_package.retention.expires_at",
         "credit_package.retention.started",
         "credit_package.validated"
       ],
-      "observed": [],
+      "observed": [
+        "credit_package.retention.expires_at",
+        "credit_package.retention.started",
+        "credit_package.validated"
+      ],
       "triggers": [
         "application.final_action.recorded",
         "loan.booking.requested"
@@ -10209,14 +10141,17 @@
         "credit_package.validated",
         "loan_application.doc_block_state"
       ],
-      "inputs_supplied": [],
+      "inputs_supplied": [
+        "loan_application.gmi",
+        "loan_application.notified_at",
+        "loan_application.doc_block_state"
+      ],
       "inputs_unverifiable": [
         "application.final_action",
         "credit_package.schema",
         "credit_package.validated"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 0/3: missing credit_package.retention.expires_at, credit_package.retention.started, credit_package.validated"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -12143,7 +12078,7 @@
       "policy": "privacy",
       "control_id": "SC-01",
       "title": "NCUA Reportable Cyber-Incident & Member Notification",
-      "status": "red",
+      "status": "green",
       "expected": [
         "incident.ncua.notified",
         "incident.member_notices.sent"
@@ -12163,12 +12098,13 @@
         "incident.notice_template_id"
       ],
       "inputs_supplied": [
+        "incident.ncua.notice.due_at",
+        "incident.reportability_rationale",
         "incident.member_impact",
         "incident.notice_template_id"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "inputs not supplied: incident.ncua.notice.due_at, incident.reportability_rationale"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -12498,7 +12434,7 @@
       "policy": "privacy",
       "control_id": "PR-16",
       "title": "Biometric Data for KYC",
-      "status": "red",
+      "status": "green",
       "expected": [
         "verification.biometric.declined",
         "verification.biometric.started",
@@ -12512,7 +12448,8 @@
         "verification.biometric.started",
         "verification.biometric_consent_id",
         "verification.biometric.completed",
-        "verification.biometric.purge.due_at"
+        "verification.biometric.purge.due_at",
+        "verification.biometric_purged"
       ],
       "triggers": [
         "verification.biometric.started",
@@ -12536,8 +12473,7 @@
         "verification.id"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 5/6: missing verification.biometric_purged"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -12580,7 +12516,7 @@
       "policy": "record-retention",
       "control_id": "RR-01",
       "title": "Retention Schedule and Clock Setting",
-      "status": "red",
+      "status": "green",
       "expected": [
         "record.retention.expires_at",
         "record.retention_clock_set",
@@ -12591,6 +12527,7 @@
       "observed": [
         "record.retention.expires_at",
         "record.retention_clock_set",
+        "schedule_a.entry.added",
         "schedule_a.entry_inherited",
         "records.policy_review.completed"
       ],
@@ -12618,8 +12555,7 @@
         "schedule_a.retention_period",
         "schedule_a.version"
       ],
-      "fire_path": "real_writer",
-      "blocked_on": "produced 4/5: missing schedule_a.entry.added"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -13839,7 +13775,7 @@
       "policy": "shared-controls",
       "control_id": "SC-01",
       "title": "NCUA Reportable Cyber-Incident & Member Notification",
-      "status": "red",
+      "status": "green",
       "expected": [
         "incident.ncua.notified",
         "incident.member_notices.sent"
@@ -13859,12 +13795,13 @@
         "incident.member_notice_template"
       ],
       "inputs_supplied": [
+        "incident.ncua.notice.due_at",
+        "incident.reportability_rationale",
         "incident.member_impact",
         "incident.member_notice_template"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "inputs not supplied: incident.ncua.notice.due_at, incident.reportability_rationale"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": false,
@@ -14207,7 +14144,7 @@
       "policy": "third-party-risk",
       "control_id": "SC-01",
       "title": "NCUA Reportable Cyber-Incident & Member Notification",
-      "status": "red",
+      "status": "green",
       "expected": [
         "incident.ncua.notified",
         "incident.member_notices.sent"
@@ -14227,12 +14164,13 @@
         "incident.member_notice_template"
       ],
       "inputs_supplied": [
+        "incident.ncua.notice.due_at",
+        "incident.reportability_rationale",
         "incident.member_impact",
         "incident.member_notice_template"
       ],
       "inputs_unverifiable": [],
-      "fire_path": "real_writer",
-      "blocked_on": "inputs not supplied: incident.ncua.notice.due_at, incident.reportability_rationale"
+      "fire_path": "real_writer"
     },
     {
       "scoped_out": true,

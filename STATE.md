@@ -30,7 +30,7 @@
 | policies in the catalogue | 27 (of which 26 regenerable via `prompt.md`) |
 | controls | 333 total — 225 in scope, 108 scoped out |
 | hermetic tier | 225 green / 0 red (in scope) |
-| live tier | 196 green / 29 red (in scope), 29 fake-vs-real defects |
+| live tier | 225 green / 0 red (in scope), 0 fake-vs-real defects |
 
 ## Crosswalk
 
