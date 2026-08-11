@@ -18063,8 +18063,8 @@
         "functional"
       ],
       "tier": "light_api",
-      "status": "spec_ahead",
-      "reason": "spec_ahead",
+      "status": "ready",
+      "reason": null,
       "source": "properties.yaml ACCTNUM-LUHN",
       "payload": {
         "property_id": "ACCTNUM-LUHN",
@@ -18659,8 +18659,8 @@
         "functional"
       ],
       "tier": "light_api",
-      "status": "spec_ahead",
-      "reason": "spec_ahead",
+      "status": "ready",
+      "reason": null,
       "source": "properties.yaml SM-ACCOUNT",
       "payload": {
         "property_id": "SM-ACCOUNT",
@@ -18676,8 +18676,8 @@
         "compliance"
       ],
       "tier": "light_api",
-      "status": "spec_ahead",
-      "reason": "spec_ahead",
+      "status": "ready",
+      "reason": null,
       "source": "properties.yaml SM-ACH",
       "payload": {
         "property_id": "SM-ACH",
@@ -18692,8 +18692,8 @@
         "functional"
       ],
       "tier": "light_api",
-      "status": "spec_ahead",
-      "reason": "spec_ahead",
+      "status": "ready",
+      "reason": null,
       "source": "properties.yaml SM-ENTITY",
       "payload": {
         "property_id": "SM-ENTITY",
@@ -18724,8 +18724,8 @@
         "functional"
       ],
       "tier": "light_api",
-      "status": "spec_ahead",
-      "reason": "spec_ahead",
+      "status": "ready",
+      "reason": null,
       "source": "properties.yaml SM-WIRE",
       "payload": {
         "property_id": "SM-WIRE",

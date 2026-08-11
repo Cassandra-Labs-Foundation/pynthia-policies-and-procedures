@@ -1,0 +1,44 @@
+# The black-box contract suite (core/verifier/contract/, TEST-CATALOG.md)
+# against the DEPLOYED core. Same guard pattern as smoke.yml / the live tier:
+# skip cleanly until the secret exists, never fail the schedule for a missing
+# credential. Additive isolation — the suite creates run-unique fixtures and
+# never calls the destructive /sandbox/reset (the demo instance is shared).
+#
+# Weekly rather than per-push: the suite tests the DEPLOYMENT, and pushes do
+# not deploy (deploys are manual `supabase functions deploy api`). Dispatch it
+# after any deploy worth verifying.
+name: contract-tests
+on:
+  schedule:
+    - cron: "41 6 * * 0" # weekly, Sunday 06:41 UTC — after the live tier
+  workflow_dispatch:
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Guard — secret present?
+        id: guard
+        env:
+          KEY: ${{ secrets.DEMO_API_KEY }}
+        run: |
+          if [ -z "$KEY" ]; then
+            echo "DEMO_API_KEY not set — skipping (set it to activate the schedule)" >> "$GITHUB_STEP_SUMMARY"
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: denoland/setup-deno@v2
+        if: steps.guard.outputs.run == 'true'
+        with:
+          deno-version: v2.x
+
+      - name: Contract suite — the catalog's claims hold on the deployed core
+        if: steps.guard.outputs.run == 'true'
+        env:
+          DEMO_API_KEY: ${{ secrets.DEMO_API_KEY }}
+        run: deno test --allow-net --allow-env core/verifier/contract/

@@ -101,7 +101,7 @@ properties:
     source: ["D20"]
     tier: light_api
     severity: med
-    status: spec_ahead
+    status: ready
 
   - id: ACCTNUM-NEVER-REUSE
     title: "Account numbers are never reused"
@@ -207,7 +207,7 @@ properties:
     source: ["D7", "D1"]
     tier: light_api
     severity: med
-    status: spec_ahead
+    status: ready
 
   - id: SM-ACCOUNT
     title: "Account lifecycle"
@@ -219,7 +219,7 @@ properties:
     source: ["D7", "D2"]
     tier: light_api
     severity: med
-    status: spec_ahead
+    status: ready
 
   - id: SM-ACH
     title: "ACH transfer lifecycle"
@@ -231,7 +231,7 @@ properties:
     source: ["D7", "D8"]
     tier: light_api
     severity: high
-    status: spec_ahead
+    status: ready
 
   - id: SM-WIRE
     title: "Wire transfer lifecycle"
@@ -243,7 +243,7 @@ properties:
     source: ["D7", "D9"]
     tier: light_api
     severity: med
-    status: spec_ahead
+    status: ready
 
   # ───────────────────────── Contract conventions (cross-cutting, Functional) ─────────────────────────
   - id: ENV-ERROR-SINGLE

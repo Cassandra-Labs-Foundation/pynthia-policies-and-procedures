@@ -18,6 +18,19 @@ build order, not importance — see **Priorities** at the bottom.
 
 Legend: `[ ]` not written · `[~]` written, failing (impl absent) · `[x]` written, passing
 
+**The suite lives in `core/verifier/contract/`** (Deno, black-box HTTP; run
+`deno test --allow-net --allow-env core/verifier/contract/` with
+`DEMO_API_KEY` set, or dispatch `contract-tests.yml`). Isolation is ADDITIVE —
+run-unique fixtures, never the destructive `/sandbox/reset` (the demo
+instance is shared; smoke.yml owns the full reset round-trip behind its
+`destructive_reset` flag, which also covers D17-T1's destructive half).
+The two `[~]`s are real contract gaps found by the suite, not absent
+implementations: `D6-T4` — mutating endpoints ACCEPT a missing
+Idempotency-Key today (enforcement needs a deliberate migration);
+`D5-T2` — the demo key is intentionally an internal actor
+(ALLOW_DEMO_KEY posture), so partner scoping needs a partner-scoped
+credential that has no provisioning API yet.
+
 ---
 
 ## Tier 1 — Instance BaaS API (black-box, buildable now)
@@ -25,22 +38,22 @@ Legend: `[ ]` not written · `[~]` written, failing (impl absent) · `[x]` writt
 ### Cross-cutting contract (D12 Errors, D13 Versioning, D16 Pagination)
 Every endpoint inherits these.
 
-- [ ] `D12-T1` single error has `status/type/title/detail/doc_url/request_id` (+ `resource_id/resource_type` when applicable)
-- [ ] `D12-T2` validation failure → `type:validation_error` + `errors[]` with per-field `type/field/message`
-- [ ] `D12-T3` `request_id` unique per response, usable for support correlation
-- [ ] `D13-T1` every response carries `X-API-Version: MAJOR.MINOR.PATCH`
-- [ ] `D13-T2` `GET /changelog` returns structured entries
-- [ ] `D16-T1` list endpoints return `data` + `pagination{has_more,next_after,limit}`
-- [ ] `D16-T2` `?after=<id>` returns next page with no overlap/gap
-- [ ] `D16-T3` `limit` bounds enforced
-- [ ] `D16-T4` final page → `has_more:false`, `next_after:null`
+- [x] `D12-T1` single error has `status/type/title/detail/doc_url/request_id` (+ `resource_id/resource_type` when applicable)
+- [x] `D12-T2` validation failure → `type:validation_error` + `errors[]` with per-field `type/field/message`
+- [x] `D12-T3` `request_id` unique per response, usable for support correlation
+- [x] `D13-T1` every response carries `X-API-Version: MAJOR.MINOR.PATCH`
+- [x] `D13-T2` `GET /changelog` returns structured entries
+- [x] `D16-T1` list endpoints return `data` + `pagination{has_more,next_after,limit}`
+- [x] `D16-T2` `?after=<id>` returns next page with no overlap/gap
+- [x] `D16-T3` `limit` bounds enforced
+- [x] `D16-T4` final page → `has_more:false`, `next_after:null`
 
 ### Idempotency (D6) — highest-value contract tests
-- [ ] `D6-T1` same key + same body → replays cached response + `Idempotent-Replayed: true`, no second resource
-- [ ] `D6-T2` same key + different body → `409` `type:idempotency_key_reused`
-- [ ] `D6-T3` unknown key proceeds normally (writes record)
-- [ ] `D6-T4` missing `Idempotency-Key` on a mutating endpoint → rejected
-- [ ] `D6-T5` replay after time advance still replays — keys never expire
+- [x] `D6-T1` same key + same body → replays cached response + `Idempotent-Replayed: true`, no second resource
+- [x] `D6-T2` same key + different body → `409` `type:idempotency_key_reused`
+- [x] `D6-T3` unknown key proceeds normally (writes record)
+- [~] `D6-T4` missing `Idempotency-Key` on a mutating endpoint → rejected
+- [x] `D6-T5` replay after time advance still replays — keys never expire
 
 ### Entities (D1) + Entity state machine (D7)
 - [ ] `D1-T1` create person via `/entities/person`
@@ -50,26 +63,26 @@ Every endpoint inherits these.
 - [ ] `D1-T5` all appear in unified `GET /entities` with correct `type` discriminator
 - [ ] `D1-T6` joint ownership expressed via `owners[]` on the Account, not the Entity
 - [ ] `D1-T7` beneficial owner ≥25% recorded as associated person
-- [ ] `D7-E1` legal path `PENDING→ACTIVE→DISABLED→ACTIVE→ARCHIVED`; each transition emits expected event
-- [ ] `D7-E2` illegal transitions rejected (`ARCHIVED→ACTIVE`, `PENDING→ARCHIVED`)
+- [x] `D7-E1` legal path `PENDING→ACTIVE→DISABLED→ACTIVE→ARCHIVED`; each transition emits expected event
+- [x] `D7-E2` illegal transitions rejected (`ARCHIVED→ACTIVE`, `PENDING→ARCHIVED`)
 - [ ] `D7-E3` `lock_type` (NONE/COMPLIANCE/FRAUD/LEGAL/ADMIN) + `dormancy_status` orthogonal — locked entity keeps its state but gates actions
 
 ### Accounts & Account Numbers (D2, D20) + state machines (D7)
-- [ ] `D2-T1` one Account → multiple Account Numbers, each distinct routing/number pair
+- [x] `D2-T1` one Account → multiple Account Numbers, each distinct routing/number pair
 - [ ] `D2-T2` `account.*` events vs `account_number.*` events fire on the right object
 - [ ] `D2-T3` `informational_entity_id` set for FBO attribution
-- [ ] `D20-T1` allocated number is 12 digits = 3 prefix + 8 sequence + 1 check
-- [ ] `D20-T2` check digit passes **Luhn**
+- [x] `D20-T1` allocated number is 12 digits = 3 prefix + 8 sequence + 1 check
+- [x] `D20-T2` check digit passes **Luhn**
 - [ ] `D20-T3` prefix matches the fintech
 - [ ] `D20-T4` `000` reserved for CU-direct
 - [ ] `D20-T5` **never-reuse** — cancel + reallocate yields a new number; canceled one never re-issued (stress over many allocations)
-- [ ] `D7-A1` Account `OPEN↔FROZEN→CLOSED` legal/illegal transitions
+- [x] `D7-A1` Account `OPEN↔FROZEN→CLOSED` legal/illegal transitions
 - [ ] `D7-A2` Account Number `ACTIVE↔DISABLED→CANCELED` legal/illegal transitions
 
 ### ACH (D8) & Wire (D9) — outcomes forced via D17 simulation
-- [ ] `D8-T1` transfer lands in `PENDING_APPROVAL`; response has `effective_date/expected_settlement/window/control_results`
+- [x] `D8-T1` transfer lands in `PENDING_APPROVAL`; response has `effective_date/expected_settlement/window/control_results`
 - [ ] `D8-T2` control gate fail → `REJECTED`; success → `SUBMITTED` → (simulate settle) → `SETTLED`
-- [ ] `D8-T3` on-us transfer routes as instant **book transfer**, same event model
+- [x] `D8-T3` on-us transfer routes as instant **book transfer**, same event model
 - [ ] `D8-T4` simulate return → `RETURNED`
 - [ ] `D8-T5` `same_day` vs `standard` window honored
 - [ ] `D9-T1` wire `PENDING_APPROVAL→SUBMITTED→COMPLETED` happy path
@@ -82,23 +95,23 @@ Every endpoint inherits these.
 - [ ] `D11-T3` **OFAC always runs regardless of trust level** (even `full` trust still screens)
 
 ### Card (D10) — via D17 simulation
-- [ ] `D10-T1` simulated auth runs balance/velocity/OFAC → APPROVE/DECLINE in canonical response shape
+- [x] `D10-T1` simulated auth runs balance/velocity/OFAC → APPROVE/DECLINE in canonical response shape
 - [ ] `D10-T2` inflight hold on auth → commit on settle / void on decline (multi-balance reflects it)
 
 ### Auth (D5) & Rate Limiting (D14)
-- [ ] `D5-T1` valid partner token reaches allowed endpoints
-- [ ] `D5-T2` token scoped away from an endpoint → `403`
-- [ ] `D5-T3` no/invalid token → `401`
+- [x] `D5-T1` valid partner token reaches allowed endpoints
+- [~] `D5-T2` token scoped away from an endpoint → `403`
+- [x] `D5-T3` no/invalid token → `401`
 - [ ] `D14-T1` each tier (read/write/real-time/bulk) returns `X-RateLimit-Limit/Remaining/Reset/Tier`
 - [ ] `D14-T2` at 80% → `X-RateLimit-Warning: approaching_limit`
 - [ ] `D14-T3` over limit → `429`
 - [ ] `D14-T4` no burst allowance
 
 ### Sandbox (D17)
-- [ ] `D17-T1` `POST /sandbox/reset` returns instance to empty (test-isolation foundation)
+- [x] `D17-T1` `POST /sandbox/reset` returns instance to empty (test-isolation foundation)
 - [ ] `D17-T2` each `/sandbox/simulate/*` endpoint produces its stated outcome
-- [ ] `D17-T3` **strict validation** — sandbox rejects the same malformed input prod would
-- [ ] `D17-T4` **no magic values** — special account/amount has no effect; only simulation APIs change outcomes
+- [x] `D17-T3` **strict validation** — sandbox rejects the same malformed input prod would
+- [x] `D17-T4` **no magic values** — special account/amount has no effect; only simulation APIs change outcomes
 
 ### Events log (D4, instance view)
 - [ ] `D4-T1` `/events` append-only — no API path mutates or deletes a past event
@@ -106,9 +119,9 @@ Every endpoint inherits these.
 
 ### Control Engine (D22)
 - [ ] `D22-T1` `compliance_floor:true` control **cannot be disabled** via config (attempt → rejected)
-- [ ] `D22-T2` customizable control accepts threshold within `[min,max]`
-- [ ] `D22-T3` threshold outside band → rejected
-- [ ] `D22-T4` control evaluation surfaces in `control_results` on the gated op and in `/control-results`
+- [x] `D22-T2` customizable control accepts threshold within `[min,max]`
+- [x] `D22-T3` threshold outside band → rejected
+- [x] `D22-T4` control evaluation surfaces in `control_results` on the gated op and in `/control-results`
 
 ---
 

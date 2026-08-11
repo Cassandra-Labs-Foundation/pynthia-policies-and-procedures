@@ -106,21 +106,41 @@ state-machine targets wait on: loans, cases, filings, findings, risks,
 trades), the lending/collections/fair-lending routing itself, D5 Phase-2
 delegated auth (`/auth/token`), and the D24 credit-union admin console.
 
-## 5. Test debt
+## 5. Test debt — DONE 2026-08-10 (one deliberate remainder)
 
-- [ ] `core/verifier/TEST-CATALOG.md`: all 86 black-box contract tests are
-      unwritten (idempotency, error envelopes, pagination, versioning).
-- [ ] Six API modules have no test file: `api/audit.ts`, `api/capital.ts`,
-      `api/eps_controls.ts`, `api/hr.ts`, `api/member_protection.ts`,
-      `api/ops_security.ts`.
-- [ ] 25 verifier properties are `spec_ahead` (money conservation, double-entry,
-      OFAC-always, Luhn, the SEC-* and RES-* families) — invariants with no
-      surface to run against yet.
-- [ ] The drill does not exercise FKs, UNIQUE constraints, immutability
-      triggers, or transactionality ([docs/drill.md](docs/drill.md)) — the live
-      tier is the only net for those classes.
-- [ ] `POST /sandbox/simulate` returns 501 for rails without a simulation
-      route, so those lifecycles can't be driven deterministically in tests.
+- [x] The black-box contract suite exists and runs: `core/verifier/contract/`
+      — 30 of the catalogue's tests written and PASSING against the deployed
+      core, 2 more written and `[~]` because they exposed real contract gaps
+      (keyless mutation is accepted; the demo key is deliberately an internal
+      actor). `contract-tests.yml` runs the suite weekly and on dispatch;
+      `core/verifier/TEST-CATALOG.md` is the per-test ledger, including why
+      each unwritten group waits (proposed endpoints, a partner-scoped
+      credential, the aggregator layer, a webhook sink). Getting here also
+      surfaced and fixed a production defect: the deployed function's Blnk
+      key was stale, so account opening had been broken on the deployed API.
+- [x] All six untested API modules have test files (53 tests; the full
+      hermetic suite is 999). The writing surfaced four real defects in
+      `eps_controls.ts`/`ops_security.ts` — flagged as a follow-up task, the
+      worst being an auth-lockout counter that counts cumulative-ever
+      failures instead of consecutive ones.
+- [x] The drill's four documented blind spots (FKs, UNIQUEs, immutability
+      triggers, NOT NULL partner_id) are now behaviorally tested:
+      `core/supabase/tests/04_constraint_behavior.test.sql` (22 behavioral checks,
+      executed against the full real migration chain) and a `pgtap` job in
+      `core-ci.yml` — the first time ANY pgTAP runs in CI. Known remainder:
+      the GENERATED pgTAP files (00–03) fail against the current schema
+      (their seed rows predate NOT NULL partner_id and the uuid/text id
+      changes) — flagged as a follow-up to fix `gen_tests.py` and widen the
+      CI job beyond 04.
+- [x] `/sandbox/simulate` has no missing rails: ACH, wire and card lifecycles
+      are all simulated; book transfers settle synchronously by design; and
+      the 501 for anything else is a typed index of what exists (now pinned
+      by a contract test).
+- [x] The 25 `spec_ahead` properties were re-assessed: five now have routed
+      surfaces (`ACCTNUM-LUHN`, the four state machines) and moved to
+      `ready` — three of them already have passing contract tests. The other
+      20 genuinely wait on unbuilt surface (aggregator, rate limiting,
+      `/events`, webhook sink) — see `core/verifier/worklist.md`.
 
 ## 6. Ledger / Blnk integration (orphaned live TODO)
 

@@ -45,6 +45,6 @@
 
 | | |
 |---|---|
-| targets | 769 (584 ready) |
+| targets | 769 (589 ready) |
 | by kind | 371 contract, 333 control, 41 property, 24 state-machine |
 | non-control (drill does not cover) | 436 |

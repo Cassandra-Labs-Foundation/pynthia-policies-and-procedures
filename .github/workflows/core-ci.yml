@@ -102,3 +102,31 @@ jobs:
         run: |
           supabase db start --workdir core
           supabase db reset --no-seed --workdir core || supabase db reset --workdir core
+
+  pgtap:
+    # Constraint BEHAVIOR — the guarantees docs/drill.md documents as invisible
+    # to the hermetic drill (FKs, UNIQUEs, the freeze_* immutability triggers,
+    # NOT NULL partner_id + FK to core.partner), exercised against the real
+    # migrated schema. Non-destructive by construction: without --linked or
+    # --db-url, `supabase test db` connects only to the shadow database that
+    # `supabase db start` runs in Docker on this runner (the CLI joins the
+    # local docker network and installs pgtap itself before invoking pg_prove).
+    # The linked project is never touched.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Constraints refuse what the drill cannot even represent
+        # 04 is passed EXPLICITLY rather than running the whole tests/ dir:
+        # pg_prove -r would also pick up 90_deadline_monitors.sql (plain SQL,
+        # no TAP plan) and the generated 00-03 files, which currently fail
+        # against the migrated schema (their seed inserts omit NOT NULL
+        # columns like partner_id, and ach_transfer.id is uuid in the schema
+        # but text in the model). Widen this to the generated files once
+        # gen_tests.py seeds valid rows.
+        run: |
+          supabase db start --workdir core
+          supabase db reset --no-seed --workdir core || supabase db reset --workdir core
+          supabase test db --workdir core core/supabase/tests/04_constraint_behavior.test.sql

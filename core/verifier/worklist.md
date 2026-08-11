@@ -158,8 +158,7 @@ loop exposes more of the API). Do not edit by hand.
 - `property:CONTROL-BOUNDS` — properties.yaml CONTROL-BOUNDS
 - `property:FLOOR-CANNOT-DISABLE` — properties.yaml FLOOR-CANNOT-DISABLE
 
-## property — spec_ahead  (25)
-- `property:ACCTNUM-LUHN` — properties.yaml ACCTNUM-LUHN
+## property — spec_ahead  (20)
 - `property:ACCTNUM-NEVER-REUSE` — properties.yaml ACCTNUM-NEVER-REUSE
 - `property:DET-MIRROR-COMPLETENESS` — properties.yaml DET-MIRROR-COMPLETENESS
 - `property:DET-RECONCILIATION-DIVERGENCE` — properties.yaml DET-RECONCILIATION-DIVERGENCE
@@ -180,10 +179,6 @@ loop exposes more of the API). Do not edit by hand.
 - `property:SEC-PREFIX-SPOOF` — properties.yaml SEC-PREFIX-SPOOF
 - `property:SEC-TENANT-ISOLATION` — properties.yaml SEC-TENANT-ISOLATION
 - `property:SEC-WEBHOOK-SIGNATURE` — properties.yaml SEC-WEBHOOK-SIGNATURE
-- `property:SM-ACCOUNT` — properties.yaml SM-ACCOUNT
-- `property:SM-ACH` — properties.yaml SM-ACH
-- `property:SM-ENTITY` — properties.yaml SM-ENTITY
-- `property:SM-WIRE` — properties.yaml SM-WIRE
 
 ## state_machine — no endpoint exposes this resource yet (banking core)  (17)
 - `sm:Case` — core-api.yaml resource Case (kind=primitive)
