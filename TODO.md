@@ -42,10 +42,41 @@ with zero gaps. Refresh the baseline any time with
 `gh workflow run live-control-tier.yml -f mode=refresh` — never run the
 full tier from a laptop.
 
-## 3. Decisions only a human can make — DECIDED 2026-08-11 (two carry follow-through)
+## 3. Decisions only a human can make — DECIDED 2026-08-11, **RE-REVIEW 2026-08-12**
 
-All seven were put to Lorenzo on 2026-08-11 and decided in one sitting. What
-each decision was, and where its execution stands:
+All seven were put to Lorenzo on 2026-08-11 and decided in one sitting. Lorenzo
+flagged on 2026-08-11 that one sitting was not enough evaluation, so the whole
+section is reopened for review on 2026-08-12 alongside §6's FBO question.
+
+The `[x]` boxes below stay checked on purpose: each decision was *executed*, and
+unchecking would imply the code was reverted, which it was not. What re-review
+changes is whether the decision stands — so the thing to know per item is what
+reversing it now would cost. Ordered cheapest to dearest:
+
+1. **Free — posture only, nothing built on them.** Lending stays parked; D5
+   Phase-2 and D24 stay deferred; OQ-02's STUB reclassification (dashboard
+   metadata; the verdict never moved). Reversing these costs a decision and no
+   rework.
+2. **Free today, expensive soon — chart of accounts.** `ACCOUNT_TYPE_MAP` was
+   approved to unblock double-entry `bookkeeping_entry`, per-product
+   `account_code_5300`, and a GL-backed trial balance — *none of which is built
+   yet*. This is the one where re-review is genuinely time-sensitive: it is
+   free to change until that engineering starts and awkward afterwards. Look
+   at it first.
+3. **Costly — the two id renames.** OQ-01 (CG-CTR-01 → CG-LGTXN-01) and OQ-11
+   (CP-01…CP-12 → CA-01…CA-12) are executed across the corpus, and OQ-11 also
+   moved `control-scope.json` uids and added a gating script. Reversing means
+   another sweep plus a *third* generation of historical ids in
+   `control_result`, since the old ids were deliberately preserved as evidence.
+   The cost grows with every emission, so revisit now or not at all.
+4. **Shipped API contract — OQ-12.** `entity_id` required on `POST /accounts`
+   touched spec, handler, and the idempotency hash. Relaxing the field again is
+   backwards-compatible for callers, but the idempotency-hash change is real
+   behaviour, and the 3 quarantined NULL rows encode the refusal to fabricate
+   owners. Reversal is possible but is a migration-and-contract exercise, not
+   an edit.
+
+What each decision was, and where its execution stands:
 
 - [x] Lending: **stays parked.** The narrow-bank exception in `api/index.ts`
       is the standing record; the §4 proposed paths and the verifier's 25
