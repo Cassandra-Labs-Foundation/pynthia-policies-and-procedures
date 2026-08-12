@@ -164,12 +164,50 @@ reconciliation results into `core.bookkeeping_entry`, the monitor→control-id
 map for `control_result` rows, Blnk key scoping, secret rotation, a lag
 metric, and cold-start backfill. Two blueprint flags never closed:
 
-- [ ] The `fbo_position.position_cents` sign inconsistency between the payment
-      hub and origination capture (explicitly "the call is Lorenzo's" in
-      [docs/history/blueprint.md](docs/history/blueprint.md)).
-- [ ] `is_money_code` has no return and no inbound codes — a returned wire
-      never reverses its position effect, and members funding the FBO don't
-      move the position.
+- [ ] **The FBO position direction model — REVIEW 2026-08-12.** The two flags
+      below are one question, investigated 2026-08-11; the decision is still
+      Lorenzo's, but it no longer needs re-deriving.
+
+      *What the code already asserts.* `aggregator.fbo_read` defines
+      `available_balance_cents = position − held reserves`, and
+      `capture_origination` does `position_cents - amount_cents`. Both say
+      `position_cents` is a **balance that spending reduces**. The Payment Hub
+      (`aggregator.run_payment_hub`) disagrees: it does `position_cents +
+      amount_cents` for every money code, and all four money codes are outbound
+      settlements — so today, sending money increases the balance.
+
+      *Three findings that change the shape of the fix.*
+      1. `transfer.settled` is "an on-us book transfer between internal
+         accounts" (spec, Decision 8), so it nets to zero at the FBO and should
+         not move the position in either direction. It is the largest
+         contributor today: 679 events, $3,344,135. A category error, not a
+         sign error.
+      2. `ach_transfer.returned` (105 events, $413,500) and
+         `wire_transfer.returned` (77, $154,000) both carry `amount_cents` but
+         are not `x-money`, so $567,500 of reversals are invisible.
+      3. **There is no inbound funding code at all** — no `inbound_payment.*`
+         entry exists in `x-events`. Nothing credits the FBO, so flipping the
+         hub's sign alone does not make the position correct, it makes it
+         monotonically negative.
+
+      *The proposed model, and its cost.* Outbound settlement (`−`), returns
+      reversing (`+`), `transfer.settled` dropped, inbound (`+`) once a code
+      exists. Against today's events that yields **−$573,775** where the hub
+      now reports +$3.3M. The negative is the honest signal that inbound is
+      unmodelled, but it would surface as a negative `fbo_position_cents` on
+      the 5300 — accept that consequence deliberately or not at all.
+
+      *Two questions to answer on review.* (a) Adopt the balance model,
+      carrying a negative reported position until inbound exists? (b) Where
+      does FBO funding originate — partner wire in, member ACH pull, other?
+      That answer defines the inbound code, which is new spec surface
+      (`x-events` + `x-money`) and not just a migration.
+
+      *Available without any decision*, if the sign flip is held back: landing
+      the two return codes and dropping `transfer.settled` are both unambiguous
+      on their own, and give a correct settled-**volume** today with the
+      balance model still available later. `scripts/check_money_codes.py`
+      already guarantees whichever answer lands reaches both copies at once.
 
 ## 7. Reporting & analytics — engineering half DONE 2026-08-11
 
