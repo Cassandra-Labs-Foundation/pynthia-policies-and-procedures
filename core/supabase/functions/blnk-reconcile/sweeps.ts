@@ -21,6 +21,14 @@ import {
 import { dispatch, openFinding } from "../blnk-webhook/handlers.ts";
 import type { BlnkWebhook } from "../blnk-webhook/types.ts";
 
+/**
+ * Prefix every Blnk-issued balance id carries (`bln_<uuid>`).
+ *
+ * Used to tell a real mirror from a fixture placeholder. Kept as a constant so
+ * the drift sweep and its test agree on what "could have come from Blnk" means.
+ */
+export const BLNK_BALANCE_ID_PREFIX = "bln_";
+
 export const PENDING_STATUSES = ["QUEUED", "INFLIGHT", "SCHEDULED"] as const;
 export const TXN_TABLES = ["ach_transfer", "wire_transfer", "transfer"] as const;
 export const MIRROR_TABLES = [
@@ -301,9 +309,17 @@ export async function sweepBalances(
   onDrift: () => void,
 ): Promise<void> {
   const table = "account";
+  // Only ids Blnk could have issued. The drill seeds live `ptnr_drill` accounts
+  // with placeholder balance ids ("b" from the account.closed firer, "bal_1".."bal_l"
+  // from the base fixtures) because api/wires.ts rejects an account whose
+  // blnk_balance_id is null — so they cannot simply be nulled out. Without this
+  // filter each one is a permanent `GET /balances/{id}` 404, re-swept every 5
+  // minutes and growing with every drill run: 22 of them by 2026-08-11. A real
+  // drift would then surface as error #23 in a channel that is always already
+  // failing, which is precisely how the inbox backlog alarm decayed into noise.
   const { data, error } = await db.schema("core").from(table)
     .select("id, balance, blnk_balance_id")
-    .not("blnk_balance_id", "is", null)
+    .like("blnk_balance_id", `${BLNK_BALANCE_ID_PREFIX}%`)
     .order("balance_synced_at", { ascending: true, nullsFirst: true })
     .limit(25);
 

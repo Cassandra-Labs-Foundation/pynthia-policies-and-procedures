@@ -11,8 +11,10 @@ import {
 import { type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { type BlnkConfig } from "../_shared/blnk.ts";
 import {
+  BLNK_BALANCE_ID_PREFIX,
   INBOX_FAILED_ALERT_THRESHOLD,
   INBOX_MAX_ATTEMPTS,
+  sweepBalances,
   sweepCardAuthorization,
   sweepInbox,
   sweepTxnTable,
@@ -20,6 +22,7 @@ import {
 } from "./sweeps.ts";
 
 interface Recorded {
+  likes: { table: string; column: string; pattern: string }[];
   updates: { table: string; patch: Record<string, unknown>; id: string }[];
   upserts: { table: string; row: Record<string, unknown>; opts?: Record<string, unknown> }[];
 }
@@ -32,7 +35,7 @@ function stubDb(opts: {
   rows: Record<string, Record<string, unknown>[]>;
   updateError?: string;
 }): { db: SupabaseClient; rec: Recorded } {
-  const rec: Recorded = { updates: [], upserts: [] };
+  const rec: Recorded = { likes: [], updates: [], upserts: [] };
   const makeBuilder = (table: string) => {
     let op: "select" | "update" | "upsert" = "select";
     let patch: Record<string, unknown> = {};
@@ -45,6 +48,9 @@ function stubDb(opts: {
     };
     b.select = chain();
     b.not = chain();
+    b.like = chain((col, pattern) => {
+      rec.likes.push({ table, column: col as string, pattern: pattern as string });
+    });
     b.in = chain();
     b.order = chain();
     b.limit = chain();
@@ -404,4 +410,39 @@ Deno.test("inbox: the backlog alarm counts parked rows too", async () => {
 
   const countFilter = rec.statusFilters[rec.statusFilters.length - 1];
   assertEquals(countFilter, ["failed", "dead_letter"]);
+});
+
+// ---- drift sweep ignores fixture balance ids ---------------------------------
+//
+// The drill seeds live ptnr_drill accounts with placeholder blnk_balance_ids —
+// "b" (drill/firers.ts, the account.closed firer) and "bal_1".."bal_l"
+// (drill/cases.ts). They cannot be nulled out, because api/wires.ts rejects an
+// account whose blnk_balance_id is null. Selecting on "is not null" therefore
+// dragged all 22 into the sweep as permanent GET /balances 404s, re-run every
+// 5 minutes and growing with every drill run — the same channel-flooding that
+// made the inbox backlog alarm meaningless.
+
+Deno.test("balance drift: only ids Blnk could have issued are swept", async () => {
+  const { db, rec } = stubDb({ rows: {} });
+  const errors: SweepError[] = [];
+  await sweepBalances(db, {} as BlnkConfig, errors, () => {}, () => {});
+
+  const f = rec.likes.find((l) => l.table === "account");
+  assertExists(f, "the drift sweep must constrain blnk_balance_id by prefix");
+  assertEquals(f.column, "blnk_balance_id");
+  assertEquals(f.pattern, `${BLNK_BALANCE_ID_PREFIX}%`);
+});
+
+Deno.test("balance drift: the drill's placeholder ids cannot match that filter", () => {
+  // Pins the actual literals in drill/firers.ts and drill/cases.ts, so a future
+  // fixture that happens to start with bln_ fails here rather than silently
+  // rejoining the sweep.
+  for (const fixture of ["b", "bal_1", "bal_6", "bal_1b", "bal_l"]) {
+    assertEquals(
+      fixture.startsWith(BLNK_BALANCE_ID_PREFIX),
+      false,
+      `${fixture} must not look like a Blnk-issued balance id`,
+    );
+  }
+  assertEquals("bln_feb66ca7-2808-41c5-93e2-b366f158b77f".startsWith(BLNK_BALANCE_ID_PREFIX), true);
 });
