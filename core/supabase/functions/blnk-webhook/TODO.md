@@ -19,11 +19,17 @@ Two things this file and plan §6 had wrong, worth keeping written down:
   function all along (its digest matches `BLNK_API_KEY`, as it should — Blnk's
   `server.secret_key` is both). The "500s while unset" hazard was real in the
   abstract but was not the blocker anyone thought it was.
-- `BLNK_WEBHOOK_URL` was **never unset either** — it pointed at a Svix Play
-  bin, `https://play.svix.com/in/56vs7sST9IdAxubbg57pWMuZ5Au/`. Global webhooks
-  had been on and delivering to a public test inbox, not to us. Anyone holding
-  that URL could read the test instance's transaction/balance/identity
-  payloads. **Rotate or abandon that bin.**
+- `BLNK_WEBHOOK_URL` was **never unset either** — it pointed at a Svix Play bin
+  (`https://play.svix.com/in/<token>/`, token deliberately not recorded here).
+  Global webhooks had been on and delivering to a public test inbox, not to us:
+  a Svix Play bin has no auth, so the URL *is* the credential and anyone holding
+  it could read the test instance's transaction/balance/identity payloads.
+  Treat everything that bin received as public.
+
+  The token is not written down in this repo on purpose. It was pasted into this
+  file on 2026-08-11 and pushed to a public remote before being redacted, so it
+  survives in git history at `a8d51e3` — assume it is known and do not rely on
+  its secrecy. Read the live value from the Blnk dashboard when it is needed.
 
 The general lesson matches the repo's: the docs described an *intended* state
 nothing ever checked against the live one. The receiver's own preflight (signed
