@@ -67,6 +67,15 @@ full tier from a laptop.
 - [ ] Fix the colliding CP-01…CP-10 ids between capitalization and cash
       (OQ-11) — colliding claims are refused by the crosswalk build. The CA- vs
       CP- prefix drift recorded in [STATUS.md](STATUS.md) is the root cause.
+- [ ] The chart-of-accounts decision (blueprint §521, moved here from §7):
+      sign off a GL account tree and the `account_type` → 5300 share-line
+      mapping (`ACCOUNT_TYPE_MAP` in `ui/src/lib/ncua5300.js` is the written
+      proposal), and decide what `core.bookkeeping_entry` becomes — it is
+      single-sided with `account_code_5300` stamped `"018"` (a computed NCUA
+      total, not a postable line) on every row. Until this lands, the 5300's
+      asset side stays honestly blank and the filing cannot complete; once it
+      lands, the engineering (double-entry posting, per-product stamping, a
+      trial balance feeding `ncua5300.js`) is ordinary work.
 
 ## 4. API surface not yet built — engineering half DONE 2026-08-10
 
@@ -145,7 +154,8 @@ delegated auth (`/auth/token`), and the D24 credit-union admin console.
 ## 6. Ledger / Blnk integration (orphaned live TODO)
 
 `blnk-webhook/TODO.md` is referenced by no doc index and holds the cutover
-work: the webhook switch-on itself (`BLNK_WEBHOOK_SECRET` unset → 500s),
+work. **The switch-on is DONE 2026-08-11** — see that file's header for what
+was actually true versus what this section long claimed. Still open there:
 balance-mirror refresh on `transaction.applied`, pulling MATCHED
 reconciliation results into `core.bookkeeping_entry`, the monitor→control-id
 map for `control_result` rows, Blnk key scoping, secret rotation, a lag
@@ -158,21 +168,47 @@ metric, and cold-start backfill. Two blueprint flags never closed:
       never reverses its position effect, and members funding the FBO don't
       move the position.
 
-## 7. Reporting & analytics
+## 7. Reporting & analytics — engineering half DONE 2026-08-11
 
-- [ ] The 5300 reporter (`analytics/report_5300.sh`) writes five columns
-      against a nine-schedule form; `account_code_5300` is hardcoded to `"018"`
-      on every bookkeeping entry. No chart-of-accounts mapping, no GL-backed
-      trial balance — which is also why `ui/src/lib/ncua5300.js` has twenty
-      unsourceable lines and TOTAL ASSETS renders blank.
-- [ ] The scheduled reporters have never run in CI — the `SUPABASE_DB_URL`
-      secret is unset (`.github/workflows/aggregator-reporters.yml`).
-- [ ] `analytics/aggregator_views.sql` filters a hardcoded four-code money
-      allowlist against the full event registry — any new money rail is
-      silently invisible to both reporters. The BSA reporter hardcodes the
-      $10,000 threshold and 90-day window.
-- [ ] Physical pruning of archived Postgres rows was never implemented, so
-      every archived row is stored twice indefinitely.
+- [x] The scheduled reporters DO run in CI — this item was stale on arrival:
+      the `SUPABASE_DB_URL` secret was set 2026-08-06 (before this backlog was
+      compiled) and `aggregator-reporters.yml` has run green daily since,
+      archiving parquet and writing BSA-lookback + 5300 evidence rows.
+- [x] The money-code allowlist is single-sourced behind a red gate: the four
+      money codes are declared in the spec (`x-money: true` in `x-events`),
+      and `scripts/check_money_codes.py` (in the rebuild cascade) fails when
+      `aggregator.is_money_code` or the DuckDB spanning view drifts from that
+      set — a new money rail now goes loudly red instead of silently
+      invisible. WHICH codes are money (returns, inbound — the §6 sign
+      question) remains deliberately undecided; the gate just guarantees the
+      answer lands everywhere at once.
+- [x] The BSA thresholds are single-sourced: `aggregator.parameter`
+      (migration 20260811000100) holds `ctr_threshold_cents`,
+      `structuring_hot_window_hours`, `structuring_lookback_days` — values
+      unchanged — and both `run_bsa_approver` and `analytics/bsa_reporter.sh`
+      read them, so the approver and the reporter cannot disagree. Changing
+      one is now an UPDATE with §3 sign-off, not a code hunt.
+- [x] Physical pruning exists: `aggregator.prune_archived` (same migration)
+      deletes hot rows only when the git-committed parquet, the archive
+      watermark, AND every consumer cursor have passed them, and never rows
+      younger than 72h (the approver's structuring branch re-reads a 24h
+      entity window). `analytics/prune.sh` bounds by CONTIGUOUS committed
+      coverage — a missed parquet commit (it happened: f28afe7) stops the
+      prune at the gap instead of eating it. Runs in the workflow strictly
+      after the parquet push. UPDATE stays refused forever; the append-only
+      trigger gained exactly one door and it only opens from inside
+      `prune_archived`.
+
+What stays, and why: the 5300 reporter's five columns are honest evidence of
+a scheduled aggregation, but mapping them onto the nine-schedule form needs
+the chart of accounts, and that is a §3 decision, not plumbing —
+`ui/src/lib/ncua5300.js` is the worked statement of exactly which lines are
+blocked on it, and blueprint §521 records the mapping as waiting on a person.
+Same for `account_code_5300 = "018"`: every bookkeeping entry is stamped with
+a COMPUTED NCUA total no filer can post to, and re-stamping by account type
+would silently bake in the provisional `ACCOUNT_TYPE_MAP` that ncua5300.js
+explicitly refuses to apply without sign-off. Both now live in §3's
+chart-of-accounts item rather than masquerading as §7 engineering.
 
 ## 8. Stubs standing in for real integrations
 
@@ -228,3 +264,56 @@ because no core endpoint exists for it.
 - [ ] `scripts/code_format.py` and `scripts/check_vocab_refs.py` run in no
       workflow — their backlogs can grow silently. The pre-push doc gate is
       opt-in per clone (`git config core.hooksPath .githooks`).
+
+## 11. Core runtime & data-access debt — added 2026-08-11
+
+From a scaling review of the TypeScript core, prompted by the question of
+whether to migrate to Go. The answer was no: none of what follows is a
+language problem, and a rewrite would reproduce the first two verbatim. All
+three are prerequisites for any future runtime change rather than
+alternatives to one — doing them makes a later port cheaper, not redundant.
+Ordered by correctness-per-hour.
+
+- [ ] **Turn on typed database access.** `createDb()` in `api/lib.ts` returns
+      a bare `SupabaseClient` with no `Database` generic, and the repo has no
+      generated types file at all — so every one of the ~918 `.from(...)`
+      call sites resolves to `any`, guarded only by eight hand-written
+      `*Row` interfaces across ~44.6k lines. A renamed column compiles clean
+      and fails in production. `check_schema_parity.py` catches
+      spec-vs-storage drift; nothing catches storage-vs-handler drift. Fix:
+      generate the types, switch to `createClient<Database>()`, and add the
+      generation step to `scripts/rebuild_artifacts.sh` so they cannot go
+      stale — the same "an artifact is only canonical if something goes red
+      when it lies" rule the rest of the cascade already follows. Expect real
+      drift to light up on the first compile.
+
+- [ ] **Give the money path real transaction boundaries.** There is no
+      `BEGIN`/`COMMIT` anywhere under `api/`. `runGate` in `api/transfers.ts`
+      issues its history query, its `control_result` inserts, the resource
+      status update and its alerts as independent PostgREST round trips, and
+      card capture calls Blnk over HTTP *before* updating the row — a failure
+      in that window leaves Blnk and Postgres disagreeing, with correctness
+      resting entirely on `blnk-reconcile/sweeps.ts` catching it after the
+      fact. The drift rate scales with concurrency, so this gets worse with
+      growth rather than staying flat. The fix pattern is already in-tree and
+      unused by `api/`: the aggregator pushes atomic operations into Postgres
+      functions (`rpc("originate", ...)` in `aggregator/handler.ts`). Decide
+      per money operation whether it becomes a stored procedure or moves to a
+      direct Postgres connection with a real transaction. Doing the latter
+      also collapses the per-request round trips — supabase-js speaks
+      PostgREST over HTTP, so every DB call is a network hop (`api/cda.ts`
+      awaits 64, `api/cash_ops.ts` 56), and request latency is round-trip
+      count × network latency regardless of runtime. Related, worth auditing
+      in the same pass: only 11 handlers call `claimIdempotency` against 415
+      mutating operations in the spec — establish how much of that gap is
+      deliberate before Blnk's at-least-once webhook delivery makes it
+      matter.
+
+- [ ] **Move long-running work off Edge Functions.** Deno isolates are
+      request/response shaped, but `blnk-reconcile/sweeps.ts` and the drill
+      runner are batch jobs wearing a request costume. This is the runtime's
+      first real wall — ahead of any throughput limit, since a narrow bank's
+      API volume is well within V8's range — and the fix is a container, not
+      a language. No action needed until the sweeps start timing out or the
+      drill outgrows its window; flagged here so the trigger is recognized
+      when it arrives rather than diagnosed as "TypeScript is too slow."

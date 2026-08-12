@@ -72,3 +72,13 @@ jobs:
           else
             echo "no new archive files"
           fi
+
+      # After the push, deliberately: rows leave Postgres only once the
+      # archive of record holds them. prune.sh bounds by committed parquet
+      # coverage; prune_archived adds watermark + consumer-cursor + 72h
+      # guards (migration 20260811000100).
+      - name: Prune hot rows the cold tier serves
+        if: steps.guard.outputs.run == 'true'
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: ./analytics/prune.sh

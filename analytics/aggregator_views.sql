@@ -27,7 +27,11 @@ select * from agg_events_cold
 union all
 select * from agg_events_hot;
 
--- The money-event filter the consumers use, mirrored for analytics.
+-- The money-event filter the consumers use, mirrored for analytics. The
+-- canonical set is the spec: x-events entries marked `x-money: true` in
+-- core/core-api.yaml. scripts/check_money_codes.py (in the rebuild cascade)
+-- goes red if this list or aggregator.is_money_code drifts from it — edit
+-- the spec first, then both copies.
 create or replace view agg_money_events as
 select *, cast(json_extract_string(payload, '$.amount_cents') as bigint) as amount_cents
 from agg_events_all

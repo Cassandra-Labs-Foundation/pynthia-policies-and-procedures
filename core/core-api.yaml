@@ -56963,6 +56963,7 @@ x-events:
   ach_transfer.settled:
     subject: ach_transfer
     type: settled
+    x-money: true
   ad.accessibility_check:
     subject: ad
     type: checked
@@ -57566,6 +57567,7 @@ x-events:
   card_authorization.captured:
     subject: card_authorization
     type: captured
+    x-money: true
   card_authorization.created:
     subject: card_authorization
     type: created
@@ -60905,6 +60907,7 @@ x-events:
   transfer.settled:
     subject: transfer
     type: settled
+    x-money: true
   treasury.invest_excess.notified:
     subject: treasury
     type: notified
@@ -61205,6 +61208,7 @@ x-events:
   wire_transfer.completed:
     subject: wire_transfer
     type: completed
+    x-money: true
   wire_transfer.created:
     subject: wire_transfer
     type: created

@@ -26,6 +26,10 @@ interface Recorded {
   upserts: { table: string; row: Record<string, unknown> }[];
   updates: { table: string; patch: Record<string, unknown> }[];
   inserts: { table: string; row: Record<string, unknown> }[];
+  /** column -> values the handler filtered on, so a lookup's shape can be pinned. */
+  filters: { table: string; column: string; values: unknown[] }[];
+  /** `.match({...})` args, i.e. which row an update actually targeted. */
+  matches: { table: string; on: Record<string, unknown> }[];
 }
 
 /** Table-aware stub for the chains the handlers use. */

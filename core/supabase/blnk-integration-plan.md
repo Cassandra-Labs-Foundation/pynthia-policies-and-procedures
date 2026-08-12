@@ -133,7 +133,12 @@ Edge Function `blnk-webhook` ingests global-webhook events
 `system.error`) into the `core.blnk_event` inbox (idempotent by event id), then
 updates the target row.
 
-**Status: unblocked upstream, not yet switched on.** Blnk Cloud shipped
+**Status: SWITCHED ON 2026-08-11.** `BLNK_WEBHOOK_URL` points at the deployed
+receiver and a real event has been delivered end-to-end; see
+[blnk-webhook/TODO.md](functions/blnk-webhook/TODO.md) for what the pre-cutover
+state turned out to be (secret already set; URL already pointed at a public Svix
+Play bin). The history below is kept because the runbook still applies to the
+`testing-with-praise` instance and to any re-point. Blnk Cloud shipped
 self-serve global webhooks in July 2026 (confirmed by Blnk support in Slack).
 The dashboard path — *not* documented on docs.blnkfinance.com, which as of
 2026-07-28 still describes `BLNK_WEBHOOK_URL` as container-level env config:

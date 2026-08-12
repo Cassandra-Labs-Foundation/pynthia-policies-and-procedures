@@ -7,6 +7,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 python3 scripts/parse_core_api.py              # -> core-vocabulary.json
+python3 scripts/check_money_codes.py           # GATE: money allowlists == spec x-money
 python3 scripts/extract_controls.py            # -> controls.json
 # Re-stamp the spec's compliance annotations from the fresh catalogue (pure
 # functions of controls.json; --resync clears only generated descriptions).

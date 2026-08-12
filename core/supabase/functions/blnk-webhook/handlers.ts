@@ -92,18 +92,49 @@ const ID_COLUMN: Record<string, string> = {
   card_authorization: "blnk_inflight_id", // card auth = inflight hold
 };
 
+/**
+ * The reference OUR writers stamped, recovered from the one Blnk sends back.
+ *
+ * Blnk's queued flow does not round-trip a reference unchanged. `POST
+ * /transactions` returns a QUEUED *parent* carrying the reference we sent; when
+ * it applies, Blnk creates a CHILD transaction whose reference is the parent's
+ * with `_q` appended (`parent_transaction` points back at the parent), and the
+ * webhook fires for the child. Our writers only ever generate `table:id[:leg]`
+ * (see `_shared/blnk.ts`), so comparing the raw event reference against
+ * `blnk_reference` can NEVER match a queued move: applyTransaction throws
+ * "no core row", the inbox row is marked `failed`, and — since the sweep has no
+ * attempt cap — it is re-driven every 5 minutes forever.
+ *
+ * Live-confirmed 2026-08-11: reference `ach_transfer:<id>` came back as
+ * `ach_transfer:<id>_q` on the applied child. Only the `meta_data.core_resource`
+ * route worked; the documented fallback was silently dead for every queued
+ * transaction.
+ */
+export function coreReference(reference: string): string {
+  return reference.endsWith("_q") ? reference.slice(0, -2) : reference;
+}
+
 async function applyTransaction(db: SupabaseClient, d: BlnkTransactionData): Promise<void> {
   const ref = coreRef(d);
   let table = ref?.table;
   let match: Record<string, string> = ref ? { id: ref.id } : {};
 
   // Fallback: locate by blnk_reference across money tables (needs Phase-2 writers
-  // to have stamped blnk_reference = our resource id on the row).
+  // to have stamped blnk_reference = our resource id on the row). Match BOTH
+  // spellings — the canonical one writers produce, and the `_q` child spelling an
+  // earlier delivery may already have written onto the row — then update by
+  // whichever value the row actually holds.
+  const ourRef = d.reference ? coreReference(d.reference) : undefined;
   if (!table && d.reference) {
+    const candidates = [...new Set([ourRef!, d.reference])];
     for (const t of MONEY_TABLES) {
       const { data: rows } = await db.schema("core").from(t)
-        .select("id").eq("blnk_reference", d.reference).limit(1);
-      if (rows && rows.length) { table = t; match = { blnk_reference: d.reference }; break; }
+        .select("id,blnk_reference").in("blnk_reference", candidates).limit(1);
+      if (rows && rows.length) {
+        table = t;
+        match = { blnk_reference: (rows[0].blnk_reference as string) ?? d.reference };
+        break;
+      }
     }
   }
   if (!table || !MONEY_TABLES.has(table)) {
@@ -114,7 +145,10 @@ async function applyTransaction(db: SupabaseClient, d: BlnkTransactionData): Pro
     blnk_status: d.status,
     synced_at: new Date().toISOString(),
     [ID_COLUMN[table]]: d.transaction_id,
-    ...(d.reference ? { blnk_reference: d.reference } : {}),
+    // Stamp the CANONICAL reference, never the `_q` child spelling: writers
+    // generate the un-suffixed form and the reconciler's by-reference lookups
+    // expect it, so persisting `_q` here would corrupt both.
+    ...(ourRef ? { blnk_reference: ourRef } : {}),
   };
   // card capture: track cumulative committed amount on APPLIED
   if (table === "card_authorization" && d.status === "APPLIED" && typeof d.precise_amount === "number") {

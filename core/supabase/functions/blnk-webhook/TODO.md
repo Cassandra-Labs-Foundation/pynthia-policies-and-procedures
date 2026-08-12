@@ -7,10 +7,28 @@ re-drive the identical dispatch), covered by [handlers.test.ts](handlers.test.ts
 and cross-ref the [pgTAP suite](../../tests/README.md) and
 [integration plan](../../blnk-integration-plan.md).
 
-**Not yet done — the switch itself.** See plan §6 for the runbook. In short:
-set `BLNK_WEBHOOK_SECRET` and verify a signed test POST returns 200 *before*
-pasting the receiver URL into `BLNK_WEBHOOK_URL`, because Blnk never retries a
-non-2xx and the function 500s while that secret is unset.
+**DONE 2026-08-11 — the switch is thrown.** `BLNK_WEBHOOK_URL` on the Pynthia
+instance now points at
+`https://jynsipdvrgqdkeqrlzcv.functions.supabase.co/blnk-webhook`, verified by a
+real `ledger.created` landing in `core.blnk_event` ~2s after the originating
+`POST /ledgers`. The REST base was healthy again immediately after the restart.
+
+Two things this file and plan §6 had wrong, worth keeping written down:
+
+- `BLNK_WEBHOOK_SECRET` was **never unset**. It had been set on the deployed
+  function all along (its digest matches `BLNK_API_KEY`, as it should — Blnk's
+  `server.secret_key` is both). The "500s while unset" hazard was real in the
+  abstract but was not the blocker anyone thought it was.
+- `BLNK_WEBHOOK_URL` was **never unset either** — it pointed at a Svix Play
+  bin, `https://play.svix.com/in/56vs7sST9IdAxubbg57pWMuZ5Au/`. Global webhooks
+  had been on and delivering to a public test inbox, not to us. Anyone holding
+  that URL could read the test instance's transaction/balance/identity
+  payloads. **Rotate or abandon that bin.**
+
+The general lesson matches the repo's: the docs described an *intended* state
+nothing ever checked against the live one. The receiver's own preflight (signed
+POST → 200, bad signature → 401) is cheap and should be run before trusting any
+future claim about this path.
 
 ## 1. Balance-mirror refresh on `transaction.applied` — BUILT
 
