@@ -74,10 +74,11 @@ each decision was, and where its execution stands:
       **proposal drafted for Patrick** — see
       [docs/institution-parameters-proposal.md](docs/institution-parameters-proposal.md).
       Blocks until Patrick signs; then the values are UPDATEs, not code.
-- [ ] Crosswalk claims review: **packet prepared** —
-      [docs/crosswalk-review-packet.md](docs/crosswalk-review-packet.md) walks
-      all 10 mappings claim by claim. Blocks until Lorenzo sets `reviewed_by`;
-      the `discharges` verdicts carry no weight until then.
+- [x] Crosswalk claims review: **DONE 2026-08-11** — all 10 mappings (14
+      claims) confirmed as written via
+      [docs/crosswalk-review-packet.md](docs/crosswalk-review-packet.md);
+      every claim now carries `reviewed_by: lorenzo` and the coverage
+      verdicts are load-bearing for the first time.
 
 ## 4. API surface not yet built — engineering half DONE 2026-08-10
 

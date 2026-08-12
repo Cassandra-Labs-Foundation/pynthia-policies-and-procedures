@@ -37,7 +37,7 @@
 
 | | |
 |---|---|
-| regulatory claims | 14 (13 awaiting review) |
+| regulatory claims | 14 (0 awaiting review) |
 | open questions | 20 |
 | reachability | 77 reachable / 121 partial / 118 unreachable |
 

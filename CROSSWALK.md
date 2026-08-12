@@ -53,8 +53,8 @@ non-`production` row reaches a coverage count.
 
 Open questions requiring a decision: **20** (5 high severity).
 
-Awaiting review: **13** of 14 claims. 
-Reviewed: **0**.
+Awaiting review: **0** of 14 claims. 
+Reviewed: **14**.
 
 ## View 1 — what each implemented control discharges
 
@@ -64,7 +64,7 @@ Reviewed: **0**.
 
 Source: `core/supabase/functions/api/transfers.ts`
 
-**BSA-08 — Currency Transaction Reporting (CTR)** → `related` ⚠️ **needs review**
+**BSA-08 — Currency Transaction Reporting (CTR)** → `related`
 
 Shares the $10,000 threshold and the name, but is not the same control. A CTR obligation under 31 CFR 1010.311 attaches to CURRENCY transactions — physical cash in or out. CG-LGTXN-01 fires on book transfers, wires, ACH and card authorizations, none of which are currency transactions, so a CTR is not owed on any event it detects. Treating this as CTR coverage would claim a filing obligation is met that was never triggered, while leaving actual cash handling unmonitored.
 
@@ -78,7 +78,7 @@ Missing:
 
 > Would discharge if: the core gains a cash-handling surface, per-person aggregation via entity linkage, and a FinCEN filing path. That is BSA-08 being implemented, not CG-LGTXN-01 being extended.
 
-**BSA-06 — Transaction Monitoring & Case Management** → `partially_discharges` ⚠️ **needs review**
+**BSA-06 — Transaction Monitoring & Case Management** → `partially_discharges`
 
 BSA-06's first rule triggers on bsa_alert.created with inputs alert_type, entity_hash, event_id and requires_lookback. CG-LGTXN-01 writes exactly that row shape, so it genuinely performs the rules-based detection half of BSA-06 for one alert class. Everything downstream of the alert is absent. UPDATED: the downstream half now exists — alerts carry a 2-business-day triage deadline, escalate to a real core.case, and reach a documented SAR/no-SAR decision, with a sweep that surfaces breached timers. bsa_alert.event_id is populated (OQ-05 resolved), so the alert joins back to its causing event as BSA-06 requires. Still not a full discharge: see gaps.
 
@@ -95,7 +95,7 @@ Missing:
 
 Source: `core/supabase/functions/api/transfers.ts`
 
-**BSA-06 — Transaction Monitoring & Case Management** → `partially_discharges` ⚠️ **needs review**
+**BSA-06 — Transaction Monitoring & Case Management** → `partially_discharges`
 
 Same basis as CG-LGTXN-01: it is genuine rules-based detection producing a conforming bsa_alert row, which is BSA-06's trigger. It adds an aggregation typology the per-transaction gate structurally cannot see. UPDATED: the downstream half now exists — alerts carry a 2-business-day triage deadline, escalate to a real core.case, and reach a documented SAR/no-SAR decision, with a sweep that surfaces breached timers. bsa_alert.event_id is populated (OQ-05 resolved), so the alert joins back to its causing event as BSA-06 requires. Still not a full discharge: see gaps.
 
@@ -108,7 +108,7 @@ Missing:
 - single-day window only; BSA-06 monitoring typically spans multi-day patterns
 - per-account, not per-person: splitting across two accounts owned by the same member evades it entirely
 
-**BSA-07 — SAR Filing & Confidentiality** → `partially_discharges` ⚠️ **needs review**
+**BSA-07 — SAR Filing & Confidentiality** → `partially_discharges`
 
 UPGRADED from 'related'. The filing DECISION now exists: a case reaches file or no_file, both require a documented rationale (an undocumented no-file is refused rather than stored, which is BSA-07's retention requirement), the 30/60-day clock runs from detection rather than triage, and a late decision is recorded as late instead of silently accepted. Confidentiality is enforced structurally: case management is closed to partner actors and returns 404 rather than 403, so the existence of a case is not disclosed.
 
@@ -126,7 +126,7 @@ Missing:
 
 Source: `core/supabase/functions/api/transfers.ts`
 
-**BSA-06 — Transaction Monitoring & Case Management** → `partially_discharges` ⚠️ **needs review**
+**BSA-06 — Transaction Monitoring & Case Management** → `partially_discharges`
 
 As CG-STR-01. Broader than its inbound twin because it aggregates across all four rails rather than book transfers only. UPDATED: the downstream half now exists — alerts carry a 2-business-day triage deadline, escalate to a real core.case, and reach a documented SAR/no-SAR decision, with a sweep that surfaces breached timers. bsa_alert.event_id is populated (OQ-05 resolved), so the alert joins back to its causing event as BSA-06 requires. Still not a full discharge: see gaps.
 
@@ -161,7 +161,7 @@ Missing:
 
 > Would discharge if: a real list with version tracking is wired into ofacScreen(), screening is added at payment submission, and the hold/adjudication/reporting workflow exists. The always-on floor design means the first of those is a genuinely small change with a large coverage effect.
 
-**LP-11 — OFAC & Sanctions Gate (lending)** → `related` ⚠️ **needs review**
+**LP-11 — OFAC & Sanctions Gate (lending)** → `related`
 
 LP-11 gates loan origination on sanctions screening. The lending subsystem does not exist — core.loan and core.loan_application are schema-only with no writer — so there is no origination path for this control to gate. Listed so the mapping is not silently forgotten when lending is built.
 
@@ -176,7 +176,7 @@ Missing:
 
 Source: `core/supabase/functions/api/transfers.ts`
 
-**no catalogue counterpart** → `no_catalogue_counterpart` ⚠️ **needs review**
+**no catalogue counterpart** → `no_catalogue_counterpart`
 
 No control among the 333 imposes a per-account daily transaction cap. Searching the catalogue for velocity / daily limit / transaction limit returns only MP-05 (Account Restrictions and Closures, which is about restricting an account after a member-conduct decision, not a standing volume ceiling) and TIS-02 (Pre-Opening Account Disclosures, which is about disclosing limits, not enforcing them). CG-VEL-01 is a safety-and-soundness engineering control the institution chose, not a policy obligation the corpus demands.
 
@@ -190,7 +190,7 @@ Candidates examined and rejected: `MP-05`, `TIS-02`
 
 Source: `core/supabase/functions/api/transfers.ts`
 
-**no catalogue counterpart** → `no_catalogue_counterpart` ⚠️ **needs review**
+**no catalogue counterpart** → `no_catalogue_counterpart`
 
 Refusing to overdraw an account is basic ledger correctness, not a compliance control. The catalogue's overdraft-related controls are all about DISCLOSURE or COLLECTION, never about refusal: TIS-08 (Overdraft Service Disclosures) and TIS-05 (Periodic Statement Disclosures) govern what must be told to the member, and CO-10 (Overdraft Collections and Fee Waiver Practices) governs what happens after an overdraft occurs. None is discharged by declining the transaction.
 
@@ -204,7 +204,7 @@ Candidates examined and rejected: `TIS-08`, `TIS-05`, `CO-10`
 
 Source: `core/supabase/functions/api/cash.ts`
 
-**BSA-08 — Currency Transaction Reporting (CTR)** → `partially_discharges` ⚠️ **needs review**
+**BSA-08 — Currency Transaction Reporting (CTR)** → `partially_discharges`
 
 This is the first thing in the core that represents CURRENCY, which is what a CTR obligation under 31 CFR 1010.311 actually attaches to — and therefore the first control that can genuinely address BSA-08 (see OQ-01, where CG-LGTXN-01 was found to fire only on non-reportable electronic movements). It aggregates ctr.cash_in_total and ctr.cash_out_total per person per business day, keeps the two directions separate so a $6k deposit plus a $6k withdrawal does not manufacture a false obligation, fires ctr.threshold.reached (BSA-08's declared trigger), and starts the 15-day ctr.filing_timer. Currency that cannot be attributed to a person is counted and reported as unattributable rather than silently dropped or bucketed as its own person — both of which would understate the aggregate and hide obligations.
 
@@ -225,7 +225,7 @@ Missing:
 
 Source: `core/supabase/functions/api/eps.ts`
 
-**EPS-06 — Dual Control for High-Risk Processes** → `partially_discharges` ⚠️ **needs review**
+**EPS-06 — Dual Control for High-Risk Processes** → `partially_discharges`
 
 This control corrected the API rather than fitting into it. The two-phase wire prepare/confirm split looked like dual control and was not — it required two CALLS, not two PEOPLE, and any single token could do both. Confirm now demands a distinct approver, enforced by a CHECK constraint so it holds against service_role. The four-eyes rule is expressed once in core.payment_approval rather than repeated per table, which is the reusable form of what ck_case_four_eyes did bespokely for SAR decisions.
 
@@ -244,7 +244,7 @@ Missing:
 
 Source: `core/supabase/functions/api/governance.ts`
 
-**bsa:BSA-16 — Independent Testing** → `partially_discharges` ⚠️ **needs review**
+**bsa:BSA-16 — Independent Testing** → `partially_discharges`
 
 BSA-16's triggers are audit.cycle_timer, audit.report.issued and audit.remediation.due — a cadence, a deliverable and a follow-up clock. The calendar supplies the cadence half honestly: registering the obligation and anchoring it makes audit.cycle_timer fire when the cycle genuinely opens, with an overdue event if nobody acts. Cited by uid because control ids are not unique (OQ-11). Chosen as the single claim for this machinery rather than claiming all 83 time-triggered controls, because the register is empty until obligations are actually registered.
 
@@ -263,7 +263,7 @@ Missing:
 
 Source: `core/supabase/functions/api/lending.ts`
 
-**lending:LP-07 — Adverse Action & Notifications** → `partially_discharges` ⚠️ **needs review**
+**lending:LP-07 — Adverse Action & Notifications** → `partially_discharges`
 
 The AAN is queued automatically on an adverse decision (aan.queued), carries specific reasons enforced at decision time rather than reconstructed later, runs a 30-day ECOA clock anchored on completion, and cannot be issued without second-level review by a different actor — enforced by ck_aan_reviewed_before_issue because an issued notice cannot be recalled. The overdue sweep surfaces notices nobody sent.
 
@@ -274,7 +274,7 @@ Missing:
 - no fair-lending consistency check in the second review; the reviewer role is not constrained to Compliance or senior underwriting (the actor model has no such roles — same shape as OQ-08)
 - no delivery: aan.issued records the decision to issue, not transmission to the applicant
 
-**lending:LP-11 — OFAC & Sanctions Gate** → `related` ⚠️ **needs review**
+**lending:LP-11 — OFAC & Sanctions Gate** → `related`
 
 The MECHANISM is real and was the architecturally missing half of OQ-02: parties are screened on add, a potential match blocks funding rather than the application, an alert is raised, and 'unscreened' is a distinct state from 'clear' so an unscreened party cannot be funded. But the screen it calls is still the sandbox stub — /\bSDN\b/i against a name, with no list and no ofac.list_version. Verdict stays `related` for the same reason CG-OFAC-01's does: a screen with an empty comparison set discharges nothing however sound the blocking around it is. Every party row records list_version NULL so the gap is visible in the data.
 
