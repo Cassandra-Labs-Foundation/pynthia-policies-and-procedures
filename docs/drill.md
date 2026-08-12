@@ -99,7 +99,7 @@ Two runs of the same code produce identical results, which is what makes
 | `PRIM-10` | pass | negative | `compliance:CM-01` | the work-item sweep separates OVERDUE from UNDEADLINED |
 | `RAIL-01` | pass | positive | — | a book transfer settles and writes control evidence |
 | `RAIL-02` | pass | negative | — | a transfer that is BOTH over-velocity and unaffordable reports only the FIRST control |
-| `RAIL-03` | pass | negative | `bsa:BSA-06` | CG-CTR-01 raises an alert on a single movement over $10k |
+| `RAIL-03` | pass | negative | `bsa:BSA-06` | CG-LGTXN-01 raises an alert on a single movement over $10k |
 | `RAIL-04` | pass | negative | — | CG-VEL-01 blocks across rails, and a REJECTED attempt does not count toward volume |
 | `RAIL-05` | pass | negative | `electronic-payment-systems:EPS-06` | a wire cannot be confirmed by its preparer (EPS-06, end to end) |
 | `RAIL-06` | pass | positive | `electronic-payment-systems:EPS-06` | the same wire confirms once a DIFFERENT actor approves it |

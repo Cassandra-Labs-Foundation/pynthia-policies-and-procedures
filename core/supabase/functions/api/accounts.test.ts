@@ -81,7 +81,7 @@ Deno.test("validation reports the deposit and the missing key together, not one 
   );
   assertEquals(res.status, 400);
   const fields = (await res.json()).errors.map((e: Any) => e.field).sort();
-  assertEquals(fields, ["Idempotency-Key", "opening_deposit_cents"]);
+  assertEquals(fields, ["Idempotency-Key", "entity_id", "opening_deposit_cents"]);
 });
 
 // ----------------------------------------------------------- behavioral level
@@ -119,7 +119,8 @@ Deno.test("an account can be opened owned by an entity", async () => {
   const { cfg } = stubCfg([
     json({ ledger_id: "l1" }), json({ balance_id: "b1" }), json({ transaction_id: "t1" }),
   ]);
-  const { db, inserts } = stubApiDb({ idem: "fresh" });
+  // row: the entity pre-check's maybeSingle — the owner must exist to pass
+  const { db, inserts } = stubApiDb({ idem: "fresh", row: { id: "ent_1" } });
   await postAccount(
     req({ account_type: "checking", opening_deposit_cents: 1000, entity_id: "ent_1" }),
     db, cfg, "e1", TEST_CTX,
@@ -128,18 +129,31 @@ Deno.test("an account can be opened owned by an entity", async () => {
   assertEquals(acct?.row.entity_id, "ent_1");
 });
 
-Deno.test("an account opened without an entity records NULL, not a fabricated owner", async () => {
-  // Deliberate: inventing a member relationship to satisfy NOT NULL would be
-  // worse than the null. BSA-08 aggregation simply cannot include this account
-  // until someone who knows the answer links it.
-  const { cfg } = stubCfg([
-    json({ ledger_id: "l1" }), json({ balance_id: "b1" }), json({ transaction_id: "t1" }),
-  ]);
+Deno.test("an account opened without an entity is refused (OQ-12)", async () => {
+  // Reversal of the original nullable design, decided 2026-08-11: BSA-08
+  // aggregates cash per PERSON, so an ownerless account is born outside CTR
+  // aggregation — the exact evasion CG-STR-01 detects. Nothing may create one.
+  const { cfg } = stubCfg([]);
   const { db, inserts } = stubApiDb({ idem: "fresh" });
-  await postAccount(
+  const res = await postAccount(
     req({ account_type: "checking", opening_deposit_cents: 1000 }), db, cfg, "e2", TEST_CTX,
   );
-  assertEquals(inserts.find((i) => i.table === "account")?.row.entity_id, null);
+  assertEquals(res.status, 400);
+  const b = await res.json();
+  assertEquals(b.errors.some((e: Any) => e.field === "entity_id" && e.type === "missing_field"), true);
+  assertEquals(inserts.length, 0, "no account row may be written without an owner");
+});
+
+Deno.test("an unknown entity_id is a 400 naming the field, not an FK 500", async () => {
+  const { cfg } = stubCfg([]);
+  // row omitted -> the entity pre-check's maybeSingle resolves null
+  const { db, inserts } = stubApiDb({ idem: "fresh" });
+  const res = await postAccount(
+    req({ account_type: "checking", entity_id: "ent_ghost" }), db, cfg, "e2b", TEST_CTX,
+  );
+  assertEquals(res.status, 400);
+  assertEquals((await res.json()).errors[0].field, "entity_id");
+  assertEquals(inserts.length, 0);
 });
 
 Deno.test("a non-string entity_id is refused rather than coerced", async () => {

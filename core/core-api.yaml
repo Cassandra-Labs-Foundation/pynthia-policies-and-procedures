@@ -92,6 +92,8 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+              - entity_id
               properties:
                 account_type:
                   type: string
@@ -106,6 +108,12 @@ paths:
                   - MEM-07
                 blnk_ledger_id:
                   type: string
+                entity_id:
+                  type: string
+                  description: Owning entity. Required since OQ-12 — an account with no owner cannot participate in per-person
+                    cash aggregation (BSA-08), which is the defect CG-STR-01 exists to detect.
+                  x-bound-controls:
+                  - BSA-08
                 lock_type:
                   type: string
                   enum:
@@ -6477,7 +6485,7 @@ components:
         role:
           type: string
           x-bound-controls:
-          - CP-11
+          - CA-11
           - EC-02
           - EC-12
           - EPS-09
@@ -6486,7 +6494,7 @@ components:
           - IP-14
           - IS-15
           - PR-06
-          description: Evidences controls CP-11, EC-02, EC-12, EPS-09, IC-03, IC-05, IP-14, IS-15, PR-06.
+          description: Evidences controls CA-11, EC-02, EC-12, EPS-09, IC-03, IC-05, IP-14, IS-15, PR-06.
       description: An operator or staff user of the system.
     Verification:
       type: object
@@ -9905,12 +9913,12 @@ components:
         resolution_id:
           type: string
           x-bound-controls:
+          - CA-02
+          - CA-03
+          - CA-10
           - CDA-01
           - CM-03
-          - CP-02
-          - CP-03
-          - CP-10
-          description: Evidences controls CDA-01, CM-03, CP-02, CP-03, CP-10.
+          description: Evidences controls CA-02, CA-03, CA-10, CDA-01, CM-03.
         notification_due_at:
           type: string
           format: date-time
@@ -10646,59 +10654,59 @@ components:
         asset.count:
           type: integer
           x-bound-controls:
-          - CP-09
-          description: Evidences control CP-09.
+          - CA-09
+          description: Evidences control CA-09.
         asset.descriptor:
           type: string
         asset.limit:
           type: string
           x-bound-controls:
-          - CP-04
-          description: Evidences control CP-04.
+          - CA-04
+          description: Evidences control CA-04.
         counter.user_id:
           type: string
           x-bound-controls:
-          - CP-04
-          description: Evidences control CP-04.
+          - CA-04
+          description: Evidences control CA-04.
         coverage.registry:
           type: string
           x-bound-controls:
-          - CP-05
-          description: Evidences control CP-05.
+          - CA-05
+          description: Evidences control CA-05.
         custodian.user_id:
           type: string
           x-bound-controls:
-          - CP-03
-          - CP-04
-          - CP-07
-          description: Evidences controls CP-03, CP-04, CP-07.
+          - CA-03
+          - CA-04
+          - CA-07
+          description: Evidences controls CA-03, CA-04, CA-07.
         custody.revoked:
           type: string
           x-bound-controls:
-          - CP-05
-          description: Evidences control CP-05.
+          - CA-05
+          description: Evidences control CA-05.
         custody.rotated:
           type: string
         deviation.period:
           type: string
           x-bound-controls:
-          - CP-10
-          description: Evidences control CP-10.
+          - CA-10
+          description: Evidences control CA-10.
         deviation.reason:
           type: string
           x-bound-controls:
-          - CP-10
-          description: Evidences control CP-10.
+          - CA-10
+          description: Evidences control CA-10.
         deviation.requested:
           type: string
           x-bound-controls:
-          - CP-10
-          description: Evidences control CP-10.
+          - CA-10
+          description: Evidences control CA-10.
         deviation.sunset_at:
           type: string
           x-bound-controls:
-          - CP-10
-          description: Evidences control CP-10.
+          - CA-10
+          description: Evidences control CA-10.
         device.serviced:
           type: string
         duty.restricted:
@@ -10706,217 +10714,217 @@ components:
         enterprise_limit.pct:
           type: string
           x-bound-controls:
-          - CP-03
-          description: Evidences control CP-03.
+          - CA-03
+          description: Evidences control CA-03.
         enterprise_limit.warning:
           type: string
           x-bound-controls:
-          - CP-03
-          description: Evidences control CP-03.
+          - CA-03
+          description: Evidences control CA-03.
         enterprise_position.computed:
           type: string
         enterprise_position.excess:
           type: string
           x-bound-controls:
-          - CP-03
-          description: Evidences control CP-03.
+          - CA-03
+          description: Evidences control CA-03.
         enterprise_position.headroom:
           type: string
           x-bound-controls:
-          - CP-03
-          description: Evidences control CP-03.
+          - CA-03
+          description: Evidences control CA-03.
         evidence.retained:
           type: string
         exception_register:
           type: string
           x-bound-controls:
-          - CP-01
-          - CP-12
-          description: Evidences controls CP-01, CP-12.
+          - CA-01
+          - CA-12
+          description: Evidences controls CA-01, CA-12.
         keybox.reason:
           type: string
           x-bound-controls:
-          - CP-05
-          description: Evidences control CP-05.
+          - CA-05
+          description: Evidences control CA-05.
         kri.trend:
           type: string
           x-bound-controls:
-          - CP-01
-          description: Evidences control CP-01.
+          - CA-01
+          description: Evidences control CA-01.
         limit_block.alerted:
           type: string
           x-bound-controls:
-          - CP-04
-          description: Evidences control CP-04.
+          - CA-04
+          description: Evidences control CA-04.
         limits_schedule:
           type: string
           x-bound-controls:
-          - CP-04
-          description: Evidences control CP-04.
+          - CA-04
+          description: Evidences control CA-04.
         limits_schedule.effective:
           type: string
           x-bound-controls:
-          - CP-03
-          - CP-04
-          description: Evidences controls CP-03, CP-04.
+          - CA-03
+          - CA-04
+          description: Evidences controls CA-03, CA-04.
         limits_whitelist.entry:
           type: string
           x-bound-controls:
-          - CP-10
-          description: Evidences control CP-10.
+          - CA-10
+          description: Evidences control CA-10.
         limits_whitelist.sunset:
           type: string
         load.overage:
           type: string
           x-bound-controls:
-          - CP-04
-          description: Evidences control CP-04.
+          - CA-04
+          description: Evidences control CA-04.
         load.requested:
           type: string
           x-bound-controls:
-          - CP-04
-          description: Evidences control CP-04.
+          - CA-04
+          description: Evidences control CA-04.
         location_limit.exceeded:
           type: string
         nightdrop.retrieved:
           type: string
           x-bound-controls:
-          - CP-08
-          description: Evidences control CP-08.
+          - CA-08
+          description: Evidences control CA-08.
         overshort.cumulative:
           type: string
           x-bound-controls:
-          - CP-07
-          description: Evidences control CP-07.
+          - CA-07
+          description: Evidences control CA-07.
         overshort.monthly_summary:
           type: object
           x-bound-controls:
-          - CP-01
-          - CP-07
-          - CP-12
-          description: Evidences controls CP-01, CP-07, CP-12.
+          - CA-01
+          - CA-07
+          - CA-12
+          description: Evidences controls CA-01, CA-07, CA-12.
         overshort.pattern:
           type: string
           x-bound-controls:
-          - CP-07
-          description: Evidences control CP-07.
+          - CA-07
+          description: Evidences control CA-07.
         overshort.research_notes:
           type: string
           x-bound-controls:
-          - CP-07
-          description: Evidences control CP-07.
+          - CA-07
+          description: Evidences control CA-07.
         overshort.threshold_crossed:
           type: string
           x-bound-controls:
-          - CP-07
-          description: Evidences control CP-07.
+          - CA-07
+          description: Evidences control CA-07.
         overshort.thresholds:
           type: string
           x-bound-controls:
-          - CP-07
-          description: Evidences control CP-07.
+          - CA-07
+          description: Evidences control CA-07.
         overshort.unresolved:
           type: string
         recon.research_notes:
           type: string
           x-bound-controls:
-          - CP-06
-          description: Evidences control CP-06.
+          - CA-06
+          description: Evidences control CA-06.
         recon.variance:
           type: string
           x-bound-controls:
-          - CP-06
-          description: Evidences control CP-06.
+          - CA-06
+          description: Evidences control CA-06.
         recon.variance_found:
           type: string
           x-bound-controls:
-          - CP-06
-          description: Evidences control CP-06.
+          - CA-06
+          description: Evidences control CA-06.
         remediation.plan:
           type: string
         seal.expected:
           type: string
           x-bound-controls:
-          - CP-08
-          description: Evidences control CP-08.
+          - CA-08
+          description: Evidences control CA-08.
         seal.found:
           type: string
           x-bound-controls:
-          - CP-08
-          description: Evidences control CP-08.
+          - CA-08
+          description: Evidences control CA-08.
         seal.mismatch:
           type: string
           x-bound-controls:
-          - CP-08
-          description: Evidences control CP-08.
+          - CA-08
+          description: Evidences control CA-08.
         shipment.dispatched:
           type: string
         surprise_count.variance:
           type: string
           x-bound-controls:
-          - CP-09
-          description: Evidences control CP-09.
+          - CA-09
+          description: Evidences control CA-09.
         asset.balance:
           type: integer
           x-bound-controls:
-          - CP-01
-          - CP-04
-          - CP-06
-          - CP-09
-          description: Evidences controls CP-01, CP-04, CP-06, CP-09.
+          - CA-01
+          - CA-04
+          - CA-06
+          - CA-09
+          description: Evidences controls CA-01, CA-04, CA-06, CA-09.
         asset.id:
           type: string
           x-bound-controls:
-          - CP-02
-          - CP-04
-          - CP-08
-          description: Evidences controls CP-02, CP-04, CP-08.
+          - CA-02
+          - CA-04
+          - CA-08
+          description: Evidences controls CA-02, CA-04, CA-08.
         exception_register.summary:
           type: string
           x-bound-controls:
-          - CP-01
-          - CP-12
-          description: Evidences controls CP-01, CP-12.
+          - CA-01
+          - CA-12
+          description: Evidences controls CA-01, CA-12.
         exception_ticket.id:
           type: string
           x-bound-controls:
-          - CP-03
-          - CP-04
-          - CP-08
-          description: Evidences controls CP-03, CP-04, CP-08.
+          - CA-03
+          - CA-04
+          - CA-08
+          description: Evidences controls CA-03, CA-04, CA-08.
         load.amount:
           type: integer
           x-bound-controls:
-          - CP-04
-          - CP-08
-          description: Evidences controls CP-04, CP-08.
+          - CA-04
+          - CA-08
+          description: Evidences controls CA-04, CA-08.
         location.id:
           type: string
           x-bound-controls:
-          - CP-02
-          - CP-07
-          description: Evidences controls CP-02, CP-07.
+          - CA-02
+          - CA-07
+          description: Evidences controls CA-02, CA-07.
         overshort.amount:
           type: integer
           x-bound-controls:
-          - CP-01
-          - CP-07
-          description: Evidences controls CP-01, CP-07.
+          - CA-01
+          - CA-07
+          description: Evidences controls CA-01, CA-07.
         shipment.amount:
           type: integer
           x-bound-controls:
-          - CP-08
-          description: Evidences control CP-08.
+          - CA-08
+          description: Evidences control CA-08.
         surprise_count.due:
           type: string
           x-bound-controls:
-          - CP-09
-          description: Evidences control CP-09.
+          - CA-09
+          description: Evidences control CA-09.
         surprise_count.schedule:
           type: string
           x-bound-controls:
-          - CP-09
-          description: Evidences control CP-09.
+          - CA-09
+          description: Evidences control CA-09.
         coverage.attestation_due_at:
           type: string
           format: date-time
@@ -10924,8 +10932,8 @@ components:
           type: string
           format: date-time
           x-bound-controls:
-          - CP-05
-          description: Evidences control CP-05.
+          - CA-05
+          description: Evidences control CA-05.
         enterprise_limit.remediation_due_at:
           type: string
           format: date-time
@@ -10968,8 +10976,8 @@ components:
           description: Provisional field implied by event cash.dual_control.initiated; registered to reconcile the field/event
             namespace.
           x-bound-controls:
-          - CP-04
-          - CP-08
+          - CA-04
+          - CA-08
         enterprise_limit:
           type: string
           x-provisional: true
@@ -10983,8 +10991,8 @@ components:
           description: Provisional field implied by event cash.enterprise_position.posted; registered to reconcile the field/event
             namespace.
           x-bound-controls:
-          - CP-01
-          - CP-03
+          - CA-01
+          - CA-03
         evidence:
           type: string
           x-provisional: true
@@ -11002,15 +11010,15 @@ components:
           x-derived-from: event
           description: Provisional field implied by event cash.keybox.opened; registered to reconcile the field/event namespace.
           x-bound-controls:
-          - CP-05
+          - CA-05
         kri:
           type: string
           x-provisional: true
           x-derived-from: event
           description: Provisional field implied by event cash.kri.published; registered to reconcile the field/event namespace.
           x-bound-controls:
-          - CP-01
-          - CP-12
+          - CA-01
+          - CA-12
         limits_whitelist:
           type: string
           x-provisional: true
@@ -11039,7 +11047,7 @@ components:
           x-derived-from: event
           description: Provisional field implied by event cash.recon.completed; registered to reconcile the field/event namespace.
           x-bound-controls:
-          - CP-06
+          - CA-06
           - IC-04
         recon.due_at:
           type: string
@@ -11047,7 +11055,7 @@ components:
           x-derived-from: event
           description: Provisional field implied by event cash.recon.due_at; registered to reconcile the field/event namespace.
           x-bound-controls:
-          - CP-06
+          - CA-06
         shipment:
           type: string
           x-provisional: true
@@ -13965,14 +13973,14 @@ components:
         id:
           type: string
           x-bound-controls:
+          - CA-05
+          - CA-11
           - CM-01
           - CM-03
           - CM-05
-          - CP-05
-          - CP-11
           - IC-05
           - PR-06
-          description: Evidences controls CM-01, CM-03, CM-05, CP-05, CP-11, IC-05, PR-06.
+          description: Evidences controls CA-05, CA-11, CM-01, CM-03, CM-05, IC-05, PR-06.
       x-actions:
       - action: hired
       - action: separated
@@ -14824,17 +14832,17 @@ components:
         export.requested:
           type: string
           x-bound-controls:
-          - CP-09
-          - CP-12
-          description: Evidences controls CP-09, CP-12.
+          - CA-09
+          - CA-12
+          description: Evidences controls CA-09, CA-12.
         report_id:
           type: string
         export.scope:
           type: string
           x-bound-controls:
-          - CP-09
-          - CP-12
-          description: Evidences controls CP-09, CP-12.
+          - CA-09
+          - CA-12
+          description: Evidences controls CA-09, CA-12.
     exception:
       type: object
       x-kind: vocabulary
@@ -14852,10 +14860,10 @@ components:
         rationale:
           type: string
           x-bound-controls:
-          - CP-01
-          - CP-10
+          - CA-01
+          - CA-10
           - IC-06
-          description: Evidences controls CP-01, CP-10, IC-06.
+          description: Evidences controls CA-01, CA-10, IC-06.
         registered:
           type: string
           x-bound-controls:
@@ -14869,10 +14877,10 @@ components:
         risk_acceptance:
           type: string
           x-bound-controls:
-          - CP-01
-          - CP-10
+          - CA-01
+          - CA-10
           - IC-06
-          description: Evidences controls CP-01, CP-10, IC-06.
+          description: Evidences controls CA-01, CA-10, IC-06.
     expense:
       type: object
       x-kind: vocabulary
@@ -15565,37 +15573,37 @@ components:
         balances:
           type: string
           x-bound-controls:
-          - CP-06
+          - CA-06
           - IC-04
           - LQ-02
-          description: Evidences controls CP-06, IC-04, LQ-02.
+          description: Evidences controls CA-06, IC-04, LQ-02.
         cash_in_transit.entry:
           type: string
           x-bound-controls:
-          - CP-08
-          description: Evidences control CP-08.
+          - CA-08
+          description: Evidences control CA-08.
         cash_suspense.aged:
           type: string
           x-bound-controls:
-          - CP-06
-          description: Evidences control CP-06.
+          - CA-06
+          description: Evidences control CA-06.
         cash_suspense.aging_timer:
           type: string
           x-bound-controls:
-          - CP-06
-          description: Evidences control CP-06.
+          - CA-06
+          description: Evidences control CA-06.
         cash_suspense.item:
           type: string
           x-bound-controls:
-          - CP-06
-          description: Evidences control CP-06.
+          - CA-06
+          description: Evidences control CA-06.
         coa_map:
           type: string
         correction.txn_id:
           type: string
           x-bound-controls:
-          - CP-06
-          description: Evidences control CP-06.
+          - CA-06
+          description: Evidences control CA-06.
         loan_growth_yoy:
           type: string
           x-bound-controls:
@@ -15606,9 +15614,9 @@ components:
           type: string
           x-bound-controls:
           - BA-03
+          - CA-03
           - CP-02
-          - CP-03
-          description: Evidences controls BA-03, CP-02, CP-03.
+          description: Evidences controls BA-03, CA-03, CP-02.
         total_loans:
           type: string
           x-bound-controls:
@@ -16201,8 +16209,8 @@ components:
         bond.adjustment:
           type: string
           x-bound-controls:
-          - CP-10
-          description: Evidences control CP-10.
+          - CA-10
+          description: Evidences control CA-10.
         coverage_schedule:
           type: string
           x-bound-controls:
@@ -17713,8 +17721,8 @@ components:
           type: string
           x-bound-controls:
           - AU-01
+          - CA-01
           - CM-09
-          - CP-01
           - DF-10
           - EC-01
           - IP-01
@@ -17723,7 +17731,7 @@ components:
           - LQ-01
           - RR-09
           - TR-01
-          description: Evidences controls AU-01, CM-09, CP-01, DF-10, EC-01, IP-01, IP-18, LP-01, LQ-01, RR-09, TR-01.
+          description: Evidences controls AU-01, CA-01, CM-09, DF-10, EC-01, IP-01, IP-18, LP-01, LQ-01, RR-09, TR-01.
         draft_id:
           type: string
           x-bound-controls:
@@ -17834,13 +17842,13 @@ components:
           type: string
           format: date-time
           x-bound-controls:
+          - CA-01
           - CM-09
-          - CP-01
           - EC-01
           - IP-01
           - LP-01
           - LQ-01
-          description: Evidences controls CM-09, CP-01, EC-01, IP-01, LP-01, LQ-01.
+          description: Evidences controls CA-01, CM-09, EC-01, IP-01, LP-01, LQ-01.
         approver_id:
           type: string
           x-bound-controls:
@@ -18696,7 +18704,7 @@ components:
           type: string
           x-bound-controls:
           - BSA-21
-          - CP-12
+          - CA-12
           - IC-08
           - IS-07
           - IS-14
@@ -18707,7 +18715,7 @@ components:
           - RR-11
           - SC-02
           - TIS-09
-          description: Evidences controls BSA-21, CP-12, IC-08, IS-07, IS-14, IS-18, PR-08, RR-03, RR-07, RR-11, SC-02, TIS-09.
+          description: Evidences controls BSA-21, CA-12, IC-08, IS-07, IS-14, IS-18, PR-08, RR-03, RR-07, RR-11, SC-02, TIS-09.
         retention_inventory:
           type: object
         retention_timer:
@@ -18731,7 +18739,7 @@ components:
         legal_hold_flag:
           type: string
           x-bound-controls:
-          - CP-12
+          - CA-12
           - FL-12
           - IS-07
           - IS-14
@@ -18742,7 +18750,7 @@ components:
           - RR-05
           - SC-02
           - TIS-09
-          description: Evidences controls CP-12, FL-12, IS-07, IS-14, IS-18, MP-08, PR-08, RII-09, RR-05, SC-02, TIS-09.
+          description: Evidences controls CA-12, FL-12, IS-07, IS-14, IS-18, MP-08, PR-08, RII-09, RR-05, SC-02, TIS-09.
         matter_id:
           type: string
           x-bound-controls:
@@ -18792,7 +18800,7 @@ components:
           - BSA-03
           - BSA-19
           - BSA-21
-          - CP-12
+          - CA-12
           - FL-12
           - PR-08
           - RR-01
@@ -18801,7 +18809,7 @@ components:
           - RR-11
           - SC-02
           - TIS-09
-          description: Evidences controls BSA-03, BSA-19, BSA-21, CP-12, FL-12, PR-08, RR-01, RR-03, RR-07, RR-11, SC-02,
+          description: Evidences controls BSA-03, BSA-19, BSA-21, CA-12, FL-12, PR-08, RR-01, RR-03, RR-07, RR-11, SC-02,
             TIS-09.
         id:
           type: string
@@ -18825,7 +18833,7 @@ components:
           x-bound-controls:
           - BSA-03
           - BSA-21
-          - CP-12
+          - CA-12
           - FL-12
           - IC-08
           - IS-18
@@ -20084,12 +20092,12 @@ components:
         version_id:
           type: string
           x-bound-controls:
-          - CP-02
+          - CA-02
           - RS-01
           - RS-03
           - RS-07
           - RS-10
-          description: Evidences controls CP-02, RS-01, RS-03, RS-07, RS-10.
+          description: Evidences controls CA-02, RS-01, RS-03, RS-07, RS-10.
         approver_id:
           type: string
           x-bound-controls:
@@ -20099,9 +20107,9 @@ components:
           type: string
           format: date
           x-bound-controls:
-          - CP-02
+          - CA-02
           - RS-01
-          description: Evidences controls CP-02, RS-01.
+          description: Evidences controls CA-02, RS-01.
         publish_due_at:
           type: string
           format: date-time
@@ -20992,14 +21000,14 @@ components:
           type: number
           x-bound-controls:
           - BSA-15
-          - CP-11
+          - CA-11
           - DF-01
           - DF-10
           - EC-12
           - EPS-09
           - RR-10
           - TIS-10
-          description: Evidences controls BSA-15, CP-11, DF-01, DF-10, EC-12, EPS-09, RR-10, TIS-10.
+          description: Evidences controls BSA-15, CA-11, DF-01, DF-10, EC-12, EPS-09, RR-10, TIS-10.
         assignee_id:
           type: string
           x-bound-controls:
@@ -21013,28 +21021,28 @@ components:
           type: string
           x-bound-controls:
           - BSA-15
+          - CA-11
           - CM-01
-          - CP-11
           - DF-01
           - EC-12
           - FL-11
           - IP-16
           - RR-10
-          description: Evidences controls BSA-15, CM-01, CP-11, DF-01, EC-12, FL-11, IP-16, RR-10.
+          description: Evidences controls BSA-15, CA-11, CM-01, DF-01, EC-12, FL-11, IP-16, RR-10.
         content_version:
           type: string
           x-bound-controls:
-          - CP-11
+          - CA-11
           - FL-11
-          description: Evidences controls CP-11, FL-11.
+          description: Evidences controls CA-11, FL-11.
         coverage_pct:
           type: string
           x-bound-controls:
+          - CA-12
           - CM-01
           - CM-05
-          - CP-12
           - FL-11
-          description: Evidences controls CM-01, CM-05, CP-12, FL-11.
+          description: Evidences controls CA-12, CM-01, CM-05, FL-11.
         curriculum_id:
           type: string
           x-bound-controls:
@@ -21054,21 +21062,21 @@ components:
         module_id:
           type: string
           x-bound-controls:
+          - CA-11
           - CM-05
-          - CP-11
           - DF-01
           - DF-10
           - EC-12
           - IP-16
           - RR-10
           - TIS-10
-          description: Evidences controls CM-05, CP-11, DF-01, DF-10, EC-12, IP-16, RR-10, TIS-10.
+          description: Evidences controls CA-11, CM-05, DF-01, DF-10, EC-12, IP-16, RR-10, TIS-10.
         proficiency.failed:
           x-column: proficiency_failed
           type: string
           x-bound-controls:
-          - CP-11
-          description: Evidences control CP-11.
+          - CA-11
+          description: Evidences control CA-11.
         refresher_curriculum:
           type: string
           x-bound-controls:
@@ -21078,11 +21086,11 @@ components:
           type: string
           x-bound-controls:
           - BA-08
-          - CP-11
+          - CA-11
           - EC-12
           - IP-16
           - IS-17
-          description: Evidences controls BA-08, CP-11, EC-12, IP-16, IS-17.
+          description: Evidences controls BA-08, CA-11, EC-12, IP-16, IS-17.
         role_matrix:
           type: object
           x-bound-controls:
@@ -21096,24 +21104,24 @@ components:
           type: string
           x-bound-controls:
           - BSA-15
+          - CA-11
           - CM-05
-          - CP-11
           - DF-01
           - FL-11
           - IS-17
           - RR-10
-          description: Evidences controls BSA-15, CM-05, CP-11, DF-01, FL-11, IS-17, RR-10.
+          description: Evidences controls BSA-15, CA-11, CM-05, DF-01, FL-11, IS-17, RR-10.
         role_curriculum:
           type: string
           x-bound-controls:
           - BSA-15
+          - CA-11
           - CM-05
-          - CP-11
           - FL-11
           - IP-16
           - IS-17
           - PR-06
-          description: Evidences controls BSA-15, CM-05, CP-11, FL-11, IP-16, IS-17, PR-06.
+          description: Evidences controls BSA-15, CA-11, CM-05, FL-11, IP-16, IS-17, PR-06.
         annual_due:
           type: string
           format: date
@@ -21126,8 +21134,8 @@ components:
           x-bound-controls:
           - BA-08
           - BSA-15
+          - CA-11
           - CM-05
-          - CP-11
           - DF-01
           - DF-10
           - EC-12
@@ -21136,7 +21144,7 @@ components:
           - IS-17
           - PR-06
           - RR-10
-          description: Evidences controls BA-08, BSA-15, CM-05, CP-11, DF-01, DF-10, EC-12, EPS-09, FL-11, IS-17, PR-06, RR-10.
+          description: Evidences controls BA-08, BSA-15, CA-11, CM-05, DF-01, DF-10, EC-12, EPS-09, FL-11, IS-17, PR-06, RR-10.
         annual_timer:
           type: string
           description: Timer/SLA marker.
@@ -21162,13 +21170,13 @@ components:
           format: date-time
           x-bound-controls:
           - BSA-15
-          - CP-11
+          - CA-11
           - DF-01
           - EC-12
           - EPS-09
           - FL-11
           - RR-10
-          description: Evidences controls BSA-15, CP-11, DF-01, EC-12, EPS-09, FL-11, RR-10.
+          description: Evidences controls BSA-15, CA-11, DF-01, EC-12, EPS-09, FL-11, RR-10.
         onboarding_due_at:
           type: string
           format: date-time
@@ -21318,8 +21326,8 @@ components:
         invest_excess.notified:
           type: string
           x-bound-controls:
-          - CP-03
-          description: Evidences control CP-03.
+          - CA-03
+          description: Evidences control CA-03.
     valuation:
       type: object
       x-kind: vocabulary
@@ -22539,8 +22547,8 @@ components:
         receipt.id:
           type: string
           x-bound-controls:
-          - CP-08
-          description: Evidences control CP-08.
+          - CA-08
+          description: Evidences control CA-08.
     ctr:
       type: object
       x-kind: vocabulary
@@ -28606,6 +28614,1305 @@ x-control-rules:
   deadline_timer: null
   deadline: null
   deadline_text: At account closure
+- control_id: CA-01
+  policy: cash
+  trigger_event: cash.exception.logged
+  trigger:
+    object: cash
+    property: exception
+    action: logged
+    canonical: cash.exception.logged
+    conforms: true
+  required_inputs:
+  - exception.rationale
+  - exception.risk_acceptance
+  produced_events:
+  - cash.exception_register
+  produced:
+  - object: cash
+    property: exception_register
+    action: null
+    canonical: cash.exception_register
+    conforms: false
+  deadline_timer: null
+  deadline: null
+  deadline_text: Same day as exception identified
+- control_id: CA-01
+  policy: cash
+  trigger_event: cash.governance_quarter.closed
+  trigger:
+    object: cash
+    property: governance_quarter
+    action: closed
+    canonical: cash.governance_quarter.closed
+    conforms: true
+  required_inputs:
+  - cash.exception_register
+  - cash.kri
+  - cash.overshort.monthly_summary
+  produced_events:
+  - board.cash_summary.delivered
+  produced:
+  - object: board
+    property: cash_summary
+    action: delivered
+    canonical: board.cash_summary.delivered
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: 15 calendar days after quarter end
+- control_id: CA-01
+  policy: cash
+  trigger_event: cash.kri_month.closed
+  trigger:
+    object: cash
+    property: kri_month
+    action: closed
+    canonical: cash.kri_month.closed
+    conforms: true
+  required_inputs:
+  - cash.asset.balance
+  - cash.enterprise_position
+  - cash.overshort.amount
+  produced_events:
+  - cash.kri.published
+  produced:
+  - object: cash
+    property: kri
+    action: published
+    canonical: cash.kri.published
+    conforms: true
+  deadline_timer: cash.kri.publish.due_at
+  deadline:
+    object: cash
+    qualifier: kri
+    task_type: publish
+    marker: due_at
+    canonical: cash.kri.publish.due_at
+    conforms: true
+  deadline_text: 15 calendar days after month end
+- control_id: CA-01
+  policy: cash
+  trigger_event: policy.board_review.started
+  trigger:
+    object: policy
+    property: board_review
+    action: started
+    canonical: policy.board_review.started
+    conforms: true
+  required_inputs:
+  - cash.exception_register.summary
+  - cash.kri.trend
+  - policy.document_version
+  produced_events:
+  - policy.board.approved
+  - policy.revision.published
+  produced:
+  - object: policy
+    property: board
+    action: approved
+    canonical: policy.board.approved
+    conforms: true
+  - object: policy
+    property: revision
+    action: published
+    canonical: policy.revision.published
+    conforms: true
+  deadline_timer: policy.review.due_at
+  deadline:
+    object: policy
+    qualifier: null
+    task_type: review
+    marker: due_at
+    canonical: policy.review.due_at
+    conforms: true
+  deadline_text: Annual
+- control_id: CA-02
+  policy: cash
+  trigger_event: policy.board_review.started
+  trigger:
+    object: policy
+    property: board_review
+    action: started
+    canonical: policy.board_review.started
+    conforms: true
+  required_inputs:
+  - scope_registry.version_id
+  produced_events:
+  - scope_registry.attested
+  produced:
+  - object: scope_registry
+    property: null
+    action: attested
+    canonical: scope_registry.attested
+    conforms: true
+  deadline_timer: scope_registry.attestation.due
+  deadline:
+    object: scope_registry
+    qualifier: null
+    task_type: attestation
+    marker: due
+    canonical: scope_registry.attestation.due
+    conforms: true
+  deadline_text: Annual
+- control_id: CA-02
+  policy: cash
+  trigger_event: scope_registry.change.detected
+  trigger:
+    object: scope_registry
+    property: change
+    action: detected
+    canonical: scope_registry.change.detected
+    conforms: true
+  required_inputs:
+  - cash.asset.id
+  - cash.location.id
+  produced_events:
+  - scope_registry.entry.updated
+  produced:
+  - object: scope_registry
+    property: entry
+    action: updated
+    canonical: scope_registry.entry.updated
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: Before go-live
+- control_id: CA-02
+  policy: cash
+  trigger_event: scope_registry.published
+  trigger:
+    object: scope_registry
+    property: null
+    action: published
+    canonical: scope_registry.published
+    conforms: true
+  required_inputs:
+  - board.resolution_id
+  produced_events:
+  - scope_registry.version.approved
+  produced:
+  - object: scope_registry
+    property: version
+    action: approved
+    canonical: scope_registry.version.approved
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: Same day as Board approval
+- control_id: CA-03
+  policy: cash
+  trigger_event: cash.enterprise_limit.breached
+  trigger:
+    object: cash
+    property: enterprise_limit
+    action: breached
+    canonical: cash.enterprise_limit.breached
+    conforms: true
+  required_inputs:
+  - cash.custodian.user_id
+  produced_events:
+  - cash.enterprise_limit.remediated
+  - cash.enterprise_limit.remediation.due_at
+  produced:
+  - object: cash
+    property: enterprise_limit
+    action: remediated
+    canonical: cash.enterprise_limit.remediated
+    conforms: true
+  - object: cash
+    property: enterprise_limit.remediation.due_at
+    action: null
+    canonical: cash.enterprise_limit.remediation.due_at
+    conforms: false
+  deadline_timer: null
+  deadline: null
+  deadline_text: Same business day
+- control_id: CA-03
+  policy: cash
+  trigger_event: cash.enterprise_limit.warning
+  trigger:
+    object: cash
+    property: enterprise_limit
+    action: warning
+    canonical: cash.enterprise_limit.warning
+    conforms: true
+  required_inputs:
+  - cash.enterprise_position.excess
+  - cash.enterprise_position.headroom
+  produced_events:
+  - treasury.invest_excess.notified
+  produced:
+  - object: treasury
+    property: invest_excess
+    action: notified
+    canonical: treasury.invest_excess.notified
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: Same business day
+- control_id: CA-03
+  policy: cash
+  trigger_event: cash.enterprise_position.posted
+  trigger:
+    object: cash
+    property: enterprise_position
+    action: posted
+    canonical: cash.enterprise_position.posted
+    conforms: true
+  required_inputs:
+  - cash.enterprise_limit.pct
+  - cash.enterprise_position
+  - gl.total_assets
+  produced_events:
+  - cash.enterprise_limit.breached
+  - cash.enterprise_limit.warning
+  produced:
+  - object: cash
+    property: enterprise_limit
+    action: breached
+    canonical: cash.enterprise_limit.breached
+    conforms: true
+  - object: cash
+    property: enterprise_limit
+    action: warning
+    canonical: cash.enterprise_limit.warning
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: Daily (end of business)
+- control_id: CA-03
+  policy: cash
+  trigger_event: cash.limits_schedule.updated
+  trigger:
+    object: cash
+    property: limits_schedule
+    action: updated
+    canonical: cash.limits_schedule.updated
+    conforms: true
+  required_inputs:
+  - board.resolution_id
+  - cash.enterprise_limit.pct
+  - cash.limits_schedule.effective
+  produced_events: []
+  produced: []
+  deadline_timer: null
+  deadline: null
+  deadline_text: Before effective date
+- control_id: CA-04
+  policy: cash
+  trigger_event: null
+  trigger: null
+  required_inputs:
+  - cash.custodian.user_id
+  - cash.load.overage
+  produced_events:
+  - cash.exception.logged
+  produced:
+  - object: cash
+    property: exception
+    action: logged
+    canonical: cash.exception.logged
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: Real-time
+- control_id: CA-04
+  policy: cash
+  trigger_event: cash.dual_control.initiated
+  trigger:
+    object: cash
+    property: dual_control
+    action: initiated
+    canonical: cash.dual_control.initiated
+    conforms: true
+  required_inputs:
+  - cash.counter.user_id
+  - cash.custodian.user_id
+  produced_events:
+  - cash.dual_control.completed
+  produced:
+  - object: cash
+    property: dual_control
+    action: completed
+    canonical: cash.dual_control.completed
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: Real-time (before funds move)
+- control_id: CA-04
+  policy: cash
+  trigger_event: cash.limits_schedule.updated
+  trigger:
+    object: cash
+    property: limits_schedule
+    action: updated
+    canonical: cash.limits_schedule.updated
+    conforms: true
+  required_inputs:
+  - cash.limits_schedule.effective
+  produced_events:
+  - cash.limits_whitelist.activated
+  produced:
+  - object: cash
+    property: limits_whitelist
+    action: activated
+    canonical: cash.limits_whitelist.activated
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: Before effective date
+- control_id: CA-04
+  policy: cash
+  trigger_event: cash.load.requested
+  trigger:
+    object: cash
+    property: load
+    action: requested
+    canonical: cash.load.requested
+    conforms: true
+  required_inputs:
+  - cash.asset.balance
+  - cash.asset.id
+  - cash.asset.limit
+  - cash.exception_ticket.id
+  - cash.load.amount
+  produced_events:
+  - cash.limit_block.alerted
+  - cash.load.decided
+  produced:
+  - object: cash
+    property: limit_block.alerted
+    action: null
+    canonical: cash.limit_block.alerted
+    conforms: false
+  - object: cash
+    property: load
+    action: decided
+    canonical: cash.load.decided
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: Real-time
+- control_id: CA-05
+  policy: cash
+  trigger_event: cash.coverage_change.requested
+  trigger:
+    object: cash
+    property: coverage_change
+    action: requested
+    canonical: cash.coverage_change.requested
+    conforms: true
+  required_inputs: []
+  produced_events:
+  - cash.coverage.attestation.due_at
+  - cash.coverage.updated
+  produced:
+  - object: cash
+    property: coverage.attestation.due_at
+    action: null
+    canonical: cash.coverage.attestation.due_at
+    conforms: false
+  - object: cash
+    property: coverage
+    action: updated
+    canonical: cash.coverage.updated
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: Before change takes effect
+- control_id: CA-05
+  policy: cash
+  trigger_event: cash.custody.rotation_due_at
+  trigger:
+    object: cash
+    property: custody.rotation_due_at
+    action: null
+    canonical: cash.custody.rotation_due_at
+    conforms: false
+  required_inputs:
+  - cash.coverage.registry
+  produced_events:
+  - cash.coverage.attested
+  produced:
+  - object: cash
+    property: coverage
+    action: attested
+    canonical: cash.coverage.attested
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: ≤ 90 days from last rotation
+- control_id: CA-05
+  policy: cash
+  trigger_event: cash.dual_control.completed
+  trigger:
+    object: cash
+    property: dual_control
+    action: completed
+    canonical: cash.dual_control.completed
+    conforms: true
+  required_inputs: []
+  produced_events:
+  - cash.evidence.created
+  produced:
+  - object: cash
+    property: evidence
+    action: created
+    canonical: cash.evidence.created
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: Real-time
+- control_id: CA-05
+  policy: cash
+  trigger_event: cash.keybox.opened
+  trigger:
+    object: cash
+    property: keybox
+    action: opened
+    canonical: cash.keybox.opened
+    conforms: true
+  required_inputs:
+  - cash.keybox.reason
+  produced_events:
+  - cash.keybox_access.logged
+  produced:
+  - object: cash
+    property: keybox_access
+    action: logged
+    canonical: cash.keybox_access.logged
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: Real-time
+- control_id: CA-05
+  policy: cash
+  trigger_event: employee.separated
+  trigger:
+    object: employee
+    property: null
+    action: separated
+    canonical: employee.separated
+    conforms: true
+  required_inputs:
+  - cash.coverage.registry
+  - employee.id
+  produced_events:
+  - cash.coverage.updated
+  - cash.custody.revoked
+  produced:
+  - object: cash
+    property: coverage
+    action: updated
+    canonical: cash.coverage.updated
+    conforms: true
+  - object: cash
+    property: custody
+    action: revoked
+    canonical: cash.custody.revoked
+    conforms: true
+  deadline_timer: cash.custody.rotation_due_at
+  deadline:
+    object: cash
+    qualifier: custody_rotation
+    task_type: null
+    marker: due_at
+    canonical: cash.custody_rotation.due_at
+    conforms: false
+  deadline_text: Immediately (before last working hour); enforced by
+- control_id: CA-06
+  policy: cash
+  trigger_event: cash.recon.variance_found
+  trigger:
+    object: cash
+    property: recon.variance_found
+    action: null
+    canonical: cash.recon.variance_found
+    conforms: false
+  required_inputs:
+  - cash.recon.research_notes
+  - cash.recon.variance
+  produced_events:
+  - gl.cash_suspense.posted
+  produced:
+  - object: gl
+    property: cash_suspense
+    action: posted
+    canonical: gl.cash_suspense.posted
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: Same business day
+- control_id: CA-06
+  policy: cash
+  trigger_event: cash.recon_day.closed
+  trigger:
+    object: cash
+    property: recon_day
+    action: closed
+    canonical: cash.recon_day.closed
+    conforms: true
+  required_inputs:
+  - cash.asset.balance
+  - cash.recon.variance
+  - gl.balances
+  produced_events:
+  - cash.recon.completed
+  - cash.recon.due_at
+  produced:
+  - object: cash
+    property: recon
+    action: completed
+    canonical: cash.recon.completed
+    conforms: true
+  - object: cash
+    property: recon.due_at
+    action: null
+    canonical: cash.recon.due_at
+    conforms: false
+  deadline_timer: null
+  deadline: null
+  deadline_text: Same business day
+- control_id: CA-06
+  policy: cash
+  trigger_event: gl.cash_suspense.aged
+  trigger:
+    object: gl
+    property: cash_suspense.aged
+    action: null
+    canonical: gl.cash_suspense.aged
+    conforms: false
+  required_inputs:
+  - gl.cash_suspense.aging_timer
+  - gl.cash_suspense.item
+  produced_events:
+  - gl.cash_suspense.escalated
+  produced:
+  - object: gl
+    property: cash_suspense
+    action: escalated
+    canonical: gl.cash_suspense.escalated
+    conforms: true
+  deadline_timer: gl.cash_suspense.aging_timer
+  deadline:
+    object: gl
+    qualifier: cash_suspense_aging
+    task_type: null
+    marker: timer
+    canonical: gl.cash_suspense_aging.timer
+    conforms: false
+  deadline_text: Per aging schedule
+- control_id: CA-06
+  policy: cash
+  trigger_event: gl.cash_suspense.cleared
+  trigger:
+    object: gl
+    property: cash_suspense
+    action: cleared
+    canonical: gl.cash_suspense.cleared
+    conforms: true
+  required_inputs:
+  - gl.correction.txn_id
+  produced_events: []
+  produced: []
+  deadline_timer: null
+  deadline: null
+  deadline_text: Same day as resolution
+- control_id: CA-07
+  policy: cash
+  trigger_event: cash.kri_month.closed
+  trigger:
+    object: cash
+    property: kri_month
+    action: closed
+    canonical: cash.kri_month.closed
+    conforms: true
+  required_inputs:
+  - cash.overshort.monthly_summary
+  produced_events:
+  - cash.overshort_report.issued
+  produced:
+  - object: cash
+    property: overshort_report
+    action: issued
+    canonical: cash.overshort_report.issued
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: 15 calendar days after month end
+- control_id: CA-07
+  policy: cash
+  trigger_event: cash.overshort.recorded
+  trigger:
+    object: cash
+    property: overshort
+    action: recorded
+    canonical: cash.overshort.recorded
+    conforms: true
+  required_inputs:
+  - cash.custodian.user_id
+  - cash.location.id
+  - cash.overshort.amount
+  produced_events:
+  - cash.overshort.investigation.due_at
+  - cash.overshort.posted
+  produced:
+  - object: cash
+    property: overshort.investigation.due_at
+    action: null
+    canonical: cash.overshort.investigation.due_at
+    conforms: false
+  - object: cash
+    property: overshort
+    action: posted
+    canonical: cash.overshort.posted
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: Same business day (posting); investigation within 1 business day
+- control_id: CA-07
+  policy: cash
+  trigger_event: cash.overshort.resolved
+  trigger:
+    object: cash
+    property: overshort
+    action: resolved
+    canonical: cash.overshort.resolved
+    conforms: true
+  required_inputs:
+  - cash.overshort.research_notes
+  produced_events:
+  - cash.overshort.resolved
+  produced:
+  - object: cash
+    property: overshort
+    action: resolved
+    canonical: cash.overshort.resolved
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: 1 business day from discovery
+- control_id: CA-07
+  policy: cash
+  trigger_event: cash.overshort.threshold_crossed
+  trigger:
+    object: cash
+    property: overshort.threshold_crossed
+    action: null
+    canonical: cash.overshort.threshold_crossed
+    conforms: false
+  required_inputs:
+  - cash.overshort.cumulative
+  - cash.overshort.thresholds
+  produced_events:
+  - hr.coaching.recorded
+  produced:
+  - object: hr
+    property: coaching
+    action: recorded
+    canonical: hr.coaching.recorded
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: Same day as threshold breach
+- control_id: CA-07
+  policy: cash
+  trigger_event: cash.overshort_anomaly.detected
+  trigger:
+    object: cash
+    property: overshort_anomaly
+    action: detected
+    canonical: cash.overshort_anomaly.detected
+    conforms: true
+  required_inputs:
+  - cash.overshort.pattern
+  produced_events:
+  - bsa_alert.created
+  - cash.overshort_investigation.opened
+  produced:
+  - object: bsa_alert
+    property: null
+    action: created
+    canonical: bsa_alert.created
+    conforms: true
+  - object: cash
+    property: overshort_investigation
+    action: opened
+    canonical: cash.overshort_investigation.opened
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: Same day as pattern detection
+- control_id: CA-08
+  policy: cash
+  trigger_event: cash.dual_control.initiated
+  trigger:
+    object: cash
+    property: dual_control
+    action: initiated
+    canonical: cash.dual_control.initiated
+    conforms: true
+  required_inputs:
+  - cash.asset.id
+  - cash.exception_ticket.id
+  - cash.load.amount
+  produced_events:
+  - cash.device_service.logged
+  - cash.dual_control.completed
+  produced:
+  - object: cash
+    property: device_service
+    action: logged
+    canonical: cash.device_service.logged
+    conforms: true
+  - object: cash
+    property: dual_control
+    action: completed
+    canonical: cash.dual_control.completed
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: Real-time (before funds move)
+- control_id: CA-08
+  policy: cash
+  trigger_event: cash.nightdrop.retrieved
+  trigger:
+    object: cash
+    property: nightdrop.retrieved
+    action: null
+    canonical: cash.nightdrop.retrieved
+    conforms: false
+  required_inputs:
+  - cash.seal.expected
+  - cash.seal.found
+  produced_events:
+  - cash.nightdrop.verified
+  - cash.seal.mismatch
+  produced:
+  - object: cash
+    property: nightdrop
+    action: verified
+    canonical: cash.nightdrop.verified
+    conforms: true
+  - object: cash
+    property: seal.mismatch
+    action: null
+    canonical: cash.seal.mismatch
+    conforms: false
+  deadline_timer: null
+  deadline: null
+  deadline_text: Real-time
+- control_id: CA-08
+  policy: cash
+  trigger_event: cash.seal.mismatch
+  trigger:
+    object: cash
+    property: seal.mismatch
+    action: null
+    canonical: cash.seal.mismatch
+    conforms: false
+  required_inputs: []
+  produced_events:
+  - incident.created
+  produced:
+  - object: incident
+    property: null
+    action: created
+    canonical: incident.created
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: Immediately
+- control_id: CA-08
+  policy: cash
+  trigger_event: cash.shipment.received
+  trigger:
+    object: cash
+    property: shipment
+    action: received
+    canonical: cash.shipment.received
+    conforms: true
+  required_inputs:
+  - cash.shipment.amount
+  - courier.receipt.id
+  produced_events:
+  - cash.shipment.verification.due_at
+  - cash.shipment.verified
+  produced:
+  - object: cash
+    property: shipment.verification.due_at
+    action: null
+    canonical: cash.shipment.verification.due_at
+    conforms: false
+  - object: cash
+    property: shipment
+    action: verified
+    canonical: cash.shipment.verified
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: Same business day
+- control_id: CA-08
+  policy: cash
+  trigger_event: cash.shipment.verified
+  trigger:
+    object: cash
+    property: shipment
+    action: verified
+    canonical: cash.shipment.verified
+    conforms: true
+  required_inputs:
+  - gl.cash_in_transit.entry
+  produced_events:
+  - cmir.reportable.identified
+  produced:
+  - object: cmir
+    property: reportable
+    action: identified
+    canonical: cmir.reportable.identified
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: Same business day
+- control_id: CA-09
+  policy: cash
+  trigger_event: cash.overshort.resolved
+  trigger:
+    object: cash
+    property: overshort
+    action: resolved
+    canonical: cash.overshort.resolved
+    conforms: true
+  required_inputs: []
+  produced_events: []
+  produced: []
+  deadline_timer: null
+  deadline: null
+  deadline_text: 1 business day from count
+- control_id: CA-09
+  policy: cash
+  trigger_event: cash.surprise_count.completed
+  trigger:
+    object: cash
+    property: surprise_count
+    action: completed
+    canonical: cash.surprise_count.completed
+    conforms: true
+  required_inputs:
+  - cash.asset.balance
+  - cash.asset.count
+  - cash.surprise_count.variance
+  produced_events:
+  - cash.overshort_investigation.opened
+  produced:
+  - object: cash
+    property: overshort_investigation
+    action: opened
+    canonical: cash.overshort_investigation.opened
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: Real-time (during count)
+- control_id: CA-09
+  policy: cash
+  trigger_event: cash.surprise_count.due
+  trigger:
+    object: cash
+    property: surprise_count.due
+    action: null
+    canonical: cash.surprise_count.due
+    conforms: false
+  required_inputs:
+  - cash.surprise_count.schedule
+  produced_events:
+  - cash.surprise_count.due
+  produced:
+  - object: cash
+    property: surprise_count.due
+    action: null
+    canonical: cash.surprise_count.due
+    conforms: false
+  deadline_timer: null
+  deadline: null
+  deadline_text: ≥ 1 per site per month
+- control_id: CA-09
+  policy: cash
+  trigger_event: exam.export.requested
+  trigger:
+    object: exam
+    property: export
+    action: requested
+    canonical: exam.export.requested
+    conforms: true
+  required_inputs:
+  - exam.export.scope
+  produced_events:
+  - records_package.completed
+  produced:
+  - object: records_package
+    property: null
+    action: completed
+    canonical: records_package.completed
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: On demand
+- control_id: CA-09
+  policy: cash
+  trigger_event: supervisory.count_results.delivered
+  trigger:
+    object: supervisory
+    property: count_results
+    action: delivered
+    canonical: supervisory.count_results.delivered
+    conforms: true
+  required_inputs: []
+  produced_events: []
+  produced: []
+  deadline_timer: null
+  deadline: null
+  deadline_text: Monthly (with quarterly Board summary)
+- control_id: CA-10
+  policy: cash
+  trigger_event: cash.deviation.approved
+  trigger:
+    object: cash
+    property: deviation
+    action: approved
+    canonical: cash.deviation.approved
+    conforms: true
+  required_inputs:
+  - board.resolution_id
+  - cash.deviation.sunset_at
+  produced_events:
+  - cash.limits_schedule.updated
+  - cash.limits_whitelist.activated
+  produced:
+  - object: cash
+    property: limits_schedule
+    action: updated
+    canonical: cash.limits_schedule.updated
+    conforms: true
+  - object: cash
+    property: limits_whitelist
+    action: activated
+    canonical: cash.limits_whitelist.activated
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: Before effective date
+- control_id: CA-10
+  policy: cash
+  trigger_event: cash.deviation.expired
+  trigger:
+    object: cash
+    property: deviation
+    action: expired
+    canonical: cash.deviation.expired
+    conforms: true
+  required_inputs:
+  - cash.limits_whitelist.entry
+  produced_events: []
+  produced: []
+  deadline_timer: null
+  deadline: null
+  deadline_text: Automatic on sunset date
+- control_id: CA-10
+  policy: cash
+  trigger_event: cash.deviation.requested
+  trigger:
+    object: cash
+    property: deviation
+    action: requested
+    canonical: cash.deviation.requested
+    conforms: true
+  required_inputs:
+  - cash.deviation.period
+  - cash.deviation.reason
+  - insurance.bond.adjustment
+  produced_events:
+  - cash.deviation_board.decided
+  produced:
+  - object: cash
+    property: deviation_board
+    action: decided
+    canonical: cash.deviation_board.decided
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: Before limit is exceeded
+- control_id: CA-10
+  policy: cash
+  trigger_event: cash.exception.logged
+  trigger:
+    object: cash
+    property: exception
+    action: logged
+    canonical: cash.exception.logged
+    conforms: true
+  required_inputs:
+  - exception.rationale
+  - exception.risk_acceptance
+  produced_events: []
+  produced: []
+  deadline_timer: null
+  deadline: null
+  deadline_text: Same day as overage identified
+- control_id: CA-11
+  policy: cash
+  trigger_event: employee.hired
+  trigger:
+    object: employee
+    property: null
+    action: hired
+    canonical: employee.hired
+    conforms: true
+  required_inputs:
+  - employee.id
+  - training.hire_date
+  - training.required_curriculum
+  - user.role
+  produced_events:
+  - training.assignment.created
+  - training.newhire_due_at
+  produced:
+  - object: training
+    property: assignment
+    action: created
+    canonical: training.assignment.created
+    conforms: true
+  - object: training
+    property: newhire_due_at
+    action: null
+    canonical: training.newhire_due_at
+    conforms: false
+  deadline_timer: null
+  deadline: null
+  deadline_text: Within 30 days of hire
+- control_id: CA-11
+  policy: cash
+  trigger_event: training.annual_cycle.opened
+  trigger:
+    object: training
+    property: annual_cycle
+    action: opened
+    canonical: training.annual_cycle.opened
+    conforms: true
+  required_inputs:
+  - training.content_version
+  produced_events:
+  - training.annual.assigned
+  - training.annual_due_at
+  produced:
+  - object: training
+    property: annual
+    action: assigned
+    canonical: training.annual.assigned
+    conforms: true
+  - object: training
+    property: annual_due_at
+    action: null
+    canonical: training.annual_due_at
+    conforms: false
+  deadline_timer: null
+  deadline: null
+  deadline_text: Annual
+- control_id: CA-11
+  policy: cash
+  trigger_event: training.initial.completed
+  trigger:
+    object: training
+    property: initial
+    action: completed
+    canonical: training.initial.completed
+    conforms: true
+  required_inputs:
+  - training.assessment_score
+  - training.module_id
+  produced_events:
+  - training.completion.recorded
+  produced:
+  - object: training
+    property: completion
+    action: recorded
+    canonical: training.completion.recorded
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: Within 30 days of hire
+- control_id: CA-11
+  policy: cash
+  trigger_event: training.proficiency.failed
+  trigger:
+    object: training
+    property: proficiency
+    action: failed
+    canonical: training.proficiency.failed
+    conforms: true
+  required_inputs: []
+  produced_events:
+  - training.remedial.assigned
+  produced:
+  - object: training
+    property: remedial
+    action: assigned
+    canonical: training.remedial.assigned
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: Same day as failure
+- control_id: CA-11
+  policy: cash
+  trigger_event: training.refresher.completed
+  trigger:
+    object: training
+    property: refresher
+    action: completed
+    canonical: training.refresher.completed
+    conforms: true
+  required_inputs: []
+  produced_events:
+  - training.completion.recorded
+  produced:
+  - object: training
+    property: completion
+    action: recorded
+    canonical: training.completion.recorded
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: Annual
+- control_id: CA-12
+  policy: cash
+  trigger_event: cash.evidence.created
+  trigger:
+    object: cash
+    property: evidence
+    action: created
+    canonical: cash.evidence.created
+    conforms: true
+  required_inputs:
+  - cash.evidence.type
+  produced_events:
+  - record.retention.expires_at
+  - record.retention_clock_set
+  produced:
+  - object: record
+    property: retention.expires_at
+    action: null
+    canonical: record.retention.expires_at
+    conforms: false
+  - object: record
+    property: retention_clock_set
+    action: null
+    canonical: record.retention_clock_set
+    conforms: false
+  deadline_timer: null
+  deadline: null
+  deadline_text: Real-time (at time of event)
+- control_id: CA-12
+  policy: cash
+  trigger_event: cash.exception.logged
+  trigger:
+    object: cash
+    property: exception
+    action: logged
+    canonical: cash.exception.logged
+    conforms: true
+  required_inputs: []
+  produced_events:
+  - cash.exception_register.summary
+  produced:
+  - object: cash
+    property: exception_register.summary
+    action: null
+    canonical: cash.exception_register.summary
+    conforms: false
+  deadline_timer: null
+  deadline: null
+  deadline_text: Same day as exception identified
+- control_id: CA-12
+  policy: cash
+  trigger_event: cash.kri_month.closed
+  trigger:
+    object: cash
+    property: kri_month
+    action: closed
+    canonical: cash.kri_month.closed
+    conforms: true
+  required_inputs:
+  - cash.exception_register
+  - cash.kri
+  - cash.overshort.monthly_summary
+  - training.coverage_pct
+  produced_events:
+  - cash.kri.publish.due_at
+  - cash.kri.published
+  produced:
+  - object: cash
+    property: kri.publish.due_at
+    action: null
+    canonical: cash.kri.publish.due_at
+    conforms: false
+  - object: cash
+    property: kri
+    action: published
+    canonical: cash.kri.published
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: 15 calendar days after month end
+- control_id: CA-12
+  policy: cash
+  trigger_event: exam.export.requested
+  trigger:
+    object: exam
+    property: export
+    action: requested
+    canonical: exam.export.requested
+    conforms: true
+  required_inputs:
+  - exam.export.scope
+  produced_events:
+  - exam.export.delivered
+  - records_package.completed
+  produced:
+  - object: exam
+    property: export
+    action: delivered
+    canonical: exam.export.delivered
+    conforms: true
+  - object: records_package
+    property: null
+    action: completed
+    canonical: records_package.completed
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: 'On demand (target: within 1 business day of request)'
+- control_id: CA-12
+  policy: cash
+  trigger_event: record.retention.expired
+  trigger:
+    object: record
+    property: retention
+    action: expired
+    canonical: record.retention.expired
+    conforms: true
+  required_inputs:
+  - record.legal_hold_flag
+  produced_events:
+  - record.destroyed
+  produced:
+  - object: record
+    property: null
+    action: destroyed
+    canonical: record.destroyed
+    conforms: true
+  deadline_timer: null
+  deadline: null
+  deadline_text: Per retention schedule
 - control_id: CDA-01
   policy: charitable-donation-accounts
   trigger_event: cda.audit_cycle.opened
@@ -31816,119 +33123,6 @@ x-control-rules:
   deadline_timer: null
   deadline: null
   deadline_text: At least annually or upon any regulatory change to PCA thresholds
-- control_id: CP-01
-  policy: cash
-  trigger_event: cash.exception.logged
-  trigger:
-    object: cash
-    property: exception
-    action: logged
-    canonical: cash.exception.logged
-    conforms: true
-  required_inputs:
-  - exception.rationale
-  - exception.risk_acceptance
-  produced_events:
-  - cash.exception_register
-  produced:
-  - object: cash
-    property: exception_register
-    action: null
-    canonical: cash.exception_register
-    conforms: false
-  deadline_timer: null
-  deadline: null
-  deadline_text: Same day as exception identified
-- control_id: CP-01
-  policy: cash
-  trigger_event: cash.governance_quarter.closed
-  trigger:
-    object: cash
-    property: governance_quarter
-    action: closed
-    canonical: cash.governance_quarter.closed
-    conforms: true
-  required_inputs:
-  - cash.exception_register
-  - cash.kri
-  - cash.overshort.monthly_summary
-  produced_events:
-  - board.cash_summary.delivered
-  produced:
-  - object: board
-    property: cash_summary
-    action: delivered
-    canonical: board.cash_summary.delivered
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: 15 calendar days after quarter end
-- control_id: CP-01
-  policy: cash
-  trigger_event: cash.kri_month.closed
-  trigger:
-    object: cash
-    property: kri_month
-    action: closed
-    canonical: cash.kri_month.closed
-    conforms: true
-  required_inputs:
-  - cash.asset.balance
-  - cash.enterprise_position
-  - cash.overshort.amount
-  produced_events:
-  - cash.kri.published
-  produced:
-  - object: cash
-    property: kri
-    action: published
-    canonical: cash.kri.published
-    conforms: true
-  deadline_timer: cash.kri.publish.due_at
-  deadline:
-    object: cash
-    qualifier: kri
-    task_type: publish
-    marker: due_at
-    canonical: cash.kri.publish.due_at
-    conforms: true
-  deadline_text: 15 calendar days after month end
-- control_id: CP-01
-  policy: cash
-  trigger_event: policy.board_review.started
-  trigger:
-    object: policy
-    property: board_review
-    action: started
-    canonical: policy.board_review.started
-    conforms: true
-  required_inputs:
-  - cash.exception_register.summary
-  - cash.kri.trend
-  - policy.document_version
-  produced_events:
-  - policy.board.approved
-  - policy.revision.published
-  produced:
-  - object: policy
-    property: board
-    action: approved
-    canonical: policy.board.approved
-    conforms: true
-  - object: policy
-    property: revision
-    action: published
-    canonical: policy.revision.published
-    conforms: true
-  deadline_timer: policy.review.due_at
-  deadline:
-    object: policy
-    qualifier: null
-    task_type: review
-    marker: due_at
-    canonical: policy.review.due_at
-    conforms: true
-  deadline_text: Annual
 - control_id: CP-02
   policy: capitalization
   trigger_event: capital.ratios.verified
@@ -31983,79 +33177,6 @@ x-control-rules:
     canonical: capital.ratio_calc.due_at
     conforms: false
   deadline_text: Within 15 calendar days of quarter-end
-- control_id: CP-02
-  policy: cash
-  trigger_event: policy.board_review.started
-  trigger:
-    object: policy
-    property: board_review
-    action: started
-    canonical: policy.board_review.started
-    conforms: true
-  required_inputs:
-  - scope_registry.version_id
-  produced_events:
-  - scope_registry.attested
-  produced:
-  - object: scope_registry
-    property: null
-    action: attested
-    canonical: scope_registry.attested
-    conforms: true
-  deadline_timer: scope_registry.attestation.due
-  deadline:
-    object: scope_registry
-    qualifier: null
-    task_type: attestation
-    marker: due
-    canonical: scope_registry.attestation.due
-    conforms: true
-  deadline_text: Annual
-- control_id: CP-02
-  policy: cash
-  trigger_event: scope_registry.change.detected
-  trigger:
-    object: scope_registry
-    property: change
-    action: detected
-    canonical: scope_registry.change.detected
-    conforms: true
-  required_inputs:
-  - cash.asset.id
-  - cash.location.id
-  produced_events:
-  - scope_registry.entry.updated
-  produced:
-  - object: scope_registry
-    property: entry
-    action: updated
-    canonical: scope_registry.entry.updated
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: Before go-live
-- control_id: CP-02
-  policy: cash
-  trigger_event: scope_registry.published
-  trigger:
-    object: scope_registry
-    property: null
-    action: published
-    canonical: scope_registry.published
-    conforms: true
-  required_inputs:
-  - board.resolution_id
-  produced_events:
-  - scope_registry.version.approved
-  produced:
-  - object: scope_registry
-    property: version
-    action: approved
-    canonical: scope_registry.version.approved
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: Same day as Board approval
 - control_id: CP-03
   policy: capitalization
   trigger_event: capital.internal_trigger.breached
@@ -32134,123 +33255,6 @@ x-control-rules:
   deadline_timer: null
   deadline: null
   deadline_text: Same business day as ratio computation
-- control_id: CP-03
-  policy: cash
-  trigger_event: cash.enterprise_limit.breached
-  trigger:
-    object: cash
-    property: enterprise_limit
-    action: breached
-    canonical: cash.enterprise_limit.breached
-    conforms: true
-  required_inputs:
-  - cash.custodian.user_id
-  produced_events:
-  - cash.enterprise_limit.remediated
-  - cash.enterprise_limit.remediation.due_at
-  produced:
-  - object: cash
-    property: enterprise_limit
-    action: remediated
-    canonical: cash.enterprise_limit.remediated
-    conforms: true
-  - object: cash
-    property: enterprise_limit.remediation.due_at
-    action: null
-    canonical: cash.enterprise_limit.remediation.due_at
-    conforms: false
-  deadline_timer: null
-  deadline: null
-  deadline_text: Same business day
-- control_id: CP-03
-  policy: cash
-  trigger_event: cash.enterprise_limit.warning
-  trigger:
-    object: cash
-    property: enterprise_limit
-    action: warning
-    canonical: cash.enterprise_limit.warning
-    conforms: true
-  required_inputs:
-  - cash.enterprise_position.excess
-  - cash.enterprise_position.headroom
-  produced_events:
-  - treasury.invest_excess.notified
-  produced:
-  - object: treasury
-    property: invest_excess
-    action: notified
-    canonical: treasury.invest_excess.notified
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: Same business day
-- control_id: CP-03
-  policy: cash
-  trigger_event: cash.enterprise_position.posted
-  trigger:
-    object: cash
-    property: enterprise_position
-    action: posted
-    canonical: cash.enterprise_position.posted
-    conforms: true
-  required_inputs:
-  - cash.enterprise_limit.pct
-  - cash.enterprise_position
-  - gl.total_assets
-  produced_events:
-  - cash.enterprise_limit.breached
-  - cash.enterprise_limit.warning
-  produced:
-  - object: cash
-    property: enterprise_limit
-    action: breached
-    canonical: cash.enterprise_limit.breached
-    conforms: true
-  - object: cash
-    property: enterprise_limit
-    action: warning
-    canonical: cash.enterprise_limit.warning
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: Daily (end of business)
-- control_id: CP-03
-  policy: cash
-  trigger_event: cash.limits_schedule.updated
-  trigger:
-    object: cash
-    property: limits_schedule
-    action: updated
-    canonical: cash.limits_schedule.updated
-    conforms: true
-  required_inputs:
-  - board.resolution_id
-  - cash.enterprise_limit.pct
-  - cash.limits_schedule.effective
-  produced_events: []
-  produced: []
-  deadline_timer: null
-  deadline: null
-  deadline_text: Before effective date
-- control_id: CP-04
-  policy: cash
-  trigger_event: null
-  trigger: null
-  required_inputs:
-  - cash.custodian.user_id
-  - cash.load.overage
-  produced_events:
-  - cash.exception.logged
-  produced:
-  - object: cash
-    property: exception
-    action: logged
-    canonical: cash.exception.logged
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: Real-time
 - control_id: CP-04
   policy: capitalization
   trigger_event: capital.buffer_status.recorded
@@ -32340,83 +33344,6 @@ x-control-rules:
   deadline_timer: null
   deadline: null
   deadline_text: Same business day as restoration confirmed
-- control_id: CP-04
-  policy: cash
-  trigger_event: cash.dual_control.initiated
-  trigger:
-    object: cash
-    property: dual_control
-    action: initiated
-    canonical: cash.dual_control.initiated
-    conforms: true
-  required_inputs:
-  - cash.counter.user_id
-  - cash.custodian.user_id
-  produced_events:
-  - cash.dual_control.completed
-  produced:
-  - object: cash
-    property: dual_control
-    action: completed
-    canonical: cash.dual_control.completed
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: Real-time (before funds move)
-- control_id: CP-04
-  policy: cash
-  trigger_event: cash.limits_schedule.updated
-  trigger:
-    object: cash
-    property: limits_schedule
-    action: updated
-    canonical: cash.limits_schedule.updated
-    conforms: true
-  required_inputs:
-  - cash.limits_schedule.effective
-  produced_events:
-  - cash.limits_whitelist.activated
-  produced:
-  - object: cash
-    property: limits_whitelist
-    action: activated
-    canonical: cash.limits_whitelist.activated
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: Before effective date
-- control_id: CP-04
-  policy: cash
-  trigger_event: cash.load.requested
-  trigger:
-    object: cash
-    property: load
-    action: requested
-    canonical: cash.load.requested
-    conforms: true
-  required_inputs:
-  - cash.asset.balance
-  - cash.asset.id
-  - cash.asset.limit
-  - cash.exception_ticket.id
-  - cash.load.amount
-  produced_events:
-  - cash.limit_block.alerted
-  - cash.load.decided
-  produced:
-  - object: cash
-    property: limit_block.alerted
-    action: null
-    canonical: cash.limit_block.alerted
-    conforms: false
-  - object: cash
-    property: load
-    action: decided
-    canonical: cash.load.decided
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: Real-time
 - control_id: CP-05
   policy: capitalization
   trigger_event: capital.plan.presented
@@ -32503,133 +33430,6 @@ x-control-rules:
     canonical: capital.plan.due_at
     conforms: true
   deadline_text: Within 30 calendar days of quarter-end
-- control_id: CP-05
-  policy: cash
-  trigger_event: cash.coverage_change.requested
-  trigger:
-    object: cash
-    property: coverage_change
-    action: requested
-    canonical: cash.coverage_change.requested
-    conforms: true
-  required_inputs: []
-  produced_events:
-  - cash.coverage.attestation.due_at
-  - cash.coverage.updated
-  produced:
-  - object: cash
-    property: coverage.attestation.due_at
-    action: null
-    canonical: cash.coverage.attestation.due_at
-    conforms: false
-  - object: cash
-    property: coverage
-    action: updated
-    canonical: cash.coverage.updated
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: Before change takes effect
-- control_id: CP-05
-  policy: cash
-  trigger_event: cash.custody.rotation_due_at
-  trigger:
-    object: cash
-    property: custody.rotation_due_at
-    action: null
-    canonical: cash.custody.rotation_due_at
-    conforms: false
-  required_inputs:
-  - cash.coverage.registry
-  produced_events:
-  - cash.coverage.attested
-  produced:
-  - object: cash
-    property: coverage
-    action: attested
-    canonical: cash.coverage.attested
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: ≤ 90 days from last rotation
-- control_id: CP-05
-  policy: cash
-  trigger_event: cash.dual_control.completed
-  trigger:
-    object: cash
-    property: dual_control
-    action: completed
-    canonical: cash.dual_control.completed
-    conforms: true
-  required_inputs: []
-  produced_events:
-  - cash.evidence.created
-  produced:
-  - object: cash
-    property: evidence
-    action: created
-    canonical: cash.evidence.created
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: Real-time
-- control_id: CP-05
-  policy: cash
-  trigger_event: cash.keybox.opened
-  trigger:
-    object: cash
-    property: keybox
-    action: opened
-    canonical: cash.keybox.opened
-    conforms: true
-  required_inputs:
-  - cash.keybox.reason
-  produced_events:
-  - cash.keybox_access.logged
-  produced:
-  - object: cash
-    property: keybox_access
-    action: logged
-    canonical: cash.keybox_access.logged
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: Real-time
-- control_id: CP-05
-  policy: cash
-  trigger_event: employee.separated
-  trigger:
-    object: employee
-    property: null
-    action: separated
-    canonical: employee.separated
-    conforms: true
-  required_inputs:
-  - cash.coverage.registry
-  - employee.id
-  produced_events:
-  - cash.coverage.updated
-  - cash.custody.revoked
-  produced:
-  - object: cash
-    property: coverage
-    action: updated
-    canonical: cash.coverage.updated
-    conforms: true
-  - object: cash
-    property: custody
-    action: revoked
-    canonical: cash.custody.revoked
-    conforms: true
-  deadline_timer: cash.custody.rotation_due_at
-  deadline:
-    object: cash
-    qualifier: custody_rotation
-    task_type: null
-    marker: due_at
-    canonical: cash.custody_rotation.due_at
-    conforms: false
-  deadline_text: Immediately (before last working hour); enforced by
 - control_id: CP-06
   policy: capitalization
   trigger_event: capital.stress_report.issued
@@ -32714,104 +33514,6 @@ x-control-rules:
   deadline_timer: null
   deadline: null
   deadline_text: Same meeting at which report is presented
-- control_id: CP-06
-  policy: cash
-  trigger_event: cash.recon.variance_found
-  trigger:
-    object: cash
-    property: recon.variance_found
-    action: null
-    canonical: cash.recon.variance_found
-    conforms: false
-  required_inputs:
-  - cash.recon.research_notes
-  - cash.recon.variance
-  produced_events:
-  - gl.cash_suspense.posted
-  produced:
-  - object: gl
-    property: cash_suspense
-    action: posted
-    canonical: gl.cash_suspense.posted
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: Same business day
-- control_id: CP-06
-  policy: cash
-  trigger_event: cash.recon_day.closed
-  trigger:
-    object: cash
-    property: recon_day
-    action: closed
-    canonical: cash.recon_day.closed
-    conforms: true
-  required_inputs:
-  - cash.asset.balance
-  - cash.recon.variance
-  - gl.balances
-  produced_events:
-  - cash.recon.completed
-  - cash.recon.due_at
-  produced:
-  - object: cash
-    property: recon
-    action: completed
-    canonical: cash.recon.completed
-    conforms: true
-  - object: cash
-    property: recon.due_at
-    action: null
-    canonical: cash.recon.due_at
-    conforms: false
-  deadline_timer: null
-  deadline: null
-  deadline_text: Same business day
-- control_id: CP-06
-  policy: cash
-  trigger_event: gl.cash_suspense.aged
-  trigger:
-    object: gl
-    property: cash_suspense.aged
-    action: null
-    canonical: gl.cash_suspense.aged
-    conforms: false
-  required_inputs:
-  - gl.cash_suspense.aging_timer
-  - gl.cash_suspense.item
-  produced_events:
-  - gl.cash_suspense.escalated
-  produced:
-  - object: gl
-    property: cash_suspense
-    action: escalated
-    canonical: gl.cash_suspense.escalated
-    conforms: true
-  deadline_timer: gl.cash_suspense.aging_timer
-  deadline:
-    object: gl
-    qualifier: cash_suspense_aging
-    task_type: null
-    marker: timer
-    canonical: gl.cash_suspense_aging.timer
-    conforms: false
-  deadline_text: Per aging schedule
-- control_id: CP-06
-  policy: cash
-  trigger_event: gl.cash_suspense.cleared
-  trigger:
-    object: gl
-    property: cash_suspense
-    action: cleared
-    canonical: gl.cash_suspense.cleared
-    conforms: true
-  required_inputs:
-  - gl.correction.txn_id
-  produced_events: []
-  produced: []
-  deadline_timer: null
-  deadline: null
-  deadline_text: Same day as resolution
 - control_id: CP-07
   policy: capitalization
   trigger_event: capital.quarterly_report.issued
@@ -32874,131 +33576,6 @@ x-control-rules:
   deadline_timer: null
   deadline: null
   deadline_text: Within 30 calendar days of quarter-end
-- control_id: CP-07
-  policy: cash
-  trigger_event: cash.kri_month.closed
-  trigger:
-    object: cash
-    property: kri_month
-    action: closed
-    canonical: cash.kri_month.closed
-    conforms: true
-  required_inputs:
-  - cash.overshort.monthly_summary
-  produced_events:
-  - cash.overshort_report.issued
-  produced:
-  - object: cash
-    property: overshort_report
-    action: issued
-    canonical: cash.overshort_report.issued
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: 15 calendar days after month end
-- control_id: CP-07
-  policy: cash
-  trigger_event: cash.overshort.recorded
-  trigger:
-    object: cash
-    property: overshort
-    action: recorded
-    canonical: cash.overshort.recorded
-    conforms: true
-  required_inputs:
-  - cash.custodian.user_id
-  - cash.location.id
-  - cash.overshort.amount
-  produced_events:
-  - cash.overshort.investigation.due_at
-  - cash.overshort.posted
-  produced:
-  - object: cash
-    property: overshort.investigation.due_at
-    action: null
-    canonical: cash.overshort.investigation.due_at
-    conforms: false
-  - object: cash
-    property: overshort
-    action: posted
-    canonical: cash.overshort.posted
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: Same business day (posting); investigation within 1 business day
-- control_id: CP-07
-  policy: cash
-  trigger_event: cash.overshort.resolved
-  trigger:
-    object: cash
-    property: overshort
-    action: resolved
-    canonical: cash.overshort.resolved
-    conforms: true
-  required_inputs:
-  - cash.overshort.research_notes
-  produced_events:
-  - cash.overshort.resolved
-  produced:
-  - object: cash
-    property: overshort
-    action: resolved
-    canonical: cash.overshort.resolved
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: 1 business day from discovery
-- control_id: CP-07
-  policy: cash
-  trigger_event: cash.overshort.threshold_crossed
-  trigger:
-    object: cash
-    property: overshort.threshold_crossed
-    action: null
-    canonical: cash.overshort.threshold_crossed
-    conforms: false
-  required_inputs:
-  - cash.overshort.cumulative
-  - cash.overshort.thresholds
-  produced_events:
-  - hr.coaching.recorded
-  produced:
-  - object: hr
-    property: coaching
-    action: recorded
-    canonical: hr.coaching.recorded
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: Same day as threshold breach
-- control_id: CP-07
-  policy: cash
-  trigger_event: cash.overshort_anomaly.detected
-  trigger:
-    object: cash
-    property: overshort_anomaly
-    action: detected
-    canonical: cash.overshort_anomaly.detected
-    conforms: true
-  required_inputs:
-  - cash.overshort.pattern
-  produced_events:
-  - bsa_alert.created
-  - cash.overshort_investigation.opened
-  produced:
-  - object: bsa_alert
-    property: null
-    action: created
-    canonical: bsa_alert.created
-    conforms: true
-  - object: cash
-    property: overshort_investigation
-    action: opened
-    canonical: cash.overshort_investigation.opened
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: Same day as pattern detection
 - control_id: CP-08
   policy: capitalization
   trigger_event: capital.board_escalation.issued
@@ -33092,137 +33669,6 @@ x-control-rules:
     canonical: capital.contingency_memo.due_at
     conforms: false
   deadline_text: Within 5 business days of trigger
-- control_id: CP-08
-  policy: cash
-  trigger_event: cash.dual_control.initiated
-  trigger:
-    object: cash
-    property: dual_control
-    action: initiated
-    canonical: cash.dual_control.initiated
-    conforms: true
-  required_inputs:
-  - cash.asset.id
-  - cash.exception_ticket.id
-  - cash.load.amount
-  produced_events:
-  - cash.device_service.logged
-  - cash.dual_control.completed
-  produced:
-  - object: cash
-    property: device_service
-    action: logged
-    canonical: cash.device_service.logged
-    conforms: true
-  - object: cash
-    property: dual_control
-    action: completed
-    canonical: cash.dual_control.completed
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: Real-time (before funds move)
-- control_id: CP-08
-  policy: cash
-  trigger_event: cash.nightdrop.retrieved
-  trigger:
-    object: cash
-    property: nightdrop.retrieved
-    action: null
-    canonical: cash.nightdrop.retrieved
-    conforms: false
-  required_inputs:
-  - cash.seal.expected
-  - cash.seal.found
-  produced_events:
-  - cash.nightdrop.verified
-  - cash.seal.mismatch
-  produced:
-  - object: cash
-    property: nightdrop
-    action: verified
-    canonical: cash.nightdrop.verified
-    conforms: true
-  - object: cash
-    property: seal.mismatch
-    action: null
-    canonical: cash.seal.mismatch
-    conforms: false
-  deadline_timer: null
-  deadline: null
-  deadline_text: Real-time
-- control_id: CP-08
-  policy: cash
-  trigger_event: cash.seal.mismatch
-  trigger:
-    object: cash
-    property: seal.mismatch
-    action: null
-    canonical: cash.seal.mismatch
-    conforms: false
-  required_inputs: []
-  produced_events:
-  - incident.created
-  produced:
-  - object: incident
-    property: null
-    action: created
-    canonical: incident.created
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: Immediately
-- control_id: CP-08
-  policy: cash
-  trigger_event: cash.shipment.received
-  trigger:
-    object: cash
-    property: shipment
-    action: received
-    canonical: cash.shipment.received
-    conforms: true
-  required_inputs:
-  - cash.shipment.amount
-  - courier.receipt.id
-  produced_events:
-  - cash.shipment.verification.due_at
-  - cash.shipment.verified
-  produced:
-  - object: cash
-    property: shipment.verification.due_at
-    action: null
-    canonical: cash.shipment.verification.due_at
-    conforms: false
-  - object: cash
-    property: shipment
-    action: verified
-    canonical: cash.shipment.verified
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: Same business day
-- control_id: CP-08
-  policy: cash
-  trigger_event: cash.shipment.verified
-  trigger:
-    object: cash
-    property: shipment
-    action: verified
-    canonical: cash.shipment.verified
-    conforms: true
-  required_inputs:
-  - gl.cash_in_transit.entry
-  produced_events:
-  - cmir.reportable.identified
-  produced:
-  - object: cmir
-    property: reportable
-    action: identified
-    canonical: cmir.reportable.identified
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: Same business day
 - control_id: CP-09
   policy: capitalization
   trigger_event: capital.action.executed
@@ -33321,104 +33767,6 @@ x-control-rules:
   deadline_timer: null
   deadline: null
   deadline_text: Per NCUA application timeline under 12 CFR Part 702 Subpart D
-- control_id: CP-09
-  policy: cash
-  trigger_event: cash.overshort.resolved
-  trigger:
-    object: cash
-    property: overshort
-    action: resolved
-    canonical: cash.overshort.resolved
-    conforms: true
-  required_inputs: []
-  produced_events: []
-  produced: []
-  deadline_timer: null
-  deadline: null
-  deadline_text: 1 business day from count
-- control_id: CP-09
-  policy: cash
-  trigger_event: cash.surprise_count.completed
-  trigger:
-    object: cash
-    property: surprise_count
-    action: completed
-    canonical: cash.surprise_count.completed
-    conforms: true
-  required_inputs:
-  - cash.asset.balance
-  - cash.asset.count
-  - cash.surprise_count.variance
-  produced_events:
-  - cash.overshort_investigation.opened
-  produced:
-  - object: cash
-    property: overshort_investigation
-    action: opened
-    canonical: cash.overshort_investigation.opened
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: Real-time (during count)
-- control_id: CP-09
-  policy: cash
-  trigger_event: cash.surprise_count.due
-  trigger:
-    object: cash
-    property: surprise_count.due
-    action: null
-    canonical: cash.surprise_count.due
-    conforms: false
-  required_inputs:
-  - cash.surprise_count.schedule
-  produced_events:
-  - cash.surprise_count.due
-  produced:
-  - object: cash
-    property: surprise_count.due
-    action: null
-    canonical: cash.surprise_count.due
-    conforms: false
-  deadline_timer: null
-  deadline: null
-  deadline_text: ≥ 1 per site per month
-- control_id: CP-09
-  policy: cash
-  trigger_event: exam.export.requested
-  trigger:
-    object: exam
-    property: export
-    action: requested
-    canonical: exam.export.requested
-    conforms: true
-  required_inputs:
-  - exam.export.scope
-  produced_events:
-  - records_package.completed
-  produced:
-  - object: records_package
-    property: null
-    action: completed
-    canonical: records_package.completed
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: On demand
-- control_id: CP-09
-  policy: cash
-  trigger_event: supervisory.count_results.delivered
-  trigger:
-    object: supervisory
-    property: count_results
-    action: delivered
-    canonical: supervisory.count_results.delivered
-    conforms: true
-  required_inputs: []
-  produced_events: []
-  produced: []
-  deadline_timer: null
-  deadline: null
-  deadline_text: Monthly (with quarterly Board summary)
 - control_id: CP-10
   policy: capitalization
   trigger_event: capital.icaap.presented
@@ -33522,346 +33870,6 @@ x-control-rules:
     canonical: capital.icaap.due_at
     conforms: false
   deadline_text: Within 60 calendar days of fiscal year-end
-- control_id: CP-10
-  policy: cash
-  trigger_event: cash.deviation.approved
-  trigger:
-    object: cash
-    property: deviation
-    action: approved
-    canonical: cash.deviation.approved
-    conforms: true
-  required_inputs:
-  - board.resolution_id
-  - cash.deviation.sunset_at
-  produced_events:
-  - cash.limits_schedule.updated
-  - cash.limits_whitelist.activated
-  produced:
-  - object: cash
-    property: limits_schedule
-    action: updated
-    canonical: cash.limits_schedule.updated
-    conforms: true
-  - object: cash
-    property: limits_whitelist
-    action: activated
-    canonical: cash.limits_whitelist.activated
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: Before effective date
-- control_id: CP-10
-  policy: cash
-  trigger_event: cash.deviation.expired
-  trigger:
-    object: cash
-    property: deviation
-    action: expired
-    canonical: cash.deviation.expired
-    conforms: true
-  required_inputs:
-  - cash.limits_whitelist.entry
-  produced_events: []
-  produced: []
-  deadline_timer: null
-  deadline: null
-  deadline_text: Automatic on sunset date
-- control_id: CP-10
-  policy: cash
-  trigger_event: cash.deviation.requested
-  trigger:
-    object: cash
-    property: deviation
-    action: requested
-    canonical: cash.deviation.requested
-    conforms: true
-  required_inputs:
-  - cash.deviation.period
-  - cash.deviation.reason
-  - insurance.bond.adjustment
-  produced_events:
-  - cash.deviation_board.decided
-  produced:
-  - object: cash
-    property: deviation_board
-    action: decided
-    canonical: cash.deviation_board.decided
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: Before limit is exceeded
-- control_id: CP-10
-  policy: cash
-  trigger_event: cash.exception.logged
-  trigger:
-    object: cash
-    property: exception
-    action: logged
-    canonical: cash.exception.logged
-    conforms: true
-  required_inputs:
-  - exception.rationale
-  - exception.risk_acceptance
-  produced_events: []
-  produced: []
-  deadline_timer: null
-  deadline: null
-  deadline_text: Same day as overage identified
-- control_id: CP-11
-  policy: cash
-  trigger_event: employee.hired
-  trigger:
-    object: employee
-    property: null
-    action: hired
-    canonical: employee.hired
-    conforms: true
-  required_inputs:
-  - employee.id
-  - training.hire_date
-  - training.required_curriculum
-  - user.role
-  produced_events:
-  - training.assignment.created
-  - training.newhire_due_at
-  produced:
-  - object: training
-    property: assignment
-    action: created
-    canonical: training.assignment.created
-    conforms: true
-  - object: training
-    property: newhire_due_at
-    action: null
-    canonical: training.newhire_due_at
-    conforms: false
-  deadline_timer: null
-  deadline: null
-  deadline_text: Within 30 days of hire
-- control_id: CP-11
-  policy: cash
-  trigger_event: training.annual_cycle.opened
-  trigger:
-    object: training
-    property: annual_cycle
-    action: opened
-    canonical: training.annual_cycle.opened
-    conforms: true
-  required_inputs:
-  - training.content_version
-  produced_events:
-  - training.annual.assigned
-  - training.annual_due_at
-  produced:
-  - object: training
-    property: annual
-    action: assigned
-    canonical: training.annual.assigned
-    conforms: true
-  - object: training
-    property: annual_due_at
-    action: null
-    canonical: training.annual_due_at
-    conforms: false
-  deadline_timer: null
-  deadline: null
-  deadline_text: Annual
-- control_id: CP-11
-  policy: cash
-  trigger_event: training.initial.completed
-  trigger:
-    object: training
-    property: initial
-    action: completed
-    canonical: training.initial.completed
-    conforms: true
-  required_inputs:
-  - training.assessment_score
-  - training.module_id
-  produced_events:
-  - training.completion.recorded
-  produced:
-  - object: training
-    property: completion
-    action: recorded
-    canonical: training.completion.recorded
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: Within 30 days of hire
-- control_id: CP-11
-  policy: cash
-  trigger_event: training.proficiency.failed
-  trigger:
-    object: training
-    property: proficiency
-    action: failed
-    canonical: training.proficiency.failed
-    conforms: true
-  required_inputs: []
-  produced_events:
-  - training.remedial.assigned
-  produced:
-  - object: training
-    property: remedial
-    action: assigned
-    canonical: training.remedial.assigned
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: Same day as failure
-- control_id: CP-11
-  policy: cash
-  trigger_event: training.refresher.completed
-  trigger:
-    object: training
-    property: refresher
-    action: completed
-    canonical: training.refresher.completed
-    conforms: true
-  required_inputs: []
-  produced_events:
-  - training.completion.recorded
-  produced:
-  - object: training
-    property: completion
-    action: recorded
-    canonical: training.completion.recorded
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: Annual
-- control_id: CP-12
-  policy: cash
-  trigger_event: cash.evidence.created
-  trigger:
-    object: cash
-    property: evidence
-    action: created
-    canonical: cash.evidence.created
-    conforms: true
-  required_inputs:
-  - cash.evidence.type
-  produced_events:
-  - record.retention.expires_at
-  - record.retention_clock_set
-  produced:
-  - object: record
-    property: retention.expires_at
-    action: null
-    canonical: record.retention.expires_at
-    conforms: false
-  - object: record
-    property: retention_clock_set
-    action: null
-    canonical: record.retention_clock_set
-    conforms: false
-  deadline_timer: null
-  deadline: null
-  deadline_text: Real-time (at time of event)
-- control_id: CP-12
-  policy: cash
-  trigger_event: cash.exception.logged
-  trigger:
-    object: cash
-    property: exception
-    action: logged
-    canonical: cash.exception.logged
-    conforms: true
-  required_inputs: []
-  produced_events:
-  - cash.exception_register.summary
-  produced:
-  - object: cash
-    property: exception_register.summary
-    action: null
-    canonical: cash.exception_register.summary
-    conforms: false
-  deadline_timer: null
-  deadline: null
-  deadline_text: Same day as exception identified
-- control_id: CP-12
-  policy: cash
-  trigger_event: cash.kri_month.closed
-  trigger:
-    object: cash
-    property: kri_month
-    action: closed
-    canonical: cash.kri_month.closed
-    conforms: true
-  required_inputs:
-  - cash.exception_register
-  - cash.kri
-  - cash.overshort.monthly_summary
-  - training.coverage_pct
-  produced_events:
-  - cash.kri.publish.due_at
-  - cash.kri.published
-  produced:
-  - object: cash
-    property: kri.publish.due_at
-    action: null
-    canonical: cash.kri.publish.due_at
-    conforms: false
-  - object: cash
-    property: kri
-    action: published
-    canonical: cash.kri.published
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: 15 calendar days after month end
-- control_id: CP-12
-  policy: cash
-  trigger_event: exam.export.requested
-  trigger:
-    object: exam
-    property: export
-    action: requested
-    canonical: exam.export.requested
-    conforms: true
-  required_inputs:
-  - exam.export.scope
-  produced_events:
-  - exam.export.delivered
-  - records_package.completed
-  produced:
-  - object: exam
-    property: export
-    action: delivered
-    canonical: exam.export.delivered
-    conforms: true
-  - object: records_package
-    property: null
-    action: completed
-    canonical: records_package.completed
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: 'On demand (target: within 1 business day of request)'
-- control_id: CP-12
-  policy: cash
-  trigger_event: record.retention.expired
-  trigger:
-    object: record
-    property: retention
-    action: expired
-    canonical: record.retention.expired
-    conforms: true
-  required_inputs:
-  - record.legal_hold_flag
-  produced_events:
-  - record.destroyed
-  produced:
-  - object: record
-    property: null
-    action: destroyed
-    canonical: record.destroyed
-    conforms: true
-  deadline_timer: null
-  deadline: null
-  deadline_text: Per retention schedule
 - control_id: DF-01
   policy: director-fiduciary-duties
   trigger_event: covered_person.roster.updated

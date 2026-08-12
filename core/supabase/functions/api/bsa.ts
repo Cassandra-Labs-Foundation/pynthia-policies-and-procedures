@@ -2,7 +2,7 @@
 //
 // core.case has been fully shaped since the first migration (status machine,
 // type, sar_decision_timer, evidence, summary) and has never had a writer, so
-// every alert CG-CTR-01 / CG-STR-01 / CG-STR-02 raised was a dead end: a real
+// every alert CG-LGTXN-01 / CG-STR-01 / CG-STR-02 raised was a dead end: a real
 // detection nobody could triage, escalate or decide on.
 //
 // This is deliberately the FIRST subsystem built, and it is the one that needs

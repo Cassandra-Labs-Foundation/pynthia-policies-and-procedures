@@ -337,12 +337,14 @@ export async function transferRequestHash(payload: TransferIdempotencyPayload): 
 export interface AccountIdempotencyPayload {
   account_type: string;
   opening_deposit_cents: number | null;
+  entity_id: string | null;
 }
 
 export async function accountRequestHash(payload: AccountIdempotencyPayload): Promise<string> {
   const canonical = JSON.stringify({
     account_type: payload.account_type,
     opening_deposit_cents: payload.opening_deposit_cents ?? null,
+    entity_id: payload.entity_id ?? null,
   });
   return await sha256Hex(canonical);
 }

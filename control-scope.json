@@ -284,51 +284,51 @@
       "verdict": "in",
       "why": "technical: capital"
     },
-    "cash:CP-01": {
+    "cash:CA-01": {
       "verdict": "in",
       "why": "mixed, technical majority (3v1): cash"
     },
-    "cash:CP-02": {
+    "cash:CA-02": {
       "verdict": "out",
       "why": "organisational process: policy, scope_registry"
     },
-    "cash:CP-03": {
+    "cash:CA-03": {
       "verdict": "in",
       "why": "technical: cash"
     },
-    "cash:CP-04": {
+    "cash:CA-04": {
       "verdict": "in",
       "why": "technical: cash"
     },
-    "cash:CP-05": {
+    "cash:CA-05": {
       "verdict": "in",
       "why": "mixed, technical majority (4v1): cash"
     },
-    "cash:CP-06": {
+    "cash:CA-06": {
       "verdict": "in",
       "why": "technical: cash, gl"
     },
-    "cash:CP-07": {
+    "cash:CA-07": {
       "verdict": "in",
       "why": "technical: cash"
     },
-    "cash:CP-08": {
+    "cash:CA-08": {
       "verdict": "in",
       "why": "technical: cash"
     },
-    "cash:CP-09": {
+    "cash:CA-09": {
       "verdict": "in",
       "why": "technical: cash"
     },
-    "cash:CP-10": {
+    "cash:CA-10": {
       "verdict": "in",
       "why": "technical: cash"
     },
-    "cash:CP-11": {
+    "cash:CA-11": {
       "verdict": "out",
       "why": "organisational process: employee, training"
     },
-    "cash:CP-12": {
+    "cash:CA-12": {
       "verdict": "in",
       "why": "technical: cash, record"
     },

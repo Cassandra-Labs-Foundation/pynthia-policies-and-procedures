@@ -61,7 +61,7 @@ gitignored; views are re-created from `views.sql` on every launch.
 | `daily_transfer_volume` | settled outbound volume per source account per day |
 | `control_activity` | control_result counts by day / control / decision |
 | `bsa_alerts_open` | open BSA alert feed |
-| `ctr_daily_inflow` | daily inflow per destination account, flagged when the **aggregate** crosses $10k — catches structuring the per-transaction CG-CTR-01 gate can't see |
+| `ctr_daily_inflow` | daily inflow per destination account, flagged when the **aggregate** crosses $10k — catches structuring the per-transaction CG-LGTXN-01 gate can't see |
 | `account_balances` | mirror balances + sync freshness |
 | `recon_events` | `blnk.balance_drift` / `blnk.missing_mirror` / `blnk.stuck_row` events |
 | `recon_sync_state` | reconciler sweep cursors + last-run summary |

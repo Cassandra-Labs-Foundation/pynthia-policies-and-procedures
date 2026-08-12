@@ -9,6 +9,7 @@ cd "$(dirname "$0")/.."
 python3 scripts/parse_core_api.py              # -> core-vocabulary.json
 python3 scripts/check_money_codes.py           # GATE: money allowlists == spec x-money
 python3 scripts/extract_controls.py            # -> controls.json
+python3 scripts/check_control_collisions.py    # GATE: one policy per bare control id (OQ-11)
 # Re-stamp the spec's compliance annotations from the fresh catalogue (pure
 # functions of controls.json; --resync clears only generated descriptions).
 python3 core/core-api-loop/migrate/author_control_rules.py

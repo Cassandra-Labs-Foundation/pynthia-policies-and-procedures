@@ -21,30 +21,30 @@ Pynthia Credit Union ("the Credit Union") maintains this Cash Policy to safeguar
 
 | Scenario | Trigger (human → event) | Deadline | Content Reference | Control |
 |---|---|---:|---|---|
-| Policy annual review | Board calendar year-end → `policy.review.completed` | Annual | Board-approved policy document | [CP-01](#cp-01-governance-and-delegation) |
-| Quarterly Board cash summary | Quarter close → `cash.governance_quarter.closed` | 15 cal days after quarter end | KRI dashboard + exception register | [CP-01](#cp-01-governance-and-delegation) |
-| Monthly KRI/KPI publication | Month close → `cash.kri_month.closed` | 15 cal days after month end | KRI pack | [CP-12](#cp-12-monitoring-reporting-and-recordkeeping) |
-| New asset/role go-live | Scope change identified → `scope_registry.change.detected` | Before go-live | Scope registry update | [CP-02](#cp-02-scope-and-applicability) |
-| Enterprise cash limit breach | Daily position computed → `cash.enterprise_limit.breached` | Same business day | Treasury notification + remediation plan | [CP-03](#cp-03-enterprise-cash-limit) |
-| Location/device limit warning | Load requested above warning threshold → `cash.load.decided` | Real-time (block or warn) | Exception ticket | [CP-04](#cp-04-location-and-device-cash-limits) |
-| Key/combination rotation | Personnel change or 90-day cycle → `cash.custody.rotated` | Immediately on termination; ≤ 90 days otherwise | Custodian registry update | [CP-05](#cp-05-dual-control-keys-and-combinations) |
-| Daily teller/vault/device reconciliation | Business day close → `cash.recon_day.closed` | Same business day | GL tie-out pack | [CP-06](#cp-06-reconciliation-and-gl-controls) |
-| Suspense item aging breach | Item age exceeds defined threshold → `gl.cash_suspense.escalated` | Per aging schedule | Research notes + escalation | [CP-06](#cp-06-reconciliation-and-gl-controls) |
-| Over/short investigation | Variance posted → `cash.overshort.posted` | 1 business day | Research notes | [CP-07](#cp-07-overshort-monitoring) |
-| Monthly over/short report | Month close → `cash.kri_month.closed` | 15 cal days after month end | Over/short summary | [CP-07](#cp-07-overshort-monitoring) |
-| ATM/ITM load or night-drop retrieval | Device service event → `cash.device_service.logged` | Real-time dual control | Seal capture + load sheet | [CP-08](#cp-08-atmitm-night-drop-and-shipments) |
-| Cash shipment verification | Shipment received → `cash.shipment.received` | Same business day | Courier receipt + GL entry | [CP-08](#cp-08-atmitm-night-drop-and-shipments) |
-| Surprise cash count | Monthly schedule → `cash.surprise_count.completed` | ≥ 1 per site per month | Count sheet + variance resolution | [CP-09](#cp-09-surprise-cash-counts-and-audits) |
-| Surprise count variance resolution | Variance identified → `cash.surprise_count.completed` | 1 business day | Variance memo | [CP-09](#cp-09-surprise-cash-counts-and-audits) |
-| Seasonal/limit deviation approval | Deviation requested → `cash.deviation.approved` | Before limit is exceeded | Board deviation memo | [CP-10](#cp-10-seasonal-deviations-and-exceptions) |
-| Deviation sunset | Deviation end date reached → `cash.deviation.expired` | Automatic on end date | Whitelist entry removed | [CP-10](#cp-10-seasonal-deviations-and-exceptions) |
-| New-hire cash training | Employee hired → `employee.hired` | Within 30 days of hire | Training completion record | [CP-11](#cp-11-training-and-competency) |
-| Annual training refresher | Annual cycle open → `training.annual_cycle.opened` | Annual | Refresher completion record | [CP-11](#cp-11-training-and-competency) |
-| Examiner/AML export | Export requested → `exam.export.requested` | On demand | Records package | [CP-12](#cp-12-monitoring-reporting-and-recordkeeping) |
+| Policy annual review | Board calendar year-end → `policy.review.completed` | Annual | Board-approved policy document | [CA-01](#ca-01-governance-and-delegation) |
+| Quarterly Board cash summary | Quarter close → `cash.governance_quarter.closed` | 15 cal days after quarter end | KRI dashboard + exception register | [CA-01](#ca-01-governance-and-delegation) |
+| Monthly KRI/KPI publication | Month close → `cash.kri_month.closed` | 15 cal days after month end | KRI pack | [CA-12](#ca-12-monitoring-reporting-and-recordkeeping) |
+| New asset/role go-live | Scope change identified → `scope_registry.change.detected` | Before go-live | Scope registry update | [CA-02](#ca-02-scope-and-applicability) |
+| Enterprise cash limit breach | Daily position computed → `cash.enterprise_limit.breached` | Same business day | Treasury notification + remediation plan | [CA-03](#ca-03-enterprise-cash-limit) |
+| Location/device limit warning | Load requested above warning threshold → `cash.load.decided` | Real-time (block or warn) | Exception ticket | [CA-04](#ca-04-location-and-device-cash-limits) |
+| Key/combination rotation | Personnel change or 90-day cycle → `cash.custody.rotated` | Immediately on termination; ≤ 90 days otherwise | Custodian registry update | [CA-05](#ca-05-dual-control-keys-and-combinations) |
+| Daily teller/vault/device reconciliation | Business day close → `cash.recon_day.closed` | Same business day | GL tie-out pack | [CA-06](#ca-06-reconciliation-and-gl-controls) |
+| Suspense item aging breach | Item age exceeds defined threshold → `gl.cash_suspense.escalated` | Per aging schedule | Research notes + escalation | [CA-06](#ca-06-reconciliation-and-gl-controls) |
+| Over/short investigation | Variance posted → `cash.overshort.posted` | 1 business day | Research notes | [CA-07](#ca-07-overshort-monitoring) |
+| Monthly over/short report | Month close → `cash.kri_month.closed` | 15 cal days after month end | Over/short summary | [CA-07](#ca-07-overshort-monitoring) |
+| ATM/ITM load or night-drop retrieval | Device service event → `cash.device_service.logged` | Real-time dual control | Seal capture + load sheet | [CA-08](#ca-08-atmitm-night-drop-and-shipments) |
+| Cash shipment verification | Shipment received → `cash.shipment.received` | Same business day | Courier receipt + GL entry | [CA-08](#ca-08-atmitm-night-drop-and-shipments) |
+| Surprise cash count | Monthly schedule → `cash.surprise_count.completed` | ≥ 1 per site per month | Count sheet + variance resolution | [CA-09](#ca-09-surprise-cash-counts-and-audits) |
+| Surprise count variance resolution | Variance identified → `cash.surprise_count.completed` | 1 business day | Variance memo | [CA-09](#ca-09-surprise-cash-counts-and-audits) |
+| Seasonal/limit deviation approval | Deviation requested → `cash.deviation.approved` | Before limit is exceeded | Board deviation memo | [CA-10](#ca-10-seasonal-deviations-and-exceptions) |
+| Deviation sunset | Deviation end date reached → `cash.deviation.expired` | Automatic on end date | Whitelist entry removed | [CA-10](#ca-10-seasonal-deviations-and-exceptions) |
+| New-hire cash training | Employee hired → `employee.hired` | Within 30 days of hire | Training completion record | [CA-11](#ca-11-training-and-competency) |
+| Annual training refresher | Annual cycle open → `training.annual_cycle.opened` | Annual | Refresher completion record | [CA-11](#ca-11-training-and-competency) |
+| Examiner/AML export | Export requested → `exam.export.requested` | On demand | Records package | [CA-12](#ca-12-monitoring-reporting-and-recordkeeping) |
 
 ---
 
-## CP-01 — Governance and Delegation {#cp-01-governance-and-delegation}
+## CA-01 — Governance and Delegation {#ca-01-governance-and-delegation}
 
 **WHY (Reg cite):** The [Federal Credit Union Act (12 U.S.C. §§ 1751–1795k)](https://www.law.cornell.edu/uscode/text/12/chapter-14) places ultimate responsibility for safe and sound operations on the Board of Directors. [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749) requires written policies and retention of governance records, and [31 CFR § 1020.210](https://www.ecfr.gov/current/title-31/section-1020.210) requires a board-approved AML program with internal controls that encompass cash handling.
 
@@ -63,7 +63,7 @@ Pynthia Credit Union ("the Credit Union") maintains this Cash Policy to safeguar
 
 ---
 
-## CP-02 — Scope and Applicability {#cp-02-scope-and-applicability}
+## CA-02 — Scope and Applicability {#ca-02-scope-and-applicability}
 
 **WHY (Reg cite):** [12 U.S.C. § 1761b](https://www.law.cornell.edu/uscode/text/12/1761b) (FCUA supervisory committee duties) and [12 CFR § 748.1](https://www.ecfr.gov/current/title-12/section-748.1) (NCUA Security Program) require that written security and control programs identify all covered employees, activities, and locations. [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749) requires that the scope of covered records be documented and maintained.
 
@@ -81,7 +81,7 @@ Pynthia Credit Union ("the Credit Union") maintains this Cash Policy to safeguar
 
 ---
 
-## CP-03 — Enterprise Cash Limit {#cp-03-enterprise-cash-limit}
+## CA-03 — Enterprise Cash Limit {#ca-03-enterprise-cash-limit}
 
 **WHY (Reg cite):** [12 U.S.C. §§ 1757, 1761b](https://www.law.cornell.edu/uscode/text/12/1757) (FCUA safety-and-soundness authority) and [12 CFR Part 713](https://www.ecfr.gov/current/title-12/part-713) (fidelity bond requirements) require the Board to set and monitor aggregate cash exposure limits commensurate with bond coverage. Excess cash held beyond operational need creates uninsured concentration risk.
 
@@ -100,7 +100,7 @@ Pynthia Credit Union ("the Credit Union") maintains this Cash Policy to safeguar
 
 ---
 
-## CP-04 — Location and Device Cash Limits {#cp-04-location-and-device-cash-limits}
+## CA-04 — Location and Device Cash Limits {#ca-04-location-and-device-cash-limits}
 
 **WHY (Reg cite):** [12 CFR § 748.1](https://www.ecfr.gov/current/title-12/section-748.1) requires written procedures for the protection of cash assets at each location. [12 CFR Part 713](https://www.ecfr.gov/current/title-12/part-713) requires that bond coverage be adequate for the cash exposure at each site; per-asset limits operationalize that requirement.
 
@@ -119,7 +119,7 @@ Pynthia Credit Union ("the Credit Union") maintains this Cash Policy to safeguar
 
 ---
 
-## CP-05 — Dual Control, Keys, and Combinations {#cp-05-dual-control-keys-and-combinations}
+## CA-05 — Dual Control, Keys, and Combinations {#ca-05-dual-control-keys-and-combinations}
 
 **WHY (Reg cite):** [12 CFR § 748.1](https://www.ecfr.gov/current/title-12/section-748.1) requires written security procedures including dual control for vault access and cash shipments. [12 CFR Part 713](https://www.ecfr.gov/current/title-12/part-713) requires that fidelity bond coverage reflect the controls in place; inadequate dual control increases bond exposure. The NCUA Security Program guidance further requires immediate revocation of access credentials upon employee termination.
 
@@ -139,7 +139,7 @@ Pynthia Credit Union ("the Credit Union") maintains this Cash Policy to safeguar
 
 ---
 
-## CP-06 — Reconciliation and GL Controls {#cp-06-reconciliation-and-gl-controls}
+## CA-06 — Reconciliation and GL Controls {#ca-06-reconciliation-and-gl-controls}
 
 **WHY (Reg cite):** [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749) requires retention of reconciliation records. [12 CFR § 748.1](https://www.ecfr.gov/current/title-12/section-748.1) requires internal controls that prevent and detect errors and irregularities in cash handling. NCUA examination guidance requires daily GL tie-out for all cash accounts and timely clearance of suspense items.
 
@@ -158,7 +158,7 @@ Pynthia Credit Union ("the Credit Union") maintains this Cash Policy to safeguar
 
 ---
 
-## CP-07 — Over/Short Monitoring {#cp-07-overshort-monitoring}
+## CA-07 — Over/Short Monitoring {#ca-07-overshort-monitoring}
 
 **WHY (Reg cite):** [12 CFR § 748.1](https://www.ecfr.gov/current/title-12/section-748.1) requires internal controls to detect and investigate cash discrepancies. [31 CFR § 1020.210](https://www.ecfr.gov/current/title-31/section-1020.210) requires that the AML program include internal controls capable of detecting patterns indicative of insider theft or structuring; recurring over/short anomalies are a recognized red flag.
 
@@ -178,7 +178,7 @@ Pynthia Credit Union ("the Credit Union") maintains this Cash Policy to safeguar
 
 ---
 
-## CP-08 — ATM/ITM, Night-Drop, and Shipments {#cp-08-atmitm-night-drop-and-shipments}
+## CA-08 — ATM/ITM, Night-Drop, and Shipments {#ca-08-atmitm-night-drop-and-shipments}
 
 **WHY (Reg cite):** [12 CFR § 748.1](https://www.ecfr.gov/current/title-12/section-748.1) requires written procedures for the protection of cash in transit and at self-service devices. [31 U.S.C. § 5316](https://www.law.cornell.edu/uscode/text/31/5316) and [31 CFR § 1010.340](https://www.ecfr.gov/current/title-31/section-1010.340) (CMIR) require reporting of cash transported across borders exceeding $10,000; domestic armored-courier shipments must be logged and verified to support BSA recordkeeping. [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749) requires retention of shipment manifests and device load records.
 
@@ -198,7 +198,7 @@ Pynthia Credit Union ("the Credit Union") maintains this Cash Policy to safeguar
 
 ---
 
-## CP-09 — Surprise Cash Counts and Audits {#cp-09-surprise-cash-counts-and-audits}
+## CA-09 — Surprise Cash Counts and Audits {#ca-09-surprise-cash-counts-and-audits}
 
 **WHY (Reg cite):** [12 CFR Part 715](https://www.ecfr.gov/current/title-12/part-715) (Supervisory Committee Audits) requires the Supervisory Committee to conduct or cause to be conducted surprise cash counts and to report results to the Board. [12 CFR § 748.1](https://www.ecfr.gov/current/title-12/section-748.1) requires that the security program include procedures for surprise audits. [31 CFR § 1020.210](https://www.ecfr.gov/current/title-31/section-1020.210) requires independent testing of the AML program, which includes cash-handling controls.
 
@@ -218,7 +218,7 @@ Pynthia Credit Union ("the Credit Union") maintains this Cash Policy to safeguar
 
 ---
 
-## CP-10 — Seasonal Deviations and Exceptions {#cp-10-seasonal-deviations-and-exceptions}
+## CA-10 — Seasonal Deviations and Exceptions {#ca-10-seasonal-deviations-and-exceptions}
 
 **WHY (Reg cite):** [12 CFR Part 713](https://www.ecfr.gov/current/title-12/part-713) requires that fidelity bond coverage be adequate for actual cash exposure; a seasonal deviation that increases cash holdings above normal limits must be accompanied by a bond/insurance adjustment. [12 U.S.C. §§ 1757, 1761b](https://www.law.cornell.edu/uscode/text/12/1757) (FCUA) requires Board approval for material changes to operating limits.
 
@@ -237,7 +237,7 @@ Pynthia Credit Union ("the Credit Union") maintains this Cash Policy to safeguar
 
 ---
 
-## CP-11 — Training and Competency {#cp-11-training-and-competency}
+## CA-11 — Training and Competency {#ca-11-training-and-competency}
 
 **WHY (Reg cite):** [31 CFR § 1020.210(a)(4)](https://www.ecfr.gov/current/title-31/section-1020.210) requires ongoing training for appropriate personnel as part of the AML program. [12 CFR § 748.1](https://www.ecfr.gov/current/title-12/section-748.1) requires that the security program include training for employees on robbery and emergency response procedures. [12 CFR Part 715](https://www.ecfr.gov/current/title-12/part-715) requires that the Supervisory Committee have access to training records as part of its audit scope.
 
@@ -257,7 +257,7 @@ Pynthia Credit Union ("the Credit Union") maintains this Cash Policy to safeguar
 
 ---
 
-## CP-12 — Monitoring, Reporting, and Recordkeeping {#cp-12-monitoring-reporting-and-recordkeeping}
+## CA-12 — Monitoring, Reporting, and Recordkeeping {#ca-12-monitoring-reporting-and-recordkeeping}
 
 **WHY (Reg cite):** [12 CFR Part 749](https://www.ecfr.gov/current/title-12/part-749) specifies minimum retention periods for credit union records, including reconciliation packs, count sheets, dual-control logs, device load sheets, and exception registers. [31 CFR § 1020.210](https://www.ecfr.gov/current/title-31/section-1020.210) requires that AML program records be available for examination. [12 CFR Part 715](https://www.ecfr.gov/current/title-12/part-715) requires that Supervisory Committee audit workpapers and cash count results be retained and available to NCUA examiners.
 
@@ -307,14 +307,14 @@ Pynthia Credit Union ("the Credit Union") maintains this Cash Policy to safeguar
 
 - **Specific limit values are not set in this policy.** The enterprise cash-to-total-assets percentage cap, per-asset limits (vault, teller, ATM, ITM/VTM, recycler, petty cash), over/short coaching and discipline thresholds, and suspense aging schedules are maintained in the Board-approved limits schedule, which is a separate living document referenced by this policy. This policy establishes the control framework; the limits schedule provides the specific numeric parameters. The limits schedule must be Board-approved and attached to this policy as an exhibit before the effective date.
 
-- **CMIR applicability.** This policy assumes that Pynthia Credit Union conducts or facilitates cash shipments that may meet the CMIR reporting threshold under [31 CFR § 1010.340](https://www.ecfr.gov/current/title-31/section-1010.340). If the Credit Union does not transport or receive cash shipments exceeding $10,000 across U.S. borders, the CMIR flag in CP-08 is not applicable and should be confirmed with the BSA Officer.
+- **CMIR applicability.** This policy assumes that Pynthia Credit Union conducts or facilitates cash shipments that may meet the CMIR reporting threshold under [31 CFR § 1010.340](https://www.ecfr.gov/current/title-31/section-1010.340). If the Credit Union does not transport or receive cash shipments exceeding $10,000 across U.S. borders, the CMIR flag in CA-08 is not applicable and should be confirmed with the BSA Officer.
 
 - **HMDA reporter status and NCUA Part 701.31.** This policy does not address lending-related cash controls (e.g., loan disbursements in cash). If Pynthia Credit Union disburses loan proceeds in cash, the applicability of [12 CFR § 701.31](https://www.ecfr.gov/current/title-12/part-701/section-701.31) (non-discrimination in lending) and related fair lending controls should be confirmed with the CCO and addressed in the Fair Lending Policy.
 
-- **Small-site compensating controls.** CP-02 references compensating-control reviews for small sites where full dual-control staffing is not feasible. The specific criteria for what constitutes a "small site" and the acceptable compensating controls (e.g., increased surprise count frequency, remote video monitoring, manager override with same-day review) are not defined in this policy and must be documented in the scope registry entry for each affected site before go-live.
+- **Small-site compensating controls.** CA-02 references compensating-control reviews for small sites where full dual-control staffing is not feasible. The specific criteria for what constitutes a "small site" and the acceptable compensating controls (e.g., increased surprise count frequency, remote video monitoring, manager override with same-day review) are not defined in this policy and must be documented in the scope registry entry for each affected site before go-live.
 
 - **Back-up vault sole-control option.** The reference policy permitted sole-control back-up vaults where a designated back-up Head Teller exists. This policy defaults to dual control for all vault operations. If Pynthia Credit Union wishes to permit sole-control back-up vaults under specific conditions, this must be documented as a Board-approved exception in the limits schedule with compensating controls specified.
 
-- **Performance review integration.** The reference policy included a detailed over/short scoring rubric integrated into annual performance reviews. This policy establishes the coaching and discipline threshold framework (CP-07) but defers the specific scoring rubric and HR integration to the Human Resources Policy and individual performance management procedures. The CCO should confirm with HR that the over/short thresholds in the limits schedule are reflected in the performance review system before the effective date.
+- **Performance review integration.** The reference policy included a detailed over/short scoring rubric integrated into annual performance reviews. This policy establishes the coaching and discipline threshold framework (CA-07) but defers the specific scoring rubric and HR integration to the Human Resources Policy and individual performance management procedures. The CCO should confirm with HR that the over/short thresholds in the limits schedule are reflected in the performance review system before the effective date.
 
 - **Petty cash fund governance.** This policy applies the same limit and reconciliation controls to petty cash funds as to other cash assets. If any petty cash fund is managed by a department outside the Operations/Finance function (e.g., a branch petty cash fund managed by the Branch Manager), the scope registry must identify the custodian and the applicable limit, and the monthly surprise count requirement applies.

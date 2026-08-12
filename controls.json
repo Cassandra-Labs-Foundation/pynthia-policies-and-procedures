@@ -1,7 +1,7 @@
 {
   "meta": {
     "generator": "scripts/extract_controls.py",
-    "generated_at": "2026-08-12T02:04:50+00:00",
+    "generated_at": "2026-08-12T02:14:17+00:00",
     "repo_root": "cassandra-platform",
     "api_model": {
       "spec_title": "Cassandra Banking Core API",
@@ -11,113 +11,12 @@
       "entities": 275
     }
   },
-  "id_collisions": {
-    "CP-01": [
-      {
-        "title": "Capital Adequacy Targets",
-        "policy": "capitalization"
-      },
-      {
-        "title": "Governance and Delegation",
-        "policy": "cash"
-      }
-    ],
-    "CP-02": [
-      {
-        "title": "Capital Components and Measurement",
-        "policy": "capitalization"
-      },
-      {
-        "title": "Scope and Applicability",
-        "policy": "cash"
-      }
-    ],
-    "CP-03": [
-      {
-        "title": "Enterprise Cash Limit",
-        "policy": "cash"
-      },
-      {
-        "title": "PCA Thresholds and Internal Triggers",
-        "policy": "capitalization"
-      }
-    ],
-    "CP-04": [
-      {
-        "title": "Capital Conservation Buffer",
-        "policy": "capitalization"
-      },
-      {
-        "title": "Location and Device Cash Limits",
-        "policy": "cash"
-      }
-    ],
-    "CP-05": [
-      {
-        "title": "Capital Planning",
-        "policy": "capitalization"
-      },
-      {
-        "title": "Dual Control, Keys, and Combinations",
-        "policy": "cash"
-      }
-    ],
-    "CP-06": [
-      {
-        "title": "Capital Stress Testing",
-        "policy": "capitalization"
-      },
-      {
-        "title": "Reconciliation and GL Controls",
-        "policy": "cash"
-      }
-    ],
-    "CP-07": [
-      {
-        "title": "Over/Short Monitoring",
-        "policy": "cash"
-      },
-      {
-        "title": "Quarterly Monitoring and Reporting",
-        "policy": "capitalization"
-      }
-    ],
-    "CP-08": [
-      {
-        "title": "ATM/ITM, Night-Drop, and Shipments",
-        "policy": "cash"
-      },
-      {
-        "title": "Contingency Actions and Escalation",
-        "policy": "capitalization"
-      }
-    ],
-    "CP-09": [
-      {
-        "title": "Capital Actions Governance",
-        "policy": "capitalization"
-      },
-      {
-        "title": "Surprise Cash Counts and Audits",
-        "policy": "cash"
-      }
-    ],
-    "CP-10": [
-      {
-        "title": "Internal Capital Adequacy Assessment (ICAAP)",
-        "policy": "capitalization"
-      },
-      {
-        "title": "Seasonal Deviations and Exceptions",
-        "policy": "cash"
-      }
-    ]
-  },
+  "id_collisions": {},
   "stats": {
     "policies": 27,
     "controls": 333,
     "distinct_uids": 333,
-    "colliding_control_ids": 10,
+    "colliding_control_ids": 0,
     "event_rows": 1232,
     "control_rules": 1232,
     "unique_api_codes": 2933,
@@ -21283,10 +21182,10 @@
       }
     },
     {
-      "uid": "cash:CP-01",
-      "control_id": "CP-01",
+      "uid": "cash:CA-01",
+      "control_id": "CA-01",
       "title": "Governance and Delegation",
-      "anchor": "cp-01-governance-and-delegation",
+      "anchor": "ca-01-governance-and-delegation",
       "policy": "cash",
       "policy_title": null,
       "policy_owner": null,
@@ -21460,7 +21359,7 @@
       ],
       "control_rules": [
         {
-          "control_id": "CP-01",
+          "control_id": "CA-01",
           "policy": "cash",
           "trigger_event": "policy.board_review.started",
           "trigger": {
@@ -21507,7 +21406,7 @@
           "deadline_text": "Annual"
         },
         {
-          "control_id": "CP-01",
+          "control_id": "CA-01",
           "policy": "cash",
           "trigger_event": "cash.governance_quarter.closed",
           "trigger": {
@@ -21539,7 +21438,7 @@
           "deadline_text": "15 calendar days after quarter end"
         },
         {
-          "control_id": "CP-01",
+          "control_id": "CA-01",
           "policy": "cash",
           "trigger_event": "cash.kri_month.closed",
           "trigger": {
@@ -21578,7 +21477,7 @@
           "deadline_text": "15 calendar days after month end"
         },
         {
-          "control_id": "CP-01",
+          "control_id": "CA-01",
           "policy": "cash",
           "trigger_event": "cash.exception.logged",
           "trigger": {
@@ -21663,10 +21562,10 @@
       }
     },
     {
-      "uid": "cash:CP-02",
-      "control_id": "CP-02",
+      "uid": "cash:CA-02",
+      "control_id": "CA-02",
       "title": "Scope and Applicability",
-      "anchor": "cp-02-scope-and-applicability",
+      "anchor": "ca-02-scope-and-applicability",
       "policy": "cash",
       "policy_title": null,
       "policy_owner": null,
@@ -21792,7 +21691,7 @@
       ],
       "control_rules": [
         {
-          "control_id": "CP-02",
+          "control_id": "CA-02",
           "policy": "cash",
           "trigger_event": "scope_registry.change.detected",
           "trigger": {
@@ -21823,7 +21722,7 @@
           "deadline_text": "Before go-live"
         },
         {
-          "control_id": "CP-02",
+          "control_id": "CA-02",
           "policy": "cash",
           "trigger_event": "policy.board_review.started",
           "trigger": {
@@ -21860,7 +21759,7 @@
           "deadline_text": "Annual"
         },
         {
-          "control_id": "CP-02",
+          "control_id": "CA-02",
           "policy": "cash",
           "trigger_event": "scope_registry.published",
           "trigger": {
@@ -21926,10 +21825,10 @@
       }
     },
     {
-      "uid": "cash:CP-03",
-      "control_id": "CP-03",
+      "uid": "cash:CA-03",
+      "control_id": "CA-03",
       "title": "Enterprise Cash Limit",
-      "anchor": "cp-03-enterprise-cash-limit",
+      "anchor": "ca-03-enterprise-cash-limit",
       "policy": "cash",
       "policy_title": null,
       "policy_owner": null,
@@ -22088,7 +21987,7 @@
       ],
       "control_rules": [
         {
-          "control_id": "CP-03",
+          "control_id": "CA-03",
           "policy": "cash",
           "trigger_event": "cash.enterprise_position.posted",
           "trigger": {
@@ -22128,7 +22027,7 @@
           "deadline_text": "Daily (end of business)"
         },
         {
-          "control_id": "CP-03",
+          "control_id": "CA-03",
           "policy": "cash",
           "trigger_event": "cash.enterprise_limit.warning",
           "trigger": {
@@ -22159,7 +22058,7 @@
           "deadline_text": "Same business day"
         },
         {
-          "control_id": "CP-03",
+          "control_id": "CA-03",
           "policy": "cash",
           "trigger_event": "cash.enterprise_limit.breached",
           "trigger": {
@@ -22197,7 +22096,7 @@
           "deadline_text": "Same business day"
         },
         {
-          "control_id": "CP-03",
+          "control_id": "CA-03",
           "policy": "cash",
           "trigger_event": "cash.limits_schedule.updated",
           "trigger": {
@@ -22263,10 +22162,10 @@
       }
     },
     {
-      "uid": "cash:CP-04",
-      "control_id": "CP-04",
+      "uid": "cash:CA-04",
+      "control_id": "CA-04",
       "title": "Location and Device Cash Limits",
-      "anchor": "cp-04-location-and-device-cash-limits",
+      "anchor": "ca-04-location-and-device-cash-limits",
       "policy": "cash",
       "policy_title": null,
       "policy_owner": null,
@@ -22427,7 +22326,7 @@
       ],
       "control_rules": [
         {
-          "control_id": "CP-04",
+          "control_id": "CA-04",
           "policy": "cash",
           "trigger_event": "cash.load.requested",
           "trigger": {
@@ -22469,7 +22368,7 @@
           "deadline_text": "Real-time"
         },
         {
-          "control_id": "CP-04",
+          "control_id": "CA-04",
           "policy": "cash",
           "trigger_event": null,
           "trigger": null,
@@ -22494,7 +22393,7 @@
           "deadline_text": "Real-time"
         },
         {
-          "control_id": "CP-04",
+          "control_id": "CA-04",
           "policy": "cash",
           "trigger_event": "cash.limits_schedule.updated",
           "trigger": {
@@ -22524,7 +22423,7 @@
           "deadline_text": "Before effective date"
         },
         {
-          "control_id": "CP-04",
+          "control_id": "CA-04",
           "policy": "cash",
           "trigger_event": "cash.dual_control.initiated",
           "trigger": {
@@ -22605,10 +22504,10 @@
       }
     },
     {
-      "uid": "cash:CP-05",
-      "control_id": "CP-05",
+      "uid": "cash:CA-05",
+      "control_id": "CA-05",
       "title": "Dual Control, Keys, and Combinations",
-      "anchor": "cp-05-dual-control-keys-and-combinations",
+      "anchor": "ca-05-dual-control-keys-and-combinations",
       "policy": "cash",
       "policy_title": null,
       "policy_owner": null,
@@ -22790,7 +22689,7 @@
       ],
       "control_rules": [
         {
-          "control_id": "CP-05",
+          "control_id": "CA-05",
           "policy": "cash",
           "trigger_event": "employee.separated",
           "trigger": {
@@ -22836,7 +22735,7 @@
           "deadline_text": "Immediately (before last working hour); enforced by"
         },
         {
-          "control_id": "CP-05",
+          "control_id": "CA-05",
           "policy": "cash",
           "trigger_event": "cash.custody.rotation_due_at",
           "trigger": {
@@ -22866,7 +22765,7 @@
           "deadline_text": "≤ 90 days from last rotation"
         },
         {
-          "control_id": "CP-05",
+          "control_id": "CA-05",
           "policy": "cash",
           "trigger_event": "cash.keybox.opened",
           "trigger": {
@@ -22896,7 +22795,7 @@
           "deadline_text": "Real-time"
         },
         {
-          "control_id": "CP-05",
+          "control_id": "CA-05",
           "policy": "cash",
           "trigger_event": "cash.dual_control.completed",
           "trigger": {
@@ -22924,7 +22823,7 @@
           "deadline_text": "Real-time"
         },
         {
-          "control_id": "CP-05",
+          "control_id": "CA-05",
           "policy": "cash",
           "trigger_event": "cash.coverage_change.requested",
           "trigger": {
@@ -23002,10 +22901,10 @@
       }
     },
     {
-      "uid": "cash:CP-06",
-      "control_id": "CP-06",
+      "uid": "cash:CA-06",
+      "control_id": "CA-06",
       "title": "Reconciliation and GL Controls",
-      "anchor": "cp-06-reconciliation-and-gl-controls",
+      "anchor": "ca-06-reconciliation-and-gl-controls",
       "policy": "cash",
       "policy_title": null,
       "policy_owner": null,
@@ -23162,7 +23061,7 @@
       ],
       "control_rules": [
         {
-          "control_id": "CP-06",
+          "control_id": "CA-06",
           "policy": "cash",
           "trigger_event": "cash.recon_day.closed",
           "trigger": {
@@ -23202,7 +23101,7 @@
           "deadline_text": "Same business day"
         },
         {
-          "control_id": "CP-06",
+          "control_id": "CA-06",
           "policy": "cash",
           "trigger_event": "cash.recon.variance_found",
           "trigger": {
@@ -23233,7 +23132,7 @@
           "deadline_text": "Same business day"
         },
         {
-          "control_id": "CP-06",
+          "control_id": "CA-06",
           "policy": "cash",
           "trigger_event": "gl.cash_suspense.aged",
           "trigger": {
@@ -23271,7 +23170,7 @@
           "deadline_text": "Per aging schedule"
         },
         {
-          "control_id": "CP-06",
+          "control_id": "CA-06",
           "policy": "cash",
           "trigger_event": "gl.cash_suspense.cleared",
           "trigger": {
@@ -23335,10 +23234,10 @@
       }
     },
     {
-      "uid": "cash:CP-07",
-      "control_id": "CP-07",
+      "uid": "cash:CA-07",
+      "control_id": "CA-07",
       "title": "Over/Short Monitoring",
-      "anchor": "cp-07-overshort-monitoring",
+      "anchor": "ca-07-overshort-monitoring",
       "policy": "cash",
       "policy_title": null,
       "policy_owner": null,
@@ -23526,7 +23425,7 @@
       ],
       "control_rules": [
         {
-          "control_id": "CP-07",
+          "control_id": "CA-07",
           "policy": "cash",
           "trigger_event": "cash.overshort.recorded",
           "trigger": {
@@ -23566,7 +23465,7 @@
           "deadline_text": "Same business day (posting); investigation within 1 business day"
         },
         {
-          "control_id": "CP-07",
+          "control_id": "CA-07",
           "policy": "cash",
           "trigger_event": "cash.overshort.resolved",
           "trigger": {
@@ -23596,7 +23495,7 @@
           "deadline_text": "1 business day from discovery"
         },
         {
-          "control_id": "CP-07",
+          "control_id": "CA-07",
           "policy": "cash",
           "trigger_event": "cash.overshort.threshold_crossed",
           "trigger": {
@@ -23627,7 +23526,7 @@
           "deadline_text": "Same day as threshold breach"
         },
         {
-          "control_id": "CP-07",
+          "control_id": "CA-07",
           "policy": "cash",
           "trigger_event": "cash.overshort_anomaly.detected",
           "trigger": {
@@ -23665,7 +23564,7 @@
           "deadline_text": "Same day as pattern detection"
         },
         {
-          "control_id": "CP-07",
+          "control_id": "CA-07",
           "policy": "cash",
           "trigger_event": "cash.kri_month.closed",
           "trigger": {
@@ -23745,10 +23644,10 @@
       }
     },
     {
-      "uid": "cash:CP-08",
-      "control_id": "CP-08",
+      "uid": "cash:CA-08",
+      "control_id": "CA-08",
       "title": "ATM/ITM, Night-Drop, and Shipments",
-      "anchor": "cp-08-atmitm-night-drop-and-shipments",
+      "anchor": "ca-08-atmitm-night-drop-and-shipments",
       "policy": "cash",
       "policy_title": null,
       "policy_owner": null,
@@ -23946,7 +23845,7 @@
       ],
       "control_rules": [
         {
-          "control_id": "CP-08",
+          "control_id": "CA-08",
           "policy": "cash",
           "trigger_event": "cash.dual_control.initiated",
           "trigger": {
@@ -23986,7 +23885,7 @@
           "deadline_text": "Real-time (before funds move)"
         },
         {
-          "control_id": "CP-08",
+          "control_id": "CA-08",
           "policy": "cash",
           "trigger_event": "cash.nightdrop.retrieved",
           "trigger": {
@@ -24025,7 +23924,7 @@
           "deadline_text": "Real-time"
         },
         {
-          "control_id": "CP-08",
+          "control_id": "CA-08",
           "policy": "cash",
           "trigger_event": "cash.shipment.received",
           "trigger": {
@@ -24064,7 +23963,7 @@
           "deadline_text": "Same business day"
         },
         {
-          "control_id": "CP-08",
+          "control_id": "CA-08",
           "policy": "cash",
           "trigger_event": "cash.shipment.verified",
           "trigger": {
@@ -24094,7 +23993,7 @@
           "deadline_text": "Same business day"
         },
         {
-          "control_id": "CP-08",
+          "control_id": "CA-08",
           "policy": "cash",
           "trigger_event": "cash.seal.mismatch",
           "trigger": {
@@ -24174,10 +24073,10 @@
       }
     },
     {
-      "uid": "cash:CP-09",
-      "control_id": "CP-09",
+      "uid": "cash:CA-09",
+      "control_id": "CA-09",
       "title": "Surprise Cash Counts and Audits",
-      "anchor": "cp-09-surprise-cash-counts-and-audits",
+      "anchor": "ca-09-surprise-cash-counts-and-audits",
       "policy": "cash",
       "policy_title": null,
       "policy_owner": null,
@@ -24351,7 +24250,7 @@
       ],
       "control_rules": [
         {
-          "control_id": "CP-09",
+          "control_id": "CA-09",
           "policy": "cash",
           "trigger_event": "cash.surprise_count.due",
           "trigger": {
@@ -24381,7 +24280,7 @@
           "deadline_text": "≥ 1 per site per month"
         },
         {
-          "control_id": "CP-09",
+          "control_id": "CA-09",
           "policy": "cash",
           "trigger_event": "cash.surprise_count.completed",
           "trigger": {
@@ -24413,7 +24312,7 @@
           "deadline_text": "Real-time (during count)"
         },
         {
-          "control_id": "CP-09",
+          "control_id": "CA-09",
           "policy": "cash",
           "trigger_event": "cash.overshort.resolved",
           "trigger": {
@@ -24431,7 +24330,7 @@
           "deadline_text": "1 business day from count"
         },
         {
-          "control_id": "CP-09",
+          "control_id": "CA-09",
           "policy": "cash",
           "trigger_event": "supervisory.count_results.delivered",
           "trigger": {
@@ -24449,7 +24348,7 @@
           "deadline_text": "Monthly (with quarterly Board summary)"
         },
         {
-          "control_id": "CP-09",
+          "control_id": "CA-09",
           "policy": "cash",
           "trigger_event": "exam.export.requested",
           "trigger": {
@@ -24515,10 +24414,10 @@
       }
     },
     {
-      "uid": "cash:CP-10",
-      "control_id": "CP-10",
+      "uid": "cash:CA-10",
+      "control_id": "CA-10",
       "title": "Seasonal Deviations and Exceptions",
-      "anchor": "cp-10-seasonal-deviations-and-exceptions",
+      "anchor": "ca-10-seasonal-deviations-and-exceptions",
       "policy": "cash",
       "policy_title": null,
       "policy_owner": null,
@@ -24670,7 +24569,7 @@
       ],
       "control_rules": [
         {
-          "control_id": "CP-10",
+          "control_id": "CA-10",
           "policy": "cash",
           "trigger_event": "cash.deviation.requested",
           "trigger": {
@@ -24702,7 +24601,7 @@
           "deadline_text": "Before limit is exceeded"
         },
         {
-          "control_id": "CP-10",
+          "control_id": "CA-10",
           "policy": "cash",
           "trigger_event": "cash.deviation.approved",
           "trigger": {
@@ -24741,7 +24640,7 @@
           "deadline_text": "Before effective date"
         },
         {
-          "control_id": "CP-10",
+          "control_id": "CA-10",
           "policy": "cash",
           "trigger_event": "cash.deviation.expired",
           "trigger": {
@@ -24761,7 +24660,7 @@
           "deadline_text": "Automatic on sunset date"
         },
         {
-          "control_id": "CP-10",
+          "control_id": "CA-10",
           "policy": "cash",
           "trigger_event": "cash.exception.logged",
           "trigger": {
@@ -24824,10 +24723,10 @@
       }
     },
     {
-      "uid": "cash:CP-11",
-      "control_id": "CP-11",
+      "uid": "cash:CA-11",
+      "control_id": "CA-11",
       "title": "Training and Competency",
-      "anchor": "cp-11-training-and-competency",
+      "anchor": "ca-11-training-and-competency",
       "policy": "cash",
       "policy_title": null,
       "policy_owner": null,
@@ -25016,7 +24915,7 @@
       ],
       "control_rules": [
         {
-          "control_id": "CP-11",
+          "control_id": "CA-11",
           "policy": "cash",
           "trigger_event": "employee.hired",
           "trigger": {
@@ -25057,7 +24956,7 @@
           "deadline_text": "Within 30 days of hire"
         },
         {
-          "control_id": "CP-11",
+          "control_id": "CA-11",
           "policy": "cash",
           "trigger_event": "training.initial.completed",
           "trigger": {
@@ -25088,7 +24987,7 @@
           "deadline_text": "Within 30 days of hire"
         },
         {
-          "control_id": "CP-11",
+          "control_id": "CA-11",
           "policy": "cash",
           "trigger_event": "training.annual_cycle.opened",
           "trigger": {
@@ -25126,7 +25025,7 @@
           "deadline_text": "Annual"
         },
         {
-          "control_id": "CP-11",
+          "control_id": "CA-11",
           "policy": "cash",
           "trigger_event": "training.refresher.completed",
           "trigger": {
@@ -25154,7 +25053,7 @@
           "deadline_text": "Annual"
         },
         {
-          "control_id": "CP-11",
+          "control_id": "CA-11",
           "policy": "cash",
           "trigger_event": "training.proficiency.failed",
           "trigger": {
@@ -25234,10 +25133,10 @@
       }
     },
     {
-      "uid": "cash:CP-12",
-      "control_id": "CP-12",
+      "uid": "cash:CA-12",
+      "control_id": "CA-12",
       "title": "Monitoring, Reporting, and Recordkeeping",
-      "anchor": "cp-12-monitoring-reporting-and-recordkeeping",
+      "anchor": "ca-12-monitoring-reporting-and-recordkeeping",
       "policy": "cash",
       "policy_title": null,
       "policy_owner": null,
@@ -25429,7 +25328,7 @@
       ],
       "control_rules": [
         {
-          "control_id": "CP-12",
+          "control_id": "CA-12",
           "policy": "cash",
           "trigger_event": "cash.kri_month.closed",
           "trigger": {
@@ -25470,7 +25369,7 @@
           "deadline_text": "15 calendar days after month end"
         },
         {
-          "control_id": "CP-12",
+          "control_id": "CA-12",
           "policy": "cash",
           "trigger_event": "cash.exception.logged",
           "trigger": {
@@ -25498,7 +25397,7 @@
           "deadline_text": "Same day as exception identified"
         },
         {
-          "control_id": "CP-12",
+          "control_id": "CA-12",
           "policy": "cash",
           "trigger_event": "cash.evidence.created",
           "trigger": {
@@ -25536,7 +25435,7 @@
           "deadline_text": "Real-time (at time of event)"
         },
         {
-          "control_id": "CP-12",
+          "control_id": "CA-12",
           "policy": "cash",
           "trigger_event": "exam.export.requested",
           "trigger": {
@@ -25574,7 +25473,7 @@
           "deadline_text": "On demand (target: within 1 business day of request)"
         },
         {
-          "control_id": "CP-12",
+          "control_id": "CA-12",
           "policy": "cash",
           "trigger_event": "record.retention.expired",
           "trigger": {

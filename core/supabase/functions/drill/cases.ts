@@ -711,7 +711,7 @@ export const CASES: DrillCase[] = [
   },
   {
     id: "RAIL-03", controls: ["bsa:BSA-06"], kind: "negative",
-    what: "CG-CTR-01 raises an alert on a single movement over $10k",
+    what: "CG-LGTXN-01 raises an alert on a single movement over $10k",
     expect: "ctr_alert_raised",
     run: async (env) => {
       await postTransfer(

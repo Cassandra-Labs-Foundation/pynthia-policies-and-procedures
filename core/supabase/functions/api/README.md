@@ -323,7 +323,7 @@ call it is a compliance gap, not a TODO.
 | Control    | Trigger                                            | Effect                          |
 |------------|----------------------------------------------------|---------------------------------|
 | CG-VEL-01  | Source daily outbound > $25k, **summed across rails** | **Block** — `422 velocity_limit_exceeded` |
-| CG-CTR-01  | Single transaction > $10k                          | **Alert only** — CTR BSA alert  |
+| CG-LGTXN-01  | Single transaction > $10k                          | **Alert only** — CTR BSA alert  |
 | CG-STR-01  | Daily **inflow** to one account > $10k with no single transaction above it | **Alert only** — structuring BSA alert |
 | CG-STR-02  | Daily **outflow** from one account > $10k, across rails, with no single transaction above it | **Alert only** — structuring BSA alert |
 | CG-NSF-01  | Source balance < amount                            | **Reject** — `422 insufficient_funds` |
@@ -332,7 +332,7 @@ Velocity aggregates `transfer` + `wire_transfer` + `ach_transfer` via
 `originator -> {account_id}`, so a member cannot evade the daily cap by
 splitting across rails.
 
-CG-STR-01 and CG-STR-02 catch what CG-CTR-01 structurally cannot: the
+CG-STR-01 and CG-STR-02 catch what CG-LGTXN-01 structurally cannot: the
 per-transaction gate sees one transaction at a time, so staying under $10k on
 every one while moving a reportable amount in a day would otherwise go
 unflagged. Both are evaluated only when the per-transaction gate stayed silent.

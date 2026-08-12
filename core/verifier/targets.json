@@ -7875,6 +7875,659 @@
       }
     },
     {
+      "target_id": "control:CA-01",
+      "kind": "control",
+      "pillars": [
+        "compliance",
+        "detection"
+      ],
+      "tier": "light_api",
+      "status": "ready",
+      "reason": null,
+      "source": "controls.json CA-01 (cash) \u2014 Governance and Delegation",
+      "floor": false,
+      "payload": {
+        "control_id": "CA-01",
+        "policy": "cash",
+        "title": "Governance and Delegation",
+        "testable_events": [
+          {
+            "trigger": "policy.board_review.started",
+            "outputs": [
+              "policy.board.approved",
+              "policy.revision.published"
+            ],
+            "within": "Annual (enforced by)",
+            "subject": "policy",
+            "inducer": {
+              "via": "routed_outputs",
+              "source": "core/supabase/functions/api/cash_ops.ts"
+            }
+          },
+          {
+            "trigger": "cash.governance_quarter.closed",
+            "outputs": [
+              "board.cash_summary.delivered"
+            ],
+            "within": "15 calendar days after quarter end",
+            "subject": "cash",
+            "inducer": {
+              "via": "routed_outputs",
+              "source": "core/supabase/functions/api/cash_ops.ts"
+            }
+          },
+          {
+            "trigger": "cash.kri_month.closed",
+            "outputs": [
+              "cash.kri.published"
+            ],
+            "within": "15 calendar days after month end (enforced by)",
+            "subject": "cash",
+            "inducer": {
+              "via": "routed_outputs",
+              "source": "core/supabase/functions/api/cash_ops.ts"
+            }
+          },
+          {
+            "trigger": "cash.exception.logged",
+            "outputs": [
+              "cash.exception_register"
+            ],
+            "within": "Same day as exception identified",
+            "subject": "cash",
+            "inducer": {
+              "via": "emitted_trigger"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "target_id": "control:CA-02",
+      "kind": "control",
+      "pillars": [
+        "compliance",
+        "detection"
+      ],
+      "tier": "light_api",
+      "status": "out_of_scope",
+      "reason": "scoped_out (control-scope.json)",
+      "source": "controls.json CA-02 (cash) \u2014 Scope and Applicability",
+      "floor": false,
+      "payload": {
+        "control_id": "CA-02",
+        "policy": "cash",
+        "title": "Scope and Applicability",
+        "testable_events": []
+      }
+    },
+    {
+      "target_id": "control:CA-03",
+      "kind": "control",
+      "pillars": [
+        "compliance",
+        "detection"
+      ],
+      "tier": "light_api",
+      "status": "ready",
+      "reason": null,
+      "source": "controls.json CA-03 (cash) \u2014 Enterprise Cash Limit",
+      "floor": false,
+      "payload": {
+        "control_id": "CA-03",
+        "policy": "cash",
+        "title": "Enterprise Cash Limit",
+        "testable_events": [
+          {
+            "trigger": "cash.enterprise_position.posted",
+            "outputs": [
+              "cash.enterprise_limit.breached",
+              "cash.enterprise_limit.warning"
+            ],
+            "within": "Daily (end of business)",
+            "subject": "cash",
+            "inducer": {
+              "via": "emitted_trigger"
+            }
+          },
+          {
+            "trigger": "cash.enterprise_limit.warning",
+            "outputs": [
+              "treasury.invest_excess.notified"
+            ],
+            "within": "Same business day",
+            "subject": "cash",
+            "inducer": {
+              "via": "emitted_trigger"
+            }
+          },
+          {
+            "trigger": "cash.enterprise_limit.breached",
+            "outputs": [
+              "cash.enterprise_limit.remediated",
+              "cash.enterprise_limit.remediation_due_at"
+            ],
+            "within": "Same business day",
+            "subject": "cash",
+            "inducer": {
+              "via": "emitted_trigger"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "target_id": "control:CA-04",
+      "kind": "control",
+      "pillars": [
+        "compliance",
+        "detection"
+      ],
+      "tier": "light_api",
+      "status": "ready",
+      "reason": null,
+      "source": "controls.json CA-04 (cash) \u2014 Location and Device Cash Limits",
+      "floor": false,
+      "payload": {
+        "control_id": "CA-04",
+        "policy": "cash",
+        "title": "Location and Device Cash Limits",
+        "testable_events": [
+          {
+            "trigger": "cash.load.requested",
+            "outputs": [
+              "cash.load.decided",
+              "cash.limit_block.alerted"
+            ],
+            "within": "Real-time",
+            "subject": "cash",
+            "inducer": {
+              "via": "routed_outputs",
+              "source": "core/supabase/functions/api/cash_ops.ts"
+            }
+          },
+          {
+            "trigger": "cash.limits_schedule.updated",
+            "outputs": [
+              "cash.limits_whitelist.activated"
+            ],
+            "within": "Before effective date",
+            "subject": "cash",
+            "inducer": {
+              "via": "emitted_trigger"
+            }
+          },
+          {
+            "trigger": "cash.dual_control.initiated",
+            "outputs": [
+              "cash.dual_control.completed"
+            ],
+            "within": "Real-time (before funds move)",
+            "subject": "cash",
+            "inducer": {
+              "via": "routed_outputs",
+              "source": "core/supabase/functions/api/cash_ops.ts"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "target_id": "control:CA-05",
+      "kind": "control",
+      "pillars": [
+        "compliance",
+        "detection"
+      ],
+      "tier": "light_api",
+      "status": "ready",
+      "reason": null,
+      "source": "controls.json CA-05 (cash) \u2014 Dual Control, Keys, and Combinations",
+      "floor": false,
+      "payload": {
+        "control_id": "CA-05",
+        "policy": "cash",
+        "title": "Dual Control, Keys, and Combinations",
+        "testable_events": [
+          {
+            "trigger": "employee.separated",
+            "outputs": [
+              "cash.custody.revoked",
+              "cash.coverage.updated"
+            ],
+            "within": "Immediately (before last working hour); enforced by",
+            "subject": "employee",
+            "inducer": {
+              "via": "emitted_trigger"
+            }
+          },
+          {
+            "trigger": "cash.custody.rotation_due_at",
+            "outputs": [
+              "cash.coverage.attested"
+            ],
+            "within": "\u2264 90 days from last rotation",
+            "subject": "cash",
+            "inducer": {
+              "via": "emitted_trigger"
+            }
+          },
+          {
+            "trigger": "cash.keybox.opened",
+            "outputs": [
+              "cash.keybox_access.logged"
+            ],
+            "within": "Real-time",
+            "subject": "cash",
+            "inducer": {
+              "via": "routed_outputs",
+              "source": "core/supabase/functions/api/cash_ops.ts"
+            }
+          },
+          {
+            "trigger": "cash.dual_control.completed",
+            "outputs": [
+              "cash.evidence.created"
+            ],
+            "within": "Real-time",
+            "subject": "cash",
+            "inducer": {
+              "via": "emitted_trigger"
+            }
+          },
+          {
+            "trigger": "cash.coverage_change.requested",
+            "outputs": [
+              "cash.coverage.updated",
+              "cash.coverage.attestation_due_at"
+            ],
+            "within": "Before change takes effect",
+            "subject": "cash",
+            "inducer": {
+              "via": "routed_outputs",
+              "source": "core/supabase/functions/api/cash_ops.ts"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "target_id": "control:CA-06",
+      "kind": "control",
+      "pillars": [
+        "compliance",
+        "detection"
+      ],
+      "tier": "light_api",
+      "status": "ready",
+      "reason": null,
+      "source": "controls.json CA-06 (cash) \u2014 Reconciliation and GL Controls",
+      "floor": false,
+      "payload": {
+        "control_id": "CA-06",
+        "policy": "cash",
+        "title": "Reconciliation and GL Controls",
+        "testable_events": [
+          {
+            "trigger": "cash.recon_day.closed",
+            "outputs": [
+              "cash.recon.completed",
+              "cash.recon.due_at"
+            ],
+            "within": "Same business day",
+            "subject": "cash",
+            "inducer": {
+              "via": "routed_outputs",
+              "source": "core/supabase/functions/api/cash_ops.ts"
+            }
+          },
+          {
+            "trigger": "cash.recon.variance_found",
+            "outputs": [
+              "gl.cash_suspense.posted"
+            ],
+            "within": "Same business day",
+            "subject": "cash",
+            "inducer": {
+              "via": "emitted_trigger"
+            }
+          },
+          {
+            "trigger": "gl.cash_suspense.aged",
+            "outputs": [
+              "gl.cash_suspense.escalated"
+            ],
+            "within": "Per aging schedule (enforced by)",
+            "subject": "gl",
+            "inducer": {
+              "via": "emitted_trigger"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "target_id": "control:CA-07",
+      "kind": "control",
+      "pillars": [
+        "compliance",
+        "detection"
+      ],
+      "tier": "light_api",
+      "status": "ready",
+      "reason": null,
+      "source": "controls.json CA-07 (cash) \u2014 Over/Short Monitoring",
+      "floor": false,
+      "payload": {
+        "control_id": "CA-07",
+        "policy": "cash",
+        "title": "Over/Short Monitoring",
+        "testable_events": [
+          {
+            "trigger": "cash.overshort.recorded",
+            "outputs": [
+              "cash.overshort.posted",
+              "cash.overshort.investigation_due_at"
+            ],
+            "within": "Same business day (posting); investigation within 1 business day",
+            "subject": "cash",
+            "inducer": {
+              "via": "emitted_trigger"
+            }
+          },
+          {
+            "trigger": "cash.overshort.threshold_crossed",
+            "outputs": [
+              "hr.coaching.recorded"
+            ],
+            "within": "Same day as threshold breach",
+            "subject": "cash",
+            "inducer": {
+              "via": "emitted_trigger"
+            }
+          },
+          {
+            "trigger": "cash.kri_month.closed",
+            "outputs": [
+              "cash.overshort_report.issued"
+            ],
+            "within": "15 calendar days after month end",
+            "subject": "cash",
+            "inducer": {
+              "via": "routed_outputs",
+              "source": "core/supabase/functions/api/cash_ops.ts"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "target_id": "control:CA-08",
+      "kind": "control",
+      "pillars": [
+        "compliance",
+        "detection"
+      ],
+      "tier": "light_api",
+      "status": "ready",
+      "reason": null,
+      "source": "controls.json CA-08 (cash) \u2014 ATM/ITM, Night-Drop, and Shipments",
+      "floor": false,
+      "payload": {
+        "control_id": "CA-08",
+        "policy": "cash",
+        "title": "ATM/ITM, Night-Drop, and Shipments",
+        "testable_events": [
+          {
+            "trigger": "cash.dual_control.initiated",
+            "outputs": [
+              "cash.device_service.logged",
+              "cash.dual_control.completed"
+            ],
+            "within": "Real-time (before funds move)",
+            "subject": "cash",
+            "inducer": {
+              "via": "routed_outputs",
+              "source": "core/supabase/functions/api/cash_ops.ts"
+            }
+          },
+          {
+            "trigger": "cash.nightdrop.retrieved",
+            "outputs": [
+              "cash.nightdrop.verified",
+              "cash.seal.mismatch"
+            ],
+            "within": "Real-time",
+            "subject": "cash",
+            "inducer": {
+              "via": "routed_outputs",
+              "source": "core/supabase/functions/api/cash_ops.ts"
+            }
+          },
+          {
+            "trigger": "cash.shipment.received",
+            "outputs": [
+              "cash.shipment.verified",
+              "cash.shipment.verification_due_at"
+            ],
+            "within": "Same business day",
+            "subject": "cash",
+            "inducer": {
+              "via": "emitted_trigger"
+            }
+          },
+          {
+            "trigger": "cash.shipment.verified",
+            "outputs": [
+              "cmir.reportable.identified"
+            ],
+            "within": "Same business day",
+            "subject": "cash",
+            "inducer": {
+              "via": "emitted_trigger"
+            }
+          },
+          {
+            "trigger": "cash.seal.mismatch",
+            "outputs": [
+              "incident.created"
+            ],
+            "within": "Immediately",
+            "subject": "cash",
+            "inducer": {
+              "via": "emitted_trigger"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "target_id": "control:CA-09",
+      "kind": "control",
+      "pillars": [
+        "compliance",
+        "detection"
+      ],
+      "tier": "light_api",
+      "status": "ready",
+      "reason": null,
+      "source": "controls.json CA-09 (cash) \u2014 Surprise Cash Counts and Audits",
+      "floor": false,
+      "payload": {
+        "control_id": "CA-09",
+        "policy": "cash",
+        "title": "Surprise Cash Counts and Audits",
+        "testable_events": [
+          {
+            "trigger": "cash.surprise_count.completed",
+            "outputs": [
+              "cash.overshort_investigation.opened"
+            ],
+            "within": "Real-time (during count)",
+            "subject": "cash",
+            "inducer": {
+              "via": "emitted_trigger"
+            }
+          },
+          {
+            "trigger": "exam.export.requested",
+            "outputs": [
+              "records_package.completed"
+            ],
+            "within": "On demand",
+            "subject": "exam",
+            "inducer": {
+              "via": "routed_outputs",
+              "source": "core/supabase/functions/api/cash_ops.ts"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "target_id": "control:CA-10",
+      "kind": "control",
+      "pillars": [
+        "compliance",
+        "detection"
+      ],
+      "tier": "light_api",
+      "status": "ready",
+      "reason": null,
+      "source": "controls.json CA-10 (cash) \u2014 Seasonal Deviations and Exceptions",
+      "floor": false,
+      "payload": {
+        "control_id": "CA-10",
+        "policy": "cash",
+        "title": "Seasonal Deviations and Exceptions",
+        "testable_events": [
+          {
+            "trigger": "cash.deviation.requested",
+            "outputs": [
+              "cash.deviation_board.decided"
+            ],
+            "within": "Before limit is exceeded",
+            "subject": "cash",
+            "inducer": {
+              "via": "emitted_trigger"
+            }
+          },
+          {
+            "trigger": "cash.deviation.approved",
+            "outputs": [
+              "cash.limits_whitelist.activated",
+              "cash.limits_schedule.updated"
+            ],
+            "within": "Before effective date",
+            "subject": "cash",
+            "inducer": {
+              "via": "routed_outputs",
+              "source": "core/supabase/functions/api/cash_ops.ts"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "target_id": "control:CA-11",
+      "kind": "control",
+      "pillars": [
+        "compliance",
+        "detection"
+      ],
+      "tier": "light_api",
+      "status": "out_of_scope",
+      "reason": "scoped_out (control-scope.json)",
+      "source": "controls.json CA-11 (cash) \u2014 Training and Competency",
+      "floor": false,
+      "payload": {
+        "control_id": "CA-11",
+        "policy": "cash",
+        "title": "Training and Competency",
+        "testable_events": []
+      }
+    },
+    {
+      "target_id": "control:CA-12",
+      "kind": "control",
+      "pillars": [
+        "compliance",
+        "detection"
+      ],
+      "tier": "light_api",
+      "status": "ready",
+      "reason": null,
+      "source": "controls.json CA-12 (cash) \u2014 Monitoring, Reporting, and Recordkeeping",
+      "floor": false,
+      "payload": {
+        "control_id": "CA-12",
+        "policy": "cash",
+        "title": "Monitoring, Reporting, and Recordkeeping",
+        "testable_events": [
+          {
+            "trigger": "cash.kri_month.closed",
+            "outputs": [
+              "cash.kri.published",
+              "cash.kri.publish_due_at"
+            ],
+            "within": "15 calendar days after month end",
+            "subject": "cash",
+            "inducer": {
+              "via": "routed_outputs",
+              "source": "core/supabase/functions/api/cash_ops.ts"
+            }
+          },
+          {
+            "trigger": "cash.exception.logged",
+            "outputs": [
+              "cash.exception_register.summary"
+            ],
+            "within": "Same day as exception identified",
+            "subject": "cash",
+            "inducer": {
+              "via": "emitted_trigger"
+            }
+          },
+          {
+            "trigger": "cash.evidence.created",
+            "outputs": [
+              "record.retention_clock_set",
+              "record.retention_expires_at"
+            ],
+            "within": "Real-time (at time of event)",
+            "subject": "cash",
+            "inducer": {
+              "via": "emitted_trigger"
+            }
+          },
+          {
+            "trigger": "exam.export.requested",
+            "outputs": [
+              "records_package.completed",
+              "exam.export.delivered"
+            ],
+            "within": "On demand (target: within 1 business day of request)",
+            "subject": "exam",
+            "inducer": {
+              "via": "routed_outputs",
+              "source": "core/supabase/functions/api/cash_ops.ts"
+            }
+          },
+          {
+            "trigger": "record.retention.expired",
+            "outputs": [
+              "record.destroyed"
+            ],
+            "within": "Per retention schedule",
+            "subject": "record",
+            "inducer": {
+              "via": "emitted_trigger"
+            }
+          }
+        ]
+      }
+    },
+    {
       "target_id": "control:CDA-01",
       "kind": "control",
       "pillars": [
@@ -8929,7 +9582,7 @@
       }
     },
     {
-      "target_id": "control:CP-01@capitalization",
+      "target_id": "control:CP-01",
       "kind": "control",
       "pillars": [
         "compliance",
@@ -8960,75 +9613,7 @@
       }
     },
     {
-      "target_id": "control:CP-01@cash",
-      "kind": "control",
-      "pillars": [
-        "compliance",
-        "detection"
-      ],
-      "tier": "light_api",
-      "status": "ready",
-      "reason": null,
-      "source": "controls.json CP-01 (cash) \u2014 Governance and Delegation",
-      "floor": false,
-      "payload": {
-        "control_id": "CP-01",
-        "policy": "cash",
-        "title": "Governance and Delegation",
-        "testable_events": [
-          {
-            "trigger": "policy.board_review.started",
-            "outputs": [
-              "policy.board.approved",
-              "policy.revision.published"
-            ],
-            "within": "Annual (enforced by)",
-            "subject": "policy",
-            "inducer": {
-              "via": "routed_outputs",
-              "source": "core/supabase/functions/api/cash_ops.ts"
-            }
-          },
-          {
-            "trigger": "cash.governance_quarter.closed",
-            "outputs": [
-              "board.cash_summary.delivered"
-            ],
-            "within": "15 calendar days after quarter end",
-            "subject": "cash",
-            "inducer": {
-              "via": "routed_outputs",
-              "source": "core/supabase/functions/api/cash_ops.ts"
-            }
-          },
-          {
-            "trigger": "cash.kri_month.closed",
-            "outputs": [
-              "cash.kri.published"
-            ],
-            "within": "15 calendar days after month end (enforced by)",
-            "subject": "cash",
-            "inducer": {
-              "via": "routed_outputs",
-              "source": "core/supabase/functions/api/cash_ops.ts"
-            }
-          },
-          {
-            "trigger": "cash.exception.logged",
-            "outputs": [
-              "cash.exception_register"
-            ],
-            "within": "Same day as exception identified",
-            "subject": "cash",
-            "inducer": {
-              "via": "emitted_trigger"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "target_id": "control:CP-02@capitalization",
+      "target_id": "control:CP-02",
       "kind": "control",
       "pillars": [
         "compliance",
@@ -9059,26 +9644,7 @@
       }
     },
     {
-      "target_id": "control:CP-02@cash",
-      "kind": "control",
-      "pillars": [
-        "compliance",
-        "detection"
-      ],
-      "tier": "light_api",
-      "status": "out_of_scope",
-      "reason": "scoped_out (control-scope.json)",
-      "source": "controls.json CP-02 (cash) \u2014 Scope and Applicability",
-      "floor": false,
-      "payload": {
-        "control_id": "CP-02",
-        "policy": "cash",
-        "title": "Scope and Applicability",
-        "testable_events": []
-      }
-    },
-    {
-      "target_id": "control:CP-03@capitalization",
+      "target_id": "control:CP-03",
       "kind": "control",
       "pillars": [
         "compliance",
@@ -9110,62 +9676,7 @@
       }
     },
     {
-      "target_id": "control:CP-03@cash",
-      "kind": "control",
-      "pillars": [
-        "compliance",
-        "detection"
-      ],
-      "tier": "light_api",
-      "status": "ready",
-      "reason": null,
-      "source": "controls.json CP-03 (cash) \u2014 Enterprise Cash Limit",
-      "floor": false,
-      "payload": {
-        "control_id": "CP-03",
-        "policy": "cash",
-        "title": "Enterprise Cash Limit",
-        "testable_events": [
-          {
-            "trigger": "cash.enterprise_position.posted",
-            "outputs": [
-              "cash.enterprise_limit.breached",
-              "cash.enterprise_limit.warning"
-            ],
-            "within": "Daily (end of business)",
-            "subject": "cash",
-            "inducer": {
-              "via": "emitted_trigger"
-            }
-          },
-          {
-            "trigger": "cash.enterprise_limit.warning",
-            "outputs": [
-              "treasury.invest_excess.notified"
-            ],
-            "within": "Same business day",
-            "subject": "cash",
-            "inducer": {
-              "via": "emitted_trigger"
-            }
-          },
-          {
-            "trigger": "cash.enterprise_limit.breached",
-            "outputs": [
-              "cash.enterprise_limit.remediated",
-              "cash.enterprise_limit.remediation_due_at"
-            ],
-            "within": "Same business day",
-            "subject": "cash",
-            "inducer": {
-              "via": "emitted_trigger"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "target_id": "control:CP-04@capitalization",
+      "target_id": "control:CP-04",
       "kind": "control",
       "pillars": [
         "compliance",
@@ -9207,63 +9718,7 @@
       }
     },
     {
-      "target_id": "control:CP-04@cash",
-      "kind": "control",
-      "pillars": [
-        "compliance",
-        "detection"
-      ],
-      "tier": "light_api",
-      "status": "ready",
-      "reason": null,
-      "source": "controls.json CP-04 (cash) \u2014 Location and Device Cash Limits",
-      "floor": false,
-      "payload": {
-        "control_id": "CP-04",
-        "policy": "cash",
-        "title": "Location and Device Cash Limits",
-        "testable_events": [
-          {
-            "trigger": "cash.load.requested",
-            "outputs": [
-              "cash.load.decided",
-              "cash.limit_block.alerted"
-            ],
-            "within": "Real-time",
-            "subject": "cash",
-            "inducer": {
-              "via": "routed_outputs",
-              "source": "core/supabase/functions/api/cash_ops.ts"
-            }
-          },
-          {
-            "trigger": "cash.limits_schedule.updated",
-            "outputs": [
-              "cash.limits_whitelist.activated"
-            ],
-            "within": "Before effective date",
-            "subject": "cash",
-            "inducer": {
-              "via": "emitted_trigger"
-            }
-          },
-          {
-            "trigger": "cash.dual_control.initiated",
-            "outputs": [
-              "cash.dual_control.completed"
-            ],
-            "within": "Real-time (before funds move)",
-            "subject": "cash",
-            "inducer": {
-              "via": "routed_outputs",
-              "source": "core/supabase/functions/api/cash_ops.ts"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "target_id": "control:CP-05@capitalization",
+      "target_id": "control:CP-05",
       "kind": "control",
       "pillars": [
         "compliance",
@@ -9294,86 +9749,7 @@
       }
     },
     {
-      "target_id": "control:CP-05@cash",
-      "kind": "control",
-      "pillars": [
-        "compliance",
-        "detection"
-      ],
-      "tier": "light_api",
-      "status": "ready",
-      "reason": null,
-      "source": "controls.json CP-05 (cash) \u2014 Dual Control, Keys, and Combinations",
-      "floor": false,
-      "payload": {
-        "control_id": "CP-05",
-        "policy": "cash",
-        "title": "Dual Control, Keys, and Combinations",
-        "testable_events": [
-          {
-            "trigger": "employee.separated",
-            "outputs": [
-              "cash.custody.revoked",
-              "cash.coverage.updated"
-            ],
-            "within": "Immediately (before last working hour); enforced by",
-            "subject": "employee",
-            "inducer": {
-              "via": "emitted_trigger"
-            }
-          },
-          {
-            "trigger": "cash.custody.rotation_due_at",
-            "outputs": [
-              "cash.coverage.attested"
-            ],
-            "within": "\u2264 90 days from last rotation",
-            "subject": "cash",
-            "inducer": {
-              "via": "emitted_trigger"
-            }
-          },
-          {
-            "trigger": "cash.keybox.opened",
-            "outputs": [
-              "cash.keybox_access.logged"
-            ],
-            "within": "Real-time",
-            "subject": "cash",
-            "inducer": {
-              "via": "routed_outputs",
-              "source": "core/supabase/functions/api/cash_ops.ts"
-            }
-          },
-          {
-            "trigger": "cash.dual_control.completed",
-            "outputs": [
-              "cash.evidence.created"
-            ],
-            "within": "Real-time",
-            "subject": "cash",
-            "inducer": {
-              "via": "emitted_trigger"
-            }
-          },
-          {
-            "trigger": "cash.coverage_change.requested",
-            "outputs": [
-              "cash.coverage.updated",
-              "cash.coverage.attestation_due_at"
-            ],
-            "within": "Before change takes effect",
-            "subject": "cash",
-            "inducer": {
-              "via": "routed_outputs",
-              "source": "core/supabase/functions/api/cash_ops.ts"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "target_id": "control:CP-06@capitalization",
+      "target_id": "control:CP-06",
       "kind": "control",
       "pillars": [
         "compliance",
@@ -9404,62 +9780,7 @@
       }
     },
     {
-      "target_id": "control:CP-06@cash",
-      "kind": "control",
-      "pillars": [
-        "compliance",
-        "detection"
-      ],
-      "tier": "light_api",
-      "status": "ready",
-      "reason": null,
-      "source": "controls.json CP-06 (cash) \u2014 Reconciliation and GL Controls",
-      "floor": false,
-      "payload": {
-        "control_id": "CP-06",
-        "policy": "cash",
-        "title": "Reconciliation and GL Controls",
-        "testable_events": [
-          {
-            "trigger": "cash.recon_day.closed",
-            "outputs": [
-              "cash.recon.completed",
-              "cash.recon.due_at"
-            ],
-            "within": "Same business day",
-            "subject": "cash",
-            "inducer": {
-              "via": "routed_outputs",
-              "source": "core/supabase/functions/api/cash_ops.ts"
-            }
-          },
-          {
-            "trigger": "cash.recon.variance_found",
-            "outputs": [
-              "gl.cash_suspense.posted"
-            ],
-            "within": "Same business day",
-            "subject": "cash",
-            "inducer": {
-              "via": "emitted_trigger"
-            }
-          },
-          {
-            "trigger": "gl.cash_suspense.aged",
-            "outputs": [
-              "gl.cash_suspense.escalated"
-            ],
-            "within": "Per aging schedule (enforced by)",
-            "subject": "gl",
-            "inducer": {
-              "via": "emitted_trigger"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "target_id": "control:CP-07@capitalization",
+      "target_id": "control:CP-07",
       "kind": "control",
       "pillars": [
         "compliance",
@@ -9490,62 +9811,7 @@
       }
     },
     {
-      "target_id": "control:CP-07@cash",
-      "kind": "control",
-      "pillars": [
-        "compliance",
-        "detection"
-      ],
-      "tier": "light_api",
-      "status": "ready",
-      "reason": null,
-      "source": "controls.json CP-07 (cash) \u2014 Over/Short Monitoring",
-      "floor": false,
-      "payload": {
-        "control_id": "CP-07",
-        "policy": "cash",
-        "title": "Over/Short Monitoring",
-        "testable_events": [
-          {
-            "trigger": "cash.overshort.recorded",
-            "outputs": [
-              "cash.overshort.posted",
-              "cash.overshort.investigation_due_at"
-            ],
-            "within": "Same business day (posting); investigation within 1 business day",
-            "subject": "cash",
-            "inducer": {
-              "via": "emitted_trigger"
-            }
-          },
-          {
-            "trigger": "cash.overshort.threshold_crossed",
-            "outputs": [
-              "hr.coaching.recorded"
-            ],
-            "within": "Same day as threshold breach",
-            "subject": "cash",
-            "inducer": {
-              "via": "emitted_trigger"
-            }
-          },
-          {
-            "trigger": "cash.kri_month.closed",
-            "outputs": [
-              "cash.overshort_report.issued"
-            ],
-            "within": "15 calendar days after month end",
-            "subject": "cash",
-            "inducer": {
-              "via": "routed_outputs",
-              "source": "core/supabase/functions/api/cash_ops.ts"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "target_id": "control:CP-08@capitalization",
+      "target_id": "control:CP-08",
       "kind": "control",
       "pillars": [
         "compliance",
@@ -9576,87 +9842,7 @@
       }
     },
     {
-      "target_id": "control:CP-08@cash",
-      "kind": "control",
-      "pillars": [
-        "compliance",
-        "detection"
-      ],
-      "tier": "light_api",
-      "status": "ready",
-      "reason": null,
-      "source": "controls.json CP-08 (cash) \u2014 ATM/ITM, Night-Drop, and Shipments",
-      "floor": false,
-      "payload": {
-        "control_id": "CP-08",
-        "policy": "cash",
-        "title": "ATM/ITM, Night-Drop, and Shipments",
-        "testable_events": [
-          {
-            "trigger": "cash.dual_control.initiated",
-            "outputs": [
-              "cash.device_service.logged",
-              "cash.dual_control.completed"
-            ],
-            "within": "Real-time (before funds move)",
-            "subject": "cash",
-            "inducer": {
-              "via": "routed_outputs",
-              "source": "core/supabase/functions/api/cash_ops.ts"
-            }
-          },
-          {
-            "trigger": "cash.nightdrop.retrieved",
-            "outputs": [
-              "cash.nightdrop.verified",
-              "cash.seal.mismatch"
-            ],
-            "within": "Real-time",
-            "subject": "cash",
-            "inducer": {
-              "via": "routed_outputs",
-              "source": "core/supabase/functions/api/cash_ops.ts"
-            }
-          },
-          {
-            "trigger": "cash.shipment.received",
-            "outputs": [
-              "cash.shipment.verified",
-              "cash.shipment.verification_due_at"
-            ],
-            "within": "Same business day",
-            "subject": "cash",
-            "inducer": {
-              "via": "emitted_trigger"
-            }
-          },
-          {
-            "trigger": "cash.shipment.verified",
-            "outputs": [
-              "cmir.reportable.identified"
-            ],
-            "within": "Same business day",
-            "subject": "cash",
-            "inducer": {
-              "via": "emitted_trigger"
-            }
-          },
-          {
-            "trigger": "cash.seal.mismatch",
-            "outputs": [
-              "incident.created"
-            ],
-            "within": "Immediately",
-            "subject": "cash",
-            "inducer": {
-              "via": "emitted_trigger"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "target_id": "control:CP-09@capitalization",
+      "target_id": "control:CP-09",
       "kind": "control",
       "pillars": [
         "compliance",
@@ -9687,50 +9873,7 @@
       }
     },
     {
-      "target_id": "control:CP-09@cash",
-      "kind": "control",
-      "pillars": [
-        "compliance",
-        "detection"
-      ],
-      "tier": "light_api",
-      "status": "ready",
-      "reason": null,
-      "source": "controls.json CP-09 (cash) \u2014 Surprise Cash Counts and Audits",
-      "floor": false,
-      "payload": {
-        "control_id": "CP-09",
-        "policy": "cash",
-        "title": "Surprise Cash Counts and Audits",
-        "testable_events": [
-          {
-            "trigger": "cash.surprise_count.completed",
-            "outputs": [
-              "cash.overshort_investigation.opened"
-            ],
-            "within": "Real-time (during count)",
-            "subject": "cash",
-            "inducer": {
-              "via": "emitted_trigger"
-            }
-          },
-          {
-            "trigger": "exam.export.requested",
-            "outputs": [
-              "records_package.completed"
-            ],
-            "within": "On demand",
-            "subject": "exam",
-            "inducer": {
-              "via": "routed_outputs",
-              "source": "core/supabase/functions/api/cash_ops.ts"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "target_id": "control:CP-10@capitalization",
+      "target_id": "control:CP-10",
       "kind": "control",
       "pillars": [
         "compliance",
@@ -9746,149 +9889,6 @@
         "policy": "capitalization",
         "title": "Internal Capital Adequacy Assessment (ICAAP)",
         "testable_events": []
-      }
-    },
-    {
-      "target_id": "control:CP-10@cash",
-      "kind": "control",
-      "pillars": [
-        "compliance",
-        "detection"
-      ],
-      "tier": "light_api",
-      "status": "ready",
-      "reason": null,
-      "source": "controls.json CP-10 (cash) \u2014 Seasonal Deviations and Exceptions",
-      "floor": false,
-      "payload": {
-        "control_id": "CP-10",
-        "policy": "cash",
-        "title": "Seasonal Deviations and Exceptions",
-        "testable_events": [
-          {
-            "trigger": "cash.deviation.requested",
-            "outputs": [
-              "cash.deviation_board.decided"
-            ],
-            "within": "Before limit is exceeded",
-            "subject": "cash",
-            "inducer": {
-              "via": "emitted_trigger"
-            }
-          },
-          {
-            "trigger": "cash.deviation.approved",
-            "outputs": [
-              "cash.limits_whitelist.activated",
-              "cash.limits_schedule.updated"
-            ],
-            "within": "Before effective date",
-            "subject": "cash",
-            "inducer": {
-              "via": "routed_outputs",
-              "source": "core/supabase/functions/api/cash_ops.ts"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "target_id": "control:CP-11",
-      "kind": "control",
-      "pillars": [
-        "compliance",
-        "detection"
-      ],
-      "tier": "light_api",
-      "status": "out_of_scope",
-      "reason": "scoped_out (control-scope.json)",
-      "source": "controls.json CP-11 (cash) \u2014 Training and Competency",
-      "floor": false,
-      "payload": {
-        "control_id": "CP-11",
-        "policy": "cash",
-        "title": "Training and Competency",
-        "testable_events": []
-      }
-    },
-    {
-      "target_id": "control:CP-12",
-      "kind": "control",
-      "pillars": [
-        "compliance",
-        "detection"
-      ],
-      "tier": "light_api",
-      "status": "ready",
-      "reason": null,
-      "source": "controls.json CP-12 (cash) \u2014 Monitoring, Reporting, and Recordkeeping",
-      "floor": false,
-      "payload": {
-        "control_id": "CP-12",
-        "policy": "cash",
-        "title": "Monitoring, Reporting, and Recordkeeping",
-        "testable_events": [
-          {
-            "trigger": "cash.kri_month.closed",
-            "outputs": [
-              "cash.kri.published",
-              "cash.kri.publish_due_at"
-            ],
-            "within": "15 calendar days after month end",
-            "subject": "cash",
-            "inducer": {
-              "via": "routed_outputs",
-              "source": "core/supabase/functions/api/cash_ops.ts"
-            }
-          },
-          {
-            "trigger": "cash.exception.logged",
-            "outputs": [
-              "cash.exception_register.summary"
-            ],
-            "within": "Same day as exception identified",
-            "subject": "cash",
-            "inducer": {
-              "via": "emitted_trigger"
-            }
-          },
-          {
-            "trigger": "cash.evidence.created",
-            "outputs": [
-              "record.retention_clock_set",
-              "record.retention_expires_at"
-            ],
-            "within": "Real-time (at time of event)",
-            "subject": "cash",
-            "inducer": {
-              "via": "emitted_trigger"
-            }
-          },
-          {
-            "trigger": "exam.export.requested",
-            "outputs": [
-              "records_package.completed",
-              "exam.export.delivered"
-            ],
-            "within": "On demand (target: within 1 business day of request)",
-            "subject": "exam",
-            "inducer": {
-              "via": "routed_outputs",
-              "source": "core/supabase/functions/api/cash_ops.ts"
-            }
-          },
-          {
-            "trigger": "record.retention.expired",
-            "outputs": [
-              "record.destroyed"
-            ],
-            "within": "Per retention schedule",
-            "subject": "record",
-            "inducer": {
-              "via": "emitted_trigger"
-            }
-          }
-        ]
       }
     },
     {

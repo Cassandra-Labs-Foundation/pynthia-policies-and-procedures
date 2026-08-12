@@ -47,7 +47,7 @@ const CHANGELOG = [
   {
     version: "1.0.0",
     date: "2026-07-17",
-    changes: ["accounts + book transfers with CG-VEL-01 / CG-CTR-01 / CG-NSF-01"],
+    changes: ["accounts + book transfers with CG-VEL-01 / CG-LGTXN-01 / CG-NSF-01"],
   },
 ];
 

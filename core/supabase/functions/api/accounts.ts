@@ -52,12 +52,20 @@ export async function postAccount(
 
   const accountType = isNonEmptyString(body.account_type) ? body.account_type : "checking";
   const openingDeposit = body.opening_deposit_cents;
-  // Owning member. Optional at the API boundary because existing callers do not
-  // send it, but see 20260719001300: cash (BSA-08) aggregates per PERSON, so an
-  // account with no entity cannot participate in CTR aggregation at all.
+  // Owning member. Required (OQ-12, decided 2026-08-11): cash (BSA-08)
+  // aggregates per PERSON, so an account with no entity sits outside CTR
+  // aggregation — the exact evasion CG-STR-01 exists to detect. The three
+  // pre-decision NULL rows are quarantined history, not a precedent.
   const entityId = body.entity_id;
 
   const errors: ValidationErrorItem[] = [];
+  if (entityId === undefined) {
+    errors.push({
+      type: "missing_field",
+      field: "entity_id",
+      message: "required: the owning entity for per-person cash aggregation (BSA-08)",
+    });
+  }
   if (openingDeposit !== undefined) {
     if (!Number.isSafeInteger(openingDeposit) || (openingDeposit as number) <= 0) {
       errors.push({
@@ -85,6 +93,22 @@ export async function postAccount(
   }
   if (errors.length) return validationError(requestId, errors);
 
+  // The FK would catch a bad entity_id at insert, but as a 500 — pre-check so
+  // the caller gets a 400 naming the field, scoped so one partner cannot
+  // probe another's entity ids.
+  const { data: ownerEntity, error: ownerErr } = await scopeToPartner(
+    db.schema("core").from("entity").select("id").eq("id", entityId as string),
+    ctx,
+  ).maybeSingle();
+  if (ownerErr) throw new Error(`entity lookup: ${ownerErr.message}`);
+  if (!ownerEntity) {
+    return validationError(requestId, [{
+      type: "invalid_value",
+      field: "entity_id",
+      message: "unknown entity",
+    }]);
+  }
+
   const freshId = `acct_${crypto.randomUUID()}`;
   let accountId = freshId;
   let idemKeyToStore: string | null = null;
@@ -94,6 +118,7 @@ export async function postAccount(
     const requestHash = await accountRequestHash({
       account_type: accountType,
       opening_deposit_cents: typeof openingDeposit === "number" ? openingDeposit : null,
+      entity_id: entityId as string,
     });
     const claim = await claimIdempotency(db, ctx.idempotencyScope, idempotencyKey, requestHash, freshId, "POST /accounts");
 
@@ -135,7 +160,7 @@ export async function postAccount(
       balance: 0,
       created_at: createdAt,
       partner_id: ctx.ownerPartnerId,
-      entity_id: isNonEmptyString(entityId) ? entityId : null,
+      entity_id: entityId as string,
     });
     if (insErr) throw new Error(`account insert: ${insErr.message}`);
     account = {

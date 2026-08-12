@@ -63,13 +63,13 @@ Deno.test("newest results come first, capped at the default limit", async () => 
 Deno.test("every documented filter narrows the query", async () => {
   const { db, calls } = stubQueryDb([]);
   await getControlResults(
-    get("?control_id=CG-CTR-01&decision=pass&subject_ref=acct_x&event=tr_9"),
+    get("?control_id=CG-LGTXN-01&decision=pass&subject_ref=acct_x&event=tr_9"),
     db,
     "r3",
   );
   const pairs = eqPairs(calls).sort();
   assertEquals(pairs, [
-    "control_id=CG-CTR-01",
+    "control_id=CG-LGTXN-01",
     "decision=pass",
     "event=tr_9",
     "subject_ref=acct_x",

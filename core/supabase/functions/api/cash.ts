@@ -1,7 +1,7 @@
 // Cash transactions and Currency Transaction Reporting (BSA-08).
 //
 // This is the first thing in the core that represents CURRENCY, which is why
-// it is the first thing that can owe a CTR. CG-CTR-01 fires on electronic
+// it is the first thing that can owe a CTR. CG-LGTXN-01 fires on electronic
 // movements and those are not CTR-reportable at all (OQ-01); the control here
 // is the real one.
 //

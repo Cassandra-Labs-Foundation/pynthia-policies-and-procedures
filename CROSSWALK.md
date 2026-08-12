@@ -25,8 +25,6 @@ control needs no further work. **Nothing currently holds that verdict.**
 Claims marked **needs review** are proposals awaiting a compliance
 reviewer, not findings. A row is only load-bearing once `reviewed_by` is set.
 
-> **control_id is not unique.** `CP-01`, `CP-02`, `CP-03`, `CP-04`, `CP-05`, `CP-06`, `CP-07`, `CP-08`, `CP-09`, `CP-10` each name more than one distinct control. A crosswalk claim citing a colliding id is refused by the build rather than resolved arbitrarily, because the two controls may be unrelated.
-
 ## Evidence provenance
 
 `control_result` rows are this repo's evidence artifact, and until
@@ -60,7 +58,7 @@ Reviewed: **0**.
 
 ## View 1 — what each implemented control discharges
 
-### `CG-CTR-01`
+### `CG-LGTXN-01`
 
 *On any single money movement above $10,000 (1_000_000 cents) on any of the four rails, writes a control_result (decision 'pass') and opens a bsa_alert of type 'ctr_threshold' with requires_lookback=true. Does not block.*
 
@@ -68,21 +66,21 @@ Source: `core/supabase/functions/api/transfers.ts`
 
 **BSA-08 — Currency Transaction Reporting (CTR)** → `related` ⚠️ **needs review**
 
-Shares the $10,000 threshold and the name, but is not the same control. A CTR obligation under 31 CFR 1010.311 attaches to CURRENCY transactions — physical cash in or out. CG-CTR-01 fires on book transfers, wires, ACH and card authorizations, none of which are currency transactions, so a CTR is not owed on any event it detects. Treating this as CTR coverage would claim a filing obligation is met that was never triggered, while leaving actual cash handling unmonitored.
+Shares the $10,000 threshold and the name, but is not the same control. A CTR obligation under 31 CFR 1010.311 attaches to CURRENCY transactions — physical cash in or out. CG-LGTXN-01 fires on book transfers, wires, ACH and card authorizations, none of which are currency transactions, so a CTR is not owed on any event it detects. Treating this as CTR coverage would claim a filing obligation is met that was never triggered, while leaving actual cash handling unmonitored.
 
 Missing:
 
 - wrong transaction class: BSA-08 aggregates ctr.cash_in_total / ctr.cash_out_total; the core has no cash-handling surface at all
-- wrong aggregation unit: BSA-08 aggregates per person per business day; CG-CTR-01 evaluates a single transaction against one account
+- wrong aggregation unit: BSA-08 aggregates per person per business day; CG-LGTXN-01 evaluates a single transaction against one account
 - no filing: BSA-08 requires e-filing to FinCEN within 15 calendar days (ctr.filing_timer); nothing files
 - no exemptions: Phase I/II exemption handling, DOEP (FinCEN Form 110), annual exemption review are all absent
 - required inputs unavailable: entity.tin and entity.name are not joined to the transaction
 
-> Would discharge if: the core gains a cash-handling surface, per-person aggregation via entity linkage, and a FinCEN filing path. That is BSA-08 being implemented, not CG-CTR-01 being extended.
+> Would discharge if: the core gains a cash-handling surface, per-person aggregation via entity linkage, and a FinCEN filing path. That is BSA-08 being implemented, not CG-LGTXN-01 being extended.
 
 **BSA-06 — Transaction Monitoring & Case Management** → `partially_discharges` ⚠️ **needs review**
 
-BSA-06's first rule triggers on bsa_alert.created with inputs alert_type, entity_hash, event_id and requires_lookback. CG-CTR-01 writes exactly that row shape, so it genuinely performs the rules-based detection half of BSA-06 for one alert class. Everything downstream of the alert is absent. UPDATED: the downstream half now exists — alerts carry a 2-business-day triage deadline, escalate to a real core.case, and reach a documented SAR/no-SAR decision, with a sweep that surfaces breached timers. bsa_alert.event_id is populated (OQ-05 resolved), so the alert joins back to its causing event as BSA-06 requires. Still not a full discharge: see gaps.
+BSA-06's first rule triggers on bsa_alert.created with inputs alert_type, entity_hash, event_id and requires_lookback. CG-LGTXN-01 writes exactly that row shape, so it genuinely performs the rules-based detection half of BSA-06 for one alert class. Everything downstream of the alert is absent. UPDATED: the downstream half now exists — alerts carry a 2-business-day triage deadline, escalate to a real core.case, and reach a documented SAR/no-SAR decision, with a sweep that surfaces breached timers. bsa_alert.event_id is populated (OQ-05 resolved), so the alert joins back to its causing event as BSA-06 requires. Still not a full discharge: see gaps.
 
 Missing:
 
@@ -99,7 +97,7 @@ Source: `core/supabase/functions/api/transfers.ts`
 
 **BSA-06 — Transaction Monitoring & Case Management** → `partially_discharges` ⚠️ **needs review**
 
-Same basis as CG-CTR-01: it is genuine rules-based detection producing a conforming bsa_alert row, which is BSA-06's trigger. It adds an aggregation typology the per-transaction gate structurally cannot see. UPDATED: the downstream half now exists — alerts carry a 2-business-day triage deadline, escalate to a real core.case, and reach a documented SAR/no-SAR decision, with a sweep that surfaces breached timers. bsa_alert.event_id is populated (OQ-05 resolved), so the alert joins back to its causing event as BSA-06 requires. Still not a full discharge: see gaps.
+Same basis as CG-LGTXN-01: it is genuine rules-based detection producing a conforming bsa_alert row, which is BSA-06's trigger. It adds an aggregation typology the per-transaction gate structurally cannot see. UPDATED: the downstream half now exists — alerts carry a 2-business-day triage deadline, escalate to a real core.case, and reach a documented SAR/no-SAR decision, with a sweep that surfaces breached timers. bsa_alert.event_id is populated (OQ-05 resolved), so the alert joins back to its causing event as BSA-06 requires. Still not a full discharge: see gaps.
 
 Missing:
 
@@ -208,7 +206,7 @@ Source: `core/supabase/functions/api/cash.ts`
 
 **BSA-08 — Currency Transaction Reporting (CTR)** → `partially_discharges` ⚠️ **needs review**
 
-This is the first thing in the core that represents CURRENCY, which is what a CTR obligation under 31 CFR 1010.311 actually attaches to — and therefore the first control that can genuinely address BSA-08 (see OQ-01, where CG-CTR-01 was found to fire only on non-reportable electronic movements). It aggregates ctr.cash_in_total and ctr.cash_out_total per person per business day, keeps the two directions separate so a $6k deposit plus a $6k withdrawal does not manufacture a false obligation, fires ctr.threshold.reached (BSA-08's declared trigger), and starts the 15-day ctr.filing_timer. Currency that cannot be attributed to a person is counted and reported as unattributable rather than silently dropped or bucketed as its own person — both of which would understate the aggregate and hide obligations.
+This is the first thing in the core that represents CURRENCY, which is what a CTR obligation under 31 CFR 1010.311 actually attaches to — and therefore the first control that can genuinely address BSA-08 (see OQ-01, where CG-LGTXN-01 was found to fire only on non-reportable electronic movements). It aggregates ctr.cash_in_total and ctr.cash_out_total per person per business day, keeps the two directions separate so a $6k deposit plus a $6k withdrawal does not manufacture a false obligation, fires ctr.threshold.reached (BSA-08's declared trigger), and starts the 15-day ctr.filing_timer. Currency that cannot be attributed to a person is counted and reported as unattributable rather than silently dropped or bucketed as its own person — both of which would understate the aggregate and hide obligations.
 
 Missing:
 
@@ -300,11 +298,11 @@ cleanly correspond to anything, or a mapping turns on a decision that
 is not mine to make. Deliberately not smoothed over — several change
 what the crosswalk should say.
 
-### OQ-01 · high — Is CG-CTR-01 misnamed, and does that misname a coverage claim?
+### OQ-01 · high — Is CG-LGTXN-01 misnamed, and does that misname a coverage claim?
 
-**Finding.** A CTR obligation attaches to CURRENCY transactions. CG-CTR-01 fires only on electronic movements (book, wire, ACH, card), none of which are CTR-reportable. The control detects large electronic transfers — a legitimate monitoring signal — but its name asserts a filing regime it has nothing to do with.
+**Finding.** A CTR obligation attaches to CURRENCY transactions. CG-LGTXN-01 fires only on electronic movements (book, wire, ACH, card), none of which are CTR-reportable. The control detects large electronic transfers — a legitimate monitoring signal — but its name asserts a filing regime it has nothing to do with.
 
-**Why it matters.** The name alone is enough to produce a false coverage claim in a review: someone scanning for CTR coverage finds CG-CTR-01 and stops. Meanwhile actual cash handling, which is what BSA-08 governs, is unmonitored because the core has no cash surface at all.
+**Why it matters.** The name alone is enough to produce a false coverage claim in a review: someone scanning for CTR coverage finds CG-LGTXN-01 and stops. Meanwhile actual cash handling, which is what BSA-08 governs, is unmonitored because the core has no cash surface at all.
 
 **Asks of reviewer.** Confirm the reading, then decide whether to rename (e.g. CG-LGTXN-01) or to keep the name and record explicitly that it does not address BSA-08.
 
@@ -511,7 +509,7 @@ not the reachable one, when estimating what is buildable.
 | `CP-08` | capitalization | Contingency Actions and Escalation | `capital.board_escalation.issued`, `capital.contingency_action.executed`, `capital.contingency_memo.issued` | yes | — |
 | `CP-09` | capitalization | Capital Actions Governance | `capital.action.executed`, `capital.action.proposed`, `capital.action_board.decided` | yes | — |
 | `CP-10` | capitalization | Internal Capital Adequacy Assessment (ICAAP) | `capital.icaap.presented`, `capital.icaap.reviewed`, `capital.icaap_cycle.opened`, `capital.icaap_report.issued` | yes | — |
-| `CP-03` | cash | Enterprise Cash Limit | `cash.enterprise_limit.breached`, `cash.enterprise_limit.warning`, `cash.enterprise_position.posted`, `cash.limits_schedule.updated` | yes | — |
+| `CA-03` | cash | Enterprise Cash Limit | `cash.enterprise_limit.breached`, `cash.enterprise_limit.warning`, `cash.enterprise_position.posted`, `cash.limits_schedule.updated` | yes | — |
 | `CDA-03` | charitable-donation-accounts | Structure & Segregation | `cda.evidence_packet.filed` | yes | — |
 | `CDA-14` | charitable-donation-accounts | Communications & Accessibility | `cda.communication.drafted`, `cda.communication.published` | yes | — |
 | `CO-06` | collections | Consumer Complaint Intake & Resolution | `complaint.direct.received`, `complaint.investigation.completed`, `complaint.regulator.received`, `complaint.trend.reported` | yes | — |
@@ -570,16 +568,16 @@ These are the nearest to buildable: some triggers already fire.
 |---|---|---|---|
 | `SC-02` | audit | `legal_hold.clear.confirmed`, `legal_hold.created`, `record.disposal_eligible`, `record.hold.applied` | `disposal.executed` |
 | `BA-05` | basel-ii-standardized-approach-framework | `cfp.investment_test.completed`, `cfp.level.changed`, `liquidity.concentration.breached`, `liquidity.report.published` | `liquidity.cfp_trigger.breached` |
-| `CP-09` | cash | `cash.overshort.resolved`, `cash.surprise_count.completed`, `cash.surprise_count.due`, `supervisory.count_results.delivered` | `exam.export.requested` |
+| `CA-09` | cash | `cash.overshort.resolved`, `cash.surprise_count.completed`, `cash.surprise_count.due`, `supervisory.count_results.delivered` | `exam.export.requested` |
 | `AU-04` | audit | `audit.annual_plan.submitted`, `audit.plan_cycle.opened`, `audit.poor_rating.recorded` | `audit.scope_change.identified` |
 | `AU-08` | audit | `audit.report.issued`, `finding.management_response.recorded`, `risk_acceptance.decided` | `finding.risk_acceptance.proposed` |
 | `BSA-04` | bsa | `cdd.refresh.due`, `risk.trigger_edd`, `verification.completed` | `application.submitted`, `entity.updated` |
 | `BC-05` | business-continuity-plan | `incident.ic.assigned`, `incident.severity.assigned`, `incident.signal.received` | `incident.sev1.detected` |
-| `CP-05` | cash | `cash.custody.rotation_due_at`, `cash.dual_control.completed`, `employee.separated` | `cash.coverage_change.requested`, `cash.keybox.opened` |
-| `CP-06` | cash | `cash.recon.variance_found`, `gl.cash_suspense.aged`, `gl.cash_suspense.cleared` | `cash.recon_day.closed` |
-| `CP-07` | cash | `cash.overshort.recorded`, `cash.overshort.resolved`, `cash.overshort.threshold_crossed` | `cash.kri_month.closed`, `cash.overshort_anomaly.detected` |
-| `CP-08` | cash | `cash.seal.mismatch`, `cash.shipment.received`, `cash.shipment.verified` | `cash.dual_control.initiated`, `cash.nightdrop.retrieved` |
-| `CP-12` | cash | `cash.evidence.created`, `cash.exception.logged`, `record.retention.expired` | `cash.kri_month.closed`, `exam.export.requested` |
+| `CA-05` | cash | `cash.custody.rotation_due_at`, `cash.dual_control.completed`, `employee.separated` | `cash.coverage_change.requested`, `cash.keybox.opened` |
+| `CA-06` | cash | `cash.recon.variance_found`, `gl.cash_suspense.aged`, `gl.cash_suspense.cleared` | `cash.recon_day.closed` |
+| `CA-07` | cash | `cash.overshort.recorded`, `cash.overshort.resolved`, `cash.overshort.threshold_crossed` | `cash.kri_month.closed`, `cash.overshort_anomaly.detected` |
+| `CA-08` | cash | `cash.seal.mismatch`, `cash.shipment.received`, `cash.shipment.verified` | `cash.dual_control.initiated`, `cash.nightdrop.retrieved` |
+| `CA-12` | cash | `cash.evidence.created`, `cash.exception.logged`, `record.retention.expired` | `cash.kri_month.closed`, `exam.export.requested` |
 | `FL-13` | fair-lending | `complaint.logged`, `complaint.received`, `complaint.trend.reported` | `compliance.board.report.due_at` |
 | `IS-06` | information-security | `access.breakglass.used`, `employee.hired`, `employee.separated` | `security.quarter.closed` |
 | `IC-06` | internal-controls | `control.override.invoked`, `exception.expiring`, `exception.registered` | `override.analytics_due` |
@@ -595,7 +593,7 @@ These are the nearest to buildable: some triggers already fire.
 | `BSA-14` | bsa | `escalation.acknowledged`, `escalation.action_plan.published` | `escalation.created` |
 | `BC-07` | business-continuity-plan | `backup.cycle.completed`, `backup.job.failed` | `backup.restore.test.due`, `incident.sev1.detected` |
 | `BC-15` | business-continuity-plan | `incident.containment.started`, `incident.created` | `vendor.incident.logged` |
-| `CP-10` | cash | `cash.deviation.requested`, `cash.exception.logged` | `cash.deviation.approved`, `cash.deviation.expired` |
+| `CA-10` | cash | `cash.deviation.requested`, `cash.exception.logged` | `cash.deviation.approved`, `cash.deviation.expired` |
 | `CDA-04` | charitable-donation-accounts | `cda.vendor_issue.flagged`, `cda.vendor_review.completed` | `cda.vendor_onboarding.started` |
 | `CDA-12` | charitable-donation-accounts | `cda.inkind_transfer.proposed`, `cda.termination.approved` | `cda.account.closed` |
 | `CO-07` | collections | `furnishing.correction.applied`, `furnishing.dispute.received` | `furnishing.cycle_due_at`, `furnishing.idtheft_dispute.received` |

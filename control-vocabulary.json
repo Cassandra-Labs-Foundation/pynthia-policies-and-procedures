@@ -1,7 +1,7 @@
 {
   "meta": {
     "generator": "scripts/build_control_vocabulary.py",
-    "generated_at": "2026-08-12T02:04:54+00:00",
+    "generated_at": "2026-08-12T02:14:20+00:00",
     "source": "controls.json",
     "api_model": {
       "spec_title": "Cassandra Banking Core API",
@@ -10,7 +10,7 @@
       "fields": 2591,
       "entities": 275
     },
-    "controls_generated_at": "2026-08-12T02:04:50+00:00"
+    "controls_generated_at": "2026-08-12T02:14:17+00:00"
   },
   "stats": {
     "entities": 264,
@@ -5788,7 +5788,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-01"
+            "CA-01"
           ],
           "policies": [
             "cash"
@@ -5983,11 +5983,11 @@
           },
           "ref_count": 5,
           "controls": [
+            "CA-02",
+            "CA-03",
+            "CA-10",
             "CDA-01",
-            "CM-03",
-            "CP-02",
-            "CP-03",
-            "CP-10"
+            "CM-03"
           ],
           "policies": [
             "cash",
@@ -6098,7 +6098,7 @@
           "ref_count": 2,
           "controls": [
             "BSA-06",
-            "CP-07"
+            "CA-07"
           ],
           "policies": [
             "bsa",
@@ -8782,7 +8782,7 @@
           "spec": null,
           "ref_count": 1,
           "controls": [
-            "CP-12"
+            "CA-12"
           ],
           "policies": [
             "cash"
@@ -8797,7 +8797,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-05"
+            "CA-05"
           ],
           "policies": [
             "cash"
@@ -8812,7 +8812,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-05"
+            "CA-05"
           ],
           "policies": [
             "cash"
@@ -8827,7 +8827,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-05"
+            "CA-05"
           ],
           "policies": [
             "cash"
@@ -8842,7 +8842,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-05"
+            "CA-05"
           ],
           "policies": [
             "cash"
@@ -8857,7 +8857,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-10"
+            "CA-10"
           ],
           "policies": [
             "cash"
@@ -8872,7 +8872,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-10"
+            "CA-10"
           ],
           "policies": [
             "cash"
@@ -8887,7 +8887,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-10"
+            "CA-10"
           ],
           "policies": [
             "cash"
@@ -8902,7 +8902,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-10"
+            "CA-10"
           ],
           "policies": [
             "cash"
@@ -8917,7 +8917,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-08"
+            "CA-08"
           ],
           "policies": [
             "cash"
@@ -8932,9 +8932,9 @@
           },
           "ref_count": 3,
           "controls": [
-            "CP-04",
-            "CP-05",
-            "CP-08"
+            "CA-04",
+            "CA-05",
+            "CA-08"
           ],
           "policies": [
             "cash"
@@ -8949,8 +8949,8 @@
           },
           "ref_count": 2,
           "controls": [
-            "CP-04",
-            "CP-08"
+            "CA-04",
+            "CA-08"
           ],
           "policies": [
             "cash"
@@ -8965,7 +8965,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-03"
+            "CA-03"
           ],
           "policies": [
             "cash"
@@ -8980,7 +8980,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-03"
+            "CA-03"
           ],
           "policies": [
             "cash"
@@ -8995,7 +8995,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-03"
+            "CA-03"
           ],
           "policies": [
             "cash"
@@ -9010,7 +9010,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-03"
+            "CA-03"
           ],
           "policies": [
             "cash"
@@ -9025,8 +9025,8 @@
           },
           "ref_count": 2,
           "controls": [
-            "CP-05",
-            "CP-12"
+            "CA-05",
+            "CA-12"
           ],
           "policies": [
             "cash"
@@ -9041,10 +9041,10 @@
           },
           "ref_count": 4,
           "controls": [
-            "CP-01",
-            "CP-04",
-            "CP-10",
-            "CP-12"
+            "CA-01",
+            "CA-04",
+            "CA-10",
+            "CA-12"
           ],
           "policies": [
             "cash"
@@ -9059,8 +9059,8 @@
           },
           "ref_count": 2,
           "controls": [
-            "CP-01",
-            "CP-12"
+            "CA-01",
+            "CA-12"
           ],
           "policies": [
             "cash"
@@ -9075,8 +9075,8 @@
           },
           "ref_count": 2,
           "controls": [
-            "CP-01",
-            "CP-12"
+            "CA-01",
+            "CA-12"
           ],
           "policies": [
             "cash"
@@ -9091,7 +9091,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-01"
+            "CA-01"
           ],
           "policies": [
             "cash"
@@ -9106,7 +9106,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-05"
+            "CA-05"
           ],
           "policies": [
             "cash"
@@ -9121,7 +9121,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-05"
+            "CA-05"
           ],
           "policies": [
             "cash"
@@ -9136,8 +9136,8 @@
           },
           "ref_count": 2,
           "controls": [
-            "CP-01",
-            "CP-12"
+            "CA-01",
+            "CA-12"
           ],
           "policies": [
             "cash"
@@ -9152,9 +9152,9 @@
           },
           "ref_count": 3,
           "controls": [
-            "CP-01",
-            "CP-07",
-            "CP-12"
+            "CA-01",
+            "CA-07",
+            "CA-12"
           ],
           "policies": [
             "cash"
@@ -9169,7 +9169,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-04"
+            "CA-04"
           ],
           "policies": [
             "cash"
@@ -9184,9 +9184,9 @@
           },
           "ref_count": 3,
           "controls": [
-            "CP-03",
-            "CP-04",
-            "CP-10"
+            "CA-03",
+            "CA-04",
+            "CA-10"
           ],
           "policies": [
             "cash"
@@ -9201,8 +9201,8 @@
           },
           "ref_count": 2,
           "controls": [
-            "CP-04",
-            "CP-10"
+            "CA-04",
+            "CA-10"
           ],
           "policies": [
             "cash"
@@ -9217,7 +9217,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-04"
+            "CA-04"
           ],
           "policies": [
             "cash"
@@ -9232,7 +9232,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-08"
+            "CA-08"
           ],
           "policies": [
             "cash"
@@ -9247,7 +9247,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-07"
+            "CA-07"
           ],
           "policies": [
             "cash"
@@ -9262,7 +9262,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-07"
+            "CA-07"
           ],
           "policies": [
             "cash"
@@ -9277,8 +9277,8 @@
           },
           "ref_count": 2,
           "controls": [
-            "CP-07",
-            "CP-09"
+            "CA-07",
+            "CA-09"
           ],
           "policies": [
             "cash"
@@ -9293,7 +9293,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-07"
+            "CA-07"
           ],
           "policies": [
             "cash"
@@ -9308,7 +9308,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-07"
+            "CA-07"
           ],
           "policies": [
             "cash"
@@ -9323,7 +9323,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-07"
+            "CA-07"
           ],
           "policies": [
             "cash"
@@ -9338,8 +9338,8 @@
           },
           "ref_count": 2,
           "controls": [
-            "CP-07",
-            "CP-09"
+            "CA-07",
+            "CA-09"
           ],
           "policies": [
             "cash"
@@ -9354,7 +9354,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-07"
+            "CA-07"
           ],
           "policies": [
             "cash"
@@ -9369,7 +9369,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-06"
+            "CA-06"
           ],
           "policies": [
             "cash"
@@ -9384,7 +9384,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-06"
+            "CA-06"
           ],
           "policies": [
             "cash"
@@ -9399,7 +9399,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-06"
+            "CA-06"
           ],
           "policies": [
             "cash"
@@ -9414,7 +9414,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-06"
+            "CA-06"
           ],
           "policies": [
             "cash"
@@ -9429,7 +9429,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-08"
+            "CA-08"
           ],
           "policies": [
             "cash"
@@ -9444,7 +9444,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-08"
+            "CA-08"
           ],
           "policies": [
             "cash"
@@ -9459,7 +9459,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-08"
+            "CA-08"
           ],
           "policies": [
             "cash"
@@ -9474,7 +9474,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-09"
+            "CA-09"
           ],
           "policies": [
             "cash"
@@ -9492,10 +9492,10 @@
           },
           "ref_count": 4,
           "controls": [
-            "CP-01",
-            "CP-04",
-            "CP-06",
-            "CP-09"
+            "CA-01",
+            "CA-04",
+            "CA-06",
+            "CA-09"
           ],
           "policies": [
             "cash"
@@ -9513,7 +9513,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-09"
+            "CA-09"
           ],
           "policies": [
             "cash"
@@ -9531,9 +9531,9 @@
           },
           "ref_count": 3,
           "controls": [
-            "CP-02",
-            "CP-04",
-            "CP-08"
+            "CA-02",
+            "CA-04",
+            "CA-08"
           ],
           "policies": [
             "cash"
@@ -9551,7 +9551,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-04"
+            "CA-04"
           ],
           "policies": [
             "cash"
@@ -9569,7 +9569,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-04"
+            "CA-04"
           ],
           "policies": [
             "cash"
@@ -9587,7 +9587,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-05"
+            "CA-05"
           ],
           "policies": [
             "cash"
@@ -9605,7 +9605,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-05"
+            "CA-05"
           ],
           "policies": [
             "cash"
@@ -9623,9 +9623,9 @@
           },
           "ref_count": 3,
           "controls": [
-            "CP-03",
-            "CP-04",
-            "CP-07"
+            "CA-03",
+            "CA-04",
+            "CA-07"
           ],
           "policies": [
             "cash"
@@ -9643,7 +9643,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-05"
+            "CA-05"
           ],
           "policies": [
             "cash"
@@ -9661,7 +9661,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-10"
+            "CA-10"
           ],
           "policies": [
             "cash"
@@ -9679,7 +9679,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-10"
+            "CA-10"
           ],
           "policies": [
             "cash"
@@ -9697,7 +9697,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-10"
+            "CA-10"
           ],
           "policies": [
             "cash"
@@ -9715,8 +9715,8 @@
           },
           "ref_count": 2,
           "controls": [
-            "CP-04",
-            "CP-08"
+            "CA-04",
+            "CA-08"
           ],
           "policies": [
             "cash"
@@ -9734,7 +9734,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-03"
+            "CA-03"
           ],
           "policies": [
             "cash"
@@ -9752,7 +9752,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-03"
+            "CA-03"
           ],
           "policies": [
             "cash"
@@ -9770,8 +9770,8 @@
           },
           "ref_count": 2,
           "controls": [
-            "CP-01",
-            "CP-03"
+            "CA-01",
+            "CA-03"
           ],
           "policies": [
             "cash"
@@ -9789,7 +9789,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-03"
+            "CA-03"
           ],
           "policies": [
             "cash"
@@ -9807,7 +9807,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-03"
+            "CA-03"
           ],
           "policies": [
             "cash"
@@ -9825,9 +9825,9 @@
           },
           "ref_count": 3,
           "controls": [
-            "CP-03",
-            "CP-04",
-            "CP-08"
+            "CA-03",
+            "CA-04",
+            "CA-08"
           ],
           "policies": [
             "cash"
@@ -9845,7 +9845,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-05"
+            "CA-05"
           ],
           "policies": [
             "cash"
@@ -9863,7 +9863,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-05"
+            "CA-05"
           ],
           "policies": [
             "cash"
@@ -9881,8 +9881,8 @@
           },
           "ref_count": 2,
           "controls": [
-            "CP-01",
-            "CP-12"
+            "CA-01",
+            "CA-12"
           ],
           "policies": [
             "cash"
@@ -9900,8 +9900,8 @@
           },
           "ref_count": 2,
           "controls": [
-            "CP-01",
-            "CP-12"
+            "CA-01",
+            "CA-12"
           ],
           "policies": [
             "cash"
@@ -9919,7 +9919,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-01"
+            "CA-01"
           ],
           "policies": [
             "cash"
@@ -9937,7 +9937,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-04"
+            "CA-04"
           ],
           "policies": [
             "cash"
@@ -9955,8 +9955,8 @@
           },
           "ref_count": 2,
           "controls": [
-            "CP-03",
-            "CP-04"
+            "CA-03",
+            "CA-04"
           ],
           "policies": [
             "cash"
@@ -9974,7 +9974,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-10"
+            "CA-10"
           ],
           "policies": [
             "cash"
@@ -9992,8 +9992,8 @@
           },
           "ref_count": 2,
           "controls": [
-            "CP-04",
-            "CP-08"
+            "CA-04",
+            "CA-08"
           ],
           "policies": [
             "cash"
@@ -10011,7 +10011,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-04"
+            "CA-04"
           ],
           "policies": [
             "cash"
@@ -10029,7 +10029,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-04"
+            "CA-04"
           ],
           "policies": [
             "cash"
@@ -10047,8 +10047,8 @@
           },
           "ref_count": 2,
           "controls": [
-            "CP-02",
-            "CP-07"
+            "CA-02",
+            "CA-07"
           ],
           "policies": [
             "cash"
@@ -10066,7 +10066,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-08"
+            "CA-08"
           ],
           "policies": [
             "cash"
@@ -10084,8 +10084,8 @@
           },
           "ref_count": 2,
           "controls": [
-            "CP-01",
-            "CP-07"
+            "CA-01",
+            "CA-07"
           ],
           "policies": [
             "cash"
@@ -10103,7 +10103,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-07"
+            "CA-07"
           ],
           "policies": [
             "cash"
@@ -10121,7 +10121,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-07"
+            "CA-07"
           ],
           "policies": [
             "cash"
@@ -10139,9 +10139,9 @@
           },
           "ref_count": 3,
           "controls": [
-            "CP-01",
-            "CP-07",
-            "CP-12"
+            "CA-01",
+            "CA-07",
+            "CA-12"
           ],
           "policies": [
             "cash"
@@ -10159,7 +10159,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-07"
+            "CA-07"
           ],
           "policies": [
             "cash"
@@ -10177,7 +10177,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-07"
+            "CA-07"
           ],
           "policies": [
             "cash"
@@ -10195,7 +10195,7 @@
           },
           "ref_count": 2,
           "controls": [
-            "CP-06",
+            "CA-06",
             "IC-04"
           ],
           "policies": [
@@ -10215,7 +10215,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-06"
+            "CA-06"
           ],
           "policies": [
             "cash"
@@ -10233,7 +10233,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-06"
+            "CA-06"
           ],
           "policies": [
             "cash"
@@ -10251,7 +10251,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-08"
+            "CA-08"
           ],
           "policies": [
             "cash"
@@ -10269,7 +10269,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-08"
+            "CA-08"
           ],
           "policies": [
             "cash"
@@ -10287,7 +10287,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-08"
+            "CA-08"
           ],
           "policies": [
             "cash"
@@ -10305,7 +10305,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-08"
+            "CA-08"
           ],
           "policies": [
             "cash"
@@ -10323,7 +10323,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-09"
+            "CA-09"
           ],
           "policies": [
             "cash"
@@ -10341,7 +10341,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-09"
+            "CA-09"
           ],
           "policies": [
             "cash"
@@ -10359,7 +10359,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-09"
+            "CA-09"
           ],
           "policies": [
             "cash"
@@ -13582,7 +13582,7 @@
           "ref_count": 2,
           "controls": [
             "BSA-12",
-            "CP-08"
+            "CA-08"
           ],
           "policies": [
             "bsa",
@@ -16854,7 +16854,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-08"
+            "CA-08"
           ],
           "policies": [
             "cash"
@@ -20417,8 +20417,8 @@
           "ref_count": 11,
           "controls": [
             "BSA-15",
+            "CA-11",
             "CM-05",
-            "CP-11",
             "EC-12",
             "EPS-09",
             "FL-11",
@@ -20469,7 +20469,7 @@
           },
           "ref_count": 6,
           "controls": [
-            "CP-05",
+            "CA-05",
             "EC-12",
             "IC-05",
             "IS-06",
@@ -20496,11 +20496,11 @@
           },
           "ref_count": 7,
           "controls": [
+            "CA-05",
+            "CA-11",
             "CM-01",
             "CM-03",
             "CM-05",
-            "CP-05",
-            "CP-11",
             "IC-05",
             "PR-06"
           ],
@@ -23568,7 +23568,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-12"
+            "CA-12"
           ],
           "policies": [
             "cash"
@@ -23586,8 +23586,8 @@
           },
           "ref_count": 2,
           "controls": [
-            "CP-09",
-            "CP-12"
+            "CA-09",
+            "CA-12"
           ],
           "policies": [
             "cash"
@@ -23605,8 +23605,8 @@
           },
           "ref_count": 2,
           "controls": [
-            "CP-09",
-            "CP-12"
+            "CA-09",
+            "CA-12"
           ],
           "policies": [
             "cash"
@@ -23732,8 +23732,8 @@
           },
           "ref_count": 3,
           "controls": [
-            "CP-01",
-            "CP-10",
+            "CA-01",
+            "CA-10",
             "IC-06"
           ],
           "policies": [
@@ -23753,8 +23753,8 @@
           },
           "ref_count": 3,
           "controls": [
-            "CP-01",
-            "CP-10",
+            "CA-01",
+            "CA-10",
             "IC-06"
           ],
           "policies": [
@@ -26270,7 +26270,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-06"
+            "CA-06"
           ],
           "policies": [
             "cash"
@@ -26285,7 +26285,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-06"
+            "CA-06"
           ],
           "policies": [
             "cash"
@@ -26300,7 +26300,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-06"
+            "CA-06"
           ],
           "policies": [
             "cash"
@@ -26315,7 +26315,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-06"
+            "CA-06"
           ],
           "policies": [
             "cash"
@@ -26383,7 +26383,7 @@
           },
           "ref_count": 3,
           "controls": [
-            "CP-06",
+            "CA-06",
             "IC-04",
             "LQ-02"
           ],
@@ -26405,7 +26405,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-08"
+            "CA-08"
           ],
           "policies": [
             "cash"
@@ -26423,7 +26423,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-06"
+            "CA-06"
           ],
           "policies": [
             "cash"
@@ -26441,7 +26441,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-06"
+            "CA-06"
           ],
           "policies": [
             "cash"
@@ -26459,7 +26459,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-06"
+            "CA-06"
           ],
           "policies": [
             "cash"
@@ -26498,8 +26498,8 @@
           "ref_count": 3,
           "controls": [
             "BA-03",
-            "CP-02",
-            "CP-03"
+            "CA-03",
+            "CP-02"
           ],
           "policies": [
             "basel-ii-standardized-approach-framework",
@@ -27184,7 +27184,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-07"
+            "CA-07"
           ],
           "policies": [
             "cash"
@@ -27487,8 +27487,8 @@
             "BC-05",
             "BC-09",
             "BC-15",
+            "CA-08",
             "CO-11",
-            "CP-08",
             "EC-09",
             "EC-13",
             "EPS-11",
@@ -29786,7 +29786,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-10"
+            "CA-10"
           ],
           "policies": [
             "cash"
@@ -37602,8 +37602,8 @@
           "ref_count": 11,
           "controls": [
             "AU-01",
+            "CA-01",
             "CM-09",
-            "CP-01",
             "EC-01",
             "IP-01",
             "IP-02",
@@ -37654,9 +37654,9 @@
           "ref_count": 7,
           "controls": [
             "AU-01",
+            "CA-01",
+            "CA-02",
             "CM-09",
-            "CP-01",
-            "CP-02",
             "EC-01",
             "IP-18",
             "IS-01"
@@ -37712,8 +37712,8 @@
           "ref_count": 11,
           "controls": [
             "AU-01",
+            "CA-01",
             "CM-09",
-            "CP-01",
             "DF-10",
             "EC-01",
             "IP-01",
@@ -37874,8 +37874,8 @@
           },
           "ref_count": 6,
           "controls": [
+            "CA-01",
             "CM-09",
-            "CP-01",
             "IP-01",
             "IP-18",
             "LQ-01",
@@ -38297,8 +38297,8 @@
           },
           "ref_count": 6,
           "controls": [
+            "CA-01",
             "CM-09",
-            "CP-01",
             "EC-01",
             "IP-01",
             "LP-01",
@@ -40632,7 +40632,7 @@
           },
           "ref_count": 4,
           "controls": [
-            "CP-12",
+            "CA-12",
             "PR-08",
             "RR-03",
             "SC-02"
@@ -40860,7 +40860,7 @@
           },
           "ref_count": 11,
           "controls": [
-            "CP-12",
+            "CA-12",
             "FL-12",
             "IS-07",
             "IS-14",
@@ -40899,7 +40899,7 @@
           },
           "ref_count": 6,
           "controls": [
-            "CP-12",
+            "CA-12",
             "IS-07",
             "IS-14",
             "RR-03",
@@ -40946,7 +40946,7 @@
           "controls": [
             "BSA-03",
             "BSA-21",
-            "CP-12",
+            "CA-12",
             "FL-12",
             "IC-08",
             "IS-18",
@@ -41476,7 +41476,7 @@
             "BSA-03",
             "BSA-19",
             "BSA-21",
-            "CP-12",
+            "CA-12",
             "FL-12",
             "PR-08",
             "RR-01",
@@ -41533,7 +41533,7 @@
           "ref_count": 12,
           "controls": [
             "BSA-21",
-            "CP-12",
+            "CA-12",
             "IC-08",
             "IS-07",
             "IS-14",
@@ -41783,8 +41783,8 @@
           },
           "ref_count": 3,
           "controls": [
-            "CP-09",
-            "CP-12",
+            "CA-09",
+            "CA-12",
             "RS-08"
           ],
           "policies": [
@@ -46219,7 +46219,7 @@
           },
           "ref_count": 2,
           "controls": [
-            "CP-02",
+            "CA-02",
             "RS-01"
           ],
           "policies": [
@@ -46236,7 +46236,7 @@
           },
           "ref_count": 2,
           "controls": [
-            "CP-02",
+            "CA-02",
             "RS-01"
           ],
           "policies": [
@@ -46254,7 +46254,7 @@
           "ref_count": 3,
           "controls": [
             "BC-03",
-            "CP-02",
+            "CA-02",
             "RS-01"
           ],
           "policies": [
@@ -46272,7 +46272,7 @@
           },
           "ref_count": 2,
           "controls": [
-            "CP-02",
+            "CA-02",
             "RS-01"
           ],
           "policies": [
@@ -46289,7 +46289,7 @@
           },
           "ref_count": 2,
           "controls": [
-            "CP-02",
+            "CA-02",
             "RS-01"
           ],
           "policies": [
@@ -46327,7 +46327,7 @@
           },
           "ref_count": 2,
           "controls": [
-            "CP-02",
+            "CA-02",
             "RS-01"
           ],
           "policies": [
@@ -46437,7 +46437,7 @@
           },
           "ref_count": 5,
           "controls": [
-            "CP-02",
+            "CA-02",
             "RS-01",
             "RS-03",
             "RS-07",
@@ -48293,7 +48293,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-09"
+            "CA-09"
           ],
           "policies": [
             "cash"
@@ -49369,8 +49369,8 @@
           "ref_count": 7,
           "controls": [
             "BSA-15",
+            "CA-11",
             "CM-05",
-            "CP-11",
             "DF-01",
             "DF-10",
             "EPS-09",
@@ -49395,8 +49395,8 @@
           "ref_count": 9,
           "controls": [
             "BSA-15",
+            "CA-11",
             "CM-05",
-            "CP-11",
             "DF-01",
             "DF-10",
             "FL-11",
@@ -49441,9 +49441,9 @@
           "controls": [
             "BA-08",
             "BSA-15",
+            "CA-11",
             "CM-05",
             "CM-08",
-            "CP-11",
             "EC-12",
             "EPS-09",
             "FL-11",
@@ -49547,8 +49547,8 @@
           "ref_count": 10,
           "controls": [
             "BSA-15",
+            "CA-11",
             "CM-05",
-            "CP-11",
             "DF-01",
             "DF-10",
             "EC-12",
@@ -49593,7 +49593,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-11"
+            "CA-11"
           ],
           "policies": [
             "cash"
@@ -49642,8 +49642,8 @@
           },
           "ref_count": 3,
           "controls": [
+            "CA-11",
             "CM-05",
-            "CP-11",
             "IS-17"
           ],
           "policies": [
@@ -49661,9 +49661,9 @@
           },
           "ref_count": 4,
           "controls": [
+            "CA-11",
             "CM-05",
             "CM-06",
-            "CP-11",
             "IS-17"
           ],
           "policies": [
@@ -49754,8 +49754,8 @@
           "controls": [
             "BA-08",
             "BSA-15",
+            "CA-11",
             "CM-05",
-            "CP-11",
             "DF-01",
             "DF-10",
             "EC-12",
@@ -49810,7 +49810,7 @@
           "ref_count": 8,
           "controls": [
             "BSA-15",
-            "CP-11",
+            "CA-11",
             "DF-01",
             "DF-10",
             "EC-12",
@@ -49911,8 +49911,8 @@
           "ref_count": 8,
           "controls": [
             "BSA-15",
+            "CA-11",
             "CM-01",
-            "CP-11",
             "DF-01",
             "EC-12",
             "FL-11",
@@ -49942,7 +49942,7 @@
           },
           "ref_count": 2,
           "controls": [
-            "CP-11",
+            "CA-11",
             "FL-11"
           ],
           "policies": [
@@ -49962,9 +49962,9 @@
           },
           "ref_count": 4,
           "controls": [
+            "CA-12",
             "CM-01",
             "CM-05",
-            "CP-12",
             "FL-11"
           ],
           "policies": [
@@ -50008,8 +50008,8 @@
           "ref_count": 7,
           "controls": [
             "BSA-15",
+            "CA-11",
             "CM-05",
-            "CP-11",
             "DF-01",
             "FL-11",
             "IS-17",
@@ -50055,8 +50055,8 @@
           },
           "ref_count": 8,
           "controls": [
+            "CA-11",
             "CM-05",
-            "CP-11",
             "DF-01",
             "DF-10",
             "EC-12",
@@ -50105,7 +50105,7 @@
           "ref_count": 7,
           "controls": [
             "BSA-15",
-            "CP-11",
+            "CA-11",
             "DF-01",
             "EC-12",
             "EPS-09",
@@ -50156,7 +50156,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-11"
+            "CA-11"
           ],
           "policies": [
             "cash"
@@ -50193,7 +50193,7 @@
           "ref_count": 5,
           "controls": [
             "BA-08",
-            "CP-11",
+            "CA-11",
             "EC-12",
             "IP-16",
             "IS-17"
@@ -50219,8 +50219,8 @@
           "ref_count": 7,
           "controls": [
             "BSA-15",
+            "CA-11",
             "CM-05",
-            "CP-11",
             "FL-11",
             "IP-16",
             "IS-17",
@@ -50460,7 +50460,7 @@
           },
           "ref_count": 1,
           "controls": [
-            "CP-03"
+            "CA-03"
           ],
           "policies": [
             "cash"
@@ -50551,7 +50551,7 @@
           },
           "ref_count": 9,
           "controls": [
-            "CP-11",
+            "CA-11",
             "EC-02",
             "EC-12",
             "EPS-09",
@@ -54638,7 +54638,7 @@
       "value": "scope_registry",
       "ref_count": 1,
       "controls": [
-        "CP-02"
+        "CA-02"
       ],
       "policies": [
         "cash"

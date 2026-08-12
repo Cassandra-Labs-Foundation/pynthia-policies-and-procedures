@@ -108,7 +108,7 @@ Deno.test("panels aggregate the evidence tables faithfully", async () => {
     control_result: [
       { control_id: "CG-VEL-01", decision: "block", created_at: RECENT },
       { control_id: "CG-VEL-01", decision: "pass", created_at: RECENT },
-      { control_id: "CG-CTR-01", decision: "pass", created_at: RECENT },
+      { control_id: "CG-LGTXN-01", decision: "pass", created_at: RECENT },
     ],
     bsa_alert: [
       // overdue: untriaged and past its clock
@@ -146,7 +146,7 @@ Deno.test("panels aggregate the evidence tables faithfully", async () => {
   const d = await res.json();
 
   assertEquals(d.controls.by_control["CG-VEL-01"], { block: 1, pass: 1 });
-  assertEquals(d.controls.by_control["CG-CTR-01"], { pass: 1 });
+  assertEquals(d.controls.by_control["CG-LGTXN-01"], { pass: 1 });
   assertEquals(d.controls.window_capped, false);
 
   assertEquals(d.alerts.open, 2); // closed alert excluded

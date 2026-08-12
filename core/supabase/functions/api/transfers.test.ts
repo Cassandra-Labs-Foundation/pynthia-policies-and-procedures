@@ -130,24 +130,24 @@ Deno.test("a balance exactly equal to the amount is sufficient, not NSF", async 
   assertEquals(controlIds(inserts).includes("CG-NSF-01"), false);
 });
 
-// --------------------------------------------------------------- CG-CTR-01
+// --------------------------------------------------------------- CG-LGTXN-01
 
-Deno.test("a transfer over $10k raises CG-CTR-01 and a CTR bsa_alert but still settles", async () => {
+Deno.test("a transfer over $10k raises CG-LGTXN-01 and a CTR bsa_alert but still settles", async () => {
   const { cfg } = stubCfg([balance(CENTS(50_000))]);
   const { db, inserts } = stubGateDb();
 
   const out = await runGate(db, cfg, TRANSFER_RESOURCE("tr_4"), ACCOUNT, DEST, CTR_LINE + 1);
   assertEquals(out.blocked, false, "CTR is alert-only, never blocking");
-  assertEquals(controlIds(inserts), ["CG-CTR-01"]);
+  assertEquals(controlIds(inserts), ["CG-LGTXN-01"]);
   assertEquals(alertTypes(inserts), ["ctr_threshold"]);
 });
 
-Deno.test("a transfer of exactly $10k does NOT trip CG-CTR-01 (threshold is strictly above)", async () => {
+Deno.test("a transfer of exactly $10k does NOT trip CG-LGTXN-01 (threshold is strictly above)", async () => {
   const { cfg } = stubCfg([balance(CENTS(50_000))]);
   const { db, inserts } = stubGateDb();
 
   await runGate(db, cfg, TRANSFER_RESOURCE("tr_5"), ACCOUNT, DEST, CTR_LINE);
-  assertEquals(controlIds(inserts).includes("CG-CTR-01"), false);
+  assertEquals(controlIds(inserts).includes("CG-LGTXN-01"), false);
 });
 
 // --------------------------------------------------------------- CG-VEL-01
@@ -207,7 +207,7 @@ Deno.test("structuring fires when daily inflow aggregates past $10k with every t
   assertEquals(controlIds(inserts), ["CG-STR-01"]);
   assertEquals(alertTypes(inserts), ["structuring"]);
   assertEquals(
-    controlIds(inserts).includes("CG-CTR-01"),
+    controlIds(inserts).includes("CG-LGTXN-01"),
     false,
     "per-txn CTR must stay silent — that is the whole point of the aggregate control",
   );
@@ -226,7 +226,7 @@ Deno.test("a single large transfer raises CTR only, never both CTR and structuri
   const { db, inserts } = stubGateDb({ inbound: [{ amount: CENTS(4_000) }] });
 
   await runGate(db, cfg, TRANSFER_RESOURCE("tr_11"), ACCOUNT, DEST, CENTS(11_000));
-  assertEquals(controlIds(inserts), ["CG-CTR-01"]);
+  assertEquals(controlIds(inserts), ["CG-LGTXN-01"]);
 });
 
 Deno.test("structuring is skipped entirely when there is no destination account", async () => {
@@ -307,7 +307,7 @@ Deno.test("a single large outbound raises CTR only, not outbound structuring", a
   const { db, inserts } = stubGateDb({ outbound: { transfer: [{ amount: CENTS(4_000) }] } });
 
   await runGate(db, cfg, TRANSFER_RESOURCE("tr_23"), ACCOUNT, null, CENTS(11_000));
-  assertEquals(controlIds(inserts), ["CG-CTR-01"], "the per-txn gate already reports this one");
+  assertEquals(controlIds(inserts), ["CG-LGTXN-01"], "the per-txn gate already reports this one");
 });
 
 Deno.test("outbound structuring is not double-reported alongside a velocity block", async () => {

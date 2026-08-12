@@ -70,7 +70,7 @@ function pagedDb(rows: unknown[]) {
 }
 const rowAt = (i: number) => ({
   id: `cr_${i}`,
-  control_id: "CG-CTR-01",
+  control_id: "CG-LGTXN-01",
   decision: "pass",
   event: `tr_${i}`,
   subject_ref: "acct_x",

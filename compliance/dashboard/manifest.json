@@ -4995,10 +4995,10 @@
    "title": "Cash Operations",
    "controls": [
     {
-     "id": "CP-01",
-     "uid": "cash:CP-01",
+     "id": "CA-01",
+     "uid": "cash:CA-01",
      "title": "Governance and Delegation",
-     "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/compliance/policies/cash/cash.md#cp-01-governance-and-delegation",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/compliance/policies/cash/cash.md#ca-01-governance-and-delegation",
      "citations": [
       {
        "text": "Federal Credit Union Act (12 U.S.C. \u00a7\u00a7 1751\u20131795k)",
@@ -5078,18 +5078,13 @@
        "deadline_text": "Same day as exception identified"
       }
      ],
-     "tests": {
-      "scoped_out": false,
-      "scope_reason": "mixed, technical majority (3v1): cash",
-      "hermetic": "green",
-      "live": "green"
-     }
+     "tests": {}
     },
     {
-     "id": "CP-02",
-     "uid": "cash:CP-02",
+     "id": "CA-02",
+     "uid": "cash:CA-02",
      "title": "Scope and Applicability",
-     "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/compliance/policies/cash/cash.md#cp-02-scope-and-applicability",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/compliance/policies/cash/cash.md#ca-02-scope-and-applicability",
      "citations": [
       {
        "text": "12 U.S.C. \u00a7 1761b",
@@ -5148,18 +5143,13 @@
        "deadline_text": "Same day as Board approval"
       }
      ],
-     "tests": {
-      "scoped_out": true,
-      "scope_reason": "organisational process: policy, scope_registry",
-      "hermetic": "red",
-      "live": "red"
-     }
+     "tests": {}
     },
     {
-     "id": "CP-03",
-     "uid": "cash:CP-03",
+     "id": "CA-03",
+     "uid": "cash:CA-03",
      "title": "Enterprise Cash Limit",
-     "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/compliance/policies/cash/cash.md#cp-03-enterprise-cash-limit",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/compliance/policies/cash/cash.md#ca-03-enterprise-cash-limit",
      "citations": [
       {
        "text": "12 U.S.C. \u00a7\u00a7 1757, 1761b",
@@ -5230,18 +5220,13 @@
        "deadline_text": "Before effective date"
       }
      ],
-     "tests": {
-      "scoped_out": false,
-      "scope_reason": "technical: cash",
-      "hermetic": "green",
-      "live": "green"
-     }
+     "tests": {}
     },
     {
-     "id": "CP-04",
-     "uid": "cash:CP-04",
+     "id": "CA-04",
+     "uid": "cash:CA-04",
      "title": "Location and Device Cash Limits",
-     "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/compliance/policies/cash/cash.md#cp-04-location-and-device-cash-limits",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/compliance/policies/cash/cash.md#ca-04-location-and-device-cash-limits",
      "citations": [
       {
        "text": "12 CFR \u00a7 748.1",
@@ -5315,18 +5300,13 @@
        "deadline_text": "Real-time (before funds move)"
       }
      ],
-     "tests": {
-      "scoped_out": false,
-      "scope_reason": "technical: cash",
-      "hermetic": "green",
-      "live": "green"
-     }
+     "tests": {}
     },
     {
-     "id": "CP-05",
-     "uid": "cash:CP-05",
+     "id": "CA-05",
+     "uid": "cash:CA-05",
      "title": "Dual Control, Keys, and Combinations",
-     "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/compliance/policies/cash/cash.md#cp-05-dual-control-keys-and-combinations",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/compliance/policies/cash/cash.md#ca-05-dual-control-keys-and-combinations",
      "citations": [
       {
        "text": "12 CFR \u00a7 748.1",
@@ -5406,18 +5386,13 @@
        "deadline_text": "Before change takes effect"
       }
      ],
-     "tests": {
-      "scoped_out": false,
-      "scope_reason": "mixed, technical majority (4v1): cash",
-      "hermetic": "green",
-      "live": "green"
-     }
+     "tests": {}
     },
     {
-     "id": "CP-06",
-     "uid": "cash:CP-06",
+     "id": "CA-06",
+     "uid": "cash:CA-06",
      "title": "Reconciliation and GL Controls",
-     "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/compliance/policies/cash/cash.md#cp-06-reconciliation-and-gl-controls",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/compliance/policies/cash/cash.md#ca-06-reconciliation-and-gl-controls",
      "citations": [
       {
        "text": "12 CFR Part 749",
@@ -5487,18 +5462,13 @@
        "deadline_text": "Same day as resolution"
       }
      ],
-     "tests": {
-      "scoped_out": false,
-      "scope_reason": "technical: cash, gl",
-      "hermetic": "green",
-      "live": "green"
-     }
+     "tests": {}
     },
     {
-     "id": "CP-07",
-     "uid": "cash:CP-07",
+     "id": "CA-07",
+     "uid": "cash:CA-07",
      "title": "Over/Short Monitoring",
-     "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/compliance/policies/cash/cash.md#cp-07-overshort-monitoring",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/compliance/policies/cash/cash.md#ca-07-overshort-monitoring",
      "citations": [
       {
        "text": "12 CFR \u00a7 748.1",
@@ -5584,18 +5554,13 @@
        "deadline_text": "15 calendar days after month end"
       }
      ],
-     "tests": {
-      "scoped_out": false,
-      "scope_reason": "technical: cash",
-      "hermetic": "green",
-      "live": "green"
-     }
+     "tests": {}
     },
     {
-     "id": "CP-08",
-     "uid": "cash:CP-08",
+     "id": "CA-08",
+     "uid": "cash:CA-08",
      "title": "ATM/ITM, Night-Drop, and Shipments",
-     "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/compliance/policies/cash/cash.md#cp-08-atmitm-night-drop-and-shipments",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/compliance/policies/cash/cash.md#ca-08-atmitm-night-drop-and-shipments",
      "citations": [
       {
        "text": "12 CFR \u00a7 748.1",
@@ -5689,18 +5654,13 @@
        "deadline_text": "Immediately"
       }
      ],
-     "tests": {
-      "scoped_out": false,
-      "scope_reason": "technical: cash",
-      "hermetic": "green",
-      "live": "green"
-     }
+     "tests": {}
     },
     {
-     "id": "CP-09",
-     "uid": "cash:CP-09",
+     "id": "CA-09",
+     "uid": "cash:CA-09",
      "title": "Surprise Cash Counts and Audits",
-     "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/compliance/policies/cash/cash.md#cp-09-surprise-cash-counts-and-audits",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/compliance/policies/cash/cash.md#ca-09-surprise-cash-counts-and-audits",
      "citations": [
       {
        "text": "12 CFR Part 715",
@@ -5775,18 +5735,13 @@
        "deadline_text": "On demand"
       }
      ],
-     "tests": {
-      "scoped_out": false,
-      "scope_reason": "technical: cash",
-      "hermetic": "green",
-      "live": "green"
-     }
+     "tests": {}
     },
     {
-     "id": "CP-10",
-     "uid": "cash:CP-10",
+     "id": "CA-10",
+     "uid": "cash:CA-10",
      "title": "Seasonal Deviations and Exceptions",
-     "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/compliance/policies/cash/cash.md#cp-10-seasonal-deviations-and-exceptions",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/compliance/policies/cash/cash.md#ca-10-seasonal-deviations-and-exceptions",
      "citations": [
       {
        "text": "12 CFR Part 713",
@@ -5853,18 +5808,13 @@
        "deadline_text": "Same day as overage identified"
       }
      ],
-     "tests": {
-      "scoped_out": false,
-      "scope_reason": "technical: cash",
-      "hermetic": "green",
-      "live": "green"
-     }
+     "tests": {}
     },
     {
-     "id": "CP-11",
-     "uid": "cash:CP-11",
+     "id": "CA-11",
+     "uid": "cash:CA-11",
      "title": "Training and Competency",
-     "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/compliance/policies/cash/cash.md#cp-11-training-and-competency",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/compliance/policies/cash/cash.md#ca-11-training-and-competency",
      "citations": [
       {
        "text": "31 CFR \u00a7 1020.210(a)(4)",
@@ -5951,18 +5901,13 @@
        "deadline_text": "Same day as failure"
       }
      ],
-     "tests": {
-      "scoped_out": true,
-      "scope_reason": "organisational process: employee, training",
-      "hermetic": "red",
-      "live": "red"
-     }
+     "tests": {}
     },
     {
-     "id": "CP-12",
-     "uid": "cash:CP-12",
+     "id": "CA-12",
+     "uid": "cash:CA-12",
      "title": "Monitoring, Reporting, and Recordkeeping",
-     "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/compliance/policies/cash/cash.md#cp-12-monitoring-reporting-and-recordkeeping",
+     "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/compliance/policies/cash/cash.md#ca-12-monitoring-reporting-and-recordkeeping",
      "citations": [
       {
        "text": "12 CFR Part 749",
@@ -6053,12 +5998,7 @@
        "deadline_text": "Per retention schedule"
       }
      ],
-     "tests": {
-      "scoped_out": false,
-      "scope_reason": "technical: cash, record",
-      "hermetic": "green",
-      "live": "green"
-     }
+     "tests": {}
     }
    ]
   },
@@ -20728,6 +20668,7 @@
      "id": "CG-VEL-01",
      "uid": "money-movement-gate:CG-VEL-01",
      "title": "Cross-rail daily velocity cap ($25k/day, blocks)",
+     "stub": false,
      "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/core/supabase/functions/api/transfers.ts",
      "citations": [],
      "watch": [],
@@ -20735,9 +20676,10 @@
      "tests": {}
     },
     {
-     "id": "CG-CTR-01",
-     "uid": "money-movement-gate:CG-CTR-01",
-     "title": "Large-transaction CTR (> $10k, alert-only)",
+     "id": "CG-LGTXN-01",
+     "uid": "money-movement-gate:CG-LGTXN-01",
+     "title": "Large electronic transaction monitor (> $10k, alert-only)",
+     "stub": false,
      "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/core/supabase/functions/api/transfers.ts",
      "citations": [],
      "watch": [],
@@ -20748,6 +20690,7 @@
      "id": "CG-STR-01",
      "uid": "money-movement-gate:CG-STR-01",
      "title": "Inbound structuring \u2014 aggregate past $10k into one account",
+     "stub": false,
      "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/core/supabase/functions/api/transfers.ts",
      "citations": [],
      "watch": [],
@@ -20758,6 +20701,7 @@
      "id": "CG-STR-02",
      "uid": "money-movement-gate:CG-STR-02",
      "title": "Outbound structuring \u2014 aggregate past $10k out of one account",
+     "stub": false,
      "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/core/supabase/functions/api/transfers.ts",
      "citations": [],
      "watch": [],
@@ -20768,6 +20712,7 @@
      "id": "CG-NSF-01",
      "uid": "money-movement-gate:CG-NSF-01",
      "title": "Insufficient funds (rejects before any hold)",
+     "stub": false,
      "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/core/supabase/functions/api/transfers.ts",
      "citations": [],
      "watch": [],
@@ -20777,7 +20722,8 @@
     {
      "id": "CG-OFAC-01",
      "uid": "money-movement-gate:CG-OFAC-01",
-     "title": "OFAC floor \u2014 unbypassable screen on every path",
+     "title": "OFAC floor \u2014 unbypassable gate, STUB screen (no SDN list wired)",
+     "stub": true,
      "doc": "https://github.com/Cassandra-Labs-Foundation/cassandra-platform/blob/main/core/supabase/functions/api/transfers.ts",
      "citations": [],
      "watch": [],

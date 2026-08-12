@@ -2,7 +2,7 @@
   "meta": {
     "generator": "scripts/build_crosswalk.py",
     "controls_source": "controls.json",
-    "controls_generated_at": "2026-08-12T02:04:50+00:00",
+    "controls_generated_at": "2026-08-12T02:14:17+00:00",
     "mappings_source": "crosswalk-mappings.json",
     "emitted_source": "crosswalk-emitted-events.json",
     "under_claim_policy": "'discharges' asserts no further work is needed and is enforced to carry zero gaps. Claims are proposals until reviewed_by is set."
@@ -10,48 +10,7 @@
   "summary": {
     "catalogue_rows": 333,
     "catalogue_controls": 316,
-    "id_collisions": {
-      "CP-01": [
-        "Capital Adequacy Targets",
-        "Governance and Delegation"
-      ],
-      "CP-02": [
-        "Capital Components and Measurement",
-        "Scope and Applicability"
-      ],
-      "CP-03": [
-        "Enterprise Cash Limit",
-        "PCA Thresholds and Internal Triggers"
-      ],
-      "CP-04": [
-        "Capital Conservation Buffer",
-        "Location and Device Cash Limits"
-      ],
-      "CP-05": [
-        "Capital Planning",
-        "Dual Control, Keys, and Combinations"
-      ],
-      "CP-06": [
-        "Capital Stress Testing",
-        "Reconciliation and GL Controls"
-      ],
-      "CP-07": [
-        "Over/Short Monitoring",
-        "Quarterly Monitoring and Reporting"
-      ],
-      "CP-08": [
-        "ATM/ITM, Night-Drop, and Shipments",
-        "Contingency Actions and Escalation"
-      ],
-      "CP-09": [
-        "Capital Actions Governance",
-        "Surprise Cash Counts and Audits"
-      ],
-      "CP-10": [
-        "Internal Capital Adequacy Assessment (ICAAP)",
-        "Seasonal Deviations and Exceptions"
-      ]
-    },
+    "id_collisions": {},
     "policies": 27,
     "cg_controls": 10,
     "emitted_events": 807,
@@ -363,7 +322,7 @@
     ],
     "mappings": [
       {
-        "cg_control": "CG-CTR-01",
+        "cg_control": "CG-LGTXN-01",
         "implementation": {
           "source": "core/supabase/functions/api/transfers.ts",
           "behaviour": "On any single money movement above $10,000 (1_000_000 cents) on any of the four rails, writes a control_result (decision 'pass') and opens a bsa_alert of type 'ctr_threshold' with requires_lookback=true. Does not block.",
@@ -376,15 +335,15 @@
             "verdict": "related",
             "needs_review": true,
             "reviewed_by": null,
-            "rationale": "Shares the $10,000 threshold and the name, but is not the same control. A CTR obligation under 31 CFR 1010.311 attaches to CURRENCY transactions \u2014 physical cash in or out. CG-CTR-01 fires on book transfers, wires, ACH and card authorizations, none of which are currency transactions, so a CTR is not owed on any event it detects. Treating this as CTR coverage would claim a filing obligation is met that was never triggered, while leaving actual cash handling unmonitored.",
+            "rationale": "Shares the $10,000 threshold and the name, but is not the same control. A CTR obligation under 31 CFR 1010.311 attaches to CURRENCY transactions \u2014 physical cash in or out. CG-LGTXN-01 fires on book transfers, wires, ACH and card authorizations, none of which are currency transactions, so a CTR is not owed on any event it detects. Treating this as CTR coverage would claim a filing obligation is met that was never triggered, while leaving actual cash handling unmonitored.",
             "gaps": [
               "wrong transaction class: BSA-08 aggregates ctr.cash_in_total / ctr.cash_out_total; the core has no cash-handling surface at all",
-              "wrong aggregation unit: BSA-08 aggregates per person per business day; CG-CTR-01 evaluates a single transaction against one account",
+              "wrong aggregation unit: BSA-08 aggregates per person per business day; CG-LGTXN-01 evaluates a single transaction against one account",
               "no filing: BSA-08 requires e-filing to FinCEN within 15 calendar days (ctr.filing_timer); nothing files",
               "no exemptions: Phase I/II exemption handling, DOEP (FinCEN Form 110), annual exemption review are all absent",
               "required inputs unavailable: entity.tin and entity.name are not joined to the transaction"
             ],
-            "would_discharge_if": "the core gains a cash-handling surface, per-person aggregation via entity linkage, and a FinCEN filing path. That is BSA-08 being implemented, not CG-CTR-01 being extended."
+            "would_discharge_if": "the core gains a cash-handling surface, per-person aggregation via entity linkage, and a FinCEN filing path. That is BSA-08 being implemented, not CG-LGTXN-01 being extended."
           },
           {
             "catalogue_control": "BSA-06",
@@ -392,7 +351,7 @@
             "verdict": "partially_discharges",
             "needs_review": true,
             "reviewed_by": null,
-            "rationale": "BSA-06's first rule triggers on bsa_alert.created with inputs alert_type, entity_hash, event_id and requires_lookback. CG-CTR-01 writes exactly that row shape, so it genuinely performs the rules-based detection half of BSA-06 for one alert class. Everything downstream of the alert is absent. UPDATED: the downstream half now exists \u2014 alerts carry a 2-business-day triage deadline, escalate to a real core.case, and reach a documented SAR/no-SAR decision, with a sweep that surfaces breached timers. bsa_alert.event_id is populated (OQ-05 resolved), so the alert joins back to its causing event as BSA-06 requires. Still not a full discharge: see gaps.",
+            "rationale": "BSA-06's first rule triggers on bsa_alert.created with inputs alert_type, entity_hash, event_id and requires_lookback. CG-LGTXN-01 writes exactly that row shape, so it genuinely performs the rules-based detection half of BSA-06 for one alert class. Everything downstream of the alert is absent. UPDATED: the downstream half now exists \u2014 alerts carry a 2-business-day triage deadline, escalate to a real core.case, and reach a documented SAR/no-SAR decision, with a sweep that surfaces breached timers. bsa_alert.event_id is populated (OQ-05 resolved), so the alert joins back to its causing event as BSA-06 requires. Still not a full discharge: see gaps.",
             "gaps": [
               "covers three alert typologies (CTR threshold, inbound and outbound structuring) plus OFAC and unauthorized-ACH-return; BSA-06 expects monitoring across all typologies",
               "model-based monitoring is absent \u2014 detection is rules-based only",
@@ -416,7 +375,7 @@
             "verdict": "partially_discharges",
             "needs_review": true,
             "reviewed_by": null,
-            "rationale": "Same basis as CG-CTR-01: it is genuine rules-based detection producing a conforming bsa_alert row, which is BSA-06's trigger. It adds an aggregation typology the per-transaction gate structurally cannot see. UPDATED: the downstream half now exists \u2014 alerts carry a 2-business-day triage deadline, escalate to a real core.case, and reach a documented SAR/no-SAR decision, with a sweep that surfaces breached timers. bsa_alert.event_id is populated (OQ-05 resolved), so the alert joins back to its causing event as BSA-06 requires. Still not a full discharge: see gaps.",
+            "rationale": "Same basis as CG-LGTXN-01: it is genuine rules-based detection producing a conforming bsa_alert row, which is BSA-06's trigger. It adds an aggregation typology the per-transaction gate structurally cannot see. UPDATED: the downstream half now exists \u2014 alerts carry a 2-business-day triage deadline, escalate to a real core.case, and reach a documented SAR/no-SAR decision, with a sweep that surfaces breached timers. bsa_alert.event_id is populated (OQ-05 resolved), so the alert joins back to its causing event as BSA-06 requires. Still not a full discharge: see gaps.",
             "gaps": [
               "covers three alert typologies (CTR threshold, inbound and outbound structuring) plus OFAC and unauthorized-ACH-return; BSA-06 expects monitoring across all typologies",
               "model-based monitoring is absent \u2014 detection is rules-based only",
@@ -567,7 +526,7 @@
             "verdict": "partially_discharges",
             "needs_review": true,
             "reviewed_by": null,
-            "rationale": "This is the first thing in the core that represents CURRENCY, which is what a CTR obligation under 31 CFR 1010.311 actually attaches to \u2014 and therefore the first control that can genuinely address BSA-08 (see OQ-01, where CG-CTR-01 was found to fire only on non-reportable electronic movements). It aggregates ctr.cash_in_total and ctr.cash_out_total per person per business day, keeps the two directions separate so a $6k deposit plus a $6k withdrawal does not manufacture a false obligation, fires ctr.threshold.reached (BSA-08's declared trigger), and starts the 15-day ctr.filing_timer. Currency that cannot be attributed to a person is counted and reported as unattributable rather than silently dropped or bucketed as its own person \u2014 both of which would understate the aggregate and hide obligations.",
+            "rationale": "This is the first thing in the core that represents CURRENCY, which is what a CTR obligation under 31 CFR 1010.311 actually attaches to \u2014 and therefore the first control that can genuinely address BSA-08 (see OQ-01, where CG-LGTXN-01 was found to fire only on non-reportable electronic movements). It aggregates ctr.cash_in_total and ctr.cash_out_total per person per business day, keeps the two directions separate so a $6k deposit plus a $6k withdrawal does not manufacture a false obligation, fires ctr.threshold.reached (BSA-08's declared trigger), and starts the 15-day ctr.filing_timer. Currency that cannot be attributed to a person is counted and reported as unattributable rather than silently dropped or bucketed as its own person \u2014 both of which would understate the aggregate and hide obligations.",
             "gaps": [
               "no actual FinCEN transmission: ctr.filed records the DECISION and a reference, not a submission",
               "no exemptions: Phase I/II handling, DOEP (FinCEN Form 110) and annual exemption review are absent \u2014 exemption_basis is stored but never evaluated (OQ-13)",
@@ -681,10 +640,12 @@
       {
         "id": "OQ-01",
         "severity": "high",
-        "question": "Is CG-CTR-01 misnamed, and does that misname a coverage claim?",
-        "finding": "A CTR obligation attaches to CURRENCY transactions. CG-CTR-01 fires only on electronic movements (book, wire, ACH, card), none of which are CTR-reportable. The control detects large electronic transfers \u2014 a legitimate monitoring signal \u2014 but its name asserts a filing regime it has nothing to do with.",
-        "why_it_matters": "The name alone is enough to produce a false coverage claim in a review: someone scanning for CTR coverage finds CG-CTR-01 and stops. Meanwhile actual cash handling, which is what BSA-08 governs, is unmonitored because the core has no cash surface at all.",
-        "asks_of_reviewer": "Confirm the reading, then decide whether to rename (e.g. CG-LGTXN-01) or to keep the name and record explicitly that it does not address BSA-08."
+        "question": "Is CG-LGTXN-01 misnamed, and does that misname a coverage claim?",
+        "finding": "A CTR obligation attaches to CURRENCY transactions. CG-LGTXN-01 fires only on electronic movements (book, wire, ACH, card), none of which are CTR-reportable. The control detects large electronic transfers \u2014 a legitimate monitoring signal \u2014 but its name asserts a filing regime it has nothing to do with.",
+        "why_it_matters": "The name alone is enough to produce a false coverage claim in a review: someone scanning for CTR coverage finds CG-LGTXN-01 and stops. Meanwhile actual cash handling, which is what BSA-08 governs, is unmonitored because the core has no cash surface at all.",
+        "asks_of_reviewer": "Confirm the reading, then decide whether to rename (e.g. CG-LGTXN-01) or to keep the name and record explicitly that it does not address BSA-08.",
+        "resolution": "RESOLVED 2026-08-11 (Lorenzo): renamed. CG-CTR-01 -> CG-LGTXN-01 across the core, drill, dashboard and tests; dashboard title now says 'Large electronic transaction monitor'. Historical control_result rows keep the old id as append-only evidence. The name no longer asserts CTR coverage; actual CTR/cash coverage remains BSA-08's open surface (see CG-CASH-01).",
+        "status": "resolved"
       },
       {
         "id": "OQ-02",
@@ -692,7 +653,9 @@
         "question": "Should CG-OFAC-01 be described as a control at all while its screen is a stub?",
         "finding": "The enforcement mechanism is genuinely strong \u2014 always-on, unbypassable by attestation or forced outcome, evidence written on every run including clean passes. The screen underneath it is `/\\bSDN\\b/i` against the entity name. There is no list, no list version, and no screening at payment submission, which BSA-05 requires via wire_transfer.submitted.",
         "why_it_matters": "This is the single most over-claimable row in the artifact. The plumbing looks like a finished control and reads like one in code review. An auditor who accepts the mechanism without inspecting ofacScreen() would conclude sanctions screening exists.",
-        "asks_of_reviewer": "Confirm `related` (not `partially_discharges`) is the right verdict while the list is absent. Also decide whether the OFAC floor should be marked non-production until a real list is wired \u2014 this interacts with roadmap item 50."
+        "asks_of_reviewer": "Confirm `related` (not `partially_discharges`) is the right verdict while the list is absent. Also decide whether the OFAC floor should be marked non-production until a real list is wired \u2014 this interacts with roadmap item 50.",
+        "resolution": "RESOLVED 2026-08-11 (Lorenzo): reclassified as STUB. Verdict stays 'related' (not partially_discharges) while no list is wired. The dashboard gate row now carries stub=true and a title saying the screen is a token match with no SDN list. Real list integration remains TODO \u00a78.",
+        "status": "resolved"
       },
       {
         "id": "OQ-03",
@@ -764,7 +727,9 @@
         "question": "PARTLY RESOLVED \u2014 control_id collisions are a CORPUS defect, not an extractor bug.",
         "finding": "Diagnosed at source. capitalization.md line 39 defines '## CP-01 - Capital Adequacy Targets'; cash.md line 47 defines '## CP-01 - Governance and Delegation'. Both policy documents independently chose the CP- prefix, and the extractor is reading exactly what is written \u2014 it is not merging anything. Ten ids collide (CP-01..CP-10). Separately, STATUS.md records the cash policy as carrying controls CA-01..CA-12, and no CA- id exists in cash.md at all: the cash regeneration appears to have changed its control prefix from CA- to CP- and that is what created the collision with capitalization.",
         "why_it_matters": "Containment is now in place \u2014 the extractor emits a globally unique `uid` (policy:control_id), reports collisions in controls.json, and the crosswalk refuses a claim citing a colliding bare id while accepting a uid-qualified one. 333 rows now carry 333 distinct uids. But the underlying corpus is still wrong: two documents claim the same control numbers, and any human citing 'CP-03' in a memo or an examination response is ambiguous in a way no tooling can fix.",
-        "asks_of_reviewer": "Decide which policy renumbers. STATUS.md suggests cash was meant to be CA-, so restoring that is the smaller change. Also worth adding a prefix-collision check to the regeneration pipeline, since this was introduced by a regeneration and nobody noticed."
+        "asks_of_reviewer": "Decide which policy renumbers. STATUS.md suggests cash was meant to be CA-, so restoring that is the smaller change. Also worth adding a prefix-collision check to the regeneration pipeline, since this was introduced by a regeneration and nobody noticed.",
+        "resolution": "RESOLVED 2026-08-11 (Lorenzo): cash renumbered CP-01..CP-12 -> CA-01..CA-12 in the corpus (restoring the prefix STATUS.md says it always had), control-scope.json uids updated, and scripts/check_control_collisions.py added to the rebuild cascade so a future regeneration that reintroduces a bare-id collision goes red instead of unnoticed.",
+        "status": "resolved"
       },
       {
         "id": "OQ-12",
@@ -772,7 +737,9 @@
         "question": "Accounts have no owning entity, which blocks per-person cash aggregation.",
         "finding": "BSA-08 aggregates cash 'per person per business day' and names entity.name and entity.tin as required inputs. core.account had no link to core.entity of any kind. Migration 20260719001300 adds account.entity_id (nullable, FK) and POST /accounts now accepts it, but EXISTING accounts are unlinked and cannot be backfilled truthfully \u2014 nothing in the data says which member owns which account, and inventing the link would fabricate a member relationship.",
         "why_it_matters": "This was found while sequencing cash and it changed the order. Building cash without it would aggregate per ACCOUNT, which is the exact defect already recorded against CG-STR-01 ('splitting across two accounts owned by the same member evades it entirely') \u2014 reproduced at birth, in the one control where that evasion IS the behaviour being detected. Linking accounts also retroactively lets CG-STR-01/02 move from per-account to per-entity.",
-        "asks_of_reviewer": "Existing accounts need linking by someone who knows the answer, or the demo accounts discarded. Until then entity_id stays nullable and unlinked accounts sit outside CTR aggregation. Query them with: select count(*) from core.account where entity_id is null;"
+        "asks_of_reviewer": "Existing accounts need linking by someone who knows the answer, or the demo accounts discarded. Until then entity_id stays nullable and unlinked accounts sit outside CTR aggregation. Query them with: select count(*) from core.account where entity_id is null;",
+        "resolution": "RESOLVED 2026-08-11 (Lorenzo): entity_id is now REQUIRED on POST /accounts (spec + handler, with a scoped existence pre-check and inclusion in the idempotency hash). Live census at decision time: 1944 accounts, 3 unlinked (acct_legacy + two created by the contract suite's fixture body that morning) \u2014 left NULL as quarantined history rather than fabricating owners; the API can no longer mint a fourth.",
+        "status": "resolved"
       },
       {
         "id": "OQ-13",
@@ -2454,7 +2421,7 @@
       "note": null
     },
     {
-      "control_id": "CP-01",
+      "control_id": "CA-01",
       "policy": "cash",
       "title": "Governance and Delegation",
       "reachability": "partially_reachable",
@@ -2480,7 +2447,7 @@
       "note": null
     },
     {
-      "control_id": "CP-02",
+      "control_id": "CA-02",
       "policy": "cash",
       "title": "Scope and Applicability",
       "reachability": "unreachable",
@@ -2502,7 +2469,7 @@
       "note": null
     },
     {
-      "control_id": "CP-03",
+      "control_id": "CA-03",
       "policy": "cash",
       "title": "Enterprise Cash Limit",
       "reachability": "reachable",
@@ -2527,7 +2494,7 @@
       "note": null
     },
     {
-      "control_id": "CP-04",
+      "control_id": "CA-04",
       "policy": "cash",
       "title": "Location and Device Cash Limits",
       "reachability": "partially_reachable",
@@ -2552,7 +2519,7 @@
       "note": null
     },
     {
-      "control_id": "CP-05",
+      "control_id": "CA-05",
       "policy": "cash",
       "title": "Dual Control, Keys, and Combinations",
       "reachability": "partially_reachable",
@@ -2580,7 +2547,7 @@
       "note": null
     },
     {
-      "control_id": "CP-06",
+      "control_id": "CA-06",
       "policy": "cash",
       "title": "Reconciliation and GL Controls",
       "reachability": "partially_reachable",
@@ -2605,7 +2572,7 @@
       "note": null
     },
     {
-      "control_id": "CP-07",
+      "control_id": "CA-07",
       "policy": "cash",
       "title": "Over/Short Monitoring",
       "reachability": "partially_reachable",
@@ -2634,7 +2601,7 @@
       "note": null
     },
     {
-      "control_id": "CP-08",
+      "control_id": "CA-08",
       "policy": "cash",
       "title": "ATM/ITM, Night-Drop, and Shipments",
       "reachability": "partially_reachable",
@@ -2664,7 +2631,7 @@
       "note": null
     },
     {
-      "control_id": "CP-09",
+      "control_id": "CA-09",
       "policy": "cash",
       "title": "Surprise Cash Counts and Audits",
       "reachability": "partially_reachable",
@@ -2689,7 +2656,7 @@
       "note": null
     },
     {
-      "control_id": "CP-10",
+      "control_id": "CA-10",
       "policy": "cash",
       "title": "Seasonal Deviations and Exceptions",
       "reachability": "partially_reachable",
@@ -2713,7 +2680,7 @@
       "note": null
     },
     {
-      "control_id": "CP-11",
+      "control_id": "CA-11",
       "policy": "cash",
       "title": "Training and Competency",
       "reachability": "partially_reachable",
@@ -2742,7 +2709,7 @@
       "note": null
     },
     {
-      "control_id": "CP-12",
+      "control_id": "CA-12",
       "policy": "cash",
       "title": "Monitoring, Reporting, and Recordkeeping",
       "reachability": "partially_reachable",

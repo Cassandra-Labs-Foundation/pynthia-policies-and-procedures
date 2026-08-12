@@ -107,11 +107,18 @@ GATE_POLICY = {
     "title": "Money-Movement Gate (runtime)",
     "controls": [
         {"id": "CG-VEL-01", "title": "Cross-rail daily velocity cap ($25k/day, blocks)"},
-        {"id": "CG-CTR-01", "title": "Large-transaction CTR (> $10k, alert-only)"},
+        # Renamed from CG-CTR-01 (OQ-01, 2026-08-11): fires on electronic
+        # movements only, none CTR-reportable — the old name asserted a filing
+        # regime it never touched. Historical control_result rows keep the old id.
+        {"id": "CG-LGTXN-01", "title": "Large electronic transaction monitor (> $10k, alert-only)"},
         {"id": "CG-STR-01", "title": "Inbound structuring — aggregate past $10k into one account"},
         {"id": "CG-STR-02", "title": "Outbound structuring — aggregate past $10k out of one account"},
         {"id": "CG-NSF-01", "title": "Insufficient funds (rejects before any hold)"},
-        {"id": "CG-OFAC-01", "title": "OFAC floor — unbypassable screen on every path"},
+        # STUB designation (OQ-02, 2026-08-11): the gate mechanism is real and
+        # unbypassable, but the screen underneath is a literal /\bSDN\b/ token
+        # match — no sanctions list, no list version, no payment-time screening.
+        # The title must say so until a real SDN feed lands (TODO §8).
+        {"id": "CG-OFAC-01", "title": "OFAC floor — unbypassable gate, STUB screen (no SDN list wired)", "stub": True},
     ],
 }
 
@@ -188,6 +195,7 @@ def build_manifest() -> dict:
                 "id": c["id"],
                 "uid": "money-movement-gate:" + c["id"],
                 "title": c["title"],
+                "stub": c.get("stub", False),
                 "doc": REPO_BLOB + "core/supabase/functions/api/transfers.ts",
                 "citations": [],
                 # the gate's evidence is core.control_result, not produced

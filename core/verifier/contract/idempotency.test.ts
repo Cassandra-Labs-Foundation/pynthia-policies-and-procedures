@@ -1,7 +1,9 @@
 // TEST-CATALOG — D6 idempotency: the highest-value contract tests.
-import { api, assert, assertEq, t, uid } from "./helpers.ts";
+import { api, assert, assertEq, mkEntity, t, uid } from "./helpers.ts";
 
-const BODY = { entity_id: "ent_1", account_type: "checking" };
+// entity_id is required and pre-checked against core.entity since OQ-12 —
+// a hardcoded id would 400, so the suite creates its fixture person once.
+const BODY = { entity_id: await mkEntity("D6 Idempotency Fixture"), account_type: "checking" };
 
 t("D6-T1: same key + same body replays the cached response, no second resource", async () => {
   const key = uid();

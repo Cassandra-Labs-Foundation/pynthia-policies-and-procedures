@@ -187,13 +187,13 @@ export async function runGate(
       // evidence written under the shared bootstrap credential is
       // `demo`: real evaluation of manufactured traffic (seed.sh)
       provenance: provenanceFor("core", ctx),
-      control_id: "CG-CTR-01",
+      control_id: "CG-LGTXN-01",
       decision: "pass",
       event: transferId,
       subject_ref: sourceAccountId,
     });
-    if (crErr) throw new Error(`control_result insert (CG-CTR-01): ${crErr.message}`);
-    controlResults.push({ control_id: "CG-CTR-01", decision: "pass" });
+    if (crErr) throw new Error(`control_result insert (CG-LGTXN-01): ${crErr.message}`);
+    controlResults.push({ control_id: "CG-LGTXN-01", decision: "pass" });
 
     // raiseAlert writes the causing core.event FIRST and points the alert at it,
     // so event_id is populated (OQ-05). It used to be forced NULL by the FK.
@@ -249,12 +249,12 @@ export async function runGate(
 
   // CG-STR-01 — structuring / aggregate CTR.
   //
-  // CG-STR-01 catches what CG-CTR-01 structurally cannot: the per-transaction
+  // CG-STR-01 catches what CG-LGTXN-01 structurally cannot: the per-transaction
   // gate sees one transfer at a time, so a member can stay under $10k on every
   // single transfer and still move a reportable amount into one account in a
   // day. Sum today's inflow to the destination and alert when the AGGREGATE
   // crosses the line. Only evaluated when the per-txn gate stayed silent
-  // (amount <= $10k), so a single large transfer raises CG-CTR-01, not both.
+  // (amount <= $10k), so a single large transfer raises CG-LGTXN-01, not both.
   //
   // Wires have no destination account row (funds leave for @FedWire), so this
   // is inherently book-side; outbound structuring is a separate control.

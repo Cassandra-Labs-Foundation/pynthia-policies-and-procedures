@@ -42,40 +42,42 @@ with zero gaps. Refresh the baseline any time with
 `gh workflow run live-control-tier.yml -f mode=refresh` — never run the
 full tier from a laptop.
 
-## 3. Decisions only a human can make (each blocks a swath)
+## 3. Decisions only a human can make — DECIDED 2026-08-11 (two carry follow-through)
 
-- [ ] Review the crosswalk claims — none have `reviewed_by` set, so no coverage
-      claim is load-bearing and nothing holds the `discharges` verdict
-      ([CROSSWALK.md](CROSSWALK.md)).
-- [ ] Set the institution parameters that are deliberately NULL: governance
-      calendar anchor dates (83 time-based obligations are UNSCHEDULED — OQ-15),
-      per-client ACH dual-control thresholds (every ACH batch is UNASSESSED —
-      OQ-14), LAR bands, survival horizon, capital triggers, the cash limits
-      schedule, LTV max.
-- [ ] Answer the high-severity open questions in `crosswalk-mappings.json`:
-      OQ-01 (CG-CTR-01 misnamed), OQ-02 (the OFAC floor is a stub), OQ-12
-      (accounts have no owning entity — blocks per-person cash aggregation for
-      BSA-08), OQ-14, OQ-15.
-- [ ] The lending routing decision: the handlers in `api/lending.ts`,
-      `api/lending_underwriting.ts`, `api/collections.ts`, plus five
-      fair-lending handlers in `api/deposits_member.ts`, stay dead code until
-      the product decision lands (documented exception in `api/index.ts`).
-- [ ] Decide whether D5 Phase-2 delegated auth (`/auth/token`) and the D24
-      credit-union admin console stay deferred — both are design-level
-      deferrals in `core/architecture-decisions.md`, restated here so the
-      engineering backlog stops carrying them.
-- [ ] Fix the colliding CP-01…CP-10 ids between capitalization and cash
-      (OQ-11) — colliding claims are refused by the crosswalk build. The CA- vs
-      CP- prefix drift recorded in [STATUS.md](STATUS.md) is the root cause.
-- [ ] The chart-of-accounts decision (blueprint §521, moved here from §7):
-      sign off a GL account tree and the `account_type` → 5300 share-line
-      mapping (`ACCOUNT_TYPE_MAP` in `ui/src/lib/ncua5300.js` is the written
-      proposal), and decide what `core.bookkeeping_entry` becomes — it is
-      single-sided with `account_code_5300` stamped `"018"` (a computed NCUA
-      total, not a postable line) on every row. Until this lands, the 5300's
-      asset side stays honestly blank and the filing cannot complete; once it
-      lands, the engineering (double-entry posting, per-product stamping, a
-      trial balance feeding `ncua5300.js`) is ordinary work.
+All seven were put to Lorenzo on 2026-08-11 and decided in one sitting. What
+each decision was, and where its execution stands:
+
+- [x] Lending: **stays parked.** The narrow-bank exception in `api/index.ts`
+      is the standing record; the §4 proposed paths and the verifier's 25
+      `no_api_inducer` targets are parked-by-design, not blocked.
+- [x] Chart of accounts: **`ACCOUNT_TYPE_MAP` approved as written**
+      (`ui/src/lib/ncua5300.js`). The engineering it unblocks — double-entry
+      `bookkeeping_entry`, per-product `account_code_5300` stamping, a GL
+      trial balance feeding the 5300 — is now an ordinary backlog item (§7's
+      successor work), no longer decision-gated.
+- [x] D5 Phase-2 delegated auth and the D24 admin console: **stay deferred.**
+      `core/architecture-decisions.md` remains the record; this backlog stops
+      carrying them.
+- [x] OQ-01: **renamed.** CG-CTR-01 → CG-LGTXN-01 everywhere it is emitted or
+      asserted; historical `control_result` rows keep the old id as evidence.
+- [x] OQ-02: **CG-OFAC-01 reclassified as STUB** — dashboard row carries
+      `stub: true` and a title saying the screen is a token match with no SDN
+      list; verdict stays `related`. Real list integration remains §8.
+- [x] OQ-11: **cash renumbers.** CP-01…CP-12 → CA-01…CA-12 in the corpus,
+      `control-scope.json` uids updated, and
+      `scripts/check_control_collisions.py` now gates the cascade so the next
+      silent prefix drift goes red.
+- [x] OQ-12: **entity_id required on POST /accounts** (spec + handler +
+      idempotency hash). The 3 pre-decision NULL rows (of 1,944 accounts) stay
+      NULL as quarantined history — fabricating owners was explicitly refused.
+- [ ] Institution parameters (OQ-14/OQ-15 and the rest of the NULL set):
+      **proposal drafted for Patrick** — see
+      [docs/institution-parameters-proposal.md](docs/institution-parameters-proposal.md).
+      Blocks until Patrick signs; then the values are UPDATEs, not code.
+- [ ] Crosswalk claims review: **packet prepared** —
+      [docs/crosswalk-review-packet.md](docs/crosswalk-review-packet.md) walks
+      all 10 mappings claim by claim. Blocks until Lorenzo sets `reviewed_by`;
+      the `discharges` verdicts carry no weight until then.
 
 ## 4. API surface not yet built — engineering half DONE 2026-08-10
 
