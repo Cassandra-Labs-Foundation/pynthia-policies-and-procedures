@@ -18,7 +18,7 @@ import {
   type BlnkConfig,
   type BlnkTransaction,
 } from "../_shared/blnk.ts";
-import { dispatch } from "../blnk-webhook/handlers.ts";
+import { dispatch, openFinding } from "../blnk-webhook/handlers.ts";
 import type { BlnkWebhook } from "../blnk-webhook/types.ts";
 
 export const PENDING_STATUSES = ["QUEUED", "INFLIGHT", "SCHEDULED"] as const;
@@ -619,12 +619,69 @@ export const INBOX_STALE_MINUTES = 10;
 export const INBOX_LIMIT = 50;
 /** Failed-inbox depth that stops being noise and starts being an incident. */
 export const INBOX_FAILED_ALERT_THRESHOLD = 25;
+/**
+ * Re-dispatch failures before a row is parked as `dead_letter`.
+ *
+ * Retrying is right for a failure that MAY clear — a monitor trip whose account
+ * row had not been written yet. It is wrong for one that never can: a synthetic
+ * id with no core row, an unusable payload. Without a cap the second kind is
+ * re-driven every 5 minutes forever (two July 2026 test rows did exactly that
+ * for three and a half weeks) and permanently inflates the `failed` count that
+ * trips blnk.inbox_backlog, so the backlog alarm decays into noise right when
+ * real traffic needs it. Five spans ~25 minutes at the 5-minute cron.
+ */
+export const INBOX_MAX_ATTEMPTS = 5;
 
 interface InboxRow {
   id: string;
   event: string;
   payload: { event?: string; data?: Record<string, unknown> } | null;
   status: string;
+  attempts: number | null;
+}
+
+/**
+ * Record a failed re-dispatch, parking the row once it is out of attempts.
+ *
+ * Dead-lettering is loud on purpose: the row stops being retried, so the only
+ * thing left carrying it is a finding somebody owns. Reuses blnk-webhook's
+ * openFinding rather than writing `finding` here — a second implementation of
+ * "this needs an owner" is a second thing to get wrong.
+ */
+async function recordInboxFailure(
+  db: SupabaseClient,
+  errors: SweepError[],
+  row: InboxRow,
+  msg: string,
+): Promise<void> {
+  const table = "blnk_event";
+  const attempts = (row.attempts ?? 0) + 1;
+  const dead = attempts >= INBOX_MAX_ATTEMPTS;
+
+  const { error: updErr } = await db.schema("core").from(table).update({
+    status: dead ? "dead_letter" : "failed",
+    error: msg,
+    attempts,
+    processed_at: new Date().toISOString(),
+  }).eq("id", row.id);
+  if (updErr) errors.push({ table, id: row.id, error: updErr.message });
+
+  if (dead) {
+    try {
+      await openFinding(db, {
+        key: `inbox.dead_letter:${row.id}`,
+        description:
+          `Blnk inbox event ${row.id} (${row.event}) failed ${attempts} re-dispatch ` +
+          `attempts and was parked as dead_letter. Last error: ${msg}. ` +
+          `Blnk never retries, so this delivery is lost unless it is replayed by hand.`,
+        severity: "high",
+        rootCause: "blnk_inbox_dead_letter",
+      });
+    } catch (e) {
+      errors.push({ table: "finding", id: row.id, error: errMsg(e) });
+    }
+  }
+  errors.push({ table, id: row.id, error: msg });
 }
 
 export async function sweepInbox(
@@ -636,8 +693,10 @@ export async function sweepInbox(
   const table = "blnk_event";
   const cutoff = new Date(Date.now() - INBOX_STALE_MINUTES * 60_000).toISOString();
 
+  // 'dead_letter' is deliberately absent: it is terminal, and re-including it
+  // would restore exactly the forever-retry this cap exists to stop.
   const { data, error } = await db.schema("core").from(table)
-    .select("id, event, payload, status")
+    .select("id, event, payload, status, attempts")
     .in("status", ["received", "failed"])
     .lt("received_at", cutoff)
     .order("received_at", { ascending: true })
@@ -656,7 +715,10 @@ export async function sweepInbox(
     // every handler underneath upserts on a deterministic id.
     const wh = row.payload;
     if (!wh?.event || typeof wh.data !== "object" || wh.data === null) {
-      errors.push({ table, id: row.id, error: "inbox row has unusable payload" });
+      // An unusable payload can never become usable, so this counts as an
+      // attempt like any other failure. Previously it just `continue`d, which
+      // left the row swept — and skipped — on every single run, forever.
+      await recordInboxFailure(db, errors, row, "inbox row has unusable payload");
       continue;
     }
 
@@ -673,23 +735,20 @@ export async function sweepInbox(
       }
       onRedispatched();
     } catch (e) {
-      const msg = errMsg(e);
-      const { error: updErr } = await db.schema("core").from(table).update({
-        status: "failed",
-        error: msg,
-        processed_at: new Date().toISOString(),
-      }).eq("id", row.id);
-      if (updErr) errors.push({ table, id: row.id, error: updErr.message });
-      errors.push({ table, id: row.id, error: msg });
+      await recordInboxFailure(db, errors, row, errMsg(e));
     }
   }
 
   // Depth check runs regardless of what this batch did: a backlog draining at
   // INBOX_LIMIT per run while new failures arrive faster is exactly the
   // condition that stays invisible if you only look at one batch.
+  // dead_letter counts toward the backlog too: parking a row stops the retry
+  // churn, it does not mean the delivery arrived. A growing dead-letter pile is
+  // precisely an incident, and excluding it would let the cap hide the backlog
+  // it was added to make legible.
   const { count, error: cntErr } = await db.schema("core").from(table)
     .select("id", { count: "exact", head: true })
-    .eq("status", "failed");
+    .in("status", ["failed", "dead_letter"]);
   if (cntErr) {
     errors.push({ table, id: "*", error: cntErr.message });
     return;

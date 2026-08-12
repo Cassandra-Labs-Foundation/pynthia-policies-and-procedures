@@ -10,7 +10,14 @@ import {
 } from "https://deno.land/std@0.224.0/assert/mod.ts";
 import { type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { type BlnkConfig } from "../_shared/blnk.ts";
-import { sweepCardAuthorization, sweepTxnTable, type SweepError } from "./sweeps.ts";
+import {
+  INBOX_FAILED_ALERT_THRESHOLD,
+  INBOX_MAX_ATTEMPTS,
+  sweepCardAuthorization,
+  sweepInbox,
+  sweepTxnTable,
+  type SweepError,
+} from "./sweeps.ts";
 
 interface Recorded {
   updates: { table: string; patch: Record<string, unknown>; id: string }[];
@@ -256,4 +263,145 @@ Deno.test("failed mirror write: error recorded, no advance, no evidence event", 
   assertEquals(errors[0].error, "boom");
   assertEquals(advanced, 0);
   assertEquals(recoveryEvents(rec).length, 0);
+});
+
+// ---- inbox dead-letter cap ---------------------------------------------------
+//
+// sweepInbox re-drove every ('received','failed') row with no attempt cap, so a
+// failure that can NEVER clear was retried every 5 minutes forever. Two July 2026
+// test rows ran that way for three and a half weeks and each one permanently
+// inflated the `failed` count behind blnk.inbox_backlog — the alarm decaying into
+// noise exactly as the webhook cutover made real traffic start arriving.
+
+/** Stub for sweepInbox's chains, incl. the head/count query and `.lt()`. */
+function stubInboxDb(rows: Record<string, unknown>[], failedCount = 0): {
+  db: SupabaseClient;
+  rec: { updates: Record<string, unknown>[]; findings: Record<string, unknown>[]; statusFilters: unknown[][] };
+} {
+  const rec = {
+    updates: [] as Record<string, unknown>[],
+    findings: [] as Record<string, unknown>[],
+    statusFilters: [] as unknown[][],
+  };
+  const makeBuilder = (table: string) => {
+    let op: "select" | "update" | "upsert" = "select";
+    let isCount = false;
+    let patch: Record<string, unknown> = {};
+    // deno-lint-ignore no-explicit-any
+    const b: any = {};
+    const chain = (fn?: (...args: unknown[]) => void) => (...args: unknown[]) => {
+      fn?.(...args);
+      return b;
+    };
+    b.select = chain((_cols, o) => {
+      if ((o as { head?: boolean } | undefined)?.head) isCount = true;
+    });
+    b.in = chain((col, vs) => {
+      if (col === "status") rec.statusFilters.push(vs as unknown[]);
+    });
+    b.lt = chain();
+    b.order = chain();
+    b.limit = chain();
+    b.eq = chain();
+    b.update = chain((p) => {
+      op = "update";
+      patch = p as Record<string, unknown>;
+    });
+    b.upsert = chain((row) => {
+      op = "upsert";
+      if (table === "finding") rec.findings.push(row as Record<string, unknown>);
+    });
+    b.insert = chain();
+    b.then = (onFul: (v: unknown) => unknown, onRej?: (e: unknown) => unknown) => {
+      let result: unknown;
+      if (op === "select") {
+        result = isCount
+          ? { count: failedCount, error: null }
+          : { data: table === "blnk_event" ? rows : [], error: null };
+      } else if (op === "update") {
+        if (table === "blnk_event") rec.updates.push(patch);
+        result = { error: null };
+      } else result = { error: null };
+      return Promise.resolve(result).then(onFul, onRej);
+    };
+    return b;
+  };
+  const db = {
+    schema: () => ({ from: (t: string) => makeBuilder(t) }),
+  } as unknown as SupabaseClient;
+  return { db, rec };
+}
+
+// balance.monitor with no balance_id throws inside dispatch — a deterministic,
+// permanently-unresolvable failure, which is exactly the shape the cap is for.
+const unresolvable = (attempts: number) => ({
+  id: "evt_1",
+  event: "balance.monitor",
+  payload: { event: "balance.monitor", data: {} },
+  status: "failed",
+  attempts,
+});
+
+Deno.test("inbox: a failure below the cap stays retryable and counts an attempt", async () => {
+  const { db, rec } = stubInboxDb([unresolvable(INBOX_MAX_ATTEMPTS - 2)]);
+  const errors: SweepError[] = [];
+  await sweepInbox(db, errors, () => {}, () => {});
+
+  assertEquals(rec.updates[0].status, "failed");
+  assertEquals(rec.updates[0].attempts, INBOX_MAX_ATTEMPTS - 1);
+  assertEquals(rec.findings.length, 0, "no finding until the row is actually parked");
+});
+
+Deno.test("inbox: the last attempt parks the row as dead_letter and opens a finding", async () => {
+  const { db, rec } = stubInboxDb([unresolvable(INBOX_MAX_ATTEMPTS - 1)]);
+  const errors: SweepError[] = [];
+  await sweepInbox(db, errors, () => {}, () => {});
+
+  assertEquals(rec.updates[0].status, "dead_letter");
+  assertEquals(rec.updates[0].attempts, INBOX_MAX_ATTEMPTS);
+  assertEquals(rec.findings.length, 1, "parking a delivery must leave an owner");
+  assertEquals(rec.findings[0].root_cause, "blnk_inbox_dead_letter");
+  assertEquals(rec.findings[0].severity, "high");
+});
+
+Deno.test("inbox: an unusable payload counts an attempt instead of being skipped forever", async () => {
+  // This branch used to `continue` without touching the row, so it was re-swept
+  // and re-skipped on every run for as long as the row existed.
+  const { db, rec } = stubInboxDb([{
+    id: "evt_bad",
+    event: "transaction.applied",
+    payload: null,
+    status: "failed",
+    attempts: 0,
+  }]);
+  const errors: SweepError[] = [];
+  await sweepInbox(db, errors, () => {}, () => {});
+
+  assertEquals(rec.updates.length, 1, "an unusable row must be recorded, not silently skipped");
+  assertEquals(rec.updates[0].attempts, 1);
+});
+
+Deno.test("inbox: dead_letter is terminal — the sweep never picks it back up", async () => {
+  const { db, rec } = stubInboxDb([]);
+  const errors: SweepError[] = [];
+  await sweepInbox(db, errors, () => {}, () => {});
+
+  const swept = rec.statusFilters[0];
+  assertEquals(swept, ["received", "failed"]);
+  assertEquals(
+    swept.includes("dead_letter"),
+    false,
+    "re-sweeping dead_letter would restore the forever-retry the cap removes",
+  );
+});
+
+Deno.test("inbox: the backlog alarm counts parked rows too", async () => {
+  // Parking stops the churn; it does not mean the delivery arrived. If the cap
+  // removed rows from the count it would hide the very backlog it makes legible.
+  const { db, rec } = stubInboxDb([], INBOX_FAILED_ALERT_THRESHOLD);
+  const errors: SweepError[] = [];
+  await sweepInbox(db, errors, () => {}, () => {});
+
+  const countFilter = rec.statusFilters[rec.statusFilters.length - 1];
+  assertEquals(countFilter, ["failed", "dead_letter"]);
 });

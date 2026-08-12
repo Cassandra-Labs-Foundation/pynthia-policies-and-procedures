@@ -55,6 +55,22 @@ The function routes an event back to the exact `core` row two ways:
 
 Set at least one, or events land in the inbox as `failed` (no target row).
 
+> **Blnk does not round-trip the reference on queued moves.** `POST
+> /transactions` returns a QUEUED *parent* holding the reference you sent; when
+> it applies, Blnk creates a **child** (`parent_transaction` → the parent) whose
+> reference is yours with **`_q`** appended, and the webhook fires for the child.
+> `coreReference()` in `handlers.ts` strips that suffix so the fallback can still
+> match, and the row keeps the canonical un-suffixed spelling. Until 2026-08-11
+> it did not, so the fallback was dead for every queued transaction — only route
+> 1 worked. Prefer route 1 regardless; it is the one that never depends on how
+> Blnk rewrites references.
+
+Note also that `blnk_transaction_id` ends up holding the **child** id, while the
+command path persists the **parent** id from the POST response. The child is the
+one that reaches a terminal status — the parent stays `QUEUED` forever — so the
+webhook's value is the useful one, and a row that never receives a delivery will
+keep a parent id the reconciler re-polls as non-terminal.
+
 ## Configuration
 
 - `supabase/config.toml` sets `verify_jwt = false` for this function (Blnk signs

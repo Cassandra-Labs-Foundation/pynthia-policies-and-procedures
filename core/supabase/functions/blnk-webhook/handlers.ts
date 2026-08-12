@@ -186,7 +186,7 @@ async function applyBalance(db: SupabaseClient, d: BlnkBalanceData): Promise<voi
  * Deterministic id so a redelivery converges on one finding. `provenance` is
  * 'production': these are real events off the real instance.
  */
-async function openFinding(
+export async function openFinding(
   db: SupabaseClient,
   p: { key: string; description: string; severity: string; rootCause: string },
 ): Promise<void> {

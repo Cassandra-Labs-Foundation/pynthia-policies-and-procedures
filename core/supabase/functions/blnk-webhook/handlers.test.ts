@@ -19,7 +19,7 @@ import {
   assertStringIncludes,
 } from "https://deno.land/std@0.224.0/assert/mod.ts";
 import { type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { dispatch, eventKey } from "./handlers.ts";
+import { coreReference, dispatch, eventKey } from "./handlers.ts";
 import type { BlnkWebhook } from "./types.ts";
 
 interface Recorded {
@@ -37,7 +37,7 @@ function stubDb(rows: Record<string, Record<string, unknown>[]> = {}): {
   db: SupabaseClient;
   rec: Recorded;
 } {
-  const rec: Recorded = { upserts: [], updates: [], inserts: [] };
+  const rec: Recorded = { upserts: [], updates: [], inserts: [], filters: [], matches: [] };
   const makeBuilder = (table: string) => {
     let op: "select" | "update" | "upsert" | "insert" = "select";
     let patch: Record<string, unknown> = {};
@@ -48,9 +48,15 @@ function stubDb(rows: Record<string, Record<string, unknown>[]> = {}): {
       return b;
     };
     b.select = chain();
-    b.eq = chain();
-    b.match = chain();
-    b.in = chain();
+    b.eq = chain((col, v) => {
+      rec.filters.push({ table, column: col as string, values: [v] });
+    });
+    b.match = chain((on) => {
+      rec.matches.push({ table, on: on as Record<string, unknown> });
+    });
+    b.in = chain((col, vs) => {
+      rec.filters.push({ table, column: col as string, values: vs as unknown[] });
+    });
     b.not = chain();
     b.lt = chain();
     b.order = chain();
@@ -318,6 +324,108 @@ Deno.test("bulk_transaction: one bad constituent does not strand the others", as
   assert(
     rec.updates.some((u) => u.table === "ach_transfer"),
     "a routable constituent must be mirrored even when a sibling fails",
+  );
+});
+
+// ---- (e) the `_q` queued-reference regression --------------------------------
+//
+// Blnk's queued flow returns a QUEUED parent carrying the reference we sent,
+// then applies a CHILD whose reference has `_q` appended — and fires the webhook
+// for the child. The fallback route compared that raw child reference against
+// blnk_reference, so it matched nothing for EVERY queued transaction: throw ->
+// inbox `failed` -> re-driven every 5 minutes forever. Found live 2026-08-11 by
+// running a real transfer end-to-end; only meta_data.core_resource had ever
+// worked, which is why the hermetic suite never noticed.
+
+Deno.test("coreReference: recovers the reference our writers actually stamped", () => {
+  assertEquals(coreReference("ach_transfer:abc_q"), "ach_transfer:abc");
+  // Non-queued references must survive untouched...
+  assertEquals(coreReference("ach_transfer:abc"), "ach_transfer:abc");
+  // ...including the leg suffix the writer contract allows, and ids ending in q.
+  assertEquals(coreReference("transfer:abc:debit"), "transfer:abc:debit");
+  assertEquals(coreReference("ach_transfer:abcq"), "ach_transfer:abcq");
+});
+
+Deno.test("a queued transaction's `_q` child still finds its core row", async () => {
+  // Row was stamped by the writer with the CANONICAL reference; the event
+  // arrives carrying the `_q` child spelling. No core_resource -> fallback only.
+  const { db, rec } = stubDb({
+    ach_transfer: [{ id: "ach_1", blnk_reference: "ach_transfer:ach_1" }],
+  });
+
+  await dispatch(
+    db,
+    wh("transaction.applied", {
+      transaction_id: "txn_child",
+      parent_transaction: "txn_parent",
+      reference: "ach_transfer:ach_1_q",
+      status: "APPLIED",
+    }),
+  );
+
+  const lookup = rec.filters.find((f) => f.column === "blnk_reference");
+  assert(lookup, "the fallback must query blnk_reference");
+  assert(
+    lookup.values.includes("ach_transfer:ach_1"),
+    "must look up the canonical reference, not only the `_q` child spelling",
+  );
+
+  const upd = rec.updates.find((u) => u.table === "ach_transfer");
+  assert(upd, "the queued child must still mirror onto the core row");
+  assertEquals(upd.patch.blnk_status, "APPLIED");
+  assertEquals(upd.patch.blnk_transaction_id, "txn_child");
+  // Persisting `_q` would corrupt the reconciler's by-reference lookups.
+  assertEquals(
+    upd.patch.blnk_reference,
+    "ach_transfer:ach_1",
+    "the row must keep the canonical reference, never the `_q` spelling",
+  );
+});
+
+Deno.test("a row already stamped `_q` by an earlier delivery is still matched", async () => {
+  // Rows written before this fix hold the `_q` spelling. Both must resolve, and
+  // the update must target the value the row actually holds.
+  const { db, rec } = stubDb({
+    ach_transfer: [{ id: "ach_1", blnk_reference: "ach_transfer:ach_1_q" }],
+  });
+
+  await dispatch(
+    db,
+    wh("transaction.applied", {
+      transaction_id: "txn_child",
+      reference: "ach_transfer:ach_1_q",
+      status: "APPLIED",
+    }),
+  );
+
+  const lookup = rec.filters.find((f) => f.column === "blnk_reference");
+  assert(lookup?.values.includes("ach_transfer:ach_1_q"), "the `_q` spelling must stay a candidate");
+  assertEquals(
+    rec.matches.find((m) => m.table === "ach_transfer")?.on.blnk_reference,
+    "ach_transfer:ach_1_q",
+    "the update must target the value the row actually holds",
+  );
+});
+
+Deno.test("core_resource still wins over the reference fallback", async () => {
+  const { db, rec } = stubDb();
+  await dispatch(
+    db,
+    wh("transaction.applied", {
+      transaction_id: "txn_child",
+      reference: "ach_transfer:ach_1_q",
+      status: "APPLIED",
+      meta_data: { core_resource: { table: "ach_transfer", id: "ach_1" } },
+    }),
+  );
+  assert(
+    !rec.filters.some((f) => f.column === "blnk_reference"),
+    "an explicitly routed event must not run the fallback scan at all",
+  );
+  assertEquals(
+    rec.matches.find((m) => m.table === "ach_transfer")?.on.id,
+    "ach_1",
+    "explicit routing targets the row by id",
   );
 });
 
