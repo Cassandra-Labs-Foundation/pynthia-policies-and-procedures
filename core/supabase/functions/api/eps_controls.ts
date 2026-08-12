@@ -9,7 +9,8 @@ import { type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { type PartnerContext } from "./auth.ts";
 import { type EvidenceScope, provenanceFor } from "./bsa.ts";
 import {
-  apiError, internalErrorResponse, jsonResponse, parseJsonBody, validationError,
+  apiError, internalErrorResponse, jsonResponse, notFoundResponse, parseJsonBody,
+  validationError,
 } from "./lib.ts";
 
 /** EPS-05: consecutive failures before the account locks. */
@@ -51,16 +52,20 @@ export async function postAuthEvent(
   }
 
   const { data: priorRows } = await db.schema(scope).from("eps_auth_event")
-    .select("id, subject_ref, decision, failure_count")
-    // Ordered by failure_count, NOT created_at: consecutive attempts land in
-    // the same millisecond and a timestamp sort returns them in an arbitrary
-    // order, so the count never reaches the lockout threshold. Found by the
-    // drill — EPS-05 produced 5/6 with the lockout silently missing.
-    .eq("subject_ref", subject).order("failure_count", { ascending: false }).limit(1);
+    .select("id, subject_ref, decision, failure_count, chain_seq")
+    // Ordered by chain_seq — a per-subject monotonic attempt sequence — NOT
+    // created_at (the drill's frozen clock makes timestamp order arbitrary;
+    // that bug produced EPS-05 5/6 with the lockout silently missing) and NOT
+    // failure_count (max-ever is CUMULATIVE: a success never won the read, so
+    // fail,fail,success,fail locked out, and one lockout locked every failure
+    // after it forever — the §5 follow-up defect, fixed 2026-08-11).
+    .eq("subject_ref", subject).order("chain_seq", { ascending: false }).limit(1);
   const prior = ((priorRows ?? []) as unknown as Array<Record<string, unknown>>)[0];
   const priorCount = typeof prior?.failure_count === "number" ? prior.failure_count : 0;
+  const priorSeq = typeof prior?.chain_seq === "number" ? prior.chain_seq : 0;
 
   const failureCount = outcome === "failure" ? priorCount + 1 : 0;
+  const chainSeq = priorSeq + 1;
   const challengeMethod = typeof body.challenge_method === "string" ? body.challenge_method : null;
 
   let decision: string;
@@ -81,7 +86,7 @@ export async function postAuthEvent(
   const id = `epsauth_${subject}_${failureCount}_${outcome}`;
   const { data, error } = await db.schema(scope).from("eps_auth_event").upsert({
     id, subject_ref: subject, channel, decision, failure_count: failureCount,
-    challenge_method: challengeMethod,
+    chain_seq: chainSeq, challenge_method: challengeMethod,
     locked_out_at: decision === "locked_out" ? now : null,
     provenance: provenanceFor(scope, ctx),
   }, { onConflict: "id" }).select("id, subject_ref, decision, failure_count").maybeSingle();
@@ -198,15 +203,35 @@ export async function postPospayDecision(
     }]);
   }
 
+  // §5 follow-up defect: this update ran unconditionally — deciding a
+  // nonexistent exception returned 200 and emitted a `decided` event for
+  // nothing, and a second decision silently overwrote the first (pay ->
+  // return with no trace). An exception is decided at most once, by someone,
+  // about something that exists.
+  const { data: existing } = await db.schema(scope).from("eps_pospay_exception")
+    .select("id, decision, decision_cutoff_at").eq("id", exceptionId).maybeSingle();
+  if (!existing) return notFoundResponse(requestId, "eps_pospay_exception", exceptionId);
+  if (existing.decision) {
+    return apiError(409, "already_decided", requestId, {
+      title: "Already Decided",
+      detail: `this exception was already decided '${existing.decision}' — a decision is not overwritable`,
+    });
+  }
+  const decidedAt = new Date().toISOString();
+  // Past-cutoff decisions are allowed but marked: the item already paid by
+  // default at the cutoff, so a late `return` is a recovery action, not a
+  // timely decision — the evidence must not let the two look alike.
+  const pastCutoff = String(existing.decision_cutoff_at ?? "") < decidedAt &&
+    existing.decision_cutoff_at != null;
+
   const { data, error } = await db.schema(scope).from("eps_pospay_exception")
-    .update({
-      decision, decided_by: decidedBy, decided_at: new Date().toISOString(),
-    }).eq("id", exceptionId).select("id, decision, decided_by").maybeSingle();
+    .update({ decision, decided_by: decidedBy, decided_at: decidedAt })
+    .eq("id", exceptionId).select("id, decision, decided_by").maybeSingle();
   if (error) return internalErrorResponse(requestId, error.message);
 
   await emit(db, scope, `ev_${exceptionId}_dec`, "eps.pospay_exception.decided", "eps_pospay",
-    exceptionId, { decision, decided_by: decidedBy }, ctx);
-  return jsonResponse({ data }, 200, requestId);
+    exceptionId, { decision, decided_by: decidedBy, past_cutoff: pastCutoff }, ctx);
+  return jsonResponse({ data: { ...(data ?? {}), past_cutoff: pastCutoff } }, 200, requestId);
 }
 
 /**

@@ -29,7 +29,11 @@ async function emit(
     id, code, resource_type: resourceType, resource_id: `${resourceType}:${resourceId}`,
     payload, provenance: provenanceFor(scope, ctx),
   }, { onConflict: "id", ignoreDuplicates: true });
-  if (error) console.error(`ops_security event (${code}): ${error.message}`);
+  // §5 follow-up defect: this used to console.error and continue — in the one
+  // module whose header promises "every fact leaves an event", a failed
+  // evidence write returned success to the caller and recorded nothing. Throw,
+  // like the eps emit does; the router turns it into a 500 the caller retries.
+  if (error) throw new Error(`ops_security event (${code}): ${error.message}`);
 }
 
 // ------------------------------------------------ access lifecycle (EC-02, IS-06)
@@ -451,7 +455,16 @@ export async function postSiemAlert(
   ctx: PartnerContext, scope: EvidenceScope = "core",
 ): Promise<Response> {
   const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
-  const sev = String(body.severity ?? "critical");
+  // §5 follow-up defect: severity used to default to "critical" with no
+  // validation — an EMPTY body minted a critical SIEM alert, and any typo
+  // severity passed straight into IS-14/EC-09 evidence. Same enum discipline
+  // as postVulnFinding: the caller says the severity or the alert is refused.
+  const sev = String(body.severity ?? "");
+  if (!["low", "medium", "high", "critical"].includes(sev)) {
+    return validationError(requestId, [{
+      type: "invalid_value", field: "severity", message: "severity low|medium|high|critical",
+    }]);
+  }
   const id = `siem_${crypto.randomUUID()}`;
   const { error } = await db.schema(scope).from("siem_alert").upsert({
     id, severity: sev, provenance: provenanceFor(scope, ctx),

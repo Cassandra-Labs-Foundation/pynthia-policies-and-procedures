@@ -50,6 +50,38 @@ Deno.test("EPS-05: a challenged failure records HOW the member was challenged", 
   assertEquals(dbx.violations, []);
 });
 
+Deno.test("EPS-05: a success RESETS the chain — fail,fail,success,fail is denied, not locked", async () => {
+  // Pins the §5 follow-up defect (fixed 2026-08-11): prior state used to be
+  // max(failure_count) ever, so the success's zero row never won the read and
+  // the fourth attempt locked out on a cumulative count.
+  const dbx = makeDrillDb();
+  await postAuthEvent(fail(), dbx.client, "t", CTX);
+  await postAuthEvent(fail(), dbx.client, "t", CTX);
+  await postAuthEvent(fail({ outcome: "success" }), dbx.client, "t", CTX);
+  await postAuthEvent(fail(), dbx.client, "t", CTX);
+  const rows = dbx.rows["core.eps_auth_event"];
+  const last = rows.reduce((a: Any, b: Any) => (a.chain_seq > b.chain_seq ? a : b));
+  assertEquals(last.decision, "denied");
+  assertEquals(last.failure_count, 1);
+  assert(!codes(dbx.rows).includes("eps.auth_lockout.applied"));
+});
+
+Deno.test("EPS-05: a lockout is not forever — success after lockout starts a fresh chain", async () => {
+  // The worse half of the same defect: after one lockout, max(failure_count)
+  // stayed >= threshold, so every failure for the rest of time was locked_out
+  // even after successful logins.
+  const dbx = makeDrillDb();
+  for (let i = 0; i < AUTH_LOCKOUT_THRESHOLD; i++) {
+    await postAuthEvent(fail(), dbx.client, "t", CTX);
+  }
+  await postAuthEvent(fail({ outcome: "success" }), dbx.client, "t", CTX);
+  await postAuthEvent(fail(), dbx.client, "t", CTX);
+  const rows = dbx.rows["core.eps_auth_event"];
+  const last = rows.reduce((a: Any, b: Any) => (a.chain_seq > b.chain_seq ? a : b));
+  assertEquals(last.decision, "denied");
+  assertEquals(last.failure_count, 1);
+});
+
 Deno.test("EPS-05: a success is allowed and carries a zero failure count", async () => {
   const dbx = makeDrillDb();
   await postAuthEvent(fail({ outcome: "success" }), dbx.client, "t", CTX);
@@ -117,6 +149,58 @@ Deno.test("EPS-07: a pospay decision lands complete — decision, decider, times
   // ck_eps_pospay_decision_complete would flag a partial decision
   assertEquals(dbx.violations, []);
   assert(codes(dbx.rows).includes("eps.pospay_exception.decided"));
+});
+
+Deno.test("EPS-07: deciding a nonexistent exception is a 404, not a 200 with a phantom event", async () => {
+  // Pins the §5 follow-up defect: the update used to run unconditionally, so
+  // a ghost id returned 200 and emitted `decided` evidence about nothing.
+  const dbx = makeDrillDb();
+  const res = await postPospayDecision(
+    req({ decision: "return", decided_by: "ops_1" }), "epspp_ghost", dbx.client, "t", CTX,
+  );
+  assertEquals(res.status, 404);
+  assert(!codes(dbx.rows).includes("eps.pospay_exception.decided"));
+});
+
+Deno.test("EPS-07: a decision is decided ONCE — the second attempt is a 409, not an overwrite", async () => {
+  const dbx = makeDrillDb();
+  await postPospayException(
+    req({
+      account_ref: "a1", item_ref: "chk_2", amount_cents: 5000,
+      reason: "amount mismatch", cutoff_at: "2099-01-01T00:00:00.000Z",
+    }),
+    dbx.client, "t", CTX,
+  );
+  await postPospayDecision(
+    req({ decision: "pay", decided_by: "ops_1" }), "epspp_chk_2", dbx.client, "t", CTX,
+  );
+  const res = await postPospayDecision(
+    req({ decision: "return", decided_by: "ops_2" }), "epspp_chk_2", dbx.client, "t", CTX,
+  );
+  assertEquals(res.status, 409);
+  // the first decision survives untouched
+  assertEquals(dbx.rows["core.eps_pospay_exception"][0].decision, "pay");
+  assertEquals(dbx.rows["core.eps_pospay_exception"][0].decided_by, "ops_1");
+});
+
+Deno.test("EPS-07: a decision past the cutoff is recorded as late — the default-pay already happened", async () => {
+  const dbx = makeDrillDb();
+  await postPospayException(
+    req({
+      account_ref: "a1", item_ref: "chk_3", amount_cents: 5000,
+      reason: "late decision", cutoff_at: "2000-01-01T00:00:00.000Z",
+    }),
+    dbx.client, "t", CTX,
+  );
+  const res = await postPospayDecision(
+    req({ decision: "return", decided_by: "ops_1" }), "epspp_chk_3", dbx.client, "t", CTX,
+  );
+  assertEquals(res.status, 200);
+  assertEquals((await res.json()).data.past_cutoff, true);
+  const ev = (dbx.rows["core.event"] ?? []).find((e) =>
+    e.code === "eps.pospay_exception.decided" && String(e.resource_id).includes("chk_3")
+  );
+  assertEquals((ev!.payload as Any).past_cutoff, true);
 });
 
 Deno.test("an undecided exception past its cutoff PAYS BY DEFAULT, and the review says so", async () => {

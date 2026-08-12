@@ -11,7 +11,7 @@ import { OPS_CTX, req } from "./test_helpers.ts";
 import {
   postAccessGrant, postAccessReview, postAiTool, postAiToolDecision,
   postAiToolLaunch, postBackupCycle, postBackupRemediate, postRestoreTest,
-  postVulnFinding, postVulnRemediate, postVulnTriage,
+  postSiemAlert, postVulnFinding, postVulnRemediate, postVulnTriage,
 } from "./ops_security.ts";
 
 // deno-lint-ignore no-explicit-any
@@ -180,4 +180,29 @@ Deno.test("IS-13: a REJECTED tool stays unlaunchable", async () => {
   const res = await postAiToolLaunch(req({}), id, dbx.client, "t", CTX);
   assertEquals(res.status, 409);
   assertEquals(dbx.rows["core.ai_tool"][0].status, "rejected");
+});
+
+// ------------------------------------------------------ IS-14 / EC-09 SIEM
+
+Deno.test("IS-14: an alert with no severity is refused — an empty body is not a critical", async () => {
+  // Pins the §5 follow-up defect: severity used to DEFAULT to "critical", so
+  // an empty POST minted a critical SIEM alert and typos passed into evidence.
+  const dbx = makeDrillDb();
+  const res = await postSiemAlert(req({}), dbx.client, "t", CTX);
+  assertEquals(res.status, 400);
+  assertEquals((dbx.rows["core.siem_alert"] ?? []).length, 0);
+});
+
+Deno.test("IS-14: a typo severity is refused, not recorded", async () => {
+  const dbx = makeDrillDb();
+  const res = await postSiemAlert(req({ severity: "sev_critical" }), dbx.client, "t", CTX);
+  assertEquals(res.status, 400);
+});
+
+Deno.test("IS-14: only a stated critical raises the critical event", async () => {
+  const dbx = makeDrillDb();
+  await postSiemAlert(req({ severity: "low" }), dbx.client, "t", CTX);
+  assert(!codes(dbx.rows).includes("siem.alert_critical"));
+  await postSiemAlert(req({ severity: "critical" }), dbx.client, "t", CTX);
+  assert(codes(dbx.rows).includes("siem.alert_critical"));
 });
