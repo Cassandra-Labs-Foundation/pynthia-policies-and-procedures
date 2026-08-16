@@ -86,6 +86,48 @@ What each decision was, and where its execution stands:
       `bookkeeping_entry`, per-product `account_code_5300` stamping, a GL
       trial balance feeding the 5300 — is now an ordinary backlog item (§7's
       successor work), no longer decision-gated.
+
+      **Re-review 2026-08-16 — the vocabulary is now constrained, the mapping
+      is still open.** The re-review turned up why the mapping was hard to
+      sign: `account_type` was unconstrained free text and `api/accounts.ts`
+      substitutes the literal `'checking'` when a caller names no product, so
+      all 1,917 live accounts ($55,455,245) read `checking` with no way to
+      tell a stated product from an unstated one. Approving `checking → 902`
+      meant approving *a default value* as a filing position.
+
+      Migration 20260816000100 closes the vocabulary (spec enum + CHECK +
+      a 400 at the handler): `checking` (legacy), `share_draft`, `share`,
+      `money_market`, `share_certificate`, `ira`, `keogh`. The `savings` and
+      `certificate` aliases are deliberately excluded — two spellings of one
+      NCUA line is the ambiguity being removed — which makes those two entries
+      in `ACCOUNT_TYPE_MAP` unreachable; prune them when the map is signed off.
+      Existing rows are untouched, so this decides nothing about them.
+
+      Still open, and now cleanly separable:
+      1. Does `checking → 902` stand for the 1,917 legacy rows?
+      2. Should `account_type` become *required* on `POST /accounts` (the
+         OQ-12 treatment)? That is what actually closes the "default masks
+         unset" hole; the CHECK only stops new invented values. NULL remains
+         permitted at the column, which the pgTAP fixtures rely on.
+      3. Re-stamp the 1,628 historical `account_code_5300 = "018"` rows, or
+         leave them as quarantined history the way OQ-12 left the 3 NULL
+         `entity_id` rows?
+
+- [ ] **The FBO position may be on the wrong side of the balance sheet.**
+      Found while re-reading `ncua5300.js` for the above. Line 730B (Total
+      Cash on Deposit, an ASSET) is sourced from `aggregator.fbo_position`,
+      justified in the file as "the standard treatment for an FBO/program-bank
+      model" — which describes a *non-chartered* fintech pooling customer money
+      at a real bank. Pynthia is the opposite: we hold the charter, and an FBO
+      here is a fintech program's balance held **at** us, i.e. a deposit we
+      owe. That is a liability (plausibly line 880, Non-Member Deposits), not
+      cash we hold elsewhere. Reporting it as an asset misstates the balance
+      sheet in both directions at once.
+
+      The note in the file has been corrected to say so; the mapping itself is
+      left in place because moving it is the same class of decision as the
+      rest of that module. If it moves, 730B becomes unsourced and 880 may
+      become sourceable — a straight swap of which lines can be filled.
 - [x] D5 Phase-2 delegated auth and the D24 admin console: **stay deferred.**
       `core/architecture-decisions.md` remains the record; this backlog stops
       carrying them.

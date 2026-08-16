@@ -97,6 +97,14 @@ paths:
               properties:
                 account_type:
                   type: string
+                  enum:
+                  - checking
+                  - share_draft
+                  - share
+                  - money_market
+                  - share_certificate
+                  - ira
+                  - keogh
                   x-bound-controls:
                   - TIS-02
                   - TIS-04
@@ -5740,10 +5748,21 @@ components:
       properties:
         account_type:
           type: string
+          enum:
+          - checking
+          - share_draft
+          - share
+          - money_market
+          - share_certificate
+          - ira
+          - keogh
+          description: 'The share product this account reports on for NCUA 5300. Evidences controls TIS-02, TIS-04. `checking`
+            is LEGACY: it is the historical default for a caller that named no type, so it does not distinguish a stated product
+            from an unstated one, and whether it reports as share drafts (902) is the open chart-of-accounts decision. New
+            integrations should send an explicit credit-union product type.'
           x-bound-controls:
           - TIS-02
           - TIS-04
-          description: Evidences controls TIS-02, TIS-04.
         balance:
           type: integer
           x-bound-controls:

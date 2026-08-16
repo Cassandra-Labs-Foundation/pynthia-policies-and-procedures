@@ -28,6 +28,33 @@ import { scopeToPartner } from "./ownership.ts";
 import { setRetentionClocks } from "./retention.ts";
 import { type PartnerContext } from "./auth.ts";
 
+/**
+ * The share products an account may report on for the NCUA 5300. Mirrors the
+ * spec's `account_type` enum and core.account's CHECK constraint (migration
+ * 20260816000100) — all three must move together.
+ *
+ * The aliases the provisional map in `ui/src/lib/ncua5300.js` also accepts
+ * (`savings` for share, `certificate` for share_certificate) are deliberately
+ * NOT here: two spellings of one NCUA line is the ambiguity this enum exists
+ * to remove, and no live account uses either.
+ *
+ * `checking` is LEGACY and stays allowed only because 1,917 live rows carry
+ * it. It is also the value substituted when a caller names no type, so it
+ * cannot distinguish a stated product from an unstated one — which is exactly
+ * why the checking -> 902 mapping is still an open decision (TODO §3).
+ * Constraining the vocabulary stops NEW ambiguity; it does not resolve the
+ * existing rows and does not pretend to.
+ */
+export const ACCOUNT_TYPES = [
+  "checking",
+  "share_draft",
+  "share",
+  "money_market",
+  "share_certificate",
+  "ira",
+  "keogh",
+];
+
 export interface AccountRow {
   id: string;
   account_type: string;
@@ -89,6 +116,17 @@ export async function postAccount(
       type: "invalid_value",
       field: "entity_id",
       message: "must be a non-empty string naming the owning entity",
+    });
+  }
+  // Rejected at the edge with a 400 naming the field, rather than letting the
+  // CHECK constraint surface as a 500. The message lists the vocabulary so a
+  // caller sending "savings" or "certificate" — the aliases this enum
+  // deliberately drops — is told what to send instead.
+  if (body.account_type !== undefined && !ACCOUNT_TYPES.includes(accountType)) {
+    errors.push({
+      type: "invalid_value",
+      field: "account_type",
+      message: `must be one of: ${ACCOUNT_TYPES.join(", ")}`,
     });
   }
   if (errors.length) return validationError(requestId, errors);

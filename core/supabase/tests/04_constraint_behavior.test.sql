@@ -29,7 +29,7 @@
 -- `supabase db reset`). Everything rolls back; nothing persists.
 
 begin;
-select plan(22);
+select plan(26);
 
 -- ------------------------------------------------------------------- seeds
 -- Plain inserts: these MUST succeed or the file aborts, which is the correct
@@ -170,6 +170,40 @@ select throws_ok(
   $$insert into "core"."account" ("id", "status", "partner_id") values ('t04_bad_owner_acct', 'open', 't04_no_such_partner')$$,
   '23503', null,
   'fk_account_partner_id: an account cannot claim a partner this instance does not host');
+
+-- ------------------------------ ck_account_type_vocabulary (23514)
+-- account_type drives NCUA 5300 share-line bucketing (ui/src/lib/ncua5300.js),
+-- and was unconstrained free text until migration 20260816000100. The handler
+-- rejects bad values first; this proves the table refuses them too, so a
+-- writer that bypasses the API cannot mint a share product NCUA has no line
+-- for.
+select throws_ok(
+  $$insert into "core"."account" ("id", "status", "partner_id", "entity_id", "account_type")
+    values ('t04_acct_badtype', 'open', 't04_partner', 't04_entity', 'brokerage')$$,
+  '23514', null,
+  'ck_account_type_vocabulary: an invented share product is unrepresentable');
+
+-- The aliases the provisional 5300 map still accepts are NOT vocabulary: two
+-- spellings of one NCUA line is the ambiguity the constraint exists to remove.
+select throws_ok(
+  $$insert into "core"."account" ("id", "status", "partner_id", "entity_id", "account_type")
+    values ('t04_acct_alias', 'open', 't04_partner', 't04_entity', 'savings')$$,
+  '23514', null,
+  'ck_account_type_vocabulary: `savings` is a second spelling of share, and refused');
+
+select lives_ok(
+  $$insert into "core"."account" ("id", "status", "partner_id", "entity_id", "account_type")
+    values ('t04_acct_goodtype', 'open', 't04_partner', 't04_entity', 'share_certificate')$$,
+  'a real credit-union share product is accepted');
+
+-- NULL stays permitted on purpose (a CHECK passes on NULL): the deadline and
+-- coverage suites insert accounts with no account_type at all, and closing
+-- that hole is a contract change (making the field required), not a
+-- constraint. Asserted so the allowance is a decision, not an oversight.
+select lives_ok(
+  $$insert into "core"."account" ("id", "status", "partner_id", "entity_id")
+    values ('t04_acct_nulltype', 'open', 't04_partner', 't04_entity')$$,
+  'account_type NULL is still accepted — deliberately, see 20260816000100');
 
 select * from finish();
 rollback;

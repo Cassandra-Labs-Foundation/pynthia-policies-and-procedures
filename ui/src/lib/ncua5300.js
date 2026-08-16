@@ -107,17 +107,32 @@ export const LINES = [
   },
   {
     code: "730B", section: "assets", level: 1, label: "Total Cash on Deposit",
-    // The FBO position is the one genuinely live money figure this system has.
-    // Calling it "cash on deposit at other financial institutions" is the
-    // standard treatment for an FBO/program-bank model, and it is a mapping
-    // decision, so it is flagged as one rather than applied silently.
+    // The FBO position is the one genuinely live money figure this system has,
+    // which is why it was mapped here — but WHICH SIDE it belongs on is now in
+    // doubt, and that matters more than the mapping being provisional.
+    //
+    // The original rationale said "cash on deposit at other financial
+    // institutions, the standard treatment for an FBO/program-bank model".
+    // That describes a NON-chartered fintech pooling customer money at a real
+    // bank. Pynthia is the opposite: we hold the charter, the deposits are on
+    // our own balance sheet, and the FBO accounts belong to the fintechs
+    // integrating WITH us — one per program, holding that program's end-user
+    // money. Money a program holds with us is something we OWE it, which is a
+    // liability, not cash we hold somewhere else.
+    //
+    // Left mapped here rather than moved, because moving it is the same class
+    // of decision as the rest of this file — see `provisional`. Resolving it
+    // is TODO §3.
     provisional:
-      "mapped from the live FBO position (aggregator.fbo_position). Correct for an " +
-      "FBO/program-bank structure; confirm before filing. SIGN HAZARD: the two " +
-      "writers disagree — run_payment_hub ADDS on outflow codes while " +
-      "capture_origination subtracts, wire returns never reverse, and no inbound " +
-      "code moves it at all — so until that is reconciled this figure can move the " +
-      "wrong way and must not be filed unreviewed.",
+      "mapped from the live FBO position (aggregator.fbo_position). SIDE HAZARD: " +
+      "an FBO here is a fintech program's balance held AT this credit union, so it " +
+      "is a DEPOSIT OWED (a liability, plausibly line 880 Non-Member Deposits) " +
+      "rather than cash on deposit elsewhere. Reporting it as an asset would " +
+      "misstate the balance sheet in both directions at once. Confirm the side " +
+      "before filing. The sign question is separately settled — direction is " +
+      "declared per event code as x-fbo in the spec and enforced by " +
+      "aggregator.fbo_delta (2026-08-15), so the figure no longer moves the wrong " +
+      "way on settlement.",
   },
   {
     code: "730C", section: "assets", level: 1, label: "Cash Equivalents (original maturity ≤ 3 months)",
