@@ -169,10 +169,10 @@ What each decision was, and where its execution stands:
       scoped figures are $55,415,245 of member shares against −$198,650,
       a gap of −$55,613,895 (not the −$55,653,895 first reported).
 
-- [ ] **Deploy the `api` function** so `GET /reports/5300` actually returns
-      `member_share_cents`. The migration is live but the handler change is
-      not deployed, so the UI hides the reconciliation banner rather than
-      showing a half-figure — safe, but the tie-out is invisible until then.
+      **Deployed and verified 2026-08-16.** `GET /reports/5300` returns
+      `member_share_cents` 5541524500 and
+      `fbo_reconciliation_diff_cents` −5561389500, matching the database, and
+      the UI banner renders the tie-out against the live core.
 - [x] D5 Phase-2 delegated auth and the D24 admin console: **stay deferred.**
       `core/architecture-decisions.md` remains the record; this backlog stops
       carrying them.
