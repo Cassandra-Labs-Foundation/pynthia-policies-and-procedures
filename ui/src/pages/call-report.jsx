@@ -128,7 +128,11 @@ export default function CallReport() {
   const filing = useMemo(
     () =>
       merged
-        ? buildFiling({ accounts: merged.accounts, fboPositionCents: merged.fboPositionCents })
+        ? buildFiling({
+          accounts: merged.accounts,
+          fboPositionCents: merged.fboPositionCents,
+          memberShareCents: merged.memberShareCents,
+        })
         : null,
     [merged],
   );
@@ -303,8 +307,9 @@ function FilingTab({ data, filing, period }) {
       {fboReconciliation && (
         <div className="bg-white border border-slate-200 rounded-lg p-3 mb-4 text-sm">
           <span className="font-medium">FBO reconciliation</span> — not a filed line.
-          Program-level position {formatCents(fboReconciliation.positionCents)} vs{' '}
-          {formatCents(fboReconciliation.shareTotalCents)} across the share lines
+          This program&rsquo;s members are tracked through its FBO account, so the two
+          should agree: position {formatCents(fboReconciliation.positionCents)} vs{' '}
+          {formatCents(fboReconciliation.memberShareCents)} of member shares
           {fboReconciliation.ties
             ? ' — ties exactly.'
             : `, a gap of ${formatCents(fboReconciliation.differenceCents)}.`}

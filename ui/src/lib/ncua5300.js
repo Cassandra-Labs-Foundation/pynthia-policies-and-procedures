@@ -49,6 +49,14 @@
 // number, which is the only reason to keep both. buildFiling returns it as
 // `fboReconciliation`.
 //
+// That a program's members are tracked THROUGH its FBO account (decided
+// 2026-08-16) is what turns the tie-out from a curiosity into an invariant:
+// the position and that program's member share balances should be equal. The
+// comparison is scoped by the core — aggregator.member_share_cents(instance)
+// — not by summing the share lines below, which carry whatever accounts the
+// viewing actor may list. For an ops actor that is every partner, so summing
+// here compares one program's position against everybody's balances.
+//
 // This mirrors how the rest of this codebase treats a red control: it stays
 // red and names what it wants, rather than going green on invented input.
 // docs/history/blueprint.md §521 already records the chart-of-accounts mapping as a
@@ -217,21 +225,32 @@ export const LINES = [
   },
   {
     code: "880", section: "shares", level: 1, label: "Total Non-Member Deposits",
-    // Not zero: the core cannot tell a member account from a nonmember one, so
-    // "no nonmember deposits" and "we cannot see them" are indistinguishable.
+    // ZERO, as of the 2026-08-16 decision — and this is the one line in this
+    // file that renders a zero without reading a balance, so the reasoning
+    // has to hold on its own:
     //
-    // Sharper since 2026-08-16: this is not only a missing flag, it is an
-    // unanswered question about the deposit structure. Every account in the
-    // core belongs to a PARTNER — a fintech program — and whether that
-    // program's end users are members of this credit union or non-member
-    // depositors decides whether their balances belong on the share lines
-    // above or on this one. Today they are all bucketed above by default.
-    // That is the same class of decision as ACCOUNT_TYPE_MAP, and it moves
-    // far more money than the share-line split does.
-    needs: "a member/nonmember flag on the account. core.membership exists but nothing " +
-      "joins it to core.account, so this cannot be reported as zero either. Also " +
-      "unanswered: whether a partner program's end users are members at all — if they " +
-      "are not, the balances now on 902/657 belong here instead.",
+    //   - core.account.partner_id is NOT NULL, so every account in the core
+    //     belongs to a partner program. There is no unaffiliated deposit.
+    //   - A partner program's end users ARE members of this credit union
+    //     (decided; they are tracked through the program's FBO account).
+    //
+    // Both together mean every deposit the core holds is a member share, so
+    // non-member deposits are zero rather than unknown. This is the whole of
+    // what unblocks line 018 — the code every bookkeeping_entry is stamped
+    // with — from being blank.
+    //
+    // ASSERTED, NOT EVIDENCED, and marked provisional for that reason:
+    // core.membership holds 2 rows and joins to nothing, so the core cannot
+    // corroborate it. The day a non-member deposit product exists — a public
+    // unit deposit, another institution's funds — this stops being true and
+    // nothing here will notice on its own.
+    assertedZero: true,
+    provisional:
+      "reported as zero on a decision, not a reading. Every core.account has a " +
+      "partner_id (NOT NULL) and a partner program's end users are members, so every " +
+      "deposit held is a member share. core.membership cannot corroborate this — it " +
+      "holds 2 rows and joins to no account. Revisit the moment any non-member " +
+      "deposit product exists.",
   },
   {
     code: "018", section: "shares", level: 0, label: "TOTAL SHARES AND DEPOSITS", total: true,
@@ -294,7 +313,9 @@ export function bucketShares(accounts) {
  * number that is wrong by everything the core cannot see, and a balance sheet
  * that is wrong by an unknown amount is worse than one that is visibly absent.
  */
-export function buildFiling({ accounts = [], fboPositionCents = null } = {}) {
+export function buildFiling(
+  { accounts = [], fboPositionCents = null, memberShareCents = null } = {},
+) {
   const { cents: shareCents, unmappedTypes } = bucketShares(accounts);
   const values = new Map();
   const status = new Map();
@@ -303,6 +324,14 @@ export function buildFiling({ accounts = [], fboPositionCents = null } = {}) {
     if (line.total) continue;
     if (line.fromAccounts) {
       values.set(line.code, shareCents[line.code] ?? 0);
+      status.set(line.code, "sourced");
+    } else if (line.assertedZero) {
+      // The one zero not read from a balance. It is `sourced` because it is a
+      // real reported figure a filer stands behind, and `provisional` on the
+      // line says what it stands on — the same treatment ACCOUNT_TYPE_MAP
+      // gets. Rendering it as "—" would be wrong in the other direction: the
+      // answer is known, it is just known from a decision.
+      values.set(line.code, 0);
       status.set(line.code, "sourced");
     } else {
       status.set(line.code, "unsourced");
@@ -364,16 +393,19 @@ export function buildFiling({ accounts = [], fboPositionCents = null } = {}) {
     // returns but NOTHING credits an FBO yet (no inbound rail emits), so the
     // position understates the deposits by every dollar ever funded. That gap
     // IS the reading — see TODO §6.
-    fboReconciliation: typeof fboPositionCents === "number"
-      ? (() => {
-        const shareTotalCents = Object.values(shareCents).reduce((a, b) => a + b, 0);
-        return {
-          positionCents: fboPositionCents,
-          shareTotalCents,
-          differenceCents: fboPositionCents - shareTotalCents,
-          ties: fboPositionCents === shareTotalCents,
-        };
-      })()
+    // `memberShareCents` comes from the core already scoped to this instance's
+    // partner program — NOT from summing the share lines above. Those lines
+    // hold whatever accounts the viewing actor may list, which for an ops
+    // actor is every partner, so summing them here would compare one
+    // program's position against everybody's balances. It did, briefly.
+    fboReconciliation: typeof fboPositionCents === "number" &&
+        typeof memberShareCents === "number"
+      ? {
+        positionCents: fboPositionCents,
+        memberShareCents,
+        differenceCents: fboPositionCents - memberShareCents,
+        ties: fboPositionCents === memberShareCents,
+      }
       : null,
   };
 }

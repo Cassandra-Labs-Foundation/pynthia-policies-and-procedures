@@ -138,14 +138,41 @@ What each decision was, and where its execution stands:
       which is the whole of the unmodelled inbound funding and disappears when
       an inbound rail emits.
 
-- [ ] **Are a partner program's end users members at all?** Raised by the
-      above and bigger than the share-line split it sits next to. Every
-      account in the core belongs to a partner — a fintech program. If those
-      end users are members, their balances belong on 902/657 where they are
-      now; if the program is a non-member depositor, all $55.4M belongs on
-      880 instead. `core.membership` exists but nothing joins it to
-      `core.account`, so the core cannot currently answer it either way. This
-      moves far more money than `checking → 902` does.
+- [x] **Partner program end users ARE members — ANSWERED 2026-08-16**, and
+      their balances are tracked *through* the program's FBO account. Two
+      consequences, both shipped:
+
+      **Line 880 is zero, so line 018 computes.** Every `core.account` has a
+      `partner_id` (NOT NULL) and every program's end users are members, so
+      every deposit the core holds is a member share and non-member deposits
+      are zero rather than unknown. That unblocks TOTAL SHARES AND DEPOSITS —
+      the code every `bookkeeping_entry` is stamped with — which now derives
+      at **$55,455,245.00** instead of rendering blank. Sourced lines 7 → 9
+      of 33, verified in the running UI.
+
+      The zero is **asserted, not evidenced**, and carries a `provisional`
+      note saying so: `core.membership` holds 2 rows and joins to no account,
+      so the core cannot corroborate it. The day a non-member deposit product
+      exists this silently stops being true — nothing will go red.
+
+      **The tie-out became an invariant.** "Tracked through the FBO account"
+      means the position and that program's member shares are two views of one
+      number, so `aggregator.member_share_cents(instance)` (migration
+      20260816000200) supplies the other half and `GET /reports/5300` returns
+      both together with their difference.
+
+      This also fixed a real defect in the reconciliation shipped hours
+      earlier: it summed the share lines *client-side*, but the browser sees
+      whatever accounts its actor may list — for an ops actor, every partner.
+      So one instance's position was being compared against every program's
+      balances, folding `ptnr_drill`'s $40,000 into `inst_local`'s gap. The
+      scoped figures are $55,415,245 of member shares against −$198,650,
+      a gap of −$55,613,895 (not the −$55,653,895 first reported).
+
+- [ ] **Deploy the `api` function** so `GET /reports/5300` actually returns
+      `member_share_cents`. The migration is live but the handler change is
+      not deployed, so the UI hides the reconciliation banner rather than
+      showing a half-figure — safe, but the tie-out is invisible until then.
 - [x] D5 Phase-2 delegated auth and the D24 admin console: **stay deferred.**
       `core/architecture-decisions.md` remains the record; this backlog stops
       carrying them.

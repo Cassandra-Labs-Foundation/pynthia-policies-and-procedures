@@ -89,7 +89,7 @@ export async function getReport5300(
   requestId: string,
   ctx: PartnerContext,
 ): Promise<Response> {
-  const [positionRes, historyRes] = await Promise.all([
+  const [positionRes, historyRes, memberShareRes] = await Promise.all([
     db.schema("aggregator").from("fbo_position")
       .select("instance_id, position_cents, last_seq, updated_at")
       .eq("instance_id", ctx.instanceId)
@@ -101,10 +101,20 @@ export async function getReport5300(
       .eq("instance_id", ctx.instanceId)
       .order("as_of", { ascending: false })
       .limit(REPORT_5300_DAYS),
+    // The other half of the FBO tie-out. A partner program's end users are
+    // members whose balances are tracked THROUGH its FBO account, so this and
+    // the position above are two views of one number and belong in one
+    // response — a caller that had to fetch them separately could compare a
+    // position against balances read at a different moment.
+    //
+    // An aggregate function rather than a row walk because this endpoint is
+    // the UI's heartbeat: useLiveCore polls it on a timer.
+    db.schema("aggregator").rpc("member_share_cents", { p_instance: ctx.instanceId }),
   ]);
 
   if (positionRes.error) return internalErrorResponse(requestId, positionRes.error);
   if (historyRes.error) return internalErrorResponse(requestId, historyRes.error);
+  if (memberShareRes.error) return internalErrorResponse(requestId, memberShareRes.error);
 
   const history = (historyRes.data ?? []) as unknown as Record<string, unknown>[];
   const position = positionRes.data as Record<string, unknown> | null;
@@ -125,6 +135,17 @@ export async function getReport5300(
         updated_at: position.updated_at,
       }
       : null,
+    // The tie-out, scoped to THIS instance's partner program. Reported even
+    // when there is no position row yet, because "members hold $X and the FBO
+    // tracks none of it" is a finding, not a blank.
+    //
+    // The difference is not smoothed by a tolerance: today it is the whole of
+    // the unmodelled inbound funding (nothing credits an FBO until a rail
+    // emits ach_pull.settled or fbo_funding.settled), and hiding that behind
+    // an "acceptable variance" would hide the one number that says so.
+    member_share_cents: memberShareRes.data ?? 0,
+    fbo_reconciliation_diff_cents:
+      Number(position?.position_cents ?? 0) - Number(memberShareRes.data ?? 0),
     // daily snapshots, newest first
     history,
     as_of: newest,

@@ -761,6 +761,13 @@ export async function fetchReport5300() {
     stale: Boolean(body.stale),
     cadence: body.cadence ?? null,
     chartOfAccountsNote: body.chart_of_accounts_note ?? null,
+    // The FBO tie-out, already scoped by the core to THIS instance's partner
+    // program. Taken from the response rather than re-summed here on purpose:
+    // the browser sees whatever accounts its actor may list — for an ops actor
+    // that is every partner — so summing client-side compares one program's
+    // position against everybody's balances.
+    memberShareCents: body.member_share_cents ?? null,
+    fboDiffCents: body.fbo_reconciliation_diff_cents ?? null,
   };
 }
 
@@ -799,6 +806,8 @@ export async function fetch5300Inputs() {
     accounts,
     truncated: Boolean(accounts.hitCap),
     fboPositionCents: report?.current?.fbo_position_cents ?? null,
+    memberShareCents: report?.memberShareCents ?? null,
+    fboDiffCents: report?.fboDiffCents ?? null,
     lastSeq: report?.current?.last_seq ?? null,
     updatedAt: report?.current?.updated_at ?? null,
     instanceId: report?.instanceId ?? null,
