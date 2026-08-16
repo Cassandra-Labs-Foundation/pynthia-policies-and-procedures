@@ -56956,6 +56956,11 @@ x-events:
   account_number.disabled:
     subject: account_number
     type: disabled
+  ach_pull.settled:
+    subject: ach_pull
+    type: settled
+    x-money: true
+    x-fbo: inbound
   ach_transfer.control_results:
     subject: ach_transfer
     type: recorded
@@ -56968,10 +56973,12 @@ x-events:
   ach_transfer.returned:
     subject: ach_transfer
     type: returned
+    x-fbo: inbound
   ach_transfer.settled:
     subject: ach_transfer
     type: settled
     x-money: true
+    x-fbo: outbound
   ad.accessibility_check:
     subject: ad
     type: checked
@@ -57576,6 +57583,7 @@ x-events:
     subject: card_authorization
     type: captured
     x-money: true
+    x-fbo: outbound
   card_authorization.created:
     subject: card_authorization
     type: created
@@ -58881,6 +58889,10 @@ x-events:
   fbar.nil_determined:
     subject: fbar
     type: determined
+  fbo_funding.settled:
+    subject: fbo_funding
+    type: settled
+    x-fbo: inbound
   fee.overdraft.posted:
     subject: fee
     type: posted
@@ -60916,6 +60928,7 @@ x-events:
     subject: transfer
     type: settled
     x-money: true
+    x-fbo: internal
   treasury.invest_excess.notified:
     subject: treasury
     type: notified
@@ -61217,6 +61230,7 @@ x-events:
     subject: wire_transfer
     type: completed
     x-money: true
+    x-fbo: outbound
   wire_transfer.created:
     subject: wire_transfer
     type: created
@@ -61232,6 +61246,7 @@ x-events:
   wire_transfer.returned:
     subject: wire_transfer
     type: returned
+    x-fbo: inbound
   wire_transfer.submitted:
     subject: wire_transfer
     type: submitted

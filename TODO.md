@@ -193,52 +193,138 @@ was actually true versus what this section long claimed. Still open there:
 balance-mirror refresh on `transaction.applied`, pulling MATCHED
 reconciliation results into `core.bookkeeping_entry`, the monitor→control-id
 map for `control_result` rows, Blnk key scoping, secret rotation, a lag
-metric, and cold-start backfill. Two blueprint flags never closed:
+metric, and cold-start backfill. The two blueprint flags that were never
+closed are below — the direction model is now decided, with the live data
+correction and the inbound code still open:
 
-- [ ] **The FBO position direction model — REVIEW 2026-08-12.** The two flags
-      below are one question, investigated 2026-08-11; the decision is still
-      Lorenzo's, but it no longer needs re-deriving.
+- [x] **The FBO position direction model — DECIDED and SHIPPED 2026-08-15.**
+      Lorenzo adopted the balance model, negative reported position included.
 
-      *What the code already asserts.* `aggregator.fbo_read` defines
-      `available_balance_cents = position − held reserves`, and
-      `capture_origination` does `position_cents - amount_cents`. Both say
-      `position_cents` is a **balance that spending reduces**. The Payment Hub
-      (`aggregator.run_payment_hub`) disagrees: it does `position_cents +
-      amount_cents` for every money code, and all four money codes are outbound
-      settlements — so today, sending money increases the balance.
+      *What an FBO position is here.* Pynthia is a chartered narrow bank: the
+      deposits are on our own balance sheet, not held at some upstream bank.
+      The FBO accounts belong to the **fintechs integrating with us** — one per
+      fintech, holding that program's end-user money. `aggregator.fbo_position`
+      is already keyed that way (`instance_id` primary key, and `instance_id`
+      is the verified JWT claim), so per-fintech was structural from the start.
+      An earlier draft of this section described the pooled-account model of a
+      *non*-chartered fintech; it was wrong about the whole direction of the
+      relationship, and the numbers it quoted came from the wrong stream.
 
-      *Three findings that change the shape of the fix.*
-      1. `transfer.settled` is "an on-us book transfer between internal
-         accounts" (spec, Decision 8), so it nets to zero at the FBO and should
-         not move the position in either direction. It is the largest
-         contributor today: 679 events, $3,344,135. A category error, not a
-         sign error.
-      2. `ach_transfer.returned` (105 events, $413,500) and
-         `wire_transfer.returned` (77, $154,000) both carry `amount_cents` but
-         are not `x-money`, so $567,500 of reversals are invisible.
-      3. **There is no inbound funding code at all** — no `inbound_payment.*`
-         entry exists in `x-events`. Nothing credits the FBO, so flipping the
-         hub's sign alone does not make the position correct, it makes it
-         monotonically negative.
+      *What was wrong in the code.* `fbo_read` computes `available = position −
+      held reserves` and `accept_origination` does `position_cents −
+      amount_cents`: both say position is a balance that spending reduces.
+      `run_payment_hub` disagreed — `position_cents + amount_cents` for every
+      money code, all four of which are outbound settlements. Sending money
+      raised the balance. The live `inst_local` position of **+$1,927,341** is
+      exactly that: a sum of outflows.
 
-      *The proposed model, and its cost.* Outbound settlement (`−`), returns
-      reversing (`+`), `transfer.settled` dropped, inbound (`+`) once a code
-      exists. Against today's events that yields **−$573,775** where the hub
-      now reports +$3.3M. The negative is the honest signal that inbound is
-      unmodelled, but it would surface as a negative `fbo_position_cents` on
-      the 5300 — accept that consequence deliberately or not at all.
+      *Why a sign flip alone was not the fix.* Re-measured against
+      `aggregator.event` — the stream the hub actually reads, and **not** the
+      one this section originally cited (those figures were `core.event`; the
+      two streams have no bridge, `aggregator.event` is written only by
+      `ingestEvents` from a fintech's own JWT):
+      1. `transfer.settled` is an on-us book transfer (spec Decision 8) and
+         nets to zero inside one fintech's FBO — a category error, not a sign
+         error. Largest contributor at 313 events, $1,456,341.
+      2. `ach_transfer.returned` and `wire_transfer.returned` carry
+         `amount_cents` but had no FBO effect, hiding $273,000 of reversals.
+      3. **There is still no inbound funding code** in `x-events`. Nothing
+         credits an FBO, so the corrected position runs negative.
 
-      *Two questions to answer on review.* (a) Adopt the balance model,
-      carrying a negative reported position until inbound exists? (b) Where
-      does FBO funding originate — partner wire in, member ACH pull, other?
-      That answer defines the inbound code, which is new spec surface
-      (`x-events` + `x-money`) and not just a migration.
+      *What shipped.* Direction is declared once in the spec (`x-fbo:
+      outbound | inbound | internal` on the `x-events` entry) and mirrored into
+      `aggregator.fbo_delta` (migration 20260815000100, applied live) and
+      `agg_fbo_events` in [aggregator_views.sql](analytics/aggregator_views.sql);
+      `scripts/check_money_codes.py` fails on drift between any of the three,
+      and on any `x-money` code that declares no direction.
 
-      *Available without any decision*, if the sign flip is held back: landing
-      the two return codes and dropping `transfer.settled` are both unambiguous
-      on their own, and give a correct settled-**volume** today with the
-      balance model still available later. `scripts/check_money_codes.py`
-      already guarantees whichever answer lands reaches both copies at once.
+      Direction is a **second axis**, deliberately not folded into
+      `is_money_code` — that allowlist is shared with `run_bsa_approver`, where
+      it drives CTR and structuring detection. Dropping `transfer.settled` from
+      it (as this section previously proposed) would have blinded CTR to on-us
+      transfers, and adding the return codes would have minted CTR alerts for
+      reversals. `x-money` keeps meaning "money moved, BSA cares"; `x-fbo`
+      means "and this is how the position moves".
+
+      The hub's arithmetic now has behavioral coverage —
+      [05_fbo_direction.test.sql](core/supabase/tests/05_fbo_direction.test.sql),
+      run by the `pgtap` job. The sign error survived a year of green CI
+      because the hub's only test asserted which RPC was *dispatched*.
+
+- [x] **Corrected positions applied 2026-08-15** — `inst_local`
+      **+$1,927,341.23 → −$198,650.00**. The hub is forward-only and §7's
+      pruning had already emptied `aggregator.event` (0 rows at cursor
+      1705305), so the wrong positions could not be replayed away;
+      [fbo_recompute.sh](analytics/fbo_recompute.sh) rebuilt them from the
+      parquet archive instead.
+
+      It proves itself before writing. A position is not purely event-derived
+      (`accept_origination` also debits it on capture), so the script computes
+      `Σ(signed events) − Σ(captured reserves)` under BOTH models and labels
+      each row: `new` (matches the corrected model), `old` (matches the
+      pre-correction one — wrong but fully accounted for, safe to move), or
+      `no` (matches neither; never written). `inst_local` reconciled to the
+      cent. `inst_chaos_test` and `inst_saga_test` are fixture-seeded with
+      non-event provenance and are recorded in
+      [fbo-unreconciled.json](analytics/fbo-unreconciled.json) — a ratchet,
+      shrink it, never grow it.
+
+      *Consequence, deliberately accepted:* a negative position means
+      `originate` now refuses every origination for that instance
+      (`insufficient_available`), and `fbo_position_cents` on the 5300 is
+      negative until an inbound rail emits. That is the honest size of the
+      unmodelled inbound hole.
+
+- [x] **The pruning gap is closed by a standing check, not by pruning less.**
+      Pruning is not defective — the events are safe in git-committed parquet.
+      What was missing is that nothing *noticed* when the hub's position
+      diverged from what the archive says it should be, which is exactly how
+      the sign error survived: it was wrong in the only copy anyone read.
+      `fbo_recompute.sh --check` now runs daily in
+      `aggregator-reporters.yml`, immediately after the prune (if it still
+      reconciles once the hot rows are gone, the archive really is serving as
+      the record) and goes red on any unbaselined divergence. It never
+      writes — `--apply` stays a by-hand action.
+
+- [x] **Inbound funding registered — ANSWERED 2026-08-15.** Lorenzo: a
+      fintech's FBO is funded by the fintech itself and by ACH pulls against
+      its end users' external accounts. Two codes, because BSA cares about
+      exactly one of them (migration 20260815000200, applied live):
+
+      - `ach_pull.settled` — an end-user ACH pull settles and credits the FBO.
+        `x-money: true` **and** `x-fbo: inbound`: this is an end-user
+        transaction and the BSA approver must see it for CTR and structuring.
+        Until now the aggregator's transaction monitoring was outbound-only.
+      - `fbo_funding.settled` — the fintech funds its own FBO from treasury.
+        `x-fbo: inbound` only. **Judgment call worth confirming:** keeping it
+        out of `x-money` keeps program-level top-ups out of the CTR branch,
+        which would otherwise alert on every large funding and bury the real
+        hits. It is a movement between institutions, not one by or for a
+        member. Say so if you want it monitored anyway — it is a one-line
+        change plus a migration. Rail-agnostic on purpose: wire vs ACH credit
+        was not specified, and encoding a guess in a code name is how the
+        naming debt in §10 started.
+
+      Neither is emitted yet — no inbound rail is built — but registering
+      ahead of emission is the direction the repo's rules run, and it means the
+      first inbound event credits the right instance instead of being dropped
+      by a consumer that never heard of it. The position stops being
+      outflow-only by construction the moment a rail lands.
+
+- [ ] **Two smaller things found while shipping the above:**
+      - `transfer.settled` is `internal` only because a transfer between two
+        *different* fintechs' FBOs is unrepresentable today: the payload
+        carries `source_account_id`/`destination_account_id`, but the
+        aggregator has no account → instance mapping and attributes an event
+        to the single instance on its JWT. Correct for every transfer the
+        model can currently express; wrong the moment cross-program transfers
+        are real.
+      - `aggregator.fbo_position`'s own comment claims it is "built ONLY from
+        processed events", which `accept_origination` has always contradicted.
+        Worth confirming an accepted origination does not ALSO settle into an
+        outbound event later — that would debit the position twice. Immaterial
+        today (one accepted origination, $50 on `inst_local`), not immaterial
+        at volume.
 
 ## 7. Reporting & analytics — engineering half DONE 2026-08-11
 
@@ -251,9 +337,10 @@ metric, and cold-start backfill. Two blueprint flags never closed:
       and `scripts/check_money_codes.py` (in the rebuild cascade) fails when
       `aggregator.is_money_code` or the DuckDB spanning view drifts from that
       set — a new money rail now goes loudly red instead of silently
-      invisible. WHICH codes are money (returns, inbound — the §6 sign
-      question) remains deliberately undecided; the gate just guarantees the
-      answer lands everywhere at once.
+      invisible. §6's direction question was settled on 2026-08-15 by adding a
+      SECOND declared axis (`x-fbo`) rather than by editing this set: `x-money`
+      still means "money moved, BSA cares", and the same gate now also pins
+      `aggregator.fbo_delta` and `agg_fbo_events` to the spec.
 - [x] The BSA thresholds are single-sourced: `aggregator.parameter`
       (migration 20260811000100) holds `ctr_threshold_cents`,
       `structuring_hot_window_hours`, `structuring_lookback_days` — values

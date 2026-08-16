@@ -119,14 +119,21 @@ jobs:
         with:
           version: latest
       - name: Constraints refuse what the drill cannot even represent
-        # 04 is passed EXPLICITLY rather than running the whole tests/ dir:
-        # pg_prove -r would also pick up 90_deadline_monitors.sql (plain SQL,
-        # no TAP plan) and the generated 00-03 files, which currently fail
+        # 04 and 05 are passed EXPLICITLY rather than running the whole tests/
+        # dir: pg_prove -r would also pick up 90_deadline_monitors.sql (plain
+        # SQL, no TAP plan) and the generated 00-03 files, which currently fail
         # against the migrated schema (their seed inserts omit NOT NULL
         # columns like partner_id, and ach_transfer.id is uuid in the schema
         # but text in the model). Widen this to the generated files once
         # gen_tests.py seeds valid rows.
+        #
+        # 05 covers the FBO direction model (TODO §6). It is here rather than
+        # in the Deno suite because the arithmetic lives in pl/pgsql: the hub's
+        # sign error survived a year of green CI precisely because its only
+        # coverage asserted which RPC was dispatched, not what it computed.
         run: |
           supabase db start --workdir core
           supabase db reset --no-seed --workdir core || supabase db reset --workdir core
-          supabase test db --workdir core core/supabase/tests/04_constraint_behavior.test.sql
+          supabase test db --workdir core \
+            core/supabase/tests/04_constraint_behavior.test.sql \
+            core/supabase/tests/05_fbo_direction.test.sql

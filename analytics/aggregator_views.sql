@@ -36,5 +36,34 @@ create or replace view agg_money_events as
 select *, cast(json_extract_string(payload, '$.amount_cents') as bigint) as amount_cents
 from agg_events_all
 where code in ('transfer.settled', 'wire_transfer.completed',
-               'ach_transfer.settled', 'card_authorization.captured')
+               'ach_transfer.settled', 'card_authorization.captured',
+               'ach_pull.settled')
+  and json_extract_string(payload, '$.amount_cents') is not null;
+
+-- The FBO position model, mirrored for analytics. SEPARATE from the money
+-- filter above on purpose: `x-money` answers "did money move, does BSA care"
+-- (it drives CTR and structuring detection), while `x-fbo` answers "how does
+-- an instance's FBO position move". `transfer.settled` is money but nets to
+-- zero inside one fintech's FBO; the return codes are not new reportable
+-- transactions but they DO credit the position back.
+--
+-- The canonical set is the spec: x-events entries carrying `x-fbo`, mirrored
+-- into aggregator.fbo_delta and into this view. scripts/check_money_codes.py
+-- (in the rebuild cascade) goes red if any of the three drift — edit the spec
+-- first, then both copies.
+create or replace view agg_fbo_events as
+select *,
+       cast(json_extract_string(payload, '$.amount_cents') as bigint) as amount_cents,
+       case
+         when code in ('ach_transfer.settled', 'wire_transfer.completed',
+                       'card_authorization.captured') then -1
+         when code in ('ach_transfer.returned', 'wire_transfer.returned',
+                       'ach_pull.settled', 'fbo_funding.settled') then 1
+         else 0
+       end as fbo_delta
+from agg_events_all
+where code in ('ach_transfer.settled', 'wire_transfer.completed',
+               'card_authorization.captured',
+               'ach_transfer.returned', 'wire_transfer.returned',
+               'ach_pull.settled', 'fbo_funding.settled')
   and json_extract_string(payload, '$.amount_cents') is not null;

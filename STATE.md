@@ -10,7 +10,7 @@
 |---|---|
 | endpoints | 371 |
 | routed operations (`routes.gen.ts`) | 336 |
-| registered event codes | 1470 |
+| registered event codes | 1472 |
 | canonical event types (`x-event-types`) | 118 |
 | UI-surface paths (proxy allowlist) | 14 |
 | operations with stub response contracts | 346 |
@@ -19,7 +19,7 @@
 
 | | |
 |---|---|
-| migrations | 76 |
+| migrations | 78 |
 | API modules | 49 |
 | e2e harness assertions (`check` calls) | 411 |
 | architecture decisions (D1–D28) | 28 |

@@ -3,7 +3,7 @@
     "spec_title": "Cassandra Banking Core API",
     "spec_version": "3.2.0",
     "parser_version": "0.2.0",
-    "parsed_at": "2026-08-12T03:12:04.476214Z",
+    "parsed_at": "2026-08-15T18:50:17.835177Z",
     "note": "Specific domain codes (e.g. sar.filed, vendor_review) live as `subject` values in vocab-migration.json, not as distinct vocabulary elements.",
     "sources": [
       "core-api.yaml",
@@ -14,7 +14,7 @@
     "entities": 275,
     "fields": 2591,
     "computed_fields": 0,
-    "events": 1470,
+    "events": 1472,
     "endpoints": 371,
     "state_machines": 25,
     "plugins": 0,
@@ -47370,6 +47370,12 @@
       "description": "canonical event_type: `disabled`"
     },
     {
+      "name": "ach_pull.settled",
+      "code": "ach_pull.settled",
+      "entity": "ach_pull",
+      "description": "canonical event_type: `settled`"
+    },
+    {
       "name": "ach_transfer.control_results",
       "code": "ach_transfer.control_results",
       "entity": "ach_transfer",
@@ -51214,6 +51220,12 @@
       "code": "fbar.nil.determined",
       "entity": "fbar",
       "description": "canonical event_type: `determined`"
+    },
+    {
+      "name": "fbo_funding.settled",
+      "code": "fbo_funding.settled",
+      "entity": "fbo_funding",
+      "description": "canonical event_type: `settled`"
     },
     {
       "name": "fee.overdraft.posted",
@@ -59703,6 +59715,7 @@
     "account_freeze",
     "account_maturity",
     "account_number",
+    "ach_pull",
     "ach_transfer",
     "ad",
     "address",
@@ -59859,6 +59872,7 @@
     "facility_annual",
     "fair_lending",
     "fbar",
+    "fbo_funding",
     "fee",
     "finding",
     "finding_monthly",

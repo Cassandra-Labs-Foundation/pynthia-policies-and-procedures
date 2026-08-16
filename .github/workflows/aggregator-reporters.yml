@@ -82,3 +82,19 @@ jobs:
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: ./analytics/prune.sh
+
+      # TODO §6. Pruning makes the payment hub's position unreplayable — the
+      # events it was built from are no longer in Postgres — so the position
+      # becomes a number with no live check behind it. That is exactly how the
+      # hub's sign error survived a year: it was wrong in the only copy anyone
+      # read. This rebuilds the position from the Parquet archive and fails if
+      # it disagrees with what the hub holds.
+      #
+      # Runs AFTER the prune on purpose: if it can still reconcile once the
+      # hot rows are gone, the archive really is serving as the record.
+      # Report-only — it never writes; the write path is --apply, by hand.
+      - name: FBO positions still reconcile with the archive
+        if: steps.guard.outputs.run == 'true'
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: ./analytics/fbo_recompute.sh --check
