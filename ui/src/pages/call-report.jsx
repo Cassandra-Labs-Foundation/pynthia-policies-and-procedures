@@ -98,9 +98,11 @@ export default function CallReport() {
    * lines come from walking all 1,829 accounts — ten sequential requests, ~6s.
    *
    * So the poll is cheap and constant, and the full re-derivation fires only
-   * when the sequence advances. A settled transfer changes 902, 013 and 730B,
-   * and it is the transfer landing that propagates them — not a timer that
-   * re-walks the book every thirty seconds whether or not anything happened.
+   * when the sequence advances. A settled transfer changes 902 and 013, and it
+   * is the transfer landing that propagates them — not a timer that re-walks
+   * the book every thirty seconds whether or not anything happened. (It no
+   * longer changes 730B: since 2026-08-16 the FBO position is not a form line
+   * at all, only the reconciliation control — see lib/ncua5300.js.)
    */
   const { live, polledAt, lastAdvanceAt, error: liveError } = useLiveCore({
     onAdvance: () => load(true),
@@ -227,7 +229,7 @@ export default function CallReport() {
 // ───────────────────────────────────────────────────────────── filing tab
 
 function FilingTab({ data, filing, period }) {
-  const { counts, balances, unmappedTypes } = filing;
+  const { counts, balances, unmappedTypes, fboReconciliation } = filing;
 
   return (
     <>
@@ -292,6 +294,28 @@ function FilingTab({ data, filing, period }) {
           </div>
         </div>
       </div>
+
+      {/* The FBO position is deliberately absent from every line below. It is
+          the same deposits the share lines carry, aggregated by a different
+          consumer, so filing it anywhere would double count — its job is to
+          tie out against them. The gap is shown rather than smoothed: it is
+          currently the whole of the unmodelled inbound funding. */}
+      {fboReconciliation && (
+        <div className="bg-white border border-slate-200 rounded-lg p-3 mb-4 text-sm">
+          <span className="font-medium">FBO reconciliation</span> — not a filed line.
+          Program-level position {formatCents(fboReconciliation.positionCents)} vs{' '}
+          {formatCents(fboReconciliation.shareTotalCents)} across the share lines
+          {fboReconciliation.ties
+            ? ' — ties exactly.'
+            : `, a gap of ${formatCents(fboReconciliation.differenceCents)}.`}
+          {!fboReconciliation.ties && (
+            <span className="text-slate-600">
+              {' '}Expected until an inbound funding rail emits: the payment hub applies
+              outbound settlement and returns, but nothing yet credits an FBO.
+            </span>
+          )}
+        </div>
+      )}
 
       {unmappedTypes.length > 0 && (
         <div className="bg-white border border-slate-200 rounded-lg p-3 mb-4 text-sm">

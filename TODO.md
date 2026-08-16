@@ -113,21 +113,39 @@ What each decision was, and where its execution stands:
          leave them as quarantined history the way OQ-12 left the 3 NULL
          `entity_id` rows?
 
-- [ ] **The FBO position may be on the wrong side of the balance sheet.**
-      Found while re-reading `ncua5300.js` for the above. Line 730B (Total
-      Cash on Deposit, an ASSET) is sourced from `aggregator.fbo_position`,
-      justified in the file as "the standard treatment for an FBO/program-bank
-      model" — which describes a *non-chartered* fintech pooling customer money
-      at a real bank. Pynthia is the opposite: we hold the charter, and an FBO
-      here is a fintech program's balance held **at** us, i.e. a deposit we
-      owe. That is a liability (plausibly line 880, Non-Member Deposits), not
-      cash we hold elsewhere. Reporting it as an asset misstates the balance
-      sheet in both directions at once.
+- [x] **The FBO position was on the wrong side of the balance sheet — FIXED
+      2026-08-16.** Line 730B (Total Cash on Deposit, an ASSET) was sourced
+      from `aggregator.fbo_position`, justified as "the standard treatment for
+      an FBO/program-bank model" — which describes a *non-chartered* fintech
+      pooling customer money at a real bank. Pynthia holds the charter, so a
+      program's FBO balance is money we **owe**, never cash we hold elsewhere.
 
-      The note in the file has been corrected to say so; the mapping itself is
-      left in place because moving it is the same class of decision as the
-      rest of that module. If it moves, 730B becomes unsourced and 880 may
-      become sourceable — a straight swap of which lines can be filled.
+      Lorenzo's call was to treat it as a liability. Implementing that turned
+      up why it cannot simply move to line 880: **the liability is already
+      reported.** `core.partner.instance_id` ties each fintech program to its
+      aggregator instance (`ptnr_demo` ↔ `inst_local`), and that program's
+      end-user accounts are in `core.account` — 1,907 of them, $55,415,245 —
+      already bucketed onto the share lines. The FBO position is the same
+      deposits aggregated by a different consumer, so filing it anywhere would
+      **double count**.
+
+      So it is no longer a form line at all. 730B is unsourced (its `needs`
+      names real settlement/correspondent balances, which the core has none
+      of), and `buildFiling` returns the figure as `fboReconciliation` — a
+      control total tying the program-level view against the share lines.
+      Sourced lines went 8 → 7 of 33. Verified in the running UI: the banner
+      reads −$198,650.00 against $55,455,245.00, a gap of −$55,653,895.00,
+      which is the whole of the unmodelled inbound funding and disappears when
+      an inbound rail emits.
+
+- [ ] **Are a partner program's end users members at all?** Raised by the
+      above and bigger than the share-line split it sits next to. Every
+      account in the core belongs to a partner — a fintech program. If those
+      end users are members, their balances belong on 902/657 where they are
+      now; if the program is a non-member depositor, all $55.4M belongs on
+      880 instead. `core.membership` exists but nothing joins it to
+      `core.account`, so the core cannot currently answer it either way. This
+      moves far more money than `checking → 902` does.
 - [x] D5 Phase-2 delegated auth and the D24 admin console: **stay deferred.**
       `core/architecture-decisions.md` remains the record; this backlog stops
       carrying them.

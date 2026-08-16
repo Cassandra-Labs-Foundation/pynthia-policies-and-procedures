@@ -30,6 +30,25 @@
 //   UNSOURCED  — the core cannot produce it. Renders as "—" with `needs`
 //                naming the missing thing. NEVER as zero.
 //
+// ─────────────────────────────────────────────────────────────────────────────
+// THE FBO POSITION IS NOT A LINE ON THIS FORM (decided 2026-08-16)
+//
+// It used to fill 730B, Total Cash on Deposit, on the reasoning that an FBO is
+// cash held at a partner bank. That is the shape of a NON-chartered fintech.
+// Pynthia holds the charter: a program's FBO balance is money we OWE it, so it
+// was on the wrong side of the sheet entirely.
+//
+// Moving it to a liability line would be wrong too, for a subtler reason. The
+// liability is already reported. core.partner.instance_id ties each fintech
+// program to its aggregator instance, and that program's end-user accounts
+// live in core.account, already bucketed onto the share lines. The FBO
+// position is the SAME deposits aggregated by a different consumer — filing it
+// again, anywhere, double counts.
+//
+// So it is a CONTROL TOTAL, not a form line: two independent paths to one
+// number, which is the only reason to keep both. buildFiling returns it as
+// `fboReconciliation`.
+//
 // This mirrors how the rest of this codebase treats a red control: it stays
 // red and names what it wants, rather than going green on invented input.
 // docs/history/blueprint.md §521 already records the chart-of-accounts mapping as a
@@ -107,32 +126,24 @@ export const LINES = [
   },
   {
     code: "730B", section: "assets", level: 1, label: "Total Cash on Deposit",
-    // The FBO position is the one genuinely live money figure this system has,
-    // which is why it was mapped here — but WHICH SIDE it belongs on is now in
-    // doubt, and that matters more than the mapping being provisional.
+    // UNSOURCED as of 2026-08-16. This line used to be filled from
+    // aggregator.fbo_position, justified as "cash on deposit at other
+    // financial institutions, the standard treatment for an FBO/program-bank
+    // model". That rationale describes a NON-chartered fintech pooling
+    // customer money at a real bank. Pynthia is the opposite: we hold the
+    // charter, so a program's FBO balance is money we OWE, never cash we hold
+    // elsewhere. It was on the wrong side of the balance sheet.
     //
-    // The original rationale said "cash on deposit at other financial
-    // institutions, the standard treatment for an FBO/program-bank model".
-    // That describes a NON-chartered fintech pooling customer money at a real
-    // bank. Pynthia is the opposite: we hold the charter, the deposits are on
-    // our own balance sheet, and the FBO accounts belong to the fintechs
-    // integrating WITH us — one per program, holding that program's end-user
-    // money. Money a program holds with us is something we OWE it, which is a
-    // liability, not cash we hold somewhere else.
-    //
-    // Left mapped here rather than moved, because moving it is the same class
-    // of decision as the rest of this file — see `provisional`. Resolving it
-    // is TODO §3.
-    provisional:
-      "mapped from the live FBO position (aggregator.fbo_position). SIDE HAZARD: " +
-      "an FBO here is a fintech program's balance held AT this credit union, so it " +
-      "is a DEPOSIT OWED (a liability, plausibly line 880 Non-Member Deposits) " +
-      "rather than cash on deposit elsewhere. Reporting it as an asset would " +
-      "misstate the balance sheet in both directions at once. Confirm the side " +
-      "before filing. The sign question is separately settled — direction is " +
-      "declared per event code as x-fbo in the spec and enforced by " +
-      "aggregator.fbo_delta (2026-08-15), so the figure no longer moves the wrong " +
-      "way on settlement.",
+    // It is NOT simply moved to a liability line, because the liability is
+    // already reported. core.partner.instance_id ties a program to its
+    // aggregator instance, and that program's end-user accounts are in
+    // core.account, already bucketed onto the share lines below. The FBO
+    // position is the SAME money seen at program level, so putting it on 880
+    // as well would count those deposits twice. Its real job is
+    // reconciliation — see `fboReconciliation` in buildFiling.
+    needs: "balances of real settlement/correspondent accounts this credit union holds " +
+      "at other institutions. The core has none. aggregator.fbo_position is NOT this " +
+      "figure — it is a program's deposits with us, which the share lines already carry.",
   },
   {
     code: "730C", section: "assets", level: 1, label: "Cash Equivalents (original maturity ≤ 3 months)",
@@ -208,8 +219,19 @@ export const LINES = [
     code: "880", section: "shares", level: 1, label: "Total Non-Member Deposits",
     // Not zero: the core cannot tell a member account from a nonmember one, so
     // "no nonmember deposits" and "we cannot see them" are indistinguishable.
+    //
+    // Sharper since 2026-08-16: this is not only a missing flag, it is an
+    // unanswered question about the deposit structure. Every account in the
+    // core belongs to a PARTNER — a fintech program — and whether that
+    // program's end users are members of this credit union or non-member
+    // depositors decides whether their balances belong on the share lines
+    // above or on this one. Today they are all bucketed above by default.
+    // That is the same class of decision as ACCOUNT_TYPE_MAP, and it moves
+    // far more money than the share-line split does.
     needs: "a member/nonmember flag on the account. core.membership exists but nothing " +
-      "joins it to core.account, so this cannot be reported as zero either.",
+      "joins it to core.account, so this cannot be reported as zero either. Also " +
+      "unanswered: whether a partner program's end users are members at all — if they " +
+      "are not, the balances now on 902/657 belong here instead.",
   },
   {
     code: "018", section: "shares", level: 0, label: "TOTAL SHARES AND DEPOSITS", total: true,
@@ -282,9 +304,6 @@ export function buildFiling({ accounts = [], fboPositionCents = null } = {}) {
     if (line.fromAccounts) {
       values.set(line.code, shareCents[line.code] ?? 0);
       status.set(line.code, "sourced");
-    } else if (line.code === "730B" && typeof fboPositionCents === "number") {
-      values.set(line.code, fboPositionCents);
-      status.set(line.code, "sourced");
     } else {
       status.set(line.code, "unsourced");
     }
@@ -334,6 +353,28 @@ export function buildFiling({ accounts = [], fboPositionCents = null } = {}) {
         : null,
     totalAssetsCents: status.get("010") === "derived" ? values.get("010") : null,
     totalLiabEquityCents: status.get("014") === "derived" ? values.get("014") : null,
+    // The FBO position's honest role. It is not a line: it is the same
+    // deposits the share lines already carry, aggregated at program level by
+    // a different consumer, so filing it anywhere would double count. What it
+    // IS good for is a tie-out — two independent paths to one number, which
+    // is the only reason to maintain both.
+    //
+    // `differenceCents` is deliberately not hidden behind a tolerance. Today
+    // it will be large and negative: the payment hub applies outbound and
+    // returns but NOTHING credits an FBO yet (no inbound rail emits), so the
+    // position understates the deposits by every dollar ever funded. That gap
+    // IS the reading — see TODO §6.
+    fboReconciliation: typeof fboPositionCents === "number"
+      ? (() => {
+        const shareTotalCents = Object.values(shareCents).reduce((a, b) => a + b, 0);
+        return {
+          positionCents: fboPositionCents,
+          shareTotalCents,
+          differenceCents: fboPositionCents - shareTotalCents,
+          ties: fboPositionCents === shareTotalCents,
+        };
+      })()
+      : null,
   };
 }
 
