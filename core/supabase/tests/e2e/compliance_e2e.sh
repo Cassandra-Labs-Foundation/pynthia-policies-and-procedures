@@ -1202,6 +1202,25 @@ psql "$SUPABASE_DB_URL" -qc "insert into core.api_token (id, token_hash, token_p
 ST=$(curl -sS -o /dev/null -w '%{http_code}' "$API/changelog" -H "X-Api-Key: $FOREIGN_TOK")
 check "a token from ANOTHER instance is a 401 here, indistinguishable from unknown" "$ST" "401"
 
+# --- FBO fixture, post-roll-up ---------------------------------------------
+# The position stopped being a number you can write on 2026-08-17: it is
+# aggregator.member_share_cents(), the sum of that program's open member share
+# balances. So a fixture position is seeded the only way one can now exist —
+# by giving the instance a partner and that partner an account holding the
+# money. Anything that used to `insert into aggregator.fbo_position` is a
+# write to a view and fails loudly, which is the point.
+seed_position() {  # seed_position <instance_id> <cents>
+  psql "$SUPABASE_DB_URL" -qc "
+    insert into core.partner (id, name, instance_id) values ('ptnr_$1', '$1 fixture', '$1')
+      on conflict (id) do update set instance_id = excluded.instance_id, status = 'active';
+    insert into core.entity (id, partner_id) values ('ent_$1', 'ptnr_$1')
+      on conflict (id) do nothing;
+    delete from core.account where partner_id = 'ptnr_$1';
+    insert into core.account (id, account_type, balance, status, partner_id, entity_id)
+      values ('acct_$1', 'share', $2, 'open', 'ptnr_$1', 'ent_$1');
+  " >/dev/null
+}
+
 # --- card 55: a real instance event flows outbox -> aggregator, with dedup
 AGA=$(new_account 10000000 agg-src)  # $100k: the $11k CTR + drips 422'd for months against $2k
 AGB=$(new_account 10000  agg-dst)
@@ -1228,41 +1247,18 @@ else
   ok "the event log is append-only — history cannot be edited, even via psql"
 fi
 
-# --- card 56: the cursor advances only WITH processing, atomically.
-# The doomed txn plants ITS OWN event so there is guaranteed mid-flight work
-# (the cron may already have consumed everything real), and takes the cursor
-# lock up front so a concurrent cron run cannot interleave. -q matters: psql
-# prints BEGIN/ROLLBACK tags even under -tA, which shifts every line index.
-KILL=$(psql "$SUPABASE_DB_URL" -qtA <<'SQL'
-begin;
-select last_seq from aggregator.consumer_cursor where consumer='payment_hub' for update;
-insert into aggregator.event (event_id, instance_id, code, resource_id, payload)
-  values ('evt_kill_test_doomed', 'inst_kill_test', 'transfer.settled', 'kill', '{"amount_cents": 1}');
-select aggregator.run_payment_hub(200)->>'processed';
-select last_seq from aggregator.consumer_cursor where consumer='payment_hub';
-rollback;
-select last_seq from aggregator.consumer_cursor where consumer='payment_hub';
-select count(*) from aggregator.event where event_id='evt_kill_test_doomed';
-select count(*) from aggregator.fbo_position where instance_id='inst_kill_test';
-SQL
-)
-K_BEFORE=$(echo "$KILL" | sed -n 1p); K_IN=$(echo "$KILL" | sed -n 3p)
-K_AFTER=$(echo "$KILL" | sed -n 4p); K_EVT=$(echo "$KILL" | sed -n 5p); K_FBO=$(echo "$KILL" | sed -n 6p)
-check "inside the doomed txn the cursor HAD advanced (work was mid-flight)" \
-  "$([ "$K_IN" -gt "$K_BEFORE" ] && echo yes)" "yes"
-check "the kill rolled cursor AND effects back together — one txn, card 56" \
-  "$K_AFTER" "$K_BEFORE"
-check "the doomed event itself vanished with its effects" "$K_EVT/$K_FBO" "0/0"
-
-# --- card 57: the payment hub applies the event exactly once, kill or no kill
-for i in 1 2 3 4 5 6; do
-  psql "$SUPABASE_DB_URL" -qc "select aggregator.run_payment_hub(200);" >/dev/null
-  POS1=$(sql "select position_cents from pg.aggregator.fbo_position where instance_id='inst_local';")
-  [ $((POS1 - POS0)) -ge 5000 ] && break
-  sleep 2
-done
-check "FBO position reflects the movement exactly once (+5000), despite the kill and the cron" \
-  "$((POS1 - POS0))" "5000"
+# --- cards 56/57 RETIRED 2026-08-17 with the payment_hub consumer.
+# They asserted that the cursor advanced atomically with processing and that
+# an event applied exactly once. Both were properties of an ACCUMULATOR, and
+# the position is now a roll-up of member balances (migration 20260817000100):
+# there is no cursor to advance, and "exactly once" is meaningless for a sum
+# that is recomputed on every read. The property those cards really protected
+# — a settled movement is reflected in the position, once — is asserted below
+# in a form the roll-up can actually be wrong about.
+check "the position is a VIEW: it cannot be written, so it cannot drift" \
+  "$(psql "$SUPABASE_DB_URL" -qtA -c "insert into aggregator.fbo_position (instance_id, position_cents) values ('inst_kill_test', 1);" 2>&1 | grep -qi "cannot insert\|not.*updatable\|error" && echo refused)" "refused"
+check "and it reads back as the sum of member balances, to the cent" \
+  "$(sql "select (select position_cents from pg.aggregator.fbo_position where instance_id='inst_local') = aggregator.member_share_cents('inst_local');")" "true"
 
 # --- card 58: CTR at the aggregator, deduped by UNIQUE(event_id, alert_type)
 api POST /transfers agg-ctr "{\"source_account_id\":\"$AGA\",\"destination_account_id\":\"$AGB\",\"amount_cents\":1100000,\"description\":\"agg ctr\"}" >/dev/null
@@ -1413,15 +1409,16 @@ check "wrong secret and unknown instance are indistinguishable" "$WRONG" "$GHOST
 
 # card 65: FBO reads return consumer-built state, internally consistent
 FBO=$(curl -sS "$AGG/fbo" -H "Authorization: Bearer $(agg_jwt)")  # fresh: the section-40 token has expired by now
-check "FBO read carries position, available, inbound" \
-  "$(echo "$FBO" | python3 -c 'import json,sys;d=json.load(sys.stdin);print("yes" if all(k in d for k in ("position_cents","available_balance_cents","inbound_cents","reserved_cents")) else "no")')" "yes"
+check "FBO read carries position, available, reserved, and mirror staleness" \
+  "$(echo "$FBO" | python3 -c 'import json,sys;d=json.load(sys.stdin);print("yes" if all(k in d for k in ("position_cents","available_balance_cents","reserved_cents","mirror")) else "no")')" "yes"
 check "available = position - reserved, to the cent" \
   "$(echo "$FBO" | python3 -c 'import json,sys;d=json.load(sys.stdin);print("yes" if d["available_balance_cents"]==d["position_cents"]-d["reserved_cents"] else "no")')" "yes"
 
 # cards 66/67 on the dedicated saga instance
-psql "$SUPABASE_DB_URL" -qc "insert into aggregator.fbo_position (instance_id, position_cents, last_seq) values ('inst_saga_test', 100000, 0) on conflict (instance_id) do update set position_cents = 100000;" >/dev/null
+seed_position inst_saga_test 100000
 SAGA_JWT=$(agg_jwt inst_saga_test)
-psql "$SUPABASE_DB_URL" -qc "select aggregator.run_payment_hub(1);" >/dev/null  # freshen the hub
+# originate's staleness gate now watches blnk-reconcile (the roll-up's actual
+# maintainer) rather than a consumer; nothing to freshen.
 ORG1=$(curl -sS -X POST "$AGG/originations" -H "Authorization: Bearer $SAGA_JWT" \
   -H 'content-type: application/json' -d '{"amount_cents":30000}')
 check "a clean origination reserves and returns pending — card 66" \
@@ -1456,7 +1453,7 @@ ST=$(curl -sS -D /tmp/e2e_hdrs -o /tmp/e2e_body -w '%{http_code}' -X POST "$AGG/
 check "stale consumer state rejects the origination (503)" "$ST" "503"
 check "with a Retry-After header, not just a no" \
   "$(grep -i '^retry-after:' /tmp/e2e_hdrs | tr -dc '0-9')" "120"
-psql "$SUPABASE_DB_URL" -qc "select aggregator.run_payment_hub(1);" >/dev/null  # heal
+
 echo
 echo "-- 43. chaos, shifted left: pause, block, recover exactly once (63) --"
 # The paused-consumer half of card 63, live: hold the payment_hub cursor's
@@ -1467,36 +1464,27 @@ echo "-- 43. chaos, shifted left: pause, block, recover exactly once (63) --"
 # the whole batch with per-event backoff, nothing lost or duplicated) — the
 # platform offers no switch to cut a deployed function's egress on demand,
 # and that limit is stated here rather than papered over.
-# lock FIRST, then plant the event — otherwise the every-minute cron can
-# apply it in the gap and the "sits unapplied" check races
-psql "$SUPABASE_DB_URL" -qc "begin; select last_seq from aggregator.consumer_cursor where consumer='payment_hub' for update; select pg_sleep(9); rollback;" >/dev/null 2>&1 &
-HOLD_PID=$!
-sleep 3  # the holder must CONNECT and take the lock before we proceed
-psql "$SUPABASE_DB_URL" -qc "delete from aggregator.fbo_position where instance_id='inst_chaos_test';" >/dev/null
-psql "$SUPABASE_DB_URL" -qc "insert into aggregator.event (event_id, instance_id, code, resource_id, payload) values ('evt_chaos_${RUN}', 'inst_chaos_test', 'transfer.settled', 'chaos', '{\"amount_cents\": 5500}');" >/dev/null
-check "while paused, the event sits unapplied" \
-  "$(sql "select count(*) from pg.aggregator.fbo_position where instance_id='inst_chaos_test';")" "0"
-T_RUN0=$(date +%s)
-psql "$SUPABASE_DB_URL" -qc "select aggregator.run_payment_hub(500);" >/dev/null  # blocks on the held lock
-T_RUN1=$(date +%s)
-wait "$HOLD_PID" 2>/dev/null
-check "the run BLOCKED on the pause instead of skipping past it" \
-  "$([ $((T_RUN1 - T_RUN0)) -ge 2 ] && echo yes)" "yes"
-check "and on release it applied the event — recovery, not loss" \
+# The pause/recovery chaos test went with the consumer it paused: there is no
+# cursor to hold a lock on, and a roll-up cannot "sit unapplied" — it reads
+# through to whatever the balances say. What replaces it is the property that
+# actually matters now: the position tracks a member balance change with no
+# consumer in between.
+seed_position inst_chaos_test 5500
+check "a fresh instance's position is its member balance, with nothing run" \
   "$(sql "select position_cents from pg.aggregator.fbo_position where instance_id='inst_chaos_test';")" "5500"
-psql "$SUPABASE_DB_URL" -qc "select aggregator.run_payment_hub(500);" >/dev/null
-check "a second run after recovery is a no-op — exactly once, no dup" \
-  "$(sql "select position_cents from pg.aggregator.fbo_position where instance_id='inst_chaos_test';")" "5500"
-check "recovery left the liveness stamp fresh" \
-  "$(sql "select updated_at > now() - interval '30 seconds' from pg.aggregator.consumer_cursor where consumer='payment_hub';")" "true"
+psql "$SUPABASE_DB_URL" -qc "update core.account set balance = 9000 where partner_id = 'ptnr_inst_chaos_test';" >/dev/null
+check "and it follows the balance immediately — no consumer, no lag, no cursor" \
+  "$(sql "select position_cents from pg.aggregator.fbo_position where instance_id='inst_chaos_test';")" "9000"
+
 echo
 echo "-- 44. saga under fire: concurrent races, pause-independence, conservation (69) --"
 # Every check runs on the dedicated saga instance so nothing races the cron.
 # Reset to a known position; prior sections' originations are all resolved.
-psql "$SUPABASE_DB_URL" -qc "update aggregator.reserve set status='released', updated_at=now() where instance_id='inst_saga_test' and status='held'; insert into aggregator.fbo_position (instance_id, position_cents, last_seq) values ('inst_saga_test', 20000, 0) on conflict (instance_id) do update set position_cents = 20000;" >/dev/null
+psql "$SUPABASE_DB_URL" -qc "update aggregator.reserve set status='released', updated_at=now() where instance_id='inst_saga_test' and status='held';" >/dev/null
+seed_position inst_saga_test 20000
 SAGA_JWT=$(agg_jwt inst_saga_test)
 T0=$(sql "select extract(epoch from now())::bigint;")  # epoch: sql() strips whitespace from timestamps
-psql "$SUPABASE_DB_URL" -qc "select aggregator.run_payment_hub(1);" >/dev/null  # freshen
+
 
 # race 1: two concurrent 15k originations against 20k available — the
 # position-row lock makes check-then-reserve atomic, so EXACTLY one wins

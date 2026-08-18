@@ -333,17 +333,22 @@ correction and the inbound code still open:
       reversals. `x-money` keeps meaning "money moved, BSA cares"; `x-fbo`
       means "and this is how the position moves".
 
-      The hub's arithmetic now has behavioral coverage —
-      [05_fbo_direction.test.sql](core/supabase/tests/05_fbo_direction.test.sql),
-      run by the `pgtap` job. The sign error survived a year of green CI
-      because the hub's only test asserted which RPC was *dispatched*.
+      **SUPERSEDED 2026-08-17 — the accumulator is gone.** The direction model
+      was a correct fix to the wrong layer: a forward-only consumer applying a
+      hand-maintained sign table can be made right, but it cannot be made
+      *re-derivable*, which is why correcting it needed a parquet
+      reconstruction rather than a replay. Migration 20260817000100 makes the
+      position a roll-up of member balances instead, so `fbo_delta`,
+      `run_payment_hub`, the payment_hub cursor, `agg_fbo_events`, the `x-fbo`
+      spec axis and `05_fbo_direction.test.sql` are all removed. The history
+      below stays because the failure mode is the lesson.
 
 - [x] **Corrected positions applied 2026-08-15** — `inst_local`
       **+$1,927,341.23 → −$198,650.00**. The hub is forward-only and §7's
       pruning had already emptied `aggregator.event` (0 rows at cursor
       1705305), so the wrong positions could not be replayed away;
-      [fbo_recompute.sh](analytics/fbo_recompute.sh) rebuilt them from the
-      parquet archive instead.
+      a recompute script rebuilt them from the parquet archive instead. It was
+      removed on 2026-08-17 along with the accumulator it existed to repair.
 
       It proves itself before writing. A position is not purely event-derived
       (`accept_origination` also debits it on capture), so the script computes
@@ -351,16 +356,19 @@ correction and the inbound code still open:
       each row: `new` (matches the corrected model), `old` (matches the
       pre-correction one — wrong but fully accounted for, safe to move), or
       `no` (matches neither; never written). `inst_local` reconciled to the
-      cent. `inst_chaos_test` and `inst_saga_test` are fixture-seeded with
-      non-event provenance and are recorded in
-      [fbo-unreconciled.json](analytics/fbo-unreconciled.json) — a ratchet,
-      shrink it, never grow it.
+      cent. `inst_chaos_test` and `inst_saga_test` were fixture-seeded with
+      non-event provenance and were tracked in a ratchet file; both now read 0
+      through the roll-up, which is what they always should have been.
 
-      *Consequence, deliberately accepted:* a negative position means
-      `originate` now refuses every origination for that instance
-      (`insufficient_available`), and `fbo_position_cents` on the 5300 is
-      negative until an inbound rail emits. That is the honest size of the
-      unmodelled inbound hole.
+      *Consequence, deliberately accepted at the time:* a negative position
+      meant `originate` refused every origination for that instance
+      (`insufficient_available`) and the 5300's `fbo_position_cents` ran
+      negative. **No longer true as of 2026-08-17** — under the roll-up the
+      position is the sum of member balances, which for `inst_local` is
+      **+$55,415,245.00**, and originations are admitted again. The unmodelled
+      inbound hole did not close; it stopped being the position's problem,
+      because the position no longer reconstructs balances from flows it may
+      not have seen.
 
 - [x] **The pruning gap is closed by a standing check, not by pruning less.**
       Pruning is not defective — the events are safe in git-committed parquet.

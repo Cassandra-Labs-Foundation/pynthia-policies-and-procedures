@@ -14,7 +14,6 @@ export type BlnkEventName =
   | "balance.created"
   | "balance.monitor"
   | "ledger.created"
-  | "identity.created"
   | "reconciliation.completed"
   | "reconciliation.failed"
   | "system.error"
@@ -51,12 +50,6 @@ export interface BlnkBalanceData {
   identity_id?: string;
   currency?: string;
   balance?: number;
-  meta_data?: { core_resource?: CoreResourceRef; [k: string]: unknown } | null;
-  [k: string]: unknown;
-}
-
-export interface BlnkIdentityData {
-  identity_id?: string;
   meta_data?: { core_resource?: CoreResourceRef; [k: string]: unknown } | null;
   [k: string]: unknown;
 }

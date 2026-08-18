@@ -46,10 +46,6 @@ export function customerLedgerId(): string {
   return Deno.env.get("BLNK_CUSTOMER_LEDGER_ID") ?? "ldg_7d83bb57-a8a0-4fd9-a67e-9cd5fbe0e3ba";
 }
 
-export function bankLedgerId(): string {
-  return Deno.env.get("BLNK_BANK_LEDGER_ID") ?? "ldg_592fc16b-2989-4e00-9cfd-0caa213ade51";
-}
-
 export interface BlnkTransaction {
   transaction_id: string;
   reference: string;
@@ -73,13 +69,6 @@ export interface BlnkBalance {
   credit_balance?: number;
   debit_balance?: number;
   identity_id?: string;
-  meta_data?: Record<string, unknown> | null;
-  [k: string]: unknown;
-}
-
-export interface BlnkIdentity {
-  identity_id: string;
-  identity_type?: string;
   meta_data?: Record<string, unknown> | null;
   [k: string]: unknown;
 }
@@ -124,13 +113,6 @@ export interface BalanceMirror {
   blnk_balance_id: string;
   blnk_ledger_id?: string;
   balance_synced_at: string;
-}
-
-export interface CreateIdentityParams {
-  coreResource: CoreResource;
-  identityType: "individual" | "organization";
-  fields?: Record<string, unknown>;
-  metaData?: Record<string, unknown>;
 }
 
 function baseUrl(cfg: BlnkConfig): string {
@@ -429,18 +411,3 @@ export function balanceMirror(
   };
 }
 
-export async function createIdentity(
-  cfg: BlnkConfig,
-  p: CreateIdentityParams,
-): Promise<{ identity: BlnkIdentity; mirror: { blnk_identity_id: string } }> {
-  const identity = await request<BlnkIdentity>(cfg, "POST", "/identities", {
-    identity_type: p.identityType,
-    ...p.fields,
-    meta_data: stampMeta(p.coreResource, p.metaData),
-  });
-
-  return {
-    identity,
-    mirror: { blnk_identity_id: identity.identity_id },
-  };
-}

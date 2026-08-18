@@ -177,7 +177,7 @@ from "core"."risk" where "reassessment_due_at" < now() and "status" = any(array[
 select 'trade' as table, 'reconciliation_due_at' as deadline, id, "status" as status, "reconciliation_due_at" as due_at
 from "core"."trade" where "reconciliation_due_at" < now() and "status" = any(array['entered', 'confirmed', 'blocked']);
 
--- training.annual_due_at  (BA-08, BSA-15, CM-05, CP-11, DF-01, DF-10, EC-12, EPS-09, FL-11, IS-17, PR-06, RR-10)
+-- training.annual_due_at  (BA-08, BSA-15, CA-11, CM-05, DF-01, DF-10, EC-12, EPS-09, FL-11, IS-17, PR-06, RR-10)
 select 'training' as table, 'annual_due_at' as deadline, id, "status" as status, "annual_due_at" as due_at
 from "core"."training" where "annual_due_at" < now() and "status" = any(array['assigned', 'in_progress', 'lapsed']);
 
@@ -185,7 +185,7 @@ from "core"."training" where "annual_due_at" < now() and "status" = any(array['a
 select 'training' as table, 'completion_due_at' as deadline, id, "status" as status, "completion_due_at" as due_at
 from "core"."training" where "completion_due_at" < now() and "status" = any(array['assigned', 'in_progress', 'lapsed']);
 
--- training.newhire_due_at  (BSA-15, CP-11, DF-01, EC-12, EPS-09, FL-11, RR-10)
+-- training.newhire_due_at  (BSA-15, CA-11, DF-01, EC-12, EPS-09, FL-11, RR-10)
 select 'training' as table, 'newhire_due_at' as deadline, id, "status" as status, "newhire_due_at" as due_at
 from "core"."training" where "newhire_due_at" < now() and "status" = any(array['assigned', 'in_progress', 'lapsed']);
 

@@ -3,7 +3,7 @@
     "spec_title": "Cassandra Banking Core API",
     "spec_version": "3.2.0",
     "parser_version": "0.2.0",
-    "parsed_at": "2026-08-16T17:21:45.656685Z",
+    "parsed_at": "2026-08-18T02:46:41.143854Z",
     "note": "Specific domain codes (e.g. sar.filed, vendor_review) live as `subject` values in vocab-migration.json, not as distinct vocabulary elements.",
     "sources": [
       "core-api.yaml",
@@ -11,8 +11,8 @@
     ]
   },
   "stats": {
-    "entities": 275,
-    "fields": 2591,
+    "entities": 273,
+    "fields": 2586,
     "computed_fields": 0,
     "events": 1472,
     "endpoints": 371,
@@ -20,7 +20,7 @@
     "plugins": 0,
     "task_types": 54,
     "tasks": 755,
-    "provisional_fields": 147
+    "provisional_fields": 151
   },
   "entities": [
     {
@@ -279,7 +279,7 @@
     {
       "name": "entity",
       "schema_name": "Entity",
-      "field_count": 23,
+      "field_count": 22,
       "computed_field_count": 0,
       "state_machine_field": "status",
       "events": [],
@@ -321,17 +321,6 @@
       "kind": "domain"
     },
     {
-      "name": "fbo_position",
-      "schema_name": "FboPosition",
-      "field_count": 1,
-      "computed_field_count": 0,
-      "state_machine_field": null,
-      "events": [],
-      "control_refs": [],
-      "retention": null,
-      "kind": "banking-core"
-    },
-    {
       "name": "filing",
       "schema_name": "Filing",
       "field_count": 12,
@@ -352,17 +341,6 @@
       "control_refs": [],
       "retention": null,
       "kind": "domain"
-    },
-    {
-      "name": "inbound_payment",
-      "schema_name": "InboundPayment",
-      "field_count": 3,
-      "computed_field_count": 0,
-      "state_machine_field": null,
-      "events": [],
-      "control_refs": [],
-      "retention": null,
-      "kind": "banking-core"
     },
     {
       "name": "incident",
@@ -5856,23 +5834,6 @@
       "bound_controls": []
     },
     {
-      "path": "entity.blnk_identity_id",
-      "field": "blnk_identity_id",
-      "entity": "Entity",
-      "type": "string",
-      "required": false,
-      "nullable": true,
-      "description": "",
-      "enum_values": null,
-      "pii": false,
-      "is_computed": false,
-      "computed": null,
-      "plugin": null,
-      "freshness": null,
-      "is_state_machine": false,
-      "bound_controls": []
-    },
-    {
       "path": "entity.contact",
       "field": "contact",
       "entity": "Entity",
@@ -6451,23 +6412,6 @@
       "bound_controls": []
     },
     {
-      "path": "fbo_position.balance",
-      "field": "balance",
-      "entity": "FboPosition",
-      "type": "integer",
-      "required": false,
-      "nullable": true,
-      "description": "",
-      "enum_values": null,
-      "pii": false,
-      "is_computed": false,
-      "computed": null,
-      "plugin": null,
-      "freshness": null,
-      "is_state_machine": false,
-      "bound_controls": []
-    },
-    {
       "path": "filing.cmir",
       "field": "cmir",
       "entity": "Filing",
@@ -6692,57 +6636,6 @@
       "path": "fincen314a_data.request_scope",
       "field": "request_scope",
       "entity": "Fincen314aData",
-      "type": "string",
-      "required": false,
-      "nullable": true,
-      "description": "",
-      "enum_values": null,
-      "pii": false,
-      "is_computed": false,
-      "computed": null,
-      "plugin": null,
-      "freshness": null,
-      "is_state_machine": false,
-      "bound_controls": []
-    },
-    {
-      "path": "inbound_payment.amount",
-      "field": "amount",
-      "entity": "InboundPayment",
-      "type": "integer",
-      "required": false,
-      "nullable": true,
-      "description": "",
-      "enum_values": null,
-      "pii": false,
-      "is_computed": false,
-      "computed": null,
-      "plugin": null,
-      "freshness": null,
-      "is_state_machine": false,
-      "bound_controls": []
-    },
-    {
-      "path": "inbound_payment.id",
-      "field": "id",
-      "entity": "InboundPayment",
-      "type": "string",
-      "required": false,
-      "nullable": true,
-      "description": "",
-      "enum_values": null,
-      "pii": false,
-      "is_computed": false,
-      "computed": null,
-      "plugin": null,
-      "freshness": null,
-      "is_state_machine": false,
-      "bound_controls": []
-    },
-    {
-      "path": "inbound_payment.originator",
-      "field": "originator",
-      "entity": "InboundPayment",
       "type": "string",
       "required": false,
       "nullable": true,
@@ -65117,6 +65010,7 @@
     "facility.id",
     "fbar.account_record",
     "fbar.authority_type",
+    "fbo_position.balance",
     "fee.type",
     "field.code",
     "fincen.counterpart_registration",
@@ -65131,6 +65025,9 @@
     "hmda.reporter_id",
     "hr.user.id",
     "icaap.due_at",
+    "inbound_payment.amount",
+    "inbound_payment.id",
+    "inbound_payment.originator",
     "insider_case.approver_id",
     "insider_case.attestation",
     "institution.risk_profile",

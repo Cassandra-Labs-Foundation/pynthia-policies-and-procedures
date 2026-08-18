@@ -35,7 +35,6 @@ export const MIRROR_TABLES = [
   "ach_transfer",
   "wire_transfer",
   "transfer",
-  "inbound_payment",
   "card_authorization",
 ] as const;
 
@@ -317,18 +316,43 @@ export async function sweepBalances(
   // minutes and growing with every drill run: 22 of them by 2026-08-11. A real
   // drift would then surface as error #23 in a channel that is always already
   // failing, which is precisely how the inbox backlog alarm decayed into noise.
-  const { data, error } = await db.schema("core").from(table)
-    .select("id, balance, blnk_balance_id")
-    .like("blnk_balance_id", `${BLNK_BALANCE_ID_PREFIX}%`)
-    .order("balance_synced_at", { ascending: true, nullsFirst: true })
-    .limit(25);
+  // TWO PASSES, and the order is the whole point.
+  //
+  // PRIORITY: accounts whose balance moved AFTER the mirror was last synced —
+  // the only accounts whose mirror can actually be wrong. Since the FBO
+  // position is a roll-up of these balances (20260817000100), one of these
+  // sitting unswept is the position itself being wrong, not a stale display
+  // value. Round-robin alone gave them a ~6.4h worst case (25 rows / 5 min
+  // against 1,907 accounts); this makes it one run.
+  //
+  // TAIL: the original oldest-first pass, kept as the backstop. It is what
+  // catches drift this process could not have predicted — a balance moved in
+  // Blnk by something that is not our writer — which is drift the priority
+  // query, keyed on OUR rail rows, is blind to by construction.
+  const priority: AccountRow[] = [];
+  const { data: pending, error: pErr } = await db.schema("core")
+    .rpc("accounts_pending_resync", { p_limit: 25 });
+  if (pErr) errors.push({ table, id: "*", error: `accounts_pending_resync: ${pErr.message}` });
+  else priority.push(...((pending ?? []) as AccountRow[]));
 
-  if (error) {
-    errors.push({ table, id: "*", error: error.message });
-    return;
+  const remaining = Math.max(0, 25 - priority.length);
+  let tail: AccountRow[] = [];
+  if (remaining > 0) {
+    const { data, error } = await db.schema("core").from(table)
+      .select("id, balance, blnk_balance_id")
+      .like("blnk_balance_id", `${BLNK_BALANCE_ID_PREFIX}%`)
+      .order("balance_synced_at", { ascending: true, nullsFirst: true })
+      .limit(remaining + priority.length);
+    if (error) {
+      errors.push({ table, id: "*", error: error.message });
+      if (priority.length === 0) return;
+    } else {
+      const seen = new Set(priority.map((r) => r.id));
+      tail = ((data ?? []) as AccountRow[]).filter((r) => !seen.has(r.id)).slice(0, remaining);
+    }
   }
 
-  const rows = (data ?? []) as AccountRow[];
+  const rows = [...priority, ...tail];
   onSwept(rows.length);
 
   for (const row of rows) {

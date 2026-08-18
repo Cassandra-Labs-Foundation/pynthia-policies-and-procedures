@@ -25,6 +25,7 @@ import { getAccountNumbers } from "./numbers.ts";
 import { getCase } from "./bsa.ts";
 import { getEntity } from "./entities.ts";
 import { postPaymentApproval } from "./eps.ts";
+import { postEstatePayout, postExpulsionClose } from "./member_protection.ts";
 import {
   createDb,
   createRequestId,
@@ -447,6 +448,30 @@ const routes: Route[] = [
     public: true,
     handler: async (_req, params, requestId, _ctx) =>
       await getDashboardTrace(params.resourceId, createDb(), requestId),
+  },
+  // Both payout routes are hand-wired for one reason: they need Blnk. A payout
+  // is sized from the member's LEDGER balance, not from core.account.balance
+  // (see memberBalanceCents), so these two handlers take a BlnkConfig and the
+  // generated signature cannot supply one.
+  {
+    method: "POST",
+    pattern: /^\/estate-claims\/([^/]+)\/payout\/?$/,
+    paramNames: ["id"],
+    endpoint: "POST /estate-claims/{id}/payout",
+    tier: "write",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, params, requestId, ctx) =>
+      await postEstatePayout(req, params.id, createDb(), blnkConfigFromEnv(), requestId, ctx),
+  },
+  {
+    method: "POST",
+    pattern: /^\/expulsions\/([^/]+)\/close\/?$/,
+    paramNames: ["id"],
+    endpoint: "POST /expulsions/{id}/close",
+    tier: "write",
+    actors: ["cu_admin", "pynthia_ops"],
+    handler: async (req, params, requestId, ctx) =>
+      await postExpulsionClose(req, params.id, createDb(), blnkConfigFromEnv(), requestId, ctx),
   },
   // Everything else is generated from the spec — see routes.gen.ts.
   ...generatedRoutes,

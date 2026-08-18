@@ -54,6 +54,13 @@ RENAME_RE = re.compile(r'rename column\s+"([a-z_0-9.]+)"\s+to\s+"([a-z_0-9]+)"',
 # constraint names follow ck_<table>_<column>; a DROP whose name embeds a
 # column clears that column's modeled enum (a later ADD CONSTRAINT re-sets it)
 DROP_CK_RE = re.compile(r'drop constraint if exists\s+"ck_([a-z_0-9]+)"', re.I)
+# Deletion was previously unmodelled: the gate replayed creates and adds and
+# nothing else, so a table or column removed by a migration stayed in the model
+# forever — and removing it from the SPEC then read as fresh divergence, which
+# is precisely backwards. A dropped table is not a spec violation, it is the
+# spec and the migrations agreeing to delete something.
+DROP_TABLE_RE = re.compile(r'drop table if exists\s+"core"\."([a-z_0-9]+)"', re.I)
+DROP_COL_RE = re.compile(r'drop column if exists\s+"([a-z_0-9]+)"', re.I)
 
 # SQL type -> acceptable OpenAPI types
 TYPE_OK = {
@@ -78,8 +85,12 @@ def db_model():
                 if m and m.group(1) == cname:
                     enum = [v.strip().strip("'") for v in m.group(2).split(",")]
                 cols[cname] = {"type": ctype, "enum": enum}
+        for tname in DROP_TABLE_RE.findall(sql):
+            tables.pop(tname, None)
         for tname, body in ALTER_RE.findall(sql):
             cols = tables.setdefault(tname, {})
+            for cname in DROP_COL_RE.findall(body):
+                cols.pop(cname, None)
             for cname, ctype, rest in ADD_RE.findall(body):
                 enum = None
                 m = CHECK_RE.search(rest)

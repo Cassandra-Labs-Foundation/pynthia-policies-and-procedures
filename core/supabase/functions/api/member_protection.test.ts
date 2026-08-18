@@ -17,12 +17,42 @@ const CTX = OPS_CTX;
 const codes = (rows: Record<string, Any[]>) =>
   (rows["core.event"] ?? []).map((e) => String(e.code));
 
+// The mirrors are seeded DELIBERATELY WRONG. A payout is sized from the
+// ledger, so these numbers must not reach the total — if a future change
+// re-reads core.account.balance, every payout assertion below moves and the
+// test says so instead of the estate finding out.
+const LEDGER = { bln_a1: 100_000, bln_a2: 50_000 };
+
 function seedMember(dbx: Any, o: Record<string, unknown> = {}) {
   dbx.rows["core.entity"] = [{ id: "e1", email: "m@example.test", provenance: "production", ...o }];
   dbx.rows["core.account"] = [
-    { id: "a1", entity_id: "e1", balance: 100_000, lock_type: null, provenance: "production" },
-    { id: "a2", entity_id: "e1", balance: 50_000, lock_type: null, provenance: "production" },
+    {
+      id: "a1", entity_id: "e1", blnk_balance_id: "bln_a1", balance: 999_999,
+      lock_type: null, provenance: "production",
+    },
+    {
+      id: "a2", entity_id: "e1", blnk_balance_id: "bln_a2", balance: 1,
+      lock_type: null, provenance: "production",
+    },
   ];
+}
+
+/** A Blnk that answers from LEDGER; `broken` makes every balance read fail. */
+function blnk(broken = false): Any {
+  return {
+    apiUrl: "https://blnk.test",
+    apiKey: "k",
+    fetchFn: (input: RequestInfo | URL) => {
+      if (broken) return Promise.reject(new Error("ledger unreachable"));
+      const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+      const id = url.split("/balances/")[1] ?? "";
+      return Promise.resolve(
+        new Response(JSON.stringify({ balance: LEDGER[id as keyof typeof LEDGER] ?? 0 }), {
+          headers: { "content-type": "application/json" },
+        }),
+      );
+    },
+  };
 }
 
 // ------------------------------------------------------------------ MP-07
@@ -66,7 +96,7 @@ Deno.test("MP-07: a payout to an UNVERIFIED claimant is refused", async () => {
   // the claimant's verification is a real core.verification row, born pending
   assertEquals(dbx.rows["core.verification"][0].status, "pending");
 
-  const res = await postEstatePayout(req({}), id, dbx.client, "t", CTX);
+  const res = await postEstatePayout(req({}), id, dbx.client, blnk(), "t", CTX);
   assertEquals(res.status, 409);
   // still only documented — the schema's default status, not paid
   assertEquals(dbx.rows["core.estate_claim"][0].status, "documented");
@@ -83,14 +113,32 @@ Deno.test("MP-07: an approved claimant is paid the balance net of amounts owed �
   const { id } = (await claim.json()).data;
   dbx.rows["core.verification"][0].status = "approved";
 
-  const res = await postEstatePayout(req({ amounts_owed_cents: 30_000 }), id, dbx.client, "t", CTX);
-  // 150,000 of balances net of 30,000 owed
+  const res = await postEstatePayout(req({ amounts_owed_cents: 30_000 }), id, dbx.client, blnk(), "t", CTX);
+  // 150,000 of LEDGER balances (not the 1,000,000 of stale mirror) net of 30,000 owed
   assertEquals((await res.json()).data.payout_cents, 120_000);
   assertEquals(dbx.rows["core.estate_claim"][0].status, "paid");
   assert(codes(dbx.rows).includes("estate.payout.sent"));
 
-  const again = await postEstatePayout(req({}), id, dbx.client, "t", CTX);
+  const again = await postEstatePayout(req({}), id, dbx.client, blnk(), "t", CTX);
   assertEquals(again.status, 409, "an estate is not paid twice");
+});
+
+Deno.test("MP-07: a payout FAILS CLOSED when the ledger cannot be read", async () => {
+  const dbx = makeDrillDb();
+  seedMember(dbx);
+  const claim = await postEstateClaim(
+    req({ claimant: "A. Heir", date_of_death: "2026-07-01", death_certificate_ref: "doc_dc_1" }),
+    "e1", dbx.client, "t", CTX,
+  );
+  const { id } = (await claim.json()).data;
+  dbx.rows["core.verification"][0].status = "approved";
+
+  // The mirror would happily answer 1,000,000 here. Paying the wrong amount to
+  // an estate is not undone by a retry; not paying today is.
+  const res = await postEstatePayout(req({}), id, dbx.client, blnk(true), "t", CTX);
+  assertEquals(res.status, 502);
+  assertEquals(dbx.rows["core.estate_claim"][0].status, "documented");
+  assert(!codes(dbx.rows).includes("estate.payout.sent"));
 });
 
 // ------------------------------------------------------------------ MP-06
@@ -123,7 +171,7 @@ Deno.test("MP-06: closing nets amounts owed and locks the accounts 'expelled'", 
   assert(c1.includes("member.expulsion.decided"));
   assert(c1.includes("member.expulsion_notice.sent"));
 
-  const closed = await postExpulsionClose(req({}), id, dbx.client, "t", CTX);
+  const closed = await postExpulsionClose(req({}), id, dbx.client, blnk(), "t", CTX);
   assertEquals((await closed.json()).data.payout_cents, 110_000);
   assert(dbx.rows["core.account"].every((a) => a.lock_type === "expelled"));
   assertEquals(dbx.rows["core.expulsion"][0].status, "final");
@@ -131,7 +179,7 @@ Deno.test("MP-06: closing nets amounts owed and locks the accounts 'expelled'", 
   assert(c2.includes("expulsion.board_report.filed"));
   assert(c2.includes("member.expulsion_payout.sent"));
 
-  const again = await postExpulsionClose(req({}), id, dbx.client, "t", CTX);
+  const again = await postExpulsionClose(req({}), id, dbx.client, blnk(), "t", CTX);
   assertEquals(again.status, 409);
 });
 

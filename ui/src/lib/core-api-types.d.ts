@@ -20,7 +20,6 @@ export interface Entity {
   tin?: string | null;
   type?: string | null;
   update?: string | null;
-  blnk_identity_id?: string | null;
   created_at?: string | null;
   owners?: Record<string, unknown> | null;
   partner_id?: string | null;

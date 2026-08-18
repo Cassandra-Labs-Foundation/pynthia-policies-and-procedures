@@ -13,11 +13,12 @@
 //          evidence; deactivation requires two different authorizers.
 
 import { type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { type BlnkConfig, getBalance } from "../_shared/blnk.ts";
 import { type PartnerContext } from "./auth.ts";
 import { type EvidenceScope, provenanceFor } from "./bsa.ts";
 import {
-  apiError, internalErrorResponse, isNonEmptyString, jsonResponse, notFoundResponse,
-  parseJsonBody, validationError,
+  apiError, bankErrorResponse, internalErrorResponse, isNonEmptyString, jsonResponse,
+  notFoundResponse, parseJsonBody, validationError,
 } from "./lib.ts";
 
 // deno-lint-ignore no-explicit-any
@@ -33,6 +34,69 @@ async function emit(
     payload, provenance: provenanceFor(scope, ctx),
   }, { onConflict: "id", ignoreDuplicates: true });
   if (error) console.error(`member_protection event (${code}): ${error.message}`);
+}
+
+interface MemberBalance {
+  id: string;
+  blnk_balance_id: string | null;
+}
+
+type BalanceSum =
+  | { ok: true; cents: number; accounts: MemberBalance[] }
+  | { ok: false; response: Response };
+
+/**
+ * A member's total share balance, read from the LEDGER rather than the mirror.
+ *
+ * `core.account.balance` is a cache with unbounded staleness: the drift sweep
+ * runs every 5 minutes and is best-effort, and an account whose Blnk balance
+ * cannot be fetched is never corrected at all. `runGate` already refuses to
+ * size a $50 transfer from it (transfers.ts reads getBalance live for
+ * CG-NSF-01); computing an estate payout from it was the same bug with a
+ * bigger number and no downstream check to catch it.
+ *
+ * Reading through also REFRESHES the mirror, which is not a side benefit but
+ * the point: the FBO position rolls these balances up
+ * (`aggregator.member_share_cents`), so every authoritative read makes that
+ * number truer.
+ *
+ * FAILS CLOSED. If any ledger-backed account cannot be read, no payout figure
+ * is produced — paying the wrong amount to an estate is not recoverable by a
+ * retry, and not paying today is.
+ */
+async function memberBalanceCents(
+  db: SupabaseClient,
+  cfg: BlnkConfig,
+  scope: EvidenceScope,
+  entityId: string,
+  requestId: string,
+): Promise<BalanceSum> {
+  const { data, error } = await db.schema(scope).from("account")
+    .select("id, blnk_balance_id").eq("entity_id", entityId);
+  if (error) {
+    return { ok: false, response: internalErrorResponse(requestId, error.message) };
+  }
+  const accounts = (data ?? []) as MemberBalance[];
+
+  let cents = 0;
+  const syncedAt = new Date().toISOString();
+  for (const a of accounts) {
+    // No ledger presence means no money — an unprovisioned account cannot hold
+    // a share balance. Distinct from a read FAILURE, which is fatal below.
+    if (!a.blnk_balance_id) continue;
+    try {
+      const bal = await getBalance(cfg, a.blnk_balance_id);
+      if (typeof bal.balance !== "number") throw new Error("balance response missing numeric balance");
+      cents += bal.balance;
+      const { error: mirrorErr } = await db.schema(scope).from("account")
+        .update({ balance: bal.balance, balance_synced_at: syncedAt }).eq("id", a.id);
+      if (mirrorErr) console.error(`member balance mirror refresh (${a.id}): ${mirrorErr.message}`);
+    } catch (e) {
+      console.error(`member balance read failed for account ${a.id}: ${e}`);
+      return { ok: false, response: bankErrorResponse(requestId) };
+    }
+  }
+  return { ok: true, cents, accounts };
 }
 
 // ------------------------------------------------- MP-07 death and estate
@@ -140,7 +204,7 @@ export async function postEstateClaim(
  * unverified claimant is the violation MP-07 exists to prevent.
  */
 export async function postEstatePayout(
-  req: Request, claimId: string, db: SupabaseClient, requestId: string,
+  req: Request, claimId: string, db: SupabaseClient, cfg: BlnkConfig, requestId: string,
   ctx: PartnerContext, scope: EvidenceScope = "core",
 ): Promise<Response> {
   const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
@@ -165,9 +229,9 @@ export async function postEstatePayout(
     });
   }
 
-  const { data: accounts } = await db.schema(scope).from("account")
-    .select("id, balance").eq("entity_id", String(claim.entity_id));
-  const balance = (accounts ?? []).reduce((n: number, a: Any) => n + Number(a.balance ?? 0), 0);
+  const sum = await memberBalanceCents(db, cfg, scope, String(claim.entity_id), requestId);
+  if (!sum.ok) return sum.response;
+  const balance = sum.cents;
   const owed = typeof body.amounts_owed_cents === "number" ? body.amounts_owed_cents : 0;
   const payout = Math.max(0, balance - owed);
 
@@ -287,7 +351,7 @@ export async function postExpulsionHearing(
  * (share balance net of amounts owed), locking the accounts `expelled`.
  */
 export async function postExpulsionClose(
-  req: Request, expulsionId: string, db: SupabaseClient, requestId: string,
+  req: Request, expulsionId: string, db: SupabaseClient, cfg: BlnkConfig, requestId: string,
   ctx: PartnerContext, scope: EvidenceScope = "core",
 ): Promise<Response> {
   const _body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
@@ -300,9 +364,10 @@ export async function postExpulsionClose(
     });
   }
 
-  const { data: accounts } = await db.schema(scope).from("account")
-    .select("id, balance").eq("entity_id", String(ex.entity_id));
-  const balance = (accounts ?? []).reduce((n: number, a: Any) => n + Number(a.balance ?? 0), 0);
+  const sum = await memberBalanceCents(db, cfg, scope, String(ex.entity_id), requestId);
+  if (!sum.ok) return sum.response;
+  const balance = sum.cents;
+  const accounts = sum.accounts;
   const owed = Number(ex.amounts_owed_cents ?? 0);
   const payout = Math.max(0, balance - owed);
   const now = new Date().toISOString();

@@ -16,11 +16,9 @@
     "dispute",
     "entity",
     "event",
-    "fbo_position",
     "filing",
     "finding",
     "handover",
-    "inbound_payment",
     "incident",
     "indemnification",
     "insider",
@@ -903,10 +901,6 @@
     ],
     [
       "entity",
-      "blnk_identity_id"
-    ],
-    [
-      "entity",
       "created_at"
     ],
     [
@@ -959,22 +953,6 @@
     ],
     [
       "event",
-      "updated_at"
-    ],
-    [
-      "fbo_position",
-      "balance"
-    ],
-    [
-      "fbo_position",
-      "id"
-    ],
-    [
-      "fbo_position",
-      "created_at"
-    ],
-    [
-      "fbo_position",
       "updated_at"
     ],
     [
@@ -1215,26 +1193,6 @@
     ],
     [
       "handover",
-      "updated_at"
-    ],
-    [
-      "inbound_payment",
-      "amount"
-    ],
-    [
-      "inbound_payment",
-      "id"
-    ],
-    [
-      "inbound_payment",
-      "originator"
-    ],
-    [
-      "inbound_payment",
-      "created_at"
-    ],
-    [
-      "inbound_payment",
       "updated_at"
     ],
     [
@@ -4080,11 +4038,6 @@
     ],
     [
       "entity",
-      "blnk_identity_id",
-      "text"
-    ],
-    [
-      "entity",
       "created_at",
       "timestamp with time zone"
     ],
@@ -4150,26 +4103,6 @@
     ],
     [
       "event",
-      "updated_at",
-      "timestamp with time zone"
-    ],
-    [
-      "fbo_position",
-      "balance",
-      "bigint"
-    ],
-    [
-      "fbo_position",
-      "id",
-      "uuid"
-    ],
-    [
-      "fbo_position",
-      "created_at",
-      "timestamp with time zone"
-    ],
-    [
-      "fbo_position",
       "updated_at",
       "timestamp with time zone"
     ],
@@ -4470,31 +4403,6 @@
     ],
     [
       "handover",
-      "updated_at",
-      "timestamp with time zone"
-    ],
-    [
-      "inbound_payment",
-      "amount",
-      "bigint"
-    ],
-    [
-      "inbound_payment",
-      "id",
-      "text"
-    ],
-    [
-      "inbound_payment",
-      "originator",
-      "text"
-    ],
-    [
-      "inbound_payment",
-      "created_at",
-      "timestamp with time zone"
-    ],
-    [
-      "inbound_payment",
       "updated_at",
       "timestamp with time zone"
     ],
@@ -6721,11 +6629,9 @@
     "dispute",
     "entity",
     "event",
-    "fbo_position",
     "filing",
     "finding",
     "handover",
-    "inbound_payment",
     "incident",
     "indemnification",
     "insider",
@@ -6762,11 +6668,9 @@
     "dispute",
     "entity",
     "event",
-    "fbo_position",
     "filing",
     "finding",
     "handover",
-    "inbound_payment",
     "incident",
     "indemnification",
     "insider",
@@ -6803,11 +6707,9 @@
     "dispute",
     "entity",
     "event",
-    "fbo_position",
     "filing",
     "finding",
     "handover",
-    "inbound_payment",
     "incident",
     "indemnification",
     "insider",
@@ -7447,8 +7349,8 @@
       "controls": [
         "BA-08",
         "BSA-15",
+        "CA-11",
         "CM-05",
-        "CP-11",
         "DF-01",
         "DF-10",
         "EC-12",
@@ -7489,7 +7391,7 @@
       "terminal_seeded": true,
       "controls": [
         "BSA-15",
-        "CP-11",
+        "CA-11",
         "DF-01",
         "EC-12",
         "EPS-09",

@@ -1,7 +1,7 @@
 -- Control coverage — 171 in-scope controls
 -- generated from controls.json + model.json — DO NOT EDIT BY HAND
 begin;
-select plan(870);
+select plan(869);
 
 
 -- AU-02 Audit Committee Governance and Independence  (in-scope fields: 1, gaps: 0, out-of-scope: 9)
@@ -210,21 +210,21 @@ select has_column('core', 'incident', 'impact_summary', 'BC-13: incident.impact_
 select has_column('core', 'incident', 'root_cause', 'BC-13: incident.root_cause -> incident.root_cause');
 select has_column('core', 'incident', 'timeline', 'BC-13: incident.timeline -> incident.timeline');
 
--- CP-11 Training and Competency  (in-scope fields: 11, gaps: 0, out-of-scope: 1)
-select has_column('core', 'training', 'annual_due_at', 'CP-11: training.annual_due_at -> training.annual_due_at');
-select has_column('core', 'training', 'assessment_score', 'CP-11: training.assessment_score -> training.assessment_score');
-select has_column('core', 'training', 'completion_status', 'CP-11: training.completion_status -> training.completion_status');
-select has_column('core', 'training', 'content_version', 'CP-11: training.content_version -> training.content_version');
-select has_column('core', 'training', 'hire_date', 'CP-11: training.hire_date -> training.hire_date');
-select has_column('core', 'training', 'module_id', 'CP-11: training.module_id -> training.module_id');
-select has_column('core', 'training', 'newhire_due_at', 'CP-11: training.newhire_due_at -> training.newhire_due_at');
-select has_column('core', 'training', 'proficiency_failed', 'CP-11: training.proficiency.failed -> training.proficiency_failed');
-select has_column('core', 'training', 'required_curriculum', 'CP-11: training.required_curriculum -> training.required_curriculum');
-select has_column('core', 'training', 'role_curriculum', 'CP-11: training.role_curriculum -> training.role_curriculum');
-select has_column('core', 'user', 'role', 'CP-11: user.role -> user.role');
+-- CA-11 Training and Competency  (in-scope fields: 11, gaps: 0, out-of-scope: 1)
+select has_column('core', 'training', 'annual_due_at', 'CA-11: training.annual_due_at -> training.annual_due_at');
+select has_column('core', 'training', 'assessment_score', 'CA-11: training.assessment_score -> training.assessment_score');
+select has_column('core', 'training', 'completion_status', 'CA-11: training.completion_status -> training.completion_status');
+select has_column('core', 'training', 'content_version', 'CA-11: training.content_version -> training.content_version');
+select has_column('core', 'training', 'hire_date', 'CA-11: training.hire_date -> training.hire_date');
+select has_column('core', 'training', 'module_id', 'CA-11: training.module_id -> training.module_id');
+select has_column('core', 'training', 'newhire_due_at', 'CA-11: training.newhire_due_at -> training.newhire_due_at');
+select has_column('core', 'training', 'proficiency_failed', 'CA-11: training.proficiency.failed -> training.proficiency_failed');
+select has_column('core', 'training', 'required_curriculum', 'CA-11: training.required_curriculum -> training.required_curriculum');
+select has_column('core', 'training', 'role_curriculum', 'CA-11: training.role_curriculum -> training.role_curriculum');
+select has_column('core', 'user', 'role', 'CA-11: user.role -> user.role');
 
--- CP-12 Monitoring, Reporting, and Recordkeeping  (in-scope fields: 1, gaps: 0, out-of-scope: 7)
-select has_column('core', 'training', 'coverage_pct', 'CP-12: training.coverage_pct -> training.coverage_pct');
+-- CA-12 Monitoring, Reporting, and Recordkeeping  (in-scope fields: 1, gaps: 0, out-of-scope: 7)
+select has_column('core', 'training', 'coverage_pct', 'CA-12: training.coverage_pct -> training.coverage_pct');
 
 -- CO-01 Collections Governance & Scope  (in-scope fields: 4, gaps: 0, out-of-scope: 12)
 select has_column('core', 'loan', 'dpd', 'CO-01: loan.dpd -> loan.dpd');
@@ -913,9 +913,8 @@ select has_column('core', 'verification', 'provider_result', 'MP-01: verificatio
 select has_column('core', 'verification', 'status', 'MP-01: verification.status -> verification.status');
 select has_column('core', 'verification', 'type', 'MP-01: verification.type -> verification.type');
 
--- MP-02 Account Maintenance and Change of Address  (in-scope fields: 6, gaps: 0, out-of-scope: 7)
+-- MP-02 Account Maintenance and Change of Address  (in-scope fields: 5, gaps: 0, out-of-scope: 7)
 select has_column('core', 'card', 'reissue_request', 'MP-02: card.reissue_request -> card.reissue_request');
-select has_column('core', 'card', 'request_during_address_hold', 'MP-02: card.request_during_address_hold -> card.request_during_address_hold');
 select has_column('core', 'entity', 'address_new', 'MP-02: entity.address_new -> entity.address_new');
 select has_column('core', 'entity', 'address_previous', 'MP-02: entity.address_previous -> entity.address_previous');
 select has_column('core', 'entity', 'contact', 'MP-02: entity.contact -> entity.contact');

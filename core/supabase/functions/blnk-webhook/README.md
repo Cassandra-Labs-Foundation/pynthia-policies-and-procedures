@@ -32,7 +32,6 @@ must not be a second copy of the logic.
 | Event | Effect |
 |---|---|
 | `transaction.applied\|inflight\|void\|rejected\|scheduled` | update the money row's `blnk_status`/`synced_at` (+ `blnk_committed_amount` on card capture); `applied` also refreshes the `account.balance` mirror |
-| `identity.created` | → `entity.blnk_identity_id` |
 | `balance.created` | → `account.blnk_balance_id` (+ mirror `balance`) |
 | `balance.monitor` | → `bsa_alert` via `raiseAlert`, with BSA-06's triage clock started |
 | `reconciliation.completed\|failed` | advance `blnk_sync_state`; unmatched items and failures open a `finding` |
@@ -47,7 +46,7 @@ id-only `bulk_transaction` form — are tracked in [TODO.md](TODO.md).
 
 The function routes an event back to the exact `core` row two ways:
 
-1. **Preferred** — the transaction/identity/balance was created with
+1. **Preferred** — the transaction/balance was created with
    `meta_data.core_resource = { "table": "ach_transfer", "id": "<row id>" }`.
 2. **Fallback** — match `blnk_reference` on the row against the event's
    `reference` (so stamp `blnk_reference` = our resource id when creating the

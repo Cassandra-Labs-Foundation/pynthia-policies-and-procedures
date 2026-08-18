@@ -3,7 +3,7 @@
     "generator": "verifier/generator/enumerate.py",
     "total": 769,
     "inputs": {
-      "core_api_resources": 69,
+      "core_api_resources": 67,
       "endpoints": 371,
       "controls": 333,
       "properties": 41,

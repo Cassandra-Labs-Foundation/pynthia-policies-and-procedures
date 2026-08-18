@@ -264,11 +264,11 @@ insert into "core"."trade" ("reconciliation_due_at", "status") values (now() + i
 insert into "core"."trade" ("reconciliation_due_at", "status") values (now() - interval '1 day', 'settled');
 select is( (select count(*) from "core"."trade" where "reconciliation_due_at" < now() and "status" = any(array['entered', 'confirmed', 'blocked']))::int, 1, 'trade.reconciliation_due_at past-due detection flags exactly the violator (evidences IP-14)');
 
--- training.annual_due_at  (evidences BA-08, BSA-15, CM-05, CP-11, DF-01, DF-10, EC-12, EPS-09, FL-11, IS-17, PR-06, RR-10); open states: ['assigned', 'in_progress', 'lapsed']
+-- training.annual_due_at  (evidences BA-08, BSA-15, CA-11, CM-05, DF-01, DF-10, EC-12, EPS-09, FL-11, IS-17, PR-06, RR-10); open states: ['assigned', 'in_progress', 'lapsed']
 insert into "core"."training" ("annual_due_at", "status") values (now() - interval '1 day', 'assigned');
 insert into "core"."training" ("annual_due_at", "status") values (now() + interval '30 days', 'assigned');
 insert into "core"."training" ("annual_due_at", "status") values (now() - interval '1 day', 'completed');
-select is( (select count(*) from "core"."training" where "annual_due_at" < now() and "status" = any(array['assigned', 'in_progress', 'lapsed']))::int, 1, 'training.annual_due_at past-due detection flags exactly the violator (evidences BA-08, BSA-15, CM-05, CP-11, DF-01, DF-10, EC-12, EPS-09, FL-11, IS-17, PR-06, RR-10)');
+select is( (select count(*) from "core"."training" where "annual_due_at" < now() and "status" = any(array['assigned', 'in_progress', 'lapsed']))::int, 1, 'training.annual_due_at past-due detection flags exactly the violator (evidences BA-08, BSA-15, CA-11, CM-05, DF-01, DF-10, EC-12, EPS-09, FL-11, IS-17, PR-06, RR-10)');
 
 -- training.completion_due_at  (evidences BSA-15, CM-05, DF-01, EC-12, TIS-10); open states: ['assigned', 'in_progress', 'lapsed']
 insert into "core"."training" ("completion_due_at", "status") values (now() - interval '1 day', 'assigned');
@@ -276,11 +276,11 @@ insert into "core"."training" ("completion_due_at", "status") values (now() + in
 insert into "core"."training" ("completion_due_at", "status") values (now() - interval '1 day', 'completed');
 select is( (select count(*) from "core"."training" where "completion_due_at" < now() and "status" = any(array['assigned', 'in_progress', 'lapsed']))::int, 1, 'training.completion_due_at past-due detection flags exactly the violator (evidences BSA-15, CM-05, DF-01, EC-12, TIS-10)');
 
--- training.newhire_due_at  (evidences BSA-15, CP-11, DF-01, EC-12, EPS-09, FL-11, RR-10); open states: ['assigned', 'in_progress', 'lapsed']
+-- training.newhire_due_at  (evidences BSA-15, CA-11, DF-01, EC-12, EPS-09, FL-11, RR-10); open states: ['assigned', 'in_progress', 'lapsed']
 insert into "core"."training" ("newhire_due_at", "status") values (now() - interval '1 day', 'assigned');
 insert into "core"."training" ("newhire_due_at", "status") values (now() + interval '30 days', 'assigned');
 insert into "core"."training" ("newhire_due_at", "status") values (now() - interval '1 day', 'completed');
-select is( (select count(*) from "core"."training" where "newhire_due_at" < now() and "status" = any(array['assigned', 'in_progress', 'lapsed']))::int, 1, 'training.newhire_due_at past-due detection flags exactly the violator (evidences BSA-15, CP-11, DF-01, EC-12, EPS-09, FL-11, RR-10)');
+select is( (select count(*) from "core"."training" where "newhire_due_at" < now() and "status" = any(array['assigned', 'in_progress', 'lapsed']))::int, 1, 'training.newhire_due_at past-due detection flags exactly the violator (evidences BSA-15, CA-11, DF-01, EC-12, EPS-09, FL-11, RR-10)');
 
 -- training.onboarding_due_at  (evidences CM-05, IS-17, PR-06); open states: ['assigned', 'in_progress', 'lapsed']
 insert into "core"."training" ("onboarding_due_at", "status") values (now() - interval '1 day', 'assigned');

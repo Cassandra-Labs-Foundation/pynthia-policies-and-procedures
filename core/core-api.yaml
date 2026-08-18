@@ -2690,6 +2690,7 @@ paths:
           description: Success. Response contract not yet authored — the handler is the contract; see x-handler.
         4XX:
           description: Validation, authorization, or not-found per the standard error envelope.
+      x-route: hand
       x-audience: internal
       x-handler: member_protection.postEstatePayout
       x-tier: write
@@ -2720,6 +2721,7 @@ paths:
           description: Success. Response contract not yet authored — the handler is the contract; see x-handler.
         4XX:
           description: Validation, authorization, or not-found per the standard error envelope.
+      x-route: hand
       x-audience: internal
       x-handler: member_protection.postExpulsionClose
       x-tier: write
@@ -6304,8 +6306,6 @@ components:
           x-derived-from: event
           description: Provisional field implied by event entity.update.requested; registered to reconcile the field/event
             namespace.
-        blnk_identity_id:
-          type: string
         created_at:
           type: string
           format: date-time
@@ -6349,24 +6349,6 @@ components:
         type:
           type: string
       description: An immutable, append-only domain event (Decision 4).
-    FboPosition:
-      type: object
-      x-kind: banking-core
-      properties:
-        balance:
-          type: integer
-      description: For-Benefit-Of position and balance for an aggregator instance (Decision 19).
-    InboundPayment:
-      type: object
-      x-kind: banking-core
-      properties:
-        amount:
-          type: integer
-        id:
-          type: string
-        originator:
-          type: string
-      description: An inbound payment routed to an instance.
     OfacResult:
       type: object
       x-kind: banking-core
@@ -56979,7 +56961,6 @@ x-events:
     subject: ach_pull
     type: settled
     x-money: true
-    x-fbo: inbound
   ach_transfer.control_results:
     subject: ach_transfer
     type: recorded
@@ -56992,12 +56973,10 @@ x-events:
   ach_transfer.returned:
     subject: ach_transfer
     type: returned
-    x-fbo: inbound
   ach_transfer.settled:
     subject: ach_transfer
     type: settled
     x-money: true
-    x-fbo: outbound
   ad.accessibility_check:
     subject: ad
     type: checked
@@ -57602,7 +57581,6 @@ x-events:
     subject: card_authorization
     type: captured
     x-money: true
-    x-fbo: outbound
   card_authorization.created:
     subject: card_authorization
     type: created
@@ -58911,7 +58889,6 @@ x-events:
   fbo_funding.settled:
     subject: fbo_funding
     type: settled
-    x-fbo: inbound
   fee.overdraft.posted:
     subject: fee
     type: posted
@@ -60947,7 +60924,6 @@ x-events:
     subject: transfer
     type: settled
     x-money: true
-    x-fbo: internal
   treasury.invest_excess.notified:
     subject: treasury
     type: notified
@@ -61249,7 +61225,6 @@ x-events:
     subject: wire_transfer
     type: completed
     x-money: true
-    x-fbo: outbound
   wire_transfer.created:
     subject: wire_transfer
     type: created
@@ -61265,7 +61240,6 @@ x-events:
   wire_transfer.returned:
     subject: wire_transfer
     type: returned
-    x-fbo: inbound
   wire_transfer.submitted:
     subject: wire_transfer
     type: submitted

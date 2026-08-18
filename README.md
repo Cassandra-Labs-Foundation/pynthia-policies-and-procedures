@@ -19,7 +19,7 @@ compliance/
   dashboard/            the evidence dashboard (GitHub Pages)
 
 core/           the banking core
-  supabase/             80 migrations, 49 API modules, the drill harness
+  supabase/             migrations, API modules, the drill harness (counts: STATE.md)
                         (Supabase CLI needs --workdir core)
   core-api.yaml         the spec (OpenAPI 3.0.3)
   core-api-loop/        the spec's self-minimising loop

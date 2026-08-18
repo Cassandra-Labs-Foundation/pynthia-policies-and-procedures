@@ -11,7 +11,6 @@ import { type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import type {
   BlnkWebhook,
   BlnkTransactionData,
-  BlnkIdentityData,
   BlnkBalanceData,
   BlnkBalanceMonitorData,
   BlnkReconciliationData,
@@ -23,7 +22,7 @@ import { raiseAlert } from "../api/bsa.ts";
 import { sha256Hex } from "../api/lib.ts";
 
 const MONEY_TABLES = new Set([
-  "ach_transfer", "wire_transfer", "transfer", "inbound_payment", "card_authorization",
+  "ach_transfer", "wire_transfer", "transfer", "card_authorization",
 ]);
 
 // ---- idempotency key --------------------------------------------------------
@@ -88,7 +87,6 @@ const ID_COLUMN: Record<string, string> = {
   ach_transfer: "blnk_transaction_id",
   wire_transfer: "blnk_transaction_id",
   transfer: "blnk_transaction_id",
-  inbound_payment: "blnk_transaction_id",
   card_authorization: "blnk_inflight_id", // card auth = inflight hold
 };
 
@@ -159,14 +157,6 @@ async function applyTransaction(db: SupabaseClient, d: BlnkTransactionData): Pro
 
   // TODO(phase-5): on APPLIED, refresh account.balance mirror for d.source/d.destination
   //   via Blnk GET /balances/{id}; raise control_result/bsa_alert on flagged moves.
-}
-
-async function applyIdentity(db: SupabaseClient, d: BlnkIdentityData): Promise<void> {
-  const ref = coreRef(d);
-  if (!ref || ref.table !== "entity") return; // nothing to mirror
-  const { error } = await db.schema("core").from("entity")
-    .update({ blnk_identity_id: d.identity_id }).eq("id", ref.id);
-  if (error) throw new Error(`update entity: ${error.message}`);
 }
 
 async function applyBalance(db: SupabaseClient, d: BlnkBalanceData): Promise<void> {
@@ -402,9 +392,6 @@ export async function dispatch(db: SupabaseClient, wh: BlnkWebhook): Promise<"pr
       if (wh.event === "transaction.applied") await refreshBalanceMirrors(db, d);
       return "processed";
     }
-    case "identity.created":
-      await applyIdentity(db, wh.data as BlnkIdentityData);
-      return "processed";
     case "balance.created":
       await applyBalance(db, wh.data as BlnkBalanceData);
       return "processed";

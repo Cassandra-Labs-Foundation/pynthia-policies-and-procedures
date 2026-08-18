@@ -1,7 +1,7 @@
 -- Schema structure
 -- generated from controls.json + model.json — DO NOT EDIT BY HAND
 begin;
-select plan(1637);
+select plan(1609);
 
 select has_schema('core');
 
@@ -524,8 +524,6 @@ select has_column('core', 'entity', 'type');
 select col_type_is('core', 'entity', 'type', 'text');
 select has_column('core', 'entity', 'update');
 select col_type_is('core', 'entity', 'update', 'text');
-select has_column('core', 'entity', 'blnk_identity_id');
-select col_type_is('core', 'entity', 'blnk_identity_id', 'text');
 select has_column('core', 'entity', 'created_at');
 select col_type_is('core', 'entity', 'created_at', 'timestamp with time zone');
 select has_column('core', 'entity', 'owners');
@@ -560,20 +558,6 @@ select has_column('core', 'event', 'type');
 select col_type_is('core', 'event', 'type', 'text');
 select has_column('core', 'event', 'updated_at');
 select col_type_is('core', 'event', 'updated_at', 'timestamp with time zone');
-
--- fbo_position
-select has_table('core', 'fbo_position', 'table fbo_position exists');
-select has_pk('core', 'fbo_position', 'fbo_position has a primary key');
-select has_trigger('core', 'fbo_position', 'set_updated_at', 'fbo_position has updated_at trigger');
-select is(relrowsecurity, true, 'RLS enabled on fbo_position') from pg_class where oid = 'core.fbo_position'::regclass;
-select has_column('core', 'fbo_position', 'balance');
-select col_type_is('core', 'fbo_position', 'balance', 'bigint');
-select has_column('core', 'fbo_position', 'id');
-select col_type_is('core', 'fbo_position', 'id', 'uuid');
-select has_column('core', 'fbo_position', 'created_at');
-select col_type_is('core', 'fbo_position', 'created_at', 'timestamp with time zone');
-select has_column('core', 'fbo_position', 'updated_at');
-select col_type_is('core', 'fbo_position', 'updated_at', 'timestamp with time zone');
 
 -- filing
 select has_table('core', 'filing', 'table filing exists');
@@ -712,22 +696,6 @@ select has_column('core', 'handover', 'created_at');
 select col_type_is('core', 'handover', 'created_at', 'timestamp with time zone');
 select has_column('core', 'handover', 'updated_at');
 select col_type_is('core', 'handover', 'updated_at', 'timestamp with time zone');
-
--- inbound_payment
-select has_table('core', 'inbound_payment', 'table inbound_payment exists');
-select has_pk('core', 'inbound_payment', 'inbound_payment has a primary key');
-select has_trigger('core', 'inbound_payment', 'set_updated_at', 'inbound_payment has updated_at trigger');
-select is(relrowsecurity, true, 'RLS enabled on inbound_payment') from pg_class where oid = 'core.inbound_payment'::regclass;
-select has_column('core', 'inbound_payment', 'amount');
-select col_type_is('core', 'inbound_payment', 'amount', 'bigint');
-select has_column('core', 'inbound_payment', 'id');
-select col_type_is('core', 'inbound_payment', 'id', 'text');
-select has_column('core', 'inbound_payment', 'originator');
-select col_type_is('core', 'inbound_payment', 'originator', 'text');
-select has_column('core', 'inbound_payment', 'created_at');
-select col_type_is('core', 'inbound_payment', 'created_at', 'timestamp with time zone');
-select has_column('core', 'inbound_payment', 'updated_at');
-select col_type_is('core', 'inbound_payment', 'updated_at', 'timestamp with time zone');
 
 -- incident
 select has_table('core', 'incident', 'table incident exists');

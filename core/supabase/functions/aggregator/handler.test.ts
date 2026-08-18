@@ -269,7 +269,7 @@ Deno.test("saga exits route to accept/reject; resolved twice is a 409 (card 67)"
 
 Deno.test("POST /consumers/{name}/run drives exactly the named consumer (cards 56-58)", async () => {
   const { db, rpcs } = stubDb();
-  for (const [name, fn] of [["payment_hub", "run_payment_hub"], ["bsa_approver", "run_bsa_approver"]]) {
+  for (const [name, fn] of [["bsa_approver", "run_bsa_approver"]]) {
     const res = await handleAggregator(
       req(`/consumers/${name}/run`, {}, await jwt()),
       { jwtSecret: SECRET, db },
@@ -284,4 +284,15 @@ Deno.test("POST /consumers/{name}/run drives exactly the named consumer (cards 5
     "t",
   );
   assertEquals(res.status, 404, "unknown consumers are not a dispatch surface");
+
+  // payment_hub was RETIRED with the accumulator (migration 20260817000100).
+  // It must 404 like any other unknown consumer rather than linger as a
+  // 200-returning no-op — a healthy-looking consumer that does nothing is how
+  // the position it used to maintain stayed wrong for a year.
+  const retired = await handleAggregator(
+    req("/consumers/payment_hub/run", {}, await jwt()),
+    { jwtSecret: SECRET, db },
+    "t",
+  );
+  assertEquals(retired.status, 404, "the FBO position is a roll-up; nothing runs to maintain it");
 });

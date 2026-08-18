@@ -309,9 +309,14 @@ export async function handleAggregator(
 
   // Cards 56-58: run a consumer on demand (the cron drives them in
   // production; this is how tests and operators run one deterministically).
-  const runMatch = path.match(/^\/consumers\/(payment_hub|bsa_approver)\/run\/?$/);
+  // payment_hub is GONE (migration 20260817000100): the FBO position became a
+  // roll-up of member balances, so there is no longer a consumer applying
+  // deltas to it. The route is not kept as a no-op — a consumer endpoint that
+  // returns 200 having done nothing is how the position stayed wrong for a
+  // year while its liveness looked healthy.
+  const runMatch = path.match(/^\/consumers\/(bsa_approver)\/run\/?$/);
   if (req.method === "POST" && runMatch) {
-    const fn = runMatch[1] === "payment_hub" ? "run_payment_hub" : "run_bsa_approver";
+    const fn = "run_bsa_approver";
     const { data, error } = await deps.db.schema("aggregator").rpc(fn, { batch: 200 });
     if (error) {
       console.error(`[${requestId}] ${fn} failed: ${error.message}`);

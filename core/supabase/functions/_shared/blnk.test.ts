@@ -11,7 +11,6 @@ import {
   blnkReference,
   commitInflight,
   createCustomerBalance,
-  createIdentity,
   getBalance,
   recordTransaction,
   voidInflight,
@@ -315,25 +314,6 @@ Deno.test("createCustomerBalance stamps core_resource and returns mirror", async
     if (prev === undefined) Deno.env.delete("BLNK_CUSTOMER_LEDGER_ID");
     else Deno.env.set("BLNK_CUSTOMER_LEDGER_ID", prev);
   }
-});
-
-Deno.test("createIdentity spreads fields and returns mirror", async () => {
-  const stub = stubFetch([
-    jsonRes({ identity_id: "idn_1", identity_type: "individual" }),
-  ]);
-
-  const result = await createIdentity(cfg(stub), {
-    coreResource: { table: "entity", id: "ent_1" },
-    identityType: "individual",
-    fields: { first_name: "Ada", last_name: "Lovelace", email_address: "ada@example.com" },
-  });
-
-  const body = stub.requests[0].body as Record<string, unknown>;
-  assertEquals(body.identity_type, "individual");
-  assertEquals(body.first_name, "Ada");
-  assertEquals(body.last_name, "Lovelace");
-  assertEquals(body.email_address, "ada@example.com");
-  assertEquals(result.mirror.blnk_identity_id, "idn_1");
 });
 
 Deno.test("getBalance and balanceMirror", async () => {

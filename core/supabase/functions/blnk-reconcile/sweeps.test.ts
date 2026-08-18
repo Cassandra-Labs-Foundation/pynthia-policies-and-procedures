@@ -22,9 +22,11 @@ import {
 } from "./sweeps.ts";
 
 interface Recorded {
+  rpcs: { fn: string; args: unknown }[];
   likes: { table: string; column: string; pattern: string }[];
   updates: { table: string; patch: Record<string, unknown>; id: string }[];
   upserts: { table: string; row: Record<string, unknown>; opts?: Record<string, unknown> }[];
+  inserts: { table: string; row: Record<string, unknown> }[];
 }
 
 // Minimal table-aware stub for the chains the sweeps use:
@@ -34,10 +36,12 @@ interface Recorded {
 function stubDb(opts: {
   rows: Record<string, Record<string, unknown>[]>;
   updateError?: string;
+  /** rows returned by core.accounts_pending_resync — the balance sweep's priority pass */
+  pendingResync?: Record<string, unknown>[];
 }): { db: SupabaseClient; rec: Recorded } {
-  const rec: Recorded = { likes: [], updates: [], upserts: [] };
+  const rec: Recorded = { rpcs: [], likes: [], updates: [], upserts: [], inserts: [] };
   const makeBuilder = (table: string) => {
-    let op: "select" | "update" | "upsert" = "select";
+    let op: "select" | "update" | "upsert" | "insert" = "select";
     let patch: Record<string, unknown> = {};
     let matchId = "";
     // deno-lint-ignore no-explicit-any
@@ -61,6 +65,14 @@ function stubDb(opts: {
     b.eq = chain((_col, id) => {
       if (op === "update") matchId = id as string;
     });
+    // The sweeps write evidence events with .insert() (blnk.balance_drift,
+    // blnk.stuck_row, blnk.missing_mirror). Without this the call threw and the
+    // sweep's own catch swallowed it into `errors`, so a test could see a
+    // mirror corrected while the event proving it was never checked.
+    b.insert = chain((row) => {
+      op = "insert";
+      rec.inserts.push({ table, row: row as Record<string, unknown> });
+    });
     b.upsert = chain((row, o) => {
       op = "upsert";
       rec.upserts.push({ table, row: row as Record<string, unknown>, opts: o as Record<string, unknown> });
@@ -83,7 +95,16 @@ function stubDb(opts: {
     return b;
   };
   const db = {
-    schema: () => ({ from: (t: string) => makeBuilder(t) }),
+    schema: () => ({
+      from: (t: string) => makeBuilder(t),
+      // The balance sweep's priority pass. Defaults to empty so the existing
+      // tests exercise the round-robin tail exactly as before; a test wanting
+      // the priority pass supplies rows via opts.pendingResync.
+      rpc: (fn: string, args: unknown) => {
+        rec.rpcs.push({ fn, args });
+        return Promise.resolve({ data: opts.pendingResync ?? [], error: null });
+      },
+    }),
   } as unknown as SupabaseClient;
   return { db, rec };
 }
@@ -431,6 +452,41 @@ Deno.test("balance drift: only ids Blnk could have issued are swept", async () =
   assertExists(f, "the drift sweep must constrain blnk_balance_id by prefix");
   assertEquals(f.column, "blnk_balance_id");
   assertEquals(f.pattern, `${BLNK_BALANCE_ID_PREFIX}%`);
+});
+
+// The FBO position is a roll-up of these balances (20260817000100), so an
+// account that moved since its last sync is not a stale display value — it is
+// the position being wrong. Round-robin alone gave those a ~6.4h worst case
+// (25 rows / 5 min against 1,907 accounts). The priority pass is what makes it
+// one run, and this pins that it actually preempts rather than appends.
+Deno.test("balance drift: moved-since-sync accounts preempt the round-robin", async () => {
+  const moved = [{ id: "acct_moved", balance: 100, blnk_balance_id: "bln_moved" }];
+  const { db, rec } = stubDb({ rows: {}, pendingResync: moved });
+  const errors: SweepError[] = [];
+  let swept = 0;
+  let drifted = 0;
+  // The ledger says 250; the mirror says 100. The position is therefore wrong
+  // by 150 until this sweep runs.
+  const balanceCfg = {
+    apiUrl: "https://blnk.test",
+    apiKey: "k",
+    fetchFn: () =>
+      Promise.resolve(
+        new Response(JSON.stringify({ balance: 250 }), {
+          headers: { "content-type": "application/json" },
+        }),
+      ),
+  } as unknown as BlnkConfig;
+  await sweepBalances(db, balanceCfg, errors, (n) => swept += n, () => drifted++);
+
+  const call = rec.rpcs.find((r) => r.fn === "accounts_pending_resync");
+  assertExists(call, "the sweep must ask which accounts moved since their sync");
+  assertEquals(swept, 1, "the moved account is swept");
+  const upd = rec.updates.find((u) => u.table === "account" && u.id === "acct_moved");
+  assertExists(upd, "and its mirror is the one refreshed");
+  assertEquals(upd.patch.balance, 250, "corrected to what the ledger says");
+  assertEquals(drifted, 1, "and the correction is reported as drift, not silently applied");
+  assertEquals(errors.length, 0);
 });
 
 Deno.test("balance drift: the drill's placeholder ids cannot match that filter", () => {

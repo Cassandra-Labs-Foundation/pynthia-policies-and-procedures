@@ -22,7 +22,15 @@
         {
           "name": "account_type",
           "type": "text",
-          "enum": null,
+          "enum": [
+            "checking",
+            "share_draft",
+            "share",
+            "money_market",
+            "share_certificate",
+            "ira",
+            "keogh"
+          ],
           "note": null,
           "controls": [
             "TIS-02",
@@ -841,6 +849,7 @@
       "inherited": [],
       "endpoints": [
         "GET /cards",
+        "POST /cards",
         "GET /cards/{id}"
       ],
       "has_own_id": true,
@@ -1432,14 +1441,6 @@
           "provisional": true
         },
         {
-          "name": "blnk_identity_id",
-          "type": "text",
-          "enum": null,
-          "note": null,
-          "controls": null,
-          "provisional": false
-        },
-        {
           "name": "created_at",
           "type": "timestamptz",
           "enum": null,
@@ -1553,29 +1554,6 @@
         {
           "name": "type",
           "type": "text",
-          "enum": null,
-          "note": null,
-          "controls": null,
-          "provisional": false
-        }
-      ],
-      "fks": [],
-      "jsonb_detail": [],
-      "softrefs": []
-    },
-    "FboPosition": {
-      "schema": "FboPosition",
-      "table": "fbo_position",
-      "kind": "banking-core",
-      "description": "For-Benefit-Of position and balance for an aggregator instance (Decision 19).",
-      "states": null,
-      "inherited": [],
-      "endpoints": [],
-      "has_own_id": false,
-      "columns": [
-        {
-          "name": "balance",
-          "type": "bigint",
           "enum": null,
           "note": null,
           "controls": null,
@@ -1754,45 +1732,6 @@
           "array": false
         }
       ],
-      "softrefs": []
-    },
-    "InboundPayment": {
-      "schema": "InboundPayment",
-      "table": "inbound_payment",
-      "kind": "banking-core",
-      "description": "An inbound payment routed to an instance.",
-      "states": null,
-      "inherited": [],
-      "endpoints": [],
-      "has_own_id": true,
-      "columns": [
-        {
-          "name": "amount",
-          "type": "bigint",
-          "enum": null,
-          "note": null,
-          "controls": null,
-          "provisional": false
-        },
-        {
-          "name": "id",
-          "type": "text",
-          "enum": null,
-          "note": null,
-          "controls": null,
-          "provisional": false
-        },
-        {
-          "name": "originator",
-          "type": "text",
-          "enum": null,
-          "note": null,
-          "controls": null,
-          "provisional": false
-        }
-      ],
-      "fks": [],
-      "jsonb_detail": [],
       "softrefs": []
     },
     "Incident": {
@@ -4194,7 +4133,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "CP-11",
+            "CA-11",
             "EC-02",
             "EC-12",
             "EPS-09",
@@ -7167,7 +7106,7 @@
           "note": null,
           "controls": [
             "BSA-15",
-            "CP-11",
+            "CA-11",
             "DF-01",
             "DF-10",
             "EC-12",
@@ -7198,8 +7137,8 @@
           "note": null,
           "controls": [
             "BSA-15",
+            "CA-11",
             "CM-01",
-            "CP-11",
             "DF-01",
             "EC-12",
             "FL-11",
@@ -7214,7 +7153,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "CP-11",
+            "CA-11",
             "FL-11"
           ],
           "provisional": false
@@ -7225,9 +7164,9 @@
           "enum": null,
           "note": null,
           "controls": [
+            "CA-12",
             "CM-01",
             "CM-05",
-            "CP-12",
             "FL-11"
           ],
           "provisional": false
@@ -7276,8 +7215,8 @@
           "enum": null,
           "note": null,
           "controls": [
+            "CA-11",
             "CM-05",
-            "CP-11",
             "DF-01",
             "DF-10",
             "EC-12",
@@ -7293,7 +7232,7 @@
           "enum": null,
           "note": null,
           "controls": [
-            "CP-11"
+            "CA-11"
           ],
           "provisional": false
         },
@@ -7314,7 +7253,7 @@
           "note": null,
           "controls": [
             "BA-08",
-            "CP-11",
+            "CA-11",
             "EC-12",
             "IP-16",
             "IS-17"
@@ -7354,8 +7293,8 @@
           "note": null,
           "controls": [
             "BSA-15",
+            "CA-11",
             "CM-05",
-            "CP-11",
             "DF-01",
             "FL-11",
             "IS-17",
@@ -7370,8 +7309,8 @@
           "note": null,
           "controls": [
             "BSA-15",
+            "CA-11",
             "CM-05",
-            "CP-11",
             "FL-11",
             "IP-16",
             "IS-17",
@@ -7397,8 +7336,8 @@
           "controls": [
             "BA-08",
             "BSA-15",
+            "CA-11",
             "CM-05",
-            "CP-11",
             "DF-01",
             "DF-10",
             "EC-12",
@@ -7451,7 +7390,7 @@
           "note": null,
           "controls": [
             "BSA-15",
-            "CP-11",
+            "CA-11",
             "DF-01",
             "EC-12",
             "EPS-09",

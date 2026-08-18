@@ -1,14 +1,14 @@
 {
   "meta": {
     "generator": "scripts/extract_controls.py",
-    "generated_at": "2026-08-16T17:21:50+00:00",
+    "generated_at": "2026-08-18T02:46:45+00:00",
     "repo_root": "cassandra-platform",
     "api_model": {
       "spec_title": "Cassandra Banking Core API",
       "spec_version": "3.2.0",
       "events": 1472,
-      "fields": 2591,
-      "entities": 275
+      "fields": 2586,
+      "entities": 273
     }
   },
   "id_collisions": {},

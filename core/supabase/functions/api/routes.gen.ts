@@ -238,9 +238,7 @@ import {
 import {
   postDeathReport,
   postEstateClaim,
-  postEstatePayout,
   postExpulsion,
-  postExpulsionClose,
   postExpulsionHearing,
   postSafeModeActivate,
   postSafeModeDeactivate,
@@ -1505,22 +1503,6 @@ export const generatedRoutes: Route[] = [
     audience: "internal",
     handler: async (req, _params, requestId, ctx) =>
       await postWireRelease(req, createDb(), requestId, ctx),
-  },
-  {
-    method: "POST", pattern: /^\/estate-claims\/([^\/]+)\/payout\/?$/,
-    endpoint: "POST /estate-claims/{id}/payout", tier: "write", paramNames: ["id"],
-    actors: ["cu_admin", "pynthia_ops"],
-    audience: "internal",
-    handler: async (req, params, requestId, ctx) =>
-      await postEstatePayout(req, params.id, createDb(), requestId, ctx),
-  },
-  {
-    method: "POST", pattern: /^\/expulsions\/([^\/]+)\/close\/?$/,
-    endpoint: "POST /expulsions/{id}/close", tier: "write", paramNames: ["id"],
-    actors: ["cu_admin", "pynthia_ops"],
-    audience: "internal",
-    handler: async (req, params, requestId, ctx) =>
-      await postExpulsionClose(req, params.id, createDb(), requestId, ctx),
   },
   {
     method: "POST", pattern: /^\/expulsions\/([^\/]+)\/hearing\/?$/,

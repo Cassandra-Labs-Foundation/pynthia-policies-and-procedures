@@ -55,7 +55,7 @@ with the same header.
    `blnk.missing_mirror` events any transaction lacking a `core_resource` writer-
    contract stamp, with an unrecognized `core_resource.table`, or whose mirror
    row is missing from the corresponding core table (allowlist: `ach_transfer`,
-   `wire_transfer`, `transfer`, `inbound_payment`, `card_authorization`).
+   `wire_transfer`, `transfer`, `card_authorization`).
 
 5. **Webhook inbox re-dispatch** (`blnk_event`, 50 rows) — rows still
    `received` or `failed` after `INBOX_STALE_MINUTES` are re-run through the

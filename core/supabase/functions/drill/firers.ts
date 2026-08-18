@@ -3558,10 +3558,10 @@ async function runViolationTierLifecycle(env: FireEnv): Promise<void> {
   );
   const claim = (env.rows["core.estate_claim"] ?? [])[0];
   // NEGATIVE: paying an unverified claimant is refused
-  await postEstatePayout(R({}), String(claim?.id ?? "none"), env.db, "d", ops);
+  await postEstatePayout(R({}), String(claim?.id ?? "none"), env.db, env.cfg, "d", ops);
   await env.db.schema("core").from("verification")
     .update({ status: "approved" }).eq("id", String(claim?.verification_id ?? "none"));
-  await postEstatePayout(R({ amounts_owed_cents: 5_000 }), String(claim?.id ?? "none"), env.db, "d", ops);
+  await postEstatePayout(R({ amounts_owed_cents: 5_000 }), String(claim?.id ?? "none"), env.db, env.cfg, "d", ops);
 
   // ---- MP-06 expulsion
   // NEGATIVE first: ent_4 has no contact on file — the notice cannot be
@@ -3582,7 +3582,7 @@ async function runViolationTierLifecycle(env: FireEnv): Promise<void> {
   const exp = (env.rows["core.expulsion"] ?? [])[0];
   await postExpulsionHearing(R({ kind: "requested" }), String(exp?.id ?? "none"), env.db, "d", ops);
   await postExpulsionHearing(R({ kind: "held" }), String(exp?.id ?? "none"), env.db, "d", ops);
-  await postExpulsionClose(R({}), String(exp?.id ?? "none"), env.db, "d", ops);
+  await postExpulsionClose(R({}), String(exp?.id ?? "none"), env.db, env.cfg, "d", ops);
 
   // ---- RS-03 safe mode
   await postSafeModeActivate(
