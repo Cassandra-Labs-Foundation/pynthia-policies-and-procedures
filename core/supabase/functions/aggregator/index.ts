@@ -11,9 +11,17 @@ Deno.serve(async (req: Request): Promise<Response> => {
   try {
     return await handleAggregator(req, {
       jwtSecret: Deno.env.get("AGGREGATOR_JWT_SECRET"),
+      // CORE_SERVICE_ROLE_KEY first, matching api/lib.ts createDb(). This
+      // project has migrated to the publishable/secret key scheme, which
+      // disables the legacy service_role JWT that SUPABASE_SERVICE_ROLE_KEY
+      // still holds — so reading only that one made every DB-backed route
+      // here 500 (/health, /fbo, /consumers/*/run) while the api function,
+      // which already had this fallback, kept working. Same resolution in
+      // both places, or the next key rotation splits them again.
       db: createClient(
         Deno.env.get("SUPABASE_URL")!,
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+        Deno.env.get("CORE_SERVICE_ROLE_KEY") ||
+          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
         { auth: { persistSession: false } },
       ),
     }, requestId);
