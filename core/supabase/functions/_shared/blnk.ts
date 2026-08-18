@@ -76,7 +76,6 @@ export interface BlnkBalance {
 export interface TransactionMirror {
   blnk_transaction_id: string;
   blnk_reference: string;
-  blnk_status: string;
   synced_at: string;
   // For core.card_authorization the caller maps blnk_transaction_id -> blnk_inflight_id.
 }
@@ -369,7 +368,6 @@ export function transactionMirror(t: BlnkTransaction): TransactionMirror {
   return {
     blnk_transaction_id: t.transaction_id,
     blnk_reference: t.reference,
-    blnk_status: t.status,
     synced_at: new Date().toISOString(),
   };
 }

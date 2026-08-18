@@ -3,7 +3,7 @@
     "spec_title": "Cassandra Banking Core API",
     "spec_version": "3.2.0",
     "parser_version": "0.2.0",
-    "parsed_at": "2026-08-18T03:17:53.091919Z",
+    "parsed_at": "2026-08-18T03:38:12.037643Z",
     "note": "Specific domain codes (e.g. sar.filed, vendor_review) live as `subject` values in vocab-migration.json, not as distinct vocabulary elements.",
     "sources": [
       "core-api.yaml",
@@ -12,9 +12,9 @@
   },
   "stats": {
     "entities": 273,
-    "fields": 2586,
+    "fields": 2583,
     "computed_fields": 0,
-    "events": 1472,
+    "events": 1473,
     "endpoints": 371,
     "state_machines": 25,
     "plugins": 0,
@@ -48,7 +48,7 @@
     {
       "name": "ach_transfer",
       "schema_name": "AchTransfer",
-      "field_count": 16,
+      "field_count": 15,
       "computed_field_count": 0,
       "state_machine_field": "status",
       "events": [],
@@ -565,7 +565,7 @@
     {
       "name": "transfer",
       "schema_name": "Transfer",
-      "field_count": 13,
+      "field_count": 12,
       "computed_field_count": 0,
       "state_machine_field": null,
       "events": [],
@@ -620,7 +620,7 @@
     {
       "name": "wire_transfer",
       "schema_name": "WireTransfer",
-      "field_count": 17,
+      "field_count": 16,
       "computed_field_count": 0,
       "state_machine_field": "status",
       "events": [],
@@ -3558,23 +3558,6 @@
     {
       "path": "ach_transfer.blnk_reference",
       "field": "blnk_reference",
-      "entity": "AchTransfer",
-      "type": "string",
-      "required": false,
-      "nullable": true,
-      "description": "",
-      "enum_values": null,
-      "pii": false,
-      "is_computed": false,
-      "computed": null,
-      "plugin": null,
-      "freshness": null,
-      "is_state_machine": false,
-      "bound_controls": []
-    },
-    {
-      "path": "ach_transfer.blnk_status",
-      "field": "blnk_status",
       "entity": "AchTransfer",
       "type": "string",
       "required": false,
@@ -10900,23 +10883,6 @@
       "bound_controls": []
     },
     {
-      "path": "transfer.blnk_status",
-      "field": "blnk_status",
-      "entity": "Transfer",
-      "type": "string",
-      "required": false,
-      "nullable": true,
-      "description": "",
-      "enum_values": null,
-      "pii": false,
-      "is_computed": false,
-      "computed": null,
-      "plugin": null,
-      "freshness": null,
-      "is_state_machine": false,
-      "bound_controls": []
-    },
-    {
       "path": "transfer.blnk_transaction_id",
       "field": "blnk_transaction_id",
       "entity": "Transfer",
@@ -11514,23 +11480,6 @@
     {
       "path": "wire_transfer.blnk_reference",
       "field": "blnk_reference",
-      "entity": "WireTransfer",
-      "type": "string",
-      "required": false,
-      "nullable": true,
-      "description": "",
-      "enum_values": null,
-      "pii": false,
-      "is_computed": false,
-      "computed": null,
-      "plugin": null,
-      "freshness": null,
-      "is_state_machine": false,
-      "bound_controls": []
-    },
-    {
-      "path": "wire_transfer.blnk_status",
-      "field": "blnk_status",
       "entity": "WireTransfer",
       "type": "string",
       "required": false,
@@ -48027,6 +47976,12 @@
     {
       "name": "blnk.balance_drift",
       "code": "blnk.balance_drift",
+      "entity": "blnk",
+      "description": "canonical event_type: `detected`"
+    },
+    {
+      "name": "blnk.hold_released_upstream",
+      "code": "blnk.hold_released_upstream",
       "entity": "blnk",
       "description": "canonical event_type: `detected`"
     },

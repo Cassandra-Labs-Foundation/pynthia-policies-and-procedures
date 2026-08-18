@@ -16,7 +16,6 @@ const HELD = {
   window: "next_day",
   blnk_transaction_id: "txn_held",
   blnk_reference: "ach_transfer:ach_1",
-  blnk_status: "INFLIGHT",
   created_at: "2026-07-18T00:00:00Z",
 };
 
@@ -173,7 +172,6 @@ const SETTLED = {
   ...HELD,
   status: "settled",
   originator: { account_id: "acct_src" },
-  blnk_status: "APPLIED",
 };
 
 function dbWithAccount(row: unknown) {

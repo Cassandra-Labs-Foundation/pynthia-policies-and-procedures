@@ -17,7 +17,6 @@ import {
   sweepBalances,
   sweepCardAuthorization,
   sweepInbox,
-  sweepTxnTable,
   type SweepError,
 } from "./sweeps.ts";
 
@@ -132,65 +131,12 @@ function recoveryEvents(rec: Recorded) {
   return rec.upserts.filter((u) => u.table === "event" && u.row.code === "blnk.mirror.recovered");
 }
 
-Deno.test("inflight parent resolved APPLIED: mirror advances and emits blnk.mirror.recovered with the exact transition", async () => {
-  const { db, rec } = stubDb({
-    rows: {
-      ach_transfer: [{ id: "ach_1", blnk_transaction_id: "txn_p", blnk_status: "INFLIGHT" }],
-    },
-  });
-  const cfg = stubCfg({
-    parent: { transaction_id: "txn_p", status: "INFLIGHT" },
-    children: [{ transaction_id: "txn_c", status: "APPLIED", precise_amount: 5000 }],
-  });
-  const errors: SweepError[] = [];
-  let advanced = 0;
-  await sweepTxnTable(db, cfg, "ach_transfer", errors, () => {}, () => advanced++);
 
-  assertEquals(errors, []);
-  assertEquals(advanced, 1);
-  const upd = rec.updates.find((u) => u.table === "ach_transfer");
-  assertExists(upd);
-  assertEquals(upd.patch.blnk_status, "APPLIED");
-
-  const evts = recoveryEvents(rec);
-  assertEquals(evts.length, 1);
-  const evt = evts[0];
-  assertEquals(evt.row.id, "evt_recon_ach_1_applied");
-  assertEquals(evt.row.type, "reconciliation");
-  assertEquals(evt.row.resource_id, "ach_transfer:ach_1");
-  const payload = evt.row.payload as Record<string, unknown>;
-  assertEquals(payload.from, "INFLIGHT");
-  assertEquals(payload.to, "APPLIED");
-  assertEquals(payload.blnk_transaction_id, "txn_p");
-  // re-sweeps must not duplicate the evidence
-  assertEquals(evt.opts?.onConflict, "id");
-  assertEquals(evt.opts?.ignoreDuplicates, true);
-});
-
-Deno.test("live hold (inflight, no children, mirror in sync): no advance, no event — but synced_at is touched so the sweep window rotates past it", async () => {
-  // Without the touch, permanently-inflight rows monopolize the oldest-first
-  // sweep window (limit 25) and the heartbeat never reaches a fresh drop.
-  const { db, rec } = stubDb({
-    rows: {
-      wire_transfer: [{ id: "wire_1", blnk_transaction_id: "txn_p", blnk_status: "INFLIGHT" }],
-    },
-  });
-  const cfg = stubCfg({ parent: { transaction_id: "txn_p", status: "INFLIGHT" }, children: [] });
-  const errors: SweepError[] = [];
-  let advanced = 0;
-  await sweepTxnTable(db, cfg, "wire_transfer", errors, () => {}, () => advanced++);
-
-  assertEquals(errors, []);
-  assertEquals(advanced, 0);
-  assertEquals(rec.updates.length, 1);
-  assertEquals(Object.keys(rec.updates[0].patch), ["synced_at"]);
-  assertEquals(recoveryEvents(rec).length, 0);
-});
 
 Deno.test("card authorization live hold in sync: synced_at touched, nothing else", async () => {
   const { db, rec } = stubDb({
     rows: {
-      card_authorization: [{ id: "auth_3", blnk_inflight_id: "txn_p", blnk_status: "INFLIGHT" }],
+      card_authorization: [{ id: "auth_3", blnk_inflight_id: "txn_p" }],
     },
   });
   const cfg = stubCfg({ parent: { transaction_id: "txn_p", status: "INFLIGHT" }, children: [] });
@@ -205,29 +151,11 @@ Deno.test("card authorization live hold in sync: synced_at touched, nothing else
   assertEquals(recoveryEvents(rec).length, 0);
 });
 
-Deno.test("terminal drift (mirror QUEUED, Blnk APPLIED): advances and records QUEUED->APPLIED", async () => {
-  const { db, rec } = stubDb({
-    rows: {
-      transfer: [{ id: "tr_1", blnk_transaction_id: "txn_x", blnk_status: "QUEUED" }],
-    },
-  });
-  const cfg = stubCfg({ parent: { transaction_id: "txn_x", status: "APPLIED" } });
-  const errors: SweepError[] = [];
-  await sweepTxnTable(db, cfg, "transfer", errors, () => {}, () => {});
-
-  assertEquals(errors, []);
-  const evts = recoveryEvents(rec);
-  assertEquals(evts.length, 1);
-  const payload = evts[0].row.payload as Record<string, unknown>;
-  assertEquals(payload.from, "QUEUED");
-  assertEquals(payload.to, "APPLIED");
-  assertEquals(evts[0].row.resource_id, "transfer:tr_1");
-});
 
 Deno.test("card authorization: applied children sum into blnk_committed_amount and the recovery event is emitted", async () => {
   const { db, rec } = stubDb({
     rows: {
-      card_authorization: [{ id: "auth_1", blnk_inflight_id: "txn_p", blnk_status: "INFLIGHT" }],
+      card_authorization: [{ id: "auth_1", blnk_inflight_id: "txn_p" }],
     },
   });
   const cfg = stubCfg({
@@ -245,19 +173,21 @@ Deno.test("card authorization: applied children sum into blnk_committed_amount a
   assertEquals(advanced, 1);
   const upd = rec.updates.find((u) => u.table === "card_authorization");
   assertExists(upd);
-  assertEquals(upd.patch.blnk_status, "APPLIED");
   assertEquals(upd.patch.blnk_committed_amount, 500);
 
+  // blnk_committed_amount is the one mirror on this row that IS read —
+  // cards.ts sizes the remaining capture from it — so the recovery event now
+  // reports the committed amount moving, not a ledger status nobody consumed.
   const evts = recoveryEvents(rec);
   assertEquals(evts.length, 1);
   assertEquals(evts[0].row.resource_id, "card_authorization:auth_1");
-  assertEquals((evts[0].row.payload as Record<string, unknown>).to, "APPLIED");
+  assertEquals((evts[0].row.payload as Record<string, unknown>).to, "500");
 });
 
-Deno.test("card authorization: VOID child recovers as VOID", async () => {
+Deno.test("card authorization: a VOID child is REPORTED, not guessed into a status", async () => {
   const { db, rec } = stubDb({
     rows: {
-      card_authorization: [{ id: "auth_2", blnk_inflight_id: "txn_p", blnk_status: "INFLIGHT" }],
+      card_authorization: [{ id: "auth_2", blnk_inflight_id: "txn_p", status: "authorized" }],
     },
   });
   const cfg = stubCfg({
@@ -268,29 +198,18 @@ Deno.test("card authorization: VOID child recovers as VOID", async () => {
   await sweepCardAuthorization(db, cfg, errors, () => {}, () => {});
 
   assertEquals(errors, []);
-  const evts = recoveryEvents(rec);
-  assertEquals(evts.length, 1);
-  assertEquals(evts[0].row.id, "evt_recon_auth_2_void");
-  assertEquals((evts[0].row.payload as Record<string, unknown>).to, "VOID");
+  // A void is a reversal or an expiry depending on who decided, and those are
+  // different terminal states in a dispute. The sweep must not pick one.
+  const released = rec.inserts.concat(rec.upserts.map((u) => ({ table: u.table, row: u.row })))
+    .filter((i) => i.table === "event" && i.row.code === "blnk.hold_released_upstream");
+  assertEquals(released.length, 1, "the divergence is emitted as an event");
+  assertEquals(released[0].row.resource_id, "card_authorization:auth_2");
+  const statusWrite = rec.updates.find((u) =>
+    u.table === "card_authorization" && "status" in u.patch
+  );
+  assertEquals(statusWrite, undefined, "and no business status is invented");
 });
 
-Deno.test("failed mirror write: error recorded, no advance, no evidence event", async () => {
-  const { db, rec } = stubDb({
-    rows: {
-      ach_transfer: [{ id: "ach_9", blnk_transaction_id: "txn_p", blnk_status: "QUEUED" }],
-    },
-    updateError: "boom",
-  });
-  const cfg = stubCfg({ parent: { transaction_id: "txn_p", status: "APPLIED" } });
-  const errors: SweepError[] = [];
-  let advanced = 0;
-  await sweepTxnTable(db, cfg, "ach_transfer", errors, () => {}, () => advanced++);
-
-  assertEquals(errors.length, 1);
-  assertEquals(errors[0].error, "boom");
-  assertEquals(advanced, 0);
-  assertEquals(recoveryEvents(rec).length, 0);
-});
 
 // ---- inbox dead-letter cap ---------------------------------------------------
 //

@@ -17,15 +17,10 @@ import {
   sweepInbox,
   sweepMissingMirrors,
   sweepStuckRows,
-  sweepTxnTable,
-  TXN_TABLES,
   type SweepError,
 } from "./sweeps.ts";
 
 interface SweptCounts {
-  ach_transfer: number;
-  wire_transfer: number;
-  transfer: number;
   card_authorization: number;
   balances: number;
   blnk_transactions: number;
@@ -78,9 +73,6 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     const errors: SweepError[] = [];
     const swept: SweptCounts = {
-      ach_transfer: 0,
-      wire_transfer: 0,
-      transfer: 0,
       card_authorization: 0,
       balances: 0,
       blnk_transactions: 0,
@@ -92,17 +84,6 @@ Deno.serve(async (req: Request): Promise<Response> => {
     let missingMirrors = 0;
     let recovered = 0;
     let redispatched = 0;
-
-    for (const table of TXN_TABLES) {
-      await sweepTxnTable(
-        db,
-        cfg,
-        table,
-        errors,
-        (n) => { swept[table] += n; },
-        () => { advanced++; },
-      );
-    }
 
     await sweepCardAuthorization(
       db,

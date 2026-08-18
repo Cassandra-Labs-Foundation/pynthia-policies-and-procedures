@@ -60,7 +60,6 @@ export interface Transfer {
   status?: "pending_approval" | "submitted" | "settled" | "returned" | "rejected" | "canceled" | null;
   amount_cents?: number | null;
   blnk_reference?: string | null;
-  blnk_status?: string | null;
   blnk_transaction_id?: string | null;
   counterparty?: Record<string, unknown> | null;
   created_at?: string | null;

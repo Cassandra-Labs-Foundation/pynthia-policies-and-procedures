@@ -51,12 +51,11 @@ export interface CardAuthRow {
   blnk_committed_amount: number | null;
   originator?: { account_id?: string } | null;
   blnk_reference: string | null;
-  blnk_status: string | null;
   created_at: string;
 }
 
 const CARD_COLS =
-  "id, amount, status, merchant, decline_reason, originator, blnk_inflight_id, blnk_committed_amount, blnk_reference, blnk_status, created_at";
+  "id, amount, status, merchant, decline_reason, originator, blnk_inflight_id, blnk_committed_amount, blnk_reference, created_at";
 
 function cardResponse(
   row: CardAuthRow,
@@ -233,7 +232,6 @@ export async function postCardAuthorize(
       // blnk_transaction_id (see 20260702000500 column comment)
       blnk_inflight_id: mirror.blnk_transaction_id,
       blnk_reference: mirror.blnk_reference,
-      blnk_status: mirror.blnk_status,
       synced_at: mirror.synced_at,
     })
     .eq("id", authId)
@@ -329,7 +327,6 @@ export async function postCardCapture(
     .update({
       status: captured >= row.amount ? "captured" : "partially_captured",
       blnk_committed_amount: captured,
-      blnk_status: mirror.blnk_status,
       synced_at: mirror.synced_at,
     })
     .eq("id", authId)

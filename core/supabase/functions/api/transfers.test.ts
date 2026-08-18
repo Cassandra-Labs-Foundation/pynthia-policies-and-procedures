@@ -444,8 +444,7 @@ Deno.test("the list serves amount_cents, matching the single-transfer read", asy
   const row = {
     id: "trf_1", status: "settled", amount: 125_000,
     originator: { account_id: "acct_1" }, beneficiary: { account_id: "acct_2" },
-    blnk_transaction_id: "txn_1", blnk_status: "APPLIED",
-    created_at: "2026-07-01T00:00:00Z",
+    blnk_transaction_id: "txn_1", created_at: "2026-07-01T00:00:00Z",
   };
   const { db } = listDb([row]);
   const res = await getTransfers(new Request("https://x/transfers"), db, "t7", TEST_CTX);

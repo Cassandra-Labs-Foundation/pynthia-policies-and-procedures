@@ -22,7 +22,6 @@ const HELD_WIRE = {
   imad: null,
   blnk_transaction_id: "txn_held",
   blnk_reference: "wire_transfer:w1",
-  blnk_status: "INFLIGHT",
   created_at: "2026-07-18T00:00:00Z",
 };
 
@@ -237,7 +236,6 @@ import { postWireReturn, postWireReturnResolve } from "./wires.ts";
 const COMPLETED_WIRE = {
   ...HELD_WIRE,
   status: "completed",
-  blnk_status: "APPLIED",
   originator: { account_id: "acct_src" },
   return_reason: null,
 };

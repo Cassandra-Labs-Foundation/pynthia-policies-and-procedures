@@ -29,7 +29,6 @@ import type { BlnkWebhook } from "../blnk-webhook/types.ts";
  */
 export const BLNK_BALANCE_ID_PREFIX = "bln_";
 
-export const PENDING_STATUSES = ["QUEUED", "INFLIGHT", "SCHEDULED"] as const;
 export const TXN_TABLES = ["ach_transfer", "wire_transfer", "transfer"] as const;
 export const MIRROR_TABLES = [
   "ach_transfer",
@@ -38,16 +37,12 @@ export const MIRROR_TABLES = [
   "card_authorization",
 ] as const;
 
-interface TxnMirrorRow {
-  id: string;
-  blnk_transaction_id: string;
-  blnk_status: string;
-}
-
 interface CardAuthRow {
   id: string;
+  amount: number;
+  status: string;
   blnk_inflight_id: string;
-  blnk_status: string;
+  blnk_committed_amount: number | null;
 }
 
 interface AccountRow {
@@ -135,70 +130,13 @@ function sumAppliedAmount(children: { status: string; precise_amount?: number }[
     .reduce((sum, c) => sum + (typeof c.precise_amount === "number" ? c.precise_amount : 0), 0);
 }
 
-export async function sweepTxnTable(
-  db: SupabaseClient,
-  cfg: BlnkConfig,
-  table: string,
-  errors: SweepError[],
-  onSwept: (n: number) => void,
-  onAdvanced: () => void,
-): Promise<void> {
-  const { data, error } = await db.schema("core").from(table)
-    .select("id, blnk_transaction_id, blnk_status")
-    .not("blnk_transaction_id", "is", null)
-    .in("blnk_status", [...PENDING_STATUSES])
-    .order("synced_at", { ascending: true, nullsFirst: true })
-    .limit(25);
-
-  if (error) {
-    errors.push({ table, id: "*", error: error.message });
-    return;
-  }
-
-  const rows = (data ?? []) as TxnMirrorRow[];
-  onSwept(rows.length);
-
-  for (const row of rows) {
-    try {
-      const txn = await getTransaction(cfg, row.blnk_transaction_id);
-      const now = new Date().toISOString();
-
-      if (txn.status === "INFLIGHT") {
-        const resolved = await resolveInflightChildren(cfg, row.blnk_transaction_id);
-        // No children yet: still a live hold — but mirror QUEUED -> INFLIGHT if stale.
-        const next = resolved ?? (row.blnk_status !== "INFLIGHT" ? "INFLIGHT" : null);
-        if (next === null) {
-          await touchSynced(db, table, row.id, now, errors);
-          continue;
-        }
-
-        const { error: updErr } = await db.schema("core").from(table).update({
-          blnk_status: next,
-          synced_at: now,
-        }).eq("id", row.id);
-        if (updErr) errors.push({ table, id: row.id, error: updErr.message });
-        else {
-          onAdvanced();
-          await emitMirrorRecovered(db, table, row.id, row.blnk_status, next, row.blnk_transaction_id, errors);
-        }
-      } else if (txn.status !== row.blnk_status) {
-        const { error: updErr } = await db.schema("core").from(table).update({
-          blnk_status: txn.status,
-          synced_at: now,
-        }).eq("id", row.id);
-        if (updErr) errors.push({ table, id: row.id, error: updErr.message });
-        else {
-          onAdvanced();
-          await emitMirrorRecovered(db, table, row.id, row.blnk_status, txn.status, row.blnk_transaction_id, errors);
-        }
-      } else {
-        await touchSynced(db, table, row.id, now, errors);
-      }
-    } catch (e) {
-      errors.push({ table, id: row.id, error: errMsg(e) });
-    }
-  }
-}
+// sweepTxnTable is GONE with core.<rail>.blnk_status (migration 20260817000500).
+// It read that column, wrote that column, and touched nothing else — it never
+// advanced a rail's business `status`, so nothing downstream ever acted on
+// what it learned. A mirror maintained only by the code that maintains it is
+// not evidence; the rails' own `status` is, and blnk-webhook plus
+// sweepStuckRows keep the transaction ids that let anyone re-derive ledger
+// state on demand.
 
 export async function sweepCardAuthorization(
   db: SupabaseClient,
@@ -208,10 +146,13 @@ export async function sweepCardAuthorization(
   onAdvanced: () => void,
 ): Promise<void> {
   const table = "card_authorization";
+  // Selection keys on the BUSINESS status now that blnk_status is gone, and
+  // that is the better predicate anyway: an open hold is one this core still
+  // believes is open, not one whose ledger mirror happens to read INFLIGHT.
   const { data, error } = await db.schema("core").from(table)
-    .select("id, blnk_inflight_id, blnk_status")
+    .select("id, amount, status, blnk_inflight_id, blnk_committed_amount")
     .not("blnk_inflight_id", "is", null)
-    .in("blnk_status", [...PENDING_STATUSES])
+    .in("status", ["authorized", "partially_captured"])
     .order("synced_at", { ascending: true, nullsFirst: true })
     .limit(25);
 
@@ -225,71 +166,62 @@ export async function sweepCardAuthorization(
 
   for (const row of rows) {
     try {
-      const txn = await getTransaction(cfg, row.blnk_inflight_id);
       const now = new Date().toISOString();
+      const children = await searchTransactions(cfg, {
+        q: "*",
+        queryBy: "reference",
+        filterBy: `parent_transaction:=${row.blnk_inflight_id}`,
+        perPage: 50,
+      });
 
-      if (txn.status === "INFLIGHT") {
-        const children = await searchTransactions(cfg, {
-          q: "*",
-          queryBy: "reference",
-          filterBy: `parent_transaction:=${row.blnk_inflight_id}`,
-          perPage: 50,
-        });
-        if (children.length === 0) {
-          // Still a live hold — mirror QUEUED -> INFLIGHT if stale.
-          if (row.blnk_status !== "INFLIGHT") {
-            const { error: updErr } = await db.schema("core").from(table).update({
-              blnk_status: "INFLIGHT",
-              synced_at: now,
-            }).eq("id", row.id);
-            if (updErr) errors.push({ table, id: row.id, error: updErr.message });
-            else {
-              onAdvanced();
-              await emitMirrorRecovered(db, table, row.id, row.blnk_status, "INFLIGHT", row.blnk_inflight_id, errors);
-            }
-          } else {
-            await touchSynced(db, table, row.id, now, errors);
-          }
-          continue;
-        }
+      if (children.length === 0) {
+        await touchSynced(db, table, row.id, now, errors);
+        continue;
+      }
 
-        if (children.some((c) => c.status === "VOID")) {
-          const { error: updErr } = await db.schema("core").from(table).update({
-            blnk_status: "VOID",
-            synced_at: now,
-          }).eq("id", row.id);
-          if (updErr) errors.push({ table, id: row.id, error: updErr.message });
-          else {
-            onAdvanced();
-            await emitMirrorRecovered(db, table, row.id, row.blnk_status, "VOID", row.blnk_inflight_id, errors);
-          }
-        } else {
-          const applied = children.filter((c) => c.status === "APPLIED");
-          if (applied.length === 0) {
-            await touchSynced(db, table, row.id, now, errors);
-            continue;
-          }
+      // The ledger released the hold while this core still shows it open. We
+      // deliberately do NOT guess a business status: a void is a reversal or
+      // an expiry depending on who decided, and those are different terminal
+      // states with different meanings in a dispute. Previously this wrote
+      // blnk_status='VOID' — recording the divergence in a column no code
+      // read, which is indistinguishable from not noticing. Emit it instead.
+      if (children.some((c) => c.status === "VOID")) {
+        const { error: evtErr } = await db.schema("core").from("event").upsert({
+          id: `evt_${row.id}_hold_released`,
+          code: "blnk.hold_released_upstream",
+          type: "reconciliation",
+          resource_id: `${table}:${row.id}`,
+          payload: {
+            blnk_inflight_id: row.blnk_inflight_id,
+            core_status: row.status,
+            detail: "Blnk voided the hold; this core still shows it open. " +
+              "Resolve as a reversal or an expiry — they are not the same event.",
+          },
+          created_at: now,
+        }, { onConflict: "id", ignoreDuplicates: true });
+        if (evtErr) errors.push({ table: "event", id: row.id, error: evtErr.message });
+        else onAdvanced();
+        await touchSynced(db, table, row.id, now, errors);
+        continue;
+      }
 
-          const { error: updErr } = await db.schema("core").from(table).update({
-            blnk_status: "APPLIED",
-            blnk_committed_amount: sumAppliedAmount(children),
-            synced_at: now,
-          }).eq("id", row.id);
-          if (updErr) errors.push({ table, id: row.id, error: updErr.message });
-          else {
-            onAdvanced();
-            await emitMirrorRecovered(db, table, row.id, row.blnk_status, "APPLIED", row.blnk_inflight_id, errors);
-          }
-        }
-      } else if (txn.status !== row.blnk_status) {
+      // The one mirror on this row that IS read: cards.ts sizes the remaining
+      // capture from blnk_committed_amount, so a drift here lets a merchant
+      // over- or under-capture.
+      const committed = sumAppliedAmount(children);
+      if (committed !== (row.blnk_committed_amount ?? 0)) {
         const { error: updErr } = await db.schema("core").from(table).update({
-          blnk_status: txn.status,
+          blnk_committed_amount: committed,
           synced_at: now,
         }).eq("id", row.id);
         if (updErr) errors.push({ table, id: row.id, error: updErr.message });
         else {
           onAdvanced();
-          await emitMirrorRecovered(db, table, row.id, row.blnk_status, txn.status, row.blnk_inflight_id, errors);
+          await emitMirrorRecovered(
+            db, table, row.id,
+            String(row.blnk_committed_amount ?? 0), String(committed),
+            row.blnk_inflight_id, errors,
+          );
         }
       } else {
         await touchSynced(db, table, row.id, now, errors);
@@ -478,7 +410,6 @@ export async function sweepStuckRows(
         if (txn) {
           const { error: updErr } = await db.schema("core").from(table).update({
             blnk_transaction_id: txn.transaction_id,
-            blnk_status: txn.status,
             synced_at: now,
           }).eq("id", row.id);
           if (updErr) errors.push({ table, id: row.id, error: updErr.message });

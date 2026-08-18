@@ -76,7 +76,6 @@ export interface WireRow {
   return_reason?: string | null;
   blnk_transaction_id: string | null;
   blnk_reference: string | null;
-  blnk_status: string | null;
   created_at: string;
 }
 
@@ -272,11 +271,10 @@ export async function postWirePrepare(
       status: "submitted",
       blnk_transaction_id: mirror.blnk_transaction_id,
       blnk_reference: mirror.blnk_reference,
-      blnk_status: mirror.blnk_status,
       synced_at: mirror.synced_at,
     })
     .eq("id", wireId)
-    .select("id, amount, status, beneficiary, purpose, imad, dual_control_status, created_by, blnk_transaction_id, blnk_reference, blnk_status, created_at")
+    .select("id, amount, status, beneficiary, purpose, imad, dual_control_status, created_by, blnk_transaction_id, blnk_reference, created_at")
     .single();
   if (updErr) return internalErrorResponse(requestId, updErr);
 
@@ -368,7 +366,7 @@ async function resolveInflight(
       // read undefined — an unconfirmable wire, approved or not. The fake
       // returns whole rows regardless of select list, so only live traffic
       // could catch this.
-      .select("id, amount, status, beneficiary, purpose, imad, originator, dual_control_status, blnk_transaction_id, blnk_reference, blnk_status, created_at")
+      .select("id, amount, status, beneficiary, purpose, imad, originator, dual_control_status, blnk_transaction_id, blnk_reference, created_at")
       .eq("id", wireId),
     ctx,
   ).maybeSingle();
@@ -475,11 +473,10 @@ async function resolveInflight(
   const { data: updated, error: updErr } = await db.schema("core").from("wire_transfer")
     .update({
       status: action === "confirm" ? "completed" : "canceled",
-      blnk_status: mirror.blnk_status,
       synced_at: mirror.synced_at,
     })
     .eq("id", wireId)
-    .select("id, amount, status, beneficiary, purpose, imad, dual_control_status, created_by, blnk_transaction_id, blnk_reference, blnk_status, created_at")
+    .select("id, amount, status, beneficiary, purpose, imad, dual_control_status, created_by, blnk_transaction_id, blnk_reference, created_at")
     .single();
   if (updErr) return internalErrorResponse(requestId, updErr);
 
@@ -538,7 +535,7 @@ export async function postWireReject(
   ctx: PartnerContext,
 ): Promise<Response> {
   const cols =
-    "id, amount, status, beneficiary, purpose, imad, originator, return_reason, blnk_transaction_id, blnk_reference, blnk_status, created_at";
+    "id, amount, status, beneficiary, purpose, imad, originator, return_reason, blnk_transaction_id, blnk_reference, created_at";
   const { data: wire, error: selErr } = await scopeToPartner(
     db.schema("core").from("wire_transfer")
       .select(cols)
@@ -641,7 +638,7 @@ export async function postWireReject(
 // paths stay append-only: settled history is never mutated.
 
 const RETURN_COLS =
-  "id, amount, status, beneficiary, purpose, imad, originator, return_reason, blnk_transaction_id, blnk_reference, blnk_status, created_at";
+  "id, amount, status, beneficiary, purpose, imad, originator, return_reason, blnk_transaction_id, blnk_reference, created_at";
 
 /** POST /payments/wire/{id}/return — request the return of a completed wire. */
 export async function postWireReturn(
@@ -793,7 +790,7 @@ export async function postWireReturnResolve(
   }
 
   const { data: updated, error: updErr } = await db.schema("core").from("wire_transfer")
-    .update({ status: "returned", blnk_status: mirror.blnk_status, synced_at: mirror.synced_at })
+    .update({ status: "returned", synced_at: mirror.synced_at })
     .eq("id", wireId)
     .select(RETURN_COLS)
     .single();
@@ -834,7 +831,7 @@ export async function postWireReturnResolve(
  */
 const WIRE_READ_COLS =
   "id, amount, beneficiary, purpose, imad, status, dual_control_status, return_reason, " +
-  "control_results, blnk_transaction_id, blnk_reference, blnk_status, created_at";
+  "control_results, blnk_transaction_id, blnk_reference, created_at";
 
 const WIRE_STATUSES = [
   "pending_approval",

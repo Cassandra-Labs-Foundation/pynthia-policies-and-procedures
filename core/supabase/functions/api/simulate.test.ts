@@ -32,7 +32,6 @@ const HELD_ACH = {
   noc: null,
   blnk_transaction_id: "txn_1",
   blnk_reference: "ref_1",
-  blnk_status: "INFLIGHT",
   created_at: new Date().toISOString(),
 };
 

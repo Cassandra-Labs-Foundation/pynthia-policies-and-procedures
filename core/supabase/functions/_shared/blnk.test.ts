@@ -113,7 +113,6 @@ Deno.test("recordTransaction happy path", async () => {
   assertEquals(result.deduped, false);
   assertEquals(result.mirror.blnk_transaction_id, "txn_1");
   assertEquals(result.mirror.blnk_reference, "ach_transfer:abc");
-  assertEquals(result.mirror.blnk_status, "APPLIED");
   assert(!Number.isNaN(Date.parse(result.mirror.synced_at)));
 });
 
@@ -167,7 +166,6 @@ Deno.test("duplicate reference fetches existing transaction", async () => {
 
   assertEquals(result.deduped, true);
   assertEquals(result.mirror.blnk_transaction_id, "txn_1");
-  assertEquals(result.mirror.blnk_status, "VOID"); // refreshed, not the stale INFLIGHT
   assertEquals(stub.requests[1].url, "https://blnk.test/search/transactions");
   assertEquals(stub.requests[2].url, "https://blnk.test/transactions/txn_1");
   assertEquals(stub.requests[2].method, "GET");

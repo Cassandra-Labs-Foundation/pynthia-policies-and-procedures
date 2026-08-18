@@ -5954,8 +5954,6 @@ components:
           type: string
         blnk_reference:
           type: string
-        blnk_status:
-          type: string
         blnk_transaction_id:
           type: string
         created_at:
@@ -6442,8 +6440,6 @@ components:
           description: Integer minor units. Wire name amount_cents; stored as core.transfer.amount.
         blnk_reference:
           type: string
-        blnk_status:
-          type: string
         blnk_transaction_id:
           type: string
         counterparty:
@@ -6651,8 +6647,6 @@ components:
           - BSA-10
           description: Evidences control BSA-10.
         blnk_reference:
-          type: string
-        blnk_status:
           type: string
         blnk_transaction_id:
           type: string
@@ -57341,6 +57335,9 @@ x-events:
     subject: bia
     type: updated
   blnk.balance_drift:
+    subject: blnk
+    type: detected
+  blnk.hold_released_upstream:
     subject: blnk
     type: detected
   blnk.inbox_backlog:

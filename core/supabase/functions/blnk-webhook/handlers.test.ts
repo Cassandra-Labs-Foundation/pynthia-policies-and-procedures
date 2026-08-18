@@ -372,7 +372,6 @@ Deno.test("a queued transaction's `_q` child still finds its core row", async ()
 
   const upd = rec.updates.find((u) => u.table === "ach_transfer");
   assert(upd, "the queued child must still mirror onto the core row");
-  assertEquals(upd.patch.blnk_status, "APPLIED");
   assertEquals(upd.patch.blnk_transaction_id, "txn_child");
   // Persisting `_q` would corrupt the reconciler's by-reference lookups.
   assertEquals(

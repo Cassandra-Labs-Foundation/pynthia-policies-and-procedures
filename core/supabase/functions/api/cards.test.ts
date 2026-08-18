@@ -19,7 +19,6 @@ const AUTH = {
   blnk_inflight_id: "txn_hold",
   blnk_committed_amount: 0,
   blnk_reference: "card_authorization:cauth_1",
-  blnk_status: "INFLIGHT",
   created_at: "2026-07-18T00:00:00Z",
 };
 

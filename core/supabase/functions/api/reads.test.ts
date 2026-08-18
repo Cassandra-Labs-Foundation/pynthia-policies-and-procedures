@@ -117,7 +117,6 @@ Deno.test("a wire read carries dual_control_status — without it an approval id
     control_results: [{ control_id: "EPS-06", decision: "hold" }],
     blnk_transaction_id: null,
     blnk_reference: null,
-    blnk_status: null,
     created_at: "2026-07-20T00:00:00Z",
   }]);
   const res = await getWireTransfers(new Request("https://x/wire-transfers"), db, "r5", TEST_CTX);

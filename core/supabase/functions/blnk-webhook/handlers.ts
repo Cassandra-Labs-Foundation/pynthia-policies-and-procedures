@@ -140,7 +140,6 @@ async function applyTransaction(db: SupabaseClient, d: BlnkTransactionData): Pro
   }
 
   const patch: Record<string, unknown> = {
-    blnk_status: d.status,
     synced_at: new Date().toISOString(),
     [ID_COLUMN[table]]: d.transaction_id,
     // Stamp the CANONICAL reference, never the `_q` child spelling: writers

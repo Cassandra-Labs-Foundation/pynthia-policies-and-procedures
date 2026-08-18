@@ -112,7 +112,6 @@ export interface AchRow {
   noc: { code?: string; corrections?: Record<string, unknown> } | null;
   blnk_transaction_id: string | null;
   blnk_reference: string | null;
-  blnk_status: string | null;
   created_at: string;
 }
 
@@ -321,13 +320,12 @@ export async function postAch(
   }
 
   const cols =
-    "id, amount, status, counterparty, window, originator, return_reason, noc, blnk_transaction_id, blnk_reference, blnk_status, created_at";
+    "id, amount, status, counterparty, window, originator, return_reason, noc, blnk_transaction_id, blnk_reference, created_at";
   const { data: updated, error: updErr } = await db.schema("core").from("ach_transfer")
     .update({
       status: "submitted",
       blnk_transaction_id: mirror.blnk_transaction_id,
       blnk_reference: mirror.blnk_reference,
-      blnk_status: mirror.blnk_status,
       synced_at: mirror.synced_at,
     })
     .eq("id", achId)
@@ -398,7 +396,7 @@ async function resolveAch(
   action: "settle" | "return",
 ): Promise<Response> {
   const cols =
-    "id, amount, status, counterparty, window, originator, return_reason, noc, blnk_transaction_id, blnk_reference, blnk_status, created_at";
+    "id, amount, status, counterparty, window, originator, return_reason, noc, blnk_transaction_id, blnk_reference, created_at";
   const { data: ach, error: selErr } = await scopeToPartner(
     db.schema("core").from("ach_transfer")
       .select(cols)
@@ -513,7 +511,6 @@ async function resolveAch(
   const mirror = transactionMirror(blnkTxn);
   const patch: Record<string, unknown> = {
     status: terminal,
-    blnk_status: mirror.blnk_status,
     synced_at: mirror.synced_at,
   };
   // Dedicated column since 20260719000500. This used to be mangled into
@@ -607,7 +604,7 @@ export async function postAchNoc(
   ctx: PartnerContext,
 ): Promise<Response> {
   const cols =
-    "id, amount, status, counterparty, window, originator, return_reason, noc, blnk_transaction_id, blnk_reference, blnk_status, created_at";
+    "id, amount, status, counterparty, window, originator, return_reason, noc, blnk_transaction_id, blnk_reference, created_at";
   const { data: ach, error: selErr } = await scopeToPartner(
     db.schema("core").from("ach_transfer")
       .select(cols)
@@ -712,7 +709,7 @@ export async function postAchNoc(
  */
 const ACH_READ_COLS =
   "id, amount, counterparty, window, status, dual_control_status, return_reason, noc, " +
-  "control_results, blnk_transaction_id, blnk_reference, blnk_status, created_at";
+  "control_results, blnk_transaction_id, blnk_reference, created_at";
 
 const ACH_STATUSES = [
   "pending_approval",

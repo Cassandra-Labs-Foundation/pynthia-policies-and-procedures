@@ -40,7 +40,6 @@ export interface TransferRow {
   counterparty: unknown;
   blnk_transaction_id: string | null;
   blnk_reference: string | null;
-  blnk_status: string | null;
   synced_at: string | null;
   created_at: string;
 }
@@ -657,7 +656,7 @@ export async function postTransfer(
 
   const { data: existingTransfer, error: xferFetchErr } = await scopeToPartner(
     db.schema("core").from("transfer")
-      .select("id, amount, status, originator, beneficiary, counterparty, blnk_transaction_id, blnk_reference, blnk_status, synced_at, created_at")
+      .select("id, amount, status, originator, beneficiary, counterparty, blnk_transaction_id, blnk_reference, synced_at, created_at")
       .eq("id", transferId),
     ctx,
   ).maybeSingle();
@@ -687,7 +686,6 @@ export async function postTransfer(
       counterparty: null,
       blnk_transaction_id: null,
       blnk_reference: null,
-      blnk_status: null,
       synced_at: null,
       created_at: createdAt,
     };
@@ -750,7 +748,6 @@ export async function postTransfer(
       const { error: breadcrumbErr } = await db.schema("core").from("transfer").update({
         blnk_transaction_id: mirror.blnk_transaction_id,
         blnk_reference: mirror.blnk_reference,
-        blnk_status: mirror.blnk_status,
         synced_at: mirror.synced_at,
       }).eq("id", transferId);
       if (breadcrumbErr) {
@@ -761,7 +758,6 @@ export async function postTransfer(
         status: "settled",
         blnk_transaction_id: mirror.blnk_transaction_id,
         blnk_reference: mirror.blnk_reference,
-        blnk_status: mirror.blnk_status,
         synced_at: mirror.synced_at,
       }).eq("id", transferId);
       if (updErr) throw new Error(`transfer settle update: ${updErr.message}`);
@@ -771,7 +767,6 @@ export async function postTransfer(
         status: "settled",
         blnk_transaction_id: mirror.blnk_transaction_id,
         blnk_reference: mirror.blnk_reference,
-        blnk_status: mirror.blnk_status,
         synced_at: mirror.synced_at,
       };
 
@@ -832,7 +827,7 @@ export async function postTransfer(
 }
 
 const TRANSFER_COLS =
-  "id, status, amount, originator, beneficiary, blnk_transaction_id, blnk_status, created_at";
+  "id, status, amount, originator, beneficiary, blnk_transaction_id, created_at";
 
 const TRANSFER_STATUSES = [
   "pending_approval",
@@ -858,7 +853,6 @@ function transferResponse(row: TransferRow): Record<string, unknown> {
     originator: row.originator,
     beneficiary: row.beneficiary,
     blnk_transaction_id: row.blnk_transaction_id,
-    blnk_status: row.blnk_status,
     created_at: row.created_at,
   };
 }
