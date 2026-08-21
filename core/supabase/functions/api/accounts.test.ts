@@ -7,7 +7,9 @@
 // break callers, and NOT demanding it when funding would allow a duplicate
 // opening deposit.
 import { assertEquals, assertRejects } from "jsr:@std/assert@1";
-import { ACCOUNT_TYPES, getAccount, getAccounts, postAccount } from "./accounts.ts";
+import {
+  ACCOUNT_TYPE_ALIASES, ACCOUNT_TYPES, getAccount, getAccounts, postAccount,
+} from "./accounts.ts";
 import {
   type Any, filtersOf, json, listDb, OPS_CTX, req, reqWithoutIdempotencyKey,
   stubApiDb, stubCfg, stubDb, TEST_CTX,
@@ -81,7 +83,7 @@ Deno.test("validation reports the deposit and the missing key together, not one 
   );
   assertEquals(res.status, 400);
   const fields = (await res.json()).errors.map((e: Any) => e.field).sort();
-  assertEquals(fields, ["Idempotency-Key", "entity_id", "opening_deposit_cents"]);
+  assertEquals(fields, ["Idempotency-Key", "account_type", "entity_id", "opening_deposit_cents"]);
 });
 
 // ----------------------------------------------------------- behavioral level
@@ -156,10 +158,10 @@ Deno.test("an unknown entity_id is a 400 naming the field, not an FK 500", async
   assertEquals(inserts.length, 0);
 });
 
-// account_type is a closed vocabulary (migration 20260816000100). It is what
-// ncua5300.js buckets onto NCUA 5300 share lines, so an unrecognised value is
-// not a cosmetic problem — it lands in "All Other Shares" (630) or, before
-// this, in whatever free text the caller invented.
+// account_type is a closed, charter-neutral vocabulary (migration
+// 20260821000100). It is what ncua5300.js buckets onto NCUA 5300 share lines,
+// so an unrecognised value is not a cosmetic problem — it lands in "All Other
+// Shares" (630) or, before this, in whatever free text the caller invented.
 Deno.test("an account_type outside the vocabulary is a 400 naming the field", async () => {
   const { cfg } = stubCfg([]);
   const { db, inserts } = stubApiDb({ idem: "fresh", row: { id: "ent_1" } });
@@ -172,20 +174,53 @@ Deno.test("an account_type outside the vocabulary is a 400 naming the field", as
   assertEquals(inserts.length, 0, "an invalid product type must not reach the table");
 });
 
-// The two aliases ncua5300.js still accepts are deliberately NOT in the
-// vocabulary: they are second spellings of a line that already has one, which
-// is the ambiguity the enum exists to remove.
-Deno.test("the dropped aliases are refused, and the message names the real vocabulary", async () => {
+// A credit union integrating in its own vocabulary must not have to learn
+// ours. share_draft/share/share_certificate are accepted on the wire and
+// normalised on write — the assertion that matters is on the ROW, not the
+// status code: storage holds one spelling per product, because holding both is
+// the ambiguity 20260816000100 removed and this change must not reintroduce.
+Deno.test("credit-union spellings are accepted and stored canonical", async () => {
   const { cfg } = stubCfg([]);
-  for (const alias of ["savings", "certificate"]) {
-    const { db } = stubApiDb({ idem: "fresh", row: { id: "ent_1" } });
+  for (const [wire, stored] of Object.entries(ACCOUNT_TYPE_ALIASES)) {
+    const { db, inserts } = stubApiDb({ idem: "fresh", row: { id: "ent_1" } });
     const res = await postAccount(
-      req({ account_type: alias, entity_id: "ent_1" }), db, cfg, "at2", TEST_CTX,
+      req({ account_type: wire, entity_id: "ent_1" }), db, cfg, "at2", TEST_CTX,
     );
-    assertEquals(res.status, 400, `${alias} must be refused`);
-    const msg = (await res.json()).errors[0].message as string;
-    assertEquals(msg.includes("share_certificate"), true, "the 400 must say what to send");
+    assertEquals(res.status < 400, true, `${wire} must be accepted`);
+    const row = inserts.find((i) => i.table === "account")?.row;
+    assertEquals(row?.account_type, stored, `${wire} must be stored as ${stored}`);
+    assertEquals((await res.json()).account_type, stored, "and read back canonical");
   }
+});
+
+// The hole this whole change exists to close: `checking` used to be
+// substituted for a caller who named no product, so 1,946 accounts carried a
+// value nobody chose and a default sat in a regulatory filing position. A
+// CHECK constraint cannot see an omission; only a required field can.
+Deno.test("account_type is required — omitting it is a 400, not a silent default", async () => {
+  const { cfg } = stubCfg([]);
+  const { db, inserts } = stubApiDb({ idem: "fresh", row: { id: "ent_1" } });
+  const res = await postAccount(
+    req({ entity_id: "ent_1" }), db, cfg, "at4", TEST_CTX,
+  );
+  assertEquals(res.status, 400);
+  const err = (await res.json()).errors[0];
+  assertEquals(err.field, "account_type");
+  assertEquals(err.type, "missing_field");
+  assertEquals(inserts.length, 0, "no row may be opened with an unstated product");
+});
+
+// The message has to be useful to both charters at once, since either may be
+// the one that got it wrong.
+Deno.test("the 400 names both vocabularies", async () => {
+  const { cfg } = stubCfg([]);
+  const { db } = stubApiDb({ idem: "fresh", row: { id: "ent_1" } });
+  const res = await postAccount(
+    req({ account_type: "brokerage", entity_id: "ent_1" }), db, cfg, "at5", TEST_CTX,
+  );
+  const msg = (await res.json()).errors[0].message as string;
+  assertEquals(msg.includes("checking"), true, "must name the canonical vocabulary");
+  assertEquals(msg.includes("share_draft"), true, "must name the accepted CU spellings");
 });
 
 Deno.test("every vocabulary member is accepted", async () => {
@@ -197,19 +232,6 @@ Deno.test("every vocabulary member is accepted", async () => {
     );
     assertEquals(res.status < 400, true, `${type} is in the enum and must be accepted`);
   }
-});
-
-// Omitting the field still defaults to 'checking' rather than 400ing — the
-// legacy behaviour is preserved on purpose. That default is precisely what
-// makes 'checking' unable to evidence a chosen product, and closing it is a
-// contract change (TODO §3), not part of constraining the vocabulary.
-Deno.test("omitting account_type still defaults, and is not a validation error", async () => {
-  const { cfg } = stubCfg([]);
-  const { db } = stubApiDb({ idem: "fresh", row: { id: "ent_1" } });
-  const res = await postAccount(
-    req({ entity_id: "ent_1" }), db, cfg, "at4", TEST_CTX,
-  );
-  assertEquals(res.status < 400, true);
 });
 
 Deno.test("a non-string entity_id is refused rather than coerced", async () => {

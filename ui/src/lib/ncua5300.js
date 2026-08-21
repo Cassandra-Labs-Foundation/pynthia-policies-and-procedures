@@ -91,26 +91,40 @@ export const SECTIONS = [
 ];
 
 /**
- * PROVISIONAL account-type → share-line mapping.
+ * Deposit product → NCUA 5300 share line, FOR A FEDERALLY INSURED CREDIT UNION.
  *
- * This is the "open decision" BLUEPRINT §521 is about, and it is written down
- * here — visibly, in one place, surfaced in the UI — rather than buried in a
- * reducer. `core.account.account_type` is unconstrained free text that
- * defaults to "checking", so these are readings of an informal convention,
- * not a chart of accounts.
+ * The charter qualifier is the whole point and is new as of 2026-08-21.
+ * `core.account.account_type` is now a closed, charter-NEUTRAL vocabulary
+ * (migration 20260821000100) naming the product — checking, savings,
+ * money_market, certificate, ira, keogh — because a product is not a form
+ * line. Which line it files on is a function of the product AND the filing
+ * institution's charter: these six map onto 5300 share lines for a credit
+ * union, and onto entirely different categories on FFIEC Call Report Schedule
+ * RC-E for a bank, which has no line 902 at all.
  *
- * A credit union has no "checking accounts": the member-facing equivalent is a
- * SHARE DRAFT account (902). That mapping is conventional and defensible, and
- * it is still an assumption someone with the authority to make it has to sign
- * off before anything here is filed.
+ * So this table is one charter's answer, not the answer. When a second charter
+ * arrives it needs a second map keyed by charter, moved out of the browser
+ * bundle into effective-dated data — the core has no server-side product→line
+ * mapping today, and a filing map that ships in a UI bundle cannot be
+ * effective-dated, cannot vary by institution, and cannot be read by the
+ * reporter that runs nightly. Blocked on the institution-parameters sign-off
+ * that would say what charter this institution holds (TODO §3,
+ * docs/institution-parameters-proposal.md).
+ *
+ * The credit-union spellings share_draft / share / share_certificate are
+ * absent because they never reach here: POST /accounts normalises them to
+ * checking / savings / certificate on write (api/accounts.ts), so storage
+ * holds one spelling per product.
+ *
+ * Still an assumption someone with the authority has to sign before anything
+ * here is filed — but it is now an assumption about ONE thing (does this
+ * credit union's checking product report as share drafts?) rather than about
+ * a default value standing in for a product nobody named.
  */
 export const ACCOUNT_TYPE_MAP = {
-  checking: "902",
-  share_draft: "902",
-  share: "657",
-  savings: "657",
+  checking: "902",      // share drafts
+  savings: "657",       // regular shares
   money_market: "911",
-  share_certificate: "908C",
   certificate: "908C",
   ira: "906C",
   keogh: "906C",

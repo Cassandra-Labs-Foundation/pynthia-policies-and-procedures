@@ -103,15 +103,54 @@ What each decision was, and where its execution stands:
       in `ACCOUNT_TYPE_MAP` unreachable; prune them when the map is signed off.
       Existing rows are untouched, so this decides nothing about them.
 
-      Still open, and now cleanly separable:
-      1. Does `checking → 902` stand for the 1,917 legacy rows?
-      2. Should `account_type` become *required* on `POST /accounts` (the
-         OQ-12 treatment)? That is what actually closes the "default masks
-         unset" hole; the CHECK only stops new invented values. NULL remains
-         permitted at the column, which the pgTAP fixtures rely on.
-      3. Re-stamp the 1,628 historical `account_code_5300 = "018"` rows, or
+      **DECIDED 2026-08-21 — the vocabulary is charter-neutral, and question 1
+      dissolved rather than being answered.** Lorenzo's call: `checking`
+      generalises better than `share_draft`, because this core should be able
+      to run a bank as well as a credit union. That reframes what the
+      2026-08-16 constraint got wrong — `checking` and `share_draft` are not
+      two spellings of one NCUA line, they are two CHARTERS' names for one
+      product, and the line it files on depends on who is filing (a bank's
+      transaction deposits go to FFIEC Call Report Schedule RC-E, which has no
+      line 902 in it at all). Migration 20260719002700 had already refused the
+      same mistake for the permissible-instrument list: that list is data, not
+      code, because a differently chartered institution operates under a
+      different one.
+
+      Executed in migration 20260821000100 + spec + `api/accounts.ts`:
+
+      - Six canonical products, charter-neutral: `checking`, `savings`,
+        `money_market`, `certificate`, `ira`, `keogh`. The credit-union
+        spellings `share_draft` / `share` / `share_certificate` are accepted on
+        the wire and normalised on write, so an institution integrates in its
+        own vocabulary while storage holds one spelling per product. IRA and
+        Keogh have no alias — they are tax constructs, not charter constructs.
+      - `account_type` is **required** on `POST /accounts` (question 2, the
+        OQ-12 treatment). The default was the actual hole: a CHECK constraint
+        cannot see an omission.
+      - Question 1 needed no answer. With the default gone, `checking` is a
+        product somebody chose rather than the residue of one nobody named, and
+        `ACCOUNT_TYPE_MAP` prunes to one entry per product.
+      - The rows this was agonised over were never real: **every** account,
+        entity and bookkeeping entry in the live database belongs to
+        `ptnr_demo` or `ptnr_drill`. This core has never opened a member
+        account, so unlike OQ-12's 3 quarantined NULL `entity_id` rows there
+        was no history to refuse to fabricate.
+
+      Still open, and now the only thing left of this item:
+      1. **The 5300 map is charter-blind and lives in the browser.**
+         `ACCOUNT_TYPE_MAP` in `ui/src/lib/ncua5300.js` is one charter's
+         answer; nothing server-side maps a product to a filing line at all.
+         A second charter needs the map keyed by charter and moved into
+         effective-dated data — a map in a UI bundle cannot be effective-dated,
+         cannot vary by institution, and cannot be read by the reporter that
+         runs nightly. Blocked on the institution-parameters sign-off, which
+         does not yet say what charter this institution holds.
+      2. Re-stamp the 1,628 historical `account_code_5300 = "018"` rows, or
          leave them as quarantined history the way OQ-12 left the 3 NULL
-         `entity_id` rows?
+         `entity_id` rows? **Neither, until the stamp is fixed:**
+         `api/transfers.ts` hardcodes `"018"` on every bookkeeping entry ever
+         written, so there is no per-product logic to have got wrong and
+         re-stamping history changes nothing about the next entry.
 
 - [x] **The FBO position was on the wrong side of the balance sheet — FIXED
       2026-08-16.** Line 730B (Total Cash on Deposit, an ASSET) was sourced

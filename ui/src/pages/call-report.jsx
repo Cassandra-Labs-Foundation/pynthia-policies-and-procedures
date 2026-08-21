@@ -394,7 +394,9 @@ function FilingTab({ data, filing, period }) {
 
       <div className="bg-slate-100 border border-slate-200 rounded-md p-3 text-sm text-slate-700">
         <div>
-          <span className="font-medium">Share mapping in use:</span>{' '}
+          <span className="font-medium">Share mapping in use</span>{' '}
+          <span className="text-slate-500">(one charter&rsquo;s answer: a federally insured credit
+          union filing NCUA 5300 — the product names themselves are charter-neutral)</span>:{' '}
           {Object.entries(ACCOUNT_TYPE_MAP).map(([k, v]) => `${k}→${v}`).join(', ')}. Anything else
           falls to 630.
         </div>

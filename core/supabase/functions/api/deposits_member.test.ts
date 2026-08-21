@@ -51,7 +51,7 @@ Deno.test("a delivery SNAPSHOTS the terms it disclosed, not a pointer to them", 
   await postDisclosureDelivery(
     req({
       kind: "account_opening", member_ref: "m1", account_ref: "a1", trigger_event: "t",
-      rate_bp: 200, compounding: "daily", account_type: "share_certificate",
+      rate_bp: 200, compounding: "daily", account_type: "certificate",
     }),
     dbx.client, "t", CTX,
   );
@@ -60,7 +60,7 @@ Deno.test("a delivery SNAPSHOTS the terms it disclosed, not a pointer to them", 
   // row still shows what was disclosed today.
   assertEquals(d.product_interest_rate_bp, 200);
   assertEquals(d.product_apy_bp, 202);
-  assertEquals(d.account_account_type, "share_certificate");
+  assertEquals(d.account_account_type, "certificate");
 });
 
 Deno.test("a detected disclosure error opens its own finding", async () => {
@@ -155,7 +155,7 @@ Deno.test("MP-01: determination and activation are separate events", async () =>
 Deno.test("MP-05: a restriction lands on the ACCOUNT, not only the membership", async () => {
   const dbx = makeDrillDb();
   dbx.rows["core.account"] = [{
-    id: "a1", entity_id: "e1", status: "open", account_type: "share",
+    id: "a1", entity_id: "e1", status: "open", account_type: "savings",
     balance: 0, partner_id: "p1", provenance: "production",
   }];
   await postMembership(
@@ -191,7 +191,14 @@ Deno.test("MP-02: a card reissue inside the address hold is recorded AND blocked
   const dbx = makeDrillDb();
   dbx.rows["core.member_address_change"] = [{
     id: "mac_1", member_ref: "mbr_e1", new_address: { line1: "2 New Ave" },
-    changed_at: "2026-07-19T12:00:00.000Z", hold_expires_at: "2026-08-18T12:00:00.000Z",
+    // Relative to now ON PURPOSE. cards.ts compares hold_expires_at to the wall
+    // clock, so a pinned future date silently becomes a pinned PAST date and
+    // this test flips from "inside the hold" to "after the hold" without anyone
+    // editing it — which is what happened at 2026-08-18T12:00Z, the moment the
+    // previously pinned expiry passed. The EXPIRED case below stays pinned:
+    // a date in the past cannot rot into a date in the future.
+    changed_at: new Date(Date.now() - 2 * 864e5).toISOString(),
+    hold_expires_at: new Date(Date.now() + 28 * 864e5).toISOString(),
     provenance: "production",
   }];
   await postCardReissue(req({ ship_to_address_id: "addr_1" }), "mbr_e1", dbx.client, "t", CTX);

@@ -2263,13 +2263,13 @@ async function runDepositsMemberLifecycle(env: FireEnv): Promise<void> {
     { onConflict: "id" },
   );
   await env.db.schema("core").from("account").upsert({
-    id: "acct_d1", entity_id: "ent_m1", status: "open", account_type: "share_certificate",
+    id: "acct_d1", entity_id: "ent_m1", status: "open", account_type: "certificate",
     balance: 0, partner_id: "ptnr_drill", opening_channel: "branch",
     maturity_date: "2027-07-19", maturity_window: "10_day_grace",
     maturity_disposition: "auto_renew",
   }, { onConflict: "id" });
   const terms = {
-    account_type: "share_certificate", opening_channel: "branch",
+    account_type: "certificate", opening_channel: "branch",
     account_restriction: "none", address_id: "addr_d1", esign_consent_id: "esign_d1",
     interest_config_id: "picfg_share_savings", rate_bp: 200, compounding: "daily",
     maturity_date: "2027-07-19", maturity_window: "10_day_grace",
@@ -2329,7 +2329,7 @@ async function runDepositsMemberLifecycle(env: FireEnv): Promise<void> {
 
   await postMembership(
     R({ entity_ref: "ent_m1", eligibility_basis: "employer group", eligible: true,
-        account_type: "share" }),
+        account_type: "savings" }),
     env.db, "d", ops,
   );
   // NEGATIVE: a denial with no basis

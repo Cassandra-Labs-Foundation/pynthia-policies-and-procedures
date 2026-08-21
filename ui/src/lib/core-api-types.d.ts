@@ -27,7 +27,7 @@ export interface Entity {
 }
 
 export interface Account {
-  account_type?: "checking" | "share_draft" | "share" | "money_market" | "share_certificate" | "ira" | "keogh" | null;
+  account_type?: "checking" | "savings" | "money_market" | "certificate" | "ira" | "keogh" | null;
   balance?: number | null;
   blnk_ledger_id?: string | null;
   created_at?: string | null;

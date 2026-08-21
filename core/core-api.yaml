@@ -94,17 +94,27 @@ paths:
               type: object
               required:
               - entity_id
+              - account_type
               properties:
                 account_type:
                   type: string
+                  description: 'The deposit product this account holds. Required since 2026-08-21: it was previously defaulted
+                    to `checking` when a caller named none, which made an unstated product indistinguishable from a stated
+                    one and put a default value in a regulatory filing position. The first six values are canonical and are
+                    what storage and every response carry. The last three are credit-union spellings of the same three products,
+                    accepted on the wire and normalised on write — `share_draft` to `checking`, `share` to `savings`, `share_certificate`
+                    to `certificate` — so an institution may integrate in its own charter''s vocabulary without the core holding
+                    two spellings of one product. Evidences controls TIS-02, TIS-04.'
                   enum:
                   - checking
-                  - share_draft
-                  - share
+                  - savings
                   - money_market
-                  - share_certificate
+                  - certificate
                   - ira
                   - keogh
+                  - share_draft
+                  - share
+                  - share_certificate
                   x-bound-controls:
                   - TIS-02
                   - TIS-04
@@ -5752,16 +5762,18 @@ components:
           type: string
           enum:
           - checking
-          - share_draft
-          - share
+          - savings
           - money_market
-          - share_certificate
+          - certificate
           - ira
           - keogh
-          description: 'The share product this account reports on for NCUA 5300. Evidences controls TIS-02, TIS-04. `checking`
-            is LEGACY: it is the historical default for a caller that named no type, so it does not distinguish a stated product
-            from an unstated one, and whether it reports as share drafts (902) is the open chart-of-accounts decision. New
-            integrations should send an explicit credit-union product type.'
+          description: The deposit product this account holds, in the canonical charter-neutral vocabulary. Evidences controls
+            TIS-02, TIS-04. These six values are what storage holds and what every response returns; POST /accounts additionally
+            accepts the credit-union spellings `share_draft`, `share` and `share_certificate` and normalises them here, because
+            those name the same three products under a different charter rather than different products. Which regulatory
+            line a product reports on is a function of the product AND the filing institution's charter — for a federally
+            insured credit union filing NCUA 5300 the map is in ui/src/lib/ncua5300.js — so the product name deliberately
+            does not encode a form line.
           x-bound-controls:
           - TIS-02
           - TIS-04

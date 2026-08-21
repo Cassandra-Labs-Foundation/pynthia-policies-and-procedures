@@ -24,10 +24,9 @@
           "type": "text",
           "enum": [
             "checking",
-            "share_draft",
-            "share",
+            "savings",
             "money_market",
-            "share_certificate",
+            "certificate",
             "ira",
             "keogh"
           ],
@@ -437,14 +436,6 @@
         },
         {
           "name": "blnk_reference",
-          "type": "text",
-          "enum": null,
-          "note": null,
-          "controls": null,
-          "provisional": false
-        },
-        {
-          "name": "blnk_status",
           "type": "text",
           "enum": null,
           "note": null,
@@ -4017,14 +4008,6 @@
           "provisional": false
         },
         {
-          "name": "blnk_status",
-          "type": "text",
-          "enum": null,
-          "note": null,
-          "controls": null,
-          "provisional": false
-        },
-        {
           "name": "blnk_transaction_id",
           "type": "text",
           "enum": null,
@@ -4439,14 +4422,6 @@
         },
         {
           "name": "blnk_reference",
-          "type": "text",
-          "enum": null,
-          "note": null,
-          "controls": null,
-          "provisional": false
-        },
-        {
-          "name": "blnk_status",
           "type": "text",
           "enum": null,
           "note": null,

@@ -29,31 +29,55 @@ import { setRetentionClocks } from "./retention.ts";
 import { type PartnerContext } from "./auth.ts";
 
 /**
- * The share products an account may report on for the NCUA 5300. Mirrors the
- * spec's `account_type` enum and core.account's CHECK constraint (migration
- * 20260816000100) — all three must move together.
+ * The deposit products an account may hold, in the canonical charter-neutral
+ * vocabulary. Mirrors the spec's `account_type` enum on
+ * `components/schemas/Account` and core.account's CHECK constraint (migration
+ * 20260821000100) — all three must move together.
  *
- * The aliases the provisional map in `ui/src/lib/ncua5300.js` also accepts
- * (`savings` for share, `certificate` for share_certificate) are deliberately
- * NOT here: two spellings of one NCUA line is the ambiguity this enum exists
- * to remove, and no live account uses either.
- *
- * `checking` is LEGACY and stays allowed only because 1,917 live rows carry
- * it. It is also the value substituted when a caller names no type, so it
- * cannot distinguish a stated product from an unstated one — which is exactly
- * why the checking -> 902 mapping is still an open decision (TODO §3).
- * Constraining the vocabulary stops NEW ambiguity; it does not resolve the
- * existing rows and does not pretend to.
+ * These names are deliberately NOT NCUA nouns. `checking` and `share_draft`
+ * are not two spellings of one 5300 line; they are two charters' names for one
+ * product, and which line it files on depends on who is filing — a bank's
+ * transaction deposits go to FFIEC Call Report Schedule RC-E, which has no
+ * line 902 in it. Encoding one regulator's vocabulary in the product name is
+ * the mistake 20260719002700 already refused for the permissible-instrument
+ * list: that list is data, not code, because a differently chartered
+ * institution operates under a different one.
  */
 export const ACCOUNT_TYPES = [
   "checking",
-  "share_draft",
-  "share",
+  "savings",
   "money_market",
-  "share_certificate",
+  "certificate",
   "ira",
   "keogh",
 ];
+
+/**
+ * Credit-union spellings of three of the products above, accepted on the wire
+ * and normalised on write. An institution integrates in its own charter's
+ * vocabulary; storage holds one spelling, because holding both is how the
+ * ambiguity 20260816000100 removed comes back.
+ *
+ * IRA and Keogh are absent on purpose — the word is identical under both
+ * charters, since they are tax constructs rather than charter constructs.
+ */
+export const ACCOUNT_TYPE_ALIASES: Record<string, string> = {
+  share_draft: "checking",
+  share: "savings",
+  share_certificate: "certificate",
+};
+
+/** Everything POST /accounts will accept, canonical spellings first. */
+export const ACCEPTED_ACCOUNT_TYPES = [
+  ...ACCOUNT_TYPES,
+  ...Object.keys(ACCOUNT_TYPE_ALIASES),
+];
+
+/** Wire value -> stored value. Unknown input is returned unchanged so the
+ *  caller gets a 400 naming the field rather than a silent coercion. */
+export function canonicalAccountType(input: string): string {
+  return ACCOUNT_TYPE_ALIASES[input] ?? input;
+}
 
 export interface AccountRow {
   id: string;
@@ -77,7 +101,14 @@ export async function postAccount(
   const raw = await parseJsonBody(req);
   const body = (raw && typeof raw === "object") ? raw as Record<string, unknown> : {};
 
-  const accountType = isNonEmptyString(body.account_type) ? body.account_type : "checking";
+  // No default. Substituting `checking` for a caller who named no product is
+  // how 1,946 accounts came to carry a value nobody chose, which put a default
+  // in a regulatory filing position (TODO §3). Required is the only thing that
+  // distinguishes a stated product from an unstated one — a CHECK constraint
+  // can stop invented values but cannot see an omission.
+  const accountType = isNonEmptyString(body.account_type)
+    ? canonicalAccountType(body.account_type as string)
+    : undefined;
   const openingDeposit = body.opening_deposit_cents;
   // Owning member. Required (OQ-12, decided 2026-08-11): cash (BSA-08)
   // aggregates per PERSON, so an account with no entity sits outside CTR
@@ -119,17 +150,31 @@ export async function postAccount(
     });
   }
   // Rejected at the edge with a 400 naming the field, rather than letting the
-  // CHECK constraint surface as a 500. The message lists the vocabulary so a
-  // caller sending "savings" or "certificate" — the aliases this enum
-  // deliberately drops — is told what to send instead.
-  if (body.account_type !== undefined && !ACCOUNT_TYPES.includes(accountType)) {
+  // CHECK constraint surface as a 500. The message lists both vocabularies,
+  // so a credit union sending `share_draft` and a bank sending `checking` are
+  // each told the whole truth about what this endpoint takes.
+  if (accountType === undefined) {
+    errors.push({
+      type: "missing_field",
+      field: "account_type",
+      message:
+        `required: the deposit product this account holds — one of ${ACCEPTED_ACCOUNT_TYPES.join(", ")}`,
+    });
+  } else if (!ACCOUNT_TYPES.includes(accountType)) {
     errors.push({
       type: "invalid_value",
       field: "account_type",
-      message: `must be one of: ${ACCOUNT_TYPES.join(", ")}`,
+      message: `must be one of: ${ACCEPTED_ACCOUNT_TYPES.join(", ")}`,
     });
   }
   if (errors.length) return validationError(requestId, errors);
+
+  // Narrowed past the guard above: both are proven present and, for the
+  // product, proven canonical. Note the hash below therefore keys on the
+  // CANONICAL value — `share_draft` and `checking` are the same request under
+  // one Idempotency-Key, which is the correct reading of two spellings of one
+  // product, and a caller who genuinely changed the product still gets a 409.
+  const productType = accountType as string;
 
   // The FK would catch a bad entity_id at insert, but as a 500 — pre-check so
   // the caller gets a 400 naming the field, scoped so one partner cannot
@@ -154,7 +199,7 @@ export async function postAccount(
   if (idempotencyKey) {
     idemKeyToStore = idempotencyKey;
     const requestHash = await accountRequestHash({
-      account_type: accountType,
+      account_type: productType,
       opening_deposit_cents: typeof openingDeposit === "number" ? openingDeposit : null,
       entity_id: entityId as string,
     });
@@ -192,7 +237,7 @@ export async function postAccount(
   if (!account) {
     const { error: insErr } = await db.schema("core").from("account").insert({
       id: accountId,
-      account_type: accountType,
+      account_type: productType,
       status: "open",
       lock_type: "none",
       balance: 0,
@@ -203,7 +248,7 @@ export async function postAccount(
     if (insErr) throw new Error(`account insert: ${insErr.message}`);
     account = {
       id: accountId,
-      account_type: accountType,
+      account_type: productType,
       balance: 0,
       blnk_ledger_id: null,
       blnk_balance_id: null,
