@@ -7,8 +7,11 @@ for Fed settlement and compliance.
 ## Scope of what is built
 
 This is the **authentication boundary plus event ingest** — the part card 51
-asserts. Not built here: the Payment Hub, BSA Approver, BSA Reporter and 5300
-Reporter consumers (D27), and cross-fintech search (card 54).
+asserts. Not built here: the BSA Approver consumer (D27) and cross-fintech
+search (card 54). D27's other three consumers do not exist in that shape —
+`payment_hub` was retired with the accumulator (migration 20260817000100) and
+the BSA and 5300 reporters run as scheduled scripts rather than cursor
+consumers; see the D27 note in `core/architecture-decisions.md`.
 
 ## Auth
 

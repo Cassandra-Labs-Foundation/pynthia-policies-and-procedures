@@ -6,9 +6,12 @@
 //
 // SCOPE: this is the authentication BOUNDARY only, plus the one endpoint
 // needed to exercise it (event ingest, per D4/D21 — instances push their
-// outbox here). It is not the full aggregator: the Payment Hub, BSA Approver,
-// BSA Reporter and 5300 Reporter consumers (D27) are separate cards, as is
-// cross-fintech search (card 54). What exists here is the thing card 51
+// outbox here). It is not the full aggregator: the BSA Approver consumer (D27)
+// is a separate card, as is cross-fintech search (card 54). D27's other three
+// consumers never existed in this shape — payment_hub was retired with the
+// accumulator (migration 20260817000100) and the BSA and 5300 reporters run as
+// scheduled scripts rather than cursor consumers; see the D27 note in
+// core/architecture-decisions.md. What exists here is the thing card 51
 // actually asserts — that a partner key is rejected at the aggregator.
 //
 // Auth: instance JWT (D19). Deliberately NOT the partner token table; see
@@ -220,10 +223,13 @@ export async function handleAggregator(
     return jsonResponse(data, 200, requestId);
   }
 
-  // Card 65: FBO reads — consumer-built state only (position from the
-  // Payment Hub, available = position minus held reserves, inbound = what
-  // the hub has not applied yet). The instance in question is ALWAYS the
-  // token's; there is no path parameter to read someone else's FBO.
+  // Card 65: FBO reads. Since migration 20260817000100 this is DERIVED state,
+  // not consumer-built: position = the sum of that program's open member share
+  // balances, available = position minus held AND captured reserves, plus a
+  // `mirror` block saying how stale the balances underneath it are. The old
+  // `inbound_cents` is gone with the apply step it was waiting on. The instance
+  // is ALWAYS the token's; there is no path parameter to read someone else's
+  // FBO.
   if (req.method === "GET" && /^\/fbo\/?$/.test(path)) {
     const { data, error } = await deps.db.schema("aggregator")
       .rpc("fbo_read", { p_instance: verified.claims.instance_id });
@@ -234,9 +240,12 @@ export async function handleAggregator(
     return jsonResponse(data, 200, requestId);
   }
 
-  // Card 66: a clean origination reserves and returns pending; a stale
-  // Payment Hub is a 503 WITH Retry-After — the caller is told when trying
-  // again is reasonable, not just that now is not the time.
+  // Card 66: a clean origination reserves and returns pending; unmaintained
+  // state is a 503 WITH Retry-After — the caller is told when trying again is
+  // reasonable, not just that now is not the time. What "unmaintained" means
+  // moved with the position: the gate used to ask whether payment_hub had run,
+  // and now asks whether blnk-reconcile has, because the roll-up depends on the
+  // balance mirror rather than on a consumer applying deltas.
   if (req.method === "POST" && /^\/originations\/?$/.test(path)) {
     let body: Record<string, unknown>;
     try {
@@ -266,7 +275,7 @@ export async function handleAggregator(
         "consumer_stale",
         requestId,
         "Consumer Stale",
-        String(data.detail ?? "payment hub state is stale"),
+        String(data.detail ?? "reserving against unmaintained state"),
       );
       res.headers.set("Retry-After", String(data.retry_after_secs ?? 120));
       return res;

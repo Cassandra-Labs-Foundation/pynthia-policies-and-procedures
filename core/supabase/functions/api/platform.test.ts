@@ -123,20 +123,34 @@ Deno.test("a malformed after cursor is refused", async () => {
 
 /** Minimal db fake: per-table rows plus a recorded rpc. */
 function reportDb(
-  { position, memberShare }: { position: unknown; memberShare: number },
+  { position, memberShare, seq = 9 }: {
+    position: unknown;
+    memberShare: number;
+    seq?: number | null;
+  },
 ) {
   const rpcs: { fn: string; args: Any }[] = [];
   const chain = (result: unknown): Any => ({
     select: () => chain(result),
     eq: () => chain(result),
     order: () => chain(result),
-    limit: () => Promise.resolve({ data: result, error: null }),
+    limit: () => chain(result),
     maybeSingle: () => Promise.resolve({ data: result, error: null }),
     then: (res: (v: unknown) => unknown) => res({ data: result, error: null }),
   });
   const db: Any = {
     schema: () => ({
-      from: (table: string) => chain(table === "fbo_position" ? position : []),
+      // `event` is the heartbeat's high-water read. It is a separate table from
+      // fbo_position on purpose — the position is a view over balances and
+      // carries no cursor (migration 20260817000100).
+      from: (table: string) =>
+        chain(
+          table === "fbo_position"
+            ? position
+            : table === "event"
+            ? (seq === null ? null : { sequence_id: seq })
+            : [],
+        ),
       rpc: (fn: string, args: Any) => {
         rpcs.push({ fn, args });
         return Promise.resolve({ data: memberShare, error: null });
@@ -150,7 +164,7 @@ const REPORT_CTX = { instanceId: "inst_local" } as Any;
 
 Deno.test("the 5300 report reconciles the FBO position against THIS instance's member shares", async () => {
   const { db, rpcs } = reportDb({
-    position: { instance_id: "inst_local", position_cents: -19865000, last_seq: 9, updated_at: "t" },
+    position: { instance_id: "inst_local", position_cents: -19865000, updated_at: "t" },
     memberShare: 5541524500,
   });
   const res = await getReport5300(new Request("http://x/reports/5300"), db, "r", REPORT_CTX);
@@ -168,6 +182,61 @@ Deno.test("the 5300 report reconciles the FBO position against THIS instance's m
     b.fbo_reconciliation_diff_cents,
     -19865000 - 5541524500,
     "the difference is position minus member shares, unsmoothed by any tolerance",
+  );
+});
+
+// REGRESSION (2026-08-21). getReport5300 selected `last_seq` from
+// aggregator.fbo_position for three days after migration 20260817000100 turned
+// that table into a view WITHOUT the column, so every call to the UI's
+// heartbeat endpoint returned 500. Nothing caught it: this file's stub returns
+// whatever object the test author writes, so a hand-rolled fake agreed with a
+// handler that the real schema had stopped agreeing with.
+//
+// Asserting the column is present is not enough — the old test did that and
+// still passed. What this pins is WHICH TABLE each field is read from, because
+// that is the fact the migration changed.
+Deno.test("last_seq comes from the event sequence, not from the position view", async () => {
+  const selects: { table: string; cols: string }[] = [];
+  const chain = (table: string, result: unknown): Any => ({
+    select: (cols: string) => {
+      selects.push({ table, cols });
+      return chain(table, result);
+    },
+    eq: () => chain(table, result),
+    order: () => chain(table, result),
+    limit: () => chain(table, result),
+    maybeSingle: () => Promise.resolve({ data: result, error: null }),
+    then: (res: (v: unknown) => unknown) => res({ data: result, error: null }),
+  });
+  const db: Any = {
+    schema: () => ({
+      from: (t: string) =>
+        chain(
+          t,
+          t === "fbo_position"
+            ? { instance_id: "inst_local", position_cents: 100, updated_at: "t" }
+            : t === "event"
+            ? { sequence_id: 4242 }
+            : [],
+        ),
+      rpc: () => Promise.resolve({ data: 100, error: null }),
+    }),
+  };
+
+  const res = await getReport5300(new Request("http://x/reports/5300"), db, "r", REPORT_CTX);
+  assertEquals(res.status, 200);
+  assertEquals((await res.json()).current.last_seq, 4242);
+
+  const fromPosition = selects.find((s) => s.table === "fbo_position")?.cols ?? "";
+  assertEquals(
+    fromPosition.includes("last_seq"),
+    false,
+    "the position is a roll-up of balances and carries no cursor — selecting one 500s",
+  );
+  assertEquals(
+    selects.some((s) => s.table === "event" && s.cols.includes("sequence_id")),
+    true,
+    "the heartbeat's high-water mark is the ingest sequence",
   );
 });
 

@@ -16,8 +16,8 @@ sequenceDiagram
     participant B as Blnk ledger
     participant D as Postgres (core.*)
     participant U as Staff console
-    P->>A: POST /transfers (X-Api-Key)
-    A->>A: auth.ts — actor class may reach this route?
+    P->>A: POST /transfers (Bearer partner token)
+    A->>A: auth.ts — scoped token; actor class may reach this route?
     A->>G: gate(movement)
     G->>D: read control catalogue
     G->>D: write control_result (pass), open bsa_alert (ctr_threshold)

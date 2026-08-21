@@ -118,6 +118,18 @@ DB directly. Blnk's REST/MCP responses are **synchronous and complete**
 happens here, not via webhooks: persist the response fields on the originating
 row, then `GET /balances/{id}` to refresh `account.balance` after a move.
 
+> **As built, 2026-08-17 — the status mirror is gone.** The first bullet below
+> is no longer what runs. `core.<rail>.blnk_status` and the sweep that polled it
+> were dropped in migration `20260817000500`: the column's only consumer was the
+> sweep that maintained it, and because that sweep never advanced a rail's own
+> `status`, nothing downstream ever acted on what it learned. What survives is
+> `sweepStuckRows` (recovers a row whose Blnk write landed but whose mirror
+> update did not, via `get_transaction_by_reference` — so the mechanism named
+> below is still in use, for a narrower and real purpose), the balance-drift
+> check, and `blnk_transaction_id`, which makes ledger state re-derivable for
+> any row on demand. The schema delta in §8 stays as written: it records what
+> that migration added, which is history and still true of it.
+
 **Poll/reconcile path (pg_cron) — required, not a fallback.** A scheduled job:
 - re-polls rows in non-terminal `blnk_status` (QUEUED/INFLIGHT/SCHEDULED) via
   `get_transaction_by_reference` and advances the mirror;

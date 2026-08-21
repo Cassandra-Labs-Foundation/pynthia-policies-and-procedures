@@ -67,12 +67,25 @@ export function getChangelog(requestId: string): Response {
  * which is which, because presenting them as one number would be a lie an
  * operator cannot detect:
  *
- *   * `current` comes from aggregator.fbo_position, which the Payment Hub
- *     advances continuously against an event sequence (last_seq). It is live.
+ *   * `current` comes from aggregator.fbo_position. Since migration
+ *     20260817000100 that is a VIEW over open member share balances, not a
+ *     figure some consumer advances, so it is exact at the moment of the read
+ *     rather than as-of a cursor. `last_seq` is read separately from
+ *     aggregator.event — see below for why it is still here.
  *   * `history` comes from aggregator.report_5300, written once per instance
  *     per day by analytics/report_5300.sh on a schedule. Its newest row can be
  *     up to a day old, and on a day the job has not run yet there is no row at
  *     all.
+ *
+ * WHY last_seq SURVIVED THE ACCUMULATOR. It used to be a column on
+ * fbo_position, advanced by the payment_hub consumer; the rollup dropped both.
+ * But the UI's heartbeat (ui/src/lib/useLiveCore.js) polls this endpoint to ask
+ * "did anything happen?", and a DERIVED position cannot answer that: a deposit
+ * and an equal withdrawal move the ledger and leave the sum untouched. The
+ * honest source is the ingest sequence itself, aggregator.event.sequence_id,
+ * which is the same counter payment_hub's cursor tracked and which
+ * bsa_approver's cursor still does. Index-only read against
+ * idx_aggregator_event_instance — ~0.03ms, which a 5s poll can afford.
  *
  * A dashboard that drew a "live" figure from the daily table would show an
  * operator a settled-volume number that stopped moving at midnight and give no
@@ -89,10 +102,19 @@ export async function getReport5300(
   requestId: string,
   ctx: PartnerContext,
 ): Promise<Response> {
-  const [positionRes, historyRes, memberShareRes] = await Promise.all([
+  const [positionRes, seqRes, historyRes, memberShareRes] = await Promise.all([
     db.schema("aggregator").from("fbo_position")
-      .select("instance_id, position_cents, last_seq, updated_at")
+      .select("instance_id, position_cents, updated_at")
       .eq("instance_id", ctx.instanceId)
+      .maybeSingle(),
+    // The heartbeat's "did anything happen?" — see the note above. Kept out of
+    // the view on purpose: a roll-up of balances has no business carrying an
+    // ingest cursor, which is how the last one came to be maintained by hand.
+    db.schema("aggregator").from("event")
+      .select("sequence_id")
+      .eq("instance_id", ctx.instanceId)
+      .order("sequence_id", { ascending: false })
+      .limit(1)
       .maybeSingle(),
     db.schema("aggregator").from("report_5300")
       .select(
@@ -113,6 +135,7 @@ export async function getReport5300(
   ]);
 
   if (positionRes.error) return internalErrorResponse(requestId, positionRes.error);
+  if (seqRes.error) return internalErrorResponse(requestId, seqRes.error);
   if (historyRes.error) return internalErrorResponse(requestId, historyRes.error);
   if (memberShareRes.error) return internalErrorResponse(requestId, memberShareRes.error);
 
@@ -131,7 +154,7 @@ export async function getReport5300(
     current: position
       ? {
         fbo_position_cents: position.position_cents,
-        last_seq: position.last_seq,
+        last_seq: (seqRes.data as Record<string, unknown> | null)?.sequence_id ?? null,
         updated_at: position.updated_at,
       }
       : null,

@@ -402,11 +402,13 @@ export function buildFiling(
     // IS good for is a tie-out — two independent paths to one number, which
     // is the only reason to maintain both.
     //
-    // `differenceCents` is deliberately not hidden behind a tolerance. Today
-    // it will be large and negative: the payment hub applies outbound and
-    // returns but NOTHING credits an FBO yet (no inbound rail emits), so the
-    // position understates the deposits by every dollar ever funded. That gap
-    // IS the reading — see TODO §6.
+    // `differenceCents` is deliberately not hidden behind a tolerance. It
+    // reads the unmodelled inbound hole: nothing credits an FBO yet, because no
+    // inbound rail emits. Note the sign flipped when the position became a
+    // roll-up of member balances (migration 20260817000100) — under the
+    // accumulator this was large and NEGATIVE, since a hub applied outbound and
+    // returns against a position nothing ever funded. That gap IS the reading —
+    // see TODO §6.
     // `memberShareCents` comes from the core already scoped to this instance's
     // partner program — NOT from summing the share lines above. Those lines
     // hold whatever accounts the viewing actor may list, which for an ops

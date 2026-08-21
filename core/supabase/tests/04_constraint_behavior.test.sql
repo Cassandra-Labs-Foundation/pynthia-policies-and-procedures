@@ -29,7 +29,7 @@
 -- `supabase db reset`). Everything rolls back; nothing persists.
 
 begin;
-select plan(26);
+select plan(27);
 
 -- ------------------------------------------------------------------- seeds
 -- Plain inserts: these MUST succeed or the file aborts, which is the correct
@@ -173,28 +173,43 @@ select throws_ok(
 
 -- ------------------------------ ck_account_type_vocabulary (23514)
 -- account_type drives NCUA 5300 share-line bucketing (ui/src/lib/ncua5300.js),
--- and was unconstrained free text until migration 20260816000100. The handler
--- rejects bad values first; this proves the table refuses them too, so a
--- writer that bypasses the API cannot mint a share product NCUA has no line
--- for.
+-- and was unconstrained free text until migration 20260816000100. Migration
+-- 20260821000100 then made the vocabulary charter-NEUTRAL: it names the deposit
+-- product (checking, savings, money_market, certificate, ira, keogh) rather than
+-- one regulator's nouns, because which line a product files on depends on the
+-- filing institution's charter. The handler rejects bad values first; this
+-- proves the table refuses them too, so a writer that bypasses the API cannot
+-- mint a product no filing has a line for.
 select throws_ok(
   $$insert into "core"."account" ("id", "status", "partner_id", "entity_id", "account_type")
     values ('t04_acct_badtype', 'open', 't04_partner', 't04_entity', 'brokerage')$$,
   '23514', null,
-  'ck_account_type_vocabulary: an invented share product is unrepresentable');
+  'ck_account_type_vocabulary: an invented deposit product is unrepresentable');
 
--- The aliases the provisional 5300 map still accepts are NOT vocabulary: two
--- spellings of one NCUA line is the ambiguity the constraint exists to remove.
+-- THE NORMALISATION BOUNDARY, asserted from the storage side. POST /accounts
+-- accepts the credit-union spellings share_draft / share / share_certificate
+-- and rewrites them to checking / savings / certificate on write. Storage holds
+-- one spelling per product, so the CU spelling arriving here means the handler
+-- was bypassed — exactly the case this constraint exists to catch. Refusing it
+-- is the assertion, not an oversight.
 select throws_ok(
   $$insert into "core"."account" ("id", "status", "partner_id", "entity_id", "account_type")
-    values ('t04_acct_alias', 'open', 't04_partner', 't04_entity', 'savings')$$,
+    values ('t04_acct_alias', 'open', 't04_partner', 't04_entity', 'share_certificate')$$,
   '23514', null,
-  'ck_account_type_vocabulary: `savings` is a second spelling of share, and refused');
+  'ck_account_type_vocabulary: a wire-only alias never reaches storage un-normalised');
 
 select lives_ok(
   $$insert into "core"."account" ("id", "status", "partner_id", "entity_id", "account_type")
-    values ('t04_acct_goodtype', 'open', 't04_partner', 't04_entity', 'share_certificate')$$,
-  'a real credit-union share product is accepted');
+    values ('t04_acct_goodtype', 'open', 't04_partner', 't04_entity', 'certificate')$$,
+  'the canonical spelling of a time deposit is accepted');
+
+-- `savings` was refused before 20260821000100 as "a second spelling of share".
+-- It is now the canonical name of the product, and share is the alias — the
+-- inversion is the whole point of the charter-neutral vocabulary.
+select lives_ok(
+  $$insert into "core"."account" ("id", "status", "partner_id", "entity_id", "account_type")
+    values ('t04_acct_savings', 'open', 't04_partner', 't04_entity', 'savings')$$,
+  'savings is canonical now, not an alias');
 
 -- NULL stays permitted on purpose (a CHECK passes on NULL): the deadline and
 -- coverage suites insert accounts with no account_type at all, and closing

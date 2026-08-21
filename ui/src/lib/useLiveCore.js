@@ -17,8 +17,12 @@
 //     dashboard and a spreadsheet that lies about being one.
 //
 // So the poll is cheap and constant, and the RECOMPUTE is event-driven.
-// `aggregator.fbo_position.last_seq` is a monotonic counter over settled money
-// events, so it is the core's own answer to "did anything happen?". We poll
+// `aggregator.event.sequence_id` is a monotonic counter over ingested events,
+// so it is the core's own answer to "did anything happen?". It used to live on
+// aggregator.fbo_position, until migration 20260817000100 made that a view over
+// member balances — a derived sum has no cursor, and could not answer the
+// question anyway, since a deposit and an equal withdrawal do not move it. We
+// poll
 // that one small endpoint, and only when the sequence actually advances do we
 // tell the page to re-derive the expensive half. Transactions coming in is
 // what propagates the dashboard — not the clock.

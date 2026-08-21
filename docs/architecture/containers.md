@@ -39,7 +39,7 @@ flowchart TB
     staff --> pages
     pages --> proxy
     proxy -->|"only spec-allowlisted GETs"| api
-    partner -->|"X-Api-Key, instance-scoped"| api
+    partner -->|"Bearer token, instance-scoped"| api
     api --> pg
     api -->|"post entries"| blnk
     recon --> blnk

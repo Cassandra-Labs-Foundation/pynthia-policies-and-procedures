@@ -741,8 +741,12 @@ export async function fetchCashAggregation(businessDate) {
  * Returns two things that are NOT the same clock, and the caller has to keep
  * them apart:
  *
- *   - `current` is live. The Payment Hub advances the FBO position against an
- *     event sequence, so it moves between page loads.
+ *   - `current` is live, and exact at the moment of the read: the FBO position
+ *     is a VIEW over open member share balances (migration 20260817000100),
+ *     not a figure a consumer advances. `last_seq` alongside it is the core's
+ *     ingest sequence (aggregator.event.sequence_id) — kept because a derived
+ *     position cannot answer "did anything happen?" on its own: a deposit and
+ *     an equal withdrawal leave the sum untouched.
  *   - `history` is a daily snapshot table written by a scheduled job. Its
  *     newest row can be a day old, and `stale` says whether today's run has
  *     landed at all.

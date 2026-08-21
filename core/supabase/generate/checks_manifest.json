@@ -193,10 +193,6 @@
     ],
     [
       "ach_transfer",
-      "blnk_status"
-    ],
-    [
-      "ach_transfer",
       "blnk_transaction_id"
     ],
     [
@@ -2773,10 +2769,6 @@
     ],
     [
       "transfer",
-      "blnk_status"
-    ],
-    [
-      "transfer",
       "blnk_transaction_id"
     ],
     [
@@ -2922,10 +2914,6 @@
     [
       "wire_transfer",
       "blnk_reference"
-    ],
-    [
-      "wire_transfer",
-      "blnk_status"
     ],
     [
       "wire_transfer",
@@ -3149,11 +3137,6 @@
     [
       "ach_transfer",
       "blnk_reference",
-      "text"
-    ],
-    [
-      "ach_transfer",
-      "blnk_status",
       "text"
     ],
     [
@@ -6378,11 +6361,6 @@
     ],
     [
       "transfer",
-      "blnk_status",
-      "text"
-    ],
-    [
-      "transfer",
       "blnk_transaction_id",
       "text"
     ],
@@ -6564,11 +6542,6 @@
     [
       "wire_transfer",
       "blnk_reference",
-      "text"
-    ],
-    [
-      "wire_transfer",
-      "blnk_status",
       "text"
     ],
     [

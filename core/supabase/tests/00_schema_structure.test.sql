@@ -1,7 +1,7 @@
 -- Schema structure
 -- generated from controls.json + model.json — DO NOT EDIT BY HAND
 begin;
-select plan(1609);
+select plan(1603);
 
 select has_schema('core');
 
@@ -98,8 +98,6 @@ select has_column('core', 'ach_transfer', 'window');
 select col_type_is('core', 'ach_transfer', 'window', 'text');
 select has_column('core', 'ach_transfer', 'blnk_reference');
 select col_type_is('core', 'ach_transfer', 'blnk_reference', 'text');
-select has_column('core', 'ach_transfer', 'blnk_status');
-select col_type_is('core', 'ach_transfer', 'blnk_status', 'text');
 select has_column('core', 'ach_transfer', 'blnk_transaction_id');
 select col_type_is('core', 'ach_transfer', 'blnk_transaction_id', 'text');
 select has_column('core', 'ach_transfer', 'created_at');
@@ -1574,8 +1572,6 @@ select has_column('core', 'transfer', 'amount');
 select col_type_is('core', 'transfer', 'amount', 'bigint');
 select has_column('core', 'transfer', 'blnk_reference');
 select col_type_is('core', 'transfer', 'blnk_reference', 'text');
-select has_column('core', 'transfer', 'blnk_status');
-select col_type_is('core', 'transfer', 'blnk_status', 'text');
 select has_column('core', 'transfer', 'blnk_transaction_id');
 select col_type_is('core', 'transfer', 'blnk_transaction_id', 'text');
 select has_column('core', 'transfer', 'counterparty');
@@ -1668,8 +1664,6 @@ select has_column('core', 'wire_transfer', 'status');
 select col_type_is('core', 'wire_transfer', 'status', 'text');
 select has_column('core', 'wire_transfer', 'blnk_reference');
 select col_type_is('core', 'wire_transfer', 'blnk_reference', 'text');
-select has_column('core', 'wire_transfer', 'blnk_status');
-select col_type_is('core', 'wire_transfer', 'blnk_status', 'text');
 select has_column('core', 'wire_transfer', 'blnk_transaction_id');
 select col_type_is('core', 'wire_transfer', 'blnk_transaction_id', 'text');
 select has_column('core', 'wire_transfer', 'created_at');
