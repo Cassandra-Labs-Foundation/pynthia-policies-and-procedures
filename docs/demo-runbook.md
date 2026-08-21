@@ -19,7 +19,7 @@ Then open the dashboard it prints at the end.
 1. **Confirm the stack is green.** ~12 minutes, and it is the only thing that
    actually tells you the demo will work:
    ```bash
-   ./core/supabase/tests/e2e/compliance_e2e.sh    # ~410 live assertions, run from the repo root
+   ./core/supabase/tests/e2e/compliance_e2e.sh    # ~397 live assertions, run from the repo root
    ```
    Section 48 runs `demo.sh` itself, so a green harness means a green demo.
 

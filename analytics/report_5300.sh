@@ -3,7 +3,11 @@
 #
 # One row per instance per run-day: settled money movement (from the
 # spanning view — hot Postgres + cold Parquet), alert counts, and the FBO
-# position the Payment Hub maintains. The row set is the evidence that "a
+# position. That position is now DERIVED — `aggregator.fbo_position` became a
+# view over open member share balances in migration 20260817000100, and the
+# payment_hub consumer that used to accumulate it is gone — so this reporter
+# reads a number that cannot disagree with its own inputs, rather than a
+# number some consumer maintained. The row set is the evidence that "a
 # scheduled 5300 aggregation runs"; mapping these lines onto the full NCUA
 # 5300 form is a reporting exercise on top of this table, not more plumbing.
 #

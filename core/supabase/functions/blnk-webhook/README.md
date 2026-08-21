@@ -31,7 +31,7 @@ must not be a second copy of the logic.
 
 | Event | Effect |
 |---|---|
-| `transaction.applied\|inflight\|void\|rejected\|scheduled` | update the money row's `blnk_status`/`synced_at` (+ `blnk_committed_amount` on card capture); `applied` also refreshes the `account.balance` mirror |
+| `transaction.applied\|inflight\|void\|rejected\|scheduled` | stamp the money row's `synced_at`, its rail transaction id, and the canonical `blnk_reference` (+ `blnk_committed_amount` on card capture); `applied` also refreshes the `account.balance` mirror. It does **not** write a ledger-status mirror — `blnk_status` was dropped in migration 20260817000500 because the rails' own `status` is what every business decision reads |
 | `balance.created` | → `account.blnk_balance_id` (+ mirror `balance`) |
 | `balance.monitor` | → `bsa_alert` via `raiseAlert`, with BSA-06's triage clock started |
 | `reconciliation.completed\|failed` | advance `blnk_sync_state`; unmatched items and failures open a `finding` |

@@ -30,7 +30,7 @@ reviewer, not findings. A row is only load-bearing once `reviewed_by` is set.
 `control_result` rows are this repo's evidence artifact, and until
 migration `20260719000900` nothing on the row recorded where it came
 from. `analytics/seed.sh` drives the deployed API specifically to trip
-every control, and the e2e harness fires 406 live assertions at the same
+every control, and the e2e harness fires 397 live assertions at the same
 tables — so rows written before that migration are a mixture of real gate
 decisions, demo seeding and test assertions with no way to tell them
 apart. They are labelled `unknown`, which is the only claim the data

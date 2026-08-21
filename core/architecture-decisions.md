@@ -850,6 +850,23 @@ INSERT INTO consumer_cursors VALUES
   ('5300_reporter', 0, now(), 'running');
 ```
 
+> **Amended 2026-08-18 — as built, one cursor consumer remains.** The decision
+> above is kept as written because it is the decision that was made; this note
+> records where the system diverged from it.
+>
+> The table is `aggregator.consumer_cursor` (singular) and holds exactly one
+> row, `bsa_approver`. `payment_hub` was retired in migration 20260817000100
+> when the FBO position stopped being an accumulator and became a view over
+> member share balances — a derived quantity has no cursor to advance.
+> `bsa_reporter` and `5300_reporter` were never built as cursor consumers: they
+> run as scheduled scripts (`analytics/bsa_reporter.sh`,
+> `analytics/report_5300.sh`) on the daily `aggregator-reporters.yml` schedule,
+> idempotent by unique key rather than by cursor position.
+>
+> What survives of D27 is the part that earned its keep: an independent
+> consumer that can fall behind without blocking ingest, and whose staleness is
+> observable. That is still exactly how `bsa_approver` works.
+
 | Consumer | Mode | Data Source | Output |
 |----------|------|-------------|--------|
 | Payment Hub | Real-time | Supabase PG | `fbo_positions` table |
@@ -914,9 +931,9 @@ Fintech Instance calls POST /payments/ach/originate
   │     → Entity blocked or flagged?
   │
   ├── 3. Check consumer freshness
-  │     SELECT last_processed_at FROM consumer_cursors
-  │     WHERE consumer_name IN ('payment_hub', 'bsa_approver')
-  │     → Both consumers current? If stale, reject with retry-after.
+  │     SELECT last_processed_at FROM consumer_cursor
+  │     WHERE consumer_name = 'bsa_approver'        -- payment_hub: see D27 note
+  │     → Consumer current? If stale, reject with retry-after.
   │
   ├── 4. All clear → Reserve funds (atomic)
   │     UPDATE fbo_positions

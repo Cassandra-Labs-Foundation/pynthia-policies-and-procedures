@@ -141,7 +141,7 @@ Designed to be testable in isolation by seeding state tables (D28 says so explic
 - [ ] `D28-T1` sufficient `fbo_positions` + clean `bsa_alerts` → originate returns `pending`
 - [ ] `D28-T2` insufficient FBO balance → rejected (no reserve applied)
 - [ ] `D28-T3` `bsa_alerts` block for entity → rejected
-- [ ] `D28-T4` **stale cursor** on payment_hub or bsa_approver → rejected with retry-after
+- [ ] `D28-T4` **stale cursor** on bsa_approver → rejected with retry-after (payment_hub was retired with the accumulator, migration 20260817000100 — see the D27 note in core/architecture-decisions.md)
 - [ ] `D28-T5` reserve saga: approve decrements balance/increments held; Fed accept clears held; Fed reject restores balance
 
 ### Consumers (D27) & BSA (D26)

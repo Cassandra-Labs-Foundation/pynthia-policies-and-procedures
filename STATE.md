@@ -21,7 +21,7 @@
 |---|---|
 | migrations | 85 |
 | API modules | 49 |
-| e2e harness assertions (`check` calls) | 406 |
+| e2e harness assertions (`check` calls) | 397 |
 | architecture decisions (D1–D28) | 28 |
 
 ## Compliance

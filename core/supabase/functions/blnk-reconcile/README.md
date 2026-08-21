@@ -37,10 +37,18 @@ with the same header.
 
 ## Sweeps (25 rows each, oldest `synced_at` / `balance_synced_at` first)
 
-1. **Transaction mirrors** (`ach_transfer`, `wire_transfer`, `transfer`) — rows
-   with pending `blnk_status` and a `blnk_transaction_id`. Fetches Blnk status;
-   updates on change. `INFLIGHT` parents resolve via child transactions (VOID
-   wins, else APPLIED).
+1. **Stuck rows** (`ach_transfer`, `wire_transfer`, `transfer`) — rows carrying a
+   `blnk_reference` breadcrumb but no `blnk_transaction_id`: the Blnk write may
+   have landed while the mirror update never did (a crash between
+   `recordTransaction` and the settle update). Resolved by get-by-reference;
+   rows still unresolved after 30 minutes are flagged for ops.
+
+   There is no longer a **transaction mirror** sweep. It selected rows by
+   `core.<rail>.blnk_status`, fetched the ledger, and wrote that column back —
+   while never advancing the rail's own `status`, so nothing downstream ever
+   acted on what it learned. Migration 20260817000500 dropped the column and
+   the sweep with it; `blnk_transaction_id` stays, so ledger state is
+   re-derivable for any row on demand via `getTransaction`.
 
 2. **Card authorization** — same pattern on `blnk_inflight_id`; APPLIED children
    also set `blnk_committed_amount` to the sum of child `precise_amount` values.

@@ -378,8 +378,10 @@ async function emitMissingMirror(
 
 // Recovery for rows whose Blnk write may have landed but whose mirror update never
 // did (crash between recordTransaction and the settle update): they carry a
-// blnk_reference breadcrumb with no blnk_transaction_id and are invisible to the
-// status sweep. Resolve via get-by-reference; flag unresolved stale rows for ops.
+// blnk_reference breadcrumb with no blnk_transaction_id, so every other sweep
+// keys past them (they had no transaction id for the retired status sweep to
+// fetch, and none for the missing-mirror walk to match against). Resolve via
+// get-by-reference; flag unresolved stale rows for ops.
 export async function sweepStuckRows(
   db: SupabaseClient,
   cfg: BlnkConfig,
