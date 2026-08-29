@@ -633,6 +633,27 @@ export async function fetchControlResults({
   };
 }
 
+/**
+ * The gate decisions worth a reviewer's attention — everything the money-movement
+ * gate did NOT let pass. The endpoint filters one decision at a time, so this
+ * fans out per flag decision and merges the results newest-first. `pass`/`clear`
+ * are excluded on purpose: a queue of things that were fine is not a queue.
+ */
+export const GATE_FLAG_DECISIONS = ["reject", "block", "hold"];
+
+export async function fetchComplianceFlags({ perDecision = 50 } = {}) {
+  const batches = await Promise.all(
+    GATE_FLAG_DECISIONS.map((decision) =>
+      fetchControlResults({ decision, limit: perDecision })
+        .then((r) => r.results)
+        .catch(() => []),
+    ),
+  );
+  const flags = batches.flat();
+  flags.sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
+  return flags;
+}
+
 // --------------------------------------------------------------- obligations
 
 /**
