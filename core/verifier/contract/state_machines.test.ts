@@ -1,6 +1,6 @@
 // TEST-CATALOG — D7 state machines (entity, account) + D1 unified entities
 // + D2/D20 account numbers, over the routed surface.
-import { api, assert, assertEq, assertErrorShape, mkAccount, mkEntity, t, uid } from "./helpers.ts";
+import { api, assert, assertEq, assertErrorShape, mkAccount, mkEntity, t } from "./helpers.ts";
 
 // ------------------------------------------------- D7-A account transitions
 
@@ -51,8 +51,7 @@ t("D7-E2: illegal entity transitions are refused (ARCHIVED→ACTIVE, PENDING→A
 // ------------------------------------------------------- D1 unified listing
 
 t("D1-T5: created entities appear in GET /entities with a type discriminator", async () => {
-  const name = `Contract Person ${uid()}`;
-  const ent = await mkEntity(name);
+  const ent = await mkEntity();
   const r = await api("GET", `/entities/${ent}`);
   assertEq(r.status, 200, "D1-T5: entity readable");
   const row = r.body.data ?? r.body;

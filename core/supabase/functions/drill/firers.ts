@@ -30,6 +30,18 @@ import {
   postIncident, postIncidentSweep, postMemberImpact, postNotifyNcua,
 } from "../api/incidents.ts";
 
+// Realistic display names for drill-generated person fixtures. Picked by the
+// run counter so a run spreads across the roster instead of stamping "Drill
+// <n>"; the entity id — not the name — is the unique key, so shared names are
+// fine. Holds no "SDN" token, which the OFAC screen keys on (kyc.ts).
+const DRILL_PERSONAS = [
+  "Elena Marsh", "James Okafor", "Diego Ramirez", "Sofia Bennett", "Aisha Khan", "Maya Patel",
+  "Lucas Romano", "Chloe Nguyen", "Isaac Adeyemi", "Nora Sullivan", "Gabriel Costa", "Hannah Weiss",
+  "Omar Haddad", "Ava Lindqvist", "Julian Torres", "Zoe Callahan", "Ruth Mensah", "Caleb Fry",
+  "Leila Haddad", "Theo Vance", "Mira Kapoor", "Owen Slater", "Farah Aziz", "Daniel Cho",
+];
+const drillPersona = (n: number): string => DRILL_PERSONAS[Math.abs(n) % DRILL_PERSONAS.length];
+
 /**
  * The whole incident lifecycle, driven end to end.
  *
@@ -1627,17 +1639,17 @@ async function runBsaProgramLifecycle(env: FireEnv): Promise<void> {
 
   // CIP: complete, then one missing an element, then one that hits OFAC
   await postCipVerification(
-    R({ entity_ref: "ent_cip1", name: "Alice Member", dob: "1980-01-01",
+    R({ entity_ref: "ent_cip1", name: "Alice Chen", dob: "1980-01-01",
         address: "1 Main St", id_number: "DL-1234", tin: "***-**-1234",
         entity_type: "person", risk_tier: "low" }),
     env.db, "d", ops,
   );
   await postCipVerification(
-    R({ entity_ref: "ent_cip2", name: "Bob Partial", dob: "1975-05-05" }),
+    R({ entity_ref: "ent_cip2", name: "Robert Ainsley (partial CIP)", dob: "1975-05-05" }),
     env.db, "d", ops,
   );
   await postCipVerification(
-    R({ entity_ref: "ent_cip3", name: "SDN Holdings", dob: "1990-01-01",
+    R({ entity_ref: "ent_cip3", name: "Sokolov Holdings (SDN test)", dob: "1990-01-01",
         address: "2 Side St", id_number: "P-9" }),
     env.db, "d", ops,
   );
@@ -1663,7 +1675,7 @@ async function runBsaProgramLifecycle(env: FireEnv): Promise<void> {
   );
 
   // PEP: a clean screen and a hit that must open its own EDD
-  await postPepScreen(R({ entity_ref: "ent_cip1", name: "Alice Member" }), env.db, "d", ops);
+  await postPepScreen(R({ entity_ref: "ent_cip1", name: "Alice Chen" }), env.db, "d", ops);
   await postPepScreen(
     R({ entity_ref: "ent_pep1", name: "Foreign Minister", pep_category: "foreign_official" }),
     env.db, "d", ops,
@@ -1724,7 +1736,7 @@ async function runBsaProgramLifecycle(env: FireEnv): Promise<void> {
   // Travel Rule: a compliant wire and one missing its originator record
   await postTravelRuleRecord(
     R({ wire_ref: "wire_tr1", amount_cents: 500_000,
-        originator: { name: "Alice Member", address: "1 Main St", account: "acct_1",
+        originator: { name: "Alice Chen", address: "1 Main St", account: "acct_1",
                       routing_number: "021000021", reference: "ref-1" },
         beneficiary: { name: "Bob Payee", account: "ext_9" } }),
     env.db, "d", ops,
@@ -2079,7 +2091,7 @@ async function runCollectionsLifecycle(env: FireEnv): Promise<void> {
   // (CO-01/02/03/05/09's original fake-vs-real defect). No provenance on
   // core.account: the table predates the provenance convention.
   await env.db.schema("core").from("entity").upsert(
-    { id: "ent_dec", type: "person", name: "Deceased Member", status: "active", partner_id: "ptnr_drill" },
+    { id: "ent_dec", type: "person", name: "Harold Payne (deceased)", status: "active", partner_id: "ptnr_drill" },
     { onConflict: "id" },
   );
   await env.db.schema("core").from("account").upsert({
@@ -2259,7 +2271,7 @@ async function runDepositsMemberLifecycle(env: FireEnv): Promise<void> {
   // the entity must exist first (fk_account_entity is real on the live tier),
   // the partner is the seeded one, and core.account has no provenance column
   await env.db.schema("core").from("entity").upsert(
-    { id: "ent_m1", type: "person", name: "Member M1", status: "active", partner_id: "ptnr_drill" },
+    { id: "ent_m1", type: "person", name: "Mia Lawson", status: "active", partner_id: "ptnr_drill" },
     { onConflict: "id" },
   );
   await env.db.schema("core").from("account").upsert({
@@ -2620,7 +2632,7 @@ async function runResolutionLifecycle(env: FireEnv): Promise<void> {
 
   // entity first (fk_account_entity), seeded partner, no provenance column
   await env.db.schema("core").from("entity").upsert(
-    { id: "ent_r1", type: "person", name: "Member R1", status: "active", partner_id: "ptnr_drill" },
+    { id: "ent_r1", type: "person", name: "Ryan Mercer", status: "active", partner_id: "ptnr_drill" },
     { onConflict: "id" },
   );
   await env.db.schema("core").from("account").upsert({
@@ -3885,23 +3897,25 @@ export const FIRERS: Record<string, (env: FireEnv, uid: string) => Promise<void>
   },
   "entity.created": async (env) => {
     await postEntity(
-      R({ type: "person", name: `Drill ${env.n()}`, date_of_birth: "1990-01-01" }),
+      R({ type: "person", name: drillPersona(env.n()), date_of_birth: "1990-01-01" }),
       env.db, "d", env.actors.ops,
     );
   },
   "entity.updated": async (env) => {
-    const id = `ent_u${env.n()}`;
+    const n = env.n();
+    const id = `ent_u${n}`;
     await env.db.schema("core").from("entity").upsert(
-      { id, type: "person", name: "U", status: "pending", partner_id: "ptnr_drill" },
+      { id, type: "person", name: drillPersona(n), status: "pending", partner_id: "ptnr_drill" },
       { onConflict: "id" },
     );
     await postEntityTransition(R({ to: "active" }), id, env.db, "d", env.actors.ops);
   },
   "verification.created": async (env) => {
     await runBsaProgramLifecycle(env);
-    const id = `ent_v${env.n()}`;
+    const n = env.n();
+    const id = `ent_v${n}`;
     await env.db.schema("core").from("entity").upsert(
-      { id, type: "person", name: "Clean Person", status: "pending", partner_id: "ptnr_drill" },
+      { id, type: "person", name: drillPersona(n), status: "pending", partner_id: "ptnr_drill" },
       { onConflict: "id" },
     );
     await postVerification(R({}), id, env.db, "d", env.actors.ops);

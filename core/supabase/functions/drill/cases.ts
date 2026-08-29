@@ -73,8 +73,9 @@ export function seedInstitution(env: Env): void {
     }
   };
   put("partner", { id: "ptnr_drill", name: "Drill Partner", status: "active", instance_id: "inst_drill" });
+  const memberNames = ["Olivia Hart", "Liam Foster", "Noah Bennett", "Emma Sinclair", "Ethan Cole", "Sophia Reyes"];
   for (let i = 1; i <= 6; i++) {
-    put("entity", { id: `ent_${i}`, type: "person", name: `Member ${i}`, status: "active", partner_id: "ptnr_drill" });
+    put("entity", { id: `ent_${i}`, type: "person", name: memberNames[i - 1], status: "active", partner_id: "ptnr_drill" });
     put("account", {
       id: `acct_${i}`, entity_id: `ent_${i}`, status: "open", lock_type: "none", account_type: "checking",
       balance: 5_000_00, blnk_balance_id: `bal_${i}`, partner_id: "ptnr_drill",
@@ -460,7 +461,7 @@ export const CASES: DrillCase[] = [
     expect: "funding_blocked",
     run: async (env) => {
       const res = await postLoanParty(
-        R({ role: "guarantor", party_name: "SDN Holdings" }), "app_1", env.db, "d", ACTORS.ops, SIM,
+        R({ role: "guarantor", party_name: "Sokolov Holdings (SDN test)" }), "app_1", env.db, "d", ACTORS.ops, SIM,
       );
       const b = await body(res);
       const app = (env.rows["sim.loan_application"] ?? []).find((a) => a.id === "app_1");
@@ -851,7 +852,7 @@ export const CASES: DrillCase[] = [
     run: async (env) => {
       env.rows["core.entity"] ??= [];
       env.rows["core.entity"].push({
-        id: "ent_sdn", type: "person", name: "SDN Person", status: "pending",
+        id: "ent_sdn", type: "person", name: "Dmitri Volkov (SDN test)", status: "pending",
         partner_id: "ptnr_drill",
       });
       const res = await postVerification(R({}), "ent_sdn", env.db, "d", ACTORS.ops);
@@ -866,7 +867,7 @@ export const CASES: DrillCase[] = [
     expect: "denied",
     run: async (env) => {
       env.rows["core.entity"].push({
-        id: "ent_sdn2", type: "person", name: "Another SDN Co", status: "pending",
+        id: "ent_sdn2", type: "person", name: "Volkov Import Co (SDN test)", status: "pending",
         partner_id: "ptnr_drill",
       });
       const res = await postVerification(

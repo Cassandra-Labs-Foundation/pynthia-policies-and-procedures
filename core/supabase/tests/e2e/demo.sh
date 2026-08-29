@@ -68,7 +68,7 @@ check "OFAC screened and left evidence — a screen with no record is not a scre
 
 say "   The OFAC floor cannot be bought off. A sanctioned name is refused even
    when a full-trust partner vouches for it."
-ST=$(api POST /entities "$RUN-sdn" '{"type":"person","name":"SDN Test Subject","date_of_birth":"1970-01-01"}')
+ST=$(api POST /entities "$RUN-sdn" '{"type":"person","name":"Viktor Sokolov (SDN test)","date_of_birth":"1970-01-01"}')
 SDN=$(jget id)
 curl -sS -o /tmp/demo_body -X POST "$API/entities/$SDN/verifications" "${AUTH[@]}" \
   -d '{"attestation":{"partner":"fintech-x","trust_level":"full"}}' >/dev/null

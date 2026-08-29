@@ -24,6 +24,19 @@ let counter = Math.floor(Math.random() * 1_000_000);
 /** run-unique suffix — convergent ids would collide with prior runs' rows */
 export const uid = (): string => `ct_${Date.now().toString(36)}_${++counter}`;
 
+// Realistic display names for suite-created person fixtures. Rotates so a run
+// spreads across the roster instead of stamping one label; the entity id — not
+// the name — is the unique key, so a shared name across rows is fine.
+const PERSONA_POOL = [
+  "Elena Marsh", "James Okafor", "Diego Ramirez", "Sofia Bennett", "Aisha Khan", "Maya Patel",
+  "Lucas Romano", "Chloe Nguyen", "Isaac Adeyemi", "Nora Sullivan", "Gabriel Costa", "Hannah Weiss",
+  "Omar Haddad", "Ava Lindqvist", "Julian Torres", "Zoe Callahan", "Ruth Mensah", "Caleb Fry",
+  "Leila Haddad", "Theo Vance", "Mira Kapoor", "Owen Slater", "Farah Aziz", "Daniel Cho",
+];
+let personaIdx = Math.floor(Math.random() * PERSONA_POOL.length);
+/** a realistic person name for a fresh fixture, rotating through the pool */
+export const personaName = (): string => PERSONA_POOL[personaIdx++ % PERSONA_POOL.length];
+
 export interface ApiResponse {
   status: number;
   headers: Headers;
@@ -80,7 +93,7 @@ export function assertErrorShape(r: ApiResponse, msg: string): void {
 /** Fixture: a fresh person entity, returning its id. */
 export async function mkEntity(name?: string): Promise<string> {
   const r = await api("POST", "/entities", {
-    type: "person", name: name ?? `Contract Person ${uid()}`, date_of_birth: "1990-01-01",
+    type: "person", name: name ?? personaName(), date_of_birth: "1990-01-01",
   });
   assert(r.status === 200 || r.status === 201, `mkEntity: ${r.status} ${JSON.stringify(r.body).slice(0, 200)}`);
   return String(r.body.id ?? r.body.data?.id);

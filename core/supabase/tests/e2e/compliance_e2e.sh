@@ -543,14 +543,14 @@ check "simulate card authorize aliases the live rail" "$ST" "201"
 
 # --------------------------------------------- entity chain (cards 19-24)
 echo "-- 27. entities: create all four types, machine emits, owners, locks --"
-ST=$(api POST /entities ent-p "{\"type\":\"person\",\"name\":\"Ada Member\",\"date_of_birth\":\"1990-01-01\"}")
+ST=$(api POST /entities ent-p "{\"type\":\"person\",\"name\":\"Ada Bellweather\",\"date_of_birth\":\"1990-01-01\"}")
 check "person creates -> 201"                "$ST" "201"
 check "person starts PENDING"                "$(jget status)" "pending"
 ENT_P=$(jget id)
-ST=$(api POST /entities ent-b "{\"type\":\"business\",\"name\":\"Acme LLC\",\"tin\":\"12-3456789\"}")
+ST=$(api POST /entities ent-b "{\"type\":\"business\",\"name\":\"Riverside Provisions LLC\",\"tin\":\"12-3456789\"}")
 ENT_B=$(jget id)
-api POST /entities ent-t "{\"type\":\"trust\",\"name\":\"Ada Family Trust\",\"jurisdiction\":\"MA\"}" >/dev/null
-api POST /entities ent-j "{\"type\":\"joint\",\"name\":\"Ada + Grace Joint\"}" >/dev/null
+api POST /entities ent-t "{\"type\":\"trust\",\"name\":\"Bellweather Family Trust\",\"jurisdiction\":\"MA\"}" >/dev/null
+api POST /entities ent-j "{\"type\":\"joint\",\"name\":\"Ada & Grace Bellweather\"}" >/dev/null
 check "business/trust/joint all created"     "$ST" "201"
 ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/entities/$ENT_P/transition" "${AUTH[@]}" -d '{"to":"active"}')
 check "pending -> active is legal"           "$(jget status)" "active"
@@ -606,7 +606,7 @@ check "uniqueness spans every status (DB-wide, no pair ever reused)" \
 
 # ------------------------------------------------ KYC + OFAC floor (39-42)
 echo "-- 29. KYC: adapter, sims, providers, and the OFAC floor --"
-api POST /entities kyc-p "{\"type\":\"person\",\"name\":\"Grace Applicant\",\"date_of_birth\":\"1992-03-03\"}" >/dev/null
+api POST /entities kyc-p "{\"type\":\"person\",\"name\":\"Grace Bellweather (applicant)\",\"date_of_birth\":\"1992-03-03\"}" >/dev/null
 KENT=$(jget id)
 ST=$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/entities/$KENT/verifications" "${AUTH[@]}" -d '{}')
 check "KYC run -> 201 through the adapter"    "$ST" "201"
@@ -620,7 +620,7 @@ for P in socure middesk; do
   curl -sS -o /tmp/e2e_body -X POST "$API/entities/$KENT/verifications" "${AUTH[@]}" -d "{\"provider\":\"$P\"}"
   check "provider $P works through the adapter" "$(jget provider)" "$P"
 done
-api POST /entities kyc-sdn "{\"type\":\"person\",\"name\":\"SDN TEST SUBJECT\",\"date_of_birth\":\"1980-01-01\"}" >/dev/null
+api POST /entities kyc-sdn "{\"type\":\"person\",\"name\":\"Viktor Sokolov (SDN test)\",\"date_of_birth\":\"1980-01-01\"}" >/dev/null
 SDNENT=$(jget id)
 curl -sS -o /tmp/e2e_body -X POST "$API/entities/$SDNENT/verifications" "${AUTH[@]}" -d '{"attestation":{"partner":"fintech-x","trust_level":"full"}}'
 check "OFAC hit denies EVEN with full-trust attestation" "$(jget status)" "denied"
@@ -633,7 +633,7 @@ check "the OFAC hit raised its alert" \
 
 # ------------------------------------------- events outbox + worker (16)
 echo "-- 30. outbox: an event lands, the worker delivers it --"
-api POST /entities outbox-p "{\"type\":\"person\",\"name\":\"Outbox Demo\",\"date_of_birth\":\"1991-01-01\"}" >/dev/null
+api POST /entities outbox-p "{\"type\":\"person\",\"name\":\"Priya Nair\",\"date_of_birth\":\"1991-01-01\"}" >/dev/null
 OENT=$(jget id)
 check "the event landed in the outbox undelivered" \
   "$(sql "select count(*) from pg.core.event where resource_id='$OENT' and code='entity.created' and delivered_at is null;")" "1"
@@ -997,8 +997,8 @@ echo "-- 37. Cash + CTR (BSA-08): per-PERSON aggregation and unattributable curr
 # to a person. Legacy accounts have no owner, and an aggregation that silently
 # drops or mis-buckets them would hide CTR obligations.
 
-CASH_ENT=$(api POST /entities cash-ent '{"type":"person","name":"Cash Member","date_of_birth":"1980-01-01"}' >/dev/null; jget id)
-ST=$(api POST /entities cash-ent2 '{"type":"person","name":"Cash Member","date_of_birth":"1980-01-01"}')
+CASH_ENT=$(api POST /entities cash-ent '{"type":"person","name":"Marcus Delgado","date_of_birth":"1980-01-01"}' >/dev/null; jget id)
+ST=$(api POST /entities cash-ent2 '{"type":"person","name":"Marcus Delgado","date_of_birth":"1980-01-01"}')
 CASH_ENT=$(jget id)
 check "member entity created -> HTTP 201" "$ST" "201"
 
@@ -1577,7 +1577,7 @@ check "two different authorizers deactivate it" \
 
 # ---- MP-07: death flag freezes movement; estate pays only a VERIFIED claimant
 DENT=$(curl -sS -X POST "$API/entities" "${AUTH[@]}" -H "Idempotency-Key: $RUN-dent" \
-  -d '{"type":"person","name":"Dora Deceased","date_of_birth":"1940-02-02","email":"dora@example.com"}' \
+  -d '{"type":"person","name":"Dora Ellison (deceased)","date_of_birth":"1940-02-02","email":"dora@example.com"}' \
   | python3 -c 'import json,sys;print(json.load(sys.stdin)["id"])')
 DACC=$(curl -sS -X POST "$API/accounts" "${AUTH[@]}" -H "Idempotency-Key: $RUN-dacc" \
   -d "{\"account_type\":\"checking\",\"opening_deposit_cents\":30000,\"entity_id\":\"$DENT\"}" \
@@ -1605,7 +1605,7 @@ check "and the payout evidence nets amounts owed" \
 
 # ---- MP-06: expulsion needs a deliverable contact; close locks and pays out
 XENT=$(curl -sS -X POST "$API/entities" "${AUTH[@]}" -H "Idempotency-Key: $RUN-xent" \
-  -d '{"type":"person","name":"Silent Sam","date_of_birth":"1990-01-01"}' \
+  -d '{"type":"person","name":"Samuel Reyes (dormant)","date_of_birth":"1990-01-01"}' \
   | python3 -c 'import json,sys;print(json.load(sys.stdin)["id"])')
 check "expelling a member with NO deliverable contact is refused (422)" \
   "$(curl -sS -o /tmp/e2e_body -w '%{http_code}' -X POST "$API/members/$XENT/expulsion" "${OPS[@]}" \
