@@ -18,6 +18,7 @@
 // or clearing is a write, recorded through the core, not from here.
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import {
   AlertTriangle, ShieldCheck, ShieldAlert, ExternalLink, ArrowUpRight, Ban, XCircle, PauseCircle,
 } from 'lucide-react';
@@ -97,6 +98,11 @@ export default function Approvals() {
   const [error, setError] = useState('');
   const [flagError, setFlagError] = useState('');
 
+  // Arrived from a control on the compliance dashboard (?control=CG-VEL-01):
+  // that control's rows get scrolled into view and ringed once they exist.
+  const router = useRouter();
+  const focusControl = typeof router.query.control === 'string' ? router.query.control : null;
+
   useEffect(() => {
     // Two independent sources: one slow or failed does not blank the other.
     fetchPendingApprovals()
@@ -108,6 +114,13 @@ export default function Approvals() {
       .then(setFlags)
       .catch((err) => { console.error('Error loading compliance flags:', err); setFlagError(err.message); });
   }, []);
+
+  // Once the target control's rows are on the page, bring them into view.
+  useEffect(() => {
+    if (!focusControl) return;
+    const el = document.getElementById(`ctl-${focusControl}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [focusControl, flags, data]);
 
   const pendingAtCap = (data?.pendingCount ?? 0) >= APPROVALS_CAP;
 
@@ -180,6 +193,17 @@ export default function Approvals() {
         />
       </div>
 
+      {focusControl && (
+        <div className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2.5 text-sm">
+          <span className="text-indigo-800">
+            Opened from the compliance dashboard — focused on{' '}
+            <span className="font-mono font-medium">{focusControl}</span>
+            {CONTROL_LABEL[focusControl] ? ` · ${CONTROL_LABEL[focusControl]}` : ''}
+          </span>
+          <Link href="/approvals" className="text-indigo-600 hover:underline shrink-0">Clear</Link>
+        </div>
+      )}
+
       {isLoading ? (
         <div className="p-6 text-center bg-white rounded-lg border border-slate-200">
           <div className="animate-spin inline-block w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full mb-2" />
@@ -223,7 +247,11 @@ export default function Approvals() {
             ) : (
               <div className="space-y-4">
                 {flagGroups.map(([controlId, rows]) => (
-                  <div key={controlId} className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+                  <div
+                    key={controlId}
+                    id={`ctl-${controlId}`}
+                    className={`bg-white rounded-lg border overflow-hidden transition-shadow ${focusControl === controlId ? 'border-indigo-400 ring-2 ring-indigo-300' : 'border-slate-200'}`}
+                  >
                     <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-slate-100 bg-slate-50">
                       <div className="flex items-center gap-2 min-w-0">
                         <ControlChip controlId={controlId} />
@@ -283,7 +311,10 @@ export default function Approvals() {
               </div>
             )}
 
-            <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+            <div
+              id="ctl-EPS-06"
+              className={`bg-white rounded-lg border overflow-hidden transition-shadow ${focusControl === 'EPS-06' ? 'border-indigo-400 ring-2 ring-indigo-300' : 'border-slate-200'}`}
+            >
               {data.pending.length === 0 ? (
                 <div className="p-6 text-center text-slate-500">No payments are awaiting approval.</div>
               ) : (

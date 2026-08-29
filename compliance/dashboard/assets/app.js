@@ -29,6 +29,30 @@
   const API = (new URLSearchParams(location.search).get("api")
     || "https://jynsipdvrgqdkeqrlzcv.functions.supabase.co/api").replace(/\/+$/, "");
 
+  // The core UI — this dashboard's operational counterpart, where a flagged
+  // control's queue is actionable. Configurable via ?ui=, exactly like ?api=.
+  const CORE_UI = (new URLSearchParams(location.search).get("ui")
+    || "http://localhost:3000").replace(/\/+$/, "");
+
+  // Controls whose decisions have an actionable queue in the core UI: the
+  // money-movement gate's runtime checks, and EPS-06 wire dual control. The
+  // link carries ?control=<id> so the core UI opens straight to that control's
+  // rows. Returns null for controls with nothing to review there.
+  function coreQueueUrl(c) {
+    const uid = (c && c.uid) || "";
+    if (uid.indexOf("money-movement-gate:") === 0 || uid === "electronic-payment-systems:EPS-06") {
+      return CORE_UI + "/approvals?control=" + encodeURIComponent(c.id);
+    }
+    return null;
+  }
+  function queueLink(c, label) {
+    const url = coreQueueUrl(c);
+    return url
+      ? '<a class="toqueue" href="' + esc(url) + '" target="_blank" rel="noopener">'
+        + esc(label || "Review queue in core UI") + " &rarr;</a>"
+      : "";
+  }
+
   const root = document.getElementById("root");
   const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) =>
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -386,7 +410,10 @@
       return;
     }
     const sel = new URLSearchParams(location.hash.slice(1)).get("c");
-    const selCtl = sel ? p.controls.find((c) => c.id === sel) : null;
+    // Match either the short id (CG-VEL-01, how the dashboard's own rows link)
+    // or the full uid (money-movement-gate:CG-VEL-01, how the core UI links in),
+    // so a deep link from either side lands on the control, not the policy list.
+    const selCtl = sel ? p.controls.find((c) => c.id === sel || c.uid === sel) : null;
     if (selCtl) return controlView(p, selCtl);
 
     const rows = p.controls.map((c) => {
@@ -455,6 +482,7 @@
       + "<header><h1>" + dot(cp) + " " + esc(c.id) + " — " + esc(c.title) + "</h1>"
       + '<span class="meta">' + testBadges(c.tests) + "</span>"
       + (cits ? '<span class="meta">' + cits + "</span>" : "") + "</header>"
+      + queueLink(c)
       + '<div class="grid">'
       + panel("Heartbeat — " + (M.hb.window_hours / 24) + "d",
         '<div class="bigspark">' + spark(cp, 640, 56) + "</div>"
@@ -486,7 +514,8 @@
     };
     if (isGate) {
       document.getElementById("streambody").innerHTML =
-        '<div class="none">The gate writes decisions, not outbox events — its per-decision history is in the heartbeat panel; per-transaction decisions appear in any resource trace.</div>';
+        '<div class="none">The gate writes decisions, not outbox events — its per-decision history is in the heartbeat panel; per-transaction decisions appear in any resource trace.</div>'
+        + (coreQueueUrl(c) ? '<div style="margin-top:10px">' + queueLink(c, "Review this gate’s queue in the core UI") + "</div>" : "");
     } else {
       fetchStream(null);
     }

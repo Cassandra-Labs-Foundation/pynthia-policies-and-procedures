@@ -28,6 +28,9 @@ tr:last-child td { border-bottom:none; }
 .pill { display:inline-block; padding:1px 8px; border-radius:999px; font-size:11px; border:1px solid var(--line); margin-right:4px; }
 .cid { font-family:ui-monospace, Menlo, monospace; font-size:12px; white-space:nowrap; }
 .cit { color:var(--dim); font-size:11px; }
+.toqueue { display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:600;
+  color:var(--acc); border:1px solid var(--acc); border-radius:6px; padding:4px 10px; margin:2px 0 12px; }
+.toqueue:hover { background:rgba(91,141,239,.12); }
 .sect { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px; margin-top:14px; }
 .none { color:var(--dim); }
 .foot { margin-top:16px; color:var(--dim); font-size:11px; }
