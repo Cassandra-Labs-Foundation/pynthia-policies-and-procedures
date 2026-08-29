@@ -17,7 +17,7 @@ import { getControlResults } from "./controls.ts";
 import { getChangelog } from "./platform.ts";
 import { postSandboxReset } from "./sandbox.ts";
 import { postSimulate } from "./simulate.ts";
-import { getDashboardEvents, getDashboardHeartbeat, getDashboardShell, getDashboardTrace } from "./dashboard.ts";
+import { getDashboardEvents, getDashboardHeartbeat, getDashboardShell, getDashboardTrace, postDashboardFlag } from "./dashboard.ts";
 import { postDeliverEvents, postEventSink } from "./events.ts";
 import { postAch, postAchNoc, postAchReturn, postAchSettle } from "./ach.ts";
 import { postCardAuthorize, postCardCapture, postCardExpire, postCardReverse } from "./cards.ts";
@@ -449,6 +449,20 @@ const routes: Route[] = [
     handler: async (_req, params, requestId, _ctx) =>
       await getDashboardTrace(params.resourceId, createDb(), requestId),
   },
+  // The dashboard's one WRITE: an officer flags a monitored event, which routes
+  // an escalation (sim scope, unauthenticated — the demo posture the other
+  // dashboard routes already have; see postDashboardFlag's header for the
+  // deferred production auth model).
+  {
+    method: "POST",
+    pattern: /^\/compliance\/dashboard\/flag\/?$/,
+    paramNames: [],
+    endpoint: "POST /compliance/dashboard/flag",
+    tier: "write",
+    public: true,
+    handler: async (req, _params, requestId, _ctx) =>
+      await postDashboardFlag(req, createDb(), requestId),
+  },
   // Both payout routes are hand-wired for one reason: they need Blnk. A payout
   // is sized from the member's LEDGER balance, not from core.account.balance
   // (see memberBalanceCents), so these two handlers take a BlnkConfig and the
@@ -521,13 +535,14 @@ Deno.serve(async (req: Request): Promise<Response> => {
   // the browser would swallow the 401 and the shell could not explain the
   // refusal.
   const corsRoute =
-    /^\/compliance\/dashboard\/(?:data|heartbeat|events|trace\/[^/]+)\/?$/.test(path);
+    /^\/compliance\/dashboard\/(?:data|heartbeat|events|flag|trace\/[^/]+)\/?$/.test(path);
   if (corsRoute && req.method === "OPTIONS") {
     return new Response(null, {
       status: 204,
       headers: {
         "access-control-allow-origin": "*",
-        "access-control-allow-methods": "GET, OPTIONS",
+        // flag is the one POST (see the route table); the rest are GETs
+        "access-control-allow-methods": "GET, POST, OPTIONS",
         "access-control-allow-headers": "x-api-key, authorization, content-type",
         "access-control-max-age": "86400",
       },

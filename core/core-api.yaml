@@ -1946,6 +1946,24 @@ paths:
       x-audience: public
       x-handler: dashboard.getDashboardTrace
       x-tier: read
+  /compliance/dashboard/flag:
+    post:
+      summary: POST /compliance/dashboard/flag
+      description: 'The compliance officer''s escalation path from a single monitored event: route it to the person who should
+        act, with a reason. Reuses the core escalation primitive — writes an escalation row and emits escalation.routed —
+        so a flag is a real, acknowledgeable escalation, not a note. DEMO POSTURE: like the rest of the dashboard this route
+        is public and writes to the sim (demo) evidence scope; the production auth model (who may flag, into core scope) is
+        an open question — see the handler.'
+      operationId: post_dashboard_flag
+      responses:
+        2XX:
+          description: Success. Response contract not yet authored — the handler is the contract; see x-handler.
+        4XX:
+          description: Validation, authorization, or not-found per the standard error envelope.
+      x-route: hand
+      x-audience: public
+      x-handler: dashboard.postDashboardFlag
+      x-tier: write
   /control-results:
     get:
       operationId: get_control_results

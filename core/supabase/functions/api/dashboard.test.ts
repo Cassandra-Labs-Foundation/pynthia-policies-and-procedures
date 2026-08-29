@@ -15,6 +15,7 @@ import {
   getDashboardHeartbeat,
   getDashboardShell,
   getDashboardTrace,
+  postDashboardFlag,
 } from "./dashboard.ts";
 
 type Row = Record<string, unknown>;
@@ -66,6 +67,13 @@ function stubDb(
     b.in = chain((col, vals) => {
       out = out.filter((r) => (vals as unknown[]).includes(r[col as string]));
     });
+    // writes land back in the same schema-keyed map, so a test can assert what
+    // postDashboardFlag wrote (and into WHICH scope).
+    b.upsert = (payload: Row | Row[]) => {
+      const bucket = (rows[`${schema}.${table}`] ??= []);
+      bucket.push(...(Array.isArray(payload) ? payload : [payload]));
+      return Promise.resolve({ data: null, error: null });
+    };
     b.then = (onFul: (v: unknown) => unknown, onRej?: (e: unknown) => unknown) => {
       const total = preLimit ?? out.length;
       return Promise.resolve(
@@ -512,4 +520,82 @@ Deno.test("the policy hierarchy covers the whole catalogue — every policy, eve
   assert(im, "index must load the shared app under a versioned url");
   stamps.add(im[1]);
   assertEquals(stamps.size, 1, "every page must carry the SAME asset stamp");
+});
+
+// ------------------------------------------------------------- flag an event
+// The dashboard's one write: an officer flags a monitored event, which routes
+// a real escalation (escalation row + escalation.routed) — reusing the core's
+// escalation primitive, into the SIM scope under the demo posture.
+const flagReq = (body: Record<string, unknown>) =>
+  new Request("http://x/compliance/dashboard/flag", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+Deno.test("flag: a valid flag routes an escalation AND emits escalation.routed", async () => {
+  const rows: Record<string, Row[]> = {};
+  const res = await postDashboardFlag(
+    flagReq({
+      resource_ref: "wire_transfer:wt_1", event_id: "ev_9", event_code: "wire_transfer.submitted",
+      control_uid: "bsa:BSA-10", routed_to: "Patrick Wilson, CCO", severity: "elevated", note: "unusual counterparty",
+    }),
+    stubDb(rows), "t",
+  );
+  assertEquals(res.status, 201);
+  const body = await res.json();
+  assert(String(body.data.id).startsWith("esc_"), "returns the escalation id");
+  assertEquals(body.data.routed_to, "Patrick Wilson, CCO");
+
+  const esc = rows["sim.escalation"] ?? [];
+  assertEquals(esc.length, 1);
+  assertEquals(esc[0].source_kind, "compliance_dashboard_flag");
+  assertEquals(esc[0].source_ref, "wire_transfer:wt_1");
+  assertEquals(esc[0].provenance, "simulated");
+
+  const evs = rows["sim.event"] ?? [];
+  assertEquals(evs.length, 1);
+  assertEquals(evs[0].code, "escalation.routed");
+  assertEquals((evs[0].payload as Record<string, unknown>)["escalation.routed_to"], "Patrick Wilson, CCO");
+  assertEquals((evs[0].payload as Record<string, unknown>).control_uid, "bsa:BSA-10");
+});
+
+Deno.test("flag: writes to the SIM scope, never core (demo posture)", async () => {
+  const rows: Record<string, Row[]> = {};
+  await postDashboardFlag(
+    flagReq({ resource_ref: "x1", routed_to: "officer", severity: "routine" }),
+    stubDb(rows), "t",
+  );
+  assertEquals((rows["sim.escalation"] ?? []).length, 1);
+  assertEquals((rows["core.escalation"] ?? []).length, 0);
+});
+
+Deno.test("flag: routing to nobody is refused", async () => {
+  const res = await postDashboardFlag(
+    flagReq({ resource_ref: "x1", severity: "elevated" }), stubDb({}), "t",
+  );
+  assertEquals(res.status, 400);
+});
+
+Deno.test("flag: an unknown severity is refused", async () => {
+  const res = await postDashboardFlag(
+    flagReq({ resource_ref: "x1", routed_to: "officer", severity: "catastrophic" }), stubDb({}), "t",
+  );
+  assertEquals(res.status, 400);
+});
+
+Deno.test("flag: with neither resource_ref nor event_id there is nothing to flag", async () => {
+  const res = await postDashboardFlag(
+    flagReq({ routed_to: "officer", severity: "routine" }), stubDb({}), "t",
+  );
+  assertEquals(res.status, 400);
+});
+
+Deno.test("flag: severity sets the acknowledgement window — urgent sooner than routine", async () => {
+  const rows: Record<string, Row[]> = {};
+  await postDashboardFlag(flagReq({ resource_ref: "u", routed_to: "o", severity: "urgent" }), stubDb(rows), "t");
+  await postDashboardFlag(flagReq({ resource_ref: "r", routed_to: "o", severity: "routine" }), stubDb(rows), "t");
+  const [urgent, routine] = rows["sim.escalation"];
+  assert(String(urgent.ack_due_at) < String(routine.ack_due_at),
+    "an urgent flag must be due before a routine one");
 });

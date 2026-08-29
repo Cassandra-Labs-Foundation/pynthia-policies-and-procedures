@@ -74,6 +74,10 @@ const PARTNER_SURFACE = new Set([
   "GET /compliance/dashboard", "GET /compliance/dashboard/data",
   "GET /compliance/dashboard/heartbeat", "GET /compliance/dashboard/events",
   "GET /compliance/dashboard/trace/{resourceId}",
+  // the dashboard's one public WRITE — an officer flagging an event routes a
+  // sim-scope escalation; unauthenticated by the same demo posture as the
+  // reads (postDashboardFlag documents the deferred production auth model).
+  "POST /compliance/dashboard/flag",
 ]);
 
 const entries = indexText.match(/\{\s*(?:\/\/[^\n]*\n\s*)*method:[\s\S]*?\n  \},/g) ?? [];
@@ -110,6 +114,7 @@ const PUBLIC_ROUTES = new Set([
   "GET /compliance/dashboard/heartbeat",
   "GET /compliance/dashboard/events",
   "GET /compliance/dashboard/trace/{resourceId}",
+  "POST /compliance/dashboard/flag",
 ]);
 
 Deno.test("public (unauthenticated) routes are exactly the pinned dashboard set", () => {

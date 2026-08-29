@@ -21,8 +21,12 @@
 // are REPORTED in the payload: a dashboard that silently truncates reads as
 // complete when it is not.
 import { type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { apiError, internalErrorResponse, jsonResponse } from "./lib.ts";
+import {
+  apiError, internalErrorResponse, isNonEmptyString, jsonResponse,
+  parseJsonBody, validationError,
+} from "./lib.ts";
 import { type PartnerContext } from "./auth.ts";
+import { type EvidenceScope, provenanceFor } from "./bsa.ts";
 import { redactForBoundary } from "./events.ts";
 
 const WINDOW_HOURS = 168; // 7 days
@@ -536,6 +540,105 @@ export async function getDashboardTrace(
       control_results: gateRows,
       control_results_capped: gateRows.length >= TRACE_CAP,
     }, 200, requestId);
+  } catch (e) {
+    return internalErrorResponse(requestId, e);
+  }
+}
+
+// A flag's acknowledgement window scales with how loud it is — the urgent ones
+// must not wait as long as the routine ones (the same principle bsa_program's
+// escalation uses; kept local so this module owns its own contract).
+const FLAG_ACK_DAYS: Record<string, number> = { urgent: 1, elevated: 3, routine: 5 };
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * POST /compliance/dashboard/flag
+ *   {resource_ref?, event_id?, event_code?, control_uid?, routed_to, severity, note?}
+ *
+ * The compliance officer's escalation path from ONE monitored event. It reuses
+ * the core's escalation primitive (the same table + escalation.routed event
+ * that bsa_program.postEscalation writes), so a flag is a real, acknowledgeable
+ * escalation routed to a named person — not a sticky note that lives only in
+ * the dashboard.
+ *
+ * ⚠ DEMO POSTURE / OPEN QUESTION (auth deferred, on purpose). The dashboard is
+ * a public, credential-less surface (see the module header), so this write:
+ *   • is unauthenticated, and
+ *   • lands in the SIM (demo) evidence scope, never core.
+ * That keeps the feature exercisable from the public demo without minting an
+ * anonymous write into the real escalation register. The production model —
+ * who may flag, authenticated how, into which scope — is intentionally
+ * unresolved. Before this routes real work it must gate on an internal actor
+ * (cf. requireInternalActor in the *_program handlers) and write to core.
+ * TODO(compliance-flag-auth).
+ */
+export async function postDashboardFlag(
+  req: Request,
+  db: SupabaseClient,
+  requestId: string,
+): Promise<Response> {
+  const body = (await parseJsonBody(req).catch(() => null)) as Record<string, unknown> ?? {};
+  const severity = String(body.severity ?? "");
+  const routedTo = body.routed_to;
+  // what is being flagged: prefer the resource the event is about, fall back to
+  // the event's own id so an event with no resource_id is still flaggable
+  const sourceRef = isNonEmptyString(body.resource_ref)
+    ? String(body.resource_ref)
+    : isNonEmptyString(body.event_id) ? String(body.event_id) : "";
+
+  const errs = [];
+  if (!FLAG_ACK_DAYS[severity]) {
+    errs.push({ type: "invalid_value", field: "severity", message: `severity in ${Object.keys(FLAG_ACK_DAYS).join("/")}` });
+  }
+  if (!isNonEmptyString(routedTo)) {
+    errs.push({ type: "missing_field", field: "routed_to", message: "route the flag to a person or role" });
+  }
+  if (!sourceRef) {
+    errs.push({ type: "missing_field", field: "resource_ref", message: "resource_ref or event_id identifies what is flagged" });
+  }
+  if (errs.length) return validationError(requestId, errs);
+
+  const scope: EvidenceScope = "sim"; // demo posture — see the doc comment
+  const now = new Date();
+  const ackDueAt = new Date(now.getTime() + FLAG_ACK_DAYS[severity] * DAY_MS).toISOString();
+  const id = `esc_${crypto.randomUUID()}`;
+  const note = isNonEmptyString(body.note) ? String(body.note).slice(0, 2000) : null;
+
+  try {
+    const { error: escErr } = await db.schema(scope).from("escalation").upsert({
+      id,
+      source_kind: "compliance_dashboard_flag",
+      source_ref: sourceRef,
+      severity,
+      routed_to: String(routedTo),
+      routed_at: now.toISOString(),
+      ack_due_at: ackDueAt,
+      provenance: provenanceFor(scope),
+    }, { onConflict: "id" });
+    if (escErr) return internalErrorResponse(requestId, escErr.message);
+
+    const { error: evErr } = await db.schema(scope).from("event").upsert({
+      id: `ev_${id}_routed`,
+      code: "escalation.routed",
+      resource_type: "escalation",
+      resource_id: `escalation:${id}`,
+      payload: {
+        "escalation.severity": severity,
+        "escalation.routed_to": String(routedTo),
+        ack_due_at: ackDueAt,
+        flagged_event: isNonEmptyString(body.event_id) ? String(body.event_id) : null,
+        flagged_code: isNonEmptyString(body.event_code) ? String(body.event_code) : null,
+        control_uid: isNonEmptyString(body.control_uid) ? String(body.control_uid) : null,
+        note,
+      },
+      provenance: provenanceFor(scope),
+    }, { onConflict: "id", ignoreDuplicates: true });
+    if (evErr) return internalErrorResponse(requestId, evErr.message);
+
+    return jsonResponse(
+      { data: { id, ack_due_at: ackDueAt, routed_to: String(routedTo), severity } },
+      201, requestId,
+    );
   } catch (e) {
     return internalErrorResponse(requestId, e);
   }

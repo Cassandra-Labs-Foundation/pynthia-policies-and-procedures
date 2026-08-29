@@ -34,6 +34,54 @@
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const n = (x) => (x ?? 0).toLocaleString();
 
+  // ------------------------------------------------------------- markdown
+  // The policy text lives in the policy markdown (surfaced here via the
+  // manifest); rendering it in place is the whole point — no bounce to
+  // GitHub. A deliberately small renderer: the corpus is prose with inline
+  // links, code spans, the odd list/table, and `§` citations. Everything is
+  // HTML-escaped BEFORE any markup is applied, so untrusted-looking input
+  // cannot inject — the transforms only ever add tags around escaped text.
+  function mdInline(s) {
+    s = esc(s);
+    s = s.replace(/`([^`]+)`/g, (_, c) => "<code>" + c + "</code>");
+    s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,
+      (_, t, u) => '<a href="' + u + '" target="_blank" rel="noopener">' + t + "</a>");
+    s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+    return s;
+  }
+  function mdTable(lines) {
+    const cells = (l) => l.replace(/^\s*\|/, "").replace(/\|\s*$/, "").split("|").map((c) => c.trim());
+    const head = cells(lines[0]).map((c) => "<th>" + mdInline(c) + "</th>").join("");
+    const body = lines.slice(2).map((l) =>
+      "<tr>" + cells(l).map((c) => "<td>" + mdInline(c) + "</td>").join("") + "</tr>").join("");
+    return '<div class="mdtable"><table><thead><tr>' + head + "</tr></thead><tbody>" + body + "</tbody></table></div>";
+  }
+  function md(src) {
+    if (!src) return "";
+    const out = [];
+    for (let block of String(src).replace(/\r/g, "").split(/\n{2,}/)) {
+      block = block.trim();
+      if (!block || /^---+$/.test(block)) continue; // bare rules are section joints
+      const lines = block.split("\n");
+      const h = block.match(/^(#{2,4})\s+(.*)$/);
+      if (h && lines.length === 1) {
+        const lvl = Math.min(h[1].length, 4);
+        out.push("<h" + lvl + ">" + mdInline(h[2].replace(/\s*\{#.*\}\s*$/, "")) + "</h" + lvl + ">");
+      } else if (lines.length >= 2 && /^\s*\|/.test(lines[0]) && /^[\s:|-]+$/.test(lines[1].replace(/\|/g, "|"))) {
+        out.push(mdTable(lines));
+      } else if (lines.every((l) => /^\s*[-*]\s+/.test(l))) {
+        out.push("<ul>" + lines.map((l) => "<li>" + mdInline(l.replace(/^\s*[-*]\s+/, "")) + "</li>").join("") + "</ul>");
+      } else if (lines.every((l) => /^\s*\d+\.\s+/.test(l))) {
+        out.push("<ol>" + lines.map((l) => "<li>" + mdInline(l.replace(/^\s*\d+\.\s+/, "")) + "</li>").join("") + "</ol>");
+      } else if (lines.every((l) => /^\s*>\s?/.test(l))) {
+        out.push("<blockquote>" + mdInline(lines.map((l) => l.replace(/^\s*>\s?/, "")).join(" ")) + "</blockquote>");
+      } else {
+        out.push("<p>" + mdInline(lines.join(" ")) + "</p>");
+      }
+    }
+    return out.join("");
+  }
+
   const fmtT = (iso) => iso ? new Date(iso).toLocaleString() : "—";
   function ago(iso) {
     if (!iso) return "never";
@@ -176,6 +224,23 @@
   }
 
   const panel = (t, b) => '<div class="panel"><h2>' + esc(t) + "</h2>" + b + "</div>";
+  const panelWide = (t, b) => '<div class="panel wide"><h2>' + esc(t) + "</h2>" + b + "</div>";
+
+  // The policy's own General Policy Statement (+ who owns it and its review
+  // cadence), rendered in place from the manifest. Synthetic policies (the
+  // runtime gate, shared-controls) carry no source doc, so this is empty and
+  // the page just shows its controls.
+  function policyStatement(p) {
+    if (!p.statement) return "";
+    const meta = [];
+    if (p.owner) meta.push("owned by <strong>" + esc(p.owner) + "</strong>");
+    if (p.version) meta.push("version " + esc(p.version));
+    if (p.effective) meta.push("effective " + esc(p.effective));
+    if (p.next_review) meta.push("next review " + esc(p.next_review));
+    return '<div class="sect policystmt"><h2>General Policy Statement</h2>'
+      + (meta.length ? '<div class="polmeta">' + meta.join(" · ") + "</div>" : "")
+      + '<div class="md">' + md(p.statement) + "</div></div>";
+  }
 
   // A capped list rendered without saying so is how "100 open alerts" stood in
   // for a backlog of 1,475. The API reports the truncation on every panel
@@ -341,6 +406,7 @@
     root.innerHTML =
       '<div class="crumb"><a href="../">← all policies</a></div>'
       + headerHtml(p.title, '<span class="meta">' + n(p.controls.length) + " controls</span>")
+      + policyStatement(p)
       + '<div class="grid">' + policyPanels(slug, M.data) + "</div>"
       + '<div class="sect"><h2>Controls — click one for its event history</h2><table class="ctltable">'
       + '<tr><th></th><th>id</th><th>control</th><th>heartbeat — ' + (M.hb.window_hours / 24) + 'd</th>'
@@ -375,33 +441,49 @@
         : (r.deadline_text ? '<div class="cit">cadence: ' + esc(r.deadline_text) + "</div>" : ""))
       + "</div>").join("");
 
+    // The reader's orientation, read straight from the policy (via the
+    // manifest) instead of a link out to GitHub. The SHORT rationale ("why")
+    // sits with the heartbeat so the two panels in the top row stay close in
+    // height; the LONG mechanism ("how") runs full-width below, where prose is
+    // more readable than in a half-width column.
+    const whyHtml = c.why
+      ? '<div class="ctlnarr"><h3>Why this control exists</h3><div class="md">' + md(c.why) + "</div></div>"
+      : "";
+
     root.innerHTML =
       '<div class="crumb"><a href="#" id="back">← ' + esc(p.title) + "</a> · <a href=\"../\">all policies</a></div>"
       + "<header><h1>" + dot(cp) + " " + esc(c.id) + " — " + esc(c.title) + "</h1>"
       + '<span class="meta">' + testBadges(c.tests) + "</span>"
-      + '<span class="meta"><a href="' + esc(c.doc) + '" target="_blank" rel="noopener">policy text ↗</a>'
-      + (cits ? " · " + cits : "") + "</span></header>"
+      + (cits ? '<span class="meta">' + cits + "</span>" : "") + "</header>"
       + '<div class="grid">'
       + panel("Heartbeat — " + (M.hb.window_hours / 24) + "d",
         '<div class="bigspark">' + spark(cp, 640, 56) + "</div>"
         + '<div class="big">' + n(cp.total) + "<small>events in window · last evidence "
         + esc(ago(cp.last_at)) + (isGate ? "" : " · " + n(cp.everTotal) + " all-time") + "</small></div>"
-        + (cp.decisions ? '<div style="margin-top:8px">' + kvTable(cp.decisions, "gate decision — window", "count") + "</div>" : ""))
+        + (cp.decisions ? '<div style="margin-top:8px">' + kvTable(cp.decisions, "gate decision — window", "count") + "</div>" : "")
+        + (whyHtml || (isGate ? '<div class="ctlnarr none">Runtime gate — its behaviour is the decision census above; there is no policy prose behind it.</div>' : "")))
       + panel("What this control watches",
         isGate
           ? '<div class="none">Runtime gate: its evidence is core.control_result rows (decisions above). Trace any transaction to see this gate\'s decision about it.</div>'
           : (ruleHtml || '<div class="none">no machine rules declared</div>'))
       + "</div>"
+      + (c.system_behavior
+        ? '<div class="sect"><h2>How the system behaves</h2><div class="md">' + md(c.system_behavior) + "</div></div>"
+        : "")
       + '<div class="sect" id="streamsect"><h2>Event history — newest first, payloads inspectable</h2>'
       + '<div id="streambody" class="none">loading…</div></div>'
-      + '<div class="foot">Every row is a core.event / sim.event record; payloads are PII-redacted at the API boundary. Click a row for its payload, "trace" for the resource\'s full transaction cycle.</div>';
+      + '<div class="foot">Every row is a core.event / sim.event record; payloads are PII-redacted at the API boundary. Click a row for its payload, "trace" for the resource\'s full transaction cycle, "flag" to escalate it.</div>';
 
     document.getElementById("back").addEventListener("click", (e) => {
       e.preventDefault();
       location.hash = "";
     });
 
-    stream = { codes: c.watch, events: [], next_before: null, open: new Set(), trace: null };
+    stream = {
+      codes: c.watch, events: [], next_before: null, open: new Set(), trace: null,
+      flag: null, // {ev, draft:{routed_to,severity,note}, busy, result, error}
+      control: { uid: c.uid, id: c.id, title: c.title, policy: p.title, owner: p.owner || "" },
+    };
     if (isGate) {
       document.getElementById("streambody").innerHTML =
         '<div class="none">The gate writes decisions, not outbox events — its per-decision history is in the heartbeat panel; per-transaction decisions appear in any resource trace.</div>';
@@ -426,26 +508,136 @@
     }
   }
 
+  // ------------------------------------------------------------------- flag
+  // The compliance officer's escalation path from a single event: route it to
+  // the person who should act and record the reason. It reuses the core's
+  // escalation primitive (POST /compliance/dashboard/flag -> escalation row +
+  // escalation.routed), so a flag is a real, acknowledgeable escalation, not a
+  // sticky note. The form lives inline under the flagged row; the draft is
+  // re-read before every re-render so typing survives a payload toggle.
+  const SEVERITIES = ["routine", "elevated", "urgent"];
+
+  function captureFlagDraft() {
+    if (!stream.flag) return;
+    const rt = document.getElementById("flag-routed");
+    if (!rt) return; // form not currently in the DOM
+    stream.flag.draft = {
+      routed_to: rt.value,
+      severity: document.getElementById("flag-sev").value,
+      note: document.getElementById("flag-note").value,
+    };
+  }
+
+  function flagFormHtml(f) {
+    if (f.result) {
+      const r = f.result;
+      return '<tr class="flagrow"><td colspan="5"><div class="flagbox okbox">'
+        + "<strong>Flagged.</strong> Escalation <code>" + esc(r.id) + "</code> routed to <strong>"
+        + esc(f.draft.routed_to) + "</strong>"
+        + (r.ack_due_at ? ", acknowledgement due " + esc(fmtT(r.ack_due_at)) : "") + "."
+        + ' <span class="cit">escalation.routed emitted · demo/sim scope</span>'
+        + ' <button class="flagbtn" id="flag-done">close</button></div></td></tr>';
+    }
+    const d = f.draft;
+    const sev = (v) => '<option value="' + v + '"' + (d.severity === v ? " selected" : "") + ">" + v + "</option>";
+    const people = [f.control_owner, "Patrick Wilson, Chief Compliance Officer", "BSA Officer", "Internal Audit"]
+      .filter(Boolean).filter((v, i, a) => a.indexOf(v) === i);
+    return '<tr class="flagrow"><td colspan="5"><div class="flagbox">'
+      + '<div class="flaghd">Flag <code>' + esc(f.ev.code) + "</code>"
+      + (f.ev.resource_id ? " on <code>" + esc(f.ev.resource_id) + "</code>" : "")
+      + " — route an escalation to the right person</div>"
+      + (f.error ? '<div id="err">' + esc(f.error) + "</div>" : "")
+      + '<div class="flagfields">'
+      + '<label>Route to<input id="flag-routed" list="flag-people" value="' + esc(d.routed_to)
+      + '" placeholder="name or role" autocomplete="off"></label>'
+      + '<datalist id="flag-people">' + people.map((s) => '<option value="' + esc(s) + '"></option>').join("") + "</datalist>"
+      + "<label>Severity<select id=\"flag-sev\">" + SEVERITIES.map(sev).join("") + "</select></label>"
+      + "</div>"
+      + '<label class="flagnote">Note<textarea id="flag-note" rows="2" placeholder="what needs attention and why">' + esc(d.note) + "</textarea></label>"
+      + '<div class="flagact"><button class="flagbtn primary" id="flag-submit"' + (f.busy ? " disabled" : "") + ">"
+      + (f.busy ? "routing…" : "Flag &amp; notify") + "</button>"
+      + '<button class="flagbtn" id="flag-cancel">cancel</button></div>'
+      + "</div></td></tr>";
+  }
+
+  async function submitFlag() {
+    const f = stream.flag;
+    if (!f) return;
+    captureFlagDraft();
+    const d = f.draft;
+    if (!d.routed_to || !d.routed_to.trim()) {
+      f.error = "Route to whom? Enter a name or role.";
+      renderStream();
+      return;
+    }
+    f.busy = true;
+    f.error = null;
+    renderStream();
+    try {
+      const r = await fetch(API + "/compliance/dashboard/flag", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          resource_ref: f.ev.resource_id || null,
+          event_id: f.ev.id,
+          event_code: f.ev.code,
+          control_uid: stream.control.uid,
+          routed_to: d.routed_to.trim(),
+          severity: d.severity,
+          note: (d.note || "").trim(),
+        }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        throw new Error((j.error && (j.error.detail || j.error.message)) || j.detail || ("flag " + r.status));
+      }
+      f.result = j.data || j;
+      f.busy = false;
+      renderStream();
+    } catch (e) {
+      f.busy = false;
+      f.error = "could not flag: " + e.message;
+      renderStream();
+    }
+  }
+
+  function openFlag(i) {
+    const e = stream.events[i];
+    // The officer picks the recipient each time; the policy owner is offered as
+    // a datalist suggestion (see flagFormHtml), not forced as the default.
+    stream.flag = {
+      i, ev: e, control_owner: stream.control.owner,
+      draft: { routed_to: "", severity: "elevated", note: "" },
+      busy: false, result: null, error: null,
+    };
+  }
+
   function renderStream() {
     const body = document.getElementById("streambody");
     if (!body) return;
+    captureFlagDraft(); // preserve in-progress typing across the rebuild
     if (stream.events.length === 0) {
       body.innerHTML = '<div class="none">no events recorded for this control\'s codes — this control has never produced evidence. That is a finding, not a blank.</div>';
       return;
     }
     const rows = stream.events.map((e, i) => {
       const open = stream.open.has(i);
-      let out = '<tr class="ev" data-i="' + i + '">'
+      const flagging = stream.flag && stream.flag.i === i;
+      let out = '<tr class="ev' + (flagging ? " flagging" : "") + '" data-i="' + i + '">'
         + "<td class=\"cid\">" + esc(fmtT(e.created_at)) + "</td>"
         + '<td><span class="code">' + esc(e.code) + "</span></td>"
         + '<td><span class="badge ' + (e.src === "sim" ? "sim" : "core") + '">' + esc(e.src) + "</span></td>"
         + '<td class="cid">' + esc(e.resource_id || "") + "</td>"
-        + '<td>' + (e.resource_id ? '<button class="tracebtn" data-r="' + esc(e.resource_id) + '">trace</button>' : "") + "</td></tr>";
+        + '<td class="rowbtns">'
+        + (e.resource_id ? '<button class="tracebtn" data-r="' + esc(e.resource_id) + '">trace</button>' : "")
+        + '<button class="flagbtn' + (flagging ? " on" : "") + '" data-flag="' + i + '">flag</button>'
+        + "</td></tr>";
       if (open) {
         out += '<tr class="payload"><td colspan="5"><pre>' + esc(JSON.stringify({
           id: e.id, type: e.type, provenance: e.provenance, delivered_at: e.delivered_at, payload: e.payload,
         }, null, 1)) + "</pre></td></tr>";
       }
+      if (flagging) out += flagFormHtml(stream.flag);
       return out;
     }).join("");
     body.classList.remove("none");
@@ -458,12 +650,28 @@
 
     body.querySelectorAll("tr.ev").forEach((tr) => {
       tr.addEventListener("click", (ev) => {
-        if (ev.target.classList.contains("tracebtn")) return;
+        if (ev.target.closest("button")) return; // trace / flag have their own handlers
         const i = Number(tr.dataset.i);
         stream.open.has(i) ? stream.open.delete(i) : stream.open.add(i);
         renderStream();
       });
     });
+    body.querySelectorAll("button[data-flag]").forEach((btn) => {
+      btn.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        const i = Number(btn.dataset.flag);
+        // toggle: a second click on the same open (unsubmitted) form closes it
+        if (stream.flag && stream.flag.i === i && !stream.flag.result) stream.flag = null;
+        else openFlag(i);
+        renderStream();
+      });
+    });
+    const fsubmit = document.getElementById("flag-submit");
+    if (fsubmit) fsubmit.addEventListener("click", submitFlag);
+    const fcancel = document.getElementById("flag-cancel");
+    if (fcancel) fcancel.addEventListener("click", () => { stream.flag = null; renderStream(); });
+    const fdone = document.getElementById("flag-done");
+    if (fdone) fdone.addEventListener("click", () => { stream.flag = null; renderStream(); });
     body.querySelectorAll(".tracebtn").forEach((btn) => {
       btn.addEventListener("click", async () => {
         try {

@@ -16,6 +16,7 @@ Outputs:
                                     load the shared app, which reads the
                                     policy slug from its own URL.
 """
+import functools
 import hashlib
 import json
 import pathlib
@@ -25,6 +26,7 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 CONTROLS = ROOT / "controls.json"
 DASH = ROOT / "compliance" / "dashboard"
+POLICIES = ROOT / "compliance" / "policies"
 
 TITLES = {
     "audit": "Audit",
@@ -99,6 +101,78 @@ def title_for(slug: str, policy_title: str | None) -> str:
     return slug.replace("-", " ").title()
 
 
+# Feature: the dashboard renders the policy in place (its General Policy
+# Statement + who owns it), instead of bouncing the reader to GitHub. The
+# authoritative text is the policy markdown, so we lift it straight from
+# compliance/policies/<slug>/<slug>.md — never a second copy that could drift.
+_FRONT_KEYS = ("title", "owner", "version", "effective", "next_review")
+
+
+def _frontmatter(text: str) -> dict[str, str]:
+    """Parse the leading frontmatter block. Two shapes exist in the corpus: a
+    ```yaml fenced block (most files) and a bare `---` block (charitable-
+    donation-accounts). Handle both; we only need a handful of scalar keys."""
+    lines = text.splitlines()
+    i = 0
+    while i < len(lines) and not lines[i].strip():
+        i += 1
+    if i >= len(lines):
+        return {}
+    opener = lines[i].strip()
+    if opener in ("```yaml", "```yml"):
+        close, i = "```", i + 1
+    elif opener == "---":
+        close, i = "---", i + 1
+    else:
+        return {}
+    out: dict[str, str] = {}
+    while i < len(lines) and lines[i].strip() != close:
+        m = re.match(r"([a-z_]+):\s*(.*)$", lines[i])
+        if m and m.group(1) in _FRONT_KEYS and m.group(2).strip():
+            out[m.group(1)] = m.group(2).strip()
+        i += 1
+    return out
+
+
+def _general_statement(text: str) -> str:
+    """The prose under `## General Policy Statement`, up to the next h2 or the
+    `---` rule that closes the section. Returned as raw markdown; the dashboard
+    renders it."""
+    lines = text.splitlines()
+    body: list[str] = []
+    capturing = False
+    for ln in lines:
+        if re.match(r"^##\s+General Policy Statement", ln):
+            capturing = True
+            continue
+        if capturing:
+            if re.match(r"^##\s", ln) or re.match(r"^---\s*$", ln):
+                break
+            body.append(ln)
+    return "\n".join(body).strip()
+
+
+@functools.cache
+def policy_source(slug: str) -> dict:
+    """Owner/version/dates + the General Policy Statement for one policy, from
+    its markdown. Synthetic policies (money-movement-gate) and aggregates with
+    no single source doc (shared-controls) simply have none — the dashboard
+    falls back gracefully."""
+    md = POLICIES / slug / f"{slug}.md"
+    if not md.exists():
+        return {}
+    text = md.read_text()
+    fm = _frontmatter(text)
+    out: dict[str, str] = {}
+    for k in ("owner", "version", "effective", "next_review"):
+        if fm.get(k):
+            out[k] = fm[k]
+    stmt = _general_statement(text)
+    if stmt:
+        out["statement"] = stmt
+    return out
+
+
 # The six gate controls are the RUNTIME layer — born in the banking core
 # before the catalogue existed, enforced on every money movement, and the
 # bulk of live evidence. They get their own page rather than being invisible.
@@ -154,6 +228,7 @@ def build_manifest() -> dict:
         p = policies.setdefault(slug, {
             "slug": slug,
             "title": title_for(slug, c.get("policy_title")),
+            **policy_source(slug),
             "controls": [],
         })
         # the monitoring spec: what the heartbeat watches for this control —
@@ -179,6 +254,12 @@ def build_manifest() -> dict:
             "uid": c["uid"],
             "title": c["title"],
             "doc": REPO_BLOB + c["source_file"] + "#" + c["anchor"],
+            # the control's own words, lifted from controls.json (itself
+            # extracted from the policy markdown) so the dashboard can explain
+            # WHY a control exists and HOW the system honours it, in place —
+            # no round-trip to GitHub to read the policy.
+            "why": c.get("why_text") or "",
+            "system_behavior": c.get("system_behavior") or "",
             "citations": [
                 {"text": r["text"], "url": r.get("url")}
                 for r in c.get("regulatory_citations", [])

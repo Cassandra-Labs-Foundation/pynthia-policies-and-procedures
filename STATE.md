@@ -8,12 +8,12 @@
 
 | | |
 |---|---|
-| endpoints | 371 |
+| endpoints | 372 |
 | routed operations (`routes.gen.ts`) | 334 |
 | registered event codes | 1473 |
 | canonical event types (`x-event-types`) | 118 |
 | UI-surface paths (proxy allowlist) | 14 |
-| operations with stub response contracts | 346 |
+| operations with stub response contracts | 347 |
 
 ## Core
 
@@ -45,6 +45,6 @@
 
 | | |
 |---|---|
-| targets | 769 (589 ready) |
-| by kind | 371 contract, 333 control, 41 property, 24 state-machine |
-| non-control (drill does not cover) | 436 |
+| targets | 770 (590 ready) |
+| by kind | 372 contract, 333 control, 41 property, 24 state-machine |
+| non-control (drill does not cover) | 437 |

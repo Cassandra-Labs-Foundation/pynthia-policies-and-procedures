@@ -1,10 +1,10 @@
 {
   "meta": {
     "generator": "verifier/generator/enumerate.py",
-    "total": 769,
+    "total": 770,
     "inputs": {
       "core_api_resources": 67,
-      "endpoints": 371,
+      "endpoints": 372,
       "controls": 333,
       "properties": 41,
       "floor_controls": 7
@@ -2201,6 +2201,22 @@
         "method": "POST",
         "path": "/complaints/{id}/response",
         "operation": "post_complaint_response"
+      }
+    },
+    {
+      "target_id": "contract:POST:/compliance/dashboard/flag",
+      "kind": "contract",
+      "pillars": [
+        "functional",
+        "security"
+      ],
+      "tier": "light_api",
+      "status": "ready",
+      "source": "core-api.yaml endpoints POST /compliance/dashboard/flag",
+      "payload": {
+        "method": "POST",
+        "path": "/compliance/dashboard/flag",
+        "operation": "post_dashboard_flag"
       }
     },
     {
